@@ -15,14 +15,14 @@ Quad::Quad(Renderer& renderer)
 }
 
 Quad::~Quad() {
-	m_vertexBuffer->Release();
-	m_indexBuffer->Release();
-	m_texture->Release();
-	m_vertexShader->Release();
-	m_pixelShader->Release();
-	m_inputLayout->Release();
-    m_depthState->Release();
-	m_blendState->Release();
+	if(m_vertexBuffer != nullptr)m_vertexBuffer->Release();
+	if (m_indexBuffer != nullptr)m_indexBuffer->Release();
+	if (m_texture != nullptr)m_texture->Release();
+	if (m_vertexShader != nullptr)m_vertexShader->Release();
+	if (m_pixelShader != nullptr)m_pixelShader->Release();
+	if (m_inputLayout != nullptr)m_inputLayout->Release();
+	if (m_depthState != nullptr)m_depthState->Release();
+	if (m_blendState != nullptr)m_blendState->Release();
 }
 
 void Quad::draw(Renderer& renderer)
@@ -101,7 +101,7 @@ void Quad::createMesh(Renderer& renderer)
 	}
 
 	// Texture
-	auto tfFlag = DirectX::CreateWICTextureFromFile(device, L"assets\\goat.jpg", &m_texture, &m_shaderResourceView);
+	auto tfFlag = DirectX::CreateWICTextureFromFile(device, L"assets\\goat2.jpg", &m_texture, &m_shaderResourceView);
 
 	if (FAILED(tfFlag)) {
 		ErrorLogger::log("Failed to initalize texture from file.");
