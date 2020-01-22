@@ -1,6 +1,0 @@
-﻿  Quad.cpp
-  Renderer.cpp
-C:\Users\BTH\source\repos\fruithunter\directx-helloworld3\Renderer.cpp(22,84): warning C4244: 'argument': conversion from 'UINT' to 'FLOAT', possible loss of data
-C:\Users\BTH\source\repos\fruithunter\directx-helloworld3\Renderer.cpp(22,60): warning C4244: 'argument': conversion from 'UINT' to 'FLOAT', possible loss of data
-  Generating Code...
-  directx-helloworld3.vcxproj -> C:\Users\BTH\Source\Repos\fruithunter\Debug\directx-hello3.exe
