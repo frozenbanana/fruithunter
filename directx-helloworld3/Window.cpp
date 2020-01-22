@@ -1,9 +1,7 @@
 #include "Window.hpp"
 
-
 LRESULT CALLBACK WinProc(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
-	if (msg == WM_DESTROY ||
-		msg == WM_CLOSE) {
+	if (msg == WM_DESTROY || msg == WM_CLOSE) {
 		PostQuitMessage(0);
 		return 0;
 	}
@@ -22,11 +20,7 @@ Window::Window(int width, int height) {
 
 	// Create the window
 	m_handle = CreateWindow(L"DX11Tutorial", L"C++11 and DX11 Tutorial",
-		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE,
-		100, 100, width, height,
-		nullptr, nullptr, nullptr, nullptr);
+		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE, 100, 100, width, height, nullptr, nullptr, nullptr, nullptr);
 }
 
-HWND Window::getHandle() {
-	return m_handle;
-}
+HWND Window::getHandle() { return m_handle; }

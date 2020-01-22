@@ -1,13 +1,11 @@
-#include <Windows.h>
-#include "Window.hpp"
-#include "Renderer.hpp"
-#include "Quad.hpp"
 #include "ErrorLogger.hpp"
+#include "Quad.hpp"
+#include "Renderer.hpp"
+#include "Window.hpp"
+#include <Windows.h>
 
-int CALLBACK WinMain(_In_ HINSTANCE appInstance,
-	_In_opt_ HINSTANCE preInstance, 
-	_In_ LPSTR cmdLine, 
-	_In_ int cmdCount) {
+int CALLBACK WinMain(
+	_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine, _In_ int cmdCount) {
 
 	// Needed to be able to load textures and possibly other things.
 	auto ciFlag = CoInitialize(NULL);
@@ -36,6 +34,6 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance,
 			renderer.endFrame();
 		}
 	}
-	
+
 	return 0;
 }

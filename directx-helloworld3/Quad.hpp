@@ -7,12 +7,12 @@
 
 using namespace std;
 
-class Quad
-{
+class Quad {
 public:
 	Quad(Renderer& renderer);
 	~Quad();
 	void draw(Renderer& renderer);
+
 private:
 	void createMesh(Renderer& renderer);
 	void createShaders(Renderer& renderer);
@@ -29,4 +29,3 @@ private:
 	ID3D11DepthStencilState* m_depthState = nullptr;
 	ID3D11BlendState* m_blendState = nullptr;
 };
-
