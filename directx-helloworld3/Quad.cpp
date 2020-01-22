@@ -1,8 +1,10 @@
 #include "Quad.hpp"
+#include "ErrorLogger.hpp"
 
 struct Vertex{
 	float x, y;
 	float r, g, b;
+	float u, v;
 };
 
 Quad::Quad(Renderer& renderer)
@@ -14,6 +16,8 @@ Quad::Quad(Renderer& renderer)
 
 Quad::~Quad() {
 	m_vertexBuffer->Release();
+	m_indexBuffer->Release();
+	m_texture->Release();
 	m_vertexShader->Release();
 	m_pixelShader->Release();
 	m_inputLayout->Release();
@@ -24,6 +28,8 @@ Quad::~Quad() {
 void Quad::draw(Renderer& renderer)
 {
 	auto deviceContext = renderer.getDeviceContext();
+	//auto shaderResourceView = renderer.getShaderResourceView();
+	auto samplerState = renderer.getSamplerState();
 
 	// Set render states
 	deviceContext->RSSetState(m_rasterizerState);
@@ -35,28 +41,33 @@ void Quad::draw(Renderer& renderer)
 	deviceContext->VSSetShader(m_vertexShader, nullptr, 0);
 	deviceContext->PSSetShader(m_pixelShader, nullptr, 0);
 
+	// Set Sampler for texturing
+	deviceContext->PSSetSamplers(0, 1, &samplerState);
+	deviceContext->PSSetShaderResources(0, 1, &m_shaderResourceView);
+
 	// Bind our vertex buffer
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 	deviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
 
+	// Bind our index buffer
+	deviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
 	// Draw
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	deviceContext->Draw(6, 0);
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	deviceContext->DrawIndexed(6, 0, 0);
 }
 
 void Quad::createMesh(Renderer& renderer)
 {
-	// TODO: Make index-based rendering
+	auto device = renderer.getDevice();
+
+	// Vertices
 	Vertex vertices[] = {
-		// Triangle 1
-		{ -1,  -1,  1, 1, 1 },
-		{  1.,  -1,  0, 1, 1 },
-		{  1.,   1,  1, 1, 0 },
-		// Triangle 2
-		{  -1,  -1,  0.5, .2, 1 },
-		{  1,  1,  0, 1, .3 },
-		{  -1,  1,  0.2, .2, 0.4 },
+		{ -1,  -1,   1, 1, 1,     0, 0 },
+		{  1.,  -1,  0, 1, 1,    1, 0 },
+		{  1.,   1,  1, 1, 0,    1, 1 },
+		{  -1,  1,   1, 1,0,      0, 1, },
 	};
 
 	// Create our vertex buffer
@@ -64,7 +75,38 @@ void Quad::createMesh(Renderer& renderer)
 	D3D11_SUBRESOURCE_DATA vertexData = { 0 };
 	vertexData.pSysMem = vertices;
 
-	renderer.getDevice()->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer);
+	auto vbFlag = device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer);
+	
+	if (FAILED(vbFlag)) {
+		ErrorLogger::log("Failed to initalize vertex buffer.");
+		return;
+	}
+
+	// Indices 
+	DWORD indices[] = {
+	  0,1,2,
+	  0,3,2
+	};
+
+	// Create our index buffer
+	auto indexBufferDesc = CD3D11_BUFFER_DESC(sizeof(indices), D3D11_BIND_INDEX_BUFFER);
+	D3D11_SUBRESOURCE_DATA indexData = { 0 };
+	indexData.pSysMem = indices;
+
+	auto ibFlag = device->CreateBuffer(&indexBufferDesc, &indexData, &m_indexBuffer);	
+
+	if (FAILED(ibFlag)) {
+		ErrorLogger::log("Failed to initalize vertex buffer.");
+		return;
+	}
+
+	// Texture
+	auto tfFlag = DirectX::CreateWICTextureFromFile(device, L"assets\\goat.jpg", &m_texture, &m_shaderResourceView);
+
+	if (FAILED(tfFlag)) {
+		ErrorLogger::log("Failed to initalize texture from file.");
+		return;
+	}
 
 }
 
@@ -84,10 +126,16 @@ void Quad::createShaders(Renderer& renderer)
 	// Create inut layouts
 	D3D11_INPUT_ELEMENT_DESC layout[] = {
 		{"POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA},
-		{"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA}
+		{"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA},
+		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA},
 	};
 
-	device->CreateInputLayout(layout, 2, vsData.data(), vsData.size(), &m_inputLayout);
+	auto ilFlag = device->CreateInputLayout(layout, 3, vsData.data(), vsData.size(), &m_inputLayout);
+
+	if (FAILED(ilFlag)) {
+		ErrorLogger::log("Failed to initalize input layout.");
+		return;
+	}
 }
 
 void Quad::createRenderStates(Renderer& renderer) {
