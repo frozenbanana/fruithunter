@@ -7,11 +7,11 @@ Renderer::Renderer(Window& window) {
 }
 
 Renderer::~Renderer() {
-	m_swapChain->Release();
-	m_device->Release();
-	m_deviceContext->Release();
-	m_samplerState->Release();
-	m_renderTargetView->Release();
+	if (m_swapChain != nullptr) m_swapChain->Release();
+	if (m_device != nullptr) m_device->Release();
+	if (m_deviceContext != nullptr) m_deviceContext->Release();
+	if (m_samplerState != nullptr) m_samplerState->Release();
+	if (m_renderTargetView != nullptr) m_renderTargetView->Release();
 }
 
 void Renderer::beginFrame() {
@@ -88,5 +88,5 @@ void Renderer::createRenderTarget()
 	if (rtFlag) { ErrorLogger::log(bFlag, "Failed to get create render target view."); return; };
 
 	backBuffer->GetDesc(&m_backBufferDesc);
-	backBuffer->Release();
+	if(backBuffer != nullptr)backBuffer->Release();
 }

@@ -101,7 +101,7 @@ void Quad::createMesh(Renderer& renderer)
 	}
 
 	// Texture
-	auto tfFlag = DirectX::CreateWICTextureFromFile(device, L"assets\\goat2.jpg", &m_texture, &m_shaderResourceView);
+	auto tfFlag = DirectX::CreateWICTextureFromFile(device, L"assets\\goat.jpg", &m_texture, &m_shaderResourceView);
 
 	if (FAILED(tfFlag)) {
 		ErrorLogger::log("Failed to initalize texture from file.");
