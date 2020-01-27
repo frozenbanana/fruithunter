@@ -13,7 +13,7 @@ void Renderer::beginFrame() {
 	m_deviceContext.Get()->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), nullptr);
 
 	// Set viewport
-	auto viewport = CD3D11_VIEWPORT(0.f, 0.f, m_backBufferDesc.Width, m_backBufferDesc.Height);
+	auto viewport = CD3D11_VIEWPORT(0.f, 0.f, (float)m_backBufferDesc.Width, (float)m_backBufferDesc.Height);
 	m_deviceContext->RSSetViewports(1, &viewport);
 
 	float clearColor[] = { 0.25f, .5f, 1, 1 };
@@ -40,8 +40,9 @@ void Renderer::createDevice(Window& window) {
 	swapChainDesc.Windowed = true;
 
 	// Create the swap chain, device and device context
-	auto swpFlag = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, nullptr, 0,
-		D3D11_SDK_VERSION, &swapChainDesc, &m_swapChain, &m_device, nullptr, &m_deviceContext);
+	HRESULT swpFlag = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, nullptr, 0,
+		D3D11_SDK_VERSION, &swapChainDesc, m_swapChain.GetAddressOf(), m_device.GetAddressOf(), nullptr,
+		m_deviceContext.GetAddressOf());
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
@@ -59,7 +60,7 @@ void Renderer::createDevice(Window& window) {
 	}
 
 	// Sampler
-	auto ssFlag = m_device->CreateSamplerState(&samplerDesc, &m_samplerState);
+	HRESULT ssFlag = m_device->CreateSamplerState(&samplerDesc, m_samplerState.GetAddressOf());
 
 	if (FAILED(ssFlag)) {
 		ErrorLogger::log(ssFlag, "Failed to initalize sampler state.");
@@ -69,13 +70,13 @@ void Renderer::createDevice(Window& window) {
 
 void Renderer::createRenderTarget() {
 	ID3D11Texture2D* backBuffer = nullptr;
-	auto bFlag = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
+	HRESULT bFlag = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
 	if (bFlag) {
 		ErrorLogger::log(bFlag, "Failed to get back buffer.");
 		return;
 	};
 
-	auto rtFlag = m_device->CreateRenderTargetView(backBuffer, nullptr, &m_renderTargetView);
+	HRESULT rtFlag = m_device->CreateRenderTargetView(backBuffer, nullptr, m_renderTargetView.GetAddressOf());
 	if (rtFlag) {
 		ErrorLogger::log(bFlag, "Failed to get create render target view.");
 		return;

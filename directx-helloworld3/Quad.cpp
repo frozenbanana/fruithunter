@@ -67,7 +67,7 @@ void Quad::createMesh(Renderer& renderer) {
 	D3D11_SUBRESOURCE_DATA vertexData = { 0 };
 	vertexData.pSysMem = vertices;
 
-	auto vbFlag = device->CreateBuffer(&vertexBufferDesc, &vertexData, m_vertexBuffer.GetAddressOf());
+	HRESULT vbFlag = device->CreateBuffer(&vertexBufferDesc, &vertexData, m_vertexBuffer.GetAddressOf());
 
 	if (FAILED(vbFlag)) {
 		ErrorLogger::log("Failed to initalize vertex buffer.");
@@ -82,7 +82,7 @@ void Quad::createMesh(Renderer& renderer) {
 	D3D11_SUBRESOURCE_DATA indexData = { 0 };
 	indexData.pSysMem = indices;
 
-	auto ibFlag = device->CreateBuffer(&indexBufferDesc, &indexData, m_indexBuffer.GetAddressOf());
+	HRESULT ibFlag = device->CreateBuffer(&indexBufferDesc, &indexData, m_indexBuffer.GetAddressOf());
 
 	if (FAILED(ibFlag)) {
 		ErrorLogger::log("Failed to initalize vertex buffer.");
@@ -90,7 +90,7 @@ void Quad::createMesh(Renderer& renderer) {
 	}
 
 	// Texture
-	auto tfFlag = DirectX::CreateWICTextureFromFile(
+	HRESULT tfFlag = DirectX::CreateWICTextureFromFile(
 		device, L"assets\\goat.jpg", m_texture.GetAddressOf(), m_shaderResourceView.GetAddressOf());
 
 	if (FAILED(tfFlag)) {
@@ -118,7 +118,7 @@ void Quad::createShaders(Renderer& renderer) {
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA },
 	};
 
-	auto ilFlag = device->CreateInputLayout(layout, 3, vsData.data(), vsData.size(), m_inputLayout.GetAddressOf());
+	HRESULT ilFlag = device->CreateInputLayout(layout, 3, vsData.data(), vsData.size(), m_inputLayout.GetAddressOf());
 
 	if (FAILED(ilFlag)) {
 		ErrorLogger::log("Failed to initalize input layout.");
