@@ -6,29 +6,18 @@ Renderer::Renderer(Window& window) {
 	createRenderTarget();
 }
 
-Renderer::~Renderer() {
-	if (m_swapChain != nullptr)
-		m_swapChain->Release();
-	if (m_device != nullptr)
-		m_device->Release();
-	if (m_deviceContext != nullptr)
-		m_deviceContext->Release();
-	if (m_samplerState != nullptr)
-		m_samplerState->Release();
-	if (m_renderTargetView != nullptr)
-		m_renderTargetView->Release();
-}
+Renderer::~Renderer() {}
 
 void Renderer::beginFrame() {
 	// Bind rendertarget
-	m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, nullptr);
+	m_deviceContext.Get()->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), nullptr);
 
 	// Set viewport
 	auto viewport = CD3D11_VIEWPORT(0.f, 0.f, m_backBufferDesc.Width, m_backBufferDesc.Height);
 	m_deviceContext->RSSetViewports(1, &viewport);
 
 	float clearColor[] = { 0.25f, .5f, 1, 1 };
-	m_deviceContext->ClearRenderTargetView(m_renderTargetView, clearColor);
+	m_deviceContext->ClearRenderTargetView(m_renderTargetView.Get(), clearColor);
 }
 
 void Renderer::endFrame() {
@@ -36,9 +25,9 @@ void Renderer::endFrame() {
 	m_swapChain->Present(1, 0);
 }
 
-ID3D11Device* Renderer::getDevice() { return m_device; }
-ID3D11DeviceContext* Renderer::getDeviceContext() { return m_deviceContext; }
-ID3D11SamplerState* Renderer::getSamplerState() { return m_samplerState; };
+ID3D11Device* Renderer::getDevice() { return m_device.Get(); }
+ID3D11DeviceContext* Renderer::getDeviceContext() { return m_deviceContext.Get(); }
+ID3D11SamplerState* Renderer::getSamplerState() { return m_samplerState.Get(); };
 
 void Renderer::createDevice(Window& window) {
 	// Define our swap chain
