@@ -71,13 +71,13 @@ void Renderer::createDevice(Window& window) {
 void Renderer::createRenderTarget() {
 	ID3D11Texture2D* backBuffer = nullptr;
 	HRESULT bFlag = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
-	if (bFlag) {
+	if (FAILED(bFlag)) {
 		ErrorLogger::log(bFlag, "Failed to get back buffer.");
 		return;
 	};
 
 	HRESULT rtFlag = m_device->CreateRenderTargetView(backBuffer, nullptr, m_renderTargetView.GetAddressOf());
-	if (rtFlag) {
+	if (FAILED(rtFlag)) {
 		ErrorLogger::log(bFlag, "Failed to get create render target view.");
 		return;
 	};
