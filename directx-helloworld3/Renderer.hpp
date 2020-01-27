@@ -10,8 +10,8 @@ public:
 	~Renderer();
 	void beginFrame();
 	void endFrame();
-	ID3D11Device* getDevice();
-	ID3D11DeviceContext* getDeviceContext();
+	static ID3D11Device* getDevice();
+	static ID3D11DeviceContext* getDeviceContext();
 	ID3D11SamplerState* getSamplerState();
 
 private:
@@ -19,9 +19,9 @@ private:
 	void createRenderTarget();
 
 	// Device stuff
-	Microsoft::WRL::ComPtr<IDXGISwapChain> m_swapChain;
-	Microsoft::WRL::ComPtr<ID3D11Device> m_device;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;
+	static Microsoft::WRL::ComPtr<IDXGISwapChain> m_swapChain;
+	static Microsoft::WRL::ComPtr<ID3D11Device> m_device;
+	static Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;
 
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerState;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
