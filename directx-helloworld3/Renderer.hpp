@@ -2,6 +2,7 @@
 
 #include "Window.hpp"
 #include <d3d11.h>
+#include <WRL/client.h>
 
 class Renderer {
 public:
@@ -18,11 +19,11 @@ private:
 	void createRenderTarget();
 
 	// Device stuff
-	IDXGISwapChain* m_swapChain = nullptr;
-	ID3D11Device* m_device = nullptr;
-	ID3D11DeviceContext* m_deviceContext = nullptr;
+	Microsoft::WRL::ComPtr<IDXGISwapChain> m_swapChain;
+	Microsoft::WRL::ComPtr<ID3D11Device> m_device;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;
 
-	ID3D11SamplerState* m_samplerState = nullptr;
-	ID3D11RenderTargetView* m_renderTargetView = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerState;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
 	D3D11_TEXTURE2D_DESC m_backBufferDesc;
 };
