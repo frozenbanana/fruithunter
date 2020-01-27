@@ -8,7 +8,7 @@ int CALLBACK WinMain(
 	_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine, _In_ int cmdCount) {
 
 	// Needed to be able to load textures and possibly other things.
-	auto ciFlag = CoInitialize(NULL);
+	HRESULT ciFlag = CoInitialize(NULL);
 	if (FAILED(ciFlag)) {
 		ErrorLogger::log("Failed to run CoInitalize(NULL).");
 		return -1;
