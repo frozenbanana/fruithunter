@@ -70,7 +70,7 @@ void Quad::createMesh(Renderer& renderer) {
 	HRESULT vbFlag = device->CreateBuffer(&vertexBufferDesc, &vertexData, m_vertexBuffer.GetAddressOf());
 
 	if (FAILED(vbFlag)) {
-		ErrorLogger::log("Failed to initalize vertex buffer.");
+		ErrorLogger::messageBox("Failed to initalize vertex buffer.");
 		return;
 	}
 
@@ -85,7 +85,7 @@ void Quad::createMesh(Renderer& renderer) {
 	HRESULT ibFlag = device->CreateBuffer(&indexBufferDesc, &indexData, m_indexBuffer.GetAddressOf());
 
 	if (FAILED(ibFlag)) {
-		ErrorLogger::log("Failed to initalize vertex buffer.");
+		ErrorLogger::messageBox("Failed to initalize vertex buffer.");
 		return;
 	}
 
@@ -94,7 +94,7 @@ void Quad::createMesh(Renderer& renderer) {
 		device, L"assets\\goat.jpg", m_texture.GetAddressOf(), m_shaderResourceView.GetAddressOf());
 
 	if (FAILED(tfFlag)) {
-		ErrorLogger::log("Failed to initalize texture from file.");
+		ErrorLogger::messageBox("Failed to initalize texture from file.");
 		return;
 	}
 }
@@ -121,7 +121,7 @@ void Quad::createShaders(Renderer& renderer) {
 	HRESULT ilFlag = device->CreateInputLayout(layout, 3, vsData.data(), vsData.size(), m_inputLayout.GetAddressOf());
 
 	if (FAILED(ilFlag)) {
-		ErrorLogger::log("Failed to initalize input layout.");
+		ErrorLogger::messageBox("Failed to initalize input layout.");
 		return;
 	}
 }

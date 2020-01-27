@@ -10,7 +10,7 @@ int CALLBACK WinMain(
 	// Needed to be able to load textures and possibly other things.
 	HRESULT ciFlag = CoInitialize(NULL);
 	if (FAILED(ciFlag)) {
-		ErrorLogger::log("Failed to run CoInitalize(NULL).");
+		ErrorLogger::messageBox("Failed to run CoInitalize(NULL).");
 		return -1;
 	}
 

@@ -4,12 +4,12 @@
 
 class ErrorLogger {
 public:
-	static void log(std::string message);
-	static void log(HRESULT res, std::wstring message);
-	static void log(HRESULT res, std::string message);
+	static void messageBox(std::string message);
+	static void messageBox(HRESULT res, std::wstring message);
+	static void messageBox(HRESULT res, std::string message);
 	/*
-	static void log_warning(HRESULT res, std::string message);
-	static void log_error(HRESULT res, std::string message);
+	static void logWarning(HRESULT res, std::string message);
+	static void logError(HRESULT res, std::string message);
 	static void log(HRESULT res, std::string message);
 	static void popUp(HRESULT res, std::string)
 	*/
