@@ -115,7 +115,7 @@ void Quad::createMesh() {
 	}
 }
 
-void Quad::createShaders(Renderer& renderer) {
+void Quad::createShaders() {
 	// Create input layouts
 	
 	D3D11_INPUT_ELEMENT_DESC layout[] = {
