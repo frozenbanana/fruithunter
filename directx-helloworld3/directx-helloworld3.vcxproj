@@ -157,6 +157,7 @@
   <ItemGroup>
     <ClCompile Include="ErrorLogger.cpp" />
     <ClCompile Include="IntroState.cpp" />
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="Quad.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="ErrorLogger.hpp" />
     <ClInclude Include="IntroState.hpp" />
     <ClInclude Include="PlayState.hpp" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="Quad.hpp" />
     <ClInclude Include="Renderer.hpp" />
     <ClInclude Include="State.hpp" />
