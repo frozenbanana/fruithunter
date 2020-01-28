@@ -4,6 +4,8 @@
 #include <Mouse.h>
 #include <memory>
 #include "Window.hpp"
+#include "ErrorLogger.hpp"
+
 class Input {
 private:
 	std::unique_ptr<DirectX::Keyboard> m_keyboard;
@@ -16,18 +18,24 @@ private:
 	DirectX::Mouse::ButtonStateTracker m_mouseTracker;
 
 public:
+	enum MouseButton { LEFT, MIDDLE, RIGHT };
+
 	Input(HWND window);
 	~Input();
 	void update();
-	// void processMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-	// Input for keyboard
-	bool isPressed(DirectX::Keyboard::Keys key);
-	bool isReleased(DirectX::Keyboard::Keys key);
-	bool isDown(DirectX::Keyboard::Keys key);
-	bool isUp(DirectX::Keyboard::Keys key);
 
-	// bool isPressed(DirectX::Keyboard::Keys key);
-	// bool isReleased(DirectX::Keyboard::Keys key);
-	// bool isDown(DirectX::Keyboard::Keys key);
-	// bool isUp(DirectX::Keyboard::Keys key);
+	// Input for keyboard
+	bool keyPressed(DirectX::Keyboard::Keys key);
+	bool keyReleased(DirectX::Keyboard::Keys key);
+	bool keyDown(DirectX::Keyboard::Keys key);
+	bool keyUp(DirectX::Keyboard::Keys key);
+
+	// Input for mouse
+	bool mousePressed(MouseButton button);
+	bool mouseReleased(MouseButton button);
+	bool mouseDown(MouseButton button);
+	bool mouseUp(MouseButton button);
+	int mouseX();
+	int mouseY();
+	int scrollWheelValue();
 };
