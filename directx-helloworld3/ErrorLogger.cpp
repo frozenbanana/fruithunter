@@ -1,20 +1,62 @@
 #include "ErrorLogger.hpp"
 #include <comdef.h>
+#include <codecvt>
 
-void ErrorLogger::log(std::string message) {
-	std::string error_message = "Error: " + message;
-	MessageBoxA(NULL, error_message.c_str(), "Error", MB_ICONERROR);
+std::string ws2s(const std::wstring& wstr) {
+	using convert_typeX = std::codecvt_utf8<wchar_t>;
+	std::wstring_convert<convert_typeX, wchar_t> converterX;
+
+	return converterX.to_bytes(wstr);
 }
 
-void ErrorLogger::log(HRESULT hr, std::string message) {
-	_com_error error(hr);
+ErrorLogger::ErrorLogger() {
+	AllocConsole();
+	freopen_s(&m_filePtr, "CONOUT$", "w", stdout);
+}
+
+ErrorLogger::~ErrorLogger() { closeConsole(); }
+
+
+void ErrorLogger::closeConsole() { fclose(m_filePtr); }
+
+void ErrorLogger::messageBox(std::string message) {
+	std::string errorMessage = "Error: " + message;
+	MessageBoxA(NULL, errorMessage.c_str(), "Error", MB_ICONERROR);
+}
+
+void ErrorLogger::messageBox(HRESULT res, std::string message) {
+	_com_error error(res);
 	std::wstring convertedMessage = std::wstring(message.begin(), message.end());
-	std::wstring error_message = L"Error: " + convertedMessage + L"\n" + error.ErrorMessage();
-	MessageBoxW(NULL, error_message.c_str(), L"Error", MB_ICONERROR);
+	std::wstring errorMessage = L"Error: " + convertedMessage + L"\n" + error.ErrorMessage();
+	MessageBoxW(NULL, errorMessage.c_str(), L"Error", MB_ICONERROR);
 }
 
-void ErrorLogger::log(HRESULT hr, std::wstring message) {
-	_com_error error(hr);
-	std::wstring error_message = L"Error: " + message + L"\n" + error.ErrorMessage();
-	MessageBoxW(NULL, error_message.c_str(), L"Error", MB_ICONERROR);
+void ErrorLogger::messageBox(HRESULT res, std::wstring message) {
+	_com_error error(res);
+	std::wstring errorMessage = L"Error: " + message + L"\n" + error.ErrorMessage();
+	MessageBoxW(NULL, errorMessage.c_str(), L"Error", MB_ICONERROR);
 }
+
+void ErrorLogger::logWarning(HRESULT res, std::string message) {
+	_com_error error(res);
+	std::wstring resMessage = error.ErrorMessage();
+	std::string output = message + " | " + ws2s(resMessage.c_str()) + "\n";
+
+	HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(console, 6); // 6 = Yellow
+	std::cout << output;
+	SetConsoleTextAttribute(console, 15); // 15 = White
+}
+
+void ErrorLogger::logError(HRESULT res, std::string message) {
+	_com_error error(res);
+	std::wstring resMessage = error.ErrorMessage();
+	std::string output = message + " | " + ws2s(resMessage.c_str()) + "\n";
+
+	HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(console, 4); // 4 = Red
+	std::cout << output;
+	SetConsoleTextAttribute(console, 15); // 15 = White
+}
+
+void ErrorLogger::log(std::string message) { std::cout << message + "\n"; }

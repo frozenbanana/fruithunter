@@ -1,8 +1,12 @@
 #include "Renderer.hpp"
 #include "ErrorLogger.hpp"
 
+Microsoft::WRL::ComPtr<IDXGISwapChain> Renderer::m_swapChain;
+Microsoft::WRL::ComPtr<ID3D11Device> Renderer::m_device;
+Microsoft::WRL::ComPtr<ID3D11DeviceContext> Renderer::m_deviceContext;
+
 Renderer::Renderer(Window& window) {
-	createDevice(window);
+	if(m_device.Get() == nullptr && m_deviceContext.Get() == nullptr && m_swapChain.Get() == nullptr)createDevice(window);
 	createRenderTarget();
 }
 
@@ -55,7 +59,7 @@ void Renderer::createDevice(Window& window) {
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
 	if (FAILED(swpFlag)) {
-		ErrorLogger::log(swpFlag, L"Error creating DX11.");
+		ErrorLogger::messageBox(swpFlag, L"Error creating DX11.");
 		return;
 	}
 
@@ -63,7 +67,7 @@ void Renderer::createDevice(Window& window) {
 	HRESULT ssFlag = m_device->CreateSamplerState(&samplerDesc, m_samplerState.GetAddressOf());
 
 	if (FAILED(ssFlag)) {
-		ErrorLogger::log(ssFlag, "Failed to initalize sampler state.");
+		ErrorLogger::messageBox(ssFlag, "Failed to initalize sampler state.");
 		return;
 	}
 }
@@ -72,13 +76,13 @@ void Renderer::createRenderTarget() {
 	ID3D11Texture2D* backBuffer = nullptr;
 	HRESULT bFlag = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
 	if (FAILED(bFlag)) {
-		ErrorLogger::log(bFlag, "Failed to get back buffer.");
+		ErrorLogger::messageBox(bFlag, "Failed to get back buffer.");
 		return;
 	};
 
 	HRESULT rtFlag = m_device->CreateRenderTargetView(backBuffer, nullptr, m_renderTargetView.GetAddressOf());
 	if (FAILED(rtFlag)) {
-		ErrorLogger::log(bFlag, "Failed to get create render target view.");
+		ErrorLogger::messageBox(bFlag, "Failed to get create render target view.");
 		return;
 	};
 

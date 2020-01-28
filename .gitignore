@@ -1,6 +1,8 @@
 Debug/
+Release/
 x64/
 .vs/
 directx-helloworld3/Debug/
+directx-helloworld3/Release/
 directx-helloworld3/x64/
 directx-helloworld3/*.cso
