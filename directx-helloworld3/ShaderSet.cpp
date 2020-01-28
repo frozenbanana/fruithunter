@@ -158,7 +158,7 @@ bool ShaderSet::createShaders(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR 
 			inputDesc, inputDescCount, pVS->GetBufferPointer(), pVS->GetBufferSize(), &m_vertexLayout);
 		if (FAILED(res)) {
 			ErrorLogger::messageBox(res, 
-				"Failed creating InputLayout\n" + 
+				"Failed creating InputLayout\n" +
 				convertLPCWSTR(vertexName) + "\n" +
 				convertLPCWSTR(geometryName) + "\n" + 
 				convertLPCWSTR(fragmentName));
@@ -199,6 +199,8 @@ void ShaderSet::release() {
 }
 
 std::string ShaderSet::convertLPCWSTR(LPCWSTR LPCWstring) { 
+	if (LPCWstring == nullptr)
+		return "";
 	std::wstring wstr(LPCWstring);
 	return std::string(wstr.begin(), wstr.end());
 }
