@@ -37,12 +37,12 @@ int CALLBACK WinMain(
 	while (stateHandler.isRunning()) {
 		input.update();
 		if (input.keyPressed(DirectX::Keyboard::D1)) {
-			ErrorLogger::log("A was pressed!");
+			ErrorLogger::log("Number 1 was pressed!");
 			stateHandler.changeState(IntroState::getInstance());
 		}
 
 		if (input.keyPressed(DirectX::Keyboard::D2)) {
-			ErrorLogger::log("Space was pressed!");
+			ErrorLogger::log("Number 2 was pressed!");
 			stateHandler.changeState(PlayState::getInstance());
 		}
 
