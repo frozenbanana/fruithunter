@@ -7,17 +7,8 @@
 #include "ErrorLogger.hpp"
 
 class Input {
-private:
-	std::unique_ptr<DirectX::Keyboard> m_keyboard;
-	std::unique_ptr<DirectX::Mouse> m_mouse;
-
-	DirectX::Keyboard::State m_keyboardState;
-	DirectX::Mouse::State m_mouseState;
-
-	DirectX::Keyboard::KeyboardStateTracker m_kbTracker;
-	DirectX::Mouse::ButtonStateTracker m_mouseTracker;
-
 public:
+	enum ScrollTracking { DOWN, STILL, UP };
 	enum MouseButton { LEFT, MIDDLE, RIGHT };
 
 	Input(HWND window);
@@ -38,4 +29,20 @@ public:
 	int mouseX();
 	int mouseY();
 	int scrollWheelValue();
+	bool scrolledUp();
+	bool scrolledDown();
+
+private:
+	std::unique_ptr<DirectX::Keyboard> m_keyboard;
+	std::unique_ptr<DirectX::Mouse> m_mouse;
+
+	DirectX::Keyboard::State m_keyboardState;
+	DirectX::Mouse::State m_mouseState;
+
+	DirectX::Keyboard::KeyboardStateTracker m_kbTracker;
+	DirectX::Mouse::ButtonStateTracker m_mouseTracker;
+
+	// Scroll wheel tracker
+	int m_scrollWheelTracker;
+	ScrollTracking m_scrollDirection;
 };

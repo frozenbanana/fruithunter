@@ -41,6 +41,7 @@ int CALLBACK WinMain(
 
 		input.update();
 
+
 		// Main loop
 		renderer.beginFrame();
 		quad.draw(renderer);
