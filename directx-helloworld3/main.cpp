@@ -22,10 +22,9 @@ int CALLBACK WinMain(
 	ErrorLogger errorlogger;
 	Window window(800, 600);
 	Renderer renderer(window);
-	//	Quad quad(renderer);
 	Input input(window.getHandle());
 
-
+	// Example of how to do logging
 	ErrorLogger::log("First");
 	ErrorLogger::logWarning(ciFlag, "Second!");
 	ErrorLogger::logError(ciFlag, "Third!");
@@ -37,17 +36,19 @@ int CALLBACK WinMain(
 	MSG msg = { 0 };
 	while (stateHandler.isRunning()) {
 		input.update();
-		if (input.keyPressed(DirectX::Keyboard::Space)) {
-			ErrorLogger::log("Space was pressed!");
-			stateHandler.changeState(PlayState::getInstance());
-		}
-		if (input.keyPressed(DirectX::Keyboard::A)) {
+		if (input.keyPressed(DirectX::Keyboard::D1)) {
 			ErrorLogger::log("A was pressed!");
 			stateHandler.changeState(IntroState::getInstance());
 		}
+
+		if (input.keyPressed(DirectX::Keyboard::D2)) {
+			ErrorLogger::log("Space was pressed!");
+			stateHandler.changeState(PlayState::getInstance());
+		}
+
 		// Main loop
 		renderer.beginFrame();
-		stateHandler.draw();
+		stateHandler.draw(); // calls current states draw()
 		renderer.endFrame();
 
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
