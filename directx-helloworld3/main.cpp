@@ -21,8 +21,7 @@ int CALLBACK WinMain(
 	Window window(800, 600);
 	Renderer renderer(window);
 	Quad quad(renderer);
-	Input input(window.getHandle());
-
+	Input::initilize(window.getHandle());
 
 	ErrorLogger::log("First");
 	ErrorLogger::logWarning(ciFlag, "Second!");
@@ -39,7 +38,7 @@ int CALLBACK WinMain(
 			}
 		}
 
-		input.update();
+		Input::getInstance()->update();
 
 
 		// Main loop

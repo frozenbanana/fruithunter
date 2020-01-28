@@ -11,8 +11,9 @@ public:
 	enum ScrollTracking { DOWN, STILL, UP };
 	enum MouseButton { LEFT, MIDDLE, RIGHT };
 
-	Input(HWND window);
+
 	~Input();
+	static void initilize(HWND window);
 	void update();
 
 	// Input for keyboard
@@ -32,7 +33,12 @@ public:
 	bool scrolledUp();
 	bool scrolledDown();
 
+	static Input* getInstance();
+
 private:
+	Input() = 0;
+	static Input m_this;
+
 	std::unique_ptr<DirectX::Keyboard> m_keyboard;
 	std::unique_ptr<DirectX::Mouse> m_mouse;
 
