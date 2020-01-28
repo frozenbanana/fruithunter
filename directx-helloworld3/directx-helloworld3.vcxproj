@@ -156,17 +156,23 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ErrorLogger.cpp" />
+    <ClCompile Include="IntroState.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="Quad.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="State.cpp" />
+    <ClCompile Include="StateHandler.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ErrorLogger.hpp" />
+    <ClInclude Include="IntroState.hpp" />
+    <ClInclude Include="PlayState.hpp" />
     <ClInclude Include="Quad.hpp" />
     <ClInclude Include="Renderer.hpp" />
     <ClInclude Include="State.hpp" />
+    <ClInclude Include="StateHandler.hpp" />
     <ClInclude Include="Window.hpp" />
   </ItemGroup>
   <ItemGroup>
