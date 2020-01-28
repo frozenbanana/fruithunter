@@ -12,7 +12,7 @@ ID3DBlob* ShaderSet::createVertexShader(LPCWSTR filename) {
 	HRESULT result = D3DCompileFromFile(filename, // filename
 		nullptr,								  // optional macros
 		nullptr,								  // optional include files
-		"VS_main",								  // entry point
+		"main",								  // entry point
 		"vs_5_0",								  // shader model (target)
 		D3DCOMPILE_DEBUG,						  // shader compile options (DEBUGGING)
 		0,										  // IGNORE...DEPRECATED.
@@ -21,7 +21,8 @@ ID3DBlob* ShaderSet::createVertexShader(LPCWSTR filename) {
 	);
 	if (FAILED(result)) {
 		//compilation failed
-		ErrorLogger::messageBox(result, "Failed compiling vertex shader with name: " + convertLPCWSTR(filename));
+		ErrorLogger::messageBox(result, "Failed compiling vertex shader with name: " + convertLPCWSTR(filename) +
+											"\nPotential solution is to set shader function name to 'main'");
 		if (errorBlob) {
 			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 			// release "reference" to errorBlob interface object
@@ -50,7 +51,8 @@ HRESULT ShaderSet::createGeometryShader(LPCWSTR filename) {
 
 	if (FAILED(result)) {
 		// compilation failed
-		ErrorLogger::messageBox(result, "Failed compiling geometry shader with name: " + convertLPCWSTR(filename));
+		ErrorLogger::messageBox(result, "Failed compiling geometry shader with name: " + convertLPCWSTR(filename) +
+											"\nPotential solution is to set shader function name to 'main'");
 		if (errorBlob) {
 			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 			// release "reference" to errorBlob interface object
@@ -77,7 +79,7 @@ HRESULT ShaderSet::createFragmentShader(LPCWSTR filename) {
 	HRESULT result = D3DCompileFromFile(filename, // filename
 		nullptr,								  // optional macros
 		nullptr,								  // optional include files
-		"PS_main",								  // entry point
+		"main",								  // entry point
 		"ps_5_0",								  // shader model (target)
 		D3DCOMPILE_DEBUG,						  // shader compile options
 		0,										  // effect compile options
@@ -87,7 +89,8 @@ HRESULT ShaderSet::createFragmentShader(LPCWSTR filename) {
 
 	if (FAILED(result)) {
 		// compilation failed
-		ErrorLogger::messageBox(result, "Failed compiling fragment shader with name: " + convertLPCWSTR(filename));
+		ErrorLogger::messageBox(result, "Failed compiling fragment shader with name: " + convertLPCWSTR(filename) +
+											"\nPotential solution is to set shader function name to 'main'");
 		if (errorBlob) {
 			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 			// release "reference" to errorBlob interface object
@@ -140,7 +143,12 @@ bool ShaderSet::createShaders(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR 
 		res = device->CreateInputLayout(standardInputDesc, ARRAYSIZE(standardInputDesc), pVS->GetBufferPointer(),
 			pVS->GetBufferSize(), &m_vertexLayout);
 		if (FAILED(res)) {
-			ErrorLogger::messageBox(res, "Failed creating InputLayout\n");
+			ErrorLogger::messageBox(res, 
+				"Failed creating InputLayout\n" + 
+				convertLPCWSTR(vertexName) + "\n" +
+				convertLPCWSTR(geometryName) + "\n" + 
+				convertLPCWSTR(fragmentName)
+			);
 			check = false;
 		}
 	}
@@ -149,7 +157,11 @@ bool ShaderSet::createShaders(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR 
 		res = device->CreateInputLayout(
 			inputDesc, inputDescCount, pVS->GetBufferPointer(), pVS->GetBufferSize(), &m_vertexLayout);
 		if (FAILED(res)) {
-			ErrorLogger::messageBox(res,"Failed creating InputLayout\n");
+			ErrorLogger::messageBox(res, 
+				"Failed creating InputLayout\n" + 
+				convertLPCWSTR(vertexName) + "\n" +
+				convertLPCWSTR(geometryName) + "\n" + 
+				convertLPCWSTR(fragmentName));
 			check = false;
 		}
 	}
@@ -189,7 +201,6 @@ void ShaderSet::release() {
 std::string ShaderSet::convertLPCWSTR(LPCWSTR LPCWstring) { 
 	std::wstring wstr(LPCWstring);
 	return std::string(wstr.begin(), wstr.end());
-	return "";
 }
 
 ShaderSet::ShaderSet(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR fragmentName, D3D11_INPUT_ELEMENT_DESC* inputDesc, int inputDescCount) {
