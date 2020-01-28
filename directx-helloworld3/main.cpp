@@ -22,7 +22,7 @@ int CALLBACK WinMain(
 	ErrorLogger errorlogger;
 	Window window(800, 600);
 	Renderer renderer(window);
-	Input input(window.getHandle());
+	Input::initilize(window.getHandle());
 
 	// Example of how to do logging
 	ErrorLogger::log("First");
@@ -35,7 +35,7 @@ int CALLBACK WinMain(
 
 	MSG msg = { 0 };
 	while (stateHandler.isRunning()) {
-		input.update();
+		Input::getInstance()->update();
 		if (input.keyPressed(DirectX::Keyboard::D1)) {
 			ErrorLogger::log("Number 1 was pressed!");
 			stateHandler.changeState(IntroState::getInstance());
