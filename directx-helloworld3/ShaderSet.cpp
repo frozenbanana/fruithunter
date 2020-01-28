@@ -30,7 +30,7 @@ ID3DBlob* ShaderSet::createVertexShader(LPCWSTR filename) {
 		// return result;
 	}
 
-	result = device->CreateVertexShader(pVS->GetBufferPointer(), pVS->GetBufferSize(), nullptr, &mVertexShader);
+	result = device->CreateVertexShader(pVS->GetBufferPointer(), pVS->GetBufferSize(), nullptr, &m_vertexShader);
 	return pVS;
 }
 
@@ -55,7 +55,7 @@ HRESULT ShaderSet::createGeometryShader(LPCWSTR filename) {
 		return result;
 	}
 
-	device->CreateGeometryShader(pGS->GetBufferPointer(), pGS->GetBufferSize(), nullptr, &mGeometryShader);
+	device->CreateGeometryShader(pGS->GetBufferPointer(), pGS->GetBufferSize(), nullptr, &m_geometryShader);
 
 	pGS->Release();
 }
@@ -89,16 +89,21 @@ HRESULT ShaderSet::createFragmentShader(LPCWSTR filename) {
 		return result;
 	}
 
-	device->CreatePixelShader(pPS->GetBufferPointer(), pPS->GetBufferSize(), nullptr, &mPixelShader);
+	device->CreatePixelShader(pPS->GetBufferPointer(), pPS->GetBufferSize(), nullptr, &m_pixelShader);
 	// we do not need anymore this COM object, so we release it.
 	pPS->Release();
 }
 
-bool ShaderSet::createShaders(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR fragmentName, D3D11_INPUT_ELEMENT_DESC* inputDesc, int inputDescCount) {
+bool ShaderSet::isLoaded() const { 
+	return m_loaded; 
+}
+
+bool ShaderSet::createShaders(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR fragmentName,
+	D3D11_INPUT_ELEMENT_DESC* inputDesc, int inputDescCount) {
 	
 	ID3D11Device* device = Renderer::getDevice();
 
-	loaded = true;
+	m_loaded = true;
 	bool check = true;
 	ID3DBlob* pVS = createVertexShader(vertexName);
 	HRESULT res;
@@ -117,13 +122,13 @@ bool ShaderSet::createShaders(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR 
 			{ "Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 		};
 		res = device->CreateInputLayout(standardInputDesc, ARRAYSIZE(standardInputDesc), pVS->GetBufferPointer(),
-			pVS->GetBufferSize(), &mVertexLayout);
+			pVS->GetBufferSize(), &m_vertexLayout);
 		if (FAILED(res))
 			check = false;
 	}
 	else {
 		res = device->CreateInputLayout(
-			inputDesc, inputDescCount, pVS->GetBufferPointer(), pVS->GetBufferSize(), &mVertexLayout);
+			inputDesc, inputDescCount, pVS->GetBufferPointer(), pVS->GetBufferSize(), &m_vertexLayout);
 		if (FAILED(res))
 			check = false;
 	}
@@ -138,24 +143,24 @@ bool ShaderSet::createShaders(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR 
 void ShaderSet::bindShadersAndLayout() {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
-	deviceContext->VSSetShader(mVertexShader, nullptr, 0);
+	deviceContext->VSSetShader(m_vertexShader, nullptr, 0);
 	deviceContext->HSSetShader(nullptr, nullptr, 0);
 	deviceContext->DSSetShader(nullptr, nullptr, 0);
-	deviceContext->GSSetShader(mGeometryShader, nullptr, 0);
-	deviceContext->PSSetShader(mPixelShader, nullptr, 0);
+	deviceContext->GSSetShader(m_geometryShader, nullptr, 0);
+	deviceContext->PSSetShader(m_pixelShader, nullptr, 0);
 
-	deviceContext->IASetInputLayout(mVertexLayout);
+	deviceContext->IASetInputLayout(m_vertexLayout);
 }
 
 void ShaderSet::release() {
-	if (mVertexShader != nullptr)
-		mVertexShader->Release();
-	if (mGeometryShader != nullptr)
-		mGeometryShader->Release();
-	if (mPixelShader != nullptr)
-		mPixelShader->Release();
-	if (mVertexLayout != nullptr)
-		mVertexLayout->Release();
+	if (m_vertexShader != nullptr)
+		m_vertexShader->Release();
+	if (m_geometryShader != nullptr)
+		m_geometryShader->Release();
+	if (m_pixelShader != nullptr)
+		m_pixelShader->Release();
+	if (m_vertexLayout != nullptr)
+		m_vertexLayout->Release();
 }
 
 ShaderSet::ShaderSet(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR fragmentName, D3D11_INPUT_ELEMENT_DESC* inputDesc, int inputDescCount) {
