@@ -157,10 +157,10 @@
   <ItemGroup>
     <ClCompile Include="ErrorLogger.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshHandler.cpp" />
     <ClCompile Include="Model.cpp" />
-    <ClCompile Include="OBJLoader.cpp" />
     <ClCompile Include="Quad.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ShaderSet.cpp" />
@@ -168,10 +168,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ErrorLogger.hpp" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshHandler.h" />
     <ClInclude Include="Model.h" />
-    <ClInclude Include="OBJLoader.h" />
     <ClInclude Include="Quad.hpp" />
     <ClInclude Include="Renderer.hpp" />
     <ClInclude Include="ShaderSet.h" />
