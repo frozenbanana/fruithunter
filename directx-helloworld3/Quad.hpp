@@ -10,15 +10,17 @@ using namespace std;
 
 class Quad {
 public:
-	Quad(Renderer& renderer);
+	Quad();
 	~Quad();
-	void draw(Renderer& renderer);
+	void init();
+	void draw();
 
 private:
-	void createMesh(Renderer& renderer);
-	void createShaders(Renderer& renderer);
-	void createRenderStates(Renderer& renderer);
+	void createMesh();
+	void createShaders();
+	void createRenderStates();
 
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerState;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_indexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Resource> m_texture;

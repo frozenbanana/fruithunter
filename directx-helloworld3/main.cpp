@@ -2,9 +2,12 @@
 #include "Quad.hpp"
 #include "Renderer.hpp"
 #include "Window.hpp"
+#include "Input.h"
 #include <Windows.h>
 #include <stdio.h>
-
+#include "StateHandler.hpp"
+#include "PlayState.hpp"
+#include "IntroState.hpp"
 
 int CALLBACK WinMain(
 	_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine, _In_ int cmdCount) {
@@ -19,27 +22,41 @@ int CALLBACK WinMain(
 	ErrorLogger errorlogger;
 	Window window(800, 600);
 	Renderer renderer(window);
-	Quad quad(renderer);
+	Input::initilize(window.getHandle());
 
-
+	// Example of how to do logging
 	ErrorLogger::log("First");
 	ErrorLogger::logWarning(ciFlag, "Second!");
 	ErrorLogger::logError(ciFlag, "Third!");
 
+	StateHandler stateHandler;
+	stateHandler.pushState(PlayState::getInstance());
+	stateHandler.pushState(IntroState::getInstance());
+
 	MSG msg = { 0 };
-	while (true) {
+	while (stateHandler.isRunning()) {
+		Input::getInstance()->update();
+		if (Input::getInstance()->keyPressed(DirectX::Keyboard::D1)) {
+			ErrorLogger::log("Number 1 was pressed!");
+			stateHandler.changeState(IntroState::getInstance());
+		}
+
+		if (Input::getInstance()->keyPressed(DirectX::Keyboard::D2)) {
+			ErrorLogger::log("Number 2 was pressed!");
+			stateHandler.changeState(PlayState::getInstance());
+		}
+
+		// Main loop
+		renderer.beginFrame();
+		stateHandler.draw(); // calls current states draw()
+		renderer.endFrame();
+
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-
 			if (msg.message == WM_QUIT) {
-				break;
+				stateHandler.quit();
 			}
-
-			// Main loop
-			renderer.beginFrame();
-			quad.draw(renderer);
-			renderer.endFrame();
 		}
 	}
 

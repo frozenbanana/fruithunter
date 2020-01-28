@@ -156,21 +156,31 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ErrorLogger.cpp" />
+    <ClCompile Include="IntroState.cpp" />
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="Quad.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ShaderSet.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="State.cpp" />
+    <ClCompile Include="StateHandler.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ErrorLogger.hpp" />
+    <ClInclude Include="IntroState.hpp" />
+    <ClInclude Include="PlayState.hpp" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="Quad.hpp" />
     <ClInclude Include="Renderer.hpp" />
     <ClInclude Include="ShaderSet.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="State.hpp" />
+    <ClInclude Include="StateHandler.hpp" />
     <ClInclude Include="Window.hpp" />
   </ItemGroup>
   <ItemGroup>
