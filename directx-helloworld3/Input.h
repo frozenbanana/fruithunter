@@ -36,7 +36,7 @@ public:
 	static Input* getInstance();
 
 private:
-	Input() = 0;
+	Input();
 	static Input m_this;
 
 	std::unique_ptr<DirectX::Keyboard> m_keyboard;
