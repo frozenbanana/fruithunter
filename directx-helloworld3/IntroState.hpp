@@ -13,7 +13,7 @@ public:
 	static IntroState* getInstance() { return &m_introState; }
 
 protected:
-	IntroState() {}
+	IntroState() { init(); }
 
 private:
 	static IntroState m_introState;

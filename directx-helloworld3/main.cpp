@@ -22,7 +22,7 @@ int CALLBACK WinMain(
 	ErrorLogger errorlogger;
 	Window window(800, 600);
 	Renderer renderer(window);
-	Quad quad(renderer);
+	//	Quad quad(renderer);
 	Input input(window.getHandle());
 
 
@@ -31,52 +31,32 @@ int CALLBACK WinMain(
 	ErrorLogger::logError(ciFlag, "Third!");
 
 	StateHandler stateHandler;
-	stateHandler.pushState(IntroState::getInstance());
 	stateHandler.pushState(PlayState::getInstance());
-
+	stateHandler.pushState(IntroState::getInstance());
 
 	MSG msg = { 0 };
 	while (stateHandler.isRunning()) {
-		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-
-			if (msg.message == WM_QUIT) {
-				stateHandler.quit();
-			}
-
-			if (msg.message == WM_) {
-				stateHandler.quit();
-			}
-
-			// Main loop
-			stateHandler.update();
-			stateHandler.draw();
-
-			renderer.beginFrame();
-			quad.draw(renderer);
-			renderer.endFrame();
-		}
-	}
-
-
-	MSG msg = { 0 };
-	while (true) {
-		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-
-			if (msg.message == WM_QUIT) {
-				break;
-			}
-		}
-
 		input.update();
-
+		if (input.keyPressed(DirectX::Keyboard::Space)) {
+			ErrorLogger::log("Space was pressed!");
+			stateHandler.changeState(PlayState::getInstance());
+		}
+		if (input.keyPressed(DirectX::Keyboard::A)) {
+			ErrorLogger::log("A was pressed!");
+			stateHandler.changeState(IntroState::getInstance());
+		}
 		// Main loop
 		renderer.beginFrame();
-		quad.draw(renderer);
+		stateHandler.draw();
 		renderer.endFrame();
+
+		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+			if (msg.message == WM_QUIT) {
+				stateHandler.quit();
+			}
+		}
 	}
 
 	return 0;

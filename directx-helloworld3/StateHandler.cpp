@@ -16,10 +16,12 @@ void StateHandler::changeState(State* state) {
 }
 
 void StateHandler::pushState(State* state) {
+	// Pause current state
 	if (!m_states.empty()) {
 		getCurrent()->pause();
 	}
 
+	state->init();
 	m_states.push_back(state);
 	getCurrent()->play();
 }

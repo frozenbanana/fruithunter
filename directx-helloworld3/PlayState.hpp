@@ -1,5 +1,6 @@
 #pragma once
 #include "State.hpp"
+#include "Quad.hpp"
 
 class PlayState : public State {
 public:
@@ -17,4 +18,5 @@ protected:
 
 private:
 	static PlayState m_playState;
+	Quad m_quad;
 };

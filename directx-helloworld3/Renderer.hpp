@@ -23,7 +23,7 @@ private:
 	static Microsoft::WRL::ComPtr<ID3D11Device> m_device;
 	static Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;
 
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerState;
+	// Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerState;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
 	D3D11_TEXTURE2D_DESC m_backBufferDesc;
 };

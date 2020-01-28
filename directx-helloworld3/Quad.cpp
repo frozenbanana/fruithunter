@@ -7,18 +7,18 @@ struct Vertex {
 	float u, v;
 };
 
-Quad::Quad(Renderer& renderer) {
-	createMesh(renderer);
-	createShaders(renderer);
-	createRenderStates(renderer);
+Quad::Quad() {}
+
+void Quad::init() {
+	createMesh();
+	createShaders();
+	createRenderStates();
 }
 
 Quad::~Quad() {}
 
-void Quad::draw(Renderer& renderer) {
-	auto deviceContext = renderer.getDeviceContext();
-	// auto shaderResourceView = renderer.getShaderResourceView();
-	auto samplerState = renderer.getSamplerState();
+void Quad::draw() {
+	auto deviceContext = Renderer::getDeviceContext();
 
 	// Set render states
 	deviceContext->RSSetState(m_rasterizerState.Get());
@@ -31,7 +31,7 @@ void Quad::draw(Renderer& renderer) {
 	deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 
 	// Set Sampler for texturing
-	deviceContext->PSSetSamplers(0, 1, &samplerState);
+	deviceContext->PSSetSamplers(0, 1, &m_samplerState);
 	deviceContext->PSSetShaderResources(0, 1, m_shaderResourceView.GetAddressOf());
 
 	// Bind our vertex buffer
@@ -47,8 +47,8 @@ void Quad::draw(Renderer& renderer) {
 	deviceContext->DrawIndexed(6, 0, 0);
 }
 
-void Quad::createMesh(Renderer& renderer) {
-	auto device = renderer.getDevice();
+void Quad::createMesh() {
+	auto device = Renderer::getDevice();
 
 	// Vertices
 	Vertex vertices[] = { { -1, -1, 1, 1, 1, 1, 1 }, { 1., -1, 0, 1, 1, 0, 1 }, { 1., 1, 1, 1, 0, 0, 0 },
@@ -97,10 +97,28 @@ void Quad::createMesh(Renderer& renderer) {
 		ErrorLogger::messageBox("Failed to initalize texture from file.");
 		return;
 	}
+
+	// Sampler
+	D3D11_SAMPLER_DESC samplerDesc;
+	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	HRESULT ssFlag = device->CreateSamplerState(&samplerDesc, m_samplerState.GetAddressOf());
+
+	if (FAILED(ssFlag)) {
+		ErrorLogger::messageBox(ssFlag, "Failed to initalize sampler state.");
+		return;
+	}
 }
 
-void Quad::createShaders(Renderer& renderer) {
-	auto device = renderer.getDevice();
+void Quad::createShaders() {
+	auto device = Renderer::getDevice();
 	ifstream vsFile("VertexShader.cso", ios::binary);
 	ifstream psFile("PixelShader.cso", ios::binary);
 
@@ -126,20 +144,21 @@ void Quad::createShaders(Renderer& renderer) {
 	}
 }
 
-void Quad::createRenderStates(Renderer& renderer) {
+void Quad::createRenderStates() {
+	auto device = Renderer::getDevice();
 	// Rasterizer state
 	auto rasterizerDesc =
 		CD3D11_RASTERIZER_DESC(D3D11_FILL_SOLID, D3D11_CULL_NONE, false, 0, 0, 0, 0, false, false, false);
-	renderer.getDevice()->CreateRasterizerState(&rasterizerDesc, m_rasterizerState.GetAddressOf());
+	device->CreateRasterizerState(&rasterizerDesc, m_rasterizerState.GetAddressOf());
 
 	// Blend state
 	auto blendDesc = CD3D11_BLEND_DESC(CD3D11_DEFAULT());
-	renderer.getDevice()->CreateBlendState(&blendDesc, m_blendState.GetAddressOf());
+	device->CreateBlendState(&blendDesc, m_blendState.GetAddressOf());
 
 	// Depth state
 	auto depthDesc = CD3D11_DEPTH_STENCIL_DESC(FALSE, D3D11_DEPTH_WRITE_MASK_ZERO, D3D11_COMPARISON_LESS, FALSE,
 		D3D11_DEFAULT_STENCIL_READ_MASK, D3D11_DEFAULT_STENCIL_WRITE_MASK, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP,
 		D3D11_STENCIL_OP_KEEP, D3D11_COMPARISON_ALWAYS, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP,
 		D3D11_STENCIL_OP_KEEP, D3D11_COMPARISON_ALWAYS);
-	renderer.getDevice()->CreateDepthStencilState(&depthDesc, m_depthState.GetAddressOf());
+	device->CreateDepthStencilState(&depthDesc, m_depthState.GetAddressOf());
 }

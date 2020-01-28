@@ -18,7 +18,7 @@ public:
 	void quit();
 
 private:
-	bool m_running = false;
+	bool m_running = true;
 	State* getCurrent();
 	std::vector<State*> m_states;
 };
