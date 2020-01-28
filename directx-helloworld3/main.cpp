@@ -2,6 +2,7 @@
 #include "Quad.hpp"
 #include "Renderer.hpp"
 #include "Window.hpp"
+#include "Input.h"
 #include <Windows.h>
 
 int CALLBACK WinMain(
@@ -17,6 +18,7 @@ int CALLBACK WinMain(
 	Window window(800, 600);
 	Renderer renderer(window);
 	Quad quad(renderer);
+	Input input(window.getHandle());
 
 	MSG msg = { 0 };
 	while (true) {
@@ -27,12 +29,14 @@ int CALLBACK WinMain(
 			if (msg.message == WM_QUIT) {
 				break;
 			}
-
-			// Main loop
-			renderer.beginFrame();
-			quad.draw(renderer);
-			renderer.endFrame();
 		}
+
+		input.update();
+
+		// Main loop
+		renderer.beginFrame();
+		quad.draw(renderer);
+		renderer.endFrame();
 	}
 
 	return 0;

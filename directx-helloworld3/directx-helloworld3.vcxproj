@@ -156,6 +156,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ErrorLogger.cpp" />
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Quad.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -163,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ErrorLogger.hpp" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="Quad.hpp" />
     <ClInclude Include="Renderer.hpp" />
     <ClInclude Include="Window.hpp" />
