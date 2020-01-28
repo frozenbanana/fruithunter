@@ -45,6 +45,9 @@
     <ClCompile Include="Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.hpp">
@@ -74,10 +77,15 @@
     <ClInclude Include="Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl" />
     <FxCompile Include="PixelShader.hlsl" />
+    <FxCompile Include="VertexShader_model_onlyMesh.hlsl" />
+    <FxCompile Include="PixelShader_model_onlyMesh.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />

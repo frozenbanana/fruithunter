@@ -122,7 +122,7 @@ bool MeshHandler::loadOBJ(std::string fileName, std::vector<Part>& parts) {
 }
 
 bool MeshHandler::load(std::string filename, std::vector<Vertex>& mesh, std::vector<Part>& parts,
-	std::vector<MaterialPart>& materials, bool excludeParts) {
+	std::vector<Material>& materials, bool excludeParts) {
 	if (filename != "") {
 		reset();
 		if (loadRaw(filename, mesh) && loadRawDesc(filename, parts)) {
@@ -139,26 +139,31 @@ bool MeshHandler::load(std::string filename, std::vector<Vertex>& mesh, std::vec
 				saveRawDesc(parts);
 				if (excludeParts)
 					combineParts(mesh, parts);
-				return loadMTL(materialFileName, materials);
+				if (loadMTL(materialFileName, materials)) {
+					connectPartsToMaterialsInCorrectOrder(parts, materials);
+					return true;
+				} else
+					return false;//failed loading material
 			}
 			else
-				return false;
+				return false;//failed loading .obj file
 		}
 	}
-	return false;
+	return false;//filename empty!
 }
 
-bool MeshHandler::load(std::string filename, std::vector<Vertex>& mesh, std::vector<Part>& parts,
-	std::vector<Vertex_Material>& materials, bool excludeParts) {
+bool MeshHandler::load(string filename, std::vector<Vertex>& mesh, std::vector<Part>& parts,
+	std::vector<VertexMaterialBuffer>& vertex_materials, bool excludeParts) {
+
 	if (filename != "") {
 		reset();
 		if (loadRaw(filename, mesh) && loadRawDesc(filename, parts)) {
 			// success
 			if (excludeParts)
 				combineParts(mesh, parts);
-			std::vector<MaterialPart> mats;
+			std::vector<Material> mats;
 			if (loadMTL(materialFileName, mats)) {
-				materials = createMaterialBufferData(parts, mats);
+				vertex_materials = createMaterialBufferData(parts, mats);
 				return true;
 			}
 			else
@@ -172,19 +177,19 @@ bool MeshHandler::load(std::string filename, std::vector<Vertex>& mesh, std::vec
 				saveRawDesc(parts);
 				if (excludeParts)
 					combineParts(mesh, parts);
-				std::vector<MaterialPart> mats;
+				std::vector<Material> mats;
 				if (loadMTL(materialFileName, mats)) {
-					materials = createMaterialBufferData(parts, mats);
+					vertex_materials = createMaterialBufferData(parts, mats);
 					return true;
 				}
 				else
-					return false;
+					return false;//failed loading materials
 			}
 			else
-				return false; // didnt load materials
+				return false; // failed loading mesh
 		}
 	}
-	return false; // incorrect filename
+	return false; //empty filename
 }
 
 bool MeshHandler::load(std::string filename, std::vector<Vertex>& mesh) {
@@ -275,7 +280,7 @@ bool MeshHandler::preCheckOBJ(std::string filename, int& positions, int& uvs, in
 	return false;
 }
 
-bool MeshHandler::loadMTL(std::string filename, std::vector<MaterialPart>& materials) {
+bool MeshHandler::loadMTL(std::string filename, std::vector<Material>& materials) {
 	std::fstream mtlFile;
 	mtlFile.open(mtlPath + filename);
 	if (mtlFile.is_open()) {
@@ -290,7 +295,7 @@ bool MeshHandler::loadMTL(std::string filename, std::vector<MaterialPart>& mater
 
 			if (startWord == "newmtl") { // create new material
 				mtlFile >> text;
-				materials.push_back(MaterialPart(text));
+				materials.push_back(Material(text));
 			}
 			else if (startWord == "Ka") { // ambient
 				mtlFile >> x >> y >> z;
@@ -315,7 +320,8 @@ bool MeshHandler::loadMTL(std::string filename, std::vector<MaterialPart>& mater
 			}
 			else if (startWord == "G") { // emit glow
 				mtlFile >> floatValue;
-				materials.back().material.mapUsages.w = 1;
+				//do nothing
+				//materials.back().set.mapUsages.w = 1;
 			}
 			else if (startWord == "map_Ka") {
 				mtlFile >> text;
@@ -394,7 +400,7 @@ void MeshHandler::saveToRaw(std::vector<Vertex>& mesh) const {
 		if (file.is_open()) {
 			// write mesh data
 			int length = mesh.size();
-			file.write((char*)&length, sizeof(int));							// write vertex count
+			file.write((char*)&length, sizeof(int));				 // write vertex count
 			file.write((char*)mesh.data(), sizeof(Vertex) * length); // write vertex data
 			file.close();
 		}
@@ -453,7 +459,7 @@ void MeshHandler::combineParts(std::vector<Vertex>& mesh, std::vector<Part>& par
 	for (int p = 0; p < parts.size(); p++) {
 		for (int m = 0; m < parts[p].materialUsage.size(); m++) {
 			std::string name = parts[p].materialUsage[m].name;
-			//find name
+			// find name
 			bool found = false;
 			for (int i = 0; i < materials.size(); i++) {
 				if (materials[i] == name) {
@@ -461,7 +467,8 @@ void MeshHandler::combineParts(std::vector<Vertex>& mesh, std::vector<Part>& par
 					break;
 				}
 			}
-			if (!found) materials.push_back(name);
+			if (!found)
+				materials.push_back(name);
 		}
 	}
 
@@ -489,29 +496,43 @@ void MeshHandler::combineParts(std::vector<Vertex>& mesh, std::vector<Part>& par
 	parts = newParts;
 }
 
-std::vector<Vertex_Material> MeshHandler::createMaterialBufferData(
-	const std::vector<Part>& parts, const std::vector<MaterialPart>& materials) {
+void MeshHandler::connectPartsToMaterialsInCorrectOrder(
+	std::vector<Part>& parts, const std::vector<Material>& materials) {
+
+	for (int i = 0; i < parts.size(); i++) {
+		for (int m = 0; m < parts[i].materialUsage.size(); m++) {
+			Part::MaterialUsage* mat = &parts[i].materialUsage[m];
+			//find material index
+			for (int j = 0; j < materials.size(); j++) {
+				if (mat->name == materials[j].getMaterialName()) {
+					mat->materialIndex = j;
+					break;
+				}
+			}
+		}
+	}
+}
+
+std::vector<VertexMaterialBuffer> MeshHandler::createMaterialBufferData(
+	const std::vector<Part>& parts, const std::vector<Material>& materials) {
+	
 	int total = 0;
 	for (int i = 0; i < parts.size(); i++)
 		total += parts[i].count;
-	std::vector<Vertex_Material> ret(total);
+	std::vector<VertexMaterialBuffer> ret(total);
 	int index = 0;
 	for (int i = 0; i < parts.size(); i++) {
 		for (int j = 0; j < parts[i].materialUsage.size(); j++) {
 			// find material
 			int matInd = -1;
 			for (int u = 0; u < materials.size(); u++)
-				if (materials[u].materialName == parts[i].materialUsage[j].name)
+				if (materials[u].getMaterialName() == parts[i].materialUsage[j].name)
 					matInd = u;
 			if (matInd != -1) {
-				Material m = materials[matInd].material;
-				// apply material
+				// apply material for all vertices
+				Material m = materials[matInd];
 				for (int k = 0; k < parts[i].materialUsage[j].count; k++) {
-					float3 amb = float3(m.ambient3.x, m.ambient3.y, m.ambient3.z);
-					float3 diff = float3(m.diffuse3_strength.x, m.diffuse3_strength.y, m.diffuse3_strength.z);
-					float3 spec = float3(m.specular3_shininess.x, m.specular3_shininess.y, m.specular3_shininess.z);
-					UINT16 pow = m.specular3_shininess.w;
-					ret[index++] = Vertex_Material(amb, diff, spec, pow);
+					ret[index++] = m.convertToVertexBuffer();
 				}
 			}
 		}
