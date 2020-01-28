@@ -159,12 +159,14 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Quad.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="ShaderSet.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ErrorLogger.hpp" />
     <ClInclude Include="Quad.hpp" />
     <ClInclude Include="Renderer.hpp" />
+    <ClInclude Include="ShaderSet.h" />
     <ClInclude Include="Window.hpp" />
   </ItemGroup>
   <ItemGroup>
