@@ -4,7 +4,8 @@ bool Material::createBuffers() {
 	ID3D11Device* device = Renderer::getDevice();
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
-	HRESULT state;
+	bool state = true;
+	//material buffer
 	if (m_materialBuffer == nullptr) {
 		D3D11_BUFFER_DESC desc;
 		memset(&desc, 0, sizeof(desc));
@@ -12,14 +13,62 @@ bool Material::createBuffers() {
 		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.ByteWidth = sizeof(MaterialBuffer);
 
-		if (FAILED(device->CreateBuffer(&desc, nullptr, &m_materialBuffer))) {
-
-			return false;
+		HRESULT state = device->CreateBuffer(&desc, nullptr, &m_materialBuffer);
+		if (FAILED(state)) {
+			ErrorLogger::messageBox(state,"Failed creating material buffer\n");
+			state = false;
+		}
+	} 
+	// textureBuffer
+	m_maps = new ID3D11ShaderResourceView*[3];
+	if (m_ambientMap != "") {
+		string path = m_texturePath + m_ambientMap;
+		wstring wstr = s2ws(path);
+		LPCWCHAR str = wstr.c_str();
+		HRESULT hr_a = DirectX::CreateWICTextureFromFile(device, deviceContext, str, nullptr, &m_maps[0]);
+		if (FAILED(hr_a)) {
+			ErrorLogger::messageBox(hr_a, "Failed creating material buffer\n");
+			state = false;
 		}
 	}
+	else m_maps[0] = nullptr;
+	if (m_diffuseMap != "") {
+		string path = m_texturePath + m_diffuseMap;
+		wstring wstr = s2ws(path);
+		LPCWCHAR str = wstr.c_str();
+		HRESULT hr_d = DirectX::CreateWICTextureFromFile(device, deviceContext, str, nullptr, &m_maps[1]);
+		if (FAILED(hr_d)) {
+			ErrorLogger::messageBox(hr_d, "Failed creating material buffer\n");
+			state = false;
+		}
+	}
+	else m_maps[1] = nullptr;
+	if (m_specularMap != "") {
+		string path = m_texturePath + m_specularMap;
+		wstring wstr = s2ws(path);
+		LPCWCHAR str = wstr.c_str();
+		HRESULT hr_s = DirectX::CreateWICTextureFromFile(device, deviceContext, str, nullptr, &m_maps[2]);
+		if (FAILED(hr_s)) {
+			ErrorLogger::messageBox(hr_s, "Failed creating material buffer\n");
+			state = false;
+		}
+	}
+	else
+		m_maps[2] = nullptr;
 	
-	return true;
+	return state;
 
+}
+
+std::wstring Material::s2ws(const std::string& s) {
+	int len;
+	int slength = (int)s.length() + 1;
+	len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
+	wchar_t* buf = new wchar_t[len];
+	MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
+	std::wstring r(buf);
+	delete[] buf;
+	return r;
 }
 
 void Material::setAmbientMap(std::string map_Ka) {

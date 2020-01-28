@@ -16,6 +16,8 @@ using float4x4 = DirectX::SimpleMath::Matrix;
 
 class Material {
 private:
+	const string m_materialPath = "Meshes/MTL/";
+	const string m_texturePath = "Meshes/Textures/";
 	//variables
 	string m_materialName;
 	string m_ambientMap = "";
@@ -39,6 +41,8 @@ private:
 	ID3D11ShaderResourceView** m_maps = nullptr;
 
 	bool createBuffers();
+
+	std::wstring s2ws(const std::string& s);
 
 public:
 	void setAmbientMap(std::string map_Ka);
