@@ -26,9 +26,13 @@ void Quad::draw(Renderer& renderer) {
 	deviceContext->OMSetDepthStencilState(m_depthState.Get(), 1);
 
 	// Set shaders to renderer
+	m_shader.bindShadersAndLayout();
+	
+	/*
 	deviceContext->IASetInputLayout(m_inputLayout.Get());
 	deviceContext->VSSetShader(m_vertexShader.Get(), nullptr, 0);
 	deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);
+	*/
 
 	// Set Sampler for texturing
 	deviceContext->PSSetSamplers(0, 1, &samplerState);
@@ -100,6 +104,17 @@ void Quad::createMesh(Renderer& renderer) {
 }
 
 void Quad::createShaders(Renderer& renderer) {
+	// Create input layouts
+	
+	D3D11_INPUT_ELEMENT_DESC layout[] = {
+		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA },
+	};
+
+	m_shader.createShaders(L"VertexShader.hlsl", nullptr, L"PixelShader.hlsl", layout, 3);
+	
+	/*
 	auto device = renderer.getDevice();
 	ifstream vsFile("VertexShader.cso", ios::binary);
 	ifstream psFile("PixelShader.cso", ios::binary);
@@ -111,7 +126,7 @@ void Quad::createShaders(Renderer& renderer) {
 	device->CreateVertexShader(vsData.data(), vsData.size(), nullptr, m_vertexShader.GetAddressOf());
 	device->CreatePixelShader(psData.data(), psData.size(), nullptr, m_pixelShader.GetAddressOf());
 
-	// Create inut layouts
+	// Create input layouts
 	D3D11_INPUT_ELEMENT_DESC layout[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA },
 		{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA },
@@ -124,6 +139,7 @@ void Quad::createShaders(Renderer& renderer) {
 		ErrorLogger::messageBox("Failed to initalize input layout.");
 		return;
 	}
+	*/
 }
 
 void Quad::createRenderStates(Renderer& renderer) {

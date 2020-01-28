@@ -1,11 +1,13 @@
 #include "ShaderSet.h"
 
 ID3DBlob* ShaderSet::createVertexShader(LPCWSTR filename) { 
+	
 	ID3D11Device* device = Renderer::getDevice();
 
+	
 	ID3DBlob* pVS = nullptr;
 	ID3DBlob* errorBlob = nullptr;
-
+	
 	// https://msdn.microsoft.com/en-us/library/windows/desktop/hh968107(v=vs.85).aspx
 	HRESULT result = D3DCompileFromFile(filename, // filename
 		nullptr,								  // optional macros
@@ -17,9 +19,9 @@ ID3DBlob* ShaderSet::createVertexShader(LPCWSTR filename) {
 		&pVS,									  // double pointer to ID3DBlob
 		&errorBlob								  // pointer for Error Blob messages.
 	);
-
-	// compilation failed?
 	if (FAILED(result)) {
+		//compilation failed
+		ErrorLogger::messageBox(result, "Failed compiling vertex shader with name: " + convertLPCWSTR(filename));
 		if (errorBlob) {
 			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 			// release "reference" to errorBlob interface object
@@ -31,6 +33,9 @@ ID3DBlob* ShaderSet::createVertexShader(LPCWSTR filename) {
 	}
 
 	result = device->CreateVertexShader(pVS->GetBufferPointer(), pVS->GetBufferSize(), nullptr, &m_vertexShader);
+	if (FAILED(result))
+		ErrorLogger::messageBox(result, "Failed creating vertex shader with name: " + convertLPCWSTR(filename));
+
 	return pVS;
 }
 
@@ -43,8 +48,9 @@ HRESULT ShaderSet::createGeometryShader(LPCWSTR filename) {
 	HRESULT result =
 		D3DCompileFromFile(filename, nullptr, nullptr, "GS_main", "gs_5_0", D3DCOMPILE_DEBUG, 0, &pGS, &errorBlob);
 
-	// compilation failed?
 	if (FAILED(result)) {
+		// compilation failed
+		ErrorLogger::messageBox(result, "Failed compiling geometry shader with name: " + convertLPCWSTR(filename));
 		if (errorBlob) {
 			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 			// release "reference" to errorBlob interface object
@@ -55,7 +61,9 @@ HRESULT ShaderSet::createGeometryShader(LPCWSTR filename) {
 		return result;
 	}
 
-	device->CreateGeometryShader(pGS->GetBufferPointer(), pGS->GetBufferSize(), nullptr, &m_geometryShader);
+	result = device->CreateGeometryShader(pGS->GetBufferPointer(), pGS->GetBufferSize(), nullptr, &m_geometryShader);
+	if (FAILED(result))
+		ErrorLogger::messageBox(result, "Failed creating geometry shader with name: " + convertLPCWSTR(filename));
 
 	pGS->Release();
 }
@@ -77,8 +85,9 @@ HRESULT ShaderSet::createFragmentShader(LPCWSTR filename) {
 		&errorBlob								  // pointer for Error Blob messages.
 	);
 
-	// compilation failed?
 	if (FAILED(result)) {
+		// compilation failed
+		ErrorLogger::messageBox(result, "Failed compiling fragment shader with name: " + convertLPCWSTR(filename));
 		if (errorBlob) {
 			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 			// release "reference" to errorBlob interface object
@@ -89,7 +98,10 @@ HRESULT ShaderSet::createFragmentShader(LPCWSTR filename) {
 		return result;
 	}
 
-	device->CreatePixelShader(pPS->GetBufferPointer(), pPS->GetBufferSize(), nullptr, &m_pixelShader);
+	result = device->CreatePixelShader(pPS->GetBufferPointer(), pPS->GetBufferSize(), nullptr, &m_pixelShader);
+	if (FAILED(result))
+		ErrorLogger::messageBox(result, "Failed creating fragment shader with name: " + convertLPCWSTR(filename));
+
 	// we do not need anymore this COM object, so we release it.
 	pPS->Release();
 }
@@ -103,11 +115,15 @@ bool ShaderSet::createShaders(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR 
 	
 	ID3D11Device* device = Renderer::getDevice();
 
+	//comppile & create vertex shader
 	m_loaded = true;
 	bool check = true;
 	ID3DBlob* pVS = createVertexShader(vertexName);
+
+	//create input layout
 	HRESULT res;
 	if (inputDesc == nullptr) {
+		//pre made ElementDescription
 		D3D11_INPUT_ELEMENT_DESC standardInputDesc[] = {
 			{
 				"Position",					 // "semantic" name in shader
@@ -123,16 +139,23 @@ bool ShaderSet::createShaders(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR 
 		};
 		res = device->CreateInputLayout(standardInputDesc, ARRAYSIZE(standardInputDesc), pVS->GetBufferPointer(),
 			pVS->GetBufferSize(), &m_vertexLayout);
-		if (FAILED(res))
+		if (FAILED(res)) {
+			ErrorLogger::messageBox(res, "Failed creating InputLayout\n");
 			check = false;
+		}
 	}
 	else {
+		//custom ElementDescription
 		res = device->CreateInputLayout(
 			inputDesc, inputDescCount, pVS->GetBufferPointer(), pVS->GetBufferSize(), &m_vertexLayout);
-		if (FAILED(res))
+		if (FAILED(res)) {
+			ErrorLogger::messageBox(res,"Failed creating InputLayout\n");
 			check = false;
+		}
 	}
 	pVS->Release();
+
+	//compile&create geometry and fragment shader
 	if (geometryName != nullptr && FAILED(createGeometryShader(geometryName)))
 		check = false;
 	if (fragmentName != nullptr && FAILED(createFragmentShader(fragmentName)))
@@ -161,6 +184,12 @@ void ShaderSet::release() {
 		m_pixelShader->Release();
 	if (m_vertexLayout != nullptr)
 		m_vertexLayout->Release();
+}
+
+std::string ShaderSet::convertLPCWSTR(LPCWSTR LPCWstring) { 
+	std::wstring wstr(LPCWstring);
+	return std::string(wstr.begin(), wstr.end());
+	return "";
 }
 
 ShaderSet::ShaderSet(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR fragmentName, D3D11_INPUT_ELEMENT_DESC* inputDesc, int inputDescCount) {
