@@ -10,7 +10,7 @@ Renderer::~Renderer() {}
 
 Renderer* Renderer::getInstance() { return &m_this; }
 
-void Renderer::init(Window& window) {
+void Renderer::initalize(HWND window) {
 	Renderer* r = Renderer::getInstance();
 	if (!r->m_isLoaded && r->m_device.Get() == nullptr && r->m_deviceContext.Get() == nullptr &&
 		r->m_swapChain.Get() == nullptr) {
@@ -47,13 +47,13 @@ ID3D11DeviceContext* Renderer::getDeviceContext() {
 	return r->m_deviceContext.Get();
 }
 
-void Renderer::createDevice(Window& window) {
+void Renderer::createDevice(HWND window) {
 	// Define our swap chain
 	DXGI_SWAP_CHAIN_DESC swapChainDesc = { 0 };
 	swapChainDesc.BufferCount = 1;
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapChainDesc.OutputWindow = window.getHandle();
+	swapChainDesc.OutputWindow = window;
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.Windowed = true;
 

@@ -6,7 +6,7 @@
 
 class Renderer {
 public:
-	static void init(Window& window);
+	static void initalize(HWND window);
 	void beginFrame();
 	void endFrame();
 	static ID3D11Device* getDevice();
@@ -16,7 +16,7 @@ public:
 private:
 	Renderer();
 	~Renderer();
-	void createDevice(Window& window);
+	void createDevice(HWND window);
 	void createRenderTarget();
 	static Renderer m_this;
 	bool m_isLoaded = false;

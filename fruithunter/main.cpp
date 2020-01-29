@@ -21,7 +21,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 
 	ErrorLogger errorlogger;
 	Window window(800, 600);
-	Renderer::init(window);
+	Renderer::initalize(window.getHandle());
 	Input::initilize(window.getHandle());
 
 	// Example of how to do logging
