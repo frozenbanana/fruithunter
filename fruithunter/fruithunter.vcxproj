@@ -178,11 +178,6 @@
     <ClInclude Include="IntroState.hpp" />
     <ClInclude Include="PlayState.hpp" />
     <ClInclude Include="Input.h" />
-    <ClInclude Include="Material.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="MeshHandler.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="Input.hpp" />
     <ClInclude Include="Quad.hpp" />
     <ClInclude Include="Renderer.hpp" />
     <ClInclude Include="ShaderSet.h" />
