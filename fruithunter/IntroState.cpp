@@ -3,7 +3,11 @@
 
 IntroState IntroState::m_introState;
 
-void IntroState::init() { m_name = "Intro State"; }
+void IntroState::init() {
+	if (!m_isLoaded) {
+		m_name = "Intro State";
+	}
+}
 
 void IntroState::update() { ErrorLogger::log(m_name + " update() called."); }
 

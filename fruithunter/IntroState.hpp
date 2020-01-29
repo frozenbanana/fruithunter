@@ -16,5 +16,6 @@ protected:
 	IntroState() { init(); }
 
 private:
+	bool m_isLoaded = false;
 	static IntroState m_introState;
 };

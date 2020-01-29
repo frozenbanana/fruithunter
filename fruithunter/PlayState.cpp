@@ -5,7 +5,7 @@
 
 PlayState PlayState::m_playState;
 void PlayState::init() {
-	if (!m_loaded) {
+	if (!m_isLoaded) {
 		m_name = "Play State";
 		m_quad.init();
 	}

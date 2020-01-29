@@ -19,5 +19,5 @@ protected:
 private:
 	static PlayState m_playState;
 	Quad m_quad;
-	bool m_loaded = false;
+	bool m_isLoaded = false;
 };
