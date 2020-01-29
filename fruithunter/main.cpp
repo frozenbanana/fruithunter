@@ -2,15 +2,15 @@
 #include "Quad.hpp"
 #include "Renderer.hpp"
 #include "Window.hpp"
-#include "Input.h"
+#include "Input.hpp"
 #include <Windows.h>
 #include <stdio.h>
 #include "StateHandler.hpp"
 #include "PlayState.hpp"
 #include "IntroState.hpp"
 
-int CALLBACK WinMain(
-	_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine, _In_ int cmdCount) {
+int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
+	_In_ int cmdCount) {
 
 	// Needed to be able to load textures and possibly other things.
 	HRESULT ciFlag = CoInitialize(NULL);

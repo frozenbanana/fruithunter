@@ -173,7 +173,7 @@
     <ClInclude Include="ErrorLogger.hpp" />
     <ClInclude Include="IntroState.hpp" />
     <ClInclude Include="PlayState.hpp" />
-    <ClInclude Include="Input.h" />
+    <ClInclude Include="Input.hpp" />
     <ClInclude Include="Quad.hpp" />
     <ClInclude Include="Renderer.hpp" />
     <ClInclude Include="ShaderSet.h">

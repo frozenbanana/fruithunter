@@ -1,4 +1,4 @@
-#include "Input.h"
+#include "Input.hpp"
 
 Input Input::m_this;
 
@@ -8,7 +8,8 @@ Input::~Input() {}
 
 void Input::initilize(HWND window) {
 	Input* m = Input::getInstance();
-	m->m_keyboard = std::make_unique<DirectX::Keyboard>(DirectX::Keyboard()); // Initialize smart pointers
+	m->m_keyboard =
+		std::make_unique<DirectX::Keyboard>(DirectX::Keyboard()); // Initialize smart pointers
 	m->m_mouse = std::make_unique<DirectX::Mouse>(DirectX::Mouse());
 	m->m_mouse->SetWindow(window);
 	m->m_scrollWheelTracker = 0;
