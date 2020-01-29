@@ -21,7 +21,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 
 	ErrorLogger errorlogger;
 	Window window(800, 600);
-	Renderer renderer(window);
+	Renderer::init(window);
 	Input::initilize(window.getHandle());
 
 	// Example of how to do logging
@@ -47,9 +47,9 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 		}
 
 		// Main loop
-		renderer.beginFrame();
+		Renderer::getInstance()->beginFrame();
 		stateHandler.draw(); // calls current states draw()
-		renderer.endFrame();
+		Renderer::getInstance()->endFrame();
 
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);

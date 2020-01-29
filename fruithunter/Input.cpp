@@ -7,13 +7,16 @@ Input::Input() {}
 Input::~Input() {}
 
 void Input::initilize(HWND window) {
-	Input* m = Input::getInstance();
-	m->m_keyboard =
-		std::make_unique<DirectX::Keyboard>(DirectX::Keyboard()); // Initialize smart pointers
-	m->m_mouse = std::make_unique<DirectX::Mouse>(DirectX::Mouse());
-	m->m_mouse->SetWindow(window);
-	m->m_scrollWheelTracker = 0;
-	m->update();
+	Input* inp = Input::getInstance();
+	if (!inp->m_isLoaded) {
+		inp->m_keyboard =
+			std::make_unique<DirectX::Keyboard>(DirectX::Keyboard()); // Initialize smart pointers
+		inp->m_mouse = std::make_unique<DirectX::Mouse>(DirectX::Mouse());
+		inp->m_mouse->SetWindow(window);
+		inp->m_scrollWheelTracker = 0;
+		inp->update();
+		inp->m_isLoaded = true;
+	}
 }
 
 void Input::update() {

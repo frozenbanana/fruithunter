@@ -6,21 +6,25 @@
 
 class Renderer {
 public:
-	Renderer(Window& window);
-	~Renderer();
+	static void init(Window& window);
 	void beginFrame();
 	void endFrame();
 	static ID3D11Device* getDevice();
 	static ID3D11DeviceContext* getDeviceContext();
+	static Renderer* getInstance();
 
 private:
+	Renderer();
+	~Renderer();
 	void createDevice(Window& window);
 	void createRenderTarget();
+	static Renderer m_this;
+	bool m_isLoaded = false;
 
 	// Device stuff
-	static Microsoft::WRL::ComPtr<IDXGISwapChain> m_swapChain;
-	static Microsoft::WRL::ComPtr<ID3D11Device> m_device;
-	static Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;
+	Microsoft::WRL::ComPtr<IDXGISwapChain> m_swapChain;
+	Microsoft::WRL::ComPtr<ID3D11Device> m_device;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;
 
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
 	D3D11_TEXTURE2D_DESC m_backBufferDesc;
