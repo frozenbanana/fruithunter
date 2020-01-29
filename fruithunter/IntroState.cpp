@@ -6,6 +6,7 @@ IntroState IntroState::m_introState;
 void IntroState::init() {
 	if (!m_isLoaded) {
 		m_name = "Intro State";
+		m_isLoaded = true;
 	}
 }
 
