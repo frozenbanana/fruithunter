@@ -7,10 +7,7 @@ Camera::Camera() {
 		Matrix::CreatePerspectiveFieldOfView(3.14159265f / 4.0f, 800.0f / 600.0f, 0.1f, 100.0f);
 }
 
-Camera::~Camera() {
-	if (m_matrixBuffer != nullptr)
-		delete m_matrixBuffer;
-}
+Camera::~Camera() {}
 
 void Camera::setEye(Vector3 camEye) {
 	m_camEye = camEye;
@@ -51,10 +48,10 @@ void Camera::createBuffer() {
 	bufferDesc.ByteWidth = sizeof(m_vpMatrix);
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = &m_vpMatrix;
-	device->CreateBuffer(&bufferDesc, &data, &m_matrixBuffer);
+	device->CreateBuffer(&bufferDesc, &data, m_matrixBuffer.GetAddressOf());
 }
 
 void Camera::updateBuffer() {
 	auto deviceContext = Renderer::getInstance()->getDeviceContext();
-	deviceContext->UpdateSubresource(m_matrixBuffer, 0, NULL, &m_vpMatrix, 0, 0);
+	deviceContext->UpdateSubresource(m_matrixBuffer.Get(), 0, NULL, &m_vpMatrix, 0, 0);
 }

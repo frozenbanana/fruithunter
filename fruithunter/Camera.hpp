@@ -24,7 +24,7 @@ public:
 private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;
 	ErrorLogger m_errors;
-	ID3D11Buffer* m_matrixBuffer = nullptr;
+	// ID3D11Buffer* m_matrixBuffer = nullptr;
 
 	bool m_viewChanged = false;
 

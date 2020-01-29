@@ -8,6 +8,7 @@
 #include "StateHandler.hpp"
 #include "PlayState.hpp"
 #include "IntroState.hpp"
+#include "Camera.hpp"
 
 int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
 	_In_ int cmdCount) {
@@ -23,6 +24,9 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	Window window(800, 600);
 	Renderer::initalize(window.getHandle());
 	Input::initilize(window.getHandle());
+
+
+	Camera myCam = Camera();
 
 	// Example of how to do logging
 	ErrorLogger::log("First");
