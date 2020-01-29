@@ -5,8 +5,11 @@
 
 PlayState PlayState::m_playState;
 void PlayState::init() {
-	m_name = "Play State";
-	m_quad.init();
+	if (!m_isLoaded) {
+		m_name = "Play State";
+		m_quad.init();
+		m_isLoaded = true;
+	}
 }
 
 void PlayState::update() { ErrorLogger::log(m_name + " update() called."); }
@@ -17,7 +20,7 @@ void PlayState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
 void PlayState::draw() {
 	m_quad.draw();
-	ErrorLogger::log(m_name + " draw() called.");
+	// ErrorLogger::log(m_name + " draw() called.");
 }
 
 void PlayState::play() { ErrorLogger::log(m_name + " play() called."); }

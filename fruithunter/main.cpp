@@ -2,15 +2,15 @@
 #include "Quad.hpp"
 #include "Renderer.hpp"
 #include "Window.hpp"
-#include "Input.h"
+#include "Input.hpp"
 #include <Windows.h>
 #include <stdio.h>
 #include "StateHandler.hpp"
 #include "PlayState.hpp"
 #include "IntroState.hpp"
 
-int CALLBACK WinMain(
-	_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine, _In_ int cmdCount) {
+int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
+	_In_ int cmdCount) {
 
 	// Needed to be able to load textures and possibly other things.
 	HRESULT ciFlag = CoInitialize(NULL);
@@ -21,7 +21,7 @@ int CALLBACK WinMain(
 
 	ErrorLogger errorlogger;
 	Window window(800, 600);
-	Renderer renderer(window);
+	Renderer::initalize(window.getHandle());
 	Input::initilize(window.getHandle());
 
 	// Example of how to do logging
@@ -47,9 +47,9 @@ int CALLBACK WinMain(
 		}
 
 		// Main loop
-		renderer.beginFrame();
+		Renderer::getInstance()->beginFrame();
 		stateHandler.draw(); // calls current states draw()
-		renderer.endFrame();
+		Renderer::getInstance()->endFrame();
 
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);

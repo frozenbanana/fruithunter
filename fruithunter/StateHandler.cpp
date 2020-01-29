@@ -5,6 +5,7 @@
 State* StateHandler::getCurrent() { return m_states.back(); }
 
 void StateHandler::changeState(State* state) {
+	ErrorLogger::log("Current number of states: " + m_states.size());
 	// Pause current state
 	if (!m_states.empty()) {
 		getCurrent()->pause();

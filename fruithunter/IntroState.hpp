@@ -17,6 +17,7 @@ protected:
 	IntroState() {}
 
 private:
+	bool m_isLoaded = false;
 	static IntroState m_introState;
 	Entity entity;
 };

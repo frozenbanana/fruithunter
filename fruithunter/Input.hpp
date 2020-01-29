@@ -38,6 +38,7 @@ public:
 private:
 	Input();
 	static Input m_this;
+	bool m_isLoaded = false;
 
 	std::unique_ptr<DirectX::Keyboard> m_keyboard;
 	std::unique_ptr<DirectX::Mouse> m_mouse;

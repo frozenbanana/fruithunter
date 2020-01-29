@@ -1,24 +1,32 @@
 #include "Renderer.hpp"
 #include "ErrorLogger.hpp"
 
-Microsoft::WRL::ComPtr<IDXGISwapChain> Renderer::m_swapChain;
-Microsoft::WRL::ComPtr<ID3D11Device> Renderer::m_device;
-Microsoft::WRL::ComPtr<ID3D11DeviceContext> Renderer::m_deviceContext;
 
-Renderer::Renderer(Window& window) {
-	if (m_device.Get() == nullptr && m_deviceContext.Get() == nullptr && m_swapChain.Get() == nullptr) 
-		createDevice(window);
-	createRenderTarget();
-}
+Renderer Renderer::m_this;
+
+Renderer::Renderer() {}
 
 Renderer::~Renderer() {}
+
+Renderer* Renderer::getInstance() { return &m_this; }
+
+void Renderer::initalize(HWND window) {
+	Renderer* r = Renderer::getInstance();
+	if (!r->m_isLoaded && r->m_device.Get() == nullptr && r->m_deviceContext.Get() == nullptr &&
+		r->m_swapChain.Get() == nullptr) {
+		r->createDevice(window);
+		r->createRenderTarget();
+		r->m_isLoaded = true;
+	}
+}
 
 void Renderer::beginFrame() {
 	// Bind rendertarget
 	m_deviceContext.Get()->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), nullptr);
 
 	// Set viewport
-	auto viewport = CD3D11_VIEWPORT(0.f, 0.f, (float)m_backBufferDesc.Width, (float)m_backBufferDesc.Height);
+	auto viewport =
+		CD3D11_VIEWPORT(0.f, 0.f, (float)m_backBufferDesc.Width, (float)m_backBufferDesc.Height);
 	m_deviceContext->RSSetViewports(1, &viewport);
 
 	float clearColor[] = { 0.25f, .5f, 1, 1 };
@@ -30,23 +38,29 @@ void Renderer::endFrame() {
 	m_swapChain->Present(1, 0);
 }
 
-ID3D11Device* Renderer::getDevice() { return m_device.Get(); }
-ID3D11DeviceContext* Renderer::getDeviceContext() { return m_deviceContext.Get(); }
+ID3D11Device* Renderer::getDevice() {
+	Renderer* r = Renderer::getInstance();
+	return r->m_device.Get();
+}
+ID3D11DeviceContext* Renderer::getDeviceContext() {
+	Renderer* r = Renderer::getInstance();
+	return r->m_deviceContext.Get();
+}
 
-void Renderer::createDevice(Window& window) {
+void Renderer::createDevice(HWND window) {
 	// Define our swap chain
 	DXGI_SWAP_CHAIN_DESC swapChainDesc = { 0 };
 	swapChainDesc.BufferCount = 1;
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapChainDesc.OutputWindow = window.getHandle();
+	swapChainDesc.OutputWindow = window;
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.Windowed = true;
 
 	// Create the swap chain, device and device context
-	HRESULT swpFlag = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, nullptr, 0,
-		D3D11_SDK_VERSION, &swapChainDesc, m_swapChain.GetAddressOf(), m_device.GetAddressOf(), nullptr,
-		m_deviceContext.GetAddressOf());
+	HRESULT swpFlag = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0,
+		nullptr, 0, D3D11_SDK_VERSION, &swapChainDesc, m_swapChain.GetAddressOf(),
+		m_device.GetAddressOf(), nullptr, m_deviceContext.GetAddressOf());
 
 	if (FAILED(swpFlag)) {
 		ErrorLogger::messageBox(swpFlag, L"Error creating DX11.");
@@ -62,7 +76,8 @@ void Renderer::createRenderTarget() {
 		return;
 	};
 
-	HRESULT rtFlag = m_device->CreateRenderTargetView(backBuffer, nullptr, m_renderTargetView.GetAddressOf());
+	HRESULT rtFlag =
+		m_device->CreateRenderTargetView(backBuffer, nullptr, m_renderTargetView.GetAddressOf());
 	if (FAILED(rtFlag)) {
 		ErrorLogger::messageBox(bFlag, "Failed to get create render target view.");
 		return;
