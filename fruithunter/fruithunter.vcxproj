@@ -167,7 +167,6 @@
     </ClCompile>
     <ClCompile Include="State.cpp" />
     <ClCompile Include="StateHandler.cpp" />
-    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ErrorLogger.hpp" />
@@ -181,7 +180,6 @@
     </ClInclude>
     <ClInclude Include="State.hpp" />
     <ClInclude Include="StateHandler.hpp" />
-    <ClInclude Include="Window.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">

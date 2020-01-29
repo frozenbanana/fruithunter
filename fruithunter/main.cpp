@@ -1,7 +1,6 @@
 #include "ErrorLogger.hpp"
 #include "Quad.hpp"
 #include "Renderer.hpp"
-#include "Window.hpp"
 #include "Input.hpp"
 #include <Windows.h>
 #include <stdio.h>
@@ -20,9 +19,8 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	}
 
 	ErrorLogger errorlogger;
-	Window window(800, 600);
-	Renderer::initalize(window.getHandle());
-	Input::initilize(window.getHandle());
+	// Renderer::initalize(window.getHandle());
+	Input::initilize(Renderer::getInstance()->getHandle());
 
 	// Example of how to do logging
 	ErrorLogger::log("First");

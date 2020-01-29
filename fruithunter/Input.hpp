@@ -3,7 +3,7 @@
 #include <Keyboard.h>
 #include <Mouse.h>
 #include <memory>
-#include "Window.hpp"
+#include "Renderer.hpp"
 #include "ErrorLogger.hpp"
 
 class Input {
