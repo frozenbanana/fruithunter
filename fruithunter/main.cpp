@@ -12,6 +12,7 @@
 
 int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
 	_In_ int cmdCount) {
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	// Needed to be able to load textures and possibly other things.
 	HRESULT ciFlag = CoInitialize(NULL);
@@ -24,9 +25,6 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	Window window(800, 600);
 	Renderer::initalize(window.getHandle());
 	Input::initilize(window.getHandle());
-
-
-	Camera myCam = Camera();
 
 	// Example of how to do logging
 	ErrorLogger::log("First");
@@ -62,6 +60,8 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 				stateHandler.quit();
 			}
 		}
+
+		MSG msg = { 0 };
 	}
 
 	return 0;

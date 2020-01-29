@@ -4,6 +4,7 @@
 #include "SimpleMath.h"
 #include "ErrorLogger.hpp"
 #include "Renderer.hpp"
+#define MATRIX_SLOT 1
 
 class Camera {
 public:
@@ -20,11 +21,12 @@ public:
 
 	void createBuffer();
 	void updateBuffer();
+	void bindMatix();
+	DirectX::SimpleMath::Matrix getViewProjMatrix() const;
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;
 	ErrorLogger m_errors;
-	// ID3D11Buffer* m_matrixBuffer = nullptr;
 
 	bool m_viewChanged = false;
 

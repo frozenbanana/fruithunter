@@ -34,7 +34,7 @@ void Camera::setView(Vector3 camEye, Vector3 camTarget, Vector3 camUp) {
 void Camera::buildMatrices() {
 	if (m_viewChanged) {
 		m_viewMatrix = Matrix::CreateLookAt(m_camEye, m_camTarget, m_camUp);
-		m_vpMatrix = m_viewMatrix * m_projMatrix;
+		m_vpMatrix = m_projMatrix * m_viewMatrix;
 		m_viewChanged = false;
 	}
 }
@@ -48,10 +48,22 @@ void Camera::createBuffer() {
 	bufferDesc.ByteWidth = sizeof(m_vpMatrix);
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = &m_vpMatrix;
-	device->CreateBuffer(&bufferDesc, &data, m_matrixBuffer.GetAddressOf());
+	HRESULT res = device->CreateBuffer(&bufferDesc, &data, m_matrixBuffer.GetAddressOf());
+
+	if (FAILED(res)) {
+		ErrorLogger::messageBox(res, "Camera failed to create buffer.");
+	}
 }
 
 void Camera::updateBuffer() {
-	auto deviceContext = Renderer::getInstance()->getDeviceContext();
-	deviceContext->UpdateSubresource(m_matrixBuffer.Get(), 0, NULL, &m_vpMatrix, 0, 0);
+	auto deviceContext = Renderer::getDeviceContext();
+	Matrix vpMatrixTransposed = m_vpMatrix.Transpose();
+	deviceContext->UpdateSubresource(m_matrixBuffer.Get(), 0, NULL, &vpMatrixTransposed, 0, 0);
 }
+
+void Camera::bindMatix() {
+	auto deviceContext = Renderer::getDeviceContext();
+	deviceContext->VSSetConstantBuffers(MATRIX_SLOT, 1, m_matrixBuffer.GetAddressOf());
+}
+
+DirectX::SimpleMath::Matrix Camera::getViewProjMatrix() const { return m_vpMatrix; }

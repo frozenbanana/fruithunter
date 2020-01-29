@@ -4,7 +4,7 @@
 class IntroState : public State {
 public:
 	void update();
-	void init();
+	void initialize();
 	void handleEvent(int event);
 	void pause();
 	void play();
@@ -13,7 +13,7 @@ public:
 	static IntroState* getInstance() { return &m_introState; }
 
 protected:
-	IntroState() { init(); }
+	IntroState() { initialize(); }
 
 private:
 	bool m_isLoaded = false;

@@ -1,3 +1,5 @@
+cbuffer MatrixBuffer : register(b1) { matrix viewProjMatrix; };
+
 struct Input {
 	float2 position : POSITION;
 	float3 color : COLOR;
@@ -14,6 +16,8 @@ Output main(Input input) {
 	Output output;
 
 	output.position = float4(input.position.x, input.position.y, 0, 1);
+	output.position = mul(viewProjMatrix, output.position);
+
 	output.color = input.color;
 	output.uv = input.uv;
 	return output;
