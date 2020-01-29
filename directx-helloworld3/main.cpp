@@ -31,7 +31,7 @@ int CALLBACK WinMain(
 
 	StateHandler stateHandler;
 	stateHandler.pushState(PlayState::getInstance());
-	stateHandler.pushState(IntroState::getInstance());
+	//stateHandler.pushState(IntroState::getInstance());
 
 	MSG msg = { 0 };
 	while (stateHandler.isRunning()) {

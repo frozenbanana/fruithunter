@@ -454,6 +454,7 @@ Mesh::Mesh(std::string OBJFile)
 	if (OBJFile != "")
 		load(OBJFile);
 }
+// Need to update
 //Mesh & Mesh::operator=(const Mesh & other)
 //{
 //	minmaxChanged = other.minmaxChanged;

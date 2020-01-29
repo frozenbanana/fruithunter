@@ -1,10 +1,6 @@
-#include <d3d11.h>
-#include <d3dcompiler.h>
+#pragma once
 #include "Renderer.hpp"
 #include "ErrorLogger.hpp"
-
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "d3dcompiler.lib")
 
 class ShaderSet {
 protected:

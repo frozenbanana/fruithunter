@@ -6,7 +6,7 @@ Microsoft::WRL::ComPtr<ID3D11Device> Renderer::m_device;
 Microsoft::WRL::ComPtr<ID3D11DeviceContext> Renderer::m_deviceContext;
 
 Renderer::Renderer(Window& window) {
-	if (m_device.Get() == nullptr && m_deviceContext.Get() == nullptr && m_swapChain.Get() == nullptr)
+	if (m_device.Get() == nullptr && m_deviceContext.Get() == nullptr && m_swapChain.Get() == nullptr) 
 		createDevice(window);
 	createRenderTarget();
 }

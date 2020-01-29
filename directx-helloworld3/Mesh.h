@@ -1,9 +1,6 @@
 #pragma once
-#include <WICTextureLoader.h>
 #include "MeshHandler.h"
 #include "ShaderSet.h"
-#include "Renderer.hpp"
-#include <SimpleMath.h>
 
 class Mesh
 {

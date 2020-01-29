@@ -1,7 +1,6 @@
 #pragma once
 #include <Windows.h>
 #include <iostream>
-#include <Windows.h>
 
 class ErrorLogger {
 public:

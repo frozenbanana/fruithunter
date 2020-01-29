@@ -1,5 +1,6 @@
 #pragma once
 #include "State.hpp"
+#include "Entity.h"
 
 class IntroState : public State {
 public:
@@ -13,8 +14,9 @@ public:
 	static IntroState* getInstance() { return &m_introState; }
 
 protected:
-	IntroState() { init(); }
+	IntroState() {}
 
 private:
 	static IntroState m_introState;
+	Entity entity;
 };

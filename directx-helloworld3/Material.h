@@ -1,18 +1,5 @@
 #pragma once
 #include "Renderer.hpp"
-#include "ErrorLogger.hpp"
-#include <fstream>
-#include <WICTextureLoader.h>
-#include <SimpleMath.h>
-#include <vector>
-#include <string>
-
-using namespace std;
-
-using float2 = DirectX::SimpleMath::Vector2;
-using float3 = DirectX::SimpleMath::Vector3;
-using float4 = DirectX::SimpleMath::Vector4;
-using float4x4 = DirectX::SimpleMath::Matrix;
 
 struct VertexMaterialBuffer {
 	float3 ambient;

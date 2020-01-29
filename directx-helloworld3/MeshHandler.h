@@ -1,14 +1,5 @@
 #pragma once
-#include <fstream>
-#include <WICTextureLoader.h>
-#include <SimpleMath.h>
-#include <vector>
 #include "Material.h"
-
-using float2 = DirectX::SimpleMath::Vector2;
-using float3 = DirectX::SimpleMath::Vector3;
-using float4 = DirectX::SimpleMath::Vector4;
-using float4x4 = DirectX::SimpleMath::Matrix;
 
 struct Vertex {
 	float3 position;
