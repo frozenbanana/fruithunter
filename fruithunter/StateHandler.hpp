@@ -1,14 +1,18 @@
 #pragma once
 #include <vector>
 #include "State.hpp"
-
-class State;
+#include "IntroState.hpp"
+#include "PlayState.hpp"
+#include "ErrorLogger.hpp"
 
 class StateHandler {
 public:
-	void changeState(State* state);
-	void pushState(State* state);
-	void popState();
+	enum States { INTRO, PLAY, LENGTH };
+
+	void initialize();
+	void changeState(States state);
+	//void pushState(State* state);
+	//void popState();
 	void event(int event);
 	void pause();
 	void update();
@@ -17,8 +21,15 @@ public:
 	bool isRunning();
 	void quit();
 
+	static StateHandler* getInstance();
+
 private:
 	bool m_running = true;
+	static StateHandler m_this;
 	State* getCurrent();
-	std::vector<State*> m_states;
+
+	int m_current = INTRO;
+	std::vector<unique_ptr<State>> m_states;
+
+	StateHandler();
 };

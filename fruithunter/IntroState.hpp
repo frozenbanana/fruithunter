@@ -3,6 +3,7 @@
 
 class IntroState : public State {
 public:
+	IntroState();
 	void update();
 	void initialize();
 	void handleEvent(int event);
@@ -10,12 +11,6 @@ public:
 	void play();
 	void draw();
 
-	static IntroState* getInstance() { return &m_introState; }
-
-protected:
-	IntroState() { initialize(); }
-
 private:
 	bool m_isLoaded = false;
-	static IntroState m_introState;
 };

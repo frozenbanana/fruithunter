@@ -14,13 +14,9 @@ public:
 	void play();
 	void draw();
 
-	static PlayState* getInstance() { return &m_playState; }
-
-protected:
-	PlayState() {}
+	PlayState() { initialize(); }
 
 private:
-	static PlayState m_playState;
 	LARGE_INTEGER m_timer;
 	float m_frequencySeconds;
 	float m_startTime;

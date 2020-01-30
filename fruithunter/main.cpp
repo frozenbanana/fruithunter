@@ -29,34 +29,33 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	ErrorLogger::logWarning(ciFlag, "Second!");
 	ErrorLogger::logError(ciFlag, "Third!");
 
-	StateHandler stateHandler;
-	stateHandler.pushState(PlayState::getInstance());
-	stateHandler.pushState(IntroState::getInstance());
+	StateHandler* stateHandler = StateHandler::getInstance();
+	stateHandler->initialize();
 
 	MSG msg = { 0 };
-	while (stateHandler.isRunning()) {
+	while (StateHandler::getInstance()->isRunning()) {
 		Input::getInstance()->update();
 		if (Input::getInstance()->keyPressed(DirectX::Keyboard::D1)) {
 			ErrorLogger::log("Number 1 was pressed!");
-			stateHandler.changeState(IntroState::getInstance());
+			stateHandler->changeState(StateHandler::INTRO);
 		}
 
 		if (Input::getInstance()->keyPressed(DirectX::Keyboard::D2)) {
 			ErrorLogger::log("Number 2 was pressed!");
-			stateHandler.changeState(PlayState::getInstance());
+			stateHandler->changeState(StateHandler::PLAY);
 		}
 
 		// Main loop
 		Renderer::getInstance()->beginFrame();
-		stateHandler.update(); // calls current states draw()
-		stateHandler.draw();   // calls current states draw()
+		stateHandler->update();				 // calls current states draw()
+		stateHandler->draw();	// calls current states draw()
 		Renderer::getInstance()->endFrame();
 
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 			if (msg.message == WM_QUIT) {
-				stateHandler.quit();
+				stateHandler->quit();
 			}
 		}
 

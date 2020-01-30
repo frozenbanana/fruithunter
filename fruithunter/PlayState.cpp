@@ -4,7 +4,6 @@
 #include "Quad.hpp"
 #include <iostream>
 #include <string>
-PlayState PlayState::m_playState;
 
 void PlayState::initialize() {
 	if (!m_isLoaded) {

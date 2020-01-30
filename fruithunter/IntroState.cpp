@@ -1,7 +1,7 @@
 #include "IntroState.hpp"
 #include "ErrorLogger.hpp"
 
-IntroState IntroState::m_introState;
+IntroState::IntroState() { initialize(); }
 
 void IntroState::initialize() {
 	if (!m_isLoaded) {
