@@ -12,5 +12,4 @@ public:
 	void draw();
 
 private:
-	bool m_isLoaded = false;
 };
