@@ -15,8 +15,8 @@ struct Output {
 Output main(Input input) {
 	Output output;
 
-	output.position = float4(input.position.x, input.position.y, 0, 1);
-	output.position = mul(viewProjMatrix, output.position);
+	float4 pos = float4(input.position.x, input.position.y, 0, 1);
+	output.position = mul(viewProjMatrix, pos);
 
 	output.color = input.color;
 	output.uv = input.uv;

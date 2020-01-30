@@ -24,15 +24,16 @@ public:
 	void bindMatix();
 	DirectX::SimpleMath::Matrix getViewProjMatrix() const;
 
+
 private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;
 	ErrorLogger m_errors;
 
 	bool m_viewChanged = false;
-
+	DirectX::SimpleMath::Matrix m_vpMatrix;
 	DirectX::SimpleMath::Matrix m_viewMatrix;
 	DirectX::SimpleMath::Matrix m_projMatrix;
-	DirectX::SimpleMath::Matrix m_vpMatrix;
+
 
 	DirectX::SimpleMath::Vector3 m_camEye;
 	DirectX::SimpleMath::Vector3 m_camTarget;

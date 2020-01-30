@@ -1,10 +1,12 @@
 #include "Camera.hpp"
+#include "DirectXMath.h"
 
 using namespace DirectX::SimpleMath;
 
 Camera::Camera() {
 	m_projMatrix =
-		Matrix::CreatePerspectiveFieldOfView(3.14159265f / 4.0f, 800.0f / 600.0f, 0.1f, 100.0f);
+		DirectX::XMMatrixPerspectiveFovLH(3.14159265f / 4.0f, 800.0f / 600.0f, 0.1f, 100.0f);
+	// Matrix::CreatePerspectiveFieldOfView(3.14159265f / 4.0f, 800.0f / 600.0f, 0.1f, 100.0f);
 }
 
 Camera::~Camera() {}
@@ -33,7 +35,7 @@ void Camera::setView(Vector3 camEye, Vector3 camTarget, Vector3 camUp) {
 
 void Camera::buildMatrices() {
 	if (m_viewChanged) {
-		m_viewMatrix = Matrix::CreateLookAt(m_camEye, m_camTarget, m_camUp);
+		m_viewMatrix = DirectX::XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
 		m_vpMatrix = m_projMatrix * m_viewMatrix;
 		m_viewChanged = false;
 	}
