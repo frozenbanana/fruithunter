@@ -7,9 +7,11 @@
 #include "StateHandler.hpp"
 #include "PlayState.hpp"
 #include "IntroState.hpp"
+#include "Camera.hpp"
 
 int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
 	_In_ int cmdCount) {
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	// Needed to be able to load textures and possibly other things.
 	HRESULT ciFlag = CoInitialize(NULL);
@@ -46,7 +48,8 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 
 		// Main loop
 		Renderer::getInstance()->beginFrame();
-		stateHandler.draw(); // calls current states draw()
+		stateHandler.update(); // calls current states draw()
+		stateHandler.draw();   // calls current states draw()
 		Renderer::getInstance()->endFrame();
 
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
@@ -56,6 +59,8 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 				stateHandler.quit();
 			}
 		}
+
+		MSG msg = { 0 };
 	}
 
 	return 0;

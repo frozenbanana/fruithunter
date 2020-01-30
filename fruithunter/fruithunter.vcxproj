@@ -155,6 +155,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ErrorLogger.cpp" />
     <ClCompile Include="IntroState.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -169,6 +170,7 @@
     <ClCompile Include="StateHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.hpp" />
     <ClInclude Include="ErrorLogger.hpp" />
     <ClInclude Include="IntroState.hpp" />
     <ClInclude Include="PlayState.hpp" />
