@@ -49,7 +49,8 @@ void Quad::createMesh() {
 	auto device = Renderer::getDevice();
 
 	// Vertices
-	Vertex vertices[] = { { -1, -1, 1, 1, 1, 1, 1 }, { 1., -1, 0, 1, 1, 0, 1 }, { 1., 1, 1, 1, 0, 0, 0 },
+	Vertex vertices[] = { { -1, -1, 1, 1, 1, 1, 1 }, { 1., -1, 0, 1, 1, 0, 1 },
+		{ 1., 1, 1, 1, 0, 0, 0 },
 		{
 			-1,
 			1,
@@ -65,7 +66,8 @@ void Quad::createMesh() {
 	D3D11_SUBRESOURCE_DATA vertexData = { 0 };
 	vertexData.pSysMem = vertices;
 
-	HRESULT vbFlag = device->CreateBuffer(&vertexBufferDesc, &vertexData, m_vertexBuffer.GetAddressOf());
+	HRESULT vbFlag =
+		device->CreateBuffer(&vertexBufferDesc, &vertexData, m_vertexBuffer.GetAddressOf());
 
 	if (FAILED(vbFlag)) {
 		ErrorLogger::messageBox("Failed to initalize vertex buffer.");
@@ -80,7 +82,8 @@ void Quad::createMesh() {
 	D3D11_SUBRESOURCE_DATA indexData = { 0 };
 	indexData.pSysMem = indices;
 
-	HRESULT ibFlag = device->CreateBuffer(&indexBufferDesc, &indexData, m_indexBuffer.GetAddressOf());
+	HRESULT ibFlag =
+		device->CreateBuffer(&indexBufferDesc, &indexData, m_indexBuffer.GetAddressOf());
 
 	if (FAILED(ibFlag)) {
 		ErrorLogger::messageBox("Failed to initalize vertex buffer.");
@@ -117,11 +120,13 @@ void Quad::createMesh() {
 
 void Quad::createShaders() {
 	// Create input layouts
-	
+
 	D3D11_INPUT_ELEMENT_DESC layout[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT,
+			D3D11_INPUT_PER_VERTEX_DATA },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT,
+			D3D11_INPUT_PER_VERTEX_DATA },
 	};
 
 	m_shader.createShaders(L"VertexShader.hlsl", nullptr, L"PixelShader.hlsl", layout, 3);
@@ -130,8 +135,8 @@ void Quad::createShaders() {
 void Quad::createRenderStates() {
 	auto device = Renderer::getDevice();
 	// Rasterizer state
-	auto rasterizerDesc =
-		CD3D11_RASTERIZER_DESC(D3D11_FILL_SOLID, D3D11_CULL_NONE, false, 0, 0, 0, 0, false, false, false);
+	auto rasterizerDesc = CD3D11_RASTERIZER_DESC(
+		D3D11_FILL_SOLID, D3D11_CULL_NONE, false, 0, 0, 0, 0, false, false, false);
 	device->CreateRasterizerState(&rasterizerDesc, m_rasterizerState.GetAddressOf());
 
 	// Blend state
@@ -139,9 +144,10 @@ void Quad::createRenderStates() {
 	device->CreateBlendState(&blendDesc, m_blendState.GetAddressOf());
 
 	// Depth state
-	auto depthDesc = CD3D11_DEPTH_STENCIL_DESC(FALSE, D3D11_DEPTH_WRITE_MASK_ZERO, D3D11_COMPARISON_LESS, FALSE,
-		D3D11_DEFAULT_STENCIL_READ_MASK, D3D11_DEFAULT_STENCIL_WRITE_MASK, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP,
-		D3D11_STENCIL_OP_KEEP, D3D11_COMPARISON_ALWAYS, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP,
-		D3D11_STENCIL_OP_KEEP, D3D11_COMPARISON_ALWAYS);
+	auto depthDesc = CD3D11_DEPTH_STENCIL_DESC(FALSE, D3D11_DEPTH_WRITE_MASK_ZERO,
+		D3D11_COMPARISON_LESS, FALSE, D3D11_DEFAULT_STENCIL_READ_MASK,
+		D3D11_DEFAULT_STENCIL_WRITE_MASK, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP,
+		D3D11_STENCIL_OP_KEEP, D3D11_COMPARISON_ALWAYS, D3D11_STENCIL_OP_KEEP,
+		D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP, D3D11_COMPARISON_ALWAYS);
 	device->CreateDepthStencilState(&depthDesc, m_depthState.GetAddressOf());
 }

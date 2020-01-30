@@ -13,7 +13,7 @@ void StateHandler::changeState(State* state) {
 	}
 	// Update current state
 	m_states.push_back(state);
-	getCurrent()->init();
+	getCurrent()->initialize();
 }
 
 void StateHandler::pushState(State* state) {
@@ -22,7 +22,7 @@ void StateHandler::pushState(State* state) {
 		getCurrent()->pause();
 	}
 
-	state->init();
+	state->initialize();
 	m_states.push_back(state);
 	getCurrent()->play();
 }
