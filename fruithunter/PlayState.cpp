@@ -2,7 +2,8 @@
 #include "ErrorLogger.hpp"
 #include "Renderer.hpp"
 #include "Quad.hpp"
-
+#include <iostream>
+#include <string>
 PlayState PlayState::m_playState;
 
 void PlayState::initialize() {
@@ -13,17 +14,43 @@ void PlayState::initialize() {
 		m_camera.createBuffer();
 		m_camera.buildMatrices();
 		m_camera.updateBuffer();
+
+		// Timer
+		LARGE_INTEGER timer;
+		if (!QueryPerformanceCounter(&timer)) {
+			ErrorLogger::log("Cannot query performance counter in " + m_name + ".");
+			return;
+		}
+
+		m_frequencySeconds = (float)(timer.QuadPart);
+		// Get Current value
+		QueryPerformanceCounter(&timer);
+		m_startTime = timer.QuadPart;
+		m_totalTime = 0.;
+		m_elapsedTime = 0.;
+
 		m_isLoaded = true;
 	}
 }
 
-void PlayState::update() { ErrorLogger::log(m_name + " update() called."); }
+void PlayState::update() {
+	QueryPerformanceCounter(&m_timer);
+	m_elapsedTime = (float)(m_timer.QuadPart - m_startTime);
+	m_startTime = m_timer.QuadPart;
+	m_totalTime += m_elapsedTime * 0.000001;
+
+	// ErrorLogger::log(std::to_string(m_totalTime));
+}
 
 void PlayState::handleEvent(int event) { return; }
 
 void PlayState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
 void PlayState::draw() {
+	float t = m_totalTime;
+	// m_camera.setEye(Vector3(sin(t), cos(t), -1.0));
+	// m_camera.buildMatrices();
+	m_camera.updateBuffer();
 	m_camera.bindMatix();
 	m_quad.draw();
 	ErrorLogger::log(m_name + " draw() called.");

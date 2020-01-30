@@ -50,7 +50,8 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 
 		// Main loop
 		Renderer::getInstance()->beginFrame();
-		stateHandler.draw(); // calls current states draw()
+		stateHandler.update(); // calls current states draw()
+		stateHandler.draw();   // calls current states draw()
 		Renderer::getInstance()->endFrame();
 
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {

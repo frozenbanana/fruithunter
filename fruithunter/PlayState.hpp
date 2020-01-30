@@ -21,6 +21,11 @@ protected:
 
 private:
 	static PlayState m_playState;
+	LARGE_INTEGER m_timer;
+	float m_frequencySeconds;
+	float m_startTime;
+	float m_totalTime;
+	float m_elapsedTime;
 	Camera m_camera;
 	Quad m_quad;
 	bool m_isLoaded = false;

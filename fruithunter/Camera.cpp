@@ -35,8 +35,18 @@ void Camera::setView(Vector3 camEye, Vector3 camTarget, Vector3 camUp) {
 
 void Camera::buildMatrices() {
 	if (m_viewChanged) {
-		m_viewMatrix = DirectX::XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
-		m_vpMatrix = m_projMatrix * m_viewMatrix;
+		// m_viewMatrix = DirectX::XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
+
+		DirectX::XMVECTOR eyePos;
+		DirectX::XMVECTOR target;
+		DirectX::XMVECTOR up;
+
+		eyePos = DirectX::XMVectorSet(0.0, 0.0, -4.0, 0.0);
+		target = DirectX::XMVectorSet(0.0, 0.0, 0.0, 0.0);
+		up = DirectX::XMVectorSet(0.0, 1.0, 0.0, 0.0);
+
+		m_viewMatrix = DirectX::XMMatrixLookAtLH(eyePos, target, up);
+		m_vpMatrix = DirectX::XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 		m_viewChanged = false;
 	}
 }
@@ -66,6 +76,7 @@ void Camera::updateBuffer() {
 void Camera::bindMatix() {
 	auto deviceContext = Renderer::getDeviceContext();
 	deviceContext->VSSetConstantBuffers(MATRIX_SLOT, 1, m_matrixBuffer.GetAddressOf());
+	// deviceContext->VSSetConstantBuffers(MATRIX_SLOT, 1, m_matrixBuffer.GetAddressOf());
 }
 
 DirectX::SimpleMath::Matrix Camera::getViewProjMatrix() const { return m_vpMatrix; }

@@ -16,6 +16,7 @@ Output main(Input input) {
 	Output output;
 
 	float4 pos = float4(input.position.x, input.position.y, 0, 1);
+	// output.position = pos;
 	output.position = mul(viewProjMatrix, pos);
 
 	output.color = input.color;
