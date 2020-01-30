@@ -24,5 +24,4 @@ private:
 	float m_elapsedTime;
 	Camera m_camera;
 	Quad m_quad;
-	bool m_isLoaded = false;
 };
