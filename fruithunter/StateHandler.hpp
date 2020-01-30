@@ -2,8 +2,6 @@
 #include <vector>
 #include "State.hpp"
 
-class State;
-
 class StateHandler {
 public:
 	void changeState(State* state);
