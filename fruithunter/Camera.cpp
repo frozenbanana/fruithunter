@@ -35,17 +35,17 @@ void Camera::setView(Vector3 camEye, Vector3 camTarget, Vector3 camUp) {
 
 void Camera::buildMatrices() {
 	if (m_viewChanged) {
-		// m_viewMatrix = DirectX::XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
+		m_viewMatrix = DirectX::XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
 
-		DirectX::XMVECTOR eyePos;
-		DirectX::XMVECTOR target;
-		DirectX::XMVECTOR up;
+		// DirectX::XMVECTOR eyePos;
+		// DirectX::XMVECTOR target;
+		// DirectX::XMVECTOR up;
 
-		eyePos = DirectX::XMVectorSet(0.0, 0.0, -4.0, 0.0);
-		target = DirectX::XMVectorSet(0.0, 0.0, 0.0, 0.0);
-		up = DirectX::XMVectorSet(0.0, 1.0, 0.0, 0.0);
+		// eyePos = DirectX::XMVectorSet(0.0, 0.0, -4.0, 0.0);
+		// target = DirectX::XMVectorSet(0.0, 0.0, 0.0, 0.0);
+		// up = DirectX::XMVectorSet(0.0, 1.0, 0.0, 0.0);
 
-		m_viewMatrix = DirectX::XMMatrixLookAtLH(eyePos, target, up);
+		// m_viewMatrix = DirectX::XMMatrixLookAtLH(eyePos, target, up);
 		m_vpMatrix = DirectX::XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 		m_viewChanged = false;
 	}
