@@ -156,6 +156,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ErrorLogger.cpp" />
     <ClCompile Include="IntroState.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -170,10 +171,10 @@
     <ClCompile Include="ShaderSet.cpp" />
     <ClCompile Include="State.cpp" />
     <ClCompile Include="StateHandler.cpp" />
-    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="Camera.hpp" />
     <ClInclude Include="ErrorLogger.hpp" />
     <ClInclude Include="IntroState.hpp" />
     <ClInclude Include="PlayState.hpp" />
@@ -183,7 +184,6 @@
     <ClInclude Include="ShaderSet.h" />
     <ClInclude Include="State.hpp" />
     <ClInclude Include="StateHandler.hpp" />
-    <ClInclude Include="Window.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">

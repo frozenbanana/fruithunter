@@ -1,24 +1,76 @@
 #include "Renderer.hpp"
-#include "ErrorLogger.hpp"
 
+Renderer Renderer::m_this(STANDARD_WIDTH, STANDARD_HEIGHT);
 
-Renderer Renderer::m_this;
+LRESULT CALLBACK WinProc(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
+	if (msg == WM_DESTROY || msg == WM_CLOSE) {
+		PostQuitMessage(0);
+		return 0;
+	}
 
-Renderer::Renderer() {}
+	switch (msg) {
+	case WM_ACTIVATEAPP:
+		DirectX::Keyboard::ProcessMessage(msg, wparam, lparam);
+		DirectX::Mouse::ProcessMessage(msg, wparam, lparam);
+		break;
+
+	case WM_INPUT:
+	case WM_MOUSEMOVE:
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
+	case WM_MOUSEWHEEL:
+	case WM_XBUTTONDOWN:
+	case WM_XBUTTONUP:
+	case WM_MOUSEHOVER:
+		DirectX::Mouse::ProcessMessage(msg, wparam, lparam);
+		break;
+
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
+	case WM_KEYUP:
+	case WM_SYSKEYUP:
+		DirectX::Keyboard::ProcessMessage(msg, wparam, lparam);
+		break;
+	}
+
+	return DefWindowProc(handle, msg, wparam, lparam);
+}
+
+Renderer::Renderer(int width, int height) {
+	// Define window style
+	WNDCLASS wc = { 0 };
+	wc.style = CS_OWNDC;
+	wc.lpfnWndProc = WinProc;
+	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	wc.lpszClassName = m_windowTitle;
+	RegisterClass(&wc);
+
+	// Create the window
+	m_handle = CreateWindow(m_windowTitle, L"C++11 and DX11 Tutorial",
+		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE, 100, 100, width, height, nullptr, nullptr,
+		nullptr, nullptr);
+
+	// Create device, deviceContext and swapchain
+	Renderer* r = Renderer::getInstance();
+	if (!r->m_isLoaded && r->m_device.Get() == nullptr && r->m_deviceContext.Get() == nullptr &&
+		r->m_swapChain.Get() == nullptr) {
+		r->createDevice(m_handle);
+		r->createRenderTarget();
+		r->m_isLoaded = true;
+	}
+}
 
 Renderer::~Renderer() {}
 
 Renderer* Renderer::getInstance() { return &m_this; }
 
-void Renderer::initalize(HWND window) {
-	Renderer* r = Renderer::getInstance();
-	if (!r->m_isLoaded && r->m_device.Get() == nullptr && r->m_deviceContext.Get() == nullptr &&
-		r->m_swapChain.Get() == nullptr) {
-		r->createDevice(window);
-		r->createRenderTarget();
-		r->m_isLoaded = true;
-	}
-}
+HWND Renderer::getHandle() { return m_handle; }
+
+void Renderer::initalize(HWND window) {}
 
 void Renderer::beginFrame() {
 	// Bind rendertarget

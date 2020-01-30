@@ -4,20 +4,13 @@
 
 class IntroState : public State {
 public:
+	IntroState();
 	void update();
-	void init();
+	void initialize();
 	void handleEvent(int event);
 	void pause();
 	void play();
 	void draw();
 
-	static IntroState* getInstance() { return &m_introState; }
-
-protected:
-	IntroState() {}
-
 private:
-	bool m_isLoaded = false;
-	static IntroState m_introState;
-	Entity entity;
 };

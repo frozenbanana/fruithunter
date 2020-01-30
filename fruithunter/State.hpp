@@ -1,6 +1,5 @@
 #pragma once
 #include <iostream>
-#include "StateHandler.hpp"
 #include "Keyboard.h"
 
 class StateHandler;
@@ -8,12 +7,12 @@ class StateHandler;
 class State {
 public:
 	virtual void update() = 0;
-	virtual void init() = 0;
+	virtual void initialize() = 0;
 	virtual void handleEvent(int event) = 0;
 	virtual void pause() = 0;
 	virtual void play() = 0;
 	virtual void draw() = 0;
-	void changeState(StateHandler* stateHandler, State* state);
+	void changeState(int state);
 	std::string getName() const;
 
 protected:
