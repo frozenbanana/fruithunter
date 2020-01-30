@@ -177,6 +177,7 @@
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="ErrorLogger.hpp" />
     <ClInclude Include="IntroState.hpp" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="PlayState.hpp" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Quad.hpp" />

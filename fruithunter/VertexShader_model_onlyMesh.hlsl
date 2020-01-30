@@ -7,7 +7,7 @@ struct VS_IN {
 
 struct VS_OUT {
 	float3 PosW : POSITION0;
-	float3 PosV : POSITION1;
+	//float3 PosV : POSITION1;
 	float4 PosH : SV_POSITION;
 	float2 TexCoord : TEXCOORD;
 	float3 Normal : NORMAL;
@@ -34,10 +34,9 @@ VS_OUT main( VS_IN input )
 	//output.Normal = mul(float4(input.Normal, 0), mInvTraWorld).xyz;
 
 	 output.PosW = mul(float4(input.Pos, 1), mWorld).xyz;
-	 output.PosV = mul(float4(output.PosW, 1), mView).xyz;
-	 output.PosH = mul(float4(output.PosV, 1), mPerspective);
+	 output.PosH = mul(float4(output.PosW, 1), mPerspective);
 	 output.TexCoord = input.TexCoord;
-	 output.Normal = mul(float4(input.Normal, 0), mul(mView,mWorld)).xyz;
+	 output.Normal = mul(float4(input.Normal, 0), mInvTraWorld).xyz;
 
 	return output;
 }

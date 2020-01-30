@@ -6,9 +6,22 @@ void Entity::updateMatrix() {
 	float4x4 matRotation = float4x4::CreateRotationZ(m_rotation.z) * float4x4::CreateRotationY(m_rotation.y) *
 						   float4x4::CreateRotationX(m_rotation.z);
 	float4x4 matScale = float4x4::CreateScale(m_scale);
-	m_modelMatrix = matTranform * matRotation * matScale;
+	float4x4 matWorld = matTranform * matRotation * matScale;
+	m_matrixBufferData.matWorld = matWorld;
+	m_matrixBufferData.matInvTraWorld = matWorld.Invert().Transpose();
+}
 
-	Renderer::getDeviceContext()->UpdateSubresource(m_modelMatrixBuffer, 0, 0, &m_modelMatrix, 0, 0);
+void Entity::bindModelMatrixBuffer() {
+	if (m_matrixChanged) {
+		//update matrix if needed
+		updateMatrix();
+	}
+	//fill data to pipeline
+	Renderer::getDeviceContext()->UpdateSubresource(
+		m_modelMatrixBuffer, 0, 0, &m_matrixBufferData, 0, 0);
+	//bind buffer to pipeline
+	Renderer::getDeviceContext()->VSSetConstantBuffers(
+		MODEL_MATRIX_BUFFER_SLOT, 1, &m_modelMatrixBuffer);
 }
 
 void Entity::createBuffers() {
@@ -18,7 +31,7 @@ void Entity::createBuffers() {
 		memset(&desc, 0, sizeof(desc));
 		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.ByteWidth = sizeof(float4x4);
+		desc.ByteWidth = sizeof(MatrixBuffer);
 
 		HRESULT res = Renderer::getDevice()->CreateBuffer(&desc, nullptr, &m_modelMatrixBuffer);
 		if (FAILED(res))
@@ -34,7 +47,7 @@ void Entity::release() {
 float4x4 Entity::getModelMatrix() { 
 	if (m_matrixChanged)
 		updateMatrix();
-	return m_modelMatrix;
+	return m_matrixBufferData.matWorld;
 }
 
 float3 Entity::getPosition() const { return m_position; }
@@ -88,9 +101,14 @@ void Entity::setScale(float scale) {
 	m_matrixChanged = true;
 }
 
-void Entity::draw() { m_mesh.draw(); }
+void Entity::draw() {
+	bindModelMatrixBuffer();
+	m_mesh.draw();
+}
 
-void Entity::draw_onlyMesh(float3 color) { m_mesh.draw_noMaterial(color); }
+void Entity::draw_onlyMesh(float3 color) { 
+	bindModelMatrixBuffer();
+	m_mesh.draw_noMaterial(color); }
 
 bool Entity::load(string filename) {
 	if (filename != "") {

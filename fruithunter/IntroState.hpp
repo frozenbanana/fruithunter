@@ -13,4 +13,5 @@ public:
 	void draw();
 
 private:
+	Entity entity;
 };

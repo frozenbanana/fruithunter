@@ -2,6 +2,8 @@
 #include "MeshHandler.h"
 #include "ShaderSet.h"
 
+#define COLOR_BUFFER_SLOT 2
+
 class Mesh
 {
 private:

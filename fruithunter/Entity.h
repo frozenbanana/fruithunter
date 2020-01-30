@@ -1,18 +1,25 @@
 #pragma once
 #include "Mesh.h"
+
+#define MODEL_MATRIX_BUFFER_SLOT 0
+
 class Entity {
 private:
 	float3 m_position;
 	float3 m_rotation;
 	float3 m_scale;
 	bool m_matrixChanged = false;//if position, rotation or scale is changed then the model matrix is updated when it is fetched
-	float4x4 m_modelMatrix;//matrix for translation, rotation and scale
 
 	Mesh m_mesh;
 
 	ID3D11Buffer* m_modelMatrixBuffer = nullptr;
 
+	struct MatrixBuffer {
+		float4x4 matWorld, matInvTraWorld;
+	} m_matrixBufferData;//matrix for translation, rotation and scale
+
 	void updateMatrix();
+	void bindModelMatrixBuffer();
 
 	void createBuffers();
 	void release();

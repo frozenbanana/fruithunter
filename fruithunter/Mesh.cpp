@@ -261,6 +261,7 @@ void Mesh::draw_noMaterial(float3 color)
 	//update color buffer
 	float4 data = float4(color.x, color.y, color.z, 1.0);
 	gDeviceContext->UpdateSubresource(m_colorBuffer, 0, 0, &data, 0, 0);
+	gDeviceContext->PSSetConstantBuffers(COLOR_BUFFER_SLOT, 1, &m_colorBuffer);
 
 	gDeviceContext->Draw(mesh.size(), 0);
 }

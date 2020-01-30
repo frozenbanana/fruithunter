@@ -41,6 +41,8 @@ public:
 	static Renderer* getInstance();
 	HWND getHandle();
 
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthState;
+
 private:
 	Renderer(int width, int height);
 	~Renderer();
@@ -59,4 +61,6 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
 	D3D11_TEXTURE2D_DESC m_backBufferDesc;
+
+	
 };
