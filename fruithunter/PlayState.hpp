@@ -2,6 +2,7 @@
 #include "State.hpp"
 #include "Quad.hpp"
 #include "Camera.hpp"
+#include "Timer.hpp"
 
 using namespace DirectX::SimpleMath;
 
@@ -17,11 +18,7 @@ public:
 	PlayState() { initialize(); }
 
 private:
-	LARGE_INTEGER m_timer;
-	float m_frequencySeconds;
-	float m_startTime;
-	float m_totalTime;
-	float m_elapsedTime;
+	Timer m_timer;
 	Camera m_camera;
 	Quad m_quad;
 };

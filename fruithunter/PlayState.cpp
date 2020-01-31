@@ -13,31 +13,13 @@ void PlayState::initialize() {
 	m_camera.buildMatrices();
 	m_camera.updateBuffer();
 	m_camera.bindMatix();
-
-	// Timer
-	// TODO: Refactor to a static timeHandler
-	LARGE_INTEGER timer;
-	if (!QueryPerformanceCounter(&timer)) {
-		ErrorLogger::log("Cannot query performance counter in " + m_name + ".");
-		return;
-	}
-
-	m_frequencySeconds = (float)(timer.QuadPart);
-	// Get Current value
-	QueryPerformanceCounter(&timer);
-	m_startTime = timer.QuadPart;
-	m_totalTime = 0.;
-	m_elapsedTime = 0.;
 }
 
 void PlayState::update() {
-	// TODO: Refactor to a static timeHandler
-	QueryPerformanceCounter(&m_timer);
-	m_elapsedTime = (float)(m_timer.QuadPart - m_startTime);
-	m_startTime = m_timer.QuadPart;
-	m_totalTime += m_elapsedTime * 0.000001;
+	m_timer.update();
 
-	float t = m_totalTime;
+	float t = m_timer.getTimePassed();
+
 	m_camera.setEye(Vector3(sin(t), 0.1 * cos(t), -4.0));
 	m_camera.buildMatrices();
 	m_camera.updateBuffer();
