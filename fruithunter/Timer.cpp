@@ -1,5 +1,6 @@
 #include "Timer.hpp"
 #include "ErrorLogger.hpp"
+#include <string>
 
 Timer::Timer() {
 	LARGE_INTEGER m_timer;
@@ -20,9 +21,12 @@ void Timer::update() {
 	m_lastElapsedTime = m_elapsedTime;
 	m_elapsedTime = (float)(m_timer.QuadPart - m_startTime);
 	m_startTime = m_timer.QuadPart;
+	// hard coded value perhaps could be replaced with m_frequencySeconds
 	m_totalTime += m_elapsedTime * 0.000001;
 }
 
 float Timer::getTime() { return m_totalTime; }
 
 float Timer::getDt() { return (m_elapsedTime - m_lastElapsedTime) * 0.000001; }
+
+std::string Timer::getTimeToString() { return std::to_string(m_totalTime); }

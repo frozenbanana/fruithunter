@@ -1,11 +1,13 @@
 #pragma once
 #include <d3d11.h>
+#include <iostream>
 
 class Timer {
 public:
 	Timer();
 	void update();
 	float getTime();
+	std::string getTimeToString();
 	float getDt();
 
 private:
