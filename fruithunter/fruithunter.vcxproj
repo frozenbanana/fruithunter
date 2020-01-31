@@ -169,7 +169,7 @@
     <ClCompile Include="State.cpp" />
     <ClCompile Include="StateHandler.cpp" />
     <ClCompile Include="TextRenderer.cpp" />
-    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.hpp" />
@@ -185,6 +185,7 @@
     <ClInclude Include="State.hpp" />
     <ClInclude Include="StateHandler.hpp" />
     <ClInclude Include="TextRenderer.hpp" />
+    <ClInclude Include="Timer.hpp" />
     <ClInclude Include="Window.hpp" />
   </ItemGroup>
   <ItemGroup>

@@ -3,8 +3,8 @@
 #include "Quad.hpp"
 #include "Camera.hpp"
 #include "Timer.hpp"
+#include "TextRenderer.hpp"
 
-using namespace DirectX::SimpleMath;
 
 class PlayState : public State {
 public:
@@ -19,6 +19,7 @@ public:
 
 private:
 	Timer m_timer;
+	TextRenderer m_textRenderer;
 	Camera m_camera;
 	Quad m_quad;
 };

@@ -1,5 +1,7 @@
 #pragma once
 #include "State.hpp"
+#include "TextRenderer.hpp"
+#include "Timer.hpp"
 
 class IntroState : public State {
 public:
@@ -12,4 +14,6 @@ public:
 	void draw();
 
 private:
+	Timer m_timer;
+	TextRenderer m_textRenderer;
 };

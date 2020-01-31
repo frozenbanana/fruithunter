@@ -5,6 +5,10 @@
 #include <iostream>
 #include <string>
 
+using Vector2 = DirectX::SimpleMath::Vector2;
+using Vector3 = DirectX::SimpleMath::Vector3;
+using Vector4 = DirectX::SimpleMath::Vector4;
+
 void PlayState::initialize() {
 	m_name = "Play State";
 	m_quad.init();
@@ -30,7 +34,15 @@ void PlayState::handleEvent(int event) { return; }
 void PlayState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
 void PlayState::draw() {
+	// Quad
 	m_quad.draw();
+
+	// Text
+	float t = m_timer.getTimePassed();
+	Vector4 col = Vector4(.5f, abs(cos(t)), abs(sin(t)), 1.f);
+	m_textRenderer.draw("HERE IS THE GOAT", Vector2(400., 300.), col);
+
+
 	ErrorLogger::log(m_name + " draw() called.");
 }
 

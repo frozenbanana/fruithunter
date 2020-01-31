@@ -13,6 +13,7 @@ public:
 	virtual void draw() = 0;
 	void changeState(int state);
 	std::string getName() const;
+	virtual ~State(){};
 
 protected:
 	State(){};
