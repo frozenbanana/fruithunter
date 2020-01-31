@@ -20,15 +20,12 @@ void IntroState::initialize() {
 void IntroState::update() {
 	// ErrorLogger::log(m_name + " update() called.");
 
-	// float t = clock()/1000;
 	float rotSpeed = 1;
 	rot += 0.01;
 	m_entity.setPosition(float3(5*sin(rot),0,0));
 	m_entity.rotateY(3.14f*1.f/60.f);
 	m_entity.setScale(sin(rot));
-	// rot += rotSpeed*(Input::getInstance()->keyDown(Keyboard::A) -
-	// Input::getInstance()->keyDown(Keyboard::D));
-	//m_camera.setEye(Vector3(-10 * sin(rot), 1, -10 * cos(rot)));
+
 	m_camera.buildMatrices();
 	m_camera.updateBuffer();
 }
@@ -42,7 +39,6 @@ void IntroState::draw() {
 
 	m_camera.bindMatix();
 
-	// m_entity.draw_onlyMesh(float3(1, 0, 0));
 	if(Input::getInstance()->keyDown(Keyboard::Space))m_entity.draw_boundingBox();
 	m_entity.draw();
 }

@@ -19,7 +19,6 @@ public:
 
 private:
 	float rot = 0;
-	//clock_t m_timer;
 	Camera m_camera;
 	Entity m_entity;
 };
