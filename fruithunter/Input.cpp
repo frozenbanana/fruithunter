@@ -16,19 +16,29 @@ void Input::initilize(HWND window) {
 		inp->m_scrollWheelTracker = 0;
 		inp->update();
 		inp->m_isLoaded = true;
+		inp->m_oldX = inp->m_mouseState.x;
+		inp->m_oldY = inp->m_mouseState.y;
 	}
 }
 
+// Updates states and trackers
 void Input::update() {
+	// Get old mouse coordinated before updateing states
+	m_oldX = m_mouseState.x;
+	m_oldY = m_mouseState.y;
+
+	// Update current state
 	m_keyboardState = m_keyboard->GetState();
 	m_mouseState = m_mouse->GetState();
 
+	// Track change in scrollwheel
 	if (m_scrollWheelTracker == m_mouseState.scrollWheelValue)
 		m_scrollDirection = ScrollTracking::STILL;
 	else if (m_scrollWheelTracker < m_mouseState.scrollWheelValue)
 		m_scrollDirection = ScrollTracking::DOWN;
 	else
 		m_scrollDirection = ScrollTracking::UP;
+
 
 	m_kbTracker.Update(m_keyboardState);
 	m_mouseTracker.Update(m_mouseState);
@@ -94,5 +104,9 @@ int Input::scrollWheelValue() { return m_mouseState.scrollWheelValue; }
 bool Input::scrolledUp() { return m_scrollDirection == ScrollTracking::DOWN; }
 
 bool Input::scrolledDown() { return m_scrollDirection == ScrollTracking::UP; }
+
+int Input::getMouseMovementX() { return m_mouseState.x - m_oldX; }
+
+int Input::getMouseMovementY() { return m_mouseState.y - m_oldY; }
 
 Input* Input::getInstance() { return &m_this; }

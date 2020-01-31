@@ -4,35 +4,30 @@
 #include "Quad.hpp"
 #include <iostream>
 #include <string>
-PlayState PlayState::m_playState;
 
 void PlayState::initialize() {
-	if (!m_isLoaded) {
-		m_name = "Play State";
-		m_quad.init();
-		m_camera.setView(Vector3(0.0, 0.0, -4.0), Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
-		m_camera.createBuffer();
-		m_camera.buildMatrices();
-		m_camera.updateBuffer();
-		m_camera.bindMatix();
+	m_name = "Play State";
+	m_quad.init();
+	m_camera.setView(Vector3(0.0, 0.0, -4.0), Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
+	m_camera.createBuffer();
+	m_camera.buildMatrices();
+	m_camera.updateBuffer();
+	m_camera.bindMatix();
 
-		// Timer
-		// TODO: Refactor to a static timeHandler
-		LARGE_INTEGER timer;
-		if (!QueryPerformanceCounter(&timer)) {
-			ErrorLogger::log("Cannot query performance counter in " + m_name + ".");
-			return;
-		}
-
-		m_frequencySeconds = (float)(timer.QuadPart);
-		// Get Current value
-		QueryPerformanceCounter(&timer);
-		m_startTime = timer.QuadPart;
-		m_totalTime = 0.;
-		m_elapsedTime = 0.;
-
-		m_isLoaded = true;
+	// Timer
+	// TODO: Refactor to a static timeHandler
+	LARGE_INTEGER timer;
+	if (!QueryPerformanceCounter(&timer)) {
+		ErrorLogger::log("Cannot query performance counter in " + m_name + ".");
+		return;
 	}
+
+	m_frequencySeconds = (float)(timer.QuadPart);
+	// Get Current value
+	QueryPerformanceCounter(&timer);
+	m_startTime = timer.QuadPart;
+	m_totalTime = 0.;
+	m_elapsedTime = 0.;
 }
 
 void PlayState::update() {

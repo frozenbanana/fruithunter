@@ -25,9 +25,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_indexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Resource> m_texture;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shaderResourceView;
-	//Microsoft::WRL::ComPtr<ID3D11VertexShader> m_vertexShader;
-	//Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pixelShader;
-	//Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;
 	ShaderSet m_shader;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_rasterizerState;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthState;

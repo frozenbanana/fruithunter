@@ -1,14 +1,9 @@
 #include "IntroState.hpp"
 #include "ErrorLogger.hpp"
 
-IntroState IntroState::m_introState;
+IntroState::IntroState() { initialize(); }
 
-void IntroState::initialize() {
-	if (!m_isLoaded) {
-		m_name = "Intro State";
-		m_isLoaded = true;
-	}
-}
+void IntroState::initialize() { m_name = "Intro State"; }
 
 void IntroState::update() { ErrorLogger::log(m_name + " update() called."); }
 

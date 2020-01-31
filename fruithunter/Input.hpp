@@ -3,7 +3,7 @@
 #include <Keyboard.h>
 #include <Mouse.h>
 #include <memory>
-#include "Window.hpp"
+#include "Renderer.hpp"
 #include "ErrorLogger.hpp"
 
 class Input {
@@ -32,6 +32,9 @@ public:
 	int scrollWheelValue();
 	bool scrolledUp();
 	bool scrolledDown();
+	int getMouseMovementX();
+	int getMouseMovementY();
+
 
 	static Input* getInstance();
 
@@ -52,4 +55,8 @@ private:
 	// Scroll wheel tracker
 	int m_scrollWheelTracker;
 	ScrollTracking m_scrollDirection;
+
+	// Mouse move tracker
+	int m_oldX;
+	int m_oldY;
 };
