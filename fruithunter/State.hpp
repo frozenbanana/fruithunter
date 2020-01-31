@@ -15,7 +15,10 @@ public:
 	void changeState(int state);
 	std::string getName() const;
 
+	virtual ~State() {};
+
 protected:
-	State(){};
+	State() {};
+	
 	std::string m_name = "Unset";
 };

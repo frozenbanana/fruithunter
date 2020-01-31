@@ -1,6 +1,6 @@
 # Blender v2.79 (sub 0) OBJ File: 'Splitter.blend'
 # www.blender.org
-mtllib Splitter.mtl
+mtllib GlobalMaterials.mtl
 o Cube.004_Cube.011
 v 0.200000 0.800000 0.500000
 v 0.200000 0.000000 -0.100000

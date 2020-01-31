@@ -95,10 +95,16 @@
     <ClInclude Include="Camera.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Input.h">
+    <ClInclude Include="Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
+    <ClInclude Include="Input.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -107,6 +113,7 @@
     <FxCompile Include="PixelShader.hlsl" />
     <FxCompile Include="VertexShader_model_onlyMesh.hlsl" />
     <FxCompile Include="PixelShader_model_onlyMesh.hlsl" />
+    <FxCompile Include="PixelShader_model.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />

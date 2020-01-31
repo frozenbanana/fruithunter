@@ -1,18 +1,19 @@
 #include "MeshHandler.h"
 
-Vertex MeshHandler::createVertexFromRef(const VertexRef& ref) const {
+Vertex MeshHandler::createVertexFromRef(const MeshHandler::VertexRef& ref) const {
 	Vertex v;
 	if (ref.position >= 0)
-		v.position = vertices_position[ref.position];
+		v.position = m_vertices_position[ref.position];
 	if (ref.uv >= 0)
-		v.uv = vertices_uv[ref.uv];
+		v.uv = m_vertices_uv[ref.uv];
 	if (ref.normal >= 0)
-		v.normal = vertices_normal[ref.normal];
+		v.normal = m_vertices_normal[ref.normal];
 	return v;
 }
 
-std::vector<VertexRef> MeshHandler::triangulate(std::vector<VertexRef> face) {
-	std::vector<VertexRef> ret;
+std::vector<MeshHandler::VertexRef> MeshHandler::triangulate(
+	std::vector<MeshHandler::VertexRef> face) {
+	std::vector<MeshHandler::VertexRef> ret;
 	if (face.size() == 3) {
 		ret.push_back(face[0]);
 		ret.push_back(face[1]);
@@ -35,16 +36,15 @@ bool MeshHandler::loadOBJ(std::string fileName, std::vector<Part>& parts) {
 	if (preCheckOBJ(fileName, posCount, uvCount, normalCount, triangleCount)) {
 
 		std::fstream objFile;
-		objFile.open(objPath + fileName + ".obj", std::ios::in);
+		objFile.open(m_objPath + fileName + ".obj", std::ios::in);
 		if (objFile.is_open()) {
 			// reset
-			vertices_position.resize(posCount);
-			vertices_uv.resize(uvCount);
-			vertices_normal.resize(normalCount);
-			triangleRefs.resize(triangleCount);
-			parts.clear(),
-
-				loadedObjName = fileName;
+			m_vertices_position.reserve(posCount);
+			m_vertices_uv.reserve(uvCount);
+			m_vertices_normal.reserve(normalCount);
+			m_triangleRefs.reserve(triangleCount);
+			parts.clear();
+			m_loadedObjName = fileName;
 
 			Part* part = nullptr;
 			std::string startWord = "";
@@ -55,12 +55,12 @@ bool MeshHandler::loadOBJ(std::string fileName, std::vector<Part>& parts) {
 					objFile.getline(c, 100);
 				}
 				else if (startWord == "mtllib") { // mtl file name
-					objFile >> materialFileName;
+					objFile >> m_materialFileName;
 				}
 				else if (startWord == "o") { // new part with part name
 					std::string name = "";
 					objFile >> name;
-					parts.push_back(Part(name, triangleRefs.size()));
+					parts.push_back(Part(name, m_triangleRefs.size()));
 					part = &parts.back();
 				}
 				else if (startWord == "usemtl") { // new faces repository for current meshPart
@@ -71,21 +71,21 @@ bool MeshHandler::loadOBJ(std::string fileName, std::vector<Part>& parts) {
 				else if (startWord == "v") { // vertex position
 					float3 pos;
 					objFile >> pos.x >> pos.y >> pos.z;
-					vertices_position.push_back(pos);
+					m_vertices_position.push_back(pos);
 				}
 				else if (startWord == "vn") { // normal
 					float3 norm;
 					objFile >> norm.x >> norm.y >> norm.z;
-					vertices_normal.push_back(norm);
+					m_vertices_normal.push_back(norm);
 				}
 				else if (startWord == "vt") { // uv coord
 					float2 uv;
 					objFile >> uv.x >> uv.y;
 					uv.y = 1 - uv.y; // UV IS UPSIDE DOWN!!!!
-					vertices_uv.push_back(uv);
+					m_vertices_uv.push_back(uv);
 				}
 				else if (startWord == "f") { // face
-					std::vector<VertexRef> face;
+					std::vector<MeshHandler::VertexRef> face;
 					while (objFile.peek() != '\n' && objFile.peek() != EOF) {
 						int pI = -1, uvI = -1, nI = -1;
 						char t;
@@ -103,13 +103,13 @@ bool MeshHandler::loadOBJ(std::string fileName, std::vector<Part>& parts) {
 								}
 							}
 						}
-						face.push_back(VertexRef(pI - 1, uvI - 1, nI - 1));
+						face.push_back(MeshHandler::VertexRef(pI - 1, uvI - 1, nI - 1));
 					}
-					std::vector<VertexRef> temp = triangulate(face);
+					std::vector<MeshHandler::VertexRef> temp = triangulate(face);
 					part->countUp(temp.size());
 					// merge arrays
-					for (int i = 0; temp.size(); i++) {
-						triangleRefs.push_back(temp[i]);
+					for (int i = 0; i < temp.size(); i++) {
+						m_triangleRefs.push_back(temp[i]);
 					}
 				}
 			}
@@ -123,13 +123,22 @@ bool MeshHandler::loadOBJ(std::string fileName, std::vector<Part>& parts) {
 
 bool MeshHandler::load(std::string filename, std::vector<Vertex>& mesh, std::vector<Part>& parts,
 	std::vector<Material>& materials, bool excludeParts) {
+	bool success = true;
 	if (filename != "") {
-		reset();
 		if (loadRaw(filename, mesh) && loadRawDesc(filename, parts)) {
 			// success
 			if (excludeParts)
 				combineParts(mesh, parts);
-			return loadMTL(materialFileName, materials);
+			if (loadMTL(m_materialFileName, materials)) {
+				connectPartsToMaterialsInCorrectOrder(parts, materials);
+			}
+			else {
+				// failed loading material
+				ErrorLogger::logWarning(HRESULT(),
+					"WARNING! MeshHandler failed at reading the file: " + m_materialFileName +
+						" for mesh: " + filename);
+				// success is still true! Mesh will be forced rendered without material
+			}
 		}
 		else {
 			// failure
@@ -139,91 +148,71 @@ bool MeshHandler::load(std::string filename, std::vector<Vertex>& mesh, std::vec
 				saveRawDesc(parts);
 				if (excludeParts)
 					combineParts(mesh, parts);
-				if (loadMTL(materialFileName, materials)) {
+				if (loadMTL(m_materialFileName, materials)) {
 					connectPartsToMaterialsInCorrectOrder(parts, materials);
-					return true;
-				} else
-					return false;//failed loading material
-			}
-			else
-				return false;//failed loading .obj file
-		}
-	}
-	return false;//filename empty!
-}
-
-bool MeshHandler::load(string filename, std::vector<Vertex>& mesh, std::vector<Part>& parts,
-	std::vector<VertexMaterialBuffer>& vertex_materials, bool excludeParts) {
-
-	if (filename != "") {
-		reset();
-		if (loadRaw(filename, mesh) && loadRawDesc(filename, parts)) {
-			// success
-			if (excludeParts)
-				combineParts(mesh, parts);
-			std::vector<Material> mats;
-			if (loadMTL(materialFileName, mats)) {
-				vertex_materials = createMaterialBufferData(parts, mats);
-				return true;
-			}
-			else
-				return false; // didnt load materials
-		}
-		else {
-			// failure
-			if (loadOBJ(filename, parts)) {
-				mesh = createMesh();
-				saveToRaw(mesh);
-				saveRawDesc(parts);
-				if (excludeParts)
-					combineParts(mesh, parts);
-				std::vector<Material> mats;
-				if (loadMTL(materialFileName, mats)) {
-					vertex_materials = createMaterialBufferData(parts, mats);
-					return true;
+				} else {
+					// failed loading material
+					ErrorLogger::logWarning(HRESULT(),
+						"WARNING! MeshHandler failed at reading the file: " + m_materialFileName +
+							" for mesh: " + filename); // failed loading material
+					// success is still true! Mesh will be forced rendered without material
 				}
-				else
-					return false;//failed loading materials
+			} else {
+				if (loadOBJ(filename, parts)) {
+					ErrorLogger::logWarning(
+						HRESULT(), "WARNING! MeshHandler failed at reading .obj file: " + filename);
+				}
+				else {
+					success = false; // failed loading .obj and .rw file
+				}
 			}
-			else
-				return false; // failed loading mesh
 		}
 	}
-	return false; //empty filename
+	else
+		success = false; // filename empty!
+
+	reset();
+	return success;
 }
 
 bool MeshHandler::load(std::string filename, std::vector<Vertex>& mesh) {
+	bool success = true;
 	if (filename != "") {
 		std::vector<Part> parts;
 		if (loadRaw(filename, mesh)) {
-			return true;
 		}
 		else if (loadOBJ(filename, parts)) {
 			mesh = createMesh();
-			return true;
 		}
-		else
-			return false;
+		else {
+			ErrorLogger::logWarning(
+				HRESULT(), "WARNING! MeshHandler failed at reading .obj file: " + filename);
+			success = false;// failed loading .obj and .rw file
+		}
 	}
+	else
+		success = false;//filename empty!
+	return success;
 }
 
 std::vector<Vertex> MeshHandler::createMesh() const {
 	std::vector<Vertex> arr;
-	if (triangleRefs.size() > 0) {
-		arr.resize(triangleRefs.size());
-		for (int i = 0; i < triangleRefs.size() / 3; i++) {
+	if (m_triangleRefs.size() > 0) {
+		arr.reserve(m_triangleRefs.size());
+		for (int i = 0; i < m_triangleRefs.size() / 3; i++) {
 			int index = i * 3;
-			arr.push_back(createVertexFromRef(triangleRefs[index + 0]));
-			arr.push_back(createVertexFromRef(triangleRefs[index + 1]));
-			arr.push_back(createVertexFromRef(triangleRefs[index + 2]));
+			arr.push_back(createVertexFromRef(m_triangleRefs[index + 0]));
+			arr.push_back(createVertexFromRef(m_triangleRefs[index + 1]));
+			arr.push_back(createVertexFromRef(m_triangleRefs[index + 2]));
 		}
 	}
 	return arr;
 }
 
-bool MeshHandler::preCheckOBJ(std::string filename, int& positions, int& uvs, int& normals, int& triangles) {
+bool MeshHandler::preCheckOBJ(
+	std::string filename, int& positions, int& uvs, int& normals, int& triangles) {
 	std::fstream objFile;
-	objFile.open(objPath + filename + ".obj", std::ios::in);
+	objFile.open(m_objPath + filename + ".obj", std::ios::in);
 	if (objFile.is_open()) {
 		Part* part = nullptr;
 
@@ -282,7 +271,7 @@ bool MeshHandler::preCheckOBJ(std::string filename, int& positions, int& uvs, in
 
 bool MeshHandler::loadMTL(std::string filename, std::vector<Material>& materials) {
 	std::fstream mtlFile;
-	mtlFile.open(mtlPath + filename);
+	mtlFile.open(m_mtlPath + filename);
 	if (mtlFile.is_open()) {
 		// temp variables
 		std::string text = "";
@@ -320,8 +309,8 @@ bool MeshHandler::loadMTL(std::string filename, std::vector<Material>& materials
 			}
 			else if (startWord == "G") { // emit glow
 				mtlFile >> floatValue;
-				//do nothing
-				//materials.back().set.mapUsages.w = 1;
+				// do nothing
+				// materials.back().set.mapUsages.w = 1;
 			}
 			else if (startWord == "map_Ka") {
 				mtlFile >> text;
@@ -348,13 +337,16 @@ bool MeshHandler::loadMTL(std::string filename, std::vector<Material>& materials
 bool MeshHandler::loadRaw(std::string filename, std::vector<Vertex>& mesh) {
 	mesh.clear();
 	std::fstream file;
-	file.open(rawPath + filename + ".rw", std::ios::in | std::ios::binary);
+	file.open(m_rawPath + filename + ".rw", std::ios::in | std::ios::binary);
 	if (file.is_open()) {
 		int length = 0;
 		file.read((char*)&length, sizeof(int)); // read vertex count
 		mesh.resize(length);
 		file.read((char*)mesh.data(), sizeof(Vertex) * length); // read vertex data
 		file.close();
+		if (mesh.size() <= 0)
+			ErrorLogger::logWarning(HRESULT(), "WARNING! The Raw mesh file: " + filename +
+												   ".rw is empty, please remove this file!");
 		return (mesh.size() > 0);
 	}
 	return false;
@@ -362,9 +354,9 @@ bool MeshHandler::loadRaw(std::string filename, std::vector<Vertex>& mesh) {
 
 bool MeshHandler::loadRawDesc(std::string filename, std::vector<Part>& parts) {
 	std::fstream file;
-	file.open(rawPath + filename + ".rwd", std::ios::in | std::ios::binary);
+	file.open(m_rawPath + filename + ".rwd", std::ios::in | std::ios::binary);
 	if (file.is_open()) {
-		file >> materialFileName;
+		file >> m_materialFileName;
 		int partCount = 0;
 		file >> partCount;
 		parts.resize(partCount);
@@ -379,13 +371,17 @@ bool MeshHandler::loadRawDesc(std::string filename, std::vector<Part>& parts) {
 				file >> mu->name >> mu->index >> mu->count;
 			}
 		}
+		if (parts.size() <= 0)
+			ErrorLogger::logWarning(
+				HRESULT(), "WARNING! The Raw description from file: " + filename +
+							   ".rwd is empty, please remove this file!");
 		return (parts.size() > 0);
 	}
 	return false;
 }
 
 void MeshHandler::saveToRaw(std::vector<Vertex>& mesh) const {
-	std::string path = rawPath + loadedObjName + ".rw";
+	std::string path = m_rawPath + m_loadedObjName + ".rw";
 	// check if file exists
 	std::fstream fileTest;
 	fileTest.open(path, std::ios::in | std::ios::binary);
@@ -408,7 +404,7 @@ void MeshHandler::saveToRaw(std::vector<Vertex>& mesh) const {
 }
 
 void MeshHandler::saveRawDesc(std::vector<Part>& parts) const {
-	std::string path = rawPath + loadedObjName + ".rwd";
+	std::string path = m_rawPath + m_loadedObjName + ".rwd";
 	// check if file exists
 	std::fstream fileTest;
 	fileTest.open(path, std::ios::in | std::ios::binary);
@@ -420,7 +416,7 @@ void MeshHandler::saveRawDesc(std::vector<Part>& parts) const {
 		std::fstream file;
 		file.open(path, std::ios::out);
 		if (file.is_open()) {
-			file << materialFileName << " ";
+			file << m_materialFileName << " ";
 			file << parts.size() << " ";
 			for (int i = 0; i < parts.size(); i++) {
 				Part* part = &parts[i];
@@ -453,7 +449,7 @@ void MeshHandler::combineParts(std::vector<Vertex>& mesh, std::vector<Part>& par
 	std::vector<Part> newParts;
 	newParts.push_back(Part("main", 0));
 	std::vector<Vertex> newMesh;
-	newMesh.resize(mesh.size());
+	newMesh.reserve(mesh.size());
 	// find list
 	std::vector<std::string> materials;
 	for (int p = 0; p < parts.size(); p++) {
@@ -502,7 +498,7 @@ void MeshHandler::connectPartsToMaterialsInCorrectOrder(
 	for (int i = 0; i < parts.size(); i++) {
 		for (int m = 0; m < parts[i].materialUsage.size(); m++) {
 			Part::MaterialUsage* mat = &parts[i].materialUsage[m];
-			//find material index
+			// find material index
 			for (int j = 0; j < materials.size(); j++) {
 				if (mat->name == materials[j].getMaterialName()) {
 					mat->materialIndex = j;
@@ -513,40 +509,13 @@ void MeshHandler::connectPartsToMaterialsInCorrectOrder(
 	}
 }
 
-std::vector<VertexMaterialBuffer> MeshHandler::createMaterialBufferData(
-	const std::vector<Part>& parts, const std::vector<Material>& materials) {
-	
-	int total = 0;
-	for (int i = 0; i < parts.size(); i++)
-		total += parts[i].count;
-	std::vector<VertexMaterialBuffer> ret(total);
-	int index = 0;
-	for (int i = 0; i < parts.size(); i++) {
-		for (int j = 0; j < parts[i].materialUsage.size(); j++) {
-			// find material
-			int matInd = -1;
-			for (int u = 0; u < materials.size(); u++)
-				if (materials[u].getMaterialName() == parts[i].materialUsage[j].name)
-					matInd = u;
-			if (matInd != -1) {
-				// apply material for all vertices
-				Material m = materials[matInd];
-				for (int k = 0; k < parts[i].materialUsage[j].count; k++) {
-					ret[index++] = m.convertToVertexBuffer();
-				}
-			}
-		}
-	}
-	return ret;
-}
-
 void MeshHandler::reset() {
-	loadedObjName = "";
-	vertices_normal.clear();
-	vertices_uv.clear();
-	vertices_position.clear();
-	triangleRefs.clear();
-	materialFileName = "";
+	m_loadedObjName = "";
+	m_vertices_normal.clear();
+	m_vertices_uv.clear();
+	m_vertices_position.clear();
+	m_triangleRefs.clear();
+	m_materialFileName = "";
 }
 
 MeshHandler::MeshHandler() {}

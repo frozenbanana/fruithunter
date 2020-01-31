@@ -40,6 +40,15 @@ LRESULT CALLBACK WinProc(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
 	return DefWindowProc(handle, msg, wparam, lparam);
 }
 
+void Renderer::bindBackAndDepthBuffer() { 
+	m_deviceContext->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), m_depthDSV.Get());
+}
+
+void Renderer::clearDepth() {
+	m_deviceContext->ClearDepthStencilView(
+		m_depthDSV.Get(), D3D11_CLEAR_DEPTH, 1, 0);
+}
+
 Renderer::Renderer(int width, int height) {
 	// Define window style
 	WNDCLASS wc = { 0 };
@@ -74,15 +83,24 @@ void Renderer::initalize(HWND window) {}
 
 void Renderer::beginFrame() {
 	// Bind rendertarget
-	m_deviceContext.Get()->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), nullptr);
+	m_deviceContext.Get()->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), m_depthDSV.Get());
 
 	// Set viewport
-	auto viewport =
-		CD3D11_VIEWPORT(0.f, 0.f, (float)m_backBufferDesc.Width, (float)m_backBufferDesc.Height);
-	m_deviceContext->RSSetViewports(1, &viewport);
+	//auto viewport =
+	//	CD3D11_VIEWPORT(0.f, 0.f, (float)m_backBufferDesc.Width, (float)m_backBufferDesc.Height);
+	//m_deviceContext->RSSetViewports(1, &viewport);
+	D3D11_VIEWPORT vp;
+	vp.Width = (float)m_backBufferDesc.Width;
+	vp.Height = (float)m_backBufferDesc.Height;
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+	vp.TopLeftX = 0;
+	vp.TopLeftY = 0;
+	m_deviceContext->RSSetViewports(1, &vp);
 
 	float clearColor[] = { 0.25f, .5f, 1, 1 };
 	m_deviceContext->ClearRenderTargetView(m_renderTargetView.Get(), clearColor);
+	m_deviceContext->ClearDepthStencilView(m_depthDSV.Get(), D3D11_CLEAR_DEPTH,1,0);
 }
 
 void Renderer::endFrame() {
@@ -110,14 +128,26 @@ void Renderer::createDevice(HWND window) {
 	swapChainDesc.Windowed = true;
 
 	// Create the swap chain, device and device context
-	HRESULT swpFlag = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0,
-		nullptr, 0, D3D11_SDK_VERSION, &swapChainDesc, m_swapChain.GetAddressOf(),
-		m_device.GetAddressOf(), nullptr, m_deviceContext.GetAddressOf());
+	HRESULT swpFlag = D3D11CreateDeviceAndSwapChain(
+		nullptr, 
+		D3D_DRIVER_TYPE_HARDWARE, 
+		nullptr, 
+		0,
+		nullptr, 
+		0, 
+		D3D11_SDK_VERSION, 
+		&swapChainDesc, 
+		m_swapChain.GetAddressOf(),
+		m_device.GetAddressOf(), 
+		nullptr, 
+		m_deviceContext.GetAddressOf());
 
 	if (FAILED(swpFlag)) {
 		ErrorLogger::messageBox(swpFlag, L"Error creating DX11.");
 		return;
 	}
+
+	createDepthBuffer(swapChainDesc);
 }
 
 void Renderer::createRenderTarget() {
@@ -128,8 +158,7 @@ void Renderer::createRenderTarget() {
 		return;
 	};
 
-	HRESULT rtFlag =
-		m_device->CreateRenderTargetView(backBuffer, nullptr, m_renderTargetView.GetAddressOf());
+	HRESULT rtFlag = m_device->CreateRenderTargetView(backBuffer, NULL, m_renderTargetView.GetAddressOf());
 	if (FAILED(rtFlag)) {
 		ErrorLogger::messageBox(bFlag, "Failed to get create render target view.");
 		return;
@@ -140,10 +169,37 @@ void Renderer::createRenderTarget() {
 		backBuffer->Release();
 
 	// Depth state
-	auto depthDesc = CD3D11_DEPTH_STENCIL_DESC(FALSE, D3D11_DEPTH_WRITE_MASK_ZERO,
-		D3D11_COMPARISON_LESS, FALSE, D3D11_DEFAULT_STENCIL_READ_MASK,
-		D3D11_DEFAULT_STENCIL_WRITE_MASK, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP,
-		D3D11_STENCIL_OP_KEEP, D3D11_COMPARISON_ALWAYS, D3D11_STENCIL_OP_KEEP,
-		D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP, D3D11_COMPARISON_ALWAYS);
-	m_device->CreateDepthStencilState(&depthDesc, m_depthState.GetAddressOf());
+	//auto depthDesc = CD3D11_DEPTH_STENCIL_DESC(FALSE, D3D11_DEPTH_WRITE_MASK_ZERO,
+	//	D3D11_COMPARISON_LESS, FALSE, D3D11_DEFAULT_STENCIL_READ_MASK,
+	//	D3D11_DEFAULT_STENCIL_WRITE_MASK, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP,
+	//	D3D11_STENCIL_OP_KEEP, D3D11_COMPARISON_ALWAYS, D3D11_STENCIL_OP_KEEP,
+	//	D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP, D3D11_COMPARISON_ALWAYS);
+	//m_device->CreateDepthStencilState(&depthDesc, m_depthState.GetAddressOf());
+
+	//
+}
+
+void Renderer::createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd) {
+	D3D11_TEXTURE2D_DESC DeStDesc;
+	DeStDesc.Width = 800;
+	DeStDesc.Height = 600;
+	DeStDesc.ArraySize = 1;
+	DeStDesc.MipLevels = 1;
+	DeStDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R32_TYPELESS;
+	DeStDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
+	DeStDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+	DeStDesc.CPUAccessFlags = 0;
+	DeStDesc.MiscFlags = 0;
+	DeStDesc.SampleDesc = scd.SampleDesc; // same as swapChain
+	ID3D11Texture2D* tex = 0;
+	HRESULT res = m_device->CreateTexture2D(&DeStDesc, 0, &tex);
+	D3D11_DEPTH_STENCIL_VIEW_DESC viewDesc;
+	ZeroMemory(&viewDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
+	viewDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	viewDesc.ViewDimension = D3D11_DSV_DIMENSION::D3D11_DSV_DIMENSION_TEXTURE2D;
+	viewDesc.Flags = 0;
+	viewDesc.Texture2D.MipSlice = 0;
+	HRESULT hr2 = m_device->CreateDepthStencilView(tex, &viewDesc, m_depthDSV.GetAddressOf());
+
+	tex->Release();
 }

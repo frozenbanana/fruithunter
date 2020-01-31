@@ -12,14 +12,6 @@ struct Vertex {
 	}
 };
 
-struct VertexRef {
-	int position, uv, normal;
-	VertexRef(int _position = -1, int _uv = -1, int _normal = -1) {
-		position = _position;
-		uv = _uv;
-		normal = _normal;
-	}
-};
 struct Part {
 	struct MaterialUsage {
 		std::string name;//material name
@@ -56,22 +48,30 @@ struct Part {
 class MeshHandler
 {
 private:
-	std::string loadedObjName = "";
+	struct VertexRef {
+		int position, uv, normal;
+		VertexRef(int _position = -1, int _uv = -1, int _normal = -1) {
+			position = _position;
+			uv = _uv;
+			normal = _normal;
+		}
+	};
+	std::string m_loadedObjName = "";
 
-	const std::string mtlPath = "Meshes/MTL/";
-	const std::string objPath = "Meshes/OBJ/";
-	const std::string rawPath = "Meshes/RAW/";
+	const std::string m_mtlPath = "Meshes/MTL/";
+	const std::string m_objPath = "Meshes/OBJ/";
+	const std::string m_rawPath = "Meshes/RAW/";
 
-	std::vector<float3> vertices_position;
-	std::vector<float2> vertices_uv;
-	std::vector<float3> vertices_normal;
+	std::vector<float3> m_vertices_position;
+	std::vector<float2> m_vertices_uv;
+	std::vector<float3> m_vertices_normal;
 
-	std::vector<VertexRef> triangleRefs;
+	std::vector<MeshHandler::VertexRef> m_triangleRefs;
 
-	std::string materialFileName = "";
+	std::string m_materialFileName = "";
 
-	Vertex createVertexFromRef(const VertexRef& ref) const;
-	std::vector<VertexRef> triangulate(std::vector<VertexRef> face);
+	Vertex createVertexFromRef(const MeshHandler::VertexRef& ref) const;
+	std::vector<MeshHandler::VertexRef> triangulate(std::vector<MeshHandler::VertexRef> face);
 
 	/*creates an array of vertices from position, uv, normal and triangleRefs arrays*/
 	std::vector<Vertex> createMesh() const;
@@ -85,22 +85,27 @@ private:
 	/*loads the object decription. also retreives material filename*/
 	bool loadRawDesc(std::string filename,std::vector<Part>& parts);
 
+	/*
+	 *	Saves vertices data in a .rw file, saved binary, increasing load time
+	*/
 	void saveToRaw(std::vector<Vertex>& mesh) const;
+	/*
+	 *	Saves Part description to a .rwd file
+	*/
 	void saveRawDesc(std::vector<Part>& parts) const;
+	/*
+	 *	Forces the loaded vertices to have normals pointing in their triangle direction
+	*/
 	void flatShadeMesh(std::vector<Vertex>& mesh);
 
 	/*
-	 *	Merges all parts to one part. The mesh will be reconstructed and there will be only one part to use with correctly used materials.
+	 *	Merges all parts to one part. The mesh will be reconstructed and there will be only one part left with correctly merged materials.
 	*/
 	void combineParts(std::vector<Vertex>& mesh, std::vector<Part>& parts)const;
 	/*
 	 *	Fills the material index to use for the materialArray. This function is needed if materials are used as constant buffers
 	*/
 	void connectPartsToMaterialsInCorrectOrder(std::vector<Part>& parts, const std::vector<Material>& materials);
-	/*
-	 *	creates vertex buffer data needed for drawing with materials
-	*/
-	std::vector<VertexMaterialBuffer> createMaterialBufferData(const std::vector<Part>& parts, const std::vector<Material>& materials);
 
 	void reset();
 public:
@@ -108,10 +113,6 @@ public:
 	 *	Used if materials are used as constant buffers
 	*/
 	bool load(std::string filename, std::vector<Vertex>& mesh, std::vector<Part>& parts, std::vector<Material>& materials,bool excludeParts = true);
-	/*
-	 *	Used if materials are used as vertex buffers
-	*/
-	bool load(string filename, std::vector<Vertex>& mesh, std::vector<Part>& parts, std::vector<VertexMaterialBuffer>& vertex_materials, bool excludeParts = false);
 	/*
 	 *	Used if materials are not desired
 	*/

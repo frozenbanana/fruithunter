@@ -3,34 +3,32 @@
 #include "ShaderSet.h"
 
 #define COLOR_BUFFER_SLOT 2
+#define MATERIAL_BUFFER_SLOT 2
 
 class Mesh
 {
 private:
-	static int meshCount;
-	static ShaderSet shader_object;
-	static ShaderSet shader_object_onlyMesh;
+	static ShaderSet m_shaderObject;
+	static ShaderSet m_shaderObject_onlyMesh;
 
-	std::string loadedMeshName = "";
-	MeshHandler handler;
+	std::string m_loadedMeshName = "";
+	MeshHandler m_handler;
 
-	bool minmaxChanged = false;
-	float2 MinMaxXPosition = float2(-1, -1);//.x is min, .y is max
-	float2 MinMaxYPosition = float2(-1, -1);
-	float2 MinMaxZPosition = float2(-1, -1);
+	bool m_minmaxChanged = false;
+	float2 m_MinMaxXPosition = float2(-1, -1);//.x is min, .y is max
+	float2 m_MinMaxYPosition = float2(-1, -1);
+	float2 m_MinMaxZPosition = float2(-1, -1);
 
-	std::vector<Part> parts;//describes what parts exists and what material they each use
-	std::vector<Vertex> mesh;//vertices of mesh, position, uv, normal
-	std::vector<VertexMaterialBuffer> mesh_materials;//different way of rendering with material
-	std::vector<Material> materials;
+	std::vector<Part> m_parts;//describes what parts exists and what material they each use
+	std::vector<Vertex> m_meshVertices;//vertices of mesh, position, uv, normal
+	std::vector<Material> m_materials;
 	//bounding box
-	static std::vector<Vertex> box;
-	static ID3D11Buffer* vertexBuffer_BoundingBox;
-	//vertex buffers
-	ID3D11Buffer* vertexBuffer = nullptr;
-	ID3D11Buffer* vertexMaterialBuffer = nullptr;
+	static std::vector<Vertex> m_boxVertices;
+	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer_BoundingBox;
+	//vertex buffer
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 	//color buffer
-	static ID3D11Buffer* m_colorBuffer;
+	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_colorBuffer;
 
 	//FUNCTIONS
 	void bindMesh() const;
@@ -40,7 +38,6 @@ private:
 	void loadBoundingBox();
 	//buffer functions
 	void createBuffers(bool instancing = false);
-	void freeBuffers();
 	//intersection
 	static float triangleTest(float3 rayDir, float3 rayOrigin, float3 tri0, float3 tri1, float3 tri2);
 	static float obbTest(float3 rayDir, float3 rayOrigin, float3 boxPos, float3 boxScale);
@@ -62,6 +59,6 @@ public:
 	float castRayOnMesh(float3 rayPos, float3 rayDir);
 
 	Mesh(std::string OBJFile = "");
-	//Mesh& operator=(const Mesh& other);
+	Mesh& operator=(const Mesh& other) = delete;
 	~Mesh();
 };

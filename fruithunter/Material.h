@@ -39,11 +39,11 @@ private:
 	} m_data;
 	bool m_materialBufferChanged = false;
 	//buffers
-	ID3D11Buffer* m_materialBuffer = nullptr;
-	ID3D11ShaderResourceView** m_maps = nullptr;
+	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_materialBuffer;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_maps[3];
 
 	bool createBuffers();
-	void release();
+	bool createResourceBuffer(int textureIndex, string textureName);
 	void updateMaterialBuffer();
 
 	std::wstring s2ws(const std::string& s);
@@ -60,6 +60,7 @@ public:
 	void setSpecular(float3 s);
 	void setSpecularHighlight(float Ns);
 	void setDiffuseStrength(float Ni);
+
 
 	void bind(int materialBufferIndex = 2, int resourceBufferIndex = 0);
 

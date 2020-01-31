@@ -12,7 +12,6 @@ void PlayState::initialize() {
 	m_camera.createBuffer();
 	m_camera.buildMatrices();
 	m_camera.updateBuffer();
-	m_camera.bindMatix();
 
 	// Timer
 	// TODO: Refactor to a static timeHandler
@@ -48,6 +47,7 @@ void PlayState::handleEvent(int event) { return; }
 void PlayState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
 void PlayState::draw() {
+	m_camera.bindMatix();
 	m_quad.draw();
 	ErrorLogger::log(m_name + " draw() called.");
 }

@@ -6,7 +6,7 @@ void Entity::updateMatrix() {
 	float4x4 matRotation = float4x4::CreateRotationZ(m_rotation.z) * float4x4::CreateRotationY(m_rotation.y) *
 						   float4x4::CreateRotationX(m_rotation.z);
 	float4x4 matScale = float4x4::CreateScale(m_scale);
-	float4x4 matWorld = matTranform * matRotation * matScale;
+	float4x4 matWorld = matScale * matRotation * matTranform;
 	m_matrixBufferData.matWorld = matWorld;
 	m_matrixBufferData.matInvTraWorld = matWorld.Invert().Transpose();
 }
@@ -16,32 +16,30 @@ void Entity::bindModelMatrixBuffer() {
 		//update matrix if needed
 		updateMatrix();
 	}
-	//fill data to pipeline
+	//fill data to pipeline, transpose matrices
+	Entity::MatrixBuffer transposedData = m_matrixBufferData;
+	transposedData.matWorld = transposedData.matWorld.Transpose();
+	transposedData.matInvTraWorld = transposedData.matInvTraWorld.Transpose();
 	Renderer::getDeviceContext()->UpdateSubresource(
-		m_modelMatrixBuffer, 0, 0, &m_matrixBufferData, 0, 0);
+		m_modelMatrixBuffer.Get(), 0, 0, &transposedData, 0, 0);
 	//bind buffer to pipeline
 	Renderer::getDeviceContext()->VSSetConstantBuffers(
-		MODEL_MATRIX_BUFFER_SLOT, 1, &m_modelMatrixBuffer);
+		MODEL_MATRIX_BUFFER_SLOT, 1, m_modelMatrixBuffer.GetAddressOf());
 }
 
 void Entity::createBuffers() {
 	//matrix buffer
-	if (m_modelMatrixBuffer == nullptr) {
+	if (m_modelMatrixBuffer.Get() == nullptr) {
 		D3D11_BUFFER_DESC desc;
 		memset(&desc, 0, sizeof(desc));
 		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.ByteWidth = sizeof(MatrixBuffer);
 
-		HRESULT res = Renderer::getDevice()->CreateBuffer(&desc, nullptr, &m_modelMatrixBuffer);
+		HRESULT res = Renderer::getDevice()->CreateBuffer(&desc, nullptr, m_modelMatrixBuffer.GetAddressOf());
 		if (FAILED(res))
 			ErrorLogger::logError(res,"Entity failed creating matrix buffer!");
 	}
-}
-
-void Entity::release() {
-	if (m_modelMatrixBuffer != nullptr)
-		m_modelMatrixBuffer->Release();
 }
 
 float4x4 Entity::getModelMatrix() { 
@@ -92,12 +90,12 @@ void Entity::rotateZ(float val) {
 }
 
 void Entity::setScale(float3 scale) {
-	m_scale = scale;
+	m_scale = float3(abs(scale.x),abs(scale.y),abs(scale.z));
 	m_matrixChanged = true;
 }
 
 void Entity::setScale(float scale) {
-	m_scale = float3(scale, scale, scale);
+	m_scale = float3(abs(scale), abs(scale), abs(scale));
 	m_matrixChanged = true;
 }
 
@@ -108,17 +106,16 @@ void Entity::draw() {
 
 void Entity::draw_onlyMesh(float3 color) { 
 	bindModelMatrixBuffer();
-	m_mesh.draw_noMaterial(color); }
+	m_mesh.draw_noMaterial(color);
+}
+
+void Entity::draw_boundingBox() {
+	bindModelMatrixBuffer();
+	m_mesh.draw_BoundingBox();
+}
 
 bool Entity::load(string filename) {
-	if (filename != "") {
-		if (!m_mesh.load(filename)) {
-			ErrorLogger::logWarning(HRESULT(), "Entity failed at loading mesh: " + filename + "\n");
-			return false;
-		} else
-			return true;
-	} else
-		return false;
+	return m_mesh.load(filename);
 }
 
 Entity::Entity(string filename, float3 position, float3 rotation, float3 scale) {
@@ -129,4 +126,4 @@ Entity::Entity(string filename, float3 position, float3 rotation, float3 scale) 
 	createBuffers();
 }
 
-Entity::~Entity() { release(); }
+Entity::~Entity() { }

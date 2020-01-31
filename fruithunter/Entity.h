@@ -12,7 +12,7 @@ private:
 
 	Mesh m_mesh;
 
-	ID3D11Buffer* m_modelMatrixBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_modelMatrixBuffer;
 
 	struct MatrixBuffer {
 		float4x4 matWorld, matInvTraWorld;
@@ -22,7 +22,6 @@ private:
 	void bindModelMatrixBuffer();
 
 	void createBuffers();
-	void release();
 
 public:
 	float4x4 getModelMatrix();
@@ -44,6 +43,7 @@ public:
 	//Drawing
 	void draw();
 	void draw_onlyMesh(float3 color);
+	void draw_boundingBox();
 
 	bool load(string filename);
 

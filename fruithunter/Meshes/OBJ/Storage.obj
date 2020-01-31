@@ -1,6 +1,6 @@
 # Blender v2.79 (sub 0) OBJ File: 'Storage2In2Out.blend'
 # www.blender.org
-mtllib Storage2In2Out.mtl
+mtllib GlobalMaterials.mtl
 o ConveyerAcc_Cube.019
 v 1.000000 0.500000 -0.500000
 v 1.000000 0.500000 -1.500000

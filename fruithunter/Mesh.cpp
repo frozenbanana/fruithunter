@@ -1,11 +1,10 @@
 #include "Mesh.h"
 
-int Mesh::meshCount = 0;
-std::vector<Vertex> Mesh::box;
-ShaderSet Mesh::shader_object;
-ShaderSet Mesh::shader_object_onlyMesh;
-ID3D11Buffer* Mesh::vertexBuffer_BoundingBox = nullptr;
-ID3D11Buffer* Mesh::m_colorBuffer = nullptr;
+std::vector<Vertex> Mesh::m_boxVertices;
+ShaderSet Mesh::m_shaderObject;
+ShaderSet Mesh::m_shaderObject_onlyMesh;
+Microsoft::WRL::ComPtr<ID3D11Buffer> Mesh::m_vertexBuffer_BoundingBox;
+Microsoft::WRL::ComPtr<ID3D11Buffer> Mesh::m_colorBuffer;
 
 float Mesh::triangleTest(float3 rayDir, float3 rayOrigin, float3 tri0, float3 tri1, float3 tri2)
 {
@@ -28,7 +27,7 @@ float Mesh::obbTest(float3 rayDir, float3 rayOrigin, float3 boxPos, float3 boxSc
 {
 	//SLABS CALULATIONS(my own)
 	float4 data[3] = { float4(1,0,0,boxScale.x),float4(0,1,0,boxScale.y),float4(0,0,1,boxScale.z) };//{o.u_hu,o.v_hv,o.w_hw};
-	float Tmin = -99999999, Tmax = 9999999999;
+	float Tmin = -9999999999, Tmax = 9999999999;
 	for (int i = 0; i < 3; i++) {
 		float3 tempNormal = float3(data[i].x, data[i].y, data[i].z);
 		float3 center1 = boxPos + tempNormal * data[i].w;
@@ -53,48 +52,48 @@ float Mesh::obbTest(float3 rayDir, float3 rayOrigin, float3 boxPos, float3 boxSc
 }
 bool Mesh::findMinMaxValues()
 {
-	if (mesh.size() > 0) {
+	if (m_meshVertices.size() > 0) {
 		DirectX::XMINT2 changedX(1, 1), changedY(1, 1), changedZ(1, 1);//1 = unchanged
-		for (int i = 0; i < mesh.size(); i++)
+		for (int i = 0; i < m_meshVertices.size(); i++)
 		{
-			float3 p = mesh[i].position;
-			if (p.x > MinMaxXPosition.y || changedX.y)MinMaxXPosition.y = p.x, changedX.y = 0;
-			if (p.x < MinMaxXPosition.x || changedX.x)MinMaxXPosition.x = p.x, changedX.x = 0;
+			float3 p = m_meshVertices[i].position;
+			if (p.x > m_MinMaxXPosition.y || changedX.y)m_MinMaxXPosition.y = p.x, changedX.y = 0;
+			if (p.x < m_MinMaxXPosition.x || changedX.x)m_MinMaxXPosition.x = p.x, changedX.x = 0;
 
-			if (p.y > MinMaxYPosition.y || changedY.y)MinMaxYPosition.y = p.y, changedY.y = 0;
-			if (p.y < MinMaxYPosition.x || changedY.x)MinMaxYPosition.x = p.y, changedY.x = 0;
+			if (p.y > m_MinMaxYPosition.y || changedY.y)m_MinMaxYPosition.y = p.y, changedY.y = 0;
+			if (p.y < m_MinMaxYPosition.x || changedY.x)m_MinMaxYPosition.x = p.y, changedY.x = 0;
 
-			if (p.z > MinMaxZPosition.y || changedZ.y)MinMaxZPosition.y = p.z, changedZ.y = 0;
-			if (p.z < MinMaxZPosition.x || changedZ.x)MinMaxZPosition.x = p.z, changedZ.x = 0;
+			if (p.z > m_MinMaxZPosition.y || changedZ.y)m_MinMaxZPosition.y = p.z, changedZ.y = 0;
+			if (p.z < m_MinMaxZPosition.x || changedZ.x)m_MinMaxZPosition.x = p.z, changedZ.x = 0;
 		}
-		minmaxChanged = true;
+		m_minmaxChanged = true;
 		return true;
 	}
 	else return false;
 }
 void Mesh::updateBoundingBoxBuffer()
 {
-	ID3D11DeviceContext* gDeviceContext = Renderer::getDeviceContext();
-	if (box.size() > 0) {
-		if (minmaxChanged) {
-			minmaxChanged = false;
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+	if (m_boxVertices.size() > 0) {
+		if (m_minmaxChanged) {
+			m_minmaxChanged = false;
 			float3 bbPos = getBoundingBoxPos();
 			float3 bbScale = getBoundingBoxSize();
-			std::vector<Vertex> fullBox; fullBox.resize(36);
+			std::vector<Vertex> fullBox; fullBox.reserve(36);
 			for (int i = 0; i < 36; i++)
 			{
-				Vertex v = box[i];
+				Vertex v = m_boxVertices[i];
 				v.position = v.position*bbScale + bbPos;
 				fullBox.push_back(v);
 			}
-			gDeviceContext->UpdateSubresource(vertexBuffer_BoundingBox, 0, 0, fullBox.data(), 0, 0);
+			deviceContext->UpdateSubresource(m_vertexBuffer_BoundingBox.Get(), 0, 0, fullBox.data(), 0, 0);
 		}
 	}
 }
 void Mesh::loadBoundingBox()
 {
 	//vertices
-	box.resize(36);
+	m_boxVertices.reserve(36);
 	float2 pre[4] = { float2(-1,1),float2(1,1),float2(-1,-1),float2(1,-1) };
 	for (int f = 0; f < 3; f++)//per slab .3
 	{
@@ -116,54 +115,39 @@ void Mesh::loadBoundingBox()
 				v[i] = Vertex(p, uv, n);
 			}
 			if (m == 1)
-				box.push_back(v[0]), box.push_back(v[1]), box.push_back(v[3]),
-				box.push_back(v[0]), box.push_back(v[3]), box.push_back(v[2]);
+				m_boxVertices.push_back(v[0]), m_boxVertices.push_back(v[1]), m_boxVertices.push_back(v[3]),
+				m_boxVertices.push_back(v[0]), m_boxVertices.push_back(v[3]), m_boxVertices.push_back(v[2]);
 			else
-				box.push_back(v[1]), box.push_back(v[0]), box.push_back(v[3]),
-				box.push_back(v[2]), box.push_back(v[3]), box.push_back(v[0]);
+				m_boxVertices.push_back(v[1]), m_boxVertices.push_back(v[0]), m_boxVertices.push_back(v[3]),
+				m_boxVertices.push_back(v[2]), m_boxVertices.push_back(v[3]), m_boxVertices.push_back(v[0]);
 		}
 	}
 }
 void Mesh::createBuffers(bool instancing)
 {
 	ID3D11Device* gDevice = Renderer::getDevice();
-	ID3D11DeviceContext* gDeviceContext = Renderer::getDeviceContext();
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
 	HRESULT check;
 
-	freeBuffers();
 	//vertex buffer
+	m_vertexBuffer.Reset();
 	D3D11_BUFFER_DESC bufferDesc;
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
 
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	bufferDesc.ByteWidth = mesh.size()*sizeof(Vertex);
+	bufferDesc.ByteWidth = m_meshVertices.size()*sizeof(Vertex);
 
 	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = mesh.data();
+	data.pSysMem = m_meshVertices.data();
 
-	check = gDevice->CreateBuffer(&bufferDesc, &data, &vertexBuffer);
+	check = gDevice->CreateBuffer(&bufferDesc, &data, m_vertexBuffer.GetAddressOf());
 	if (FAILED(check))
 		ErrorLogger::logError(check, "Failed creating vertex buffer in Mesh class!\n");
 
-	//vertex material buffer
-	D3D11_BUFFER_DESC bufferMatDesc;
-	memset(&bufferMatDesc, 0, sizeof(bufferMatDesc));
-
-	bufferMatDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bufferMatDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	bufferMatDesc.ByteWidth = sizeof(VertexMaterialBuffer)*mesh_materials.size();
-
-	D3D11_SUBRESOURCE_DATA matData;
-	matData.pSysMem = mesh_materials.data();
-
-	check = gDevice->CreateBuffer(&bufferMatDesc, &matData, &vertexMaterialBuffer);
-	if (FAILED(check))
-		ErrorLogger::logError(check, "Failed creating vertex_material buffer in Mesh class!\n");
-
 	//boundingbox buffer
-	if (vertexBuffer_BoundingBox == nullptr) {
+	if (m_vertexBuffer_BoundingBox.Get() == nullptr) {
 		D3D11_BUFFER_DESC buffDesc;
 		memset(&buffDesc, 0, sizeof(buffDesc));
 
@@ -171,49 +155,37 @@ void Mesh::createBuffers(bool instancing)
 		buffDesc.Usage = D3D11_USAGE_DEFAULT;
 		buffDesc.ByteWidth = sizeof(Vertex)*36;
 
-		check = gDevice->CreateBuffer(&buffDesc, nullptr, &vertexBuffer_BoundingBox);
+		check = gDevice->CreateBuffer(&buffDesc, nullptr, m_vertexBuffer_BoundingBox.GetAddressOf());
 		if (FAILED(check))
 			ErrorLogger::logError(check, "Failed creating boundingbox buffer in Mesh class!\n");
 	}
 	//color buffer
-	if (m_colorBuffer == nullptr) {
+	if (m_colorBuffer.Get() == nullptr) {
 		D3D11_BUFFER_DESC desc;
 		memset(&desc, 0, sizeof(desc));
 		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.ByteWidth = sizeof(float4);
 
-		HRESULT res = gDevice->CreateBuffer(&desc, nullptr, &m_colorBuffer);
+		HRESULT res = gDevice->CreateBuffer(&desc, nullptr, m_colorBuffer.GetAddressOf());
 		if (FAILED(res))
 			ErrorLogger::logError(res, "Failed creating color buffer in Mesh class!\n");
 	}
 }
-void Mesh::freeBuffers()
-{
-	if (vertexBuffer != nullptr) {
-		vertexBuffer->Release();
-		vertexBuffer = nullptr;
-	}
-	if (meshCount == 0) {
-		if (vertexBuffer_BoundingBox != nullptr)
-			vertexBuffer_BoundingBox->Release();
-		if (m_colorBuffer != nullptr)
-			m_colorBuffer->Release();
-	}
-}
 const std::vector<Vertex>& Mesh::getVertexPoints() const
 {
-	return mesh;
+	return m_meshVertices;
 }
 std::string Mesh::getName() const
 {
-	return loadedMeshName;
+	return m_loadedMeshName;
 }
 void Mesh::draw()
 {
-	ID3D11DeviceContext* gDeviceContext = Renderer::getDeviceContext();
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
-	if(materials.size() > 0)shader_object.bindShadersAndLayout();
+	if(m_materials.size() > 0)
+		m_shaderObject.bindShadersAndLayout();
 	else {
 		draw_noMaterial();
 		return;
@@ -221,110 +193,83 @@ void Mesh::draw()
 
 	bindMesh();
 
-	for (int i = 0; i < parts.size(); i++)
+	for (int i = 0; i < m_parts.size(); i++)
 	{
-		for (int j = 0; j < parts[i].materialUsage.size(); j++)
+		for (int j = 0; j < m_parts[i].materialUsage.size(); j++)
 		{
-			int materialIndex = parts[i].materialUsage[j].materialIndex;
+			int materialIndex = m_parts[i].materialUsage[j].materialIndex;
 			//int materialIndex = findMaterial(parts[i].materialUsage[j].name);
 			if (materialIndex != -1) {
-				materials[materialIndex].bind();
-				gDeviceContext->Draw(parts[i].materialUsage[j].count, parts[i].materialUsage[j].index);
+				m_materials[materialIndex].bind(MATERIAL_BUFFER_SLOT);
+				int count = m_parts[i].materialUsage[j].count;
+				int index = m_parts[i].materialUsage[j].index;
+				deviceContext->Draw(count, index);
 			}
 		}
 	}
-
-	/*
-	if (mesh_materials.size() > 0)shader_object.bindShadersAndLayout();
-	else {
-		draw_noMaterial();
-		return;
-	}
-	ID3D11Buffer* buffs[] = { vertexBuffer,vertexMaterialBuffer };
-	UINT strides[] = { sizeof(Vertex) ,sizeof(VertexMaterialBuffer) };
-	UINT offset[] = { 0,0 };
-	gDeviceContext->IASetVertexBuffers(0, 2, buffs, strides, offset);
-
-	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	gDeviceContext->Draw(mesh.size(),0);
-	*/
 }
 void Mesh::draw_noMaterial(float3 color)
 {
-	ID3D11DeviceContext* gDeviceContext = Renderer::getDeviceContext();
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
-	shader_object_onlyMesh.bindShadersAndLayout();
+	m_shaderObject_onlyMesh.bindShadersAndLayout();
 	
 	bindMesh();
 	
 	//update color buffer
 	float4 data = float4(color.x, color.y, color.z, 1.0);
-	gDeviceContext->UpdateSubresource(m_colorBuffer, 0, 0, &data, 0, 0);
-	gDeviceContext->PSSetConstantBuffers(COLOR_BUFFER_SLOT, 1, &m_colorBuffer);
+	deviceContext->UpdateSubresource(m_colorBuffer.Get(), 0, 0, &data, 0, 0);
+	deviceContext->PSSetConstantBuffers(COLOR_BUFFER_SLOT, 1, m_colorBuffer.GetAddressOf());
 
-	gDeviceContext->Draw(mesh.size(), 0);
+	deviceContext->Draw(m_meshVertices.size(), 0);
 }
 void Mesh::draw_BoundingBox()
 {
-	ID3D11DeviceContext* gDeviceContext = Renderer::getDeviceContext();
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
 	updateBoundingBoxBuffer();
-	shader_object_onlyMesh.bindShadersAndLayout();
-	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_shaderObject_onlyMesh.bindShadersAndLayout();
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	UINT strides = sizeof(Vertex);
 	UINT offset = 0;
-	gDeviceContext->IASetVertexBuffers(0, 1, &vertexBuffer_BoundingBox, &strides, &offset);
-	gDeviceContext->Draw(36,0);
+	deviceContext->IASetVertexBuffers(0, 1, m_vertexBuffer_BoundingBox.GetAddressOf(), &strides, &offset);
+	deviceContext->Draw(36,0);
 }
 void Mesh::draw_forShadowMap()
 {
-	ID3D11DeviceContext* gDeviceContext = Renderer::getDeviceContext();
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
 	bindMesh();
 
-	for (int i = 0; i < parts.size(); i++)
-	{
-		gDeviceContext->Draw(parts[i].count, parts[i].index);
-	}
+	deviceContext->Draw(m_meshVertices.size(), 0);
 }
 void Mesh::bindMesh() const
 {
-	ID3D11DeviceContext* gDeviceContext = Renderer::getDeviceContext();
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
 	UINT strides = sizeof(Vertex);
 	UINT offset = 0;
-	gDeviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &strides, &offset);
-	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	// gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	deviceContext->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &strides, &offset);
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 }
 float3 Mesh::getBoundingBoxPos() const
 {
-	return float3((MinMaxXPosition.x + MinMaxXPosition.y) / 2, (MinMaxYPosition.x + MinMaxYPosition.y) / 2, (MinMaxZPosition.x + MinMaxZPosition.y) / 2);
+	return float3((m_MinMaxXPosition.x + m_MinMaxXPosition.y) / 2, (m_MinMaxYPosition.x + m_MinMaxYPosition.y) / 2, (m_MinMaxZPosition.x + m_MinMaxZPosition.y) / 2);
 }
 float3 Mesh::getBoundingBoxSize() const
 {
-	return float3((MinMaxXPosition.y - MinMaxXPosition.x), (MinMaxYPosition.y - MinMaxYPosition.x), (MinMaxZPosition.y - MinMaxZPosition.x));
+	return float3((m_MinMaxXPosition.y - m_MinMaxXPosition.x), (m_MinMaxYPosition.y - m_MinMaxYPosition.x), (m_MinMaxZPosition.y - m_MinMaxZPosition.x))/2.f;
 }
 bool Mesh::load(std::string filename, bool combineParts)
 {
-	if (handler.load(filename, mesh, parts, materials, combineParts)) {
-		loadedMeshName = filename;
+	if (m_handler.load(filename, m_meshVertices, m_parts, m_materials, combineParts)) {
+		m_loadedMeshName = filename;
 		findMinMaxValues(); 
 		createBuffers();
 		return true;
 	}
 	else return false;
-
-	/*
-	if (handler.load(filename, mesh, parts, mesh_materials, combineParts)) {
-		loadedMeshName = filename;
-		findMinMaxValues();
-		createBuffers();
-		return true;
-	}
-	else return false;
-	*/
 }
 float Mesh::castRayOnMesh(float3 rayPos, float3 rayDir)
 {
@@ -335,13 +280,13 @@ float Mesh::castRayOnMesh(float3 rayPos, float3 rayDir)
 	if (obbTest(rayDir, rayPos, bPos, bScale) != -1) {
 		//find the exact point
 		float closest = -1;
-		int length = mesh.size() / 3;
+		int length = m_meshVertices.size() / 3;
 		for (int i = 0; i < length; i++)
 		{
 			int index = i * 3;
-			float3 v0 = mesh[index + 0].position;
-			float3 v1 = mesh[index + 1].position;
-			float3 v2 = mesh[index + 2].position;
+			float3 v0 = m_meshVertices[index + 0].position;
+			float3 v1 = m_meshVertices[index + 1].position;
+			float3 v2 = m_meshVertices[index + 2].position;
 			float t = triangleTest(rayDir, rayPos, v0, v1, v2);
 			if ((t > 0 && t < closest) || closest < 0)closest = t;
 		}
@@ -381,75 +326,12 @@ Mesh::Mesh(std::string OBJFile)
 			0
 		}
 	};
-	D3D11_INPUT_ELEMENT_DESC inputLayout_withMaterial[] = {
-		{
-			"Position",
-			0,
-			DXGI_FORMAT_R32G32B32_FLOAT,
-			0,
-			0,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0
-		},
-		{
-			"Texcoord",
-			0,
-			DXGI_FORMAT_R32G32_FLOAT,
-			0,
-			12,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0
-		},
-		{
-			"Normal",
-			0,
-			DXGI_FORMAT_R32G32B32_FLOAT,
-			0,
-			20,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0
-		},
-		{
-			"Ambient",
-			0,
-			DXGI_FORMAT_R32G32B32_FLOAT,
-			1,
-			0,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0
-		},
-		{
-			"Diffuse",
-			0,
-			DXGI_FORMAT_R32G32B32_FLOAT,
-			1,
-			12,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0
-		},
-		{
-			"Specular",
-			0,
-			DXGI_FORMAT_R32G32B32_FLOAT,
-			1,
-			24,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0
-		},
-		{
-			"SpecularPower",
-			0,
-			DXGI_FORMAT_R32_UINT,
-			1,
-			36,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0
-		}
-	};
-	if (!shader_object_onlyMesh.isLoaded())shader_object_onlyMesh.createShaders(L"VertexShader_model_onlyMesh.hlsl", nullptr, L"PixelShader_model_onlyMesh.hlsl", inputLayout_onlyMesh,3);
-	//if (!shader_object.isLoaded())shader_object.createShaders(L"Effects/Vertex_MeshWithMaterial.hlsl", nullptr, L"Effects/Fragment_MeshWithMaterial.hlsl", inputLayout_withMaterial,7);
-	meshCount++;
-	if (box.size() == 0) {
+	if (!m_shaderObject_onlyMesh.isLoaded())m_shaderObject_onlyMesh.createShaders(L"VertexShader_model_onlyMesh.hlsl", nullptr, L"PixelShader_model_onlyMesh.hlsl", inputLayout_onlyMesh,3);
+	if (!m_shaderObject.isLoaded())
+		m_shaderObject.createShaders(L"VertexShader_model_onlyMesh.hlsl", nullptr,
+			L"PixelShader_model.hlsl", inputLayout_onlyMesh, 3);
+
+	if (m_boxVertices.size() == 0) {
 		loadBoundingBox();
 	}
 	if (OBJFile != "")
@@ -473,7 +355,5 @@ Mesh::Mesh(std::string OBJFile)
 //}
 Mesh::~Mesh()
 {
-	meshCount--;
-	freeBuffers();
 }
 
