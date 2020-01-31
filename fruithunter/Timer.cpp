@@ -25,7 +25,7 @@ void Timer::update() {
 	m_totalTime += m_elapsedTime * 0.000001;
 }
 
-float Timer::getTime() { return m_totalTime; }
+float Timer::getTimePassed() { return m_totalTime; }
 
 float Timer::getDt() { return (m_elapsedTime - m_lastElapsedTime) * 0.000001; }
 

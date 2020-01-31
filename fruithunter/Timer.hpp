@@ -6,7 +6,7 @@ class Timer {
 public:
 	Timer();
 	void update();
-	float getTime();
+	float getTimePassed();
 	std::string getTimeToString();
 	float getDt();
 
