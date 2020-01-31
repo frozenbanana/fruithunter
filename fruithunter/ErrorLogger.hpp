@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include <iostream>
+#include <memory>
 #include <Windows.h>
 
 class ErrorLogger {
@@ -16,5 +17,5 @@ public:
 	static void log(std::string message);
 
 private:
-	FILE* m_filePtr = nullptr;
+	std::unique_ptr<FILE*> m_filePtr = std::make_unique<FILE*>();
 };

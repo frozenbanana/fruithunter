@@ -11,13 +11,13 @@ std::string ws2s(const std::wstring& wstr) {
 
 ErrorLogger::ErrorLogger() {
 	AllocConsole();
-	freopen_s(&m_filePtr, "CONOUT$", "w", stdout);
+	freopen_s(m_filePtr.get(), "CONOUT$", "w", stdout);
 }
 
 ErrorLogger::~ErrorLogger() { closeConsole(); }
 
 
-void ErrorLogger::closeConsole() { fclose(m_filePtr); }
+void ErrorLogger::closeConsole() { fclose(*m_filePtr); }
 
 void ErrorLogger::messageBox(std::string message) {
 	std::string errorMessage = "Error: " + message;
