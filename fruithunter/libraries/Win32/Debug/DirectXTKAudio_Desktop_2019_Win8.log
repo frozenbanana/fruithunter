@@ -1,0 +1,10 @@
+﻿  AudioEngine.cpp
+  DynamicSoundEffectInstance.cpp
+  SoundCommon.cpp
+  SoundEffect.cpp
+  SoundEffectInstance.cpp
+  WaveBank.cpp
+  WaveBankReader.cpp
+  WAVFileReader.cpp
+  Generating Code...
+  DirectXTKAudio_Desktop_2019_Win8.vcxproj -> C:\Users\Henry Bergström\Downloads\DirectXTK-master\DirectXTK-master\Audio\Bin\Desktop_2019\Win32\Debug\DirectXTKAudioWin8.lib
