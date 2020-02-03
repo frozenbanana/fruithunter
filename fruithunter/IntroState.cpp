@@ -18,9 +18,11 @@ void IntroState::initialize() {
 	m_camera.createBuffer();
 	m_camera.buildMatrices();
 	m_camera.updateBuffer();
+	m_audioHandler.play();
 }
 
 void IntroState::update() {
+	m_audioHandler.logStats();
 	// ErrorLogger::log(m_name + " update() called.");
 	m_timer.update();
 	float rotSpeed = 1;
@@ -38,6 +40,7 @@ void IntroState::handleEvent(int event) { return; }
 void IntroState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
 void IntroState::draw() {
+
 	// ErrorLogger::log(m_name + " draw() called.");
 	float t = m_timer.getTimePassed();
 	Vector4 col = Vector4(abs(sin(t)), .5f, abs(cos(t)), 1.f);

@@ -7,6 +7,7 @@
 #include "Input.hpp"
 #include "TextRenderer.hpp"
 #include "Timer.hpp"
+#include "AudioHandler.hpp"
 
 class IntroState : public State {
 public:
@@ -25,4 +26,5 @@ private:
 	Entity m_entity;
 	Timer m_timer;
 	TextRenderer m_textRenderer;
+	AudioHandler m_audioHandler;
 };

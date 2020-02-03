@@ -9,13 +9,15 @@
 #include "IntroState.hpp"
 #include "Camera.hpp"
 
+#include <Audio.h>
+
 int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
 	_In_ int cmdCount) {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	// Needed to be able to load textures and possibly other things.
-	HRESULT ciFlag = CoInitialize(NULL);
-	if (FAILED(ciFlag)) {
+	auto hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+	if (FAILED(hr)) {
 		ErrorLogger::messageBox("Failed to run CoInitalize(NULL).");
 		return -1;
 	}
@@ -23,11 +25,6 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	ErrorLogger errorlogger;
 	// Renderer::initalize(window.getHandle());
 	Input::initilize(Renderer::getInstance()->getHandle());
-
-	// Example of how to do logging
-	ErrorLogger::log("First");
-	ErrorLogger::logWarning(ciFlag, "Second!");
-	ErrorLogger::logError(ciFlag, "Third!");
 
 	StateHandler* stateHandler = StateHandler::getInstance();
 	stateHandler->initialize();
@@ -47,7 +44,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 
 		// Main loop
 		Renderer::getInstance()->beginFrame();
-		stateHandler->update();				 // calls current states draw()
+		stateHandler->update(); // calls current states draw()
 		stateHandler->draw();	// calls current states draw()
 		Renderer::getInstance()->endFrame();
 
