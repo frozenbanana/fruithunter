@@ -1,21 +1,20 @@
 #pragma once
 #include <Audio.h>
 
-enum Sounds {
-	MENU,
-	PLAY,
-};
 
 class AudioHandler {
 public:
-	AudioHandler();
-	void play();
-	void startMenuAmbient();
-	void startPlayAmbient();
-	void pauseAmbient();
-	void logStats();
+	void initalize();
+	void playOneTime(); // one time sounds
+	static void startMenuAmbient();
+	static void startPlayAmbient();
+	static void pauseAmbient();
+	static void logStats();
+	static AudioHandler* getInstance();
+	AudioHandler() { initalize(); }
 
 private:
+	static AudioHandler m_this;
 	std::unique_ptr<DirectX::AudioEngine> m_audioEngine;
 	std::unique_ptr<DirectX::SoundEffect> m_ambientMenu;
 	std::unique_ptr<DirectX::SoundEffect> m_ambientPlay;

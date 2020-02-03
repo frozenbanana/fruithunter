@@ -26,5 +26,4 @@ private:
 	Entity m_entity;
 	Timer m_timer;
 	TextRenderer m_textRenderer;
-	AudioHandler m_audioHandler;
 };

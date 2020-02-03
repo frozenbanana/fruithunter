@@ -23,5 +23,4 @@ private:
 	TextRenderer m_textRenderer;
 	Camera m_camera;
 	Quad m_quad;
-	AudioHandler m_audioHandler;
 };

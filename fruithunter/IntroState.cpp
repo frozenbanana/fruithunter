@@ -18,11 +18,10 @@ void IntroState::initialize() {
 	m_camera.createBuffer();
 	m_camera.buildMatrices();
 	m_camera.updateBuffer();
-	m_audioHandler.startMenuAmbient();
 }
 
 void IntroState::update() {
-	m_audioHandler.logStats();
+	AudioHandler::logStats();
 	// ErrorLogger::log(m_name + " update() called.");
 	m_timer.update();
 	float rotSpeed = 1;
@@ -54,4 +53,7 @@ void IntroState::draw() {
 	m_entity.draw();
 }
 
-void IntroState::play() { ErrorLogger::log(m_name + " play() called."); }
+void IntroState::play() {
+	AudioHandler::startMenuAmbient();
+	ErrorLogger::log(m_name + " play() called.");
+}

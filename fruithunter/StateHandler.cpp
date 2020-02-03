@@ -2,24 +2,23 @@
 
 StateHandler StateHandler::m_this;
 
-StateHandler::StateHandler() {
-
-}
+StateHandler::StateHandler() {}
 
 // Helper function to get current State
 State* StateHandler::getCurrent() { return m_states[m_current].get(); }
 
 void StateHandler::changeState(States state) {
-	ErrorLogger::log("Current state: "+(int)state);
+	ErrorLogger::log("Current state: " + (int)state);
 	getCurrent()->pause();
 	m_current = state; // update current
 	getCurrent()->play();
 }
 
-void StateHandler::initialize() { 
+void StateHandler::initialize() {
 	m_states.resize(LENGTH);
 	m_states[INTRO] = make_unique<IntroState>();
 	m_states[PLAY] = make_unique<PlayState>();
+	play();
 }
 
 void StateHandler::event(int event) { getCurrent()->handleEvent(event); };

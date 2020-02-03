@@ -17,7 +17,6 @@ void PlayState::initialize() {
 	m_camera.buildMatrices();
 	m_camera.updateBuffer();
 	m_camera.bindMatix();
-	m_audioHandler.startPlayAmbient();
 }
 
 void PlayState::update() {
@@ -47,4 +46,7 @@ void PlayState::draw() {
 	ErrorLogger::log(m_name + " draw() called.");
 }
 
-void PlayState::play() { ErrorLogger::log(m_name + " play() called."); }
+void PlayState::play() {
+	AudioHandler::startPlayAmbient();
+	ErrorLogger::log(m_name + " play() called.");
+}
