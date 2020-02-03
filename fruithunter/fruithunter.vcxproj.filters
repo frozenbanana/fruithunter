@@ -6,6 +6,7 @@
     <FxCompile Include="PixelShader_model_onlyMesh.hlsl" />
     <FxCompile Include="VertexShader.hlsl" />
     <FxCompile Include="VertexShader_model_onlyMesh.hlsl" />
+    <FxCompile Include="VertexShader_model_animated.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">
@@ -65,6 +66,7 @@
     <ClCompile Include="AudioHandler.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Animated.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AudioHandler.hpp">
@@ -121,6 +123,7 @@
     <ClInclude Include="Window.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Animated.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />

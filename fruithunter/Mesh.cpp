@@ -187,6 +187,7 @@ void Mesh::createBuffers(bool instancing) {
 	}
 }
 const std::vector<Vertex>& Mesh::getVertexPoints() const { return m_meshVertices; }
+const Microsoft::WRL::ComPtr<ID3D11Buffer> Mesh::getVertexBuffer() const { return m_vertexBuffer; }
 std::string Mesh::getName() const { return m_loadedMeshName; }
 void Mesh::draw() {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
@@ -246,14 +247,35 @@ void Mesh::draw_forShadowMap() {
 
 	deviceContext->Draw(m_meshVertices.size(), 0);
 }
+void Mesh::draw_withoutBinding() {
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+
+	if (!(m_materials.size() > 0)) {
+		draw_noMaterial();
+		return;
+	}
+
+	for (int i = 0; i < m_parts.size(); i++) {
+		for (int j = 0; j < m_parts[i].materialUsage.size(); j++) {
+			int materialIndex = m_parts[i].materialUsage[j].materialIndex;
+			// int materialIndex = findMaterial(parts[i].materialUsage[j].name);
+			if (materialIndex != -1) {
+				m_materials[materialIndex].bind(MATERIAL_BUFFER_SLOT);
+				int count = m_parts[i].materialUsage[j].count;
+				int index = m_parts[i].materialUsage[j].index;
+				deviceContext->Draw(count, index);
+			}
+		}
+	}
+}
 void Mesh::bindMesh() const {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
 	UINT strides = sizeof(Vertex);
 	UINT offset = 0;
 	deviceContext->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &strides, &offset);
-	// deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	// deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 }
 float3 Mesh::getBoundingBoxPos() const {
 	return float3((m_MinMaxXPosition.x + m_MinMaxXPosition.y) / 2,
