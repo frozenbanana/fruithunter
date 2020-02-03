@@ -123,7 +123,7 @@
     <ClInclude Include="Window.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Animated.h" />
+    <ClInclude Include="Animated.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
