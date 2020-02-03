@@ -24,7 +24,7 @@ VS_OUT main(VS_IN input) {
 
 
 
-	float3 pos = lerp(input.Pos0, input.Pos1, 0.1);
+	float3 pos = lerp(input.Pos0, input.Pos1, 0.9);
 	// float3 pos = lerp(input.Pos0, input.Pos1, mAnimation.x);
 	float3 normal = lerp(input.Normal0, input.Normal1, mAnimation.x);
 	output.PosW = mul(float4(pos, 1), mWorld).xyz;

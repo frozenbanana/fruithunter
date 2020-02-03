@@ -1,4 +1,4 @@
-#include "Animated.h"
+#include "Animated.hpp"
 
 void Animated::bindMeshes() {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
@@ -60,7 +60,7 @@ bool Animated::load(std::string filename, int nrOfFrames, bool combineParts) {
 	m_meshes.empty();
 	m_meshes.resize(nrOfFrames);
 	for (int i = 0; i < nrOfFrames && allClear; ++i) {
-		if (!m_meshes[i].load(filename + std::to_string(i))) {
+		if (!m_meshes[i].load(filename + "_00000" +std::to_string(i))) {
 			allClear = false;
 			ErrorLogger::messageBox(0, "In Animated::load, failed to load mesh: " + filename +
 										   " number: " + std::to_string(i));
