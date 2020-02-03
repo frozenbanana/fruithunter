@@ -17,6 +17,7 @@ void PlayState::initialize() {
 	m_camera.buildMatrices();
 	m_camera.updateBuffer();
 	m_camera.bindMatix();
+	m_audioHandler.startPlayAmbient();
 }
 
 void PlayState::update() {

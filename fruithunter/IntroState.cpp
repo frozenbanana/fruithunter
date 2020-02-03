@@ -18,7 +18,7 @@ void IntroState::initialize() {
 	m_camera.createBuffer();
 	m_camera.buildMatrices();
 	m_camera.updateBuffer();
-	m_audioHandler.play();
+	m_audioHandler.startMenuAmbient();
 }
 
 void IntroState::update() {

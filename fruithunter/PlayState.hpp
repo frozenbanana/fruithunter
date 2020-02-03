@@ -4,6 +4,7 @@
 #include "Camera.hpp"
 #include "Timer.hpp"
 #include "TextRenderer.hpp"
+#include "AudioHandler.hpp"
 
 
 class PlayState : public State {
@@ -22,4 +23,5 @@ private:
 	TextRenderer m_textRenderer;
 	Camera m_camera;
 	Quad m_quad;
+	AudioHandler m_audioHandler;
 };
