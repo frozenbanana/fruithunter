@@ -11,7 +11,7 @@ class PlayState : public State {
 public:
 	void update();
 	void initialize();
-	void handleEvent(int event);
+	void handleEvent();
 	void pause();
 	void play();
 	void draw();

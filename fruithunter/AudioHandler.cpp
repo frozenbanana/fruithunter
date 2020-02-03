@@ -14,6 +14,12 @@ void AudioHandler::initalize() {
 
 	// Can add flags to parameters
 	m_this.m_audioEngine = std::make_unique<DirectX::AudioEngine>();
+
+	// One time sound effects;
+	m_this.m_soundEffects[0] =
+		std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), L"assets/sounds/lala.wav");
+
+	// Ambient sounds
 	m_this.m_ambientMenu =
 		std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), L"assets/sounds/harmony.wav");
 	m_this.m_ambientPlay = std::make_unique<DirectX::SoundEffect>(
@@ -38,8 +44,8 @@ void AudioHandler::startPlayAmbient() {
 }
 
 
-void AudioHandler::playOneTime() {
-	// m_soundEffect->Play() // Play one time
+void AudioHandler::playOneTime(AudioHandler::Sounds sound) {
+	m_soundEffects[sound]->Play(); // Play one time
 }
 
 void AudioHandler::logStats() {
@@ -56,7 +62,7 @@ void AudioHandler::logStats() {
 
 	std::wstring wbuff = std::wstring(buff);
 	std::string sbuff = std::string(wbuff.begin(), wbuff.end());
-	// ErrorLogger::log(sbuff);
+	ErrorLogger::log(sbuff);
 }
 
 AudioHandler* AudioHandler::getInstance() { return &m_this; }

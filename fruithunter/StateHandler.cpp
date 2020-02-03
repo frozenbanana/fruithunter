@@ -21,7 +21,7 @@ void StateHandler::initialize() {
 	play();
 }
 
-void StateHandler::event(int event) { getCurrent()->handleEvent(event); };
+void StateHandler::handleEvent() { getCurrent()->handleEvent(); };
 
 void StateHandler::pause() { getCurrent()->pause(); }
 

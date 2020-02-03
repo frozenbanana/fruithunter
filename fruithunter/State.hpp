@@ -7,7 +7,7 @@ class State {
 public:
 	virtual void update() = 0;
 	virtual void initialize() = 0;
-	virtual void handleEvent(int event) = 0;
+	virtual void handleEvent() = 0;
 	virtual void pause() = 0;
 	virtual void play() = 0;
 	virtual void draw() = 0;
