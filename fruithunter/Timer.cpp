@@ -4,7 +4,7 @@
 
 Timer::Timer() {
 	LARGE_INTEGER m_timer;
-	if (!QueryPerformanceCounter(&m_timer)) {
+	if (!QueryPerformanceFrequency(&m_timer)) {
 		ErrorLogger::log("Cannot query performance counter in timer.");
 		return;
 	}
@@ -19,14 +19,13 @@ Timer::Timer() {
 void Timer::update() {
 	QueryPerformanceCounter(&m_timer);
 	m_lastElapsedTime = m_elapsedTime;
-	m_elapsedTime = (float)(m_timer.QuadPart - m_startTime);
+	m_elapsedTime = (float)(m_timer.QuadPart - m_startTime) / m_frequencySeconds;
 	m_startTime = m_timer.QuadPart;
-	// hard coded value perhaps could be replaced with m_frequencySeconds
-	m_totalTime += m_elapsedTime * 0.000001;
+	m_totalTime += m_elapsedTime;
 }
 
 float Timer::getTimePassed() { return m_totalTime; }
 
-float Timer::getDt() { return (m_elapsedTime - m_lastElapsedTime) * 0.000001; }
+float Timer::getDt() { return m_elapsedTime; }
 
 std::string Timer::getTimeToString() { return std::to_string(m_totalTime); }
