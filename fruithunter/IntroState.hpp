@@ -7,6 +7,7 @@
 #include "Input.hpp"
 #include "TextRenderer.hpp"
 #include "Timer.hpp"
+#include "AudioHandler.hpp"
 
 class IntroState : public State {
 public:
@@ -14,7 +15,7 @@ public:
 	~IntroState();
 	void update();
 	void initialize();
-	void handleEvent(int event);
+	void handleEvent();
 	void pause();
 	void play();
 	void draw();

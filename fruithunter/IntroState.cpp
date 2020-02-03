@@ -21,7 +21,6 @@ void IntroState::initialize() {
 }
 
 void IntroState::update() {
-	// ErrorLogger::log(m_name + " update() called.");
 	m_timer.update();
 	float rotSpeed = 1;
 	rot += 0.01;
@@ -33,16 +32,25 @@ void IntroState::update() {
 	m_camera.updateBuffer();
 }
 
-void IntroState::handleEvent(int event) { return; }
+void IntroState::handleEvent() {
+	Input* input = Input::getInstance();
+	AudioHandler* audioHandler = AudioHandler::getInstance();
+	if (input->keyDown(DirectX::Keyboard::B)) {
+		ErrorLogger::log("B pressed.");
+		audioHandler->playOneTime(AudioHandler::Sounds::LALA);
+	}
+}
 
-void IntroState::pause() { ErrorLogger::log(m_name + " pause() called."); }
+void IntroState::pause() {
+	ErrorLogger::log(m_name + " pause() called.");
+	AudioHandler::pauseAmbient();
+}
 
 void IntroState::draw() {
 	// ErrorLogger::log(m_name + " draw() called.");
 	float t = m_timer.getTimePassed();
 	Vector4 col = Vector4(abs(sin(t)), .5f, abs(cos(t)), 1.f);
 	m_textRenderer.draw("LET ME SEE THE GOAT " + std::to_string(t), Vector2(400., 300.), col);
-
 
 	m_camera.bindMatix();
 
@@ -51,4 +59,7 @@ void IntroState::draw() {
 	m_entity.draw();
 }
 
-void IntroState::play() { ErrorLogger::log(m_name + " play() called."); }
+void IntroState::play() {
+	AudioHandler::startMenuAmbient();
+	ErrorLogger::log(m_name + " play() called.");
+}

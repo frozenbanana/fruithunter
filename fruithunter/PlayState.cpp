@@ -29,9 +29,12 @@ void PlayState::update() {
 	m_camera.updateBuffer();
 }
 
-void PlayState::handleEvent(int event) { return; }
+void PlayState::handleEvent() { return; }
 
-void PlayState::pause() { ErrorLogger::log(m_name + " pause() called."); }
+void PlayState::pause() {
+	ErrorLogger::log(m_name + " pause() called.");
+	AudioHandler::pauseAmbient();
+}
 
 void PlayState::draw() {
 	// Quad
@@ -46,4 +49,7 @@ void PlayState::draw() {
 	ErrorLogger::log(m_name + " draw() called.");
 }
 
-void PlayState::play() { ErrorLogger::log(m_name + " play() called."); }
+void PlayState::play() {
+	AudioHandler::startPlayAmbient();
+	ErrorLogger::log(m_name + " play() called.");
+}

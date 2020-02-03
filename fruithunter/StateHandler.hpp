@@ -11,9 +11,9 @@ public:
 
 	void initialize();
 	void changeState(States state);
-	//void pushState(State* state);
-	//void popState();
-	void event(int event);
+	// void pushState(State* state);
+	// void popState();
+	void handleEvent();
 	void pause();
 	void update();
 	void play();
