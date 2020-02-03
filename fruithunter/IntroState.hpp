@@ -5,6 +5,8 @@
 #include <string>
 #include <time.h>
 #include "Input.hpp"
+#include "TextRenderer.hpp"
+#include "Timer.hpp"
 
 class IntroState : public State {
 public:
@@ -21,4 +23,6 @@ private:
 	float rot = 0;
 	Camera m_camera;
 	Entity m_entity;
+	Timer m_timer;
+	TextRenderer m_textRenderer;
 };

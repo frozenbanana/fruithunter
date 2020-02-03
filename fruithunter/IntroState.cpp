@@ -1,9 +1,13 @@
 #include "IntroState.hpp"
 #include "ErrorLogger.hpp"
+#include <SimpleMath.h>
+#include <string>
+
+using Vector2 = DirectX::SimpleMath::Vector2;
 
 IntroState::IntroState() { initialize(); }
 
-IntroState::~IntroState() { 
+IntroState::~IntroState() {
 }
 
 void IntroState::initialize() {
@@ -19,13 +23,12 @@ void IntroState::initialize() {
 
 void IntroState::update() {
 	// ErrorLogger::log(m_name + " update() called.");
-
+	m_timer.update();
 	float rotSpeed = 1;
 	rot += 0.01;
-	m_entity.setPosition(float3(5*sin(rot),0,0));
-	m_entity.rotateY(3.14f*1.f/60.f);
+	m_entity.setPosition(float3(5 * sin(rot), 0, 0));
+	m_entity.rotateY(3.14f * 1.f / 60.f);
 	m_entity.setScale(sin(rot));
-
 	m_camera.buildMatrices();
 	m_camera.updateBuffer();
 }
@@ -36,10 +39,14 @@ void IntroState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
 void IntroState::draw() {
 	// ErrorLogger::log(m_name + " draw() called.");
+	float t = m_timer.getTimePassed();
+	Vector4 col = Vector4(abs(sin(t)), .5f, abs(cos(t)), 1.f);
+	m_textRenderer.draw("LET ME SEE THE GOAT", Vector2(400., 300.), col);
+
 
 	m_camera.bindMatix();
 
-	if(Input::getInstance()->keyDown(Keyboard::Space))m_entity.draw_boundingBox();
+	if (Input::getInstance()->keyDown(Keyboard::Space))m_entity.draw_boundingBox();
 	m_entity.draw();
 }
 

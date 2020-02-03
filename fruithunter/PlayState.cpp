@@ -5,6 +5,10 @@
 #include <iostream>
 #include <string>
 
+using Vector2 = DirectX::SimpleMath::Vector2;
+using Vector3 = DirectX::SimpleMath::Vector3;
+using Vector4 = DirectX::SimpleMath::Vector4;
+
 void PlayState::initialize() {
 	m_name = "Play State";
 	m_quad.init();
@@ -12,31 +16,14 @@ void PlayState::initialize() {
 	m_camera.createBuffer();
 	m_camera.buildMatrices();
 	m_camera.updateBuffer();
-
-	// Timer
-	// TODO: Refactor to a static timeHandler
-	LARGE_INTEGER timer;
-	if (!QueryPerformanceCounter(&timer)) {
-		ErrorLogger::log("Cannot query performance counter in " + m_name + ".");
-		return;
-	}
-
-	m_frequencySeconds = (float)(timer.QuadPart);
-	// Get Current value
-	QueryPerformanceCounter(&timer);
-	m_startTime = timer.QuadPart;
-	m_totalTime = 0.;
-	m_elapsedTime = 0.;
+	m_camera.bindMatix();
 }
 
 void PlayState::update() {
-	// TODO: Refactor to a static timeHandler
-	QueryPerformanceCounter(&m_timer);
-	m_elapsedTime = (float)(m_timer.QuadPart - m_startTime);
-	m_startTime = m_timer.QuadPart;
-	m_totalTime += m_elapsedTime * 0.000001;
+	m_timer.update();
 
-	float t = m_totalTime;
+	float t = m_timer.getTimePassed();
+
 	m_camera.setEye(Vector3(sin(t), 0.1 * cos(t), -4.0));
 	m_camera.buildMatrices();
 	m_camera.updateBuffer();
@@ -47,8 +34,15 @@ void PlayState::handleEvent(int event) { return; }
 void PlayState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
 void PlayState::draw() {
-	m_camera.bindMatix();
+	// Quad
 	m_quad.draw();
+
+	// Text
+	float t = m_timer.getTimePassed();
+	Vector4 col = Vector4(.5f, abs(cos(t)), abs(sin(t)), 1.f);
+	m_textRenderer.draw("HERE IS THE GOAT", Vector2(400., 300.), col);
+
+
 	ErrorLogger::log(m_name + " draw() called.");
 }
 

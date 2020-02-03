@@ -1,6 +1,5 @@
 #pragma once
 #include <iostream>
-#include "Keyboard.h"
 
 class StateHandler;
 
@@ -14,6 +13,7 @@ public:
 	virtual void draw() = 0;
 	void changeState(int state);
 	std::string getName() const;
+	virtual ~State(){};
 
 	virtual ~State() {};
 
