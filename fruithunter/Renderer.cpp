@@ -3,11 +3,6 @@
 Renderer Renderer::m_this(STANDARD_WIDTH, STANDARD_HEIGHT);
 
 LRESULT CALLBACK WinProc(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
-	if (msg == WM_DESTROY || msg == WM_CLOSE) {
-		PostQuitMessage(0);
-		return 0;
-	}
-
 	switch (msg) {
 	case WM_ACTIVATEAPP:
 		DirectX::Keyboard::ProcessMessage(msg, wparam, lparam);

@@ -300,7 +300,6 @@ bool MeshHandler::loadMTL(std::string filename, std::vector<Material>& materials
 			}
 			else if (startWord == "Ns") { // shininess
 				mtlFile >> floatValue;
-				floatValue /= 100;
 				materials.back().setSpecularHighlight(floatValue);
 			}
 			else if (startWord == "Ni") { // diffuse strength

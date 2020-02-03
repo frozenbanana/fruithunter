@@ -12,7 +12,7 @@ IntroState::~IntroState() {}
 void IntroState::initialize() {
 	m_name = "Intro State";
 
-	m_entity.load("treeMedium1");
+	m_entity.load("bow");
 
 	m_camera.setView(Vector3(0.0, 0.0, -10.0), Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
 	m_camera.createBuffer();
