@@ -26,10 +26,10 @@ void Player::initialize() {
 void Player::update(float td) {
 	rotatePlayer();
 	movePlayer();
-	m_position += m_speed * m_velocity * td; //Fixa
-	if (!onGround()) {
-		m_position.y = m_position.y + m_velocity.y * td + (m_gravity * td * td) * 0.5;
-		m_velocity.y += m_gravity * td;
+	m_position += m_speed * m_velocity * td;
+	if (!onGround()) { //Movement along the Y-axis. a.k.a Gravity. According to one dimensionall physics.
+		m_position.y = m_position.y + m_velocity.y * td + (m_gravity * td * td) * 0.5; //Pos2 = Pos1 + v1 * t + (a * t^2)/2 
+		m_velocity.y += m_gravity * td; //Update old velocity
 	}
 	m_camera.setUp(m_playerUp);
 	m_camera.setEye(m_position);
@@ -37,8 +37,10 @@ void Player::update(float td) {
 
 	m_camera.updateBuffer();
 
-	ErrorLogger::log("X: " + to_string(m_position.x) + " Y: " + to_string(m_position.y) +
-					 " Z: " + to_string(m_position.z));
+	ErrorLogger::log("PosX: " + to_string(m_position.x) + " PosY: " + to_string(m_position.y) +
+					 " PosZ: " + to_string(m_position.z));
+	ErrorLogger::log("VelX: " + to_string(m_velocity.x) + " VelY: " + to_string(m_velocity.y) +
+					 " VelZ: " + to_string(m_velocity.z));
 }
 
 void Player::movePlayer() {
@@ -50,7 +52,7 @@ void Player::movePlayer() {
 		// ErrorLogger::log("pressing W ");
 	}
 	else {
-		if (m_velocityFactorFrontBack >= 0.0f)
+		if (m_velocityFactorFrontBack > 0.0f)
 			m_velocityFactorFrontBack -= FACTORSTEPS;
 	}
 
@@ -60,7 +62,7 @@ void Player::movePlayer() {
 		// ErrorLogger::log("pressing S ");
 	}
 	else {
-		if (m_velocityFactorFrontBack <= (0.0f))
+		if (m_velocityFactorFrontBack < (0.0f))
 			m_velocityFactorFrontBack += FACTORSTEPS;
 	}
 
@@ -93,8 +95,11 @@ void Player::movePlayer() {
 		m_velocityFactorStrafe = 0;
 	if (m_velocityFactorFrontBack <= 0.1 && m_velocityFactorFrontBack >= -0.1)
 		m_velocityFactorFrontBack = 0;
-	m_position += m_speed * m_velocityFactorFrontBack * m_playerForward;
-	m_position += m_speed * m_velocityFactorStrafe * m_playerRight;
+	// To avoid skipping - Position along the Y-axis is avoided here under.
+	m_position.x += m_speed * m_velocityFactorFrontBack * m_playerForward.x;
+	m_position.z += m_speed * m_velocityFactorFrontBack * m_playerForward.z;
+	m_position.x += m_speed * m_velocityFactorStrafe * m_playerRight.x;
+	m_position.z += m_speed * m_velocityFactorStrafe * m_playerRight.z;
 }
 
 void Player::rotatePlayer() {
@@ -143,7 +148,7 @@ void Player::draw() { m_camera.bindMatrix(); }
 void Player::jump() {
 
 	if (onGround()) {
-		m_velocity.y = 2.0f;
+		m_velocity.y = 3.0f;
 	}
 	else {
 		ErrorLogger::log("NOT ON GROUND");
