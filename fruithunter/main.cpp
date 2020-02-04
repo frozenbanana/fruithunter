@@ -40,7 +40,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 		stateHandler->draw();		 // calls current states draw()
 		renderer->endFrame();
 
-		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
+		while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 			if (msg.message == WM_QUIT) {

@@ -13,10 +13,6 @@ void PlayState::initialize() {
 	m_name = "Play State";
 	m_quad.init();
 	m_camera.setView(Vector3(0.0, 0.0, -4.0), Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
-	m_camera.createBuffer();
-	m_camera.buildMatrices();
-	m_camera.updateBuffer();
-	m_camera.bindMatix();
 }
 
 void PlayState::update() {
@@ -25,7 +21,6 @@ void PlayState::update() {
 	float t = m_timer.getTimePassed();
 
 	m_camera.setEye(Vector3(sin(t), 0.1 * cos(t), -4.0));
-	m_camera.buildMatrices();
 	m_camera.updateBuffer();
 }
 
@@ -37,6 +32,8 @@ void PlayState::pause() {
 }
 
 void PlayState::draw() {
+	m_camera.bindMatrix();
+
 	// Quad
 	m_quad.draw();
 
@@ -44,7 +41,6 @@ void PlayState::draw() {
 	float t = m_timer.getTimePassed();
 	Vector4 col = Vector4(.5f, abs(cos(t)), abs(sin(t)), 1.f);
 	m_textRenderer.draw("HERE IS THE GOAT", Vector2(400., 300.), col);
-
 
 	ErrorLogger::log(m_name + " draw() called.");
 }
