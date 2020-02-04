@@ -9,6 +9,18 @@ LRESULT CALLBACK WinProc(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
 		DirectX::Mouse::ProcessMessage(msg, wparam, lparam);
 		break;
 
+	case WM_QUIT:
+		PostQuitMessage(0);
+		break;
+
+	case WM_CLOSE:
+		PostQuitMessage(0);
+		break;
+
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+
 	case WM_INPUT:
 	case WM_MOUSEMOVE:
 	case WM_LBUTTONDOWN:
