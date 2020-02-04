@@ -1,6 +1,6 @@
 #pragma once
 #include "Mesh.h"
-#include "Timer.hpp"
+#include <time.h>
 #include <stdlib.h>
 #define ANIMATION_BUFFER_SLOT 3
 class Animated {
@@ -8,7 +8,7 @@ private:
 	std::vector<Mesh> m_meshes;
 	int m_nrOfMeshes;
 	float m_frameTimer;
-	Timer m_timer;
+	clock_t m_timer;
 
 	ShaderSet m_shaderObject_animation;
 

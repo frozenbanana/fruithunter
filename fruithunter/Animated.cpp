@@ -80,8 +80,9 @@ Animated::~Animated() {}
 
 void Animated::update() {
 	// Update timer
-	m_timer.update();
-	float dt = m_timer.getDt();
+
+	float dt = (clock() - m_timer) / 1000.0f;
+	m_timer = clock();
 	m_frameTimer = fmod(m_frameTimer + dt, 1.0f);
 	ErrorLogger::log(std::to_string(dt));
 

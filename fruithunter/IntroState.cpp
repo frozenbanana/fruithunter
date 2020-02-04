@@ -28,7 +28,6 @@ void IntroState::update() {
 	// m_entity.setPosition(float3(5 * sin(rot), 0, 0));
 	// m_entity.rotateY(3.14f * 1.f / 60.f);
 	// m_entity.setScale(sin(rot));
-
 	m_camera.buildMatrices();
 	m_camera.updateBuffer();
 }
