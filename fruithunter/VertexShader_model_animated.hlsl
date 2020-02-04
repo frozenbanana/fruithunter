@@ -24,13 +24,13 @@ VS_OUT main(VS_IN input) {
 
 
 
-	float3 pos = lerp(input.Pos0, input.Pos1, 0.9);
-	// float3 pos = lerp(input.Pos0, input.Pos1, mAnimation.x);
+	float3 pos = lerp(input.Pos0, input.Pos1, mAnimation.x);
+	// float3 pos = lerp(input.Pos0, input.Pos1, 0.9);
 	float3 normal = lerp(input.Normal0, input.Normal1, mAnimation.x);
 	output.PosW = mul(float4(pos, 1), mWorld).xyz;
 	output.PosH = mul(float4(output.PosW, 1), mViewPerspective);
 	output.TexCoord = input.TexCoord0;
 	output.Normal = normalize(mul(float4(normal, 0), mInvTraWorld).xyz);
-
+	// output.Normal = mAnimation.xyz;
 	return output;
 }

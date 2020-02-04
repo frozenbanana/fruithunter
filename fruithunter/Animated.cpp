@@ -37,18 +37,63 @@ void Animated::createInputAssembler() {
 			L"PixelShader_model.hlsl", inputLayout, 6);
 }
 
+void Animated::createAnimationConstantBuffer() {
+	ID3D11Device* gDevice = Renderer::getDevice();
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+
+	HRESULT check;
+
+	// Animation buffer
+	m_animationBuffer.Reset();
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc));
+
+	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(float) * 4;
+
+	D3D11_SUBRESOURCE_DATA data;
+	float zero = 0.0f;
+	data.pSysMem = &zero;
+
+	check = gDevice->CreateBuffer(&bufferDesc, &data, m_animationBuffer.GetAddressOf());
+	if (FAILED(check))
+		ErrorLogger::logError(check, "Failed creating animation buffer in Animated class!\n");
+}
+
+void Animated::bindConstantBuffer() {
+	// bind buffer to pipeline
+	Renderer::getDeviceContext()->VSSetConstantBuffers(
+		ANIMATION_BUFFER_SLOT, 1, m_animationBuffer.GetAddressOf());
+}
+
 
 
 Animated::Animated() {
 	m_frameTimer = 0.0f;
 	m_nrOfMeshes = 0;
 	createInputAssembler();
+	createAnimationConstantBuffer();
 }
 
 Animated::~Animated() {}
 
+void Animated::update() {
+	// Update timer
+	m_timer.update();
+	float dt = m_timer.getDt();
+	m_frameTimer = fmod(m_frameTimer + dt, 1.0f);
+	ErrorLogger::log(std::to_string(dt));
+
+	// Update buffer
+	float4 data = { m_frameTimer, 0, 0, 0 };
+	Renderer::getDeviceContext()->UpdateSubresource(m_animationBuffer.Get(), 0, 0, &data, 0, 0);
+}
+
 void Animated::draw() {
+	update();
 	bindMeshes();
+	bindConstantBuffer();
 	m_shaderObject_animation.bindShadersAndLayout();
 	// bind constantbuffer
 	m_meshes[0].draw_withoutBinding();
@@ -60,7 +105,7 @@ bool Animated::load(std::string filename, int nrOfFrames, bool combineParts) {
 	m_meshes.empty();
 	m_meshes.resize(nrOfFrames);
 	for (int i = 0; i < nrOfFrames && allClear; ++i) {
-		if (!m_meshes[i].load(filename + "_00000" +std::to_string(i))) {
+		if (!m_meshes[i].load(filename + "_00000" + std::to_string(i))) {
 			allClear = false;
 			ErrorLogger::messageBox(0, "In Animated::load, failed to load mesh: " + filename +
 										   " number: " + std::to_string(i));

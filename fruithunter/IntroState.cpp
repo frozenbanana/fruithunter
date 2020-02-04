@@ -12,7 +12,7 @@ IntroState::~IntroState() {}
 void IntroState::initialize() {
 	m_name = "Intro State";
 
-	// m_entity.load("bow");
+	m_entity.load("bow");
 	m_entity.loadAnimated("Bow", 2);
 
 	m_camera.setView(Vector3(0.0, 0.0, -10.0), Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
@@ -25,9 +25,9 @@ void IntroState::update() {
 	m_timer.update();
 	float rotSpeed = 1;
 	rot += 0.01;
-	m_entity.setPosition(float3(5 * sin(rot), 0, 0));
-	m_entity.rotateY(3.14f * 1.f / 60.f);
-	m_entity.setScale(sin(rot));
+	// m_entity.setPosition(float3(5 * sin(rot), 0, 0));
+	// m_entity.rotateY(3.14f * 1.f / 60.f);
+	// m_entity.setScale(sin(rot));
 
 	m_camera.buildMatrices();
 	m_camera.updateBuffer();
@@ -57,7 +57,8 @@ void IntroState::draw() {
 
 	if (Input::getInstance()->keyDown(Keyboard::Space))
 		m_entity.draw_boundingBox();
-	// m_entity.draw();
+
+	m_entity.draw();
 	m_entity.draw_animate();
 }
 
