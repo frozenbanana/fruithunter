@@ -9,6 +9,9 @@
 
 #define STANDARD_WIDTH 800
 #define STANDARD_HEIGHT 600
+#define STANDARD_CORNER_X 100
+#define STANDARD_CORNER_Y 100
+
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -65,5 +68,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
 	D3D11_TEXTURE2D_DESC m_backBufferDesc;
-	
+
+
+	// RECT r
 };

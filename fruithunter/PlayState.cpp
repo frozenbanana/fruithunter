@@ -10,19 +10,32 @@ using Vector3 = DirectX::SimpleMath::Vector3;
 using Vector4 = DirectX::SimpleMath::Vector4;
 
 void PlayState::initialize() {
+	// if (!m_isLoaded) {
 	m_name = "Play State";
 	m_quad.init();
-	m_camera.setView(Vector3(0.0, 0.0, -4.0), Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
+
+	m_player.initialize();
+
+	// Timer
+	// TODO: Refactor to a static timeHandler
+	LARGE_INTEGER timer;
+	if (!QueryPerformanceCounter(&timer)) {
+		ErrorLogger::log("Cannot query performance counter in " + m_name + ".");
+		return;
+	}
+
+	// m_frequencySeconds = (float)(timer.QuadPart);
+	// Get Current value
+	QueryPerformanceCounter(&timer);
+	// m_startTime = timer.QuadPart;
+	// m_totalTime = 0.;
+	// m_elapsedTime = 0.;
+
+	// m_isLoaded = true;
+	//}
 }
 
-void PlayState::update() {
-	m_timer.update();
-
-	float t = m_timer.getTimePassed();
-
-	m_camera.setEye(Vector3(sin(t), 0.1 * cos(t), -4.0));
-	m_camera.updateBuffer();
-}
+void PlayState::update() { m_player.update(1); }
 
 void PlayState::handleEvent() { return; }
 
@@ -32,7 +45,7 @@ void PlayState::pause() {
 }
 
 void PlayState::draw() {
-	m_camera.bindMatrix();
+	m_player.draw();
 
 	// Quad
 	m_quad.draw();

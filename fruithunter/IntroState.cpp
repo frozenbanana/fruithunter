@@ -5,11 +5,17 @@
 
 using Vector2 = DirectX::SimpleMath::Vector2;
 
-IntroState::IntroState() { initialize(); }
+IntroState::IntroState()
+{
+	initialize();
+}
 
-IntroState::~IntroState() {}
+IntroState::~IntroState()
+{
+}
 
-void IntroState::initialize() {
+void IntroState::initialize()
+{
 	m_name = "Intro State";
 
 	m_entity.load("bow");
@@ -26,6 +32,8 @@ void IntroState::update() {
 	m_entity.setScale(sin(rot));
 
 	m_camera.updateBuffer();
+
+	Input::getInstance()->setMouseModeAbsolute();
 }
 
 void IntroState::handleEvent() {
