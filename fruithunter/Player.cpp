@@ -37,10 +37,10 @@ void Player::update(float td) {
 
 	m_camera.updateBuffer();
 
-	ErrorLogger::log("PosX: " + to_string(m_position.x) + " PosY: " + to_string(m_position.y) +
+	/*ErrorLogger::log("PosX: " + to_string(m_position.x) + " PosY: " + to_string(m_position.y) +
 					 " PosZ: " + to_string(m_position.z));
 	ErrorLogger::log("VelX: " + to_string(m_velocity.x) + " VelY: " + to_string(m_velocity.y) +
-					 " VelZ: " + to_string(m_velocity.z));
+					 " VelZ: " + to_string(m_velocity.z));*/
 }
 
 void Player::movePlayer() {
