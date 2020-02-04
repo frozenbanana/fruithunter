@@ -35,7 +35,7 @@ void PlayState::initialize() {
 	//}
 }
 
-void PlayState::update() { m_player.update(1); }
+void PlayState::update() { m_player.update(0.017f); }
 
 void PlayState::handleEvent() { return; }
 
@@ -54,8 +54,6 @@ void PlayState::draw() {
 	float t = m_timer.getTimePassed();
 	Vector4 col = Vector4(.5f, abs(cos(t)), abs(sin(t)), 1.f);
 	m_textRenderer.draw("HERE IS THE GOAT", Vector2(400., 300.), col);
-
-	ErrorLogger::log(m_name + " draw() called.");
 }
 
 void PlayState::play() {

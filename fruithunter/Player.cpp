@@ -7,10 +7,11 @@ Player::~Player() {}
 
 void Player::initialize() {
 	m_position = Vector3(0.0f, 0.0f, -4.0f);
-	m_movement = Vector3(0.0f, 0.0f, 0.0f);
+	m_velocity = Vector3(0.0f, 0.0f, 0.0f);
+	m_gravity = -9.82f;
 	m_playerForward = DEFAULTFORWARD;
 
-	m_velocity = .10f;
+	m_speed = .10f;
 	m_velocityFactorFrontBack = 0.0f;
 	m_velocityFactorStrafe = 0.0f;
 
@@ -25,12 +26,19 @@ void Player::initialize() {
 void Player::update(float td) {
 	rotatePlayer();
 	movePlayer();
-	m_position += m_velocity * m_movement * td;
+	m_position += m_speed * m_velocity * td; //Fixa
+	if (!onGround()) {
+		m_position.y = m_position.y + m_velocity.y * td + (m_gravity * td * td) * 0.5;
+		m_velocity.y += m_gravity * td;
+	}
 	m_camera.setUp(m_playerUp);
 	m_camera.setEye(m_position);
 	m_camera.setTarget(m_position + m_playerForward);
 
 	m_camera.updateBuffer();
+
+	ErrorLogger::log("X: " + to_string(m_position.x) + " Y: " + to_string(m_position.y) +
+					 " Z: " + to_string(m_position.z));
 }
 
 void Player::movePlayer() {
@@ -76,13 +84,17 @@ void Player::movePlayer() {
 			m_velocityFactorStrafe += FACTORSTEPS;
 	}
 
+	if (input->keyPressed(Keyboard::Keys::Space)) {
+		jump();
+	}
+
 	// STOPPED IT FROM MOVING
 	if (m_velocityFactorStrafe <= 0.1 && m_velocityFactorStrafe >= -0.1)
 		m_velocityFactorStrafe = 0;
 	if (m_velocityFactorFrontBack <= 0.1 && m_velocityFactorFrontBack >= -0.1)
 		m_velocityFactorFrontBack = 0;
-	m_position += m_velocity * m_velocityFactorFrontBack * m_playerForward;
-	m_position += m_velocity * m_velocityFactorStrafe * m_playerRight;
+	m_position += m_speed * m_velocityFactorFrontBack * m_playerForward;
+	m_position += m_speed * m_velocityFactorStrafe * m_playerRight;
 }
 
 void Player::rotatePlayer() {
@@ -111,8 +123,6 @@ void Player::rotatePlayer() {
 		m_cameraPitch -= 0.1f;
 	if (ip->keyDown(Keyboard::Keys::Down))
 		m_cameraPitch += 0.1f;
-	if (ip->keyDown(Keyboard::Keys::Space))
-		m_cameraYaw = 0;
 
 
 
@@ -129,3 +139,23 @@ void Player::rotatePlayer() {
 }
 
 void Player::draw() { m_camera.bindMatrix(); }
+
+void Player::jump() {
+
+	if (onGround()) {
+		m_velocity.y = 2.0f;
+	}
+	else {
+		ErrorLogger::log("NOT ON GROUND");
+	}
+}
+
+bool Player::onGround() { 
+	bool _onGround = false;
+	if (m_position.y <= 0.0f) {
+		_onGround = true;
+		m_velocity.y = 0.0f;
+		m_position.y = 0.0f;
+	}
+	return _onGround;
+}
