@@ -48,7 +48,8 @@ public:
 	void draw_boundingBox();
 
 	void draw_animate();
-
+	void updateAnimated();
+	void updateAnimated(float frameTime);
 	bool load(string filename);
 	bool loadAnimated(string filename, int nrOfFrames);
 

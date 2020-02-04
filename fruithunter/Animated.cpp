@@ -2,19 +2,17 @@
 
 void Animated::bindMeshes() {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
-
-
-	UINT strides[2] = { sizeof(Vertex) };
-	UINT offset[] = { 0, 0 };
-	for (int i = 0; i < m_nrOfMeshes; ++i) {
+	const int t = 3;
+	UINT strides[NR_OF_MESHES_TO_SEND] = { sizeof(Vertex) };
+	UINT offset[NR_OF_MESHES_TO_SEND] = { 0 };
+	unsigned int index = floorf(m_frameTimer);
+	for (int i = 0; i < 2; ++i)
 		deviceContext->IASetVertexBuffers(
-			i, 1, m_meshes[i].getVertexBuffer().GetAddressOf(), strides, offset);
-	}
+			i, 1, m_meshes[(size_t)index + i].getVertexBuffer().GetAddressOf(), strides, offset);
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 }
 
-// TODO: Able to use more than 2 meshes
 void Animated::createInputAssembler() {
 	D3D11_INPUT_ELEMENT_DESC inputLayout[] = {
 		{
@@ -28,13 +26,24 @@ void Animated::createInputAssembler() {
 		},
 		{ "TexCoordinate", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "Position", 1, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TexCoordinate", 1, DXGI_FORMAT_R32G32_FLOAT, 1, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "Normal", 1, DXGI_FORMAT_R32G32B32_FLOAT, 1, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
+
+	int nrOfMeshesToSend = NR_OF_MESHES_TO_SEND; // for now 2. May change later if we want to
+												 // interpolate between more meshes at the same time
+
+	unique_ptr<D3D11_INPUT_ELEMENT_DESC[]> inputLayoutTotal;
+	inputLayoutTotal = make_unique<D3D11_INPUT_ELEMENT_DESC[]>((size_t)nrOfMeshesToSend * 3);
+	for (int iVertex = 0; iVertex < nrOfMeshesToSend; ++iVertex) {
+		for (int i = 0; i < 3; ++i) {
+			inputLayoutTotal[(size_t)iVertex * 3 + i] = inputLayout[i];
+			inputLayoutTotal[(size_t)iVertex * 3 + i].SemanticIndex = iVertex;
+			inputLayoutTotal[(size_t)iVertex * 3 + i].InputSlot = iVertex;
+		}
+	}
+
 	if (!m_shaderObject_animation.isLoaded())
 		m_shaderObject_animation.createShaders(L"VertexShader_model_animated.hlsl", nullptr,
-			L"PixelShader_model.hlsl", inputLayout, 6);
+			L"PixelShader_model.hlsl", inputLayoutTotal.get(), nrOfMeshesToSend * 3);
 }
 
 void Animated::createAnimationConstantBuffer() {
@@ -67,36 +76,43 @@ void Animated::bindConstantBuffer() {
 		ANIMATION_BUFFER_SLOT, 1, m_animationBuffer.GetAddressOf());
 }
 
-
-
 Animated::Animated() {
 	m_frameTimer = 0.0f;
 	m_nrOfMeshes = 0;
-	createInputAssembler();
 	createAnimationConstantBuffer();
 }
 
 Animated::~Animated() {}
 
+float Animated::getFrameTimer() { return m_frameTimer; }
+
+// Default update to update self
 void Animated::update() {
 	// Update timer
-
 	float dt = (clock() - m_timer) / 1000.0f;
+	if (m_frameTimer > 1)
+		dt *= 3;
 	m_timer = clock();
-	m_frameTimer = fmod(m_frameTimer + dt, 1.0f);
-	ErrorLogger::log(std::to_string(dt));
+	m_frameTimer = fmod(m_frameTimer + dt, m_nrOfMeshes - 1);
 
 	// Update buffer
-	float4 data = { m_frameTimer, 0, 0, 0 };
+	float4 data = { fmod(m_frameTimer, 1.0f), 0, 0, 0 };
+	Renderer::getDeviceContext()->UpdateSubresource(m_animationBuffer.Get(), 0, 0, &data, 0, 0);
+}
+
+// Used by classes with specific frameTime functions
+void Animated::update(float frameTime) {
+	// Update buffer
+	m_frameTimer = frameTime;
+	float4 data = { fmod(m_frameTimer, 1.0f), 0, 0, 0 };
 	Renderer::getDeviceContext()->UpdateSubresource(m_animationBuffer.Get(), 0, 0, &data, 0, 0);
 }
 
 void Animated::draw() {
-	update();
 	bindMeshes();
 	bindConstantBuffer();
 	m_shaderObject_animation.bindShadersAndLayout();
-	// bind constantbuffer
+
 	m_meshes[0].draw_withoutBinding();
 }
 
@@ -112,5 +128,6 @@ bool Animated::load(std::string filename, int nrOfFrames, bool combineParts) {
 										   " number: " + std::to_string(i));
 		}
 	}
+	createInputAssembler();
 	return allClear;
 }

@@ -121,6 +121,10 @@ void Entity::draw_animate() {
 	m_meshAnim.draw();
 }
 
+void Entity::updateAnimated() { m_meshAnim.update(); }
+
+void Entity::updateAnimated(float frameTime) { m_meshAnim.update(frameTime); }
+
 bool Entity::load(string filename) { return m_mesh.load(filename); }
 
 bool Entity::loadAnimated(string filename, int nrOfFrames) {
