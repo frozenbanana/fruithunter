@@ -167,6 +167,7 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshHandler.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="Quad.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshHandler.h" />
+    <ClInclude Include="Player.hpp" />
     <ClInclude Include="PlayState.hpp" />
     <ClInclude Include="Quad.hpp" />
     <ClInclude Include="Renderer.hpp" />

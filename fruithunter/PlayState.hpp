@@ -1,13 +1,15 @@
 #pragma once
 #include "State.hpp"
 #include "Quad.hpp"
-#include "Camera.hpp"
+//#include "Camera.hpp"
+#include "Player.hpp"
 #include "Timer.hpp"
 #include "TextRenderer.hpp"
 #include "AudioHandler.hpp"
 
 
-class PlayState : public State {
+class PlayState : public State
+{
 public:
 	void update();
 	void initialize();
@@ -16,11 +18,14 @@ public:
 	void play();
 	void draw();
 
-	PlayState() { initialize(); }
+	PlayState()
+	{
+		initialize();
+	}
 
 private:
 	Timer m_timer;
 	TextRenderer m_textRenderer;
-	Camera m_camera;
+	Player m_player;
 	Quad m_quad;
 };

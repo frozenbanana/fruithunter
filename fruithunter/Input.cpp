@@ -110,3 +110,14 @@ int Input::getMouseMovementX() { return m_mouseState.x - m_oldX; }
 int Input::getMouseMovementY() { return m_mouseState.y - m_oldY; }
 
 Input* Input::getInstance() { return &m_this; }
+
+
+void Input::setMouseModeRelative() {
+	if (m_mouseState.positionMode == DirectX::Mouse::MODE_ABSOLUTE)
+		m_mouse.get()->SetMode(DirectX::Mouse::MODE_RELATIVE);
+}
+
+void Input::setMouseModeAbsolute() {
+	if (m_mouseState.positionMode != DirectX::Mouse::MODE_ABSOLUTE)
+		m_mouse.get()->SetMode(DirectX::Mouse::MODE_ABSOLUTE);
+}

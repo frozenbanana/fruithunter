@@ -5,20 +5,23 @@
 
 using Vector2 = DirectX::SimpleMath::Vector2;
 
-IntroState::IntroState() { initialize(); }
+IntroState::IntroState()
+{
+	initialize();
+}
 
-IntroState::~IntroState() {}
+IntroState::~IntroState()
+{
+}
 
-void IntroState::initialize() {
+void IntroState::initialize()
+{
 	m_name = "Intro State";
 
 	// m_entity.load("bow");
 	m_entity.loadAnimated("Bow", 3);
 
 	m_camera.setView(Vector3(0.0, 0.0, -10.0), Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
-	m_camera.createBuffer();
-	m_camera.buildMatrices();
-	m_camera.updateBuffer();
 }
 
 void IntroState::update() {
@@ -31,6 +34,8 @@ void IntroState::update() {
 	m_entity.updateAnimated();
 	m_camera.buildMatrices();
 	m_camera.updateBuffer();
+
+	Input::getInstance()->setMouseModeAbsolute();
 }
 
 void IntroState::handleEvent() {
@@ -48,12 +53,11 @@ void IntroState::pause() {
 }
 
 void IntroState::draw() {
+	m_camera.bindMatrix();
 	// ErrorLogger::log(m_name + " draw() called.");
 	float t = m_timer.getTimePassed();
 	Vector4 col = Vector4(abs(sin(t)), .5f, abs(cos(t)), 1.f);
 	m_textRenderer.draw("LET ME SEE THE GOAT " + std::to_string(t), Vector2(400., 300.), col);
-
-	m_camera.bindMatix();
 
 	if (Input::getInstance()->keyDown(Keyboard::Space))
 		m_entity.draw_boundingBox();

@@ -38,6 +38,9 @@ public:
 
 	static Input* getInstance();
 
+	void setMouseModeRelative();
+	void setMouseModeAbsolute();
+
 private:
 	Input();
 	static Input m_this;

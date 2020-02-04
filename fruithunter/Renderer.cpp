@@ -17,6 +17,18 @@ LRESULT CALLBACK WinProc(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
 		DirectX::Mouse::ProcessMessage(msg, wparam, lparam);
 		break;
 
+	case WM_QUIT:
+		PostQuitMessage(0);
+		break;
+
+	case WM_CLOSE:
+		PostQuitMessage(0);
+		break;
+
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+
 	case WM_INPUT:
 	case WM_MOUSEMOVE:
 	case WM_LBUTTONDOWN:
@@ -61,9 +73,9 @@ Renderer::Renderer(int width, int height) {
 	RegisterClass(&wc);
 
 	// Create the window
-	m_handle = CreateWindow(m_windowTitle, L"C++11 and DX11 Tutorial",
-		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE, 100, 100, width, height, nullptr, nullptr,
-		nullptr, nullptr);
+	m_handle = CreateWindow(m_windowTitle, m_windowTitle,
+		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE, STANDARD_CORNER_X, STANDARD_CORNER_Y,
+		width, height, nullptr, nullptr, nullptr, nullptr);
 
 	// Create device, deviceContext and swapchain
 	Renderer* r = Renderer::getInstance();

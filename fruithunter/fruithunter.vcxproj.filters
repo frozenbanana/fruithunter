@@ -66,6 +66,9 @@
     <ClCompile Include="AudioHandler.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
     <ClCompile Include="Animated.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -123,6 +126,9 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Window.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Animated.hpp">
