@@ -66,7 +66,7 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Player.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -125,7 +125,7 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Player.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

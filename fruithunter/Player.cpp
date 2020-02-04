@@ -99,6 +99,7 @@ void Player::rotatePlayer() {
 	}
 	if (deltaY != 0.0f) {
 		m_cameraPitch += deltaY * rotationSpeed;
+		m_cameraPitch = min(max(m_cameraPitch, -1.5), 1.5);
 	}
 
 
