@@ -111,10 +111,9 @@ void Player::movePlayer() {
 	if (m_velocityFactorFrontBack <= 0.1 && m_velocityFactorFrontBack >= -0.1)
 		m_velocityFactorFrontBack = 0;
 	// To avoid "skipping" - Position along the Y-axis is avoided here under.
-	m_position.x += m_speed * m_velocityFactorFrontBack * m_playerForward.x;
-	m_position.z += m_speed * m_velocityFactorFrontBack * m_playerForward.z;
-	m_position.x += m_speed * m_velocityFactorStrafe * m_playerRight.x;
-	m_position.z += m_speed * m_velocityFactorStrafe * m_playerRight.z;
+	Vector3 flatForward = XMVector3Normalize(Vector3(m_playerForward.x, 0.0f, m_playerForward.z));
+	m_position += m_speed * m_velocityFactorFrontBack * flatForward;
+	m_position += m_speed * m_velocityFactorStrafe * m_playerRight;
 }
 
 void Player::rotatePlayer() {
@@ -150,12 +149,12 @@ void Player::rotatePlayer() {
 	Vector3 cameraTarget = XMVector3TransformCoord(m_playerForward, cameraRotationMatrix);
 	cameraTarget = XMVector3Normalize(cameraTarget);
 
-
 	Matrix rotateYTempMatrix = XMMatrixRotationY(m_cameraYaw);
 
 	m_playerForward = XMVector3TransformCoord(DEFAULTFORWARD, cameraRotationMatrix);
 	m_playerUp = XMVector3TransformCoord(m_playerUp, rotateYTempMatrix);
 	m_playerRight = XMVector3TransformCoord(DEFAULTRIGHT, cameraRotationMatrix);
+
 }
 
 void Player::draw() { m_camera.bindMatrix(); }
@@ -172,7 +171,7 @@ bool Player::onGround() { //Check if you are on the ground
 	if (m_position.y <= m_groundHeight) {
 		_onGround = true;
 		m_velocity.y = 0.0f; //Stop gravity if you are on the ground.
-		m_position.y = m_groundHeight;
+		m_position.y = max(m_groundHeight, m_position.y);
 	}
 	return _onGround;
 }
