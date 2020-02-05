@@ -7,14 +7,14 @@ struct PS_IN {
 	float3 Normal : NORMAL;
 };
 
-cbuffer materialbuffer : register(b2) { 
+cbuffer materialbuffer : register(b2) {
 	float4 ambient3;
 	float4 diffuse3_strength;	// xyz diffuse, w strength for some strange reason
 	float4 specular3_shininess; // xyz specular, w shininess
 	float4 mapUsages;
 }
 
-Texture2D textures[3] : register(t0);//AmbientMap, DiffuseMap, SpecularMap
+Texture2D textures[3] : register(t0); // AmbientMap, DiffuseMap, SpecularMap
 SamplerState samplerAni {
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Linear;
@@ -34,25 +34,26 @@ float4 main(PS_IN ip) : SV_TARGET {
 	float3 lightPos = float3(-5, 2, -3);
 	float3 toLight = normalize(lightPos - ip.PosW);
 
-	//ambient base
+	// ambient base
 	float ambientBase =
 		mapUsages.x ? (textures[0].Sample(samplerAni, ip.TexCoord)).rgb : (ambient3.rgb);
 
 	// base color
-	float3 pixelBaseColor = mapUsages.y ? (textures[1].Sample(samplerAni, ip.TexCoord)).rgb : (diffuse3_strength.rgb);
+	float3 pixelBaseColor =
+		mapUsages.y ? (textures[1].Sample(samplerAni, ip.TexCoord)).rgb : (diffuse3_strength.rgb);
 
 	// diffuse
 	float diffuseTint = max(dot(toLight, ip.Normal), 0.0);
 
-	//specular
+	// specular
 	float3 specular =
 		mapUsages.z ? (textures[2].Sample(samplerAni, ip.TexCoord)).rgb : (specular3_shininess.rgb);
-	float reflectTint = pow(max(dot(normalize(reflect(-toLight, ip.Normal)), normalize(-ip.PosW)), 0.0),
-		specular3_shininess.w*50);
+	float reflectTint =
+		pow(max(dot(normalize(reflect(-toLight, ip.Normal)), normalize(-ip.PosW)), 0.0),
+			specular3_shininess.w * 50);
 
-	//final color
+	// final color
 	float3 col = pixelBaseColor * (0.2 + diffuseTint) + specular * reflectTint;
-
 	return float4(col, 1.0);
-	//return float4(ip.Normal,1.0);
+	// return float4(ip.Normal,1.0);
 }
