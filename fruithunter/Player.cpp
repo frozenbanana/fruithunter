@@ -32,19 +32,34 @@ void Player::update(float td) {
 		m_position.y = m_position.y + m_velocity.y * td + (m_gravity * td * td) * 0.5; //Pos2 = Pos1 + v1 * t + (a * t^2)/2 
 		m_velocity.y += m_gravity * td; //Update old velocity
 	}
+	else {
+		m_dashCooldown += td; // Cooldown for dashing
+	}
 	m_camera.setUp(m_playerUp);
 	m_camera.setEye(m_position);
 	m_camera.setTarget(m_position + m_playerForward);
 
 	m_camera.updateBuffer();
+
+
+	//ErrorLogger::log(std::to_string(m_velocityFactorFrontBack));
 }
 
 void Player::movePlayer() {
 	Input* input = Input::getInstance();
 	if (input->keyDown(Keyboard::Keys::W)) {
 
-		m_velocityFactorFrontBack < 1.0f ? m_velocityFactorFrontBack += FACTORSTEPS
-										 : m_velocityFactorFrontBack = 1.0f;
+		/*m_velocityFactorFrontBack < 1.0f ? m_velocityFactorFrontBack += FACTORSTEPS
+										 : m_velocityFactorFrontBack -= FACTORSTEPS;*/
+
+		if (m_velocityFactorFrontBack <= 1.0f) {
+			m_velocityFactorFrontBack += FACTORSTEPS;
+		}
+		else {
+			if (onGround()) {
+				m_velocityFactorFrontBack -= FACTORSTEPS;
+			}
+		}
 		// ErrorLogger::log("pressing W ");
 	}
 	else {
@@ -84,6 +99,10 @@ void Player::movePlayer() {
 
 	if (input->keyPressed(Keyboard::Keys::Space)) {
 		jump();
+	}
+
+	if (input->keyPressed(Keyboard::Keys::LeftShift)) {
+		dash();
 	}
 
 	// STOPPED IT FROM MOVING
@@ -156,4 +175,14 @@ bool Player::onGround() { //Check if you are on the ground
 		m_position.y = m_groundHeight;
 	}
 	return _onGround;
+}
+
+void Player::dash() {
+	if (m_dashCooldown > 3.0f) {
+		m_dashCooldown = 0.0f;
+		m_velocityFactorFrontBack = 10.0f;
+	}
+	else {
+		ErrorLogger::log(std::to_string(3 - m_dashCooldown));
+	}
 }
