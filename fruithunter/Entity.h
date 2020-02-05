@@ -12,7 +12,6 @@ private:
 								  // is updated when it is fetched
 
 	Mesh m_mesh;
-	Animated m_meshAnim;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_modelMatrixBuffer;
 
@@ -24,6 +23,9 @@ private:
 	void bindModelMatrixBuffer();
 
 	void createBuffers();
+
+protected:
+	Animated m_meshAnim;
 
 public:
 	float4x4 getModelMatrix();
@@ -48,8 +50,8 @@ public:
 	void draw_boundingBox();
 
 	void draw_animate();
-	void updateAnimated();
-	void updateAnimated(float frameTime);
+	virtual void updateAnimated();
+	virtual void updateAnimated(float frameTime);
 	bool load(string filename);
 	bool loadAnimated(string filename, int nrOfFrames);
 

@@ -11,6 +11,7 @@ class Animated {
 private:
 	std::vector<Mesh> m_meshes;
 	int m_nrOfMeshes;
+	int m_frameTargets[2];
 	float m_frameTimer;
 	clock_t m_timer;
 
@@ -27,6 +28,8 @@ public:
 	Animated();
 	~Animated();
 
+	void setFrameTargets(int first, int second);
+	void setFrameTimer(float timer);
 	float getFrameTimer();
 	void update();
 	void update(float frameTime); // or deltaFrameTime
