@@ -11,7 +11,6 @@ public:
 	enum ScrollTracking { DOWN, STILL, UP };
 	enum MouseButton { LEFT, MIDDLE, RIGHT };
 
-
 	~Input();
 	static void initilize(HWND window);
 	void update();
@@ -35,11 +34,11 @@ public:
 	int getMouseMovementX();
 	int getMouseMovementY();
 
-
 	static Input* getInstance();
 
 	void setMouseModeRelative();
 	void setMouseModeAbsolute();
+	DirectX::Mouse::Mode getMouseMode();
 
 private:
 	Input();
