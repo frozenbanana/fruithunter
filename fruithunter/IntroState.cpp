@@ -26,6 +26,7 @@ void IntroState::update() {
 	// m_entity.rotateY(3.14f * 1.f / 60.f);
 	// m_entity.setScale(sin(rot));
 	m_entity.updateAnimated();
+	m_apple.updateAnimated();
 	m_camera.updateBuffer();
 
 	Input::getInstance()->setMouseModeAbsolute();
@@ -57,6 +58,7 @@ void IntroState::draw() {
 
 	// m_entity.draw();
 	m_entity.draw_animate();
+	m_apple.draw_animate();
 }
 
 void IntroState::play() {

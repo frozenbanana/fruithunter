@@ -8,7 +8,7 @@ void Animated::bindMeshes() {
 	unsigned int index = floorf(m_frameTimer);
 	for (int i = 0; i < 2; ++i)
 		deviceContext->IASetVertexBuffers(
-			i, 1, m_meshes[(size_t)index + i].getVertexBuffer().GetAddressOf(), strides, offset);
+			i, 1, m_meshes[m_frameTargets[i]].getVertexBuffer().GetAddressOf(), strides, offset);
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 }
@@ -79,10 +79,19 @@ void Animated::bindConstantBuffer() {
 Animated::Animated() {
 	m_frameTimer = 0.0f;
 	m_nrOfMeshes = 0;
+	m_frameTargets[0] = 0;
+	m_frameTargets[1] = 1;
 	createAnimationConstantBuffer();
 }
 
 Animated::~Animated() {}
+
+void Animated::setFrameTargets(int first, int second) {
+	m_frameTargets[0] = first;
+	m_frameTargets[1] = second;
+}
+
+void Animated::setFrameTimer(float timer) { m_frameTimer = timer; }
 
 float Animated::getFrameTimer() { return m_frameTimer; }
 
@@ -90,10 +99,15 @@ float Animated::getFrameTimer() { return m_frameTimer; }
 void Animated::update() {
 	// Update timer
 	float dt = (clock() - m_timer) / 1000.0f;
+	m_timer = clock();
 	if (m_frameTimer > 1)
 		dt *= 3;
-	m_timer = clock();
 	m_frameTimer = fmod(m_frameTimer + dt, m_nrOfMeshes - 1);
+	if (m_frameTimer > 1) {
+		setFrameTargets(1, 2);
+	}
+	else
+		setFrameTargets(0, 1);
 
 	// Update buffer
 	float4 data = { fmod(m_frameTimer, 1.0f), 0, 0, 0 };

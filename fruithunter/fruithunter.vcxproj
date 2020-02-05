@@ -156,6 +156,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Animated.cpp" />
+    <ClCompile Include="Apple.cpp" />
     <ClCompile Include="AudioHandler.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -179,6 +180,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animated.hpp" />
+    <ClInclude Include="Apple.hpp" />
     <ClInclude Include="AudioHandler.hpp" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Camera.hpp" />
