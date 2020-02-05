@@ -20,13 +20,14 @@ void IntroState::initialize() {
 
 void IntroState::update() {
 	m_timer.update();
+	float dt = m_timer.getDt();
 	float rotSpeed = 1;
 	rot += 0.01;
 	// m_entity.setPosition(float3(5 * sin(rot), 0, 0));
 	// m_entity.rotateY(3.14f * 1.f / 60.f);
 	// m_entity.setScale(sin(rot));
-	m_entity.updateAnimated();
-	m_apple.updateAnimated();
+	m_entity.updateAnimated(dt);
+	m_apple.updateAnimated(dt);
 	m_camera.updateBuffer();
 
 	Input::getInstance()->setMouseModeAbsolute();
@@ -50,6 +51,8 @@ void IntroState::draw() {
 	m_camera.bindMatrix();
 	// ErrorLogger::log(m_name + " draw() called.");
 	float t = m_timer.getTimePassed();
+	float a = m_timer.getDt();
+	ErrorLogger::log(std::to_string(a));
 	Vector4 col = Vector4(abs(sin(t)), .5f, abs(cos(t)), 1.f);
 
 

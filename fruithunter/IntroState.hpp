@@ -4,7 +4,6 @@
 #include "Apple.hpp"
 #include "Camera.hpp"
 #include <string>
-#include <time.h>
 #include "Input.hpp"
 #include "TextRenderer.hpp"
 #include "Timer.hpp"

@@ -96,10 +96,7 @@ void Animated::setFrameTimer(float timer) { m_frameTimer = timer; }
 float Animated::getFrameTimer() { return m_frameTimer; }
 
 // Default update to update self
-void Animated::update() {
-	// Update timer
-	float dt = (clock() - m_timer) / 1000.0f;
-	m_timer = clock();
+void Animated::update(float dt) {
 	if (m_frameTimer > 1)
 		dt *= 3;
 	m_frameTimer = fmod(m_frameTimer + dt, m_nrOfMeshes - 1);
@@ -115,7 +112,7 @@ void Animated::update() {
 }
 
 // Used by classes with specific frameTime functions
-void Animated::update(float frameTime) {
+void Animated::updateSpecific(float frameTime) {
 	// Update buffer
 	m_frameTimer = frameTime;
 	float4 data = { fmod(m_frameTimer, 1.0f), 0, 0, 0 };

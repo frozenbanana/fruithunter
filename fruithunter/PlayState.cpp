@@ -36,8 +36,9 @@ void PlayState::initialize() {
 }
 
 void PlayState::update() {
+	m_timer.update();
 	m_player.update(0.017f);
-	m_apple.updateAnimated();
+	m_apple.updateAnimated(m_timer.getDt());
 }
 
 void PlayState::handleEvent() { return; }

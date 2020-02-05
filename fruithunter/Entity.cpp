@@ -121,9 +121,9 @@ void Entity::draw_animate() {
 	m_meshAnim.draw();
 }
 
-void Entity::updateAnimated() { m_meshAnim.update(); }
+void Entity::updateAnimated(float dt) { m_meshAnim.update(dt); }
 
-void Entity::updateAnimated(float frameTime) { m_meshAnim.update(frameTime); }
+void Entity::updateAnimatedSpecific(float frameTime) { m_meshAnim.updateSpecific(frameTime); }
 
 bool Entity::load(string filename) { return m_mesh.load(filename); }
 

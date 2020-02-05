@@ -50,8 +50,8 @@ public:
 	void draw_boundingBox();
 
 	void draw_animate();
-	virtual void updateAnimated();
-	virtual void updateAnimated(float frameTime);
+	virtual void updateAnimated(float dt);
+	virtual void updateAnimatedSpecific(float frameTime);
 	bool load(string filename);
 	bool loadAnimated(string filename, int nrOfFrames);
 
