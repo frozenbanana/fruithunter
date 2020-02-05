@@ -24,10 +24,11 @@ void Player::initialize() {
 }
 
 void Player::update(float td) {
+	m_groundHeight = 0.0f; // update m_groundHeight
 	rotatePlayer();
 	movePlayer();
 	m_position += m_speed * m_velocity * td;
-	if (!onGround()) { //Movement along the Y-axis. a.k.a Gravity. According to one dimensionall physics.
+	if (!onGround()) { //Movement along the Y-axis. a.k.a Gravity. According to one dimensional physics.
 		m_position.y = m_position.y + m_velocity.y * td + (m_gravity * td * td) * 0.5; //Pos2 = Pos1 + v1 * t + (a * t^2)/2 
 		m_velocity.y += m_gravity * td; //Update old velocity
 	}
@@ -36,11 +37,6 @@ void Player::update(float td) {
 	m_camera.setTarget(m_position + m_playerForward);
 
 	m_camera.updateBuffer();
-
-	/*ErrorLogger::log("PosX: " + to_string(m_position.x) + " PosY: " + to_string(m_position.y) +
-					 " PosZ: " + to_string(m_position.z));
-	ErrorLogger::log("VelX: " + to_string(m_velocity.x) + " VelY: " + to_string(m_velocity.y) +
-					 " VelZ: " + to_string(m_velocity.z));*/
 }
 
 void Player::movePlayer() {
@@ -95,7 +91,7 @@ void Player::movePlayer() {
 		m_velocityFactorStrafe = 0;
 	if (m_velocityFactorFrontBack <= 0.1 && m_velocityFactorFrontBack >= -0.1)
 		m_velocityFactorFrontBack = 0;
-	// To avoid skipping - Position along the Y-axis is avoided here under.
+	// To avoid "skipping" - Position along the Y-axis is avoided here under.
 	m_position.x += m_speed * m_velocityFactorFrontBack * m_playerForward.x;
 	m_position.z += m_speed * m_velocityFactorFrontBack * m_playerForward.z;
 	m_position.x += m_speed * m_velocityFactorStrafe * m_playerRight.x;
@@ -148,19 +144,16 @@ void Player::draw() { m_camera.bindMatrix(); }
 void Player::jump() {
 
 	if (onGround()) {
-		m_velocity.y = 3.0f;
-	}
-	else {
-		ErrorLogger::log("NOT ON GROUND");
+		m_velocity.y = 3.0f; //If you are on the ground you may jump, giving yourself 3 m/s along the Y-axis.
 	}
 }
 
-bool Player::onGround() { 
+bool Player::onGround() { //Check if you are on the ground
 	bool _onGround = false;
-	if (m_position.y <= 0.0f) {
+	if (m_position.y <= m_groundHeight) {
 		_onGround = true;
-		m_velocity.y = 0.0f;
-		m_position.y = 0.0f;
+		m_velocity.y = 0.0f; //Stop gravity if you are on the ground.
+		m_position.y = m_groundHeight;
 	}
 	return _onGround;
 }

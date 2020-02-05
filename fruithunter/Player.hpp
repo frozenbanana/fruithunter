@@ -30,6 +30,7 @@ private:
 	float m_speed;
 	float m_velocityFactorFrontBack;
 	float m_velocityFactorStrafe;
+	float m_groundHeight;
 
 	Vector3 m_playerRight;
 	Vector3 m_playerUp;
