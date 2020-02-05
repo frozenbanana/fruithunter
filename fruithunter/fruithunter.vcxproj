@@ -173,6 +173,7 @@
     <ClCompile Include="ShaderSet.cpp" />
     <ClCompile Include="State.cpp" />
     <ClCompile Include="StateHandler.cpp" />
+    <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TextRenderer.cpp" />
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
@@ -193,6 +194,7 @@
     <ClInclude Include="ShaderSet.h" />
     <ClInclude Include="State.hpp" />
     <ClInclude Include="StateHandler.hpp" />
+    <ClInclude Include="Terrain.h" />
     <ClInclude Include="TextRenderer.hpp" />
     <ClInclude Include="Timer.hpp" />
     <ClInclude Include="Window.hpp" />
@@ -213,6 +215,12 @@
     <FxCompile Include="PixelShader_model_onlyMesh.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="PixelShader_terrain.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>

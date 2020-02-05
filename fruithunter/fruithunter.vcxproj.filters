@@ -68,6 +68,9 @@
     <ClCompile Include="Player.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Terrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AudioHandler.hpp">
@@ -127,8 +130,17 @@
     <ClInclude Include="Player.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Terrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="VertexShader.hlsl" />
+    <FxCompile Include="PixelShader.hlsl" />
+    <FxCompile Include="VertexShader_model_onlyMesh.hlsl" />
+    <FxCompile Include="PixelShader_model_onlyMesh.hlsl" />
+    <FxCompile Include="PixelShader_model.hlsl" />
+    <FxCompile Include="PixelShader_terrain.hlsl" />
     <None Include=".clang-format" />
   </ItemGroup>
   <ItemGroup>
