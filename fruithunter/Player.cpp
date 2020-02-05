@@ -7,10 +7,11 @@ Player::~Player() {}
 
 void Player::initialize() {
 	m_position = Vector3(0.0f, 0.0f, -4.0f);
-	m_movement = Vector3(0.0f, 0.0f, 0.0f);
+	m_velocity = Vector3(0.0f, 0.0f, 0.0f);
+	m_gravity = -9.82f;
 	m_playerForward = DEFAULTFORWARD;
 
-	m_velocity = .10f;
+	m_speed = .10f;
 	m_velocityFactorFrontBack = 0.0f;
 	m_velocityFactorStrafe = 0.0f;
 
@@ -23,9 +24,14 @@ void Player::initialize() {
 }
 
 void Player::update(float td) {
+	m_groundHeight = 0.0f; // update m_groundHeight
 	rotatePlayer();
 	movePlayer();
-	m_position += m_velocity * m_movement * td;
+	m_position += m_speed * m_velocity * td;
+	if (!onGround()) { //Movement along the Y-axis. a.k.a Gravity. According to one dimensional physics.
+		m_position.y = m_position.y + m_velocity.y * td + (m_gravity * td * td) * 0.5; //Pos2 = Pos1 + v1 * t + (a * t^2)/2 
+		m_velocity.y += m_gravity * td; //Update old velocity
+	}
 	m_camera.setUp(m_playerUp);
 	m_camera.setEye(m_position);
 	m_camera.setTarget(m_position + m_playerForward);
@@ -42,7 +48,7 @@ void Player::movePlayer() {
 		// ErrorLogger::log("pressing W ");
 	}
 	else {
-		if (m_velocityFactorFrontBack >= 0.0f)
+		if (m_velocityFactorFrontBack > 0.0f)
 			m_velocityFactorFrontBack -= FACTORSTEPS;
 	}
 
@@ -52,7 +58,7 @@ void Player::movePlayer() {
 		// ErrorLogger::log("pressing S ");
 	}
 	else {
-		if (m_velocityFactorFrontBack <= (0.0f))
+		if (m_velocityFactorFrontBack < (0.0f))
 			m_velocityFactorFrontBack += FACTORSTEPS;
 	}
 
@@ -76,13 +82,20 @@ void Player::movePlayer() {
 			m_velocityFactorStrafe += FACTORSTEPS;
 	}
 
+	if (input->keyPressed(Keyboard::Keys::Space)) {
+		jump();
+	}
+
 	// STOPPED IT FROM MOVING
 	if (m_velocityFactorStrafe <= 0.1 && m_velocityFactorStrafe >= -0.1)
 		m_velocityFactorStrafe = 0;
 	if (m_velocityFactorFrontBack <= 0.1 && m_velocityFactorFrontBack >= -0.1)
 		m_velocityFactorFrontBack = 0;
-	m_position += m_velocity * m_velocityFactorFrontBack * m_playerForward;
-	m_position += m_velocity * m_velocityFactorStrafe * m_playerRight;
+	// To avoid "skipping" - Position along the Y-axis is avoided here under.
+	m_position.x += m_speed * m_velocityFactorFrontBack * m_playerForward.x;
+	m_position.z += m_speed * m_velocityFactorFrontBack * m_playerForward.z;
+	m_position.x += m_speed * m_velocityFactorStrafe * m_playerRight.x;
+	m_position.z += m_speed * m_velocityFactorStrafe * m_playerRight.z;
 }
 
 void Player::rotatePlayer() {
@@ -111,8 +124,6 @@ void Player::rotatePlayer() {
 		m_cameraPitch -= 0.1f;
 	if (ip->keyDown(Keyboard::Keys::Down))
 		m_cameraPitch += 0.1f;
-	if (ip->keyDown(Keyboard::Keys::Space))
-		m_cameraYaw = 0;
 
 
 
@@ -129,3 +140,20 @@ void Player::rotatePlayer() {
 }
 
 void Player::draw() { m_camera.bindMatrix(); }
+
+void Player::jump() {
+
+	if (onGround()) {
+		m_velocity.y = 3.0f; //If you are on the ground you may jump, giving yourself 3 m/s along the Y-axis.
+	}
+}
+
+bool Player::onGround() { //Check if you are on the ground
+	bool _onGround = false;
+	if (m_position.y <= m_groundHeight) {
+		_onGround = true;
+		m_velocity.y = 0.0f; //Stop gravity if you are on the ground.
+		m_position.y = m_groundHeight;
+	}
+	return _onGround;
+}
