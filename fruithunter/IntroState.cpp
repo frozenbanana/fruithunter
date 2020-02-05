@@ -14,7 +14,9 @@ void IntroState::initialize() {
 
 	m_entity.load("bow");
 
-	m_camera.setView(Vector3(0.0, 0.0, -10.0), Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
+	terrain.initilize("heightmap2.png",XMINT2(100,100),XMINT2(2,2));
+
+	m_camera.setView(Vector3(0.0, 5.0, -10.0), Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
 	m_camera.createBuffer();
 	m_camera.buildMatrices();
 	m_camera.updateBuffer();
@@ -31,6 +33,8 @@ void IntroState::update() {
 
 	m_camera.buildMatrices();
 	m_camera.updateBuffer();
+
+	terrain.rotateY(0.03*0.1);
 }
 
 void IntroState::handleEvent(int event) { return; }
@@ -41,14 +45,17 @@ void IntroState::draw() {
 	// ErrorLogger::log(m_name + " draw() called.");
 	float t = m_timer.getTimePassed();
 	Vector4 col = Vector4(abs(sin(t)), .5f, abs(cos(t)), 1.f);
-	m_textRenderer.draw("LET ME SEE THE GOAT " + std::to_string(t), Vector2(400., 300.), col);
-
+	//m_textRenderer.draw("LET ME SEE THE GOAT " + std::to_string(t), Vector2(400., 300.), col);
 
 	m_camera.bindMatix();
 
 	if (Input::getInstance()->keyDown(Keyboard::Space))
 		m_entity.draw_boundingBox();
-	m_entity.draw();
+	//m_entity.draw();
+
+	terrain.draw();
+
+
 }
 
 void IntroState::play() { ErrorLogger::log(m_name + " play() called."); }
