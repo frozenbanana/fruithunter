@@ -19,7 +19,7 @@ void IntroState::initialize()
 	m_name = "Intro State";
 
 	m_entity.load("bow");
-
+	terrain.initilize("heightmap2.png", XMINT2(100, 100), XMINT2(2, 2));
 	m_camera.setView(Vector3(0.0, 0.0, -10.0), Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
 }
 
@@ -59,7 +59,11 @@ void IntroState::draw() {
 
 	if (Input::getInstance()->keyDown(Keyboard::Space))
 		m_entity.draw_boundingBox();
-	m_entity.draw();
+	//m_entity.draw();
+
+	terrain.draw();
+
+
 }
 
 void IntroState::play() {

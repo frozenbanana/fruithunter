@@ -8,6 +8,7 @@
 #include "TextRenderer.hpp"
 #include "Timer.hpp"
 #include "AudioHandler.hpp"
+#include "Terrain.h"
 
 class IntroState : public State {
 public:
@@ -26,4 +27,5 @@ private:
 	Entity m_entity;
 	Timer m_timer;
 	TextRenderer m_textRenderer;
+	Terrain terrain;
 };

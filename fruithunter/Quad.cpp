@@ -136,7 +136,7 @@ void Quad::createRenderStates() {
 	auto device = Renderer::getDevice();
 	// Rasterizer state
 	auto rasterizerDesc = CD3D11_RASTERIZER_DESC(
-		D3D11_FILL_SOLID, D3D11_CULL_NONE, false, 0, 0, 0, 0, false, false, false);
+		D3D11_FILL_SOLID, D3D11_CULL_BACK, false, 0, 0, 0, 0, false, false, false);
 	device->CreateRasterizerState(&rasterizerDesc, m_rasterizerState.GetAddressOf());
 
 	// Blend state
