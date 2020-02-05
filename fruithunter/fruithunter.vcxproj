@@ -199,7 +199,6 @@
     <ClInclude Include="StateHandler.hpp" />
     <ClInclude Include="TextRenderer.hpp" />
     <ClInclude Include="Timer.hpp" />
-    <ClInclude Include="Window.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">

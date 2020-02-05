@@ -9,53 +9,144 @@
     <FxCompile Include="VertexShader_model_onlyMesh.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Animated.cpp" />
-    <ClCompile Include="AudioHandler.cpp" />
-    <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="ErrorLogger.cpp" />
-    <ClCompile Include="IntroState.cpp" />
-    <ClCompile Include="Input.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Material.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="MeshHandler.cpp" />
-    <ClCompile Include="Model.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="PlayState.cpp" />
-    <ClCompile Include="Quad.cpp" />
-    <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="ShaderSet.cpp" />
-    <ClCompile Include="State.cpp" />
-    <ClCompile Include="StateHandler.cpp" />
-    <ClCompile Include="TextRenderer.cpp" />
-    <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="Apple.cpp" />
+    <ClCompile Include="Animated.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Apple.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioHandler.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ErrorLogger.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="IntroState.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshHandler.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayState.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Quad.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderSet.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="State.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="StateHandler.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TextRenderer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Animated.hpp" />
-    <ClInclude Include="AudioHandler.hpp" />
-    <ClInclude Include="Entity.h" />
-    <ClInclude Include="Camera.hpp" />
-    <ClInclude Include="ErrorLogger.hpp" />
-    <ClInclude Include="Input.hpp" />
-    <ClInclude Include="IntroState.hpp" />
-    <ClInclude Include="Material.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="MeshHandler.h" />
-    <ClInclude Include="Player.hpp" />
-    <ClInclude Include="PlayState.hpp" />
-    <ClInclude Include="Quad.hpp" />
-    <ClInclude Include="Renderer.hpp" />
-    <ClInclude Include="ShaderSet.h" />
-    <ClInclude Include="State.hpp" />
-    <ClInclude Include="StateHandler.hpp" />
-    <ClInclude Include="TextRenderer.hpp" />
-    <ClInclude Include="Timer.hpp" />
-    <ClInclude Include="Window.hpp" />
-    <ClInclude Include="Apple.hpp" />
+    <ClInclude Include="Timer.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayState.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Quad.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderSet.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="State.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="StateHandler.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="TextRenderer.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Animated.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Apple.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioHandler.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ErrorLogger.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="IntroState.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshHandler.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{752c1258-c841-4df7-b914-77ce622653db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{40813434-57db-4cb5-bc75-6e1a00114583}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>
