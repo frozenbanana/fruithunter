@@ -12,7 +12,7 @@ Quad::Quad() {}
 void Quad::init() {
 	createMesh();
 	createShaders();
-	createRenderStates();
+	// createRenderStates();
 }
 
 Quad::~Quad() {}
@@ -21,9 +21,9 @@ void Quad::draw() {
 	auto deviceContext = Renderer::getDeviceContext();
 
 	// Set render states
-	deviceContext->RSSetState(m_rasterizerState.Get());
-	deviceContext->OMSetBlendState(m_blendState.Get(), NULL, 0xffffffff);
-	deviceContext->OMSetDepthStencilState(m_depthState.Get(), 1);
+	// deviceContext->RSSetState(m_rasterizerState.Get());
+	// deviceContext->OMSetBlendState(m_blendState.Get(), NULL, 0xffffffff);
+	// deviceContext->OMSetDepthStencilState(m_depthState.Get(), 1);
 
 	// Set shaders to renderer
 	m_shader.bindShadersAndLayout();
@@ -49,17 +49,9 @@ void Quad::createMesh() {
 	auto device = Renderer::getDevice();
 
 	// Vertices
-	Vertex vertices[] = { { -1, -1, 1, 1, 1, 1, 1 }, { 1., -1, 0, 1, 1, 0, 1 },
-		{ 1., 1, 1, 1, 0, 0, 0 },
-		{
-			-1,
-			1,
-			1,
-			1,
-			0,
-			1,
-			0,
-		} };
+	Vertex vertices[] = { { -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f },
+		{ 1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f },
+		{ -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f } };
 
 	// Create our vertex buffer
 	auto vertexBufferDesc = CD3D11_BUFFER_DESC(sizeof(vertices), D3D11_BIND_VERTEX_BUFFER);
@@ -130,24 +122,4 @@ void Quad::createShaders() {
 	};
 
 	m_shader.createShaders(L"VertexShader.hlsl", nullptr, L"PixelShader.hlsl", layout, 3);
-}
-
-void Quad::createRenderStates() {
-	auto device = Renderer::getDevice();
-	// Rasterizer state
-	auto rasterizerDesc = CD3D11_RASTERIZER_DESC(
-		D3D11_FILL_SOLID, D3D11_CULL_NONE, false, 0, 0, 0, 0, false, false, false);
-	device->CreateRasterizerState(&rasterizerDesc, m_rasterizerState.GetAddressOf());
-
-	// Blend state
-	auto blendDesc = CD3D11_BLEND_DESC(CD3D11_DEFAULT());
-	device->CreateBlendState(&blendDesc, m_blendState.GetAddressOf());
-
-	// Depth state
-	auto depthDesc = CD3D11_DEPTH_STENCIL_DESC(FALSE, D3D11_DEPTH_WRITE_MASK_ZERO,
-		D3D11_COMPARISON_LESS, FALSE, D3D11_DEFAULT_STENCIL_READ_MASK,
-		D3D11_DEFAULT_STENCIL_WRITE_MASK, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP,
-		D3D11_STENCIL_OP_KEEP, D3D11_COMPARISON_ALWAYS, D3D11_STENCIL_OP_KEEP,
-		D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP, D3D11_COMPARISON_ALWAYS);
-	device->CreateDepthStencilState(&depthDesc, m_depthState.GetAddressOf());
 }

@@ -51,6 +51,9 @@ void Renderer::clearDepth() {
 	m_deviceContext->ClearDepthStencilView(m_depthDSV.Get(), D3D11_CLEAR_DEPTH, 1, 0);
 }
 
+void Renderer::bindEverything() { bindBackAndDepthBuffer(); }
+
+
 Renderer::Renderer(int width, int height) {
 	// Define window style
 	WNDCLASS wc = { 0 };
@@ -161,16 +164,6 @@ void Renderer::createRenderTarget() {
 	backBuffer->GetDesc(&m_backBufferDesc);
 	if (backBuffer != nullptr)
 		backBuffer->Release();
-
-	// Depth state
-	// auto depthDesc = CD3D11_DEPTH_STENCIL_DESC(FALSE, D3D11_DEPTH_WRITE_MASK_ZERO,
-	//	D3D11_COMPARISON_LESS, FALSE, D3D11_DEFAULT_STENCIL_READ_MASK,
-	//	D3D11_DEFAULT_STENCIL_WRITE_MASK, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP,
-	//	D3D11_STENCIL_OP_KEEP, D3D11_COMPARISON_ALWAYS, D3D11_STENCIL_OP_KEEP,
-	//	D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP, D3D11_COMPARISON_ALWAYS);
-	// m_device->CreateDepthStencilState(&depthDesc, m_depthState.GetAddressOf());
-
-	//
 }
 
 void Renderer::createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd) {

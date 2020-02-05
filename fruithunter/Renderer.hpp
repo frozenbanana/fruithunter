@@ -9,7 +9,7 @@
 
 #define STANDARD_WIDTH 800
 #define STANDARD_HEIGHT 600
-#define STANDARD_CORNER_X 100
+#define STANDARD_CORNER_X 1000
 #define STANDARD_CORNER_Y 100
 
 
@@ -47,6 +47,9 @@ public:
 	void bindBackAndDepthBuffer();
 	void clearDepth();
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthDSV;
+
+	void bindEverything();
+
 
 
 private:

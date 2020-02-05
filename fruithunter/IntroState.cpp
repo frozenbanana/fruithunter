@@ -51,7 +51,7 @@ void IntroState::draw() {
 	// ErrorLogger::log(m_name + " draw() called.");
 	float t = m_timer.getTimePassed();
 	Vector4 col = Vector4(abs(sin(t)), .5f, abs(cos(t)), 1.f);
-	m_textRenderer.draw("LET ME SEE THE GOAT " + std::to_string(t), Vector2(400., 300.), col);
+
 
 	if (Input::getInstance()->keyDown(Keyboard::Space))
 		m_entity.draw_boundingBox();
@@ -59,6 +59,7 @@ void IntroState::draw() {
 	// m_entity.draw();
 	m_entity.draw_animate();
 	m_apple.draw_animate();
+	m_textRenderer.draw("LET ME SEE THE GOAT " + std::to_string(t), Vector2(400., 300.), col);
 }
 
 void IntroState::play() {
