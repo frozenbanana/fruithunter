@@ -337,22 +337,19 @@ void Terrain::tileRayIntersectionTest(
 	};
 
 	int ix = gridIndex.x, iy = gridIndex.y;
-
-	float3 n = direction;
-	n.Normalize();
-
+	//create triangles
 	vector<float3> triangles;
 	triangles.resize(6);
 	for (int i = 0; i < 6; i++) {
 		triangles[i] = m_gridPoints[ix + order[i].x][iy + order[i].y].position;
 	}
 	// triangle checks
-	float t1 = triangleTest(point, n, triangles[0], triangles[1], triangles[2]);
+	float t1 = triangleTest(point, direction, triangles[0], triangles[1], triangles[2]);
 	if ((t1 > 0.f) && (minL == -1 || t1 < minL)) {
 		minL = t1;
 		normal = (triangles[1] - triangles[0]).Cross(triangles[2] - triangles[0]);
 	}
-	float t2 = triangleTest(point, n, triangles[3], triangles[4], triangles[5]);
+	float t2 = triangleTest(point, direction, triangles[3], triangles[4], triangles[5]);
 	if ((t2 > 0.f) && (minL == -1 || t2 < minL)) {
 		minL = t2;
 		normal = (triangles[4] - triangles[3]).Cross(triangles[5] - triangles[0]);
@@ -550,10 +547,9 @@ bool Terrain::castRay(float3& point, float3& direction) {
 			tsY.push_back(t);
 		}
 		vector<float> ts; // sorted intersection time array
-		ts.reserve(
-			abs(iEnd.x - iStart.x) + abs(iEnd.y - iStart.y) + 2); //+2 for start and end points
+		ts.reserve(abs(iEnd.x - iStart.x) + abs(iEnd.y - iStart.y) + 1); //+1 for start point
 		// sort largest first
-		ts.push_back((end.x - start.x) / tilt.x);
+		//ts.push_back((end.x - start.x) / tilt.x);
 		while (tsX.size() > 0 || tsY.size() > 0) {
 			if (tsX.size() > 0 && tsY.size() > 0) {
 				if (tsX.back() < tsY.back()) {
@@ -578,14 +574,14 @@ bool Terrain::castRay(float3& point, float3& direction) {
 		// check all intersected tiles
 		float3 normal;
 		float minL = -1;
-		for (int i = ts.size() - 2; i >= 0; i--) {
-			float sampledT = (ts[i]+ts[i+1]) / 2.f;
-			//float sampledT = ts[i];
+		for (int i = ts.size() - 1; i >= 0; i--) {
+			//float sampledT = (ts[i]+ts[i+1]) / 2.f;
+			float sampledT = ts[i];
 			int ix = clamp(start.x + tilt.x * sampledT, 0, m_gridPointSize.x - 2);
 			int iy = clamp(start.y + tilt.y * sampledT, 0, m_gridPointSize.y - 2);
 			tileRayIntersectionTest(XMINT2(ix, iy), startPoint, n, minL, normal);
 			if (minL != -1)
-				break;
+				break;//early break
 		}
 		// convert back to world space
 		if (minL != -1) {

@@ -54,12 +54,8 @@ void PlayState::draw() {
 	m_entity.setPosition(p + d);
 	m_entity.draw();
 	m_terrain.castRay(p, d);
-	//ErrorLogger::log(to_string(p.x) + ":" + to_string(p.y) + ":" + to_string(p.z));
 	m_entity.setPosition(p);
 	m_entity.draw();
-
-	m_entity.setPosition(p+d);
-	//m_entity.draw();
 
 		// Text
 	float t = m_timer.getTimePassed();
