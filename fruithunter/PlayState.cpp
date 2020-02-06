@@ -23,8 +23,14 @@ void PlayState::update() {
 	m_timer.update();
 	float dt = m_timer.getDt();
 	m_player.update(dt);
-	m_apple.updateAnimated(dt);
 	m_bow.updateAnimated(dt);
+
+	m_apple.updateAnimated(dt);
+	float3 appleDestination =
+		float3(sin(m_timer.getTimePassed() * 0.6f), 0 /*abs(sin(m_timer.getTimePassed())) * 0.3f*/,
+			cos(m_timer.getTimePassed() * 0.6f)) *
+		5.0f;
+	m_apple.setNextDestination(appleDestination);
 }
 
 void PlayState::handleEvent() { return; }
