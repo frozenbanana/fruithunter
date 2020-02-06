@@ -29,7 +29,6 @@ void PlayState::update() {
 	m_player.update(0.017f, h + 0.5f, normal);
 	m_timer.update();
 	float dt = m_timer.getDt();
-	m_player.update(dt);
 	m_bow.updateAnimated(dt);
 
 	m_apple.updateAnimated(dt);
