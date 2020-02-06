@@ -35,6 +35,7 @@ private:
 	float m_velocityFactorFrontBack;
 	float m_velocityFactorStrafe;
 	float m_groundHeight;
+	float m_dashCooldown;
 
 	Vector3 m_playerForward;
 	Vector3 m_playerRight;
@@ -44,4 +45,5 @@ private:
 //- - - Functions - - -
 	void jump();
 	bool onGround();
+	void dash();
 };
