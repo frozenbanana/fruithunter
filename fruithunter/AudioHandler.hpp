@@ -6,7 +6,7 @@
 
 class AudioHandler {
 public:
-	enum Sounds { LALA, LENGTH };
+	enum Sounds { LALA = 0, LENGTH = 1 };
 	void initalize();
 	static void startMenuAmbient();
 	static void startPlayAmbient();

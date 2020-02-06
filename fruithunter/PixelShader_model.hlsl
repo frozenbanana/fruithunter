@@ -35,7 +35,7 @@ float4 main(PS_IN ip) : SV_TARGET {
 	float3 toLight = normalize(lightPos - ip.PosW);
 
 	// ambient base
-	float ambientBase =
+	float3 ambientBase =
 		mapUsages.x ? (textures[0].Sample(samplerAni, ip.TexCoord)).rgb : (ambient3.rgb);
 
 	// base color

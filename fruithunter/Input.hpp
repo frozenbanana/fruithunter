@@ -45,8 +45,8 @@ private:
 	static Input m_this;
 	bool m_isLoaded = false;
 
-	std::unique_ptr<DirectX::Keyboard> m_keyboard;
-	std::unique_ptr<DirectX::Mouse> m_mouse;
+	std::unique_ptr<DirectX::Keyboard> m_keyboard = nullptr;
+	std::unique_ptr<DirectX::Mouse> m_mouse = nullptr;
 
 	DirectX::Keyboard::State m_keyboardState;
 	DirectX::Mouse::State m_mouseState;

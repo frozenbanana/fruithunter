@@ -1,6 +1,6 @@
 #pragma once
 #include "State.hpp"
-#include "Entity.h"
+#include "Entity.hpp"
 #include "Apple.hpp"
 #include "Camera.hpp"
 #include <string>
@@ -8,6 +8,7 @@
 #include "TextRenderer.hpp"
 #include "Timer.hpp"
 #include "AudioHandler.hpp"
+#include "Terrain.hpp"
 
 class IntroState : public State {
 public:
@@ -21,9 +22,8 @@ public:
 	void draw();
 
 private:
-	float rot = 0;
 	Camera m_camera;
-	Entity m_entity;
 	Timer m_timer;
+	Entity m_entity;
 	TextRenderer m_textRenderer;
 };

@@ -5,6 +5,8 @@
 #include "Timer.hpp"
 #include "TextRenderer.hpp"
 #include "AudioHandler.hpp"
+#include "Entity.hpp"
+#include "Terrain.hpp"
 #include "Apple.hpp"
 
 
@@ -25,5 +27,6 @@ private:
 	Player m_player;
 	Quad m_quad;
 	Apple m_apple;
+	Terrain m_terrain;
 	Entity m_bow;
 };

@@ -11,18 +11,25 @@ using Vector4 = DirectX::SimpleMath::Vector4;
 
 void PlayState::initialize() {
 	m_name = "Play State";
-	m_quad.init();
+
+	m_terrain.initilize("heightmap1.png", XMINT2(50, 50), XMINT2(1, 1));
+	m_terrain.setScale(float3(1, 0.25, 1) * 25);
 
 	m_player.initialize();
+	m_player.setPosition(float3(1, 1, 1));
 
 	m_bow.loadAnimated("Bow", 3);
 	m_bow.setPosition(float3(2.f, 0.f, 0.f));
 }
 
 void PlayState::update() {
+	float3 pos = m_player.getPosition();
+	float3 normal = m_terrain.getNormalFromPosition(pos.x, pos.z);
+	float h = m_terrain.getHeightFromPosition(pos.x, pos.z);
+	m_player.update(0.017f, h + 0.5f, normal);
 	m_timer.update();
 	float dt = m_timer.getDt();
-	m_player.update(dt);
+	m_player.update(dt, h, normal);
 	m_apple.updateAnimated(dt);
 	m_bow.updateAnimated(dt);
 }
@@ -37,8 +44,8 @@ void PlayState::pause() {
 void PlayState::draw() {
 	m_player.draw();
 
-	// Quad
-	m_quad.draw();
+	m_terrain.draw();
+
 	// Text
 	float t = m_timer.getTimePassed();
 	Vector4 col = Vector4(.5f, abs(cos(t)), abs(sin(t)), 1.f);

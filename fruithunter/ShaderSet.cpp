@@ -1,4 +1,4 @@
-#include "ShaderSet.h"
+#include "ShaderSet.hpp"
 
 ID3DBlob* ShaderSet::createVertexShader(LPCWSTR filename) {
 
@@ -74,6 +74,7 @@ HRESULT ShaderSet::createGeometryShader(LPCWSTR filename) {
 			result, "Failed creating geometry shader with name: " + convertLPCWSTR(filename));
 
 	pGS->Release();
+	return result;
 }
 
 HRESULT ShaderSet::createFragmentShader(LPCWSTR filename) {
@@ -116,6 +117,7 @@ HRESULT ShaderSet::createFragmentShader(LPCWSTR filename) {
 
 	// we do not need anymore this COM object, so we release it.
 	pPS->Release();
+	return result;
 }
 
 bool ShaderSet::isLoaded() const { return m_loaded; }
@@ -205,7 +207,13 @@ std::string ShaderSet::convertLPCWSTR(LPCWSTR LPCWstring) {
 	if (LPCWstring == nullptr)
 		return "";
 	std::wstring wstr(LPCWstring);
-	return std::string(wstr.begin(), wstr.end());
+
+	// convert from wide char to narrow char array
+	char ch[260];
+	char DefChar = ' ';
+	WideCharToMultiByte(CP_ACP, 0, LPCWstring, -1, ch, 260, &DefChar, NULL);
+
+	return std::string(ch);
 }
 
 ShaderSet::ShaderSet(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR fragmentName,

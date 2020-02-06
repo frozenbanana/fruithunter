@@ -1,6 +1,6 @@
 #pragma once
-#include "MeshHandler.h"
-#include "ShaderSet.h"
+#include "MeshHandler.hpp"
+#include "ShaderSet.hpp"
 
 #define COLOR_BUFFER_SLOT 2
 #define MATERIAL_BUFFER_SLOT 2
@@ -14,9 +14,9 @@ private:
 	MeshHandler m_handler;
 
 	bool m_minmaxChanged = false;
-	float2 m_MinMaxXPosition = float2(-1, -1); //.x is min, .y is max
-	float2 m_MinMaxYPosition = float2(-1, -1);
-	float2 m_MinMaxZPosition = float2(-1, -1);
+	float2 m_MinMaxXPosition = float2(-1.f, -1.f); //.x is min, .y is max
+	float2 m_MinMaxYPosition = float2(-1.f, -1.f);
+	float2 m_MinMaxZPosition = float2(-1.f, -1.f);
 
 	std::vector<Part> m_parts; // describes what parts exists and what material they each use
 	std::vector<Vertex> m_meshVertices; // vertices of mesh, position, uv, normal

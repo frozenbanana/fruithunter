@@ -1,4 +1,4 @@
-#include "Material.h"
+#include "Material.hpp"
 
 Microsoft::WRL::ComPtr<ID3D11Buffer> Material::m_materialBuffer;
 
@@ -134,7 +134,9 @@ void Material::bind(int materialBufferIndex, int resourceBufferIndex) {
 	deviceContext->UpdateSubresource(m_materialBuffer.Get(), 0, 0, &m_data, 0, 0);
 	// bind texture maps
 	for (int i = 0; i < 3; i++) {
-		if(m_maps[i].Get() != nullptr)deviceContext->PSSetShaderResources(resourceBufferIndex + i, 1, m_maps[i].GetAddressOf());
+		if (m_maps[i].Get() != nullptr)
+			deviceContext->PSSetShaderResources(
+				resourceBufferIndex + i, 1, m_maps[i].GetAddressOf());
 	}
 }
 
@@ -147,4 +149,4 @@ Material::Material(std::string _materialName, float3 _diffuse, float3 _ambient, 
 	createBuffers();
 }
 
-Material::~Material() { }
+Material::~Material() {}

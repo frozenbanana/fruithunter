@@ -22,7 +22,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{3850DA28-C2D1-4DBD-AB80-07AF9ED252AD}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>directxhelloworld3</RootNamespace>
+    <RootNamespace>fruithunter</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>fruithunter</ProjectName>
   </PropertyGroup>
@@ -80,6 +80,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)fruithunter\includes;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)fruithunter\libraries\x64\Debug;$(LibraryPath)</LibraryPath>
+    <CodeAnalysisRuleSet>CppCoreCheckArithmeticRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -175,6 +176,7 @@
     <ClCompile Include="ShaderSet.cpp" />
     <ClCompile Include="State.cpp" />
     <ClCompile Include="StateHandler.cpp" />
+    <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TextRenderer.cpp" />
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
@@ -182,21 +184,22 @@
     <ClInclude Include="Animated.hpp" />
     <ClInclude Include="Apple.hpp" />
     <ClInclude Include="AudioHandler.hpp" />
-    <ClInclude Include="Entity.h" />
+    <ClInclude Include="Entity.hpp" />
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="ErrorLogger.hpp" />
     <ClInclude Include="Input.hpp" />
     <ClInclude Include="IntroState.hpp" />
-    <ClInclude Include="Material.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="MeshHandler.h" />
+    <ClInclude Include="Material.hpp" />
+    <ClInclude Include="Mesh.hpp" />
+    <ClInclude Include="MeshHandler.hpp" />
     <ClInclude Include="Player.hpp" />
     <ClInclude Include="PlayState.hpp" />
     <ClInclude Include="Quad.hpp" />
     <ClInclude Include="Renderer.hpp" />
-    <ClInclude Include="ShaderSet.h" />
+    <ClInclude Include="ShaderSet.hpp" />
     <ClInclude Include="State.hpp" />
     <ClInclude Include="StateHandler.hpp" />
+    <ClInclude Include="Terrain.h" />
     <ClInclude Include="TextRenderer.hpp" />
     <ClInclude Include="Timer.hpp" />
   </ItemGroup>
@@ -218,6 +221,13 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="PixelShader_terrain.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="VertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>

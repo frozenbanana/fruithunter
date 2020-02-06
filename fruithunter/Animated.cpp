@@ -5,7 +5,6 @@ void Animated::bindMeshes() {
 	const int t = 3;
 	UINT strides[NR_OF_MESHES_TO_SEND] = { sizeof(Vertex) };
 	UINT offset[NR_OF_MESHES_TO_SEND] = { 0 };
-	unsigned int index = floorf(m_frameTimer);
 	for (int i = 0; i < 2; ++i)
 		deviceContext->IASetVertexBuffers(
 			i, 1, m_meshes[m_frameTargets[i]].getVertexBuffer().GetAddressOf(), strides, offset);
@@ -99,7 +98,7 @@ float Animated::getFrameTimer() { return m_frameTimer; }
 void Animated::update(float dt) {
 	if (m_frameTimer > 1)
 		dt *= 3;
-	m_frameTimer = fmod(m_frameTimer + dt, m_nrOfMeshes - 1);
+	m_frameTimer = (float)fmod(m_frameTimer + dt, m_nrOfMeshes - 1);
 	if (m_frameTimer > 1) {
 		setFrameTargets(1, 2);
 	}
@@ -130,7 +129,7 @@ void Animated::draw() {
 bool Animated::load(std::string filename, int nrOfFrames, bool combineParts) {
 	bool allClear = true;
 	m_nrOfMeshes = nrOfFrames;
-	m_meshes.empty();
+	m_meshes.clear();
 	m_meshes.resize(nrOfFrames);
 	for (int i = 0; i < nrOfFrames && allClear; ++i) {
 		if (!m_meshes[i].load(filename + "_00000" + std::to_string(i))) {

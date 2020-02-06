@@ -15,14 +15,15 @@ void IntroState::initialize() {
 	// m_entity.load("bow");
 	m_entity.loadAnimated("Bow", 3);
 
-	m_camera.setView(Vector3(0.0, 0.0, -10.0), Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
+	m_camera.setView(Vector3(0.f, 0.f, -10.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f));
 }
 
 void IntroState::update() {
+	//AudioHandler::logStats();
 	m_timer.update();
 	float dt = m_timer.getDt();
-	float rotSpeed = 1;
-	rot += 0.01;
+	//float rotSpeed = 1.f;
+	//rot += 0.01f;
 	// m_entity.setPosition(float3(5 * sin(rot), 0, 0));
 	// m_entity.rotateY(3.14f * 1.f / 60.f);
 	// m_entity.setScale(sin(rot));
@@ -53,6 +54,7 @@ void IntroState::draw() {
 	float a = m_timer.getDt();
 	ErrorLogger::log(std::to_string(a));
 	Vector4 col = Vector4(abs(sin(t)), .5f, abs(cos(t)), 1.f);
+	//m_textRenderer.draw("LET ME SEE THE GOAT " + std::to_string(t), Vector2(400., 300.), col);
 
 
 	if (Input::getInstance()->keyDown(Keyboard::Space))

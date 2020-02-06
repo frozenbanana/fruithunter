@@ -75,6 +75,7 @@
     <ClCompile Include="Timer.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Terrain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.hpp">
@@ -90,9 +91,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.hpp">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderSet.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="State.hpp">
@@ -116,9 +114,6 @@
     <ClInclude Include="Camera.hpp">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Entity.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="ErrorLogger.hpp">
       <Filter>Header</Filter>
     </ClInclude>
@@ -128,17 +123,30 @@
     <ClInclude Include="IntroState.hpp">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Material.h">
+    <ClInclude Include="Terrain.h" />
+    <ClInclude Include="Material.hpp">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
+    <ClInclude Include="Mesh.hpp">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="MeshHandler.h">
+    <ClInclude Include="MeshHandler.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderSet.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.hpp">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="VertexShader.hlsl" />
+    <FxCompile Include="PixelShader.hlsl" />
+    <FxCompile Include="VertexShader_model_onlyMesh.hlsl" />
+    <FxCompile Include="PixelShader_model_onlyMesh.hlsl" />
+    <FxCompile Include="PixelShader_model.hlsl" />
+    <FxCompile Include="PixelShader_terrain.hlsl" />
     <None Include=".clang-format" />
   </ItemGroup>
   <ItemGroup>

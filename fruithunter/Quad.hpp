@@ -5,7 +5,7 @@
 #include <vector>
 #include <WICTextureLoader.h>
 #include <wrl/client.h>
-#include "ShaderSet.h"
+#include "ShaderSet.hpp"
 using namespace std;
 
 class Quad {

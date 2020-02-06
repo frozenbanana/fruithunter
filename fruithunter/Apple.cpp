@@ -4,14 +4,14 @@ void Apple::updateAnimated(float dt) {
 	int frameOrder[] = { 0, 1, 0, 2, 0, 1 }; // Order of using keyframes
 	float3 posOrder[] = {
 		// Temporarely order of position. Later will be velocity for moving
-		float3(0, 0, -4),
-		float3(0, 0, -4),
-		float3(0, 0, -4),
-		float3(0, 3, 0),
-		float3(0, 0, 4),
-		float3(0, 0, 4),
+		float3(0.f, 0.f, -4.f),
+		float3(0.f, 0.f, -4.f),
+		float3(0.f, 0.f, -4.f),
+		float3(0.f, 3.f, 0.f),
+		float3(0.f, 0.f, 4.f),
+		float3(0.f, 0.f, 4.f),
 	};
-	float frameSpeedOrder[] = { 4, 6, 1.7, 1.7, 4, 2 };
+	float frameSpeedOrder[] = { 4.f, 6.f, 1.7f, 1.7f, 4.f, 2.f };
 
 	m_frameTime += dt * frameSpeedOrder[m_currentFramePhase];
 
