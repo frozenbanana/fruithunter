@@ -1,7 +1,6 @@
 #pragma once
 #include "State.hpp"
 #include "Quad.hpp"
-//#include "Camera.hpp"
 #include "Player.hpp"
 #include "Timer.hpp"
 #include "TextRenderer.hpp"
@@ -26,4 +25,5 @@ private:
 	Player m_player;
 	Quad m_quad;
 	Apple m_apple;
+	Entity m_bow;
 };
