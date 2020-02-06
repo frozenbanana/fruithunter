@@ -30,4 +30,5 @@ private:
 	//TextRenderer m_textRenderer;
 	Player m_player;
 	Terrain m_terrain;
+	Entity m_entity;
 };

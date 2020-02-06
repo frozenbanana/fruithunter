@@ -13,8 +13,11 @@ void PlayState::initialize() {
 	// if (!m_isLoaded) {
 	m_name = "Play State";
 
-	m_terrain.initilize("heightmap1.png", XMINT2(50, 50), XMINT2(1,1));
+	m_terrain.initilize("heightmap1.png", XMINT2(50,50), XMINT2(10,10));
 	m_terrain.setScale(float3(1, 0.25, 1) * 25);
+
+	m_entity.load("sphere");
+	m_entity.setScale(0.1);
 
 	m_player.initialize();
 	m_player.setPosition(float3(1, 1, 1));
@@ -43,6 +46,7 @@ void PlayState::update() {
 	float3 normal = m_terrain.getNormalFromPosition(pos.x, pos.z);
 	float h = m_terrain.getHeightFromPosition(pos.x, pos.z);
 	m_player.update(0.017f, h + 0.5, normal);
+
 }
 
 void PlayState::handleEvent() { return; }
@@ -56,6 +60,18 @@ void PlayState::draw() {
 	m_player.draw();
 
 	m_terrain.draw();
+
+	float3 p = m_player.getPosition();
+	float3 d = m_player.getForward()*10;
+	m_entity.setPosition(p + d);
+	m_entity.draw();
+	m_terrain.castRay(p, d);
+	//ErrorLogger::log(to_string(p.x) + ":" + to_string(p.y) + ":" + to_string(p.z));
+	m_entity.setPosition(p);
+	m_entity.draw();
+
+	m_entity.setPosition(p+d);
+	//m_entity.draw();
 
 		// Text
 	float t = m_timer.getTimePassed();
