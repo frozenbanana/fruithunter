@@ -6,9 +6,9 @@ Timer::Timer() {
 	m_frequencySeconds = 1000;
 	// Get Current value
 	m_timer = clock();
-	m_startTime = m_timer;
-	m_totalTime = 0.;
-	m_elapsedTime = 0.;
+	m_startTime = (float)m_timer;
+	m_totalTime = 0.f;
+	m_elapsedTime = 0.f;
 }
 
 void Timer::update() {
@@ -16,7 +16,7 @@ void Timer::update() {
 	m_elapsedTime = (time - m_timer) / m_frequencySeconds;
 	// Returns 0 if dt is too big. Fixes problem with accumulated time from changing states
 	if (m_elapsedTime > 1.f)
-		m_elapsedTime = 0;
+		m_elapsedTime = 0.f;
 	m_timer = time;
 	m_totalTime += m_elapsedTime;
 }

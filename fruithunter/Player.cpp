@@ -31,8 +31,8 @@ void Player::update(float td) {
 	if (!onGround()) { // Movement along the Y-axis. a.k.a Gravity. According to one dimensional
 					   // physics.
 		m_position.y = m_position.y + m_velocity.y * td +
-					   (m_gravity * td * td) * 0.5; // Pos2 = Pos1 + v1 * t + (a * t^2)/2
-		m_velocity.y += m_gravity * td;				// Update old velocity
+					   (m_gravity * td * td) * 0.5f; // Pos2 = Pos1 + v1 * t + (a * t^2)/2
+		m_velocity.y += m_gravity * td;				 // Update old velocity
 	}
 	m_camera.setUp(m_playerUp);
 	m_camera.setEye(m_position);
@@ -107,18 +107,18 @@ void Player::rotatePlayer() {
 	float deltaY = 0.0f;
 
 	if (ip->getMouseMode() == DirectX::Mouse::MODE_RELATIVE) {
-		deltaX = ip->mouseX();
-		deltaY = ip->mouseY();
+		deltaX = (float)ip->mouseX();
+		deltaY = (float)ip->mouseY();
 	}
 
-	float rotationSpeed = 0.01;
+	float rotationSpeed = 0.01f;
 
 	if (deltaX != 0.0f) {
 		m_cameraYaw += deltaX * rotationSpeed;
 	}
 	if (deltaY != 0.0f) {
 		m_cameraPitch += deltaY * rotationSpeed;
-		m_cameraPitch = min(max(m_cameraPitch, -1.5), 1.5);
+		m_cameraPitch = min(max(m_cameraPitch, -1.5f), 1.5f);
 	}
 
 	if (ip->keyDown(Keyboard::Keys::Right))
@@ -130,7 +130,7 @@ void Player::rotatePlayer() {
 	if (ip->keyDown(Keyboard::Keys::Down))
 		m_cameraPitch += 0.1f;
 
-	Matrix cameraRotationMatrix = XMMatrixRotationRollPitchYaw(m_cameraPitch, m_cameraYaw, 0.0);
+	Matrix cameraRotationMatrix = XMMatrixRotationRollPitchYaw(m_cameraPitch, m_cameraYaw, 0.f);
 	Vector3 cameraTarget = XMVector3TransformCoord(m_playerForward, cameraRotationMatrix);
 	cameraTarget = XMVector3Normalize(cameraTarget);
 
