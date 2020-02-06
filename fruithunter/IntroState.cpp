@@ -5,25 +5,29 @@
 
 using Vector2 = DirectX::SimpleMath::Vector2;
 
-IntroState::IntroState()
-{
-	initialize();
-}
+IntroState::IntroState() { initialize(); }
 
-IntroState::~IntroState()
-{
-}
+IntroState::~IntroState() {}
 
-void IntroState::initialize()
-{
+void IntroState::initialize() {
 	m_name = "Intro State";
-	
-	m_camera.setView(Vector3(0.0, 0.0, -10.0), Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
+
+	// m_entity.load("bow");
+	m_entity.loadAnimated("Bow", 3);
+
+	m_camera.setView(Vector3(0.f, 0.f, -10.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f));
 }
 
 void IntroState::update() {
+	//AudioHandler::logStats();
 	m_timer.update();
-
+	float dt = m_timer.getDt();
+	//float rotSpeed = 1.f;
+	//rot += 0.01f;
+	// m_entity.setPosition(float3(5 * sin(rot), 0, 0));
+	// m_entity.rotateY(3.14f * 1.f / 60.f);
+	// m_entity.setScale(sin(rot));
+	m_entity.updateAnimated(dt);
 	m_camera.updateBuffer();
 
 	Input::getInstance()->setMouseModeAbsolute();
@@ -47,13 +51,22 @@ void IntroState::draw() {
 	m_camera.bindMatrix();
 	// ErrorLogger::log(m_name + " draw() called.");
 	float t = m_timer.getTimePassed();
+	float a = m_timer.getDt();
+	ErrorLogger::log(std::to_string(a));
 	Vector4 col = Vector4(abs(sin(t)), .5f, abs(cos(t)), 1.f);
 	//m_textRenderer.draw("LET ME SEE THE GOAT " + std::to_string(t), Vector2(400., 300.), col);
 
 
+	if (Input::getInstance()->keyDown(Keyboard::Space))
+		m_entity.draw_boundingBox();
+
+	// m_entity.draw();
+	m_entity.draw_animate();
+	m_textRenderer.draw("LET ME SEE THE GOAT " + std::to_string(t), Vector2(400., 300.), col);
 }
 
 void IntroState::play() {
+	Input::getInstance()->setMouseModeAbsolute();
 	AudioHandler::startMenuAmbient();
 	ErrorLogger::log(m_name + " play() called.");
 }

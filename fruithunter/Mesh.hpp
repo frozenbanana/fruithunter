@@ -1,12 +1,11 @@
 #pragma once
-#include "MeshHandler.h"
-#include "ShaderSet.h"
+#include "MeshHandler.hpp"
+#include "ShaderSet.hpp"
 
 #define COLOR_BUFFER_SLOT 2
 #define MATERIAL_BUFFER_SLOT 2
 
-class Mesh
-{
+class Mesh {
 private:
 	static ShaderSet m_shaderObject;
 	static ShaderSet m_shaderObject_onlyMesh;
@@ -15,41 +14,44 @@ private:
 	MeshHandler m_handler;
 
 	bool m_minmaxChanged = false;
-	float2 m_MinMaxXPosition = float2(-1, -1);//.x is min, .y is max
-	float2 m_MinMaxYPosition = float2(-1, -1);
-	float2 m_MinMaxZPosition = float2(-1, -1);
+	float2 m_MinMaxXPosition = float2(-1.f, -1.f); //.x is min, .y is max
+	float2 m_MinMaxYPosition = float2(-1.f, -1.f);
+	float2 m_MinMaxZPosition = float2(-1.f, -1.f);
 
-	std::vector<Part> m_parts;//describes what parts exists and what material they each use
-	std::vector<Vertex> m_meshVertices;//vertices of mesh, position, uv, normal
+	std::vector<Part> m_parts; // describes what parts exists and what material they each use
+	std::vector<Vertex> m_meshVertices; // vertices of mesh, position, uv, normal
 	std::vector<Material> m_materials;
-	//bounding box
+	// bounding box
 	static std::vector<Vertex> m_boxVertices;
 	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer_BoundingBox;
-	//vertex buffer
+	// vertex buffer
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
-	//color buffer
+	// color buffer
 	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_colorBuffer;
 
-	//FUNCTIONS
+	// FUNCTIONS
 	void bindMesh() const;
 	bool findMinMaxValues();
-	//bounding box functions
+	// bounding box functions
 	void updateBoundingBoxBuffer();
 	void loadBoundingBox();
-	//buffer functions
+	// buffer functions
 	void createBuffers(bool instancing = false);
-	//intersection
-	static float triangleTest(float3 rayDir, float3 rayOrigin, float3 tri0, float3 tri1, float3 tri2);
+	// intersection
+	static float triangleTest(
+		float3 rayDir, float3 rayOrigin, float3 tri0, float3 tri1, float3 tri2);
 	static float obbTest(float3 rayDir, float3 rayOrigin, float3 boxPos, float3 boxScale);
 
 public:
 	const std::vector<Vertex>& getVertexPoints() const;
-	std::string getName()const;
+	const Microsoft::WRL::ComPtr<ID3D11Buffer> getVertexBuffer() const;
+	std::string getName() const;
 
 	void draw();
-	void draw_noMaterial(float3 color = float3(1,1,1));
+	void draw_noMaterial(float3 color = float3(1, 1, 1));
 	void draw_BoundingBox();
 	void draw_forShadowMap();
+	void draw_withoutBinding();
 
 	float3 getBoundingBoxPos() const;
 	float3 getBoundingBoxSize() const;

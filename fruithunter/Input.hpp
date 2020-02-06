@@ -11,7 +11,6 @@ public:
 	enum ScrollTracking { DOWN, STILL, UP };
 	enum MouseButton { LEFT, MIDDLE, RIGHT };
 
-
 	~Input();
 	static void initilize(HWND window);
 	void update();
@@ -35,19 +34,19 @@ public:
 	int getMouseMovementX();
 	int getMouseMovementY();
 
-
 	static Input* getInstance();
 
 	void setMouseModeRelative();
 	void setMouseModeAbsolute();
+	DirectX::Mouse::Mode getMouseMode();
 
 private:
 	Input();
 	static Input m_this;
 	bool m_isLoaded = false;
 
-	std::unique_ptr<DirectX::Keyboard> m_keyboard;
-	std::unique_ptr<DirectX::Mouse> m_mouse;
+	std::unique_ptr<DirectX::Keyboard> m_keyboard = nullptr;
+	std::unique_ptr<DirectX::Mouse> m_mouse = nullptr;
 
 	DirectX::Keyboard::State m_keyboardState;
 	DirectX::Mouse::State m_mouseState;

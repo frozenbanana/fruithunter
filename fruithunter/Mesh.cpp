@@ -1,4 +1,4 @@
-#include "Mesh.h"
+#include "Mesh.hpp"
 
 std::vector<Vertex> Mesh::m_boxVertices;
 ShaderSet Mesh::m_shaderObject;
@@ -30,8 +30,8 @@ float Mesh::obbTest(float3 rayDir, float3 rayOrigin, float3 boxPos, float3 boxSc
 	// SLABS CALULATIONS(my own)
 	float4 data[3] = { float4(1, 0, 0, boxScale.x), float4(0, 1, 0, boxScale.y),
 		float4(0, 0, 1, boxScale.z) }; //{o.u_hu,o.v_hv,o.w_hw};
-	float Tmin = -9999999999, Tmax = 9999999999;
-	for (int i = 0; i < 3; i++) {
+	float Tmin = -9999999999.f, Tmax = 9999999999.f;
+	for (size_t i = 0; i < 3; i++) {
 		float3 tempNormal = float3(data[i].x, data[i].y, data[i].z);
 		float3 center1 = boxPos + tempNormal * data[i].w;
 		float3 center2 = boxPos - tempNormal * data[i].w;
@@ -61,7 +61,7 @@ float Mesh::obbTest(float3 rayDir, float3 rayOrigin, float3 boxPos, float3 boxSc
 bool Mesh::findMinMaxValues() {
 	if (m_meshVertices.size() > 0) {
 		DirectX::XMINT2 changedX(1, 1), changedY(1, 1), changedZ(1, 1); // 1 = unchanged
-		for (int i = 0; i < m_meshVertices.size(); i++) {
+		for (size_t i = 0; i < m_meshVertices.size(); i++) {
 			float3 p = m_meshVertices[i].position;
 			if (p.x > m_MinMaxXPosition.y || changedX.y)
 				m_MinMaxXPosition.y = p.x, changedX.y = 0;
@@ -93,7 +93,7 @@ void Mesh::updateBoundingBoxBuffer() {
 			float3 bbScale = getBoundingBoxSize();
 			std::vector<Vertex> fullBox;
 			fullBox.reserve(36);
-			for (int i = 0; i < 36; i++) {
+			for (size_t i = 0; i < 36; i++) {
 				Vertex v = m_boxVertices[i];
 				v.position = v.position * bbScale + bbPos;
 				fullBox.push_back(v);
@@ -107,22 +107,23 @@ void Mesh::loadBoundingBox() {
 	// vertices
 	m_boxVertices.reserve(36);
 	float2 pre[4] = { float2(-1, 1), float2(1, 1), float2(-1, -1), float2(1, -1) };
-	for (int f = 0; f < 3; f++) // per slab .3
+	for (size_t f = 0; f < 3; f++) // per slab .3
 	{
-		for (int j = 0; j < 2; j++) // parallel planes .2
+		for (size_t j = 0; j < 2; j++) // parallel planes .2
 		{
-			int m = j * 2 - 1;
+			size_t m = j * 2 - 1;
+			float mf = (float)m;
 			Vertex v[4];
-			for (int i = 0; i < 4; i++) // per point
+			for (size_t i = 0; i < 4; i++) // per point
 			{
 				float2 a = pre[i];
 				float3 p, n;
 				if (f == 0)
-					p = float3(a.y, a.x, 0) + float3(0, 0, m), n = float3(0, 0, m);
+					p = float3(a.y, a.x, 0) + float3(0, 0, mf), n = float3(0, 0, mf);
 				else if (f == 1)
-					p = float3(a.x, 0, a.y) + float3(0, m, 0), n = float3(0, m, 0);
+					p = float3(a.x, 0, a.y) + float3(0, mf, 0), n = float3(0, mf, 0);
 				else if (f == 2)
-					p = float3(0, a.y, a.x) + float3(m, 0, 0), n = float3(m, 0, 0);
+					p = float3(0, a.y, a.x) + float3(mf, 0, 0), n = float3(mf, 0, 0);
 				float2 uv(a.x, -a.y);
 				v[i] = Vertex(p, uv, n);
 			}
@@ -150,7 +151,7 @@ void Mesh::createBuffers(bool instancing) {
 
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	bufferDesc.ByteWidth = m_meshVertices.size() * sizeof(Vertex);
+	bufferDesc.ByteWidth = (UINT)m_meshVertices.size() * sizeof(Vertex);
 
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = m_meshVertices.data();
@@ -187,6 +188,7 @@ void Mesh::createBuffers(bool instancing) {
 	}
 }
 const std::vector<Vertex>& Mesh::getVertexPoints() const { return m_meshVertices; }
+const Microsoft::WRL::ComPtr<ID3D11Buffer> Mesh::getVertexBuffer() const { return m_vertexBuffer; }
 std::string Mesh::getName() const { return m_loadedMeshName; }
 void Mesh::draw() {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
@@ -200,8 +202,8 @@ void Mesh::draw() {
 
 	bindMesh();
 
-	for (int i = 0; i < m_parts.size(); i++) {
-		for (int j = 0; j < m_parts[i].materialUsage.size(); j++) {
+	for (size_t i = 0; i < m_parts.size(); i++) {
+		for (size_t j = 0; j < m_parts[i].materialUsage.size(); j++) {
 			int materialIndex = m_parts[i].materialUsage[j].materialIndex;
 			// int materialIndex = findMaterial(parts[i].materialUsage[j].name);
 			if (materialIndex != -1) {
@@ -225,7 +227,7 @@ void Mesh::draw_noMaterial(float3 color) {
 	deviceContext->UpdateSubresource(m_colorBuffer.Get(), 0, 0, &data, 0, 0);
 	deviceContext->PSSetConstantBuffers(COLOR_BUFFER_SLOT, 1, m_colorBuffer.GetAddressOf());
 
-	deviceContext->Draw(m_meshVertices.size(), 0);
+	deviceContext->Draw((UINT)m_meshVertices.size(), (UINT)0);
 }
 void Mesh::draw_BoundingBox() {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
@@ -244,7 +246,28 @@ void Mesh::draw_forShadowMap() {
 
 	bindMesh();
 
-	deviceContext->Draw(m_meshVertices.size(), 0);
+	deviceContext->Draw((UINT)m_meshVertices.size(), (UINT)0);
+}
+void Mesh::draw_withoutBinding() {
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+
+	if (!(m_materials.size() > 0)) {
+		draw_noMaterial();
+		return;
+	}
+
+	for (size_t i = 0; i < m_parts.size(); i++) {
+		for (size_t j = 0; j < m_parts[i].materialUsage.size(); j++) {
+			int materialIndex = m_parts[i].materialUsage[j].materialIndex;
+			// int materialIndex = findMaterial(parts[i].materialUsage[j].name);
+			if (materialIndex != -1) {
+				m_materials[materialIndex].bind(MATERIAL_BUFFER_SLOT);
+				int count = m_parts[i].materialUsage[j].count;
+				int index = m_parts[i].materialUsage[j].index;
+				deviceContext->Draw(count, index);
+			}
+		}
+	}
 }
 void Mesh::bindMesh() const {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
@@ -253,7 +276,7 @@ void Mesh::bindMesh() const {
 	UINT offset = 0;
 	deviceContext->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &strides, &offset);
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	// deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 }
 float3 Mesh::getBoundingBoxPos() const {
 	return float3((m_MinMaxXPosition.x + m_MinMaxXPosition.y) / 2,

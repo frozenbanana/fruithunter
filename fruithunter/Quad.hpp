@@ -5,7 +5,7 @@
 #include <vector>
 #include <WICTextureLoader.h>
 #include <wrl/client.h>
-#include "ShaderSet.h"
+#include "ShaderSet.hpp"
 using namespace std;
 
 class Quad {
@@ -18,7 +18,6 @@ public:
 private:
 	void createMesh();
 	void createShaders();
-	void createRenderStates();
 
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerState;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
@@ -26,7 +25,4 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Resource> m_texture;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shaderResourceView;
 	ShaderSet m_shader;
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_rasterizerState;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthState;
-	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendState;
 };

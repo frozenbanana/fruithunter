@@ -3,24 +3,21 @@
 #include <string>
 
 Timer::Timer() {
-	LARGE_INTEGER m_timer;
-	if (!QueryPerformanceFrequency(&m_timer)) {
-		ErrorLogger::log("Cannot query performance counter in timer.");
-		return;
-	}
-	m_frequencySeconds = (float)(m_timer.QuadPart);
+	m_frequencySeconds = 1000;
 	// Get Current value
-	QueryPerformanceCounter(&m_timer);
-	m_startTime = m_timer.QuadPart;
-	m_totalTime = 0.;
-	m_elapsedTime = 0.;
+	m_timer = clock();
+	m_startTime = (float)m_timer;
+	m_totalTime = 0.f;
+	m_elapsedTime = 0.f;
 }
 
 void Timer::update() {
-	QueryPerformanceCounter(&m_timer);
-	m_lastElapsedTime = m_elapsedTime;
-	m_elapsedTime = (float)(m_timer.QuadPart - m_startTime) / m_frequencySeconds;
-	m_startTime = m_timer.QuadPart;
+	clock_t time = clock();
+	m_elapsedTime = (time - m_timer) / m_frequencySeconds;
+	// Returns 0 if dt is too big. Fixes problem with accumulated time from changing states
+	if (m_elapsedTime > 1.f)
+		m_elapsedTime = 0.f;
+	m_timer = time;
 	m_totalTime += m_elapsedTime;
 }
 

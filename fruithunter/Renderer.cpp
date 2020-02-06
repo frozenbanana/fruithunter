@@ -3,24 +3,20 @@
 Renderer Renderer::m_this(STANDARD_WIDTH, STANDARD_HEIGHT);
 
 LRESULT CALLBACK WinProc(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
+	// if (msg == WM_DESTROY || msg == WM_CLOSE) {
+	//	PostQuitMessage(0);
+	//	return 0;
+	//}
 	switch (msg) {
+	case WM_DESTROY:
+	case WM_CLOSE:
+	case WM_QUIT:
+		PostQuitMessage(0);
+		break;
 	case WM_ACTIVATEAPP:
 		DirectX::Keyboard::ProcessMessage(msg, wparam, lparam);
 		DirectX::Mouse::ProcessMessage(msg, wparam, lparam);
 		break;
-
-	case WM_QUIT:
-		PostQuitMessage(0);
-		break;
-
-	case WM_CLOSE:
-		PostQuitMessage(0);
-		break;
-
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-
 	case WM_INPUT:
 	case WM_MOUSEMOVE:
 	case WM_LBUTTONDOWN:
@@ -54,6 +50,9 @@ void Renderer::bindBackAndDepthBuffer() {
 void Renderer::clearDepth() {
 	m_deviceContext->ClearDepthStencilView(m_depthDSV.Get(), D3D11_CLEAR_DEPTH, 1, 0);
 }
+
+void Renderer::bindEverything() { bindBackAndDepthBuffer(); }
+
 
 Renderer::Renderer(int width, int height) {
 	// Define window style
@@ -165,16 +164,6 @@ void Renderer::createRenderTarget() {
 	backBuffer->GetDesc(&m_backBufferDesc);
 	if (backBuffer != nullptr)
 		backBuffer->Release();
-
-	// Depth state
-	// auto depthDesc = CD3D11_DEPTH_STENCIL_DESC(FALSE, D3D11_DEPTH_WRITE_MASK_ZERO,
-	//	D3D11_COMPARISON_LESS, FALSE, D3D11_DEFAULT_STENCIL_READ_MASK,
-	//	D3D11_DEFAULT_STENCIL_WRITE_MASK, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP,
-	//	D3D11_STENCIL_OP_KEEP, D3D11_COMPARISON_ALWAYS, D3D11_STENCIL_OP_KEEP,
-	//	D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP, D3D11_COMPARISON_ALWAYS);
-	// m_device->CreateDepthStencilState(&depthDesc, m_depthState.GetAddressOf());
-
-	//
 }
 
 void Renderer::createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd) {

@@ -29,7 +29,7 @@ float3 lighting(float3 pos, float3 normal, float3 color) {
 }
 
 float4 main(PS_IN ip) : SV_TARGET {
-	float3 green = texture_grass.Sample(samplerAni,(ip.TexCoord*50.)%1.);
+	float3 green = texture_grass.Sample(samplerAni,(ip.TexCoord*50.)%1.).rgb;
 	float3 rock = float3(1,1,1)*0.7;
 	float c = pow(dot(float3(0,1,0),ip.Normal),1);
 	c = (c > 0.70?1:(c<0.65?0:((c-0.65)/0.05)));

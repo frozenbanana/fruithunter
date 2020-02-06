@@ -1,4 +1,4 @@
-#include "Terrain.h"
+#include "Terrain.hpp"
 
 ShaderSet Terrain::m_shader;
 Microsoft::WRL::ComPtr<ID3D11Buffer> Terrain::m_matrixBuffer;
@@ -86,21 +86,21 @@ bool Terrain::loadHeightmap(string filePath) {
 			float v = 0;
 			if (texD.Format == DXGI_FORMAT_R8_UNORM) {
 				d = ((unsigned char*)sub.pData)[iy * sub.RowPitch + ix];
-				v = (float)d / (pow(2, 1 * 8) - 1);
+				v = (float)d / (pow(2.f, 1.f * 8.f) - 1.f);
 			}
 			else if (texD.Format == DXGI_FORMAT_R8G8B8A8_UNORM) {
 				unsigned char d = ((unsigned char*)sub.pData)[iy * sub.RowPitch + ix * 4];
-				v = (float)d / (pow(2, 1 * 8) - 1);
+				v = (float)d / (pow(2.f, 1.f * 8.f) - 1.f);
 			}
 			else if (texD.Format == DXGI_FORMAT_R8G8B8A8_UNORM_SRGB) {
 				unsigned char d = ((unsigned char*)sub.pData)[iy * sub.RowPitch + ix * 4];
-				v = (float)d / (pow(2, 1 * 8) - 1);
+				v = (float)d / (pow(2.f, 1.f * 8.f) - 1.f);
 			}
 			else if (texD.Format == DXGI_FORMAT_R16G16B16A16_UNORM) {
 				unsigned short int d =
 					((unsigned short int*)
 							sub.pData)[iy * (sub.RowPitch / sizeof(short int)) + ix * 4];
-				v = (float)d / (pow(2, sizeof(short int) * 8) - 1);
+				v = (float)d / (pow(2.f, sizeof(short int) * 8.f) - 1.f);
 			}
 			m_heightmap[xx][yy] = v;
 		}
@@ -114,8 +114,8 @@ bool Terrain::loadHeightmap(string filePath) {
 }
 
 float Terrain::sampleHeightmap(float2 uv) {
-	XMINT2 index =
-		XMINT2(round(uv.x * (m_heightmapSize.x - 1)), round(uv.y * (m_heightmapSize.y - 1)));
+	XMINT2 index = XMINT2((uint32_t)round(uv.x * (m_heightmapSize.x - 1)),
+		(uint32_t)round(uv.y * (m_heightmapSize.y - 1)));
 	return m_heightmap[index.x][index.y];
 }
 
@@ -125,12 +125,12 @@ float3 Terrain::calcNormalFromHeightmap(XMINT2 index) {
 	bool minY = (index.y <= 0);
 	bool maxY = (index.y >= m_heightmapSize.y - 1);
 
-	float2 pos(1.0f / m_heightmapSize.x, 1.0f / m_heightmapSize.y);
-	float3 p = float3(0, m_heightmap[index.x][index.y], 0);
-	float3 pTop = float3(0, minY ? 0 : m_heightmap[index.x][index.y - 1.], -pos.y);
-	float3 pRight = float3(pos.x, maxX ? 0 : m_heightmap[index.x + 1.][index.y], 0);
-	float3 pLeft = float3(-pos.x, minX ? 0 : m_heightmap[index.x - 1.][index.y], 0);
-	float3 pBottom = float3(0, maxY ? 0 : m_heightmap[index.x][index.y + 1.], pos.y);
+	float2 pos(1.0f / m_heightmapSize.x, 1.0f / (float)m_heightmapSize.y);
+	float3 p = float3(0, (float)m_heightmap[index.x][index.y], 0);
+	float3 pTop = float3(0, minY ? 0 : (float)m_heightmap[index.x][index.y - 1], -pos.y);
+	float3 pRight = float3(pos.x, maxX ? 0 : (float)m_heightmap[index.x + 1][index.y], 0);
+	float3 pLeft = float3(-pos.x, minX ? 0 : (float)m_heightmap[index.x - 1][index.y], 0);
+	float3 pBottom = float3(0, maxY ? 0 : (float)m_heightmap[index.x][index.y + 1], pos.y);
 
 	float3 normal;
 	if (!minX || !minY) {
@@ -158,8 +158,8 @@ float3 Terrain::calcNormalFromHeightmap(XMINT2 index) {
 }
 
 float3 Terrain::sampleHeightmapNormal(float2 uv) {
-	XMINT2 index =
-		XMINT2(round(uv.x * (m_heightmapSize.x - 1)), round(uv.y * (m_heightmapSize.y - 1)));
+	XMINT2 index = XMINT2((int32_t)round(uv.x * (m_heightmapSize.x - 1)),
+		(int32_t)round(uv.y * (m_heightmapSize.y - 1)));
 	return m_heightmapNormals[index.x][index.y];
 }
 
@@ -304,7 +304,15 @@ std::wstring Terrain::s2ws(const std::string& s) {
 
 string Terrain::LPWSTR_to_STRING(LPWSTR str) {
 	wstring ws(str);
-	return string(ws.begin(), ws.end());
+
+	// convert from wide char to narrow char array
+	char ch[256];
+	char DefChar = ' ';
+	WideCharToMultiByte(CP_ACP, 0, str, -1, ch, 256, &DefChar, NULL); // No error checking
+
+	std::string sbuff = std::string(ch);
+
+	return sbuff;
 }
 
 bool Terrain::createResourceBuffer(string path, ID3D11ShaderResourceView** buffer) {
@@ -355,7 +363,7 @@ float Terrain::obbTest(float3 rayOrigin, float3 rayDir, float3 boxPos, float3 bo
 	// SLABS CALULATIONS(my own)
 	float4 data[3] = { float4(1, 0, 0, boxScale.x), float4(0, 1, 0, boxScale.y),
 		float4(0, 0, 1, boxScale.z) }; //{o.u_hu,o.v_hv,o.w_hw};
-	float Tmin = -99999999, Tmax = 9999999999;
+	float Tmin = -99999999.f, Tmax = 9999999999.f;
 	for (int i = 0; i < 3; i++) {
 		float3 tempNormal = float3(data[i].x, data[i].y, data[i].z);
 		float3 center1 = boxPos + tempNormal * data[i].w;
@@ -647,7 +655,7 @@ void Terrain::SubGrid::createBuffers() {
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	bufferDesc.ByteWidth = m_vertices.size() * sizeof(Vertex);
+	bufferDesc.ByteWidth = (UINT)m_vertices.size() * sizeof(Vertex);
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = m_vertices.data();
 	HRESULT res =
@@ -656,7 +664,7 @@ void Terrain::SubGrid::createBuffers() {
 		ErrorLogger::logError(res, "Failed creating vertex buffer in Terrain::SubGrid class!\n");
 }
 
-unsigned int Terrain::SubGrid::getVerticeCount() const { return m_vertices.size(); }
+unsigned int Terrain::SubGrid::getVerticeCount() const { return (unsigned int)m_vertices.size(); }
 
 void Terrain::SubGrid::bind() {
 	auto deviceContext = Renderer::getDeviceContext();
@@ -670,10 +678,10 @@ bool Terrain::SubGrid::castRay(float3& point, float3& direction) {
 	if (Terrain::obbTest(point, direction, float3(1, 1, 1) * 0.5, float3(1, 1, 1) * 0.5) >= 0) {
 		float3 normal;
 		float minL = -1;
-		for (int i = 0; i < m_vertices.size(); i += 3) {
-			float3 triangle0 = m_vertices[i + 0.].position;
-			float3 triangle1 = m_vertices[i + 1.].position;
-			float3 triangle2 = m_vertices[i + 2.].position;
+		for (size_t i = 0; i < m_vertices.size(); i += 3) {
+			float3 triangle0 = m_vertices[i + 0].position;
+			float3 triangle1 = m_vertices[i + 1].position;
+			float3 triangle2 = m_vertices[i + 2].position;
 			float l = triangleTest(point, direction, triangle0, triangle1, triangle2);
 			if (l >= 0 && (minL == -1 || l < minL)) {
 				minL = l;

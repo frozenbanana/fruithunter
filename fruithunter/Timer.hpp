@@ -1,7 +1,7 @@
 #pragma once
 #include <d3d11.h>
 #include <iostream>
-
+#include <time.h>
 class Timer {
 public:
 	Timer();
@@ -11,10 +11,9 @@ public:
 	float getDt();
 
 private:
-	LARGE_INTEGER m_timer;
+	clock_t m_timer;
 	float m_frequencySeconds;
 	float m_startTime;
 	float m_totalTime;
 	float m_elapsedTime;
-	float m_lastElapsedTime;
 };

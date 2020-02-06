@@ -10,7 +10,6 @@ using Vector3 = DirectX::SimpleMath::Vector3;
 using Vector4 = DirectX::SimpleMath::Vector4;
 
 void PlayState::initialize() {
-	// if (!m_isLoaded) {
 	m_name = "Play State";
 
 	m_terrain.initilize("heightmap1.png", XMINT2(50,50), XMINT2(10,10));
@@ -22,31 +21,20 @@ void PlayState::initialize() {
 	m_player.initialize();
 	m_player.setPosition(float3(1, 1, 1));
 
-	// Timer
-	// TODO: Refactor to a static timeHandler
-	LARGE_INTEGER timer;
-	if (!QueryPerformanceCounter(&timer)) {
-		ErrorLogger::log("Cannot query performance counter in " + m_name + ".");
-		return;
-	}
-
-	// m_frequencySeconds = (float)(timer.QuadPart);
-	// Get Current value
-	QueryPerformanceCounter(&timer);
-	// m_startTime = timer.QuadPart;
-	// m_totalTime = 0.;
-	// m_elapsedTime = 0.;
-
-	// m_isLoaded = true;
-	//}
+	m_bow.loadAnimated("Bow", 3);
+	m_bow.setPosition(float3(2.f, 0.f, 0.f));
 }
 
 void PlayState::update() {
 	float3 pos = m_player.getPosition();
 	float3 normal = m_terrain.getNormalFromPosition(pos.x, pos.z);
 	float h = m_terrain.getHeightFromPosition(pos.x, pos.z);
-	m_player.update(0.017f, h + 0.5, normal);
-
+	m_player.update(0.017f, h + 0.5f, normal);
+	m_timer.update();
+	float dt = m_timer.getDt();
+	m_player.update(dt, h, normal);
+	m_apple.updateAnimated(dt);
+	m_bow.updateAnimated(dt);
 }
 
 void PlayState::handleEvent() { return; }
@@ -76,10 +64,17 @@ void PlayState::draw() {
 		// Text
 	float t = m_timer.getTimePassed();
 	Vector4 col = Vector4(.5f, abs(cos(t)), abs(sin(t)), 1.f);
-	// m_textRenderer.draw("HERE IS THE GOAT", Vector2(400., 300.), col);
+	m_textRenderer.draw("HERE IS THE GOAT", Vector2(400., 300.), col);
+
+	// Apple
+	m_apple.draw_animate();
+
+	// Bow
+	m_bow.draw_animate();
 }
 
 void PlayState::play() {
+	Input::getInstance()->setMouseModeRelative();
 	AudioHandler::startPlayAmbient();
 	ErrorLogger::log(m_name + " play() called.");
 }

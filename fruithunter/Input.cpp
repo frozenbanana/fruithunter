@@ -109,6 +109,8 @@ int Input::getMouseMovementX() { return m_mouseState.x - m_oldX; }
 
 int Input::getMouseMovementY() { return m_mouseState.y - m_oldY; }
 
+DirectX::Mouse::Mode Input::getMouseMode() { return m_mouseState.positionMode; }
+
 Input* Input::getInstance() { return &m_this; }
 
 
