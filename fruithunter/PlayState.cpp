@@ -12,7 +12,7 @@ using Vector4 = DirectX::SimpleMath::Vector4;
 void PlayState::initialize() {
 	m_name = "Play State";
 
-	m_terrain.initilize("heightmap1.png", XMINT2(50, 50), XMINT2(1,1));
+	m_terrain.initilize("heightmap1.png", XMINT2(50, 50), XMINT2(1, 1));
 	m_terrain.setScale(float3(1, 0.25, 1) * 25);
 
 	m_player.initialize();
@@ -29,7 +29,7 @@ void PlayState::update() {
 	m_player.update(0.017f, h + 0.5f, normal);
 	m_timer.update();
 	float dt = m_timer.getDt();
-	m_player.update(dt);
+	m_player.update(dt, h, normal);
 	m_apple.updateAnimated(dt);
 	m_bow.updateAnimated(dt);
 }
@@ -46,7 +46,7 @@ void PlayState::draw() {
 
 	m_terrain.draw();
 
-		// Text
+	// Text
 	float t = m_timer.getTimePassed();
 	Vector4 col = Vector4(.5f, abs(cos(t)), abs(sin(t)), 1.f);
 	m_textRenderer.draw("HERE IS THE GOAT", Vector2(400., 300.), col);

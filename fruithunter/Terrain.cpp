@@ -18,7 +18,7 @@ void Terrain::createBuffers() {
 		if (FAILED(res))
 			ErrorLogger::logError(res, "Failed creating matrix buffer in Terrain class!\n");
 	}
-	//grass texture
+	// grass texture
 	createResourceBuffer(m_grassPath, m_map_grass.GetAddressOf());
 }
 
@@ -129,8 +129,8 @@ bool Terrain::loadHeightmap(string filePath) {
 }
 
 float Terrain::sampleHeightmap(float2 uv) {
-	XMINT2 index =
-		XMINT2((uint32_t)round(uv.x * (m_heightmapSize.x - 1)), (uint32_t)round(uv.y * (m_heightmapSize.y - 1)));
+	XMINT2 index = XMINT2((uint32_t)round(uv.x * (m_heightmapSize.x - 1)),
+		(uint32_t)round(uv.y * (m_heightmapSize.y - 1)));
 	return m_heightmap[index.x][index.y];
 }
 
@@ -247,7 +247,7 @@ string Terrain::LPWSTR_to_STRING(LPWSTR str) {
 	return sbuff;
 }
 
-bool Terrain::createResourceBuffer(string path, ID3D11ShaderResourceView** buffer) { 
+bool Terrain::createResourceBuffer(string path, ID3D11ShaderResourceView** buffer) {
 	auto device = Renderer::getDevice();
 	auto deviceContext = Renderer::getDeviceContext();
 	wstring wstr = s2ws(path);
@@ -289,7 +289,7 @@ float Terrain::obbTest(float3 rayOrigin, float3 rayDir, float3 boxPos, float3 bo
 	if (Tmin < Tmax) {
 		if (Tmin < 0)
 			return Tmax;
-		else 
+		else
 			return Tmin;
 	}
 	else
@@ -384,8 +384,7 @@ bool Terrain::castRay(float3& point, float3& direction) {
 	direction = float3::TransformNormal(direction, mTerrainInvWorld);
 	float t = obbTest(point, direction, float3(1, 1, 1) * 0.5, float3(1, 1, 1) * 0.5);
 	ErrorLogger::log(to_string(t));
-	if (obbTest(point, direction, float3(1, 1, 1) * 0.5,
-							   float3(1, 1, 1) * 0.5) >= 0) {
+	if (obbTest(point, direction, float3(1, 1, 1) * 0.5, float3(1, 1, 1) * 0.5) >= 0) {
 		for (int xx = 0; xx < m_gridSize.x; xx++) {
 			for (int yy = 0; yy < m_gridSize.y; yy++) {
 				float4x4 mSubWorld = getSubModelMatrix(XMINT2(xx, yy));
@@ -488,7 +487,7 @@ void Terrain::SubGrid::createBuffers() {
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	bufferDesc.ByteWidth = (UINT) m_vertices.size() * sizeof(Vertex);
+	bufferDesc.ByteWidth = (UINT)m_vertices.size() * sizeof(Vertex);
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = m_vertices.data();
 	HRESULT res =
@@ -514,19 +513,16 @@ float Terrain::SubGrid::getHeightFromPosition(float x, float z) {
 	if (X >= 0 && X < 1 && Y >= 0 && Y < 1) {
 		float fx = X * (m_heightmapSize.x - 1);
 		float fy = Y * (m_heightmapSize.y - 1);
-		int ix = (int)fx, iy = (int)fy;			  // floor
+		int ix = (int)fx, iy = (int)fy;	  // floor
 		float rx = fx - ix, ry = fy - iy; // rest
 
 		float3 p1 = float3((float)(ix + 0) / m_heightmapSize.x, (float)m_heightmap[ix + 0][iy + 0],
 			(float)(iy + 0) / m_heightmapSize.y);
-		float3 p2 = float3((float)(ix + 1) / m_heightmapSize.x,
-			(float)m_heightmap[ix + 1][iy + 0],
+		float3 p2 = float3((float)(ix + 1) / m_heightmapSize.x, (float)m_heightmap[ix + 1][iy + 0],
 			(float)(iy + 0) / m_heightmapSize.y);
-		float3 p3 = float3((float)(ix + 0) / m_heightmapSize.x,
-			(float)m_heightmap[ix + 0][iy + 1],
+		float3 p3 = float3((float)(ix + 0) / m_heightmapSize.x, (float)m_heightmap[ix + 0][iy + 1],
 			(float)(iy + 1) / m_heightmapSize.y);
-		float3 p4 = float3((float)(ix + 1) / m_heightmapSize.x,
-			(float)m_heightmap[ix + 1][iy + 1],
+		float3 p4 = float3((float)(ix + 1) / m_heightmapSize.x, (float)m_heightmap[ix + 1][iy + 1],
 			(float)(iy + 1) / m_heightmapSize.y);
 		if (rx < ry) {
 			float3 pt = p3 + 2 * ((float3)((p1 + p4) / 2) - p3);
@@ -554,19 +550,16 @@ float3 Terrain::SubGrid::getNormalFromPosition(float x, float z) {
 	if (X >= 0 && X < 1 && Y >= 0 && Y < 1) {
 		float fx = X * (float)(m_heightmapSize.x - 1);
 		float fy = Y * (float)(m_heightmapSize.y - 1);
-		int ix = (int)fx, iy = (int)fy;			  // floor
+		int ix = (int)fx, iy = (int)fy;	  // floor
 		float rx = fx - ix, ry = fy - iy; // rest
 
 		float3 p1 = float3((float)(ix + 0) / (float)m_heightmapSize.x, m_heightmap[ix + 0][iy + 0],
 			(float)(iy + 0) / (float)m_heightmapSize.y);
-		float3 p2 = float3((float)(ix + 1) / (float)m_heightmapSize.x,
-			m_heightmap[ix + 1][iy + 0],
+		float3 p2 = float3((float)(ix + 1) / (float)m_heightmapSize.x, m_heightmap[ix + 1][iy + 0],
 			(float)(iy + 0) / (float)m_heightmapSize.y);
-		float3 p3 = float3((float)(ix + 0) / (float)m_heightmapSize.x,
-			m_heightmap[ix + 0][iy + 1],
+		float3 p3 = float3((float)(ix + 0) / (float)m_heightmapSize.x, m_heightmap[ix + 0][iy + 1],
 			(float)(iy + 1) / (float)m_heightmapSize.y);
-		float3 p4 = float3((float)(ix + 1) / (float)m_heightmapSize.x,
-			m_heightmap[ix + 1][iy + 1],
+		float3 p4 = float3((float)(ix + 1) / (float)m_heightmapSize.x, m_heightmap[ix + 1][iy + 1],
 			(float)(iy + 1) / (float)m_heightmapSize.y);
 		if (rx < ry) {
 			float3 n = (p4 - p3).Cross(p1 - p3);
@@ -588,14 +581,14 @@ bool Terrain::SubGrid::castRay(float3& point, float3& direction) {
 	if (Terrain::obbTest(point, direction, float3(1, 1, 1) * 0.5, float3(1, 1, 1) * 0.5) >= 0) {
 		float3 normal;
 		float minL = -1;
-		for (int i = 0; i < m_vertices.size(); i += 3) {
+		for (size_t i = 0; i < m_vertices.size(); i += 3) {
 			float3 triangle0 = m_vertices[i + 0].position;
 			float3 triangle1 = m_vertices[i + 1].position;
 			float3 triangle2 = m_vertices[i + 2].position;
 			float l = triangleTest(point, direction, triangle0, triangle1, triangle2);
 			if (l >= 0 && (minL == -1 || l < minL)) {
 				minL = l;
-				normal = (triangle1-triangle0).Cross(triangle2-triangle0);
+				normal = (triangle1 - triangle0).Cross(triangle2 - triangle0);
 			}
 		}
 		if (minL >= 0) {
@@ -626,22 +619,22 @@ void Terrain::SubGrid::createMeshFromHeightmap() {
 			XMINT2(0, 0), XMINT2(1, 1), XMINT2(1, 0)
 		};
 
-		//create map for points
+		// create map for points
 		vector<vector<Vertex>> mapPoints;
 		mapPoints.resize(m_heightmapSize.x);
 		for (int xx = 0; xx < m_heightmapSize.x; xx++) {
 			mapPoints[xx].resize(m_heightmapSize.y);
 		}
-		//map positions and uv
+		// map positions and uv
 		for (int xx = 0; xx < m_heightmapSize.x; xx++) {
 			for (int yy = 0; yy < m_heightmapSize.y; yy++) {
-				float2 uv = float2((float)xx / (m_heightmapSize.x - 1),
-					(float)yy / (m_heightmapSize.y - 1));
-				mapPoints[xx][yy].position = float3(uv.x,m_heightmap[xx][yy],uv.y);
+				float2 uv = float2(
+					(float)xx / (m_heightmapSize.x - 1), (float)yy / (m_heightmapSize.y - 1));
+				mapPoints[xx][yy].position = float3(uv.x, m_heightmap[xx][yy], uv.y);
 				mapPoints[xx][yy].uv = uv;
 			}
 		}
-		//smooth positions
+		// smooth positions
 		int smoothSteps = 2;
 		float transitions = 0.5;
 		for (int i = 0; i < smoothSteps; i++) {
@@ -654,14 +647,14 @@ void Terrain::SubGrid::createMeshFromHeightmap() {
 							mapCopy[xx][yy + 1].position + mapCopy[xx - 1][yy].position +
 							mapCopy[xx][yy - 1].position) /
 						5.0f;
-					//mapPoints[xx][yy].position = current + (average - current) * transitions;
+					// mapPoints[xx][yy].position = current + (average - current) * transitions;
 					mapPoints[xx][yy].position = average;
 				}
 			}
 		}
-		//map normals
-		for (int xx = 0; xx < m_heightmapSize.x-1; xx++) {
-			for (int yy = 0; yy < m_heightmapSize.y-1; yy++) {
+		// map normals
+		for (int xx = 0; xx < m_heightmapSize.x - 1; xx++) {
+			for (int yy = 0; yy < m_heightmapSize.y - 1; yy++) {
 				float3 points[2][3];
 				for (int i = 0; i < 6; i++) {
 					XMINT2 index(xx + order[i].x, yy + order[i].y);
@@ -681,28 +674,28 @@ void Terrain::SubGrid::createMeshFromHeightmap() {
 				mapPoints[xx + 1][yy + 0].normal = normal2;
 			}
 		}
-		//normalize normals
+		// normalize normals
 		for (int xx = 0; xx < m_heightmapSize.x; xx++) {
-			for (int yy = 0; yy < m_heightmapSize.y-1; yy++) {
+			for (int yy = 0; yy < m_heightmapSize.y - 1; yy++) {
 				mapPoints[xx][yy].normal.Normalize();
 			}
 		}
 
-		//create mesh
+		// create mesh
 		for (int yy = 0; yy < m_heightmapSize.y - 1; yy++) {
 			for (int xx = 0; xx < m_heightmapSize.x - 1; xx++) {
 				// create triangles
 				for (int i = 0; i < 6; i++) {
 					XMINT2 index(xx + order[i].x, yy + order[i].y);
-					//float3 n = m_heightmapNormal[index.x][index.y];
+					// float3 n = m_heightmapNormal[index.x][index.y];
 					m_vertices.push_back(mapPoints[index.x][index.y]);
 				}
 			}
 		}
-		//flat shading
+		// flat shading
 		if (0) {
 			// fix normals to flat shading
-			for (int i = 0; i < m_vertices.size(); i += 3) {
+			for (size_t i = 0; i < m_vertices.size(); i += 3) {
 				float3 p1 = m_vertices[i + 0].position;
 				float3 p2 = m_vertices[i + 1].position;
 				float3 p3 = m_vertices[i + 2].position;
