@@ -26,5 +26,4 @@ private:
 	Timer m_timer;
 	Entity m_entity;
 	TextRenderer m_textRenderer;
-	Apple m_apple;
 };

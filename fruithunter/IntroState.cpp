@@ -28,7 +28,6 @@ void IntroState::update() {
 	// m_entity.rotateY(3.14f * 1.f / 60.f);
 	// m_entity.setScale(sin(rot));
 	m_entity.updateAnimated(dt);
-	m_apple.updateAnimated(dt);
 	m_camera.updateBuffer();
 
 	Input::getInstance()->setMouseModeAbsolute();
@@ -63,7 +62,6 @@ void IntroState::draw() {
 
 	// m_entity.draw();
 	m_entity.draw_animate();
-	m_apple.draw_animate();
 	m_textRenderer.draw("LET ME SEE THE GOAT " + std::to_string(t), Vector2(400., 300.), col);
 }
 

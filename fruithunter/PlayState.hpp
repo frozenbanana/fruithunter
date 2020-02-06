@@ -28,4 +28,5 @@ private:
 	Quad m_quad;
 	Apple m_apple;
 	Terrain m_terrain;
+	Entity m_bow;
 };
