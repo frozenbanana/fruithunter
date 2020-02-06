@@ -26,8 +26,12 @@ void IntroState::update() {
 
 	m_entity.updateAnimated(dt);
 	m_camera.updateBuffer();
-	for (size_t i = 0; i < 10; i++) {
+	for (size_t i = 0; i < 10; ++i) {
 		m_apples[i].updateAnimated(dt);
+		float3 appleDestination = float3(sin(m_timer.getTimePassed() * 0.5f + i * 3.14f / 5.f), 0.f,
+									  cos(m_timer.getTimePassed() * 0.51f + i * 3.14f / 5.f)) *
+								  10.0f;
+		m_apples[i].setNextDestination(appleDestination);
 	}
 	Input::getInstance()->setMouseModeAbsolute();
 }
