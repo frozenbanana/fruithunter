@@ -19,7 +19,7 @@ void IntroState::initialize() {
 }
 
 void IntroState::update() {
-	// AudioHandler::logStats();
+	//AudioHandler::logStats();
 	m_timer.update();
 	float dt = m_timer.getDt();
 	//float rotSpeed = 1.f;

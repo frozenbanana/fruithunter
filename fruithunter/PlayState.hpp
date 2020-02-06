@@ -1,13 +1,12 @@
 #pragma once
 #include "State.hpp"
 #include "Quad.hpp"
-//#include "Camera.hpp"
 #include "Player.hpp"
 #include "Timer.hpp"
 #include "TextRenderer.hpp"
 #include "AudioHandler.hpp"
-#include "Entity.h"
-#include "Terrain.h"
+#include "Entity.hpp"
+#include "Terrain.hpp"
 #include "Apple.hpp"
 
 

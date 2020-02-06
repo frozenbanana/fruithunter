@@ -1,4 +1,4 @@
-#include "Mesh.h"
+#include "Mesh.hpp"
 
 std::vector<Vertex> Mesh::m_boxVertices;
 ShaderSet Mesh::m_shaderObject;

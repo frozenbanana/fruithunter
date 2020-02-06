@@ -1,5 +1,5 @@
 #pragma once
-#include "Material.h"
+#include "Material.hpp"
 
 struct Vertex {
 	float3 position;

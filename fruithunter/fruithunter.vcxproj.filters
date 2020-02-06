@@ -93,9 +93,6 @@
     <ClInclude Include="Renderer.hpp">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderSet.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="State.hpp">
       <Filter>Header</Filter>
     </ClInclude>
@@ -117,9 +114,6 @@
     <ClInclude Include="Camera.hpp">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Entity.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="ErrorLogger.hpp">
       <Filter>Header</Filter>
     </ClInclude>
@@ -129,16 +123,22 @@
     <ClInclude Include="IntroState.hpp">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Material.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshHandler.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="Terrain.h" />
+    <ClInclude Include="Material.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshHandler.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderSet.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl" />

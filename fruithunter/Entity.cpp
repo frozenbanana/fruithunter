@@ -1,4 +1,4 @@
-#include "Entity.h"
+#include "Entity.hpp"
 
 void Entity::updateMatrix() {
 	m_matrixChanged = false;

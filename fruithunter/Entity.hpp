@@ -1,5 +1,5 @@
 #pragma once
-#include "Mesh.h"
+#include "Mesh.hpp"
 #include "Animated.hpp"
 #define MODEL_MATRIX_BUFFER_SLOT 0
 
