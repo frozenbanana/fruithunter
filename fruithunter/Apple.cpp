@@ -6,13 +6,13 @@ void Apple::updateAnimated(float dt) {
 		// Temporarely order of position. Later will be velocity for moving
 		m_startPos,
 		m_startPos,
+		m_startPos,
 		m_heightPos,
-		m_destinationPos,
 		m_destinationPos,
 		m_destinationPos,
 	};
 	bool justChanged = false;
-	float frameSpeedOrder[] = { 4.f, 5.f, 1.7f, 1.4f, 4.f, 2.f };
+	float frameSpeedOrder[] = { 4.f, 5.f, 2.0f, 1.9f, 4.f, 2.f };
 	m_frameTime += dt * frameSpeedOrder[m_currentFramePhase];
 	if (Input::getInstance()->keyDown(Keyboard::K))
 		int th = 0;
@@ -25,6 +25,7 @@ void Apple::updateAnimated(float dt) {
 			m_currentFramePhase = 0;
 			setDestination();
 			justChanged = true;
+			setRotation(float3(0.f, findRequiredRotation(m_nextDestinationPos), 0.f));
 		}
 
 		m_meshAnim.setFrameTargets(frameOrder[m_currentFramePhase],
@@ -44,6 +45,21 @@ void Apple::updateAnimated(float dt) {
 }
 
 void Apple::setNextDestination(float3 nextDest) { m_nextDestinationPos = nextDest; }
+
+float Apple::findRequiredRotation(float3 lookAt) {
+	float rot = 0.f;
+
+	float dx = lookAt.x - getPosition().x;
+	float dz = lookAt.z - getPosition().z;
+	if (dx != 0)
+		rot = -atan(dz / dx);
+	else
+		rot = 0;
+
+	if (dx < 0)
+		rot = 3.1416f + rot;
+	return rot + 3.14f * 0.5f;
+}
 
 void Apple::setDestination() {
 	m_destinationPos = m_nextDestinationPos;

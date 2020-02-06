@@ -16,7 +16,8 @@ void PlayState::initialize() {
 	m_terrain.setScale(float3(1, 0.25, 1) * 25);
 
 	m_player.initialize();
-	m_player.setPosition(float3(1, 1, 1));
+	// m_player.setPosition(float3(1, 1, 1));
+	m_player.setPosition(float3(2, 0, 0.2));
 
 	m_bow.loadAnimated("Bow", 3);
 	m_bow.setPosition(float3(2.f, 0.f, 0.f));
@@ -33,8 +34,7 @@ void PlayState::update() {
 
 	m_apple.updateAnimated(dt);
 	float3 appleDestination =
-		float3(sin(m_timer.getTimePassed() * 0.6f), 0 /*abs(sin(m_timer.getTimePassed())) * 0.3f*/,
-			cos(m_timer.getTimePassed() * 0.6f)) *
+		float3(sin(m_timer.getTimePassed() * 0.6f), 0.f, cos(m_timer.getTimePassed() * 0.6f)) *
 		5.0f;
 	m_apple.setNextDestination(appleDestination);
 }
