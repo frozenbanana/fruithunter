@@ -30,7 +30,8 @@ float4x4 Terrain::getSubModelMatrix(XMINT2 gridIndex) {
 	// float4x4 scale =
 	//	float4x4::CreateScale(float3(m_scale.x * subScale.x, m_scale.y, m_scale.z * subScale.y));
 
-	float4x4 transform = float4x4::CreateTranslation(float3(gridIndex.x, 0, gridIndex.y));
+	float4x4 transform =
+		float4x4::CreateTranslation(float3((float)gridIndex.x, 0, (float)gridIndex.y));
 	float4x4 scale = float4x4::CreateScale(float3(subScale.x, 1, subScale.y));
 
 	return transform * scale;
@@ -100,21 +101,21 @@ bool Terrain::loadHeightmap(string filePath) {
 			float v = 0;
 			if (texD.Format == DXGI_FORMAT_R8_UNORM) {
 				d = ((unsigned char*)sub.pData)[iy * sub.RowPitch + ix];
-				v = (float)d / (pow(2, 1 * 8) - 1);
+				v = (float)d / (pow(2.f, 1.f * 8.f) - 1.f);
 			}
 			else if (texD.Format == DXGI_FORMAT_R8G8B8A8_UNORM) {
 				unsigned char d = ((unsigned char*)sub.pData)[iy * sub.RowPitch + ix * 4];
-				v = (float)d / (pow(2, 1 * 8) - 1);
+				v = (float)d / (pow(2.f, 1.f * 8.f) - 1.f);
 			}
 			else if (texD.Format == DXGI_FORMAT_R8G8B8A8_UNORM_SRGB) {
 				unsigned char d = ((unsigned char*)sub.pData)[iy * sub.RowPitch + ix * 4];
-				v = (float)d / (pow(2, 1 * 8) - 1);
+				v = (float)d / (pow(2.f, 1.f * 8.f) - 1.f);
 			}
 			else if (texD.Format == DXGI_FORMAT_R16G16B16A16_UNORM) {
 				unsigned short int d =
 					((unsigned short int*)
 							sub.pData)[iy * (sub.RowPitch / sizeof(short int)) + ix * 4];
-				v = (float)d / (pow(2, sizeof(short int) * 8) - 1);
+				v = (float)d / (pow(2.f, sizeof(short int) * 8.f) - 1.f);
 			}
 			m_heightmap[xx][yy] = v;
 		}
@@ -129,7 +130,7 @@ bool Terrain::loadHeightmap(string filePath) {
 
 float Terrain::sampleHeightmap(float2 uv) {
 	XMINT2 index =
-		XMINT2(round(uv.x * (m_heightmapSize.x - 1)), round(uv.y * (m_heightmapSize.y - 1)));
+		XMINT2((uint32_t)round(uv.x * (m_heightmapSize.x - 1)), (uint32_t)round(uv.y * (m_heightmapSize.y - 1)));
 	return m_heightmap[index.x][index.y];
 }
 
@@ -141,10 +142,10 @@ float3 Terrain::calcNormalFromHeightmap(XMINT2 index) {
 
 	float2 pos(1.0f / m_heightmapSize.x, 1.0f / m_heightmapSize.y);
 	float3 p = float3(0, m_heightmap[index.x][index.y], 0);
-	float3 pTop = float3(0, minY ? 0 : m_heightmap[index.x][index.y - 1.], -pos.y);
-	float3 pRight = float3(pos.x, maxX ? 0 : m_heightmap[index.x + 1.][index.y], 0);
-	float3 pLeft = float3(-pos.x, minX ? 0 : m_heightmap[index.x - 1.][index.y], 0);
-	float3 pBottom = float3(0, maxY ? 0 : m_heightmap[index.x][index.y + 1.], pos.y);
+	float3 pTop = float3(0, minY ? 0 : m_heightmap[index.x][index.y - 1.f], -pos.y);
+	float3 pRight = float3(pos.x, maxX ? 0 : m_heightmap[index.x + 1.f][index.y], 0);
+	float3 pLeft = float3(-pos.x, minX ? 0 : m_heightmap[index.x - 1.f][index.y], 0);
+	float3 pBottom = float3(0, maxY ? 0 : m_heightmap[index.x][index.y + 1.f], pos.y);
 
 	float3 normal;
 	if (!minX || !minY) {

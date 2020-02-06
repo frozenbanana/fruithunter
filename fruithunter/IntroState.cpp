@@ -22,8 +22,8 @@ void IntroState::update() {
 	// AudioHandler::logStats();
 	m_timer.update();
 	float dt = m_timer.getDt();
-	float rotSpeed = 1.f;
-	rot += 0.01f;
+	//float rotSpeed = 1.f;
+	//rot += 0.01f;
 	// m_entity.setPosition(float3(5 * sin(rot), 0, 0));
 	// m_entity.rotateY(3.14f * 1.f / 60.f);
 	// m_entity.setScale(sin(rot));

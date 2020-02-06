@@ -60,7 +60,7 @@ bool MeshHandler::loadOBJ(std::string fileName, std::vector<Part>& parts) {
 				else if (startWord == "o") { // new part with part name
 					std::string name = "";
 					objFile >> name;
-					parts.push_back(Part(name, m_triangleRefs.size()));
+					parts.push_back(Part(name, (int)m_triangleRefs.size()));
 					part = &parts.back();
 				}
 				else if (startWord == "usemtl") { // new faces repository for current meshPart
@@ -106,7 +106,7 @@ bool MeshHandler::loadOBJ(std::string fileName, std::vector<Part>& parts) {
 						face.push_back(MeshHandler::VertexRef(pI - 1, uvI - 1, nI - 1));
 					}
 					std::vector<MeshHandler::VertexRef> temp = triangulate(face);
-					part->countUp(temp.size());
+					part->countUp((int)temp.size());
 					// merge arrays
 					for (size_t i = 0; i < temp.size(); i++) {
 						m_triangleRefs.push_back(temp[i]);
@@ -201,10 +201,10 @@ std::vector<Vertex> MeshHandler::createMesh() const {
 	if (m_triangleRefs.size() > 0) {
 		arr.reserve(m_triangleRefs.size());
 		for (size_t i = 0; i < m_triangleRefs.size() / 3; i++) {
-			int index = i * 3;
+			int index = (int)i * 3;
 			arr.push_back(createVertexFromRef(m_triangleRefs[index + 0]));
-			arr.push_back(createVertexFromRef(m_triangleRefs[index + 1]));
-			arr.push_back(createVertexFromRef(m_triangleRefs[index + 2]));
+			arr.push_back(createVertexFromRef(m_triangleRefs[index + (short int)1]));
+			arr.push_back(createVertexFromRef(m_triangleRefs[index + (short int)2]));
 		}
 	}
 	return arr;
@@ -395,7 +395,7 @@ void MeshHandler::saveToRaw(std::vector<Vertex>& mesh) const {
 		file.open(path, std::ios::out | std::ios::binary);
 		if (file.is_open()) {
 			// write mesh data
-			int length = mesh.size();
+			int length = (int)mesh.size();
 			file.write((char*)&length, sizeof(int));				 // write vertex count
 			file.write((char*)mesh.data(), sizeof(Vertex) * length); // write vertex data
 			file.close();
@@ -501,7 +501,7 @@ void MeshHandler::connectPartsToMaterialsInCorrectOrder(
 			// find material index
 			for (size_t j = 0; j < materials.size(); j++) {
 				if (mat->name == materials[j].getMaterialName()) {
-					mat->materialIndex = j;
+					mat->materialIndex = (int)j;
 					break;
 				}
 			}

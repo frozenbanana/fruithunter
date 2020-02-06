@@ -111,7 +111,7 @@ void Mesh::loadBoundingBox() {
 	{
 		for (size_t j = 0; j < 2; j++) // parallel planes .2
 		{
-			int m = j * 2 - 1;
+			size_t m = j * 2 - 1;
 			float mf = (float)m;
 			Vertex v[4];
 			for (size_t i = 0; i < 4; i++) // per point
@@ -151,7 +151,7 @@ void Mesh::createBuffers(bool instancing) {
 
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	bufferDesc.ByteWidth = m_meshVertices.size() * sizeof(Vertex);
+	bufferDesc.ByteWidth = (UINT)m_meshVertices.size() * sizeof(Vertex);
 
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = m_meshVertices.data();
@@ -227,7 +227,7 @@ void Mesh::draw_noMaterial(float3 color) {
 	deviceContext->UpdateSubresource(m_colorBuffer.Get(), 0, 0, &data, 0, 0);
 	deviceContext->PSSetConstantBuffers(COLOR_BUFFER_SLOT, 1, m_colorBuffer.GetAddressOf());
 
-	deviceContext->Draw(m_meshVertices.size(), 0);
+	deviceContext->Draw((UINT)m_meshVertices.size(), (UINT)0);
 }
 void Mesh::draw_BoundingBox() {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
@@ -246,7 +246,7 @@ void Mesh::draw_forShadowMap() {
 
 	bindMesh();
 
-	deviceContext->Draw(m_meshVertices.size(), 0);
+	deviceContext->Draw((UINT)m_meshVertices.size(), (UINT)0);
 }
 void Mesh::draw_withoutBinding() {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
@@ -308,7 +308,7 @@ float Mesh::castRayOnMesh(float3 rayPos, float3 rayDir) {
 		// find the exact point
 		float closest = -1;
 		size_t length = m_meshVertices.size() / 3;
-		for (size_t i = 0; i < length; i++) {
+		for (int i = 0; i < length; i++) {
 			int index = i * 3;
 			float3 v0 = m_meshVertices[index + 0].position;
 			float3 v1 = m_meshVertices[index + 1].position;
