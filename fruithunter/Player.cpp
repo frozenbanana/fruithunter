@@ -184,11 +184,11 @@ bool Player::onGround() { //Check if you are on the ground
 }
 
 void Player::dash() {
-	if (m_dashCooldown > 3.0f) {
+	if (m_dashCooldown > 1.0f) {
 		m_dashCooldown = 0.0f;
-		m_velocityFactorFrontBack = 10.0f;
+		m_velocityFactorFrontBack = 5.0f;
 	}
 	else {
-		ErrorLogger::log(std::to_string(3 - m_dashCooldown));
+		ErrorLogger::log(std::to_string(1 - m_dashCooldown));
 	}
 }
