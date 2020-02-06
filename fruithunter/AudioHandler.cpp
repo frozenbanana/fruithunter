@@ -60,8 +60,13 @@ void AudioHandler::logStats() {
 		stats.allocatedVoicesIdle, stats.audioBytes, m_this.m_audioEngine->GetOutputChannels(),
 		m_this.m_audioEngine->IsAudioDevicePresent());
 
-	std::wstring wbuff = std::wstring(buff);
-	std::string sbuff = std::string(wbuff.begin(), wbuff.end());
+
+	// convert from wide char to narrow char array
+	char ch[256];
+	char DefChar = ' ';
+	WideCharToMultiByte(CP_ACP, 0, buff, -1, ch, 256, &DefChar, NULL); // No error checking
+
+	std::string sbuff = std::string(ch);
 	ErrorLogger::log(sbuff);
 }
 

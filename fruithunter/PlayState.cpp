@@ -60,10 +60,14 @@ void PlayState::draw() {
 		// Text
 	float t = m_timer.getTimePassed();
 	Vector4 col = Vector4(.5f, abs(cos(t)), abs(sin(t)), 1.f);
-	// m_textRenderer.draw("HERE IS THE GOAT", Vector2(400., 300.), col);
+	m_textRenderer.draw("HERE IS THE GOAT", Vector2(400., 300.), col);
+
+	// Apple
+	m_apple.draw_animate();
 }
 
 void PlayState::play() {
+	Input::getInstance()->setMouseModeRelative();
 	AudioHandler::startPlayAmbient();
 	ErrorLogger::log(m_name + " play() called.");
 }

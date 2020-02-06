@@ -1,9 +1,9 @@
 #pragma once
 #include "State.hpp"
 #include "Entity.h"
+#include "Apple.hpp"
 #include "Camera.hpp"
 #include <string>
-#include <time.h>
 #include "Input.hpp"
 #include "TextRenderer.hpp"
 #include "Timer.hpp"
@@ -24,5 +24,6 @@ public:
 private:
 	Camera m_camera;
 	Timer m_timer;
-	//TextRenderer m_textRenderer;
+	TextRenderer m_textRenderer;
+	Apple m_apple;
 };

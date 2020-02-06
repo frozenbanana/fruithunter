@@ -28,10 +28,11 @@ void Player::update(float td, float height, float3 normal) {
 	rotatePlayer();
 	movePlayer();
 	m_position += m_speed * m_velocity * td;
-
-	if (!onGround()) { //Movement along the Y-axis. a.k.a Gravity. According to one dimensional physics.
-		m_position.y = m_position.y + m_velocity.y * td + (m_gravity * td * td) * 0.5; //Pos2 = Pos1 + v1 * t + (a * t^2)/2 
-		m_velocity.y += m_gravity * td; //Update old velocity
+	if (!onGround()) { // Movement along the Y-axis. a.k.a Gravity. According to one dimensional
+					   // physics.
+		m_position.y = m_position.y + m_velocity.y * td +
+					   (m_gravity * td * td) * 0.5f; // Pos2 = Pos1 + v1 * t + (a * t^2)/2
+		m_velocity.y += m_gravity * td;				 // Update old velocity
 	}
 	else {
 		m_dashCooldown += td; // Cooldown for dashing
@@ -120,20 +121,23 @@ void Player::movePlayer() {
 void Player::rotatePlayer() {
 	Input* ip = Input::getInstance();
 
+	float deltaX = 0.0f;
+	float deltaY = 0.0f;
 
-	float deltaX = ip->mouseX();
-	float deltaY = ip->mouseY();
+	if (ip->getMouseMode() == DirectX::Mouse::MODE_RELATIVE) {
+		deltaX = (float)ip->mouseX();
+		deltaY = (float)ip->mouseY();
+	}
 
-	float rotationSpeed = 0.01;
+	float rotationSpeed = 0.01f;
 
 	if (deltaX != 0.0f) {
 		m_cameraYaw += deltaX * rotationSpeed;
 	}
 	if (deltaY != 0.0f) {
 		m_cameraPitch += deltaY * rotationSpeed;
-		m_cameraPitch = min(max(m_cameraPitch, -1.5), 1.5);
+		m_cameraPitch = min(max(m_cameraPitch, -1.5f), 1.5f);
 	}
-
 
 	if (ip->keyDown(Keyboard::Keys::Right))
 		m_cameraYaw += 0.1f;
@@ -144,9 +148,7 @@ void Player::rotatePlayer() {
 	if (ip->keyDown(Keyboard::Keys::Down))
 		m_cameraPitch += 0.1f;
 
-
-
-	Matrix cameraRotationMatrix = XMMatrixRotationRollPitchYaw(m_cameraPitch, m_cameraYaw, 0.0);
+	Matrix cameraRotationMatrix = XMMatrixRotationRollPitchYaw(m_cameraPitch, m_cameraYaw, 0.f);
 	Vector3 cameraTarget = XMVector3TransformCoord(m_playerForward, cameraRotationMatrix);
 	cameraTarget = XMVector3Normalize(cameraTarget);
 
@@ -169,16 +171,17 @@ void Player::setPosition(float3 position) { m_position = position; }
 void Player::jump() {
 
 	if (onGround()) {
-		m_velocity.y = 3.0f; //If you are on the ground you may jump, giving yourself 3 m/s along the Y-axis.
+		m_velocity.y =
+			3.0f; // If you are on the ground you may jump, giving yourself 3 m/s along the Y-axis.
 	}
 }
 
-bool Player::onGround() { //Check if you are on the ground
+bool Player::onGround() { // Check if you are on the ground
 	bool _onGround = false;
 	if (m_position.y <= m_groundHeight) {
 		_onGround = true;
-		m_velocity.y = 0.0f; //Stop gravity if you are on the ground.
-		m_position.y = max(m_groundHeight, m_position.y);
+		m_velocity.y = 0.0f; // Stop gravity if you are on the ground.
+		m_position.y = m_groundHeight;
 	}
 	return _onGround;
 }

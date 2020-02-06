@@ -48,6 +48,9 @@ public:
 	void clearDepth();
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthDSV;
 
+	void bindEverything();
+
+
 
 private:
 	Renderer(int width, int height);

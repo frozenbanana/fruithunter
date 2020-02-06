@@ -155,6 +155,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Animated.cpp" />
+    <ClCompile Include="Apple.cpp" />
     <ClCompile Include="AudioHandler.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -178,6 +180,8 @@
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animated.hpp" />
+    <ClInclude Include="Apple.hpp" />
     <ClInclude Include="AudioHandler.hpp" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Camera.hpp" />
@@ -197,7 +201,6 @@
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="TextRenderer.hpp" />
     <ClInclude Include="Timer.hpp" />
-    <ClInclude Include="Window.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">
@@ -228,6 +231,12 @@
     <FxCompile Include="VertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="VertexShader_model_animated.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>

@@ -25,13 +25,11 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 		input->update();
 		if (input->keyPressed(DirectX::Keyboard::D1)) {
 			ErrorLogger::log("Number 1 was pressed!");
-			Input::getInstance()->setMouseModeAbsolute();
 			stateHandler->changeState(StateHandler::INTRO);
 		}
 
 		if (input->keyPressed(DirectX::Keyboard::D2)) {
 			ErrorLogger::log("Number 2 was pressed!");
-			Input::getInstance()->setMouseModeRelative();
 			stateHandler->changeState(StateHandler::PLAY);
 		}
 

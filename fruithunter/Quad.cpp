@@ -12,7 +12,7 @@ Quad::Quad() {}
 void Quad::init() {
 	createMesh();
 	createShaders();
-	createRenderStates();
+	// createRenderStates();
 }
 
 Quad::~Quad() {}
@@ -21,9 +21,9 @@ void Quad::draw() {
 	auto deviceContext = Renderer::getDeviceContext();
 
 	// Set render states
-	deviceContext->RSSetState(m_rasterizerState.Get());
-	deviceContext->OMSetBlendState(m_blendState.Get(), NULL, 0xffffffff);
-	deviceContext->OMSetDepthStencilState(m_depthState.Get(), 1);
+	// deviceContext->RSSetState(m_rasterizerState.Get());
+	// deviceContext->OMSetBlendState(m_blendState.Get(), NULL, 0xffffffff);
+	// deviceContext->OMSetDepthStencilState(m_depthState.Get(), 1);
 
 	// Set shaders to renderer
 	m_shader.bindShadersAndLayout();
@@ -49,17 +49,9 @@ void Quad::createMesh() {
 	auto device = Renderer::getDevice();
 
 	// Vertices
-	Vertex vertices[] = { { -1, -1, 1, 1, 1, 1, 1 }, { 1., -1, 0, 1, 1, 0, 1 },
-		{ 1., 1, 1, 1, 0, 0, 0 },
-		{
-			-1,
-			1,
-			1,
-			1,
-			0,
-			1,
-			0,
-		} };
+	Vertex vertices[] = { { -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f },
+		{ 1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f },
+		{ -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f } };
 
 	// Create our vertex buffer
 	auto vertexBufferDesc = CD3D11_BUFFER_DESC(sizeof(vertices), D3D11_BIND_VERTEX_BUFFER);

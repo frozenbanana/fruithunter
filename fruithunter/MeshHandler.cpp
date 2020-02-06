@@ -108,7 +108,7 @@ bool MeshHandler::loadOBJ(std::string fileName, std::vector<Part>& parts) {
 					std::vector<MeshHandler::VertexRef> temp = triangulate(face);
 					part->countUp(temp.size());
 					// merge arrays
-					for (int i = 0; i < temp.size(); i++) {
+					for (size_t i = 0; i < temp.size(); i++) {
 						m_triangleRefs.push_back(temp[i]);
 					}
 				}
@@ -150,14 +150,16 @@ bool MeshHandler::load(std::string filename, std::vector<Vertex>& mesh, std::vec
 					combineParts(mesh, parts);
 				if (loadMTL(m_materialFileName, materials)) {
 					connectPartsToMaterialsInCorrectOrder(parts, materials);
-				} else {
+				}
+				else {
 					// failed loading material
 					ErrorLogger::logWarning(HRESULT(),
 						"WARNING! MeshHandler failed at reading the file: " + m_materialFileName +
 							" for mesh: " + filename); // failed loading material
 					// success is still true! Mesh will be forced rendered without material
 				}
-			} else {
+			}
+			else {
 				if (loadOBJ(filename, parts)) {
 					ErrorLogger::logWarning(
 						HRESULT(), "WARNING! MeshHandler failed at reading .obj file: " + filename);
@@ -179,19 +181,18 @@ bool MeshHandler::load(std::string filename, std::vector<Vertex>& mesh) {
 	bool success = true;
 	if (filename != "") {
 		std::vector<Part> parts;
-		if (loadRaw(filename, mesh)) {
-		}
+		if (loadRaw(filename, mesh)) {}
 		else if (loadOBJ(filename, parts)) {
 			mesh = createMesh();
 		}
 		else {
 			ErrorLogger::logWarning(
 				HRESULT(), "WARNING! MeshHandler failed at reading .obj file: " + filename);
-			success = false;// failed loading .obj and .rw file
+			success = false; // failed loading .obj and .rw file
 		}
 	}
 	else
-		success = false;//filename empty!
+		success = false; // filename empty!
 	return success;
 }
 
@@ -199,7 +200,7 @@ std::vector<Vertex> MeshHandler::createMesh() const {
 	std::vector<Vertex> arr;
 	if (m_triangleRefs.size() > 0) {
 		arr.reserve(m_triangleRefs.size());
-		for (int i = 0; i < m_triangleRefs.size() / 3; i++) {
+		for (size_t i = 0; i < m_triangleRefs.size() / 3; i++) {
 			int index = i * 3;
 			arr.push_back(createVertexFromRef(m_triangleRefs[index + 0]));
 			arr.push_back(createVertexFromRef(m_triangleRefs[index + 1]));
@@ -356,16 +357,16 @@ bool MeshHandler::loadRawDesc(std::string filename, std::vector<Part>& parts) {
 	file.open(m_rawPath + filename + ".rwd", std::ios::in | std::ios::binary);
 	if (file.is_open()) {
 		file >> m_materialFileName;
-		int partCount = 0;
+		size_t partCount = 0;
 		file >> partCount;
 		parts.resize(partCount);
-		for (int i = 0; i < partCount; i++) {
+		for (size_t i = 0; i < partCount; i++) {
 			Part* part = &parts[i];
 			file >> part->name >> part->index >> part->count;
-			int muCount = 0;
+			size_t muCount = 0;
 			file >> muCount;
 			part->materialUsage.resize(muCount);
-			for (int j = 0; j < muCount; j++) {
+			for (size_t j = 0; j < muCount; j++) {
 				Part::MaterialUsage* mu = &part->materialUsage[j];
 				file >> mu->name >> mu->index >> mu->count;
 			}
@@ -417,11 +418,11 @@ void MeshHandler::saveRawDesc(std::vector<Part>& parts) const {
 		if (file.is_open()) {
 			file << m_materialFileName << " ";
 			file << parts.size() << " ";
-			for (int i = 0; i < parts.size(); i++) {
+			for (size_t i = 0; i < parts.size(); i++) {
 				Part* part = &parts[i];
 				file << part->name << " " << part->index << " " << part->count << " ";
 				file << part->materialUsage.size() << " ";
-				for (int j = 0; j < part->materialUsage.size(); j++) {
+				for (size_t j = 0; j < part->materialUsage.size(); j++) {
 					Part::MaterialUsage* mu = &part->materialUsage[j];
 					file << mu->name << " " << mu->index << " " << mu->count << " ";
 				}
@@ -432,7 +433,7 @@ void MeshHandler::saveRawDesc(std::vector<Part>& parts) const {
 }
 
 void MeshHandler::flatShadeMesh(std::vector<Vertex>& mesh) {
-	for (int i = 0; i < mesh.size() / 3; i++) {
+	for (size_t i = 0; i < mesh.size() / 3; i++) {
 		float3 v0 = mesh[i + 0].position;
 		float3 v1 = mesh[i + 1].position;
 		float3 v2 = mesh[i + 2].position;
@@ -451,12 +452,12 @@ void MeshHandler::combineParts(std::vector<Vertex>& mesh, std::vector<Part>& par
 	newMesh.reserve(mesh.size());
 	// find list
 	std::vector<std::string> materials;
-	for (int p = 0; p < parts.size(); p++) {
-		for (int m = 0; m < parts[p].materialUsage.size(); m++) {
+	for (size_t p = 0; p < parts.size(); p++) {
+		for (size_t m = 0; m < parts[p].materialUsage.size(); m++) {
 			std::string name = parts[p].materialUsage[m].name;
 			// find name
 			bool found = false;
-			for (int i = 0; i < materials.size(); i++) {
+			for (size_t i = 0; i < materials.size(); i++) {
 				if (materials[i] == name) {
 					found = true;
 					break;
@@ -468,11 +469,11 @@ void MeshHandler::combineParts(std::vector<Vertex>& mesh, std::vector<Part>& par
 	}
 
 	int count = 0;
-	for (int mat = 0; mat < materials.size(); mat++) {
+	for (size_t mat = 0; mat < materials.size(); mat++) {
 		std::string material = materials[mat];
 		newParts[0].materialUsage.push_back(Part::MaterialUsage(material, count));
-		for (int p = 0; p < parts.size(); p++) {
-			for (int m = 0; m < parts[p].materialUsage.size(); m++) {
+		for (size_t p = 0; p < parts.size(); p++) {
+			for (size_t m = 0; m < parts[p].materialUsage.size(); m++) {
 				Part::MaterialUsage* temp = &parts[p].materialUsage[m];
 				if (temp->name == material) {
 					newParts[0].materialUsage[mat].countUp(temp->count);
@@ -480,7 +481,7 @@ void MeshHandler::combineParts(std::vector<Vertex>& mesh, std::vector<Part>& par
 					newParts[0].count += temp->count;
 
 					// parse
-					for (int i = 0; i < temp->count; i++)
+					for (size_t i = 0; i < (size_t)temp->count; i++)
 						newMesh.push_back(mesh[temp->index + i]);
 				}
 			}
@@ -494,11 +495,11 @@ void MeshHandler::combineParts(std::vector<Vertex>& mesh, std::vector<Part>& par
 void MeshHandler::connectPartsToMaterialsInCorrectOrder(
 	std::vector<Part>& parts, const std::vector<Material>& materials) {
 
-	for (int i = 0; i < parts.size(); i++) {
-		for (int m = 0; m < parts[i].materialUsage.size(); m++) {
+	for (size_t i = 0; i < parts.size(); i++) {
+		for (size_t m = 0; m < parts[i].materialUsage.size(); m++) {
 			Part::MaterialUsage* mat = &parts[i].materialUsage[m];
 			// find material index
-			for (int j = 0; j < materials.size(); j++) {
+			for (size_t j = 0; j < materials.size(); j++) {
 				if (mat->name == materials[j].getMaterialName()) {
 					mat->materialIndex = j;
 					break;
