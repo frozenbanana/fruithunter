@@ -12,12 +12,11 @@ void Apple::updateAnimated(float dt) {
 		m_destinationPos,
 	};
 	bool justChanged = false;
-	float frameSpeedOrder[] = { 4.f, 6.f, 1.7f, 1.7f, 4.f, 2.f };
-	// dt = 0.2;
+	float frameSpeedOrder[] = { 4.f, 5.f, 1.7f, 1.4f, 4.f, 2.f };
 	m_frameTime += dt * frameSpeedOrder[m_currentFramePhase];
 	if (Input::getInstance()->keyDown(Keyboard::K))
 		int th = 0;
-	// Maybe chaange keyframes
+	// Maybe change keyframes
 	if (m_frameTime > 1) {
 		m_frameTime -= 1;
 		m_currentFramePhase = m_currentFramePhase + 1;
