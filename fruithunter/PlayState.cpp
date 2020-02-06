@@ -49,7 +49,7 @@ void PlayState::draw() {
 	// Text
 	float t = m_timer.getTimePassed();
 	Vector4 col = Vector4(.5f, abs(cos(t)), abs(sin(t)), 1.f);
-	m_textRenderer.draw("HERE IS THE GOAT", Vector2(400., 300.), col);
+	m_textRenderer.draw("Time: " + std::to_string(t), Vector2(400., 75.), col);
 
 	// Apple
 	m_apple.draw_animate();
