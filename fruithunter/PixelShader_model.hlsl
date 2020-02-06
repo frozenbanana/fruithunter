@@ -54,5 +54,5 @@ float4 main(PS_IN ip) : SV_TARGET {
 	float3 col = pixelBaseColor * (0.2 + diffuseTint) + specular * reflectTint;
 
 	return float4(col, 1.0);
-	//return float4(ip.Normal,1.0);
+	return float4(abs(ip.Normal),1.0);
 }

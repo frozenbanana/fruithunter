@@ -17,12 +17,16 @@ private:
 		Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 
 	public:
+		static float triangleTest(
+			float3 rayOrigin, float3 rayDir, float3 tri0, float3 tri1, float3 tri2);
+
 		void initilize(XMINT2 tileSize, vector<vector<float>>& map, vector<vector<float3>>& mapNormal);
 		void createBuffers();
 		unsigned int getVerticeCount() const;
 		void bind();
 		float getHeightFromPosition(float x, float z);
 		float3 getNormalFromPosition(float x, float z);
+		bool castRay(float3& point, float3& direction);
 		void createMeshFromHeightmap();
 
 		SubGrid();
@@ -35,7 +39,7 @@ private:
 	static ShaderSet m_shader;
 	float3 m_position;
 	float3 m_rotation;
-	float3 m_scale = float3(1, 0.15, 1)*4;
+	float3 m_scale = float3(1, 0.25, 1)*4;
 	bool m_modelMatrixChanged = true;
 	struct ModelBuffer {
 		float4x4 mWorld, mWorldInvTra;
@@ -54,6 +58,10 @@ private:
 	// vertex buffer
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 
+	//buffer
+	const string m_grassPath = "Meshes/Textures/texture_grass.jpg";
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_map_grass;
+
 	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;
 
 	void createBuffers();
@@ -62,7 +70,7 @@ private:
 	float4x4 getModelMatrix();
 	void bindModelMatrix(XMINT2 gridIndex);
 
-	void loadHeightmap(string filePath);
+	bool loadHeightmap(string filePath);
 	float sampleHeightmap(float2 uv);
 	float3 calcNormalFromHeightmap(XMINT2 index);
 	float3 sampleHeightmapNormal(float2 uv);
@@ -75,14 +83,19 @@ private:
 	std::wstring s2ws(const std::string& s);
 	string LPWSTR_to_STRING(LPWSTR str);
 
+	bool createResourceBuffer(string path, ID3D11ShaderResourceView** buffer);
 
 public:
+	static float obbTest(float3 rayOrigin, float3 rayDir, float3 boxPos, float3 boxScale);
+
 	void initilize(string filename, XMINT2 subsize, XMINT2 splits = XMINT2(1, 1));
 
 	void rotateY(float radian);
+	void setScale(float3 scale);
 
 	float getHeightFromPosition(float x, float z);
 	float3 getNormalFromPosition(float x, float z);
+	bool castRay(float3& point, float3& direction);
 
 	void draw();
 

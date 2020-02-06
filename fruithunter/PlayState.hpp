@@ -6,6 +6,8 @@
 #include "Timer.hpp"
 #include "TextRenderer.hpp"
 #include "AudioHandler.hpp"
+#include "Entity.h"
+#include "Terrain.h"
 
 
 class PlayState : public State
@@ -25,7 +27,7 @@ public:
 
 private:
 	Timer m_timer;
-	TextRenderer m_textRenderer;
+	//TextRenderer m_textRenderer;
 	Player m_player;
-	Quad m_quad;
+	Terrain m_terrain;
 };

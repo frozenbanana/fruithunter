@@ -22,10 +22,7 @@ public:
 	void draw();
 
 private:
-	float rot = 0;
 	Camera m_camera;
-	Entity m_entity;
 	Timer m_timer;
-	TextRenderer m_textRenderer;
-	Terrain terrain;
+	//TextRenderer m_textRenderer;
 };

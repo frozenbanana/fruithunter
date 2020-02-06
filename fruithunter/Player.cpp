@@ -23,15 +23,17 @@ void Player::initialize() {
 	m_cameraPitch = m_cameraYaw = 0.0f;
 }
 
-void Player::update(float td) {
-	m_groundHeight = 0.0f; // update m_groundHeight
+void Player::update(float td, float height, float3 normal) {
+	m_groundHeight = height; // update m_groundHeight
 	rotatePlayer();
 	movePlayer();
 	m_position += m_speed * m_velocity * td;
+
 	if (!onGround()) { //Movement along the Y-axis. a.k.a Gravity. According to one dimensional physics.
 		m_position.y = m_position.y + m_velocity.y * td + (m_gravity * td * td) * 0.5; //Pos2 = Pos1 + v1 * t + (a * t^2)/2 
 		m_velocity.y += m_gravity * td; //Update old velocity
 	}
+
 	m_camera.setUp(m_playerUp);
 	m_camera.setEye(m_position);
 	m_camera.setTarget(m_position + m_playerForward);
@@ -140,6 +142,12 @@ void Player::rotatePlayer() {
 }
 
 void Player::draw() { m_camera.bindMatrix(); }
+
+float3 Player::getPosition() const { return m_position; }
+
+float3 Player::getForward() const { return m_playerForward; }
+
+void Player::setPosition(float3 position) { m_position = position; }
 
 void Player::jump() {
 
