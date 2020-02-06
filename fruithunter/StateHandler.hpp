@@ -1,11 +1,9 @@
 #pragma once
-#pragma warning disable C26812 // Prefer enum class over enum
 #include <vector>
 #include "State.hpp"
 #include "IntroState.hpp"
 #include "PlayState.hpp"
 #include "ErrorLogger.hpp"
-
 
 
 class StateHandler {
@@ -36,5 +34,3 @@ private:
 
 	StateHandler();
 };
-
-#pragma warning restore C26812 // Prefer enum class over enum

@@ -20,7 +20,8 @@ private:
 		static float triangleTest(
 			float3 rayOrigin, float3 rayDir, float3 tri0, float3 tri1, float3 tri2);
 
-		void initilize(XMINT2 tileSize, vector<vector<float>>& map, vector<vector<float3>>& mapNormal);
+		void initilize(
+			XMINT2 tileSize, vector<vector<float>>& map, vector<vector<float3>>& mapNormal);
 		void createBuffers();
 		unsigned int getVerticeCount() const;
 		void bind();
@@ -39,7 +40,7 @@ private:
 	static ShaderSet m_shader;
 	float3 m_position;
 	float3 m_rotation;
-	float3 m_scale = float3(1, 0.25, 1)*4;
+	float3 m_scale = float3(1, 0.25, 1) * 4;
 	bool m_modelMatrixChanged = true;
 	struct ModelBuffer {
 		float4x4 mWorld, mWorldInvTra;
@@ -58,7 +59,7 @@ private:
 	// vertex buffer
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 
-	//buffer
+	// buffer
 	const string m_grassPath = "Meshes/Textures/texture_grass.jpg";
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_map_grass;
 
@@ -99,6 +100,6 @@ public:
 
 	void draw();
 
-	Terrain(string filename = "", XMINT2 subsize = XMINT2(0, 0), XMINT2 splits = XMINT2(1,1));
+	Terrain(string filename = "", XMINT2 subsize = XMINT2(0, 0), XMINT2 splits = XMINT2(1, 1));
 	~Terrain();
 };
