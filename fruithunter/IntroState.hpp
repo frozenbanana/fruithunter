@@ -9,6 +9,7 @@
 #include "Timer.hpp"
 #include "AudioHandler.hpp"
 #include "Terrain.hpp"
+#include "Apple.hpp"
 
 class IntroState : public State {
 public:
@@ -25,5 +26,7 @@ private:
 	Camera m_camera;
 	Timer m_timer;
 	Entity m_entity;
+	std::vector<Apple> m_apples;
+
 	TextRenderer m_textRenderer;
 };
