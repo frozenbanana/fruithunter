@@ -30,7 +30,12 @@ void PlayState::update() {
 	float3 pos = m_player.getPosition();
 	float3 normal = m_terrain.getNormalFromPosition(pos.x, pos.z);
 	float h = m_terrain.getHeightFromPosition(pos.x, pos.z);
-	m_player.update(0.017f, h + 0.5f, normal);
+	Vector3 collisionPoint = pos;
+	Vector3 collisionNormal = m_player.getVelocity();
+	m_terrain.castRay(pos, collisionNormal);
+	m_player.update(0.017f, h + 0.5f,
+		m_terrain.getNormalFromPosition(collisionPoint.x, collisionPoint.z),
+		collisionPoint);
 	m_timer.update();
 	float dt = m_timer.getDt();
 	m_bow.updateAnimated(dt);
@@ -39,6 +44,7 @@ void PlayState::update() {
 	float3 appleDestination =
 		float3(sin(m_timer.getTimePassed() * 0.6f), 0.f, cos(m_timer.getTimePassed() * 0.6f)) *
 		5.0f;
+	appleDestination = collisionPoint;
 	m_apple.setNextDestination(appleDestination);
 }
 

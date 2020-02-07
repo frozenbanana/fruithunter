@@ -24,24 +24,17 @@ void Player::initialize() {
 	m_cameraPitch = m_cameraYaw = 0.0f;
 }
 
-void Player::update(float td, float height, float3 normal) {
+void Player::update(float td, float height, float3 normal, Vector3 collisionPoint) {
 	m_groundHeight = height; // update m_groundHeight
 	groundCheck();
+	slideCheck(normal);
 	bounceCheck(normal);
 	rotatePlayer();
 	movePlayer();
-	movement(normal, td);
+	movement(normal, td, collisionPoint);
 	m_position.x += m_speed * m_velocity.x * td;
 	m_position.z += m_speed * m_velocity.z * td;
-	// if (!m_onGround) { // Movement along the Y-axis. a.k.a Gravity. According to one dimensional
-	//				   // physics.
-	//	m_position.y = m_position.y + m_velocity.y * td +
-	//				   (m_gravity * td * td) * 0.5f; // Pos2 = Pos1 + v1 * t + (a * t^2)/2
-	//	m_velocity.y += m_gravity * td;				 // Update old velocity
-	//}
-	// else {
 	m_dashCooldown += td; // Cooldown for dashing
-	//}
 	m_camera.setUp(m_playerUp);
 	m_camera.setEye(m_position);
 	m_camera.setTarget(m_position + m_playerForward);
@@ -112,6 +105,11 @@ void Player::movePlayer() {
 		dash();
 	}
 
+	/*if (input->keyDown(Keyboard::Keys::LeftControl)) {
+		m_sliding = true;
+	}*/
+
+
 	// STOPPED IT FROM MOVING
 	if (m_velocityFactorStrafe <= 0.1 && m_velocityFactorStrafe >= -0.1)
 		m_velocityFactorStrafe = 0;
@@ -166,6 +164,8 @@ float3 Player::getPosition() const { return m_position; }
 
 float3 Player::getForward() const { return m_playerForward; }
 
+float3 Player::getVelocity() const { return m_velocity; }
+
 void Player::setPosition(float3 position) { m_position = position; }
 
 void Player::jump() {
@@ -197,6 +197,25 @@ void Player::bounceCheck(Vector3 normal) {
 	}
 }
 
+void Player::slideCheck(Vector3 normal) {
+	if (DEFAULTUP.Dot(normal) < 0.4f || m_velocity.Length() >= 1.5f) {
+		m_sliding = true;
+	}
+	else {
+		m_sliding = false;
+	}
+}
+
+void Player::slide(Vector3 normal, Vector3 collisionPoint) {
+	// Vektordelen
+	Vector3 collisionVector = collisionPoint - m_position;
+	Vector3 slideVector = m_velocity - ((m_velocity.Dot(normal) - collisionVector.Dot(normal)) * normal);
+	//					negativ - stor					negativ - liten
+	m_velocity = Vector3(
+		clamp(slideVector.x, 5, -5), clamp(slideVector.y, 5, -5), clamp(slideVector.z, 5, -5));
+	ErrorLogger::log("Swosh "/* + std::to_string(m_velocity.y)*/);
+}
+
 void Player::dash() {
 	if (m_dashCooldown > 0.0f) {
 		m_dashCooldown = 0.0f;
@@ -211,17 +230,22 @@ void Player::dash() {
 
 void Player::bounce(Vector3 normal, float dt) {
 	// Reflection = InVector - 2(Invector * normal) * normal;
-	Vector3 bounceVector = (m_velocity - ((2 * m_velocity.Dot(normal) * normal)));
+	Vector3 bounceVector = 10 * (m_velocity - ((2 * m_velocity.Dot(normal) * normal)));
 	bounceVector.x = clamp(bounceVector.x, 0.5, -0.5);
 	bounceVector.z = clamp(bounceVector.z, 0.5, -0.5);
+	bounceVector.y = clamp(bounceVector.y, 0.5, -0.5);
 	bounceVector.y += m_gravity * dt;
 	m_velocity = bounceVector;
-	ErrorLogger::log("Boing" + std::to_string(m_velocity.y));
+	ErrorLogger::log("Boing "/* + std::to_string(m_velocity.y)*/);
 }
 
-void Player::movement(Vector3 normal, float dt) {
+void Player::movement(Vector3 normal, float dt, Vector3 collisionPoint) {
 	if (m_onGround) {
-		if (m_bouncing) {
+		if (m_sliding) {
+			slide(normal, collisionPoint);
+			m_velocity.y += (m_gravity * dt);
+		}
+		else if (m_bouncing) {
 			bounce(normal, dt);
 		}
 		else { // Running

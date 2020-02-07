@@ -8,13 +8,14 @@ public:
 	Player();
 	~Player();
 	void initialize();
-	void update(float td, float height, float3 normal = float3(0, 0, 0));
+	void update(float td, float height, float3 normal, Vector3 collisionPoint);
 	void movePlayer();
 	void rotatePlayer();
 	void draw();
 
 	float3 getPosition() const;
 	float3 getForward() const;
+	float3 getVelocity() const;
 	void setPosition(float3 position);
 
 private:
@@ -29,6 +30,7 @@ private:
 
 	bool m_onGround;
 	bool m_bouncing;
+	bool m_sliding;
 	float m_gravity;
 	float m_speed;
 	float m_velocityFactorFrontBack;
@@ -45,8 +47,10 @@ private:
 	void jump();
 	void groundCheck();
 	void bounceCheck(Vector3 normal);
+	void slideCheck(Vector3 normal);
+	void slide(Vector3 normal, Vector3 collisionPoint);
 	void dash();
 	void bounce(Vector3 normal, float dt);
-	void movement(Vector3 normal, float dt);
+	void movement(Vector3 normal, float dt, Vector3 collisionPoint);
 	float clamp(float x, float high, float low);
 };
