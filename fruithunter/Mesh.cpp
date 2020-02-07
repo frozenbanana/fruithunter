@@ -307,7 +307,7 @@ float Mesh::castRayOnMesh(float3 rayPos, float3 rayDir) {
 	if (obbTest(rayDir, rayPos, bPos, bScale) != -1) {
 		// find the exact point
 		float closest = -1;
-		int length = m_meshVertices.size() / 3;
+		int length = (int)m_meshVertices.size() / 3;
 		for (int i = 0; i < length; i++) {
 			int index = i * 3;
 			float3 v0 = m_meshVertices[index + 0].position;
