@@ -27,6 +27,8 @@ private:
 	float3 m_position;
 	float3 m_velocity;
 
+	bool m_onGround;
+	bool m_bouncing;
 	float m_gravity;
 	float m_speed;
 	float m_velocityFactorFrontBack;
@@ -41,6 +43,10 @@ private:
 
 	//- - - Functions - - -
 	void jump();
-	bool onGround();
+	void groundCheck();
+	void bounceCheck(Vector3 normal);
 	void dash();
+	void bounce(Vector3 normal, float dt);
+	void movement(Vector3 normal, float dt);
+	float clamp(float x, float high, float low);
 };
