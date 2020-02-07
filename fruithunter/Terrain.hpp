@@ -14,12 +14,10 @@ private:
 		Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 
 	public:
-		static float triangleTest(
-			float3 rayOrigin, float3 rayDir, float3 tri0, float3 tri1, float3 tri2);
-
 		void initilize(
 			XMINT2 tileSize, vector<vector<float>>& map, vector<vector<float3>>& mapNormal);
 		void createBuffers();
+
 	public:
 		vector<Vertex>* getPtr();
 		void initilize();
@@ -28,8 +26,8 @@ private:
 
 		SubGrid();
 		~SubGrid();
-		
-	
+
+
 		bool castRay(float3& point, float3& direction);
 	};
 
@@ -55,7 +53,7 @@ private:
 	XMINT2 m_gridSize;
 	vector<vector<SubGrid>> m_subMeshes;
 
-	//grid points !! USED FOR COLLISION
+	// grid points !! USED FOR COLLISION
 	XMINT2 m_gridPointSize;
 	vector<vector<Vertex>> m_gridPoints;
 
@@ -68,10 +66,10 @@ private:
 
 	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;
 
-	//buffers
+	// buffers
 	void createBuffers();
 
-	//model matrix
+	// model matrix
 	float4x4 getModelMatrix();
 	void bindModelMatrix();
 
@@ -89,17 +87,19 @@ private:
 	std::wstring s2ws(const std::string& s);
 	string LPWSTR_to_STRING(LPWSTR str);
 
-	//resource
+	// resource
 	bool createResourceBuffer(string path, ID3D11ShaderResourceView** buffer);
 
-	void tileRayIntersectionTest(XMINT2 gridIndex, float3 point, float3 direction, float& minL, float3& normal);
-	float clamp(float val, float min, float max) { 
-		return (val<min?min:val>max?max:val);
+	void tileRayIntersectionTest(
+		XMINT2 gridIndex, float3 point, float3 direction, float& minL, float3& normal);
+	float clamp(float val, float min, float max) {
+		return (val < min ? min : val > max ? max : val);
 	}
 
 public:
 	static float obbTest(float3 rayOrigin, float3 rayDir, float3 boxPos, float3 boxScale);
-	static float triangleTest(float3 rayOrigin, float3 rayDir, float3 tri0, float3 tri1, float3 tri2);
+	static float triangleTest(
+		float3 rayOrigin, float3 rayDir, float3 tri0, float3 tri1, float3 tri2);
 
 	void initilize(string filename, XMINT2 subsize, XMINT2 splits = XMINT2(1, 1));
 

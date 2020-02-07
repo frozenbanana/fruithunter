@@ -125,7 +125,7 @@ float3 Terrain::calcNormalFromHeightmap(XMINT2 index) {
 	bool minY = (index.y <= 0);
 	bool maxY = (index.y >= m_heightmapSize.y - 1);
 
-	float2 pos(1.0f / m_heightmapSize.x, 1.0f / (float)m_heightmapSize.y);
+	float2 pos(10.f / m_heightmapSize.x, 10.f / (float)m_heightmapSize.y);
 	float3 p = float3(0, (float)m_heightmap[index.x][index.y], 0);
 	float3 pTop = float3(0, minY ? 0 : (float)m_heightmap[index.x][index.y - 1], -pos.y);
 	float3 pRight = float3(pos.x, maxX ? 0 : (float)m_heightmap[index.x + 1][index.y], 0);
@@ -192,9 +192,9 @@ void Terrain::createGridPointsFromHeightmap() {
 		for (int xx = 1; xx < m_gridPointSize.x - 1; xx++) {
 			for (int yy = 1; yy < m_gridPointSize.y - 1; yy++) {
 				float3 current = mapCopy[xx][yy].position;
-				float3 average = (mapCopy[xx][yy].position + mapCopy[xx + 1.][yy].position +
-									 mapCopy[xx][yy + 1.].position + mapCopy[xx - 1.][yy].position +
-									 mapCopy[xx][yy - 1.].position) /
+				float3 average = (mapCopy[xx][yy].position + mapCopy[xx + 1][yy].position +
+									 mapCopy[xx][yy + 1].position + mapCopy[xx - 1][yy].position +
+									 mapCopy[xx][yy - 1].position) /
 								 5.0f;
 				m_gridPoints[xx][yy].position = average;
 			}
@@ -213,13 +213,13 @@ void Terrain::createGridPointsFromHeightmap() {
 			float3 normal2 = (points[1][1] - points[1][0]).Cross(points[1][2] - points[1][0]);
 			normal2.Normalize();
 
-			m_gridPoints[xx + 1.][yy + 1.].normal = normal1;
-			m_gridPoints[xx + 0.][yy + 0.].normal = normal1;
-			m_gridPoints[xx + 0.][yy + 1.].normal = normal1;
+			m_gridPoints[xx + 1][yy + 1].normal = normal1;
+			m_gridPoints[xx + 0][yy + 0].normal = normal1;
+			m_gridPoints[xx + 0][yy + 1].normal = normal1;
 
-			m_gridPoints[xx + 0.][yy + 0.].normal = normal2;
-			m_gridPoints[xx + 0.][yy + 0.].normal = normal2;
-			m_gridPoints[xx + 1.][yy + 0.].normal = normal2;
+			m_gridPoints[xx + 0][yy + 0].normal = normal2;
+			m_gridPoints[xx + 0][yy + 0].normal = normal2;
+			m_gridPoints[xx + 1][yy + 0].normal = normal2;
 		}
 	}
 	// normalize normals
@@ -270,15 +270,15 @@ void Terrain::fillSubMeshes(bool flatShaded) {
 				// flatshade
 				if (flatShaded) {
 					// fix normals to flat shading
-					for (int i = 0; i < vertices->size(); i += 3) {
-						float3 p1 = (*vertices)[i + 0.].position;
-						float3 p2 = (*vertices)[i + 1.].position;
-						float3 p3 = (*vertices)[i + 2.].position;
+					for (size_t i = 0; i < vertices->size(); i += 3) {
+						float3 p1 = (*vertices)[i + 0].position;
+						float3 p2 = (*vertices)[i + 1].position;
+						float3 p3 = (*vertices)[i + 2].position;
 						float3 normal = (p2 - p1).Cross(p3 - p1);
 						normal.Normalize();
-						(*vertices)[i + 0.].normal = normal;
-						(*vertices)[i + 1.].normal = normal;
-						(*vertices)[i + 2.].normal = normal;
+						(*vertices)[i + 0].normal = normal;
+						(*vertices)[i + 1].normal = normal;
+						(*vertices)[i + 2].normal = normal;
 					}
 				}
 				// create buffers
@@ -337,7 +337,7 @@ void Terrain::tileRayIntersectionTest(
 	};
 
 	int ix = gridIndex.x, iy = gridIndex.y;
-	//create triangles
+	// create triangles
 	vector<float3> triangles;
 	triangles.resize(6);
 	for (int i = 0; i < 6; i++) {
@@ -402,7 +402,7 @@ float Terrain::triangleTest(
 	float proj = toTri.Dot(normal);
 	if (proj < 0)
 		return -1;
-	// mat3 m = mat3(-rayDir, tri.vtx1.xyz - tri.vtx0.xyz, tri.vtx2.xyz - tri.vtx0.xyz);
+	// mat3 m = mat3(-rayDir, tri.vtx1xyz - tri.vtx0xyz, tri.vtx2.xyz - tri.vtx0xyz);
 	float4x4 m(-rayDir, tri1 - tri0, tri2 - tri0);
 	float3 op0 = rayOrigin - tri0;
 	float3 tuv = XMVector3Transform(op0, m.Invert());
@@ -447,16 +447,16 @@ float Terrain::getHeightFromPosition(float x, float z) {
 	float X = position.x;
 	float Y = position.z;
 
-	if (X >= 0 && X < 1 && Y >= 0 && Y < 1) {
+	if (X >= 0. && X < 1. && Y >= 0 && Y < 1.) {
 		float fx = X * (m_gridPointSize.x - 1);
 		float fy = Y * (m_gridPointSize.y - 1);
-		int ix = fx, iy = fy;			  // floor
+		int ix = (int)fx, iy = (int)fy;	  // floor
 		float rx = fx - ix, ry = fy - iy; // rest
 
-		float3 p1 = m_gridPoints[ix + 0.][iy + 0.].position;
-		float3 p2 = m_gridPoints[ix + 1.][iy + 0.].position;
-		float3 p3 = m_gridPoints[ix + 0.][iy + 1.].position;
-		float3 p4 = m_gridPoints[ix + 1.][iy + 1.].position;
+		float3 p1 = m_gridPoints[ix + 0][iy + 0].position;
+		float3 p2 = m_gridPoints[ix + 1][iy + 0].position;
+		float3 p3 = m_gridPoints[ix + 0][iy + 1].position;
+		float3 p4 = m_gridPoints[ix + 1][iy + 1].position;
 
 		float height;
 		if (rx < ry) {
@@ -477,7 +477,7 @@ float Terrain::getHeightFromPosition(float x, float z) {
 		float3 pos(0, height, 0);
 		return float3::Transform(pos, mTerrainWorld).y;
 	}
-	return 0;//outside terrain
+	return 0; // outside terrain
 }
 
 float3 Terrain::getNormalFromPosition(float x, float z) {
@@ -491,13 +491,13 @@ float3 Terrain::getNormalFromPosition(float x, float z) {
 	if (X >= 0 && X < 1 && Y >= 0 && Y < 1) {
 		float fx = X * (m_gridPointSize.x - 1);
 		float fy = Y * (m_gridPointSize.y - 1);
-		int ix = fx, iy = fy;			  // floor
+		int ix = (int)fx, iy = (int)fy;	  // floor
 		float rx = fx - ix, ry = fy - iy; // rest
 
-		float3 p1 = m_gridPoints[ix + 0.][iy + 0.].position;
-		float3 p2 = m_gridPoints[ix + 1.][iy + 0.].position;
-		float3 p3 = m_gridPoints[ix + 0.][iy + 1.].position;
-		float3 p4 = m_gridPoints[ix + 1.][iy + 1.].position;
+		float3 p1 = m_gridPoints[ix + 0][iy + 0].position;
+		float3 p2 = m_gridPoints[ix + 1][iy + 0].position;
+		float3 p3 = m_gridPoints[ix + 0][iy + 1].position;
+		float3 p4 = m_gridPoints[ix + 1][iy + 1].position;
 
 		float3 normal;
 		if (rx < ry) {
@@ -512,7 +512,7 @@ float3 Terrain::getNormalFromPosition(float x, float z) {
 		cn.Normalize();
 		return cn;
 	}
-	return float3(0, 0, 0);//outside terrain
+	return float3(0, 0, 0); // outside terrain
 }
 
 bool Terrain::castRay(float3& point, float3& direction) {
@@ -528,28 +528,28 @@ bool Terrain::castRay(float3& point, float3& direction) {
 	if (obb_l > 0) {
 		// values in grid coordinates [0,m_gridPointSize.x-1]
 		float2 tilt(n.x * (m_gridPointSize.x - 1), n.z * (m_gridPointSize.y - 1));
-		float2 start(clamp(startPoint.x * (m_gridPointSize.x - 1), 0, m_gridPointSize.x - 2),
-			clamp(startPoint.z * (m_gridPointSize.y - 1), 0, m_gridPointSize.y - 2));
-		XMINT2 iStart(start.x, start.y);
-		float2 end(clamp(endPoint.x * (m_gridPointSize.x - 1), 0, m_gridPointSize.x - 2),
-			clamp(endPoint.z * (m_gridPointSize.y - 1), 0, m_gridPointSize.y - 2));
-		XMINT2 iEnd(end.x, end.y);
+		float2 start(clamp(startPoint.x * (m_gridPointSize.x - 1), 0, (float)m_gridPointSize.x - 2),
+			clamp((float)startPoint.z * (m_gridPointSize.y - 1), 0, (float)m_gridPointSize.y - 2));
+		XMINT2 iStart((int)start.x, (int)start.y);
+		float2 end(clamp(endPoint.x * (m_gridPointSize.x - 1), 0, (float)m_gridPointSize.x - 2),
+			clamp(endPoint.z * (m_gridPointSize.y - 1), 0, (float)m_gridPointSize.y - 2));
+		XMINT2 iEnd((int)end.x, (int)end.y);
 		// find intersection tiles
 		vector<float> tsX, tsY;
 		tsX.reserve(abs(iEnd.x - iStart.x));
 		tsY.reserve(abs(iEnd.y - iStart.y));
-		for (size_t i = 0; i < abs(iEnd.x - iStart.x); i++) {
+		for (int i = 0; i < abs(iEnd.x - iStart.x); i++) {
 			float t = ((1 + iStart.x + (iStart.x > iEnd.x ? -1 : 1) * i) - start.x) / tilt.x;
 			tsX.push_back(t);
 		}
-		for (size_t i = 0; i < abs(iEnd.y - iStart.y); i++) {
+		for (int i = 0; i < abs(iEnd.y - iStart.y); i++) {
 			float t = ((1 + iStart.y + (iStart.y > iEnd.y ? -1 : 1) * i) - start.y) / tilt.y;
 			tsY.push_back(t);
 		}
 		vector<float> ts; // sorted intersection time array
 		ts.reserve(abs(iEnd.x - iStart.x) + abs(iEnd.y - iStart.y) + 1); //+1 for start point
 		// sort largest first
-		//ts.push_back((end.x - start.x) / tilt.x);
+		// ts.push_back((end.x - start.x) / tilt.x);
 		while (tsX.size() > 0 || tsY.size() > 0) {
 			if (tsX.size() > 0 && tsY.size() > 0) {
 				if (tsX.back() < tsY.back()) {
@@ -575,13 +575,15 @@ bool Terrain::castRay(float3& point, float3& direction) {
 		float3 normal;
 		float minL = -1;
 		for (int i = ts.size() - 1; i >= 0; i--) {
-			//float sampledT = (ts[i]+ts[i+1]) / 2.f;
+			// float sampledT = (ts[i]+ts[i+1]) / 2.f;
 			float sampledT = ts[i];
-			int ix = clamp(start.x + tilt.x * sampledT, 0, m_gridPointSize.x - 2);
-			int iy = clamp(start.y + tilt.y * sampledT, 0, m_gridPointSize.y - 2);
+			int ix =
+				(int)clamp((float)start.x + tilt.x * sampledT, 0, (float)m_gridPointSize.x - 2);
+			int iy =
+				(int)clamp((float)start.y + tilt.y * sampledT, 0, (float)m_gridPointSize.y - 2);
 			tileRayIntersectionTest(XMINT2(ix, iy), startPoint, n, minL, normal);
 			if (minL != -1)
-				break;//early break
+				break; // early break
 		}
 		// convert back to world space
 		if (minL != -1) {
@@ -671,7 +673,7 @@ void Terrain::SubGrid::bind() {
 }
 
 bool Terrain::SubGrid::castRay(float3& point, float3& direction) {
-	if (Terrain::obbTest(point, direction, float3(1, 1, 1) * 0.5, float3(1, 1, 1) * 0.5) >= 0) {
+	if (Terrain::obbTest(point, direction, float3(1, 1, 1) * 05, float3(1, 1, 1) * 05) >= 0) {
 		float3 normal;
 		float minL = -1;
 		for (size_t i = 0; i < m_vertices.size(); i += 3) {
