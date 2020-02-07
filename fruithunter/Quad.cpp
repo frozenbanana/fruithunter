@@ -1,5 +1,7 @@
 #include "Quad.h"
 #include "ErrorLogger.h"
+#include <WICTextureLoader.h>
+#include "Renderer.h"
 
 struct Vertex {
 	float x, y;

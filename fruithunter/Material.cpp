@@ -1,4 +1,7 @@
 #include "Material.h"
+#include "ErrorLogger.h"
+#include "Renderer.h"
+#include <WICTextureLoader.h>
 
 Microsoft::WRL::ComPtr<ID3D11Buffer> Material::m_materialBuffer;
 

@@ -1,6 +1,5 @@
 #pragma once
 #include "Mesh.h"
-#include <stdlib.h>
 #define ANIMATION_BUFFER_SLOT 3
 #define NR_OF_MESHES_TO_SEND 2 // for now 2. May change later if we want to
 // interpolate between more meshes at the same time

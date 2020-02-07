@@ -140,6 +140,9 @@
     <ClInclude Include="Terrain.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="GlobalNamespaces.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl" />

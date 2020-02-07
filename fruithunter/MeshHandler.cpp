@@ -1,4 +1,5 @@
 #include "MeshHandler.h"
+#include "ErrorLogger.h"
 
 Vertex MeshHandler::createVertexFromRef(const MeshHandler::VertexRef& ref) const {
 	Vertex v;

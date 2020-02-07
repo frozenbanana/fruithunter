@@ -2,7 +2,6 @@
 #include <Windows.h>
 #include <iostream>
 #include <memory>
-#include <Windows.h>
 
 class ErrorLogger {
 public:

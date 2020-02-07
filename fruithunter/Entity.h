@@ -1,4 +1,5 @@
 #pragma once
+#include "GlobalNamespaces.h"
 #include "Mesh.h"
 #include "Animated.h"
 #define MODEL_MATRIX_BUFFER_SLOT 0

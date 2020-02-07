@@ -1,12 +1,6 @@
 #pragma once
-#include "Renderer.h"
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <WICTextureLoader.h>
-#include <wrl/client.h>
+#include "GlobalNamespaces.h"
 #include "ShaderSet.h"
-using namespace std;
 
 class Quad {
 public:

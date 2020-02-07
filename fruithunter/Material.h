@@ -1,5 +1,5 @@
 #pragma once
-#include "Renderer.h"
+#include "GlobalNamespaces.h"
 
 struct VertexMaterialBuffer {
 	float3 ambient;

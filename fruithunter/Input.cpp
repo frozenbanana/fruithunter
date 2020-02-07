@@ -1,4 +1,7 @@
 #include "Input.h"
+#include "ErrorLogger.h"
+#include "Renderer.h"
+
 
 Input Input::m_this;
 

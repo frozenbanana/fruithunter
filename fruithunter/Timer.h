@@ -1,13 +1,12 @@
 #pragma once
-#include <d3d11.h>
-#include <iostream>
+#include "GlobalNamespaces.h"
 #include <time.h>
 class Timer {
 public:
 	Timer();
 	void update();
 	float getTimePassed();
-	std::string getTimeToString();
+	string getTimeToString();
 	float getDt();
 
 private:

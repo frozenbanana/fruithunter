@@ -1,5 +1,7 @@
 #include "Terrain.h"
-
+#include "Renderer.h"
+#include "ErrorLogger.h"
+#include <WICTextureLoader.h>
 ShaderSet Terrain::m_shader;
 Microsoft::WRL::ComPtr<ID3D11Buffer> Terrain::m_matrixBuffer;
 
@@ -574,7 +576,7 @@ bool Terrain::castRay(float3& point, float3& direction) {
 		// check all intersected tiles
 		float3 normal;
 		float minL = -1;
-		for (int i = ts.size() - 1; i >= 0; i--) {
+		for (int i = (int)ts.size() - 1; i >= 0; i--) {
 			// float sampledT = (ts[i]+ts[i+1]) / 2.f;
 			float sampledT = ts[i];
 			int ix =
