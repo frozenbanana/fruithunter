@@ -1,4 +1,4 @@
-#include "StateHandler.hpp"
+#include "StateHandler.h"
 
 StateHandler StateHandler::m_this;
 

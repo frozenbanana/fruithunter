@@ -1,5 +1,5 @@
-#include "Apple.hpp"
-#include "Input.hpp"
+#include "Apple.h"
+#include "Input.h"
 void Apple::updateAnimated(float dt) {
 	int frameOrder[] = { 0, 1, 0, 2, 0, 1 }; // Order of using keyframes
 	float3 posOrder[6] = {

@@ -1,4 +1,4 @@
-#include "Material.hpp"
+#include "Material.h"
 
 Microsoft::WRL::ComPtr<ID3D11Buffer> Material::m_materialBuffer;
 

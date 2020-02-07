@@ -1,13 +1,13 @@
-#include "ErrorLogger.hpp"
-#include "Quad.hpp"
-#include "Renderer.hpp"
-#include "Input.hpp"
+#include "ErrorLogger.h"
+#include "Quad.h"
+#include "Renderer.h"
+#include "Input.h"
 #include <Windows.h>
 #include <stdio.h>
-#include "StateHandler.hpp"
-#include "PlayState.hpp"
-#include "IntroState.hpp"
-#include "Camera.hpp"
+#include "StateHandler.h"
+#include "PlayState.h"
+#include "IntroState.h"
+#include "Camera.h"
 
 int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
 	_In_ int cmdCount) {

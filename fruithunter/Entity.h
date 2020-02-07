@@ -1,6 +1,6 @@
 #pragma once
-#include "Mesh.hpp"
-#include "Animated.hpp"
+#include "Mesh.h"
+#include "Animated.h"
 #define MODEL_MATRIX_BUFFER_SLOT 0
 
 class Entity {

@@ -1,4 +1,4 @@
-#include "Input.hpp"
+#include "Input.h"
 
 Input Input::m_this;
 

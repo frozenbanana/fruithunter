@@ -1,5 +1,5 @@
-#include "TextRenderer.hpp"
-#include "Renderer.hpp"
+#include "TextRenderer.h"
+#include "Renderer.h"
 #include <SimpleMath.h>
 
 using Vector2 = DirectX::SimpleMath::Vector2;

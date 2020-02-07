@@ -168,7 +168,6 @@
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshHandler.cpp" />
-    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="Quad.cpp" />
@@ -181,26 +180,27 @@
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Animated.hpp" />
-    <ClInclude Include="Apple.hpp" />
-    <ClInclude Include="AudioHandler.hpp" />
-    <ClInclude Include="Entity.hpp" />
-    <ClInclude Include="Camera.hpp" />
-    <ClInclude Include="ErrorLogger.hpp" />
-    <ClInclude Include="Input.hpp" />
-    <ClInclude Include="IntroState.hpp" />
-    <ClInclude Include="Material.hpp" />
-    <ClInclude Include="Mesh.hpp" />
-    <ClInclude Include="MeshHandler.hpp" />
-    <ClInclude Include="Player.hpp" />
-    <ClInclude Include="PlayState.hpp" />
-    <ClInclude Include="Quad.hpp" />
-    <ClInclude Include="Renderer.hpp" />
-    <ClInclude Include="ShaderSet.hpp" />
-    <ClInclude Include="State.hpp" />
-    <ClInclude Include="StateHandler.hpp" />
-    <ClInclude Include="TextRenderer.hpp" />
-    <ClInclude Include="Timer.hpp" />
+    <ClInclude Include="Animated.h" />
+    <ClInclude Include="Apple.h" />
+    <ClInclude Include="AudioHandler.h" />
+    <ClInclude Include="Entity.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="ErrorLogger.h" />
+    <ClInclude Include="Input.h" />
+    <ClInclude Include="IntroState.h" />
+    <ClInclude Include="Material.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="MeshHandler.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="PlayState.h" />
+    <ClInclude Include="Quad.h" />
+    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="ShaderSet.h" />
+    <ClInclude Include="State.h" />
+    <ClInclude Include="StateHandler.h" />
+    <ClInclude Include="Terrain.h" />
+    <ClInclude Include="TextRenderer.h" />
+    <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">

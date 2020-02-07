@@ -1,5 +1,5 @@
 #pragma once
-#include "Entity.hpp"
+#include "Entity.h"
 class Apple : public Entity {
 private:
 	float m_frameTime;

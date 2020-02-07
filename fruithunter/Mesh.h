@@ -1,6 +1,6 @@
 #pragma once
-#include "MeshHandler.hpp"
-#include "ShaderSet.hpp"
+#include "MeshHandler.h"
+#include "ShaderSet.h"
 
 #define COLOR_BUFFER_SLOT 2
 #define MATERIAL_BUFFER_SLOT 2

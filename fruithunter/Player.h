@@ -1,6 +1,6 @@
 #pragma once
-#include "Input.hpp"
-#include "Camera.hpp"
+#include "Input.h"
+#include "Camera.h"
 
 using namespace DirectX;
 using namespace SimpleMath;

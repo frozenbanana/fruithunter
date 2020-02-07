@@ -1,4 +1,4 @@
-#include "Renderer.hpp"
+#include "Renderer.h"
 
 Renderer Renderer::m_this(STANDARD_WIDTH, STANDARD_HEIGHT);
 

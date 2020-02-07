@@ -1,5 +1,5 @@
-#include "Timer.hpp"
-#include "ErrorLogger.hpp"
+#include "Timer.h"
+#include "ErrorLogger.h"
 #include <string>
 
 Timer::Timer() {

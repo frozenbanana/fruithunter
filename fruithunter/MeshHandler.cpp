@@ -1,4 +1,4 @@
-#include "MeshHandler.hpp"
+#include "MeshHandler.h"
 
 Vertex MeshHandler::createVertexFromRef(const MeshHandler::VertexRef& ref) const {
 	Vertex v;

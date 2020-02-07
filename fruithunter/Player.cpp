@@ -1,5 +1,5 @@
-#include "Player.hpp"
-#include "Renderer.hpp"
+#include "Player.h"
+#include "Renderer.h"
 
 Player::Player() {}
 

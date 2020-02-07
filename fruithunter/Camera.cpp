@@ -1,4 +1,4 @@
-#include "Camera.hpp"
+#include "Camera.h"
 #include "DirectXMath.h"
 
 using namespace DirectX::SimpleMath;

@@ -1,5 +1,5 @@
-#include "State.hpp"
-#include "StateHandler.hpp"
+#include "State.h"
+#include "StateHandler.h"
 
 void State::changeState(int state) { StateHandler::getInstance()->changeState((StateHandler::States)state); }
 

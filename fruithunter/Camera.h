@@ -2,8 +2,8 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 #include "SimpleMath.h"
-#include "ErrorLogger.hpp"
-#include "Renderer.hpp"
+#include "ErrorLogger.h"
+#include "Renderer.h"
 #define MATRIX_SLOT 1
 
 class Camera {

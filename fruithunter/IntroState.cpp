@@ -1,5 +1,5 @@
-#include "IntroState.hpp"
-#include "ErrorLogger.hpp"
+#include "IntroState.h"
+#include "ErrorLogger.h"
 #include <SimpleMath.h>
 #include <string>
 

@@ -1,8 +1,8 @@
 #pragma once
-#include "Renderer.hpp"
-#include "ErrorLogger.hpp"
-#include "ShaderSet.hpp"
-#include "MeshHandler.hpp"
+#include "Renderer.h"
+#include "ErrorLogger.h"
+#include "ShaderSet.h"
+#include "MeshHandler.h"
 
 #define MATRIX_BUFFER_SLOT 0
 

@@ -1,4 +1,4 @@
-#include "ErrorLogger.hpp"
+#include "ErrorLogger.h"
 #include <comdef.h>
 #include <codecvt>
 

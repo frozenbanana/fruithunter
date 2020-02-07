@@ -1,6 +1,6 @@
 #pragma once
-#include "Renderer.hpp"
-#include "ErrorLogger.hpp"
+#include "Renderer.h"
+#include "ErrorLogger.h"
 
 class ShaderSet {
 protected:

@@ -1,4 +1,4 @@
-#include "Animated.hpp"
+#include "Animated.h"
 
 void Animated::bindMeshes() {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();

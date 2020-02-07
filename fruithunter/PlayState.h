@@ -1,13 +1,13 @@
 #pragma once
-#include "State.hpp"
-#include "Quad.hpp"
-#include "Player.hpp"
-#include "Timer.hpp"
-#include "TextRenderer.hpp"
-#include "AudioHandler.hpp"
-#include "Entity.hpp"
-#include "Terrain.hpp"
-#include "Apple.hpp"
+#include "State.h"
+#include "Quad.h"
+#include "Player.h"
+#include "Timer.h"
+#include "TextRenderer.h"
+#include "AudioHandler.h"
+#include "Entity.h"
+#include "Terrain.h"
+#include "Apple.h"
 
 
 class PlayState : public State {

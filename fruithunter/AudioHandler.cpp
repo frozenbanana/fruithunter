@@ -1,5 +1,5 @@
-#include "AudioHandler.hpp"
-#include "ErrorLogger.hpp"
+#include "AudioHandler.h"
+#include "ErrorLogger.h"
 
 
 AudioHandler AudioHandler::m_this;

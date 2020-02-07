@@ -3,7 +3,7 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <WRL/client.h>
-#include "ErrorLogger.hpp"
+#include "ErrorLogger.h"
 #include <Keyboard.h>
 #include <Mouse.h>
 
@@ -20,7 +20,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include "ErrorLogger.hpp"
+#include "ErrorLogger.h"
 
 #include <WICTextureLoader.h>
 #include <SimpleMath.h>

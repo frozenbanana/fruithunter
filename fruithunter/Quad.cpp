@@ -1,5 +1,5 @@
-#include "Quad.hpp"
-#include "ErrorLogger.hpp"
+#include "Quad.h"
+#include "ErrorLogger.h"
 
 struct Vertex {
 	float x, y;
@@ -124,7 +124,7 @@ void Quad::createShaders() {
 	m_shader.createShaders(L"VertexShader.hlsl", nullptr, L"PixelShader.hlsl", layout, 3);
 }
 
-//void Quad::createRenderStates() {
+// void Quad::createRenderStates() {
 //	auto device = Renderer::getDevice();
 //	// Rasterizer state
 //	auto rasterizerDesc = CD3D11_RASTERIZER_DESC(

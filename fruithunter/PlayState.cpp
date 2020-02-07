@@ -1,7 +1,7 @@
-#include "PlayState.hpp"
-#include "ErrorLogger.hpp"
-#include "Renderer.hpp"
-#include "Quad.hpp"
+#include "PlayState.h"
+#include "ErrorLogger.h"
+#include "Renderer.h"
+#include "Quad.h"
 #include <iostream>
 #include <string>
 

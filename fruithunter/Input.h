@@ -3,8 +3,8 @@
 #include <Keyboard.h>
 #include <Mouse.h>
 #include <memory>
-#include "Renderer.hpp"
-#include "ErrorLogger.hpp"
+#include "Renderer.h"
+#include "ErrorLogger.h"
 
 class Input {
 public:

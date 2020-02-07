@@ -1,4 +1,4 @@
-#include "Terrain.hpp"
+#include "Terrain.h"
 
 ShaderSet Terrain::m_shader;
 Microsoft::WRL::ComPtr<ID3D11Buffer> Terrain::m_matrixBuffer;

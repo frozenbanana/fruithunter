@@ -1,9 +1,9 @@
 #pragma once
 #include <vector>
-#include "State.hpp"
-#include "IntroState.hpp"
-#include "PlayState.hpp"
-#include "ErrorLogger.hpp"
+#include "State.h"
+#include "IntroState.h"
+#include "PlayState.h"
+#include "ErrorLogger.h"
 
 
 class StateHandler {

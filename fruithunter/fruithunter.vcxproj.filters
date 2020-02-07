@@ -45,9 +45,6 @@
     <ClCompile Include="MeshHandler.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Model.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -80,64 +77,67 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Timer.hpp">
+    <ClInclude Include="Animated.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Player.hpp">
+    <ClInclude Include="Apple.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="PlayState.hpp">
+    <ClInclude Include="AudioHandler.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Quad.hpp">
+    <ClInclude Include="Camera.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer.hpp">
+    <ClInclude Include="Entity.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="State.hpp">
+    <ClInclude Include="ErrorLogger.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="StateHandler.hpp">
+    <ClInclude Include="Input.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="TextRenderer.hpp">
+    <ClInclude Include="IntroState.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Animated.hpp">
+    <ClInclude Include="Material.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Apple.hpp">
+    <ClInclude Include="Mesh.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="AudioHandler.hpp">
+    <ClInclude Include="MeshHandler.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.hpp">
+    <ClInclude Include="Player.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="ErrorLogger.hpp">
+    <ClInclude Include="PlayState.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Input.hpp">
+    <ClInclude Include="Quad.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="IntroState.hpp">
+    <ClInclude Include="Renderer.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Material.hpp">
+    <ClInclude Include="ShaderSet.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.hpp">
+    <ClInclude Include="State.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="MeshHandler.hpp">
+    <ClInclude Include="StateHandler.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderSet.hpp">
+    <ClInclude Include="TextRenderer.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Entity.hpp">
+    <ClInclude Include="Timer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Terrain.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
