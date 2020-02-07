@@ -17,7 +17,7 @@ void PlayState::initialize() {
 
 	m_player.initialize();
 	// m_player.setPosition(float3(1, 1, 1));
-	m_player.setPosition(float3(2, 0, 0.2));
+	m_player.setPosition(float3(2.f, 0.f, 0.2f));
 
 	m_bow.loadAnimated("Bow", 3);
 	m_bow.setPosition(float3(2.f, 0.f, 0.f));
