@@ -1,4 +1,8 @@
 #include "Renderer.h"
+#include "ErrorLogger.h"
+#include <WICTextureLoader.h>
+#include <Keyboard.h>
+#include <Mouse.h>
 
 Renderer Renderer::m_this(STANDARD_WIDTH, STANDARD_HEIGHT);
 

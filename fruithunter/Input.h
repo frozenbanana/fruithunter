@@ -1,10 +1,8 @@
 #pragma once
-#include <wrl/client.h>
+#include "GlobalNamespaces.h"
 #include <Keyboard.h>
 #include <Mouse.h>
 #include <memory>
-#include "Renderer.h"
-#include "ErrorLogger.h"
 
 class Input {
 public:

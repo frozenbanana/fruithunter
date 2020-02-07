@@ -1,4 +1,7 @@
 #include "StateHandler.h"
+#include "IntroState.h"
+#include "PlayState.h"
+#include "ErrorLogger.h"
 
 StateHandler StateHandler::m_this;
 

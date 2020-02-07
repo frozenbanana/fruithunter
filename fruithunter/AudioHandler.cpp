@@ -1,7 +1,6 @@
 #include "AudioHandler.h"
 #include "ErrorLogger.h"
 
-
 AudioHandler AudioHandler::m_this;
 
 void AudioHandler::initalize() {

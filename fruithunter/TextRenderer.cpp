@@ -1,9 +1,6 @@
 #include "TextRenderer.h"
 #include "Renderer.h"
-#include <SimpleMath.h>
-
-using Vector2 = DirectX::SimpleMath::Vector2;
-using Vector4 = DirectX::SimpleMath::Vector4;
+#include "ErrorLogger.h"
 
 TextRenderer::TextRenderer() {
 	m_spriteFont = std::make_unique<DirectX::SpriteFont>(
@@ -38,7 +35,7 @@ void TextRenderer::setDepthStateToNull() {
 // counter clockwise culling, and linear filtering with clamp texture addressing.
 // You can change this by passing custom state objects to SpriteBatch::Begin
 // See: https://github.com/microsoft/DirectXTK/wiki/SpriteBatch
-void TextRenderer::draw(std::string text, Vector2 pos) {
+void TextRenderer::draw(std::string text, float2 pos) {
 	m_spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront);
 	std::wstring wText = std::wstring(text.begin(), text.end());
 
@@ -50,11 +47,11 @@ void TextRenderer::draw(std::string text, Vector2 pos) {
 	setDepthStateToNull();
 }
 
-void TextRenderer::draw(std::string text, Vector2 pos, Vector4 col) {
+void TextRenderer::draw(std::string text, float2 pos, float4 col) {
 	m_spriteBatch->Begin();
 	std::wstring wText = std::wstring(text.begin(), text.end());
 
-	Vector2 origin = Vector2(m_spriteFont->MeasureString(wText.c_str())) / 2.0f;
+	float2 origin = float2(m_spriteFont->MeasureString(wText.c_str())) / 2.0f;
 
 	DirectX::XMVECTORF32 _col = { col.x, col.y, col.z, col.w };
 

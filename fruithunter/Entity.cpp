@@ -1,4 +1,5 @@
 #include "Entity.h"
+#include "Errorlogger.h"
 
 void Entity::updateMatrix() {
 	m_matrixChanged = false;

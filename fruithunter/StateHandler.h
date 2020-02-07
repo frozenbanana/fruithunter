@@ -1,19 +1,14 @@
 #pragma once
 #include <vector>
+#include <memory>
 #include "State.h"
-#include "IntroState.h"
-#include "PlayState.h"
-#include "ErrorLogger.h"
 
 
 class StateHandler {
 public:
 	enum States { INTRO, PLAY, LENGTH };
-
 	void initialize();
 	void changeState(States state);
-	// void pushState(State* state);
-	// void popState();
 	void handleEvent();
 	void pause();
 	void update();
@@ -30,7 +25,7 @@ private:
 	State* getCurrent();
 
 	int m_current = INTRO;
-	std::vector<unique_ptr<State>> m_states;
+	std::vector<std::unique_ptr<State>> m_states;
 
 	StateHandler();
 };

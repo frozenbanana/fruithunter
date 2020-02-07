@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "Renderer.h"
+#include "Errorlogger.h"
 
 Player::Player() {}
 
@@ -44,7 +45,7 @@ void Player::update(float td, float height, float3 normal) {
 	m_camera.updateBuffer();
 
 
-	//ErrorLogger::log(std::to_string(m_velocityFactorFrontBack));
+	// ErrorLogger::log(std::to_string(m_velocityFactorFrontBack));
 }
 
 void Player::movePlayer() {
@@ -157,7 +158,6 @@ void Player::rotatePlayer() {
 	m_playerForward = XMVector3TransformCoord(DEFAULTFORWARD, cameraRotationMatrix);
 	m_playerUp = XMVector3TransformCoord(m_playerUp, rotateYTempMatrix);
 	m_playerRight = XMVector3TransformCoord(DEFAULTRIGHT, cameraRotationMatrix);
-
 }
 
 void Player::draw() { m_camera.bindMatrix(); }

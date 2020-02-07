@@ -1,13 +1,12 @@
 #include "Camera.h"
-#include "DirectXMath.h"
-
-using namespace DirectX::SimpleMath;
+#include "Renderer.h"
+#include "ErrorLogger.h"
 
 Camera::Camera() {
 	// Set initial values
-	m_camEye = Vector3(0.0, 0.0, -4.0);
-	m_camTarget = Vector3(0.0, 0.0, 0.0);
-	m_camUp = Vector3(0.0, 1.0, 0.0);
+	m_camEye = float3(0.0, 0.0, -4.0);
+	m_camTarget = float3(0.0, 0.0, 0.0);
+	m_camUp = float3(0.0, 1.0, 0.0);
 
 	m_projMatrix =
 		DirectX::XMMatrixPerspectiveFovLH(3.14159265f / 4.0f, 800.0f / 600.0f, 0.1f, 100.0f);
@@ -30,7 +29,7 @@ Camera::Camera() {
 	}
 }
 
-Camera::Camera(Vector3 camEye, Vector3 camTarget, Vector3 camUp) {
+Camera::Camera(float3 camEye, float3 camTarget, float3 camUp) {
 	// Set initial values
 	m_camEye = camEye;
 	m_camTarget = camTarget;
@@ -59,22 +58,22 @@ Camera::Camera(Vector3 camEye, Vector3 camTarget, Vector3 camUp) {
 
 Camera::~Camera() {}
 
-void Camera::setEye(Vector3 camEye) {
+void Camera::setEye(float3 camEye) {
 	m_camEye = camEye;
 	m_viewChanged = true;
 }
 
-void Camera::setTarget(Vector3 camTarget) {
+void Camera::setTarget(float3 camTarget) {
 	m_camTarget = camTarget;
 	m_viewChanged = true;
 }
 
-void Camera::setUp(Vector3 camUp) {
+void Camera::setUp(float3 camUp) {
 	m_camUp = camUp;
 	m_viewChanged = true;
 }
 
-void Camera::setView(Vector3 camEye, Vector3 camTarget, Vector3 camUp) {
+void Camera::setView(float3 camEye, float3 camTarget, float3 camUp) {
 	m_camEye = camEye;
 	m_camTarget = camTarget;
 	m_camUp = camUp;

@@ -1,4 +1,5 @@
 #include "ErrorLogger.h"
+#include <iostream>
 #include <comdef.h>
 #include <codecvt>
 

@@ -1,9 +1,7 @@
 #include "IntroState.h"
 #include "ErrorLogger.h"
-#include <SimpleMath.h>
-#include <string>
-
-using Vector2 = DirectX::SimpleMath::Vector2;
+#include "AudioHandler.h"
+#include "Input.h"
 
 IntroState::IntroState() { initialize(); }
 
@@ -16,7 +14,7 @@ void IntroState::initialize() {
 
 	m_entity.loadAnimated("Bow", 3);
 
-	m_camera.setView(Vector3(0.f, 0.f, -10.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f));
+	m_camera.setView(float3(0.f, 0.f, -10.f), float3(0.f, 0.f, 0.f), float3(0.f, 1.f, 0.f));
 }
 
 void IntroState::update() {
@@ -66,13 +64,13 @@ void IntroState::draw() {
 		m_apples[i].draw_animate();
 	}
 
-	Vector4 menuColor = Vector4(0.f, 1.0f, 0.f, 1.0f);
+	float4 menuColor = float4(0.f, 1.0f, 0.f, 1.0f);
 	m_entity.draw_animate();
-	m_textRenderer.draw("Main Menu", Vector2(400., 75.), Vector4(0.6f, .3f, 0.3f, 1.f));
-	m_textRenderer.draw("Play", Vector2(400., 200.), menuColor);
-	m_textRenderer.draw("See Highscore", Vector2(400., 275.), menuColor);
-	m_textRenderer.draw("Settings", Vector2(400., 350.), menuColor);
-	m_textRenderer.draw("Quit", Vector2(400., 425.), menuColor);
+	m_textRenderer.draw("Main Menu", float2(400., 75.), float4(0.6f, .3f, 0.3f, 1.f));
+	m_textRenderer.draw("Play", float2(400., 200.), menuColor);
+	m_textRenderer.draw("See Highscore", float2(400., 275.), menuColor);
+	m_textRenderer.draw("Settings", float2(400., 350.), menuColor);
+	m_textRenderer.draw("Quit", float2(400., 425.), menuColor);
 }
 
 void IntroState::play() {

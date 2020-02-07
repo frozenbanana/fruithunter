@@ -1,9 +1,6 @@
 #pragma once
-#include "Renderer.h"
-#include "ErrorLogger.h"
 #include "ShaderSet.h"
 #include "MeshHandler.h"
-
 #define MATRIX_BUFFER_SLOT 0
 
 class Terrain {

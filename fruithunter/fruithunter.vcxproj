@@ -186,6 +186,7 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ErrorLogger.h" />
+    <ClInclude Include="GlobalNamespaces.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="IntroState.h" />
     <ClInclude Include="Material.h" />
