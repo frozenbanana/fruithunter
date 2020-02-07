@@ -12,6 +12,12 @@ private:
 	private:
 		vector<Vertex> m_vertices;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
+	public:
+		static float triangleTest(
+			float3 rayOrigin, float3 rayDir, float3 tri0, float3 tri1, float3 tri2);
+
+		void initilize(
+			XMINT2 tileSize, vector<vector<float>>& map, vector<vector<float3>>& mapNormal);
 		void createBuffers();
 	public:
 		vector<Vertex>* getPtr();
@@ -105,6 +111,6 @@ public:
 
 	void draw();
 
-	Terrain(string filename = "", XMINT2 subsize = XMINT2(0, 0), XMINT2 splits = XMINT2(1,1));
+	Terrain(string filename = "", XMINT2 subsize = XMINT2(0, 0), XMINT2 splits = XMINT2(1, 1));
 	~Terrain();
 };

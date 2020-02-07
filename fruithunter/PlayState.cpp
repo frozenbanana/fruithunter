@@ -19,7 +19,8 @@ void PlayState::initialize() {
 	m_entity.setScale(0.1);
 
 	m_player.initialize();
-	m_player.setPosition(float3(1, 1, 1));
+	// m_player.setPosition(float3(1, 1, 1));
+	m_player.setPosition(float3(2, 0, 0.2));
 
 	m_bow.loadAnimated("Bow", 3);
 	m_bow.setPosition(float3(2.f, 0.f, 0.f));
@@ -32,9 +33,13 @@ void PlayState::update() {
 	m_player.update(0.017f, h + 0.5f, normal);
 	m_timer.update();
 	float dt = m_timer.getDt();
-	m_player.update(dt, h, normal);
-	m_apple.updateAnimated(dt);
 	m_bow.updateAnimated(dt);
+
+	m_apple.updateAnimated(dt);
+	float3 appleDestination =
+		float3(sin(m_timer.getTimePassed() * 0.6f), 0.f, cos(m_timer.getTimePassed() * 0.6f)) *
+		5.0f;
+	m_apple.setNextDestination(appleDestination);
 }
 
 void PlayState::handleEvent() { return; }
@@ -60,7 +65,7 @@ void PlayState::draw() {
 		// Text
 	float t = m_timer.getTimePassed();
 	Vector4 col = Vector4(.5f, abs(cos(t)), abs(sin(t)), 1.f);
-	m_textRenderer.draw("HERE IS THE GOAT", Vector2(400., 300.), col);
+	m_textRenderer.draw("Time: " + std::to_string(t), Vector2(400., 75.), col);
 
 	// Apple
 	m_apple.draw_animate();

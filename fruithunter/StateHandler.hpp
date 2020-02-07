@@ -5,6 +5,7 @@
 #include "PlayState.hpp"
 #include "ErrorLogger.hpp"
 
+
 class StateHandler {
 public:
 	enum States { INTRO, PLAY, LENGTH };

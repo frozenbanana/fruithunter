@@ -12,24 +12,29 @@ IntroState::~IntroState() {}
 void IntroState::initialize() {
 	m_name = "Intro State";
 
-	// m_entity.load("bow");
+	m_apples.resize(16);
+
 	m_entity.loadAnimated("Bow", 3);
 
 	m_camera.setView(Vector3(0.f, 0.f, -10.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f));
 }
 
 void IntroState::update() {
-	//AudioHandler::logStats();
+	// AudioHandler::logStats();
 	m_timer.update();
 	float dt = m_timer.getDt();
-	//float rotSpeed = 1.f;
-	//rot += 0.01f;
-	// m_entity.setPosition(float3(5 * sin(rot), 0, 0));
-	// m_entity.rotateY(3.14f * 1.f / 60.f);
-	// m_entity.setScale(sin(rot));
+
 	m_entity.updateAnimated(dt);
 	m_camera.updateBuffer();
-
+	for (size_t i = 0; i < 16; ++i) {
+		float dir = (float)(((int)i % 2) * 2.f) - 1.f;
+		float angle = dir * m_timer.getTimePassed() * 0.3f;
+		float offset = i * 6.28f / 16.f;
+		m_apples[i].updateAnimated(dt);
+		float3 appleDestination =
+			float3(sin(angle + offset), (i % 2) * 0.5f - 0.3f, cos(angle + offset)) * 10.0f;
+		m_apples[i].setNextDestination(appleDestination);
+	}
 	Input::getInstance()->setMouseModeAbsolute();
 }
 
@@ -52,17 +57,22 @@ void IntroState::draw() {
 	// ErrorLogger::log(m_name + " draw() called.");
 	float t = m_timer.getTimePassed();
 	float a = m_timer.getDt();
-	ErrorLogger::log(std::to_string(a));
-	Vector4 col = Vector4(abs(sin(t)), .5f, abs(cos(t)), 1.f);
-	//m_textRenderer.draw("LET ME SEE THE GOAT " + std::to_string(t), Vector2(400., 300.), col);
-
+	// ErrorLogger::log(std::to_string(a));
 
 	if (Input::getInstance()->keyDown(Keyboard::Space))
 		m_entity.draw_boundingBox();
 
-	// m_entity.draw();
+	for (size_t i = 0; i < 16; i++) {
+		m_apples[i].draw_animate();
+	}
+
+	Vector4 menuColor = Vector4(0.f, 1.0f, 0.f, 1.0f);
 	m_entity.draw_animate();
-	m_textRenderer.draw("LET ME SEE THE GOAT " + std::to_string(t), Vector2(400., 300.), col);
+	m_textRenderer.draw("Main Menu", Vector2(400., 75.), Vector4(0.6f, .3f, 0.3f, 1.f));
+	m_textRenderer.draw("Play", Vector2(400., 200.), menuColor);
+	m_textRenderer.draw("See Highscore", Vector2(400., 275.), menuColor);
+	m_textRenderer.draw("Settings", Vector2(400., 350.), menuColor);
+	m_textRenderer.draw("Quit", Vector2(400., 425.), menuColor);
 }
 
 void IntroState::play() {

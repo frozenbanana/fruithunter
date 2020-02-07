@@ -199,7 +199,6 @@
     <ClInclude Include="ShaderSet.hpp" />
     <ClInclude Include="State.hpp" />
     <ClInclude Include="StateHandler.hpp" />
-    <ClInclude Include="Terrain.h" />
     <ClInclude Include="TextRenderer.hpp" />
     <ClInclude Include="Timer.hpp" />
   </ItemGroup>

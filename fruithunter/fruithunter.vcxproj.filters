@@ -75,7 +75,9 @@
     <ClCompile Include="Timer.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="Terrain.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.hpp">
@@ -123,7 +125,6 @@
     <ClInclude Include="IntroState.hpp">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Terrain.h" />
     <ClInclude Include="Material.hpp">
       <Filter>Header</Filter>
     </ClInclude>
