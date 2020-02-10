@@ -7,8 +7,8 @@ Player::Player() {}
 Player::~Player() {}
 
 void Player::initialize() {
-	m_position = Vector3(0.0f, 0.0f, -4.0f);
-	m_velocity = Vector3(0.0f, 0.0f, 0.0f);
+	m_position = float3(0.0f, 0.0f, -4.0f);
+	m_velocity = float3(0.0f, 0.0f, 0.0f);
 	m_gravity = -9.82f;
 	m_playerForward = DEFAULTFORWARD;
 
@@ -16,8 +16,7 @@ void Player::initialize() {
 	m_velocityFactorFrontBack = 0.0f;
 	m_velocityFactorStrafe = 0.0f;
 
-	m_camera.setView(m_position, m_playerForward, Vector3(0.0, 1.0, 0.0));
-
+	m_camera.setView(m_position, m_playerForward, float3(0.0, 1.0, 0.0));
 
 	m_playerRight = DEFAULTFORWARD;
 	m_playerUp = DEFAULTUP;
@@ -38,12 +37,15 @@ void Player::update(float td, float height, float3 normal) {
 	else {
 		m_dashCooldown += td; // Cooldown for dashing
 	}
+
+
+	m_bow.update(td, m_position, m_playerForward);
+
 	m_camera.setUp(m_playerUp);
 	m_camera.setEye(m_position);
 	m_camera.setTarget(m_position + m_playerForward);
 
 	m_camera.updateBuffer();
-
 
 	// ErrorLogger::log(std::to_string(m_velocityFactorFrontBack));
 }
@@ -107,6 +109,12 @@ void Player::movePlayer() {
 	if (input->keyPressed(Keyboard::Keys::LeftShift)) {
 		dash();
 	}
+	if (input->mouseDown(Input::MouseButton::RIGHT)) {
+		m_bow.aim();
+	}
+	if (input->mousePressed(Input::MouseButton::LEFT)) {
+		m_bow.shoot(m_playerForward);
+	}
 
 	// STOPPED IT FROM MOVING
 	if (m_velocityFactorStrafe <= 0.1 && m_velocityFactorStrafe >= -0.1)
@@ -141,13 +149,13 @@ void Player::rotatePlayer() {
 	}
 
 	if (ip->keyDown(Keyboard::Keys::Right))
-		m_cameraYaw += 0.1f;
+		m_cameraYaw += 0.01f;
 	if (ip->keyDown(Keyboard::Keys::Left))
-		m_cameraYaw -= 0.10f;
+		m_cameraYaw -= 0.01f;
 	if (ip->keyDown(Keyboard::Keys::Up))
-		m_cameraPitch -= 0.1f;
+		m_cameraPitch -= 0.01f;
 	if (ip->keyDown(Keyboard::Keys::Down))
-		m_cameraPitch += 0.1f;
+		m_cameraPitch += 0.01f;
 
 	Matrix cameraRotationMatrix = XMMatrixRotationRollPitchYaw(m_cameraPitch, m_cameraYaw, 0.f);
 	Vector3 cameraTarget = XMVector3TransformCoord(m_playerForward, cameraRotationMatrix);
@@ -158,9 +166,14 @@ void Player::rotatePlayer() {
 	m_playerForward = XMVector3TransformCoord(DEFAULTFORWARD, cameraRotationMatrix);
 	m_playerUp = XMVector3TransformCoord(m_playerUp, rotateYTempMatrix);
 	m_playerRight = XMVector3TransformCoord(DEFAULTRIGHT, cameraRotationMatrix);
+
+	m_bow.rotate(m_cameraPitch, m_cameraYaw, m_playerRight);
 }
 
-void Player::draw() { m_camera.bindMatrix(); }
+void Player::draw() {
+	m_camera.bindMatrix();
+	m_bow.draw(m_playerRight);
+}
 
 float3 Player::getPosition() const { return m_position; }
 
@@ -169,7 +182,6 @@ float3 Player::getForward() const { return m_playerForward; }
 void Player::setPosition(float3 position) { m_position = position; }
 
 void Player::jump() {
-
 	if (onGround()) {
 		m_velocity.y =
 			3.0f; // If you are on the ground you may jump, giving yourself 3 m/s along the Y-axis.

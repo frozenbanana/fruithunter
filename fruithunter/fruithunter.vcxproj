@@ -163,6 +163,7 @@
     <ClCompile Include="Animated.cpp" />
     <ClCompile Include="Apple.cpp" />
     <ClCompile Include="AudioHandler.cpp" />
+    <ClCompile Include="Bow.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ErrorLogger.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="Animated.h" />
     <ClInclude Include="Apple.h" />
     <ClInclude Include="AudioHandler.h" />
+    <ClInclude Include="Bow.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ErrorLogger.h" />

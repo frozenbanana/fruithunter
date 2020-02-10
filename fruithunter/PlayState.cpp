@@ -15,25 +15,27 @@ void PlayState::initialize() {
 	m_terrain.initilize("heightmap1.png", XMINT2(50, 50), XMINT2(10, 10));
 	m_terrain.setScale(float3(1, 0.25, 1) * 25);
 
-	m_entity.load("sphere");
-	m_entity.setScale(0.1f);
+	// m_entity.load("sphere");
+	// m_entity.setScale(0.1f);
 
 	m_player.initialize();
 	// m_player.setPosition(float3(1, 1, 1));
 	m_player.setPosition(float3(2.f, 0.f, 0.2f));
 
-	m_bow.loadAnimated("Bow", 3);
-	m_bow.setPosition(float3(2.f, 0.f, 0.f));
+	// m_bow.loadAnimated("Bow", 3);
+	// m_bow.setPosition(float3(2.f, 0.f, 0.f));
 }
 
 void PlayState::update() {
 	float3 pos = m_player.getPosition();
 	float3 normal = m_terrain.getNormalFromPosition(pos.x, pos.z);
 	float h = m_terrain.getHeightFromPosition(pos.x, pos.z);
-	m_player.update(0.017f, h + 0.5f, normal);
+
 	m_timer.update();
 	float dt = m_timer.getDt();
-	m_bow.updateAnimated(dt);
+
+	m_player.update(dt, h + 0.5f, normal);
+	// m_bow.updateAnimated(dt);
 
 	m_apple.updateAnimated(dt);
 	float3 appleDestination =
@@ -51,9 +53,9 @@ void PlayState::pause() {
 
 void PlayState::draw() {
 	m_player.draw();
-
 	m_terrain.draw();
 
+	/*
 	float3 p = m_player.getPosition();
 	float3 d = m_player.getForward() * 10;
 	m_entity.setPosition(p + d);
@@ -61,6 +63,7 @@ void PlayState::draw() {
 	m_terrain.castRay(p, d);
 	m_entity.setPosition(p);
 	m_entity.draw();
+	*/
 
 	// Text
 	float t = m_timer.getTimePassed();
@@ -71,7 +74,7 @@ void PlayState::draw() {
 	m_apple.draw_animate();
 
 	// Bow
-	m_bow.draw_animate();
+	// m_bow.draw_animate();
 }
 
 void PlayState::play() {
