@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "ErrorLogger.h"
 #include <WICTextureLoader.h>
+#include "Input.h"
 ShaderSet Terrain::m_shader;
 Microsoft::WRL::ComPtr<ID3D11Buffer> Terrain::m_matrixBuffer;
 
@@ -331,7 +332,7 @@ bool Terrain::createResourceBuffer(string path, ID3D11ShaderResourceView** buffe
 }
 
 void Terrain::tileRayIntersectionTest(
-	XMINT2 gridIndex, float3 point, float3 direction, float& minL, float3& normal) {
+	XMINT2 gridIndex, float3 point, float3 direction, float& minL) {
 	XMINT2 order[6] = { // tri1
 		XMINT2(1, 1), XMINT2(0, 0), XMINT2(0, 1),
 		// tri2
@@ -349,12 +350,10 @@ void Terrain::tileRayIntersectionTest(
 	float t1 = triangleTest(point, direction, triangles[0], triangles[1], triangles[2]);
 	if ((t1 > 0.f) && (minL == -1 || t1 < minL)) {
 		minL = t1;
-		normal = (triangles[1] - triangles[0]).Cross(triangles[2] - triangles[0]);
 	}
 	float t2 = triangleTest(point, direction, triangles[3], triangles[4], triangles[5]);
 	if ((t2 > 0.f) && (minL == -1 || t2 < minL)) {
 		minL = t2;
-		normal = (triangles[4] - triangles[3]).Cross(triangles[5] - triangles[0]);
 	}
 }
 
@@ -516,20 +515,23 @@ float3 Terrain::getNormalFromPosition(float x, float z) {
 	}
 	return float3(0, 0, 0); // outside terrain
 }
-
-bool Terrain::castRay(float3& point, float3& direction) {
+/*
+ * Returns scale of direction until collision, point+direction*scale = collisionPoint. '-1' means miss!
+*/
+float Terrain::castRay(float3 point, float3 direction) {
 	// convert to local space
 	float4x4 mTerrainWorld = getModelMatrix();
 	float4x4 mTerrainInvWorld = mTerrainWorld.Invert();
 	float3 startPoint = float3::Transform(point, mTerrainInvWorld);
 	float3 endPoint = float3::Transform(point + direction, mTerrainInvWorld);
 	float3 n = endPoint - startPoint;
+	float2 n2 = float2(n.x,n.z);
 	float length = n.Length();
 	n.Normalize();
 	float obb_l = obbTest(startPoint, n, float3(1, 1, 1) * 0.5f, float3(1, 1, 1) * 0.5f);
 	if (obb_l > 0) {
 		// values in grid coordinates [0,m_gridPointSize.x-1]
-		float2 tilt(n.x * (m_gridPointSize.x - 1), n.z * (m_gridPointSize.y - 1));
+		float2 tilt(n2.x * (m_gridPointSize.x - 1), n2.y * (m_gridPointSize.y - 1));
 		float2 start(clamp(startPoint.x * (m_gridPointSize.x - 1), 0, (float)m_gridPointSize.x - 2),
 			clamp((float)startPoint.z * (m_gridPointSize.y - 1), 0, (float)m_gridPointSize.y - 2));
 		XMINT2 iStart((int)start.x, (int)start.y);
@@ -538,20 +540,22 @@ bool Terrain::castRay(float3& point, float3& direction) {
 		XMINT2 iEnd((int)end.x, (int)end.y);
 		// find intersection tiles
 		vector<float> tsX, tsY;
-		tsX.reserve(abs(iEnd.x - iStart.x));
-		tsY.reserve(abs(iEnd.y - iStart.y));
-		for (int i = 0; i < abs(iEnd.x - iStart.x); i++) {
-			float t = ((1 + iStart.x + (iStart.x > iEnd.x ? -1 : 1) * i) - start.x) / tilt.x;
+		int changeInX = abs(iEnd.x - iStart.x);
+		int changeInY = abs(iEnd.y - iStart.y);
+		tsX.reserve(changeInX);
+		tsY.reserve(changeInY);
+		for (int i = 0; i < changeInX; i++) {
+			float t = ((iStart.x + (iStart.x > iEnd.x ? -1*i : 1*i+1)) - start.x) / tilt.x;
 			tsX.push_back(t);
 		}
-		for (int i = 0; i < abs(iEnd.y - iStart.y); i++) {
-			float t = ((1 + iStart.y + (iStart.y > iEnd.y ? -1 : 1) * i) - start.y) / tilt.y;
+		for (int i = 0; i < changeInY; i++) {
+			float t = ((iStart.y + (iStart.y > iEnd.y ? -1*i : i*1+1)) - start.y) / tilt.y;
 			tsY.push_back(t);
 		}
 		vector<float> ts; // sorted intersection time array
-		ts.reserve(abs(iEnd.x - iStart.x) + abs(iEnd.y - iStart.y) + 1); //+1 for start point
+		ts.reserve(changeInX + changeInY + 2.f); //+2 for start and end point
 		// sort largest first
-		// ts.push_back((end.x - start.x) / tilt.x);
+		ts.push_back((end - start).Length()/tilt.Length());
 		while (tsX.size() > 0 || tsY.size() > 0) {
 			if (tsX.size() > 0 && tsY.size() > 0) {
 				if (tsX.back() < tsY.back()) {
@@ -574,34 +578,27 @@ bool Terrain::castRay(float3& point, float3& direction) {
 		}
 		ts.push_back(0);
 		// check all intersected tiles
-		float3 normal;
 		float minL = -1;
-		for (int i = (int)ts.size() - 1; i >= 0; i--) {
-			// float sampledT = (ts[i]+ts[i+1]) / 2.f;
-			float sampledT = ts[i];
+		for (int i = (int)ts.size() - 2; i >= 0; i--) {
+			float sampledT = (ts[i]+ts[i+1]) / 2.f;
 			int ix =
 				(int)clamp((float)start.x + tilt.x * sampledT, 0, (float)m_gridPointSize.x - 2);
 			int iy =
 				(int)clamp((float)start.y + tilt.y * sampledT, 0, (float)m_gridPointSize.y - 2);
-			tileRayIntersectionTest(XMINT2(ix, iy), startPoint, n, minL, normal);
+			tileRayIntersectionTest(XMINT2(ix, iy), startPoint, n, minL);
 			if (minL != -1)
 				break; // early break
 		}
 		// convert back to world space
 		if (minL != -1) {
 			float3 intersectPoint = startPoint + n * minL;
-			float3 intersectNormal = normal;
 			intersectPoint = float3::Transform(intersectPoint, mTerrainWorld);
-			intersectNormal =
-				float3::Transform(intersectNormal, mTerrainWorld.Invert().Transpose());
-			intersectNormal.Normalize();
 
-			point = intersectPoint;
-			direction = intersectNormal;
-			return true;
+			float l = (intersectPoint - point).Length() / direction.Length();
+			return l;
 		}
 	}
-	return false;
+	return -1;
 }
 
 void Terrain::draw() {
@@ -672,38 +669,6 @@ void Terrain::SubGrid::bind() {
 	UINT offset = 0;
 	deviceContext->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &strides, &offset);
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-}
-
-bool Terrain::SubGrid::castRay(float3& point, float3& direction) {
-	if (Terrain::obbTest(point, direction, float3(1, 1, 1) * 05, float3(1, 1, 1) * 05) >= 0) {
-		float3 normal;
-		float minL = -1;
-		for (size_t i = 0; i < m_vertices.size(); i += 3) {
-			float3 triangle0 = m_vertices[i + 0].position;
-			float3 triangle1 = m_vertices[i + 1].position;
-			float3 triangle2 = m_vertices[i + 2].position;
-			float l = triangleTest(point, direction, triangle0, triangle1, triangle2);
-			if (l >= 0 && (minL == -1 || l < minL)) {
-				minL = l;
-				normal = (triangle1 - triangle0).Cross(triangle2 - triangle0);
-			}
-		}
-		if (minL >= 0) {
-			normal.Normalize();
-			float3 p = point, d = direction;
-			direction = normal;
-			point = p + d * minL;
-			return true;
-		}
-		else {
-			// no intersection
-			return false;
-		}
-	}
-	else {
-		// miss
-		return false;
-	}
 }
 
 Terrain::SubGrid::SubGrid() {}
