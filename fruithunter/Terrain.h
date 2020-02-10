@@ -10,22 +10,15 @@ private:
 		vector<Vertex> m_vertices;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 
-	public:
-		void initilize(
-			XMINT2 tileSize, vector<vector<float>>& map, vector<vector<float3>>& mapNormal);
 		void createBuffers();
-
 	public:
-		vector<Vertex>* getPtr();
 		void initilize();
+		vector<Vertex>* getPtr();
 		void bind();
 		unsigned int getVerticeCount() const;
 
 		SubGrid();
 		~SubGrid();
-
-
-		bool castRay(float3& point, float3& direction);
 	};
 
 	const string m_heightmapPath = "TerrainHeightmap/";
@@ -88,7 +81,7 @@ private:
 	bool createResourceBuffer(string path, ID3D11ShaderResourceView** buffer);
 
 	void tileRayIntersectionTest(
-		XMINT2 gridIndex, float3 point, float3 direction, float& minL, float3& normal);
+		XMINT2 gridIndex, float3 point, float3 direction, float& minL);
 	float clamp(float val, float min, float max) {
 		return (val < min ? min : val > max ? max : val);
 	}
@@ -105,7 +98,7 @@ public:
 
 	float getHeightFromPosition(float x, float z);
 	float3 getNormalFromPosition(float x, float z);
-	bool castRay(float3& point, float3& direction);
+	float castRay(float3 point, float3 direction);
 
 	void draw();
 
