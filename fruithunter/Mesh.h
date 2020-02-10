@@ -30,7 +30,7 @@ private:
 	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_colorBuffer;
 
 	// FUNCTIONS
-	void bindMesh() const;
+	
 	bool findMinMaxValues();
 	// bounding box functions
 	void updateBoundingBoxBuffer();
@@ -43,6 +43,8 @@ private:
 	static float obbTest(float3 rayDir, float3 rayOrigin, float3 boxPos, float3 boxScale);
 
 public:
+	void bindMaterial(int index);
+	int getVertexCount() const;
 	const std::vector<Vertex>& getVertexPoints() const;
 	const Microsoft::WRL::ComPtr<ID3D11Buffer> getVertexBuffer() const;
 	std::string getName() const;
@@ -52,6 +54,7 @@ public:
 	void draw_BoundingBox();
 	void draw_forShadowMap();
 	void draw_withoutBinding();
+	void bindMesh() const;
 
 	float3 getBoundingBoxPos() const;
 	float3 getBoundingBoxSize() const;

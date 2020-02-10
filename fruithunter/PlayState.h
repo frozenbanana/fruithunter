@@ -8,6 +8,7 @@
 #include "Entity.h"
 #include "Terrain.h"
 #include "Apple.h"
+#include "SkyBox.h"
 
 
 class PlayState : public State {
@@ -30,4 +31,5 @@ private:
 	Terrain m_terrain;
 	Entity m_entity;
 	Entity m_bow;
+	SkyBox m_skyBox;
 };

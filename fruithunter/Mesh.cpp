@@ -187,6 +187,8 @@ void Mesh::createBuffers(bool instancing) {
 			ErrorLogger::logError(res, "Failed creating color buffer in Mesh class!\n");
 	}
 }
+void Mesh::bindMaterial(int index) { m_materials[index].bind(); }
+int Mesh::getVertexCount() const { return m_meshVertices.size(); }
 const std::vector<Vertex>& Mesh::getVertexPoints() const { return m_meshVertices; }
 const Microsoft::WRL::ComPtr<ID3D11Buffer> Mesh::getVertexBuffer() const { return m_vertexBuffer; }
 std::string Mesh::getName() const { return m_loadedMeshName; }
