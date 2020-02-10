@@ -54,8 +54,6 @@ void IntroState::draw() {
 	m_camera.bindMatrix();
 	// ErrorLogger::log(m_name + " draw() called.");
 	float t = m_timer.getTimePassed();
-	float a = m_timer.getDt();
-	// ErrorLogger::log(std::to_string(a));
 
 	if (Input::getInstance()->keyDown(Keyboard::Space))
 		m_entity.draw_boundingBox();
