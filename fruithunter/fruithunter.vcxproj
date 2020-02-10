@@ -162,6 +162,7 @@
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ErrorLogger.cpp" />
+    <ClCompile Include="Fruit.cpp" />
     <ClCompile Include="IntroState.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
@@ -186,6 +187,7 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ErrorLogger.h" />
+    <ClInclude Include="Fruit.h" />
     <ClInclude Include="GlobalNamespaces.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="IntroState.h" />
