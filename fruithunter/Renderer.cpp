@@ -172,8 +172,8 @@ void Renderer::createRenderTarget() {
 
 void Renderer::createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd) {
 	D3D11_TEXTURE2D_DESC DeStDesc;
-	DeStDesc.Width = 800;
-	DeStDesc.Height = 600;
+	DeStDesc.Width = STANDARD_WIDTH;
+	DeStDesc.Height = STANDARD_HEIGHT;
 	DeStDesc.ArraySize = 1;
 	DeStDesc.MipLevels = 1;
 	DeStDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R32_TYPELESS;
