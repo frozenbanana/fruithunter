@@ -53,7 +53,7 @@ void PlayState::pause() {
 void PlayState::draw() {
 	m_player.draw();
 
-	// m_terrain.draw();
+	m_terrain.draw();
 
 	float3 p = m_player.getPosition();
 	float3 d = m_player.getForward() * 10;

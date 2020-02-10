@@ -138,7 +138,10 @@ Entity::Entity(string filename, float3 position, float3 rotation, float3 scale) 
 	m_rotation = rotation;
 	m_scale = scale;
 	createBuffers();
-	pathfinding(m_position, m_position + float3(5.0f, 0.0, 2.0f));
+	ErrorLogger::log("Runnning Pathfinding");
+	pathfinding(m_position, float3(m_position.x + 5.0f, 0.0, m_position.z + 2.0f));
+	// ErrorLogger::log(std::to_string(m_availablePath.empty()));
+	ErrorLogger::log("Pathfinding done");
 }
 
 Entity::~Entity() {}

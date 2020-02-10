@@ -10,7 +10,7 @@ IntroState::~IntroState() {}
 void IntroState::initialize() {
 	m_name = "Intro State";
 
-	m_apples.resize(16);
+	// m_apples.resize(16);
 
 	m_entity.loadAnimated("Bow", 3);
 
@@ -24,7 +24,7 @@ void IntroState::update() {
 
 	m_entity.updateAnimated(dt);
 	m_camera.updateBuffer();
-	for (size_t i = 0; i < 16; ++i) {
+	/*for (size_t i = 0; i < 16; ++i) {
 		float dir = (float)(((int)i % 2) * 2.f) - 1.f;
 		float angle = dir * m_timer.getTimePassed() * 0.3f;
 		float offset = i * 6.28f / 16.f;
@@ -32,7 +32,7 @@ void IntroState::update() {
 		float3 appleDestination =
 			float3(sin(angle + offset), (i % 2) * 0.5f - 0.3f, cos(angle + offset)) * 10.0f;
 		m_apples[i].setNextDestination(appleDestination);
-	}
+	}*/
 	Input::getInstance()->setMouseModeAbsolute();
 }
 
@@ -60,9 +60,9 @@ void IntroState::draw() {
 	if (Input::getInstance()->keyDown(Keyboard::Space))
 		m_entity.draw_boundingBox();
 
-	for (size_t i = 0; i < 16; i++) {
+	/*for (size_t i = 0; i < 16; i++) {
 		m_apples[i].draw_animate();
-	}
+	}*/
 
 	float4 menuColor = float4(0.f, 1.0f, 0.f, 1.0f);
 	m_entity.draw_animate();
