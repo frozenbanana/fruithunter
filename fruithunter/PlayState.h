@@ -28,6 +28,7 @@ private:
 	Quad m_quad;
 	Apple m_apple;
 	TerrainManager m_terrainManager;
+	Entity m_bridges[4];
 	Entity m_entity;
 	Entity m_bow;
 };

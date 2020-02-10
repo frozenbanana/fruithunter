@@ -12,7 +12,22 @@ using Vector4 = DirectX::SimpleMath::Vector4;
 void PlayState::initialize() {
 	m_name = "Play State";
 
-	m_terrainManager.add(float3(0, 0, 0), "heightmap1.png", XMINT2(50, 50), XMINT2(5, 5));
+	m_terrainManager.add(float3(0, 0, 0), "heightmap3.jpg", XMINT2(50, 50), XMINT2(5, 5));
+	m_terrainManager.add(float3(10, 0, 0), "heightmap3.jpg", XMINT2(50, 50), XMINT2(5, 5));
+	m_terrainManager.add(float3(0, 0, 10), "heightmap3.jpg", XMINT2(50, 50), XMINT2(5, 5));
+	m_terrainManager.add(float3(10, 0, 10), "heightmap3.jpg", XMINT2(50, 50), XMINT2(5, 5));
+
+	for (size_t i = 0; i < 4; i++) {
+		m_bridges[i].load("bridge");
+		m_bridges[i].setScale(0.15);
+		m_bridges[i].setRotation(float3(0,(i+1)*(3.14/2),0));
+
+	}
+	
+	m_bridges[0].setPosition(float3(10, 1, 5));
+	m_bridges[1].setPosition(float3(5, 1, 10));
+	m_bridges[2].setPosition(float3(10, 1, 15));
+	m_bridges[3].setPosition(float3(15, 1, 10));
 
 	m_entity.load("sphere");
 	m_entity.setScale(0.1f);
@@ -28,12 +43,22 @@ void PlayState::update() {
 	float3 pos = m_player.getPosition();
 	Terrain* terrain = m_terrainManager.getTerrainFromPosition(pos);
 	float3 normal;
-	float h = 0;
+	float height = 0;
 	if (terrain != nullptr) {
 		normal = terrain->getNormalFromPosition(pos.x, pos.z);
-		h = terrain->getHeightFromPosition(pos.x, pos.z);
+		height = terrain->getHeightFromPosition(pos.x, pos.z);
 	}
-	m_player.update(0.017f, h + 0.5f, normal);
+
+	for (int i = 0; i < 4; i++) {
+		float l = m_bridges[i].castRay(pos, float3(0, -1, 0));
+		if (l != -1) {
+			ErrorLogger::log("HIT"+to_string(i));
+			float h = (pos + float3(0, -1, 0) * l).y;
+			if (h > height)
+				height = h;
+		}
+	}
+	m_player.update(0.017f, height + 0.5f, normal);
 	m_timer.update();
 	float dt = m_timer.getDt();
 	m_bow.updateAnimated(dt);
@@ -56,6 +81,9 @@ void PlayState::draw() {
 	m_player.draw();
 
 	m_terrainManager.draw();
+	for (size_t i = 0; i < 4; i++) {
+		m_bridges[i].draw_onlyMesh(float3(1,1,1));
+	}
 
 	// Text
 	float t = m_timer.getTimePassed();
