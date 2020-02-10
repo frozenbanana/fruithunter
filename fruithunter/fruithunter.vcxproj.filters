@@ -93,6 +93,7 @@
     <ClCompile Include="Fruit.cpp">
       <Filter>Drawable\Mesh\Fruits</Filter>
     </ClCompile>
+    <ClCompile Include="Banana.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.h">
@@ -164,6 +165,7 @@
     <ClInclude Include="Fruit.h">
       <Filter>Drawable\Mesh\Fruits</Filter>
     </ClInclude>
+    <ClInclude Include="Banana.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl" />

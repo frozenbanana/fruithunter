@@ -1,9 +1,14 @@
 #include "Apple.h"
 #include "Input.h"
+
+Apple::Apple(float3 pos) : Fruit(pos) {
+	loadAnimated("Bouncing_apple", 3);
+	m_nrOfFramePhases = 6;
+}
+
 void Apple::updateAnimated(float dt) {
 	int frameOrder[] = { 0, 1, 0, 2, 0, 1 }; // Order of using keyframes
 	float3 posOrder[6] = {
-		// Temporarely order of position. Later will be velocity for moving
 		m_startPos,
 		m_startPos,
 		m_startPos,
@@ -42,9 +47,4 @@ void Apple::updateAnimated(float dt) {
 
 	// Update mesh specificly with our frametime
 	m_meshAnim.updateSpecific(m_frameTime);
-}
-
-Apple::Apple() : Fruit() {
-	m_nrOfFramePhases = 6;
-	loadAnimated("Bouncing_apple", 3);
 }

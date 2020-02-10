@@ -1,6 +1,14 @@
 #include "Fruit.h"
 #include "Input.h"
 
+void Fruit::setStartPosition(float3 pos) {
+	setPosition(pos);
+	m_startPos = pos;
+	m_heightPos = pos;
+	m_destinationPos = pos;
+	m_nextDestinationPos = pos;
+}
+
 void Fruit::setNextDestination(float3 nextDest) { m_nextDestinationPos = nextDest; }
 
 void Fruit::lookTo(float3 lookAt) { setRotation(float3(0.f, findRequiredRotation(lookAt), 0.f)); }
@@ -27,12 +35,9 @@ void Fruit::setDestination() {
 	m_heightPos.y += 1.f;
 }
 
-Fruit::Fruit() : Entity() {
+Fruit::Fruit(float3 pos) : Entity() {
+	setStartPosition(pos);
 	m_nrOfFramePhases = 0;
 	m_currentFramePhase = 0;
 	m_frameTime = 0.0f;
-	m_startPos = float3(0.f, 0.f, 0.f);
-	m_heightPos = float3(0.f, 0.f, 0.f);
-	m_destinationPos = float3(0.f, 0.f, 0.f);
-	m_nextDestinationPos = float3(0.f, 0.f, 0.f);
 }
