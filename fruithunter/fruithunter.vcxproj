@@ -173,6 +173,7 @@
     <ClCompile Include="Quad.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ShaderSet.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="State.cpp" />
     <ClCompile Include="StateHandler.cpp" />
     <ClCompile Include="Terrain.cpp" />
@@ -197,6 +198,7 @@
     <ClInclude Include="Quad.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="ShaderSet.h" />
+    <ClInclude Include="SkyBox.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="StateHandler.h" />
     <ClInclude Include="Terrain.h" />

@@ -90,6 +90,9 @@
     <ClCompile Include="PlayState.cpp">
       <Filter>State\States</Filter>
     </ClCompile>
+    <ClCompile Include="SkyBox.cpp">
+      <Filter>Drawable\Skybox</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.h">
@@ -158,6 +161,9 @@
     <ClInclude Include="GlobalNamespaces.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="SkyBox.h">
+      <Filter>Drawable\Skybox</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl" />
@@ -215,6 +221,9 @@
     </Filter>
     <Filter Include="State\States">
       <UniqueIdentifier>{6e337d56-e108-45b9-8324-ff3b7ef1b4a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Drawable\Skybox">
+      <UniqueIdentifier>{66dedf2a-086a-4c95-b2d1-9ed71de13474}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
