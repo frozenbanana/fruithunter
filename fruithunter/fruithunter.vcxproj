@@ -156,6 +156,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AI.cpp" />
     <ClCompile Include="Animated.cpp" />
     <ClCompile Include="Apple.cpp" />
     <ClCompile Include="AudioHandler.cpp" />
@@ -180,6 +181,7 @@
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AI.h" />
     <ClInclude Include="Animated.h" />
     <ClInclude Include="Apple.h" />
     <ClInclude Include="AudioHandler.h" />

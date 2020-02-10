@@ -138,6 +138,7 @@ Entity::Entity(string filename, float3 position, float3 rotation, float3 scale) 
 	m_rotation = rotation;
 	m_scale = scale;
 	createBuffers();
+	pathfinding(m_position, m_position + float3(5.0f, 0.0, 2.0f));
 }
 
 Entity::~Entity() {}

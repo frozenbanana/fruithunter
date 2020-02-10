@@ -1,5 +1,6 @@
 #pragma once
 #include "Entity.h"
+#include "AI.h"
 class Apple : public Entity {
 private:
 	float m_frameTime;
@@ -15,6 +16,8 @@ private:
 
 	void setDestination();
 	float findRequiredRotation(float3 lookAt);
+
+	void update(float dt, float height, float3 normal);
 
 public:
 	Apple();

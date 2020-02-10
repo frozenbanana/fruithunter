@@ -61,6 +61,8 @@ float Apple::findRequiredRotation(float3 lookAt) {
 	return rot + 3.14f * 0.5f;
 }
 
+void Apple::update(float dt, float height, float3 normal) {}
+
 void Apple::setDestination() {
 	m_destinationPos = m_nextDestinationPos;
 	m_startPos = getPosition();

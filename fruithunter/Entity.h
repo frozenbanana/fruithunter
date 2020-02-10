@@ -2,9 +2,11 @@
 #include "GlobalNamespaces.h"
 #include "Mesh.h"
 #include "Animated.h"
+#include "AI.h"
+
 #define MODEL_MATRIX_BUFFER_SLOT 0
 
-class Entity {
+class Entity : public AI {
 private:
 	float3 m_position;
 	float3 m_rotation;
@@ -27,6 +29,7 @@ private:
 
 protected:
 	Animated m_meshAnim;
+
 
 public:
 	float4x4 getModelMatrix();
@@ -59,4 +62,8 @@ public:
 	Entity(string meshName = "", float3 position = float3(0, 0, 0),
 		float3 rotation = float3(0, 0, 0), float3 scale = float3(1, 1, 1));
 	~Entity();
+
+
+
+	//----------------------------------------------
 };
