@@ -34,9 +34,8 @@ private:
 	};
 
 	// heightmap
-	XMINT2 m_heightmapSize;
-	vector<vector<float>> m_heightmap;
-	vector<vector<float3>> m_heightmapNormals;
+	D3D11_TEXTURE2D_DESC m_heightmapDescription;
+	D3D11_MAPPED_SUBRESOURCE m_heightmapMappedData;
 
 	// grid
 	XMINT2 m_tileSize;
@@ -66,8 +65,6 @@ private:
 	// heightmap
 	bool loadHeightmap(string filePath);
 	float sampleHeightmap(float2 uv);
-	float3 calcNormalFromHeightmap(XMINT2 index);
-	float3 sampleHeightmapNormal(float2 uv);
 
 	// grids
 	void createGrid(XMINT2 size);
@@ -91,11 +88,14 @@ public:
 	static float triangleTest(
 		float3 rayOrigin, float3 rayDir, float3 tri0, float3 tri1, float3 tri2);
 
+	void setPosition(float3 position);
+
 	void initilize(string filename, XMINT2 subsize, XMINT2 splits = XMINT2(1, 1));
 
 	void rotateY(float radian);
 	void setScale(float3 scale);
 
+	bool pointInsideTerrainBoundingBox(float3 point);
 	float getHeightFromPosition(float x, float z);
 	float3 getNormalFromPosition(float x, float z);
 	float castRay(float3 point, float3 direction);

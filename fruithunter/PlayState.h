@@ -6,7 +6,7 @@
 #include "TextRenderer.h"
 #include "AudioHandler.h"
 #include "Entity.h"
-#include "Terrain.h"
+#include "TerrainManager.h"
 #include "Apple.h"
 
 
@@ -27,7 +27,7 @@ private:
 	Player m_player;
 	Quad m_quad;
 	Apple m_apple;
-	Terrain m_terrain;
+	TerrainManager m_terrainManager;
 	Entity m_entity;
 	Entity m_bow;
 };

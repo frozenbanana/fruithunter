@@ -12,14 +12,12 @@ using Vector4 = DirectX::SimpleMath::Vector4;
 void PlayState::initialize() {
 	m_name = "Play State";
 
-	m_terrain.initilize("heightmap1.png", XMINT2(50, 50), XMINT2(10, 10));
-	m_terrain.setScale(float3(1, 0.25, 1) * 25);
+	m_terrainManager.add(float3(0, 0, 0), "heightmap1.png", XMINT2(50, 50), XMINT2(5, 5));
 
 	m_entity.load("sphere");
 	m_entity.setScale(0.1f);
 
 	m_player.initialize();
-	// m_player.setPosition(float3(1, 1, 1));
 	m_player.setPosition(float3(2.f, 0.f, 0.2f));
 
 	m_bow.loadAnimated("Bow", 3);
@@ -28,8 +26,13 @@ void PlayState::initialize() {
 
 void PlayState::update() {
 	float3 pos = m_player.getPosition();
-	float3 normal = m_terrain.getNormalFromPosition(pos.x, pos.z);
-	float h = m_terrain.getHeightFromPosition(pos.x, pos.z);
+	Terrain* terrain = m_terrainManager.getTerrainFromPosition(pos);
+	float3 normal;
+	float h = 0;
+	if (terrain != nullptr) {
+		normal = terrain->getNormalFromPosition(pos.x, pos.z);
+		h = terrain->getHeightFromPosition(pos.x, pos.z);
+	}
 	m_player.update(0.017f, h + 0.5f, normal);
 	m_timer.update();
 	float dt = m_timer.getDt();
@@ -52,15 +55,7 @@ void PlayState::pause() {
 void PlayState::draw() {
 	m_player.draw();
 
-	m_terrain.draw();
-
-	float3 p = m_player.getPosition();
-	float3 d = m_player.getForward() * 10;
-	m_entity.setPosition(p + d);
-	m_entity.draw();
-	m_terrain.castRay(p, d);
-	m_entity.setPosition(p);
-	m_entity.draw();
+	m_terrainManager.draw();
 
 	// Text
 	float t = m_timer.getTimePassed();

@@ -180,6 +180,7 @@
     <ClCompile Include="State.cpp" />
     <ClCompile Include="StateHandler.cpp" />
     <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="TerrainManager.cpp" />
     <ClCompile Include="TextRenderer.cpp" />
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
@@ -204,6 +205,7 @@
     <ClInclude Include="State.h" />
     <ClInclude Include="StateHandler.h" />
     <ClInclude Include="Terrain.h" />
+    <ClInclude Include="TerrainManager.h" />
     <ClInclude Include="TextRenderer.h" />
     <ClInclude Include="Timer.h" />
   </ItemGroup>

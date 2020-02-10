@@ -90,6 +90,9 @@
     <ClCompile Include="PlayState.cpp">
       <Filter>State\States</Filter>
     </ClCompile>
+    <ClCompile Include="TerrainManager.cpp">
+      <Filter>Drawable\Mesh\Terrain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.h">
@@ -157,6 +160,9 @@
     </ClInclude>
     <ClInclude Include="GlobalNamespaces.h">
       <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainManager.h">
+      <Filter>Drawable\Mesh\Terrain</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
