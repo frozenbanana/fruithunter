@@ -108,6 +108,9 @@
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Fruit.cpp">
       <Filter>Source\Drawable\Mesh\Fruits</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Drawable\Mesh\Fruit\Melon.cpp">
+      <Filter>Source\Drawable\Mesh\Fruits</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -189,6 +192,9 @@
       <Filter>Source\Drawable\Mesh\Fruits</Filter>
     </ClInclude>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Fruit.h">
+      <Filter>Source\Drawable\Mesh\Fruits</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\Mesh\Fruit\Melon.h">
       <Filter>Source\Drawable\Mesh\Fruits</Filter>
     </ClInclude>
   </ItemGroup>
