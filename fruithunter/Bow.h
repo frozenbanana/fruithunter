@@ -22,7 +22,7 @@ private:
 	bool m_aiming = false;
 	bool m_charging = false;
 	bool m_shooting = false;
-
+	float m_drawFactor = 0.f;
 
 	float m_aimMovement = 0.0f;
 };

@@ -126,6 +126,8 @@ void Entity::updateAnimated(float dt) { m_meshAnim.update(dt); }
 
 void Entity::updateAnimatedSpecific(float frameTime) { m_meshAnim.updateSpecific(frameTime); }
 
+void Entity::setFrameTargets(int first, int second) { m_meshAnim.setFrameTargets(first, second); }
+
 bool Entity::load(string filename) { return m_mesh.load(filename); }
 
 bool Entity::loadAnimated(string filename, int nrOfFrames) {

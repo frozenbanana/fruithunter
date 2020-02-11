@@ -5,7 +5,7 @@ Bow::Bow() {
 	m_bow.setScale(0.25f);
 
 	m_arrow.load("Arrow");
-	m_arrow.setScale(0.25f);
+	m_arrow.setScale(float3(0.25f, 0.25f, 0.5f));
 }
 
 Bow::~Bow() {}
@@ -13,6 +13,17 @@ Bow::~Bow() {}
 void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 playerRight) {
 	m_bow.setPosition(
 		playerPos + playerForward * 1.0f + playerRight * 0.5f * (1.0f - m_aimMovement));
+
+	if (m_charging) {
+		m_drawFactor = min(0.99f, m_drawFactor + dt);
+		m_bow.updateAnimatedSpecific(m_drawFactor);
+		m_bow.setFrameTargets(0, 1);
+	}
+	else {
+		m_drawFactor = max(0.0f, m_drawFactor - dt);
+		m_bow.updateAnimatedSpecific(m_drawFactor);
+		m_bow.setFrameTargets(0, 1);
+	}
 
 	if (m_aiming) {
 		if (m_aimMovement < 0.9f)
@@ -40,7 +51,6 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 	}
 
 	m_aiming = false;
-	m_bow.updateAnimated(dt);
 }
 
 void Bow::draw() {
