@@ -73,12 +73,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)fruithunter\includes;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)fruithunter\Source\Utility\Timer;$(SolutionDir)fruithunter\Source\Utility\Input;$(SolutionDir)fruithunter\Source\Utility\Error;$(SolutionDir)fruithunter\Source\Utility\Camera;$(SolutionDir)fruithunter\Source\Utility\Audio;$(SolutionDir)fruithunter\Source\Utility;$(SolutionDir)fruithunter\Source\State\States;$(SolutionDir)fruithunter\Source\State;$(SolutionDir)fruithunter\Source\Player;$(SolutionDir)fruithunter\Source\Header;$(SolutionDir)fruithunter\Source\Graphics\Shaders;$(SolutionDir)fruithunter\Source\Graphics;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Terrain;$(SolutionDir)fruithunter\Source\Drawable\Mesh\SkyBox;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Text;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Fruit;$(SolutionDir)fruithunter\Source\Drawable\Mesh;$(SolutionDir)fruithunter\Source\Drawable;$(SolutionDir)fruithunter\Source;$(SolutionDir)fruithunter\Source\AI;$(SolutionDir)fruithunter\includes;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)fruithunter\libraries\Win32\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)fruithunter\includes;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)fruithunter\Source\AI;$(SolutionDir)fruithunter\Source\Utility\Timer;$(SolutionDir)fruithunter\Source\Utility\Input;$(SolutionDir)fruithunter\Source\Utility\Error;$(SolutionDir)fruithunter\Source\Utility\Camera;$(SolutionDir)fruithunter\Source\Utility\Audio;$(SolutionDir)fruithunter\Source\Utility;$(SolutionDir)fruithunter\Source\State\States;$(SolutionDir)fruithunter\Source\State;$(SolutionDir)fruithunter\Source\Player;$(SolutionDir)fruithunter\Source\Header;$(SolutionDir)fruithunter\Source\Graphics\Shaders;$(SolutionDir)fruithunter\Source\Graphics;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Terrain;$(SolutionDir)fruithunter\Source\Drawable\Mesh\SkyBox;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Text;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Fruit;$(SolutionDir)fruithunter\Source\Drawable\Mesh;$(SolutionDir)fruithunter\Source\Drawable;$(SolutionDir)fruithunter\Source;$(SolutionDir)fruithunter\includes;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)fruithunter\libraries\x64\Debug;$(LibraryPath)</LibraryPath>
     <CodeAnalysisRuleSet>CppCoreCheckArithmeticRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -160,98 +160,102 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Animated.cpp" />
-    <ClCompile Include="Apple.cpp" />
-    <ClCompile Include="AudioHandler.cpp" />
-    <ClCompile Include="Bow.cpp" />
-    <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="ErrorLogger.cpp" />
-    <ClCompile Include="IntroState.cpp" />
-    <ClCompile Include="Input.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Material.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="MeshHandler.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="PlayState.cpp" />
-    <ClCompile Include="Quad.cpp" />
-    <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="ShaderSet.cpp" />
-    <ClCompile Include="State.cpp" />
-    <ClCompile Include="StateHandler.cpp" />
-    <ClCompile Include="Terrain.cpp" />
-    <ClCompile Include="TextRenderer.cpp" />
-    <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="Source\AI\AI.cpp" />
+    <ClCompile Include="Source\Drawable\Animated.cpp" />
+    <ClCompile Include="Source\Drawable\Entity.cpp" />
+    <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp" />
+    <ClCompile Include="Source\Drawable\Mesh\Fruit\Banana.cpp" />
+    <ClCompile Include="Source\Drawable\Mesh\Fruit\Fruit.cpp" />
+    <ClCompile Include="Source\Drawable\Mesh\Material.cpp" />
+    <ClCompile Include="Source\Drawable\Mesh\Mesh.cpp" />
+    <ClCompile Include="Source\Drawable\Mesh\MeshHandler.cpp" />
+    <ClCompile Include="Source\Drawable\Mesh\Quad.cpp" />
+    <ClCompile Include="Source\Drawable\Mesh\SkyBox\SkyBox.cpp" />
+    <ClCompile Include="Source\Drawable\Mesh\Terrain\Terrain.cpp" />
+    <ClCompile Include="Source\Drawable\Mesh\Text\TextRenderer.cpp" />
+    <ClCompile Include="Source\Graphics\Renderer.cpp" />
+    <ClCompile Include="Source\Graphics\ShaderSet.cpp" />
+    <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\Player\Player.cpp" />
+    <ClCompile Include="Source\State\State.cpp" />
+    <ClCompile Include="Source\State\StateHandler.cpp" />
+    <ClCompile Include="Source\State\States\IntroState.cpp" />
+    <ClCompile Include="Source\State\States\PlayState.cpp" />
+    <ClCompile Include="Source\Utility\Audio\AudioHandler.cpp" />
+    <ClCompile Include="Source\Utility\Camera\Camera.cpp" />
+    <ClCompile Include="Source\Utility\Error\ErrorLogger.cpp" />
+    <ClCompile Include="Source\Utility\Input\Input.cpp" />
+    <ClCompile Include="Source\Utility\Timer\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Animated.h" />
-    <ClInclude Include="Apple.h" />
-    <ClInclude Include="AudioHandler.h" />
-    <ClInclude Include="Bow.h" />
-    <ClInclude Include="Entity.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="ErrorLogger.h" />
-    <ClInclude Include="GlobalNamespaces.h" />
-    <ClInclude Include="Input.h" />
-    <ClInclude Include="IntroState.h" />
-    <ClInclude Include="Material.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="MeshHandler.h" />
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="PlayState.h" />
-    <ClInclude Include="Quad.h" />
-    <ClInclude Include="Renderer.h" />
-    <ClInclude Include="ShaderSet.h" />
-    <ClInclude Include="State.h" />
-    <ClInclude Include="StateHandler.h" />
-    <ClInclude Include="Terrain.h" />
-    <ClInclude Include="TextRenderer.h" />
-    <ClInclude Include="Timer.h" />
+    <ClInclude Include="Source\AI\AI.h" />
+    <ClInclude Include="Source\Drawable\Animated.h" />
+    <ClInclude Include="Source\Drawable\Entity.h" />
+    <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h" />
+    <ClInclude Include="Source\Drawable\Mesh\Fruit\Banana.h" />
+    <ClInclude Include="Source\Drawable\Mesh\Fruit\Fruit.h" />
+    <ClInclude Include="Source\Drawable\Mesh\Material.h" />
+    <ClInclude Include="Source\Drawable\Mesh\Mesh.h" />
+    <ClInclude Include="Source\Drawable\Mesh\MeshHandler.h" />
+    <ClInclude Include="Source\Drawable\Mesh\Quad.h" />
+    <ClInclude Include="Source\Drawable\Mesh\SkyBox\SkyBox.h" />
+    <ClInclude Include="Source\Drawable\Mesh\Terrain\Terrain.h" />
+    <ClInclude Include="Source\Drawable\Mesh\Text\TextRenderer.h" />
+    <ClInclude Include="Source\Graphics\Renderer.h" />
+    <ClInclude Include="Source\Graphics\ShaderSet.h" />
+    <ClInclude Include="Source\Header\GlobalNamespaces.h" />
+    <ClInclude Include="Source\Header\WICTextureLoader.h" />
+    <ClInclude Include="Source\Player\Player.h" />
+    <ClInclude Include="Source\State\State.h" />
+    <ClInclude Include="Source\State\StateHandler.h" />
+    <ClInclude Include="Source\State\States\IntroState.h" />
+    <ClInclude Include="Source\State\States\PlayState.h" />
+    <ClInclude Include="Source\Utility\Audio\AudioHandler.h" />
+    <ClInclude Include="Source\Utility\Camera\Camera.h" />
+    <ClInclude Include="Source\Utility\Error\ErrorLogger.h" />
+    <ClInclude Include="Source\Utility\Input\Input.h" />
+    <ClInclude Include="Source\Utility\Timer\Timer.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="PixelShader.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="PixelShader_model.hlsl">
+    <FxCompile Include="Source\Graphics\Shaders\PixelShaderSkyBox.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="PixelShader_model_onlyMesh.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile Include="PixelShader_terrain.hlsl">
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_model.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="VertexShader.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_model_onlyMesh.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_terrain.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\VertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
     </FxCompile>
-    <FxCompile Include="VertexShader_model_animated.hlsl">
+    <FxCompile Include="Source\Graphics\Shaders\VertexShaderSkyBox.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
-    <FxCompile Include="VertexShader_model_onlyMesh.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+    <FxCompile Include="Source\Graphics\Shaders\VertexShader_model_animated.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\VertexShader_model_onlyMesh.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
