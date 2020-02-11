@@ -1,7 +1,8 @@
 #pragma once
 #include "Entity.h"
+#include "AI.h"
 
-class Fruit : public Entity {
+class Fruit : public Entity, public AI {
 protected:
 	int m_nrOfFramePhases; // nr of phases to a movement
 	int m_currentFramePhase;

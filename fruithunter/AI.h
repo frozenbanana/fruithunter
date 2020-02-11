@@ -29,7 +29,6 @@ public:
 	// void idle();
 	// void detectPlayer(float3 playerPosition);
 
-
 protected:
 	State m_currentState;
 	std::shared_ptr<Terrain> m_terrain;

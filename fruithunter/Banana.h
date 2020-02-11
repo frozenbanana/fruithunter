@@ -14,7 +14,10 @@ private:
 	void updateStopped(float dt);
 	void stop();
 	void bounce();
-	void rotRandom() { m_rotation = float3(rand() % 100, rand() % 10, rand() % 100) * 0.1; };
+	void rotRandom() {
+		m_rotation =
+			float3((float)(rand() % 100), (float)(rand() % 10), (float)(rand() % 100)) * 0.1f;
+	};
 
 public:
 	Banana(float3 pos = float3(0.f, 0.f, 0.f));

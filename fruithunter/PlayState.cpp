@@ -37,17 +37,11 @@ void PlayState::update() {
 	m_bow.updateAnimated(dt);
 
 	// update apple
-	m_apple.updateAnimated(dt);
-	m_apple.update(dt,
-		m_terrain.getHeightFromPosition(m_apple.getPosition().x, m_apple.getPosition().z),
-		m_terrain.getNormalFromPosition(m_apple.getPosition().x, m_apple.getPosition().z), pos);
+	m_apple.update(dt, pos);
+	// m_apple.update(dt,
+	//	m_terrain.getHeightFromPosition(m_apple.getPosition().x, m_apple.getPosition().z),
+	//	m_terrain.getNormalFromPosition(m_apple.getPosition().x, m_apple.getPosition().z), pos);
 
-	float x = 5.0f + sin(m_timer.getTimePassed() * 0.6f);
-	float z = 5.0f + cos(m_timer.getTimePassed() * 0.6f);
-	float y = m_terrain.getHeightFromPosition(x, z);
-	float3 appleDestination = float3(x, y, z);
-
-	m_apple.setNextDestination(appleDestination);
 
 	// update banana
 	float3 bounceDir =

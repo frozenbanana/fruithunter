@@ -125,7 +125,7 @@ void Banana::bounce() {
 	}
 	else {
 		m_heightPos.y += m_bounciness;
-		m_bounciness -= 0.3;
+		m_bounciness -= 0.3f;
 		rotRandom();
 	}
 }
