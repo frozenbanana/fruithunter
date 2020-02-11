@@ -4,7 +4,6 @@ ID3DBlob* ShaderSet::createVertexShader(LPCWSTR filename) {
 
 	ID3D11Device* device = Renderer::getDevice();
 
-
 	ID3DBlob* pVS = nullptr;
 	ID3DBlob* errorBlob = nullptr;
 
@@ -125,12 +124,28 @@ bool ShaderSet::isLoaded() const { return m_loaded; }
 bool ShaderSet::createShaders(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR fragmentName,
 	D3D11_INPUT_ELEMENT_DESC* inputDesc, int inputDescCount) {
 
+	//Add filePath
+
+	std::string filePath = std::string("Source/Graphics/Shaders/");
+
+	std::string vertexShaderPathName = filePath + convertLPCWSTR(vertexName);
+	std::wstring vertexWideString(vertexShaderPathName.begin(), vertexShaderPathName.end());
+	LPCWSTR vertexShaderName = vertexWideString.c_str();
+
+	std::string geometryShaderPathName = filePath + convertLPCWSTR(geometryName);
+	std::wstring geometryWideString(geometryShaderPathName.begin(), geometryShaderPathName.end());
+	LPCWSTR geometryShaderName = geometryWideString.c_str();
+
+	std::string fragmentShaderPathName = filePath + convertLPCWSTR(fragmentName);
+	std::wstring fragmentWideString(fragmentShaderPathName.begin(), fragmentShaderPathName.end());
+	LPCWSTR fragmentShaderName = fragmentWideString.c_str();
+
 	ID3D11Device* device = Renderer::getDevice();
 
 	// comppile & create vertex shader
 	m_loaded = true;
 	bool check = true;
-	ID3DBlob* pVS = createVertexShader(vertexName);
+	ID3DBlob* pVS = createVertexShader(vertexShaderName);
 
 	// create input layout
 	HRESULT res;
@@ -153,8 +168,8 @@ bool ShaderSet::createShaders(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR 
 			pVS->GetBufferPointer(), pVS->GetBufferSize(), &m_vertexLayout);
 		if (FAILED(res)) {
 			ErrorLogger::messageBox(
-				res, "Failed creating InputLayout\n" + convertLPCWSTR(vertexName) + "\n" +
-						 convertLPCWSTR(geometryName) + "\n" + convertLPCWSTR(fragmentName));
+				res, "Failed creating InputLayout\n" + convertLPCWSTR(vertexShaderName) + "\n" +
+					convertLPCWSTR(geometryShaderName) + "\n" + convertLPCWSTR(fragmentShaderName));
 			check = false;
 		}
 	}
@@ -165,17 +180,17 @@ bool ShaderSet::createShaders(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR 
 			pVS->GetBufferSize(), &m_vertexLayout);
 		if (FAILED(res)) {
 			ErrorLogger::messageBox(
-				res, "Failed creating InputLayout\n" + convertLPCWSTR(vertexName) + "\n" +
-						 convertLPCWSTR(geometryName) + "\n" + convertLPCWSTR(fragmentName));
+				res, "Failed creating InputLayout\n" + convertLPCWSTR(vertexShaderName) + "\n" +
+					convertLPCWSTR(geometryShaderName) + "\n" + convertLPCWSTR(fragmentShaderName));
 			check = false;
 		}
 	}
 	pVS->Release();
 
 	// compile&create geometry and fragment shader
-	if (geometryName != nullptr && FAILED(createGeometryShader(geometryName)))
+	if (geometryName != nullptr && FAILED(createGeometryShader(geometryShaderName)))
 		check = false;
-	if (fragmentName != nullptr && FAILED(createFragmentShader(fragmentName)))
+	if (vertexName != nullptr && FAILED(createFragmentShader(fragmentShaderName)))
 		check = false;
 	return check;
 }
@@ -216,7 +231,7 @@ std::string ShaderSet::convertLPCWSTR(LPCWSTR LPCWstring) {
 	return std::string(ch);
 }
 
-ShaderSet::ShaderSet(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR fragmentName,
+ ShaderSet::ShaderSet(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR fragmentName,
 	D3D11_INPUT_ELEMENT_DESC* inputDesc, int inputDescCount) {
 	createShaders(vertexName, geometryName, fragmentName, inputDesc, inputDescCount);
 }

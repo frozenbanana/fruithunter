@@ -33,5 +33,5 @@ void SkyBox::createShaders() {
 	};
 
 	m_shaderSkyBox.createShaders(
-		L"Source/Graphics/Shaders/VertexShaderSkyBox.hlsl", nullptr, L"Source/Graphics/Shaders/PixelShaderSkyBox.hlsl", inputLayout_skyBox, 3);
+		L"VertexShaderSkyBox.hlsl", nullptr, L"PixelShaderSkyBox.hlsl", inputLayout_skyBox, 3);
 }
