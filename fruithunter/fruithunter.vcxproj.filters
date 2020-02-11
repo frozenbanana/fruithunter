@@ -87,6 +87,10 @@
     <ClCompile Include="PlayState.cpp">
       <Filter>State\States</Filter>
     </ClCompile>
+    <ClCompile Include="Fruit.cpp">
+      <Filter>Drawable\Mesh\Fruits</Filter>
+    </ClCompile>
+    <ClCompile Include="Banana.cpp" />
     <ClCompile Include="AI.cpp">
       <Filter>AI</Filter>
     </ClCompile>
@@ -164,6 +168,10 @@
     <ClInclude Include="TextRenderer.h">
       <Filter>Utility</Filter>
     </ClInclude>
+    <ClInclude Include="Fruit.h">
+      <Filter>Drawable\Mesh\Fruits</Filter>
+    </ClInclude>
+    <ClInclude Include="Banana.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl" />

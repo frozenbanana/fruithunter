@@ -5,10 +5,6 @@
 #include <iostream>
 #include <string>
 
-using Vector2 = DirectX::SimpleMath::Vector2;
-using Vector3 = DirectX::SimpleMath::Vector3;
-using Vector4 = DirectX::SimpleMath::Vector4;
-
 void PlayState::initialize() {
 	m_name = "Play State";
 
@@ -24,8 +20,11 @@ void PlayState::initialize() {
 	m_bow.loadAnimated("Bow", 3);
 	m_bow.setPosition(float3(2.f, 0.f, 0.f));
 
-	m_apple.setPosition(float3(5.0f, 10.0f, 5.0f));
-	m_apple.setScale(0.3f);
+	m_player.setPosition(float3(13.f));
+	float3 bananaPos(12.f);
+	bananaPos =
+		float3(bananaPos.x, m_terrain.getHeightFromPosition(bananaPos.x, bananaPos.z), bananaPos.z);
+	m_banana.setStartPosition(bananaPos);
 }
 
 void PlayState::update() {
@@ -37,6 +36,7 @@ void PlayState::update() {
 	float dt = m_timer.getDt();
 	m_bow.updateAnimated(dt);
 
+	// update apple
 	m_apple.updateAnimated(dt);
 	m_apple.update(dt,
 		m_terrain.getHeightFromPosition(m_apple.getPosition().x, m_apple.getPosition().z),
@@ -48,6 +48,17 @@ void PlayState::update() {
 	float3 appleDestination = float3(x, y, z);
 
 	m_apple.setNextDestination(appleDestination);
+
+	// update banana
+	float3 bounceDir =
+		m_terrain.getNormalFromPosition(m_banana.getPosition().x, m_banana.getPosition().y);
+	bounceDir.y = 0;
+	bounceDir.Normalize();
+	bounceDir *= 3;
+	bounceDir += m_banana.getPosition();
+	bounceDir.y = m_terrain.getHeightFromPosition(bounceDir.x, bounceDir.z);
+	m_banana.setNextDestination(bounceDir);
+	m_banana.updateAnimated(dt);
 }
 
 void PlayState::handleEvent() { return; }
@@ -77,6 +88,8 @@ void PlayState::draw() {
 
 	// Apple
 	m_apple.draw_animate();
+	// Banana
+	m_banana.draw_animate();
 
 	// Bow
 	m_bow.draw_animate();
