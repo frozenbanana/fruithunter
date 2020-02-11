@@ -102,6 +102,12 @@
     <ClCompile Include="Source\AI\AI.cpp">
       <Filter>Source\AI</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Drawable\Mesh\Fruit\Banana.cpp">
+      <Filter>Source\Drawable\Mesh\Fruits</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Drawable\Mesh\Fruit\Fruit.cpp">
+      <Filter>Source\Drawable\Mesh\Fruits</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -178,6 +184,12 @@
     </ClInclude>
     <ClInclude Include="Source\AI\AI.h">
       <Filter>Source\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\Mesh\Fruit\Banana.h">
+      <Filter>Source\Drawable\Mesh\Fruits</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\Mesh\Fruit\Fruit.h">
+      <Filter>Source\Drawable\Mesh\Fruits</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

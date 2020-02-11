@@ -60,13 +60,13 @@ void Apple::update(float dt, float3 playerPosition) {
 		flee(playerDir);
 	}
 	else {
-		AI::changeState(AI::PASSIVE);
+		/*AI::changeState(AI::PASSIVE);
 		float x = 5.0f;
 		float z = 5.0f;
 		float y = 0.0f;
 		float3 appleDestination = float3(x, y, z);
 
-		setNextDestination(appleDestination);
+		setNextDestination(appleDestination);*/
 	}
 }
 
