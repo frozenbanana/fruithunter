@@ -24,25 +24,94 @@ void Player::initialize() {
 	m_cameraPitch = m_cameraYaw = 0.0f;
 }
 
-void Player::update(float td, float height, float3 normal, Vector3 collisionPoint) {
-	m_groundHeight = height; // update m_groundHeight
-	groundCheck();
-	slideCheck(normal);
-	bounceCheck(normal);
+void Player::update(float td, Terrain* terrain) {
+	// m_groundHeight = height; // update m_groundHeight
+	// groundCheck();
+	// slideCheck(normal);
+	// bounceCheck(normal);
+	// rotatePlayer();
+	// movePlayer();
+	// movement(normal, td, collisionPoint);
+	// m_position.x += m_speed * m_velocity.x * td;
+	// m_position.z += m_speed * m_velocity.z * td;
+	// m_dashCooldown += td; // Cooldown for dashing
+	// m_camera.setUp(m_playerUp);
+	// m_camera.setEye(m_position);
+	// m_camera.setTarget(m_position + m_playerForward);
+
+	// player rotation
 	rotatePlayer();
-	movePlayer();
-	movement(normal, td, collisionPoint);
-	m_position.x += m_speed * m_velocity.x * td;
-	m_position.z += m_speed * m_velocity.z * td;
-	m_dashCooldown += td; // Cooldown for dashing
+
+	// modify velocity vector to match terrain
+	do {
+		Vector3 movement = m_velocity * 0.017f;
+		float l = terrain->castRay(m_position, movement);
+		if (l == -1)
+			break;
+		float3 collisionPoint = m_position + movement * l;
+		float3 collisionNormal = terrain->getNormalFromPosition(collisionPoint.x, collisionPoint.z);
+		slide(td, collisionNormal, l);
+	} while (1);
+
+	// player movement
+	float forceStrength = 10;
+	float3 force;
+	float3 playerStraightForward = float3(0, 1, 0).Cross(m_playerForward).Cross(float3(0,1,0));
+	force += playerStraightForward * (Input::getInstance()->keyDown(Keyboard::W) -
+								   Input::getInstance()->keyDown(Keyboard::S));
+	force += m_playerRight * (Input::getInstance()->keyDown(Keyboard::D) -
+								 Input::getInstance()->keyDown(Keyboard::A));
+
+	// movement
+	m_position += m_velocity * td;
+
+	// onground
+	float3 normal = terrain->getNormalFromPosition(m_position.x, m_position.z);
+	float height = terrain->getHeightFromPosition(m_position.x, m_position.z);
+	float terrainSteepness = float3(0, 1, 0).Dot(normal);
+	m_position.y =
+		clamp(m_position.y, m_position.y, height); // clamp position to never go under terrain!
+	if (abs(m_position.y - height) < 0.025) {
+		// on ground
+		m_onGround = true;
+
+		if (terrainSteepness < 0.6) {
+			// STEEP terrain
+			m_velocity.y -= 5 * td; // gravity if steep terrain
+			m_velocity *= 0.99;		// weak ground friction
+
+			ErrorLogger::log("Steep terrain!");
+		}
+		else {
+			// FLAT terrian
+			m_velocity *= 0.9; // ground friction
+
+			// jump
+			if (Input::getInstance()->keyPressed(Keyboard::Space)) {
+				m_velocity.y = 2;
+			}
+
+			// add player forces
+			m_velocity += force * forceStrength * td;
+		}
+	}
+	else {
+		// in air
+		m_onGround = false;
+
+		m_velocity.y -= 5 * td; // gravity if not on ground
+
+		// add forces
+		m_velocity += force * forceStrength * 0.2f * td;
+	}
+
+
+
+	// update camera properties
 	m_camera.setUp(m_playerUp);
-	m_camera.setEye(m_position);
-	m_camera.setTarget(m_position + m_playerForward);
-
+	m_camera.setEye(m_position + float3(0, 0.5, 0));
+	m_camera.setTarget(m_position + float3(0, 0.5, 0) + m_playerForward);
 	m_camera.updateBuffer();
-
-
-	// ErrorLogger::log(std::to_string(m_velocityFactorFrontBack));
 }
 
 void Player::movePlayer() {
@@ -206,14 +275,32 @@ void Player::slideCheck(Vector3 normal) {
 	}
 }
 
-void Player::slide(Vector3 normal, Vector3 collisionPoint) {
-	// Vektordelen
-	Vector3 collisionVector = collisionPoint - m_position;
-	Vector3 slideVector = m_velocity - ((m_velocity.Dot(normal) - collisionVector.Dot(normal)) * normal);
-	//					negativ - stor					negativ - liten
-	m_velocity = Vector3(
-		clamp(slideVector.x, 5, -5), clamp(slideVector.y, 5, -5), clamp(slideVector.z, 5, -5));
-	ErrorLogger::log("Swosh "/* + std::to_string(m_velocity.y)*/);
+void Player::slide(float td, Vector3 normal, float l) {
+	if (l != -1) {
+		float friction = 0.0;
+		Vector3 longVel = m_velocity * td;
+		Vector3 shortVel = longVel * l;
+		Vector3 longVel_n = longVel.Dot(normal) * normal;
+		Vector3 shortVel_n = shortVel.Dot(normal) * normal;
+		Vector3 diffVel_n = longVel_n - shortVel_n;
+		Vector3 longVelocityOnPlane = longVel - longVel_n;
+		Vector3 shortVelocityOnPlane = shortVel - shortVel_n;
+		Vector3 diffVelocityOnPlane = longVelocityOnPlane - shortVelocityOnPlane;
+		Vector3 velOnPlaneNorm = longVelocityOnPlane;
+		velOnPlaneNorm.Normalize();
+		Vector3 frictionOnPlane = -velOnPlaneNorm * diffVel_n.Length() * friction;
+		if (frictionOnPlane.Length() > diffVelocityOnPlane.Length()) {
+			frictionOnPlane *= 0;
+			diffVelocityOnPlane *= 0;
+		}
+		m_velocity = (shortVelocityOnPlane + shortVel_n + normal * 0.0001 + diffVelocityOnPlane +
+						 frictionOnPlane) /
+					 td;
+		return;
+		Vector3 slideVector =
+			longVel - ((longVel.Dot(normal) - shortVel.Dot(normal) - 0.001) * normal);
+		m_velocity = slideVector / td; // normalized
+	}
 }
 
 void Player::dash() {
@@ -236,13 +323,13 @@ void Player::bounce(Vector3 normal, float dt) {
 	bounceVector.y = clamp(bounceVector.y, 0.5, -0.5);
 	bounceVector.y += m_gravity * dt;
 	m_velocity = bounceVector;
-	ErrorLogger::log("Boing "/* + std::to_string(m_velocity.y)*/);
+	ErrorLogger::log("Boing " /* + std::to_string(m_velocity.y)*/);
 }
 
 void Player::movement(Vector3 normal, float dt, Vector3 collisionPoint) {
 	if (m_onGround) {
 		if (m_sliding) {
-			slide(normal, collisionPoint);
+			// slide(normal, collisionPoint);
 			m_velocity.y += (m_gravity * dt);
 		}
 		else if (m_bouncing) {

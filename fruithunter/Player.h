@@ -1,6 +1,7 @@
 #pragma once
 #include "Input.h"
 #include "Camera.h"
+#include "Terrain.h"
 
 
 class Player {
@@ -8,7 +9,7 @@ public:
 	Player();
 	~Player();
 	void initialize();
-	void update(float td, float height, float3 normal, Vector3 collisionPoint);
+	void update(float td, Terrain* terrain);
 	void movePlayer();
 	void rotatePlayer();
 	void draw();
@@ -48,7 +49,7 @@ private:
 	void groundCheck();
 	void bounceCheck(Vector3 normal);
 	void slideCheck(Vector3 normal);
-	void slide(Vector3 normal, Vector3 collisionPoint);
+	void slide(float td, Vector3 normal, float l);
 	void dash();
 	void bounce(Vector3 normal, float dt);
 	void movement(Vector3 normal, float dt, Vector3 collisionPoint);
