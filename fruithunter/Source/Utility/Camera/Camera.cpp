@@ -8,8 +8,8 @@ Camera::Camera() {
 	m_camTarget = float3(0.0, 0.0, 0.0);
 	m_camUp = float3(0.0, 1.0, 0.0);
 
-	m_projMatrix =
-		DirectX::XMMatrixPerspectiveFovLH(3.14159265f / 4.0f, 800.0f / 600.0f, 0.1f, 100.0f);
+	m_projMatrix = DirectX::XMMatrixPerspectiveFovLH(
+		3.14159265f / 4.0f, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, 0.1f, 100.0f);
 	m_viewMatrix = DirectX::XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
 	m_vpMatrix = DirectX::XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 
@@ -35,8 +35,8 @@ Camera::Camera(float3 camEye, float3 camTarget, float3 camUp) {
 	m_camTarget = camTarget;
 	m_camUp = camUp;
 
-	m_projMatrix =
-		DirectX::XMMatrixPerspectiveFovLH(3.14159265f / 4.0f, 800.0f / 600.0f, 0.1f, 100.0f);
+	m_projMatrix = DirectX::XMMatrixPerspectiveFovLH(
+		3.14159265f / 4.0f, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, 0.1f, 100.0f);
 	m_viewMatrix = DirectX::XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
 	m_vpMatrix = DirectX::XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 
