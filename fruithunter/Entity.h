@@ -24,11 +24,12 @@ private:
 
 	void updateMatrix();
 	void bindModelMatrixBuffer();
-
 	void createBuffers();
 
 protected:
 	Animated m_meshAnim;
+
+	bool onGround(float height) const;
 
 
 public:

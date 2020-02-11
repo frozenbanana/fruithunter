@@ -17,11 +17,12 @@ private:
 	void setDestination();
 	float findRequiredRotation(float3 lookAt);
 
-	void update(float dt, float height, float3 normal);
 
 public:
 	Apple();
+	// Apple(float3 position);
 	void updateAnimated(float dt);
 	void setNextDestination(float3 nextDest);
 	void lookTo(float3 lookAt) { setRotation(float3(0.f, findRequiredRotation(lookAt), 0.f)); };
+	void update(float dt, float height, float3 normal, float3 playerPosition);
 };

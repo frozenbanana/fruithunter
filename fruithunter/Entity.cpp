@@ -45,6 +45,8 @@ void Entity::createBuffers() {
 	}
 }
 
+bool Entity::onGround(float height) const { return m_position.y - height < 0.0001; }
+
 float4x4 Entity::getModelMatrix() {
 	if (m_matrixChanged)
 		updateMatrix();
