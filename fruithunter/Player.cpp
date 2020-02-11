@@ -38,8 +38,9 @@ void Player::update(float td, float height, float3 normal) {
 		m_dashCooldown += td; // Cooldown for dashing
 	}
 
-
-	m_bow.update(td, m_position, m_playerForward);
+	// Update bow
+	m_bow.rotate(m_cameraPitch, m_cameraYaw);
+	m_bow.update(td, m_position, m_playerForward, m_playerRight);
 
 	m_camera.setUp(m_playerUp);
 	m_camera.setEye(m_position);
@@ -93,7 +94,6 @@ void Player::movePlayer() {
 	}
 
 	if (input->keyDown(Keyboard::Keys::A)) {
-
 		m_velocityFactorStrafe > -1.0f ? m_velocityFactorStrafe -= FACTORSTEPS
 									   : m_velocityFactorStrafe = -1.0f;
 	}
@@ -112,7 +112,10 @@ void Player::movePlayer() {
 	if (input->mouseDown(Input::MouseButton::RIGHT)) {
 		m_bow.aim();
 	}
-	if (input->mousePressed(Input::MouseButton::LEFT)) {
+	if (input->mouseDown(Input::MouseButton::LEFT)) {
+		m_bow.charge();
+	}
+	if (input->mouseUp(Input::MouseButton::LEFT)) {
 		m_bow.shoot(m_playerForward);
 	}
 
@@ -166,13 +169,11 @@ void Player::rotatePlayer() {
 	m_playerForward = XMVector3TransformCoord(DEFAULTFORWARD, cameraRotationMatrix);
 	m_playerUp = XMVector3TransformCoord(m_playerUp, rotateYTempMatrix);
 	m_playerRight = XMVector3TransformCoord(DEFAULTRIGHT, cameraRotationMatrix);
-
-	m_bow.rotate(m_cameraPitch, m_cameraYaw, m_playerRight);
 }
 
 void Player::draw() {
 	m_camera.bindMatrix();
-	m_bow.draw(m_playerRight);
+	m_bow.draw();
 }
 
 float3 Player::getPosition() const { return m_position; }

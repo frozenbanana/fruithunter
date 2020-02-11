@@ -4,9 +4,9 @@
 void Entity::updateMatrix() {
 	m_matrixChanged = false;
 	float4x4 matTranform = float4x4::CreateTranslation(m_position);
-	float4x4 matRotation = float4x4::CreateRotationZ(m_rotation.x) *
+	float4x4 matRotation = float4x4::CreateRotationX(m_rotation.x) *
 						   float4x4::CreateRotationY(m_rotation.y) *
-						   float4x4::CreateRotationX(m_rotation.z);
+						   float4x4::CreateRotationZ(m_rotation.z);
 	float4x4 matScale = float4x4::CreateScale(m_scale);
 	float4x4 matWorld = matScale * matRotation * matTranform;
 	m_matrixBufferData.matWorld = matWorld;
