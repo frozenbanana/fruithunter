@@ -72,6 +72,9 @@ void PlayState::draw() {
 
 	// Bow
 	m_bow.draw_animate();
+
+	// SkyBox
+	m_skyBox.draw();
 }
 
 void PlayState::play() {
