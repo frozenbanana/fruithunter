@@ -516,8 +516,9 @@ float3 Terrain::getNormalFromPosition(float x, float z) {
 	return float3(0, 0, 0); // outside terrain
 }
 /*
- * Returns scale of direction until collision, point+direction*scale = collisionPoint. '-1' means miss!
-*/
+ * Returns scale of direction until collision, point+direction*scale = collisionPoint. '-1' means
+ * miss!
+ */
 float Terrain::castRay(float3 point, float3 direction) {
 	// convert to local space
 	float4x4 mTerrainWorld = getModelMatrix();
@@ -525,7 +526,7 @@ float Terrain::castRay(float3 point, float3 direction) {
 	float3 startPoint = float3::Transform(point, mTerrainInvWorld);
 	float3 endPoint = float3::Transform(point + direction, mTerrainInvWorld);
 	float3 n = endPoint - startPoint;
-	float2 n2 = float2(n.x,n.z);
+	float2 n2 = float2(n.x, n.z);
 	float length = n.Length();
 	n.Normalize();
 	float obb_l = obbTest(startPoint, n, float3(1, 1, 1) * 0.5f, float3(1, 1, 1) * 0.5f);
@@ -545,17 +546,17 @@ float Terrain::castRay(float3 point, float3 direction) {
 		tsX.reserve(changeInX);
 		tsY.reserve(changeInY);
 		for (int i = 0; i < changeInX; i++) {
-			float t = ((iStart.x + (iStart.x > iEnd.x ? -1*i : 1*i+1)) - start.x) / tilt.x;
+			float t = ((iStart.x + (iStart.x > iEnd.x ? -1 * i : 1 * i + 1)) - start.x) / tilt.x;
 			tsX.push_back(t);
 		}
 		for (int i = 0; i < changeInY; i++) {
-			float t = ((iStart.y + (iStart.y > iEnd.y ? -1*i : i*1+1)) - start.y) / tilt.y;
+			float t = ((iStart.y + (iStart.y > iEnd.y ? -1 * i : i * 1 + 1)) - start.y) / tilt.y;
 			tsY.push_back(t);
 		}
-		vector<float> ts; // sorted intersection time array
-		ts.reserve(changeInX + changeInY + 2.f); //+2 for start and end point
+		vector<float> ts;					   // sorted intersection time array
+		ts.reserve(changeInX + changeInY + 2); //+2 for start and end point
 		// sort largest first
-		ts.push_back((end - start).Length()/tilt.Length());
+		ts.push_back((end - start).Length() / tilt.Length());
 		while (tsX.size() > 0 || tsY.size() > 0) {
 			if (tsX.size() > 0 && tsY.size() > 0) {
 				if (tsX.back() < tsY.back()) {
@@ -580,7 +581,7 @@ float Terrain::castRay(float3 point, float3 direction) {
 		// check all intersected tiles
 		float minL = -1;
 		for (int i = (int)ts.size() - 2; i >= 0; i--) {
-			float sampledT = (ts[i]+ts[i+1]) / 2.f;
+			float sampledT = (ts[i] + ts[i + 1]) / 2.f;
 			int ix =
 				(int)clamp((float)start.x + tilt.x * sampledT, 0, (float)m_gridPointSize.x - 2);
 			int iy =

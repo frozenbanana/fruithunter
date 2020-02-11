@@ -18,8 +18,8 @@ struct VertexMaterialBuffer {
 
 class Material {
 private:
-	const string m_materialPath = "Meshes/MTL/";
-	const string m_texturePath = "Meshes/Textures/";
+	const string m_materialPath = "assets/Meshes/MTL/";
+	const string m_texturePath = "assets/Meshes/Textures/";
 	// variables
 	string m_materialName;
 	string m_ambientMap = "";

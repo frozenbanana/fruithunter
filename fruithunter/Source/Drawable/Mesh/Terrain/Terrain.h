@@ -11,6 +11,7 @@ private:
 		Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 
 		void createBuffers();
+
 	public:
 		void initilize();
 		vector<Vertex>* getPtr();
@@ -21,7 +22,7 @@ private:
 		~SubGrid();
 	};
 
-	const string m_heightmapPath = "TerrainHeightmap/";
+	const string m_heightmapPath = "assets/TerrainHeightmap/";
 
 	bool m_isInitilized = false;
 	static ShaderSet m_shader;
@@ -51,7 +52,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 
 	// resource buffer
-	const string m_grassPath = "Meshes/Textures/texture_grass.jpg";
+	const string m_grassPath = "assets/Meshes/Textures/texture_grass.jpg";
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_map_grass;
 
 	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;
@@ -80,8 +81,7 @@ private:
 	// resource
 	bool createResourceBuffer(string path, ID3D11ShaderResourceView** buffer);
 
-	void tileRayIntersectionTest(
-		XMINT2 gridIndex, float3 point, float3 direction, float& minL);
+	void tileRayIntersectionTest(XMINT2 gridIndex, float3 point, float3 direction, float& minL);
 	float clamp(float val, float min, float max) {
 		return (val < min ? min : val > max ? max : val);
 	}

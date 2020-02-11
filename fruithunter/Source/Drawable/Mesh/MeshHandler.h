@@ -56,9 +56,9 @@ private:
 	};
 	std::string m_loadedObjName = "";
 
-	const std::string m_mtlPath = "Meshes/MTL/";
-	const std::string m_objPath = "Meshes/OBJ/";
-	const std::string m_rawPath = "Meshes/RAW/";
+	const std::string m_mtlPath = "assets/Meshes/MTL/";
+	const std::string m_objPath = "assets/Meshes/OBJ/";
+	const std::string m_rawPath = "assets/Meshes/RAW/";
 
 	std::vector<float3> m_vertices_position;
 	std::vector<float2> m_vertices_uv;
