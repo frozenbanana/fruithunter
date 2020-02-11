@@ -9,6 +9,7 @@
 #include "Terrain.h"
 #include "Apple.h"
 #include "Banana.h"
+#include "Melon.h"
 
 class PlayState : public State {
 public:
@@ -31,4 +32,5 @@ private:
 	Entity m_entity;
 	Entity m_bow;
 	Banana m_banana;
+	Melon m_melon;
 };

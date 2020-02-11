@@ -26,6 +26,7 @@ void PlayState::initialize() {
 	bananaPos =
 		float3(bananaPos.x, m_terrain.getHeightFromPosition(bananaPos.x, bananaPos.z), bananaPos.z);
 	m_banana.setStartPosition(bananaPos);
+	m_melon.setPosition(float3(-1.f));
 }
 
 void PlayState::update() {
@@ -85,7 +86,8 @@ void PlayState::draw() {
 	m_apple.draw_animate();
 	// Banana
 	m_banana.draw_animate();
-
+	// Melon
+	m_melon.draw_animate();
 	// Bow
 	m_bow.draw_animate();
 }

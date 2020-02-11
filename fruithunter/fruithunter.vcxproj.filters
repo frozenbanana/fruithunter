@@ -93,7 +93,12 @@
     <ClCompile Include="Fruit.cpp">
       <Filter>Drawable\Mesh\Fruits</Filter>
     </ClCompile>
-    <ClCompile Include="Banana.cpp" />
+    <ClCompile Include="Banana.cpp">
+      <Filter>Drawable\Mesh\Fruits</Filter>
+    </ClCompile>
+    <ClCompile Include="Melon.cpp">
+      <Filter>Drawable\Mesh\Fruits</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.h">
@@ -165,7 +170,12 @@
     <ClInclude Include="Fruit.h">
       <Filter>Drawable\Mesh\Fruits</Filter>
     </ClInclude>
-    <ClInclude Include="Banana.h" />
+    <ClInclude Include="Banana.h">
+      <Filter>Drawable\Mesh\Fruits</Filter>
+    </ClInclude>
+    <ClInclude Include="Melon.h">
+      <Filter>Drawable\Mesh\Fruits</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl" />

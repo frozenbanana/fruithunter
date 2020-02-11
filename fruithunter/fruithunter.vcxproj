@@ -168,6 +168,7 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
+    <ClCompile Include="Melon.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshHandler.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="Input.h" />
     <ClInclude Include="IntroState.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="Melon.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshHandler.h" />
     <ClInclude Include="Player.h" />
@@ -219,6 +221,8 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0_level_9_3</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0_level_9_3</ShaderModel>
     </FxCompile>
     <FxCompile Include="PixelShader_model_onlyMesh.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
