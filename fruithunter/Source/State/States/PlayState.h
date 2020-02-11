@@ -10,6 +10,7 @@
 #include "Apple.h"
 #include "SkyBox.h"
 #include "Banana.h"
+#include "Melon.h"
 
 class PlayState : public State {
 public:
@@ -33,4 +34,5 @@ private:
 	Entity m_bow;
 	SkyBox m_skyBox;
 	Banana m_banana;
+	Melon m_melon;
 };
