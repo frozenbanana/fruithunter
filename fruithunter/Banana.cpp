@@ -7,6 +7,7 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 	m_bounciness = 0;
 	m_state = Jump;
 	rotRandom();
+	setScale(2.f);
 }
 
 void Banana::updateAnimated(float dt) {
