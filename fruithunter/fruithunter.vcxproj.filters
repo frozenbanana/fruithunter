@@ -96,18 +96,11 @@
     <ClCompile Include="Source\Utility\Input\Input.cpp">
       <Filter>Source\Utility\Input</Filter>
     </ClCompile>
-    <ClCompile Include="Fruit.cpp">
-      <Filter>Drawable\Mesh\Fruits</Filter>
-    </ClCompile>
-    <ClCompile Include="Banana.cpp" />
-    <ClCompile Include="AI.cpp">
-      <Filter>AI</Filter>
-    </ClCompile>
-    <ClCompile Include="TextRenderer.cpp">
-      <Filter>Utility</Filter>
-    </ClCompile>
     <ClCompile Include="Source\main.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\AI\AI.cpp">
+      <Filter>Source\AI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -183,23 +176,11 @@
     <ClInclude Include="Source\Utility\Input\Input.h">
       <Filter>Source\Utility\Input</Filter>
     </ClInclude>
-    <ClInclude Include="AI.h">
-      <Filter>AI</Filter>
+    <ClInclude Include="Source\AI\AI.h">
+      <Filter>Source\AI</Filter>
     </ClInclude>
-    <ClInclude Include="TextRenderer.h">
-      <Filter>Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Fruit.h">
-      <Filter>Drawable\Mesh\Fruits</Filter>
-    </ClInclude>
-    <ClInclude Include="Banana.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="VertexShader.hlsl" />
-    <FxCompile Include="PixelShader.hlsl" />
-    <FxCompile Include="VertexShader_model_onlyMesh.hlsl" />
-    <FxCompile Include="PixelShader_model_onlyMesh.hlsl" />
-    <FxCompile Include="PixelShader_model.hlsl" />
     <None Include=".clang-format" />
   </ItemGroup>
   <ItemGroup>
@@ -260,7 +241,7 @@
     <Filter Include="Source\Utility\Input">
       <UniqueIdentifier>{d7b43882-2a51-43c3-9a41-7e91061d5fb9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="AI">
+    <Filter Include="Source\AI">
       <UniqueIdentifier>{aa548265-5486-466e-81d7-9719a546e282}</UniqueIdentifier>
     </Filter>
   </ItemGroup>

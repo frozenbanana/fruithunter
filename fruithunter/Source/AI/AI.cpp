@@ -35,10 +35,10 @@ void AI::pathfinding(float3 start, float3 end) {
 		//									 std::to_string(open[1].z) + " (" +
 		//									 std::to_string(open[2].x) + " , " +
 		//				                     std::to_string(open[2].y) + " , " +
-		//std::to_string(open[2].z)
+		// std::to_string(open[2].z)
 		//+));
 
-		if ((closed.back().position-end).Length() < 3.0f) {
+		if ((closed.back().position - end).Length() < 3.0f) {
 			m_availablePath.clear(); // Reset path
 			// Add path steps
 			while (!closed.empty()) {

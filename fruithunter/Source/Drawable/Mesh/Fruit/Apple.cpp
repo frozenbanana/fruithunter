@@ -61,12 +61,12 @@ void Apple::update(float dt, float3 playerPosition) {
 	}
 	else {
 		AI::changeState(AI::PASSIVE);
-		float x = 5.0f + sin(m_timer.getTimePassed() * 0.6f);
-		float z = 5.0f + cos(m_timer.getTimePassed() * 0.6f);
-		float y = m_terrain.getHeightFromPosition(x, z);
+		float x = 5.0f;
+		float z = 5.0f;
+		float y = 0.0f;
 		float3 appleDestination = float3(x, y, z);
 
-		m_apple.setNextDestination(appleDestination);
+		setNextDestination(appleDestination);
 	}
 }
 

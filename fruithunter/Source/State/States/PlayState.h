@@ -9,7 +9,6 @@
 #include "Terrain.h"
 #include "Apple.h"
 #include "SkyBox.h"
-
 #include "Banana.h"
 
 class PlayState : public State {

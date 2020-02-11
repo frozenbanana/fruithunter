@@ -73,7 +73,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)fruithunter\includes;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)fruithunter\Source\Utility\Timer;$(SolutionDir)fruithunter\Source\Utility\Input;$(SolutionDir)fruithunter\Source\Utility\Error;$(SolutionDir)fruithunter\Source\Utility\Camera;$(SolutionDir)fruithunter\Source\Utility\Audio;$(SolutionDir)fruithunter\Source\Utility;$(SolutionDir)fruithunter\Source\State\States;$(SolutionDir)fruithunter\Source\State;$(SolutionDir)fruithunter\Source\Player;$(SolutionDir)fruithunter\Source\Header;$(SolutionDir)fruithunter\Source\Graphics\Shaders;$(SolutionDir)fruithunter\Source\Graphics;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Terrain;$(SolutionDir)fruithunter\Source\Drawable\Mesh\SkyBox;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Text;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Fruit;$(SolutionDir)fruithunter\Source\Drawable\Mesh;$(SolutionDir)fruithunter\Source\Drawable;$(SolutionDir)fruithunter\Source;$(SolutionDir)fruithunter\Source\AI;$(SolutionDir)fruithunter\includes;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)fruithunter\libraries\Win32\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -160,6 +160,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\AI\AI.cpp" />
     <ClCompile Include="Source\Drawable\Animated.cpp" />
     <ClCompile Include="Source\Drawable\Entity.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp" />
@@ -185,6 +186,7 @@
     <ClCompile Include="Source\Utility\Timer\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\AI\AI.h" />
     <ClInclude Include="Source\Drawable\Animated.h" />
     <ClInclude Include="Source\Drawable\Entity.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h" />
@@ -213,6 +215,7 @@
   <ItemGroup>
     <FxCompile Include="Source\Graphics\Shaders\PixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\PixelShaderSkyBox.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -222,15 +225,19 @@
     </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_model.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_model_onlyMesh.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_terrain.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\VertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\VertexShaderSkyBox.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
@@ -240,9 +247,11 @@
     </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\VertexShader_model_animated.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\VertexShader_model_onlyMesh.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
