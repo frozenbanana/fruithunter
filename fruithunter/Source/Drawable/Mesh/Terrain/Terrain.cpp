@@ -439,6 +439,8 @@ void Terrain::rotateY(float radian) {
 
 void Terrain::setScale(float3 scale) { m_scale = scale; }
 
+float Terrain::getHeightFromPosition(float3 pos) { return getHeightFromPosition(pos.x, pos.z); }
+
 float Terrain::getHeightFromPosition(float x, float z) {
 	float3 position(x, 0, z);
 	float4x4 mTerrainWorld = getModelMatrix();
