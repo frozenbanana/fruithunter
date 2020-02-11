@@ -56,6 +56,7 @@ public:
 	void draw_animate();
 	virtual void updateAnimated(float dt);
 	virtual void updateAnimatedSpecific(float frameTime);
+	void setFrameTargets(int first, int second);
 	bool load(string filename);
 	bool loadAnimated(string filename, int nrOfFrames);
 

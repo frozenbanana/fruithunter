@@ -1,7 +1,7 @@
 #pragma once
 #include "Input.h"
 #include "Camera.h"
-
+#include "Bow.h"
 
 class Player {
 public:
@@ -24,6 +24,7 @@ private:
 	const float3 DEFAULTUP = float3(0.0f, 1.0f, 0.0f);
 
 	Camera m_camera;
+	Bow m_bow;
 	float3 m_position;
 	float3 m_velocity;
 

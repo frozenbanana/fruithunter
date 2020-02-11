@@ -111,6 +111,9 @@
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Melon.cpp">
       <Filter>Source\Drawable\Mesh\Fruits</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Player\Bow.cpp">
+      <Filter>Source\Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -196,6 +199,9 @@
     </ClInclude>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Melon.h">
       <Filter>Source\Drawable\Mesh\Fruits</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Player\Bow.h">
+      <Filter>Source\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
