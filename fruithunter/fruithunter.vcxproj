@@ -166,6 +166,7 @@
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Banana.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Fruit.cpp" />
+    <ClCompile Include="Source\Drawable\Mesh\Fruit\Melon.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Material.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Mesh.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\MeshHandler.cpp" />
@@ -195,6 +196,7 @@
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Banana.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Fruit.h" />
+    <ClInclude Include="Source\Drawable\Mesh\Fruit\Melon.h" />
     <ClInclude Include="Source\Drawable\Mesh\Material.h" />
     <ClInclude Include="Source\Drawable\Mesh\Mesh.h" />
     <ClInclude Include="Source\Drawable\Mesh\MeshHandler.h" />
