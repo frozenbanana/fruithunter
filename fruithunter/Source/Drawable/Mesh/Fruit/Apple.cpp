@@ -5,6 +5,7 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 	loadAnimated("Bouncing_apple", 3);
 	m_nrOfFramePhases = 6;
 	setScale(0.5);
+	changeState(AI::State::PASSIVE);
 }
 
 void Apple::updateAnimated(float dt) {
@@ -56,26 +57,26 @@ void Apple::update(float dt, float3 playerPosition) {
 	playerDir.Normalize();
 	float distanceToPlayer = (playerPosition - m_startPos).Length();
 
-	if (distanceToPlayer < 3.f) {
-		flee(playerDir);
+	if (distanceToPlayer < 5.f) {
+		ErrorLogger::log("Inside apple radius");
+		flee(playerPosition);
+		AI::changeState(AI::ACTIVE);
 	}
-	else {
-		/*AI::changeState(AI::PASSIVE);
+	/*else {
+		AI::changeState(AI::PASSIVE);
 		float x = 5.0f;
 		float z = 5.0f;
 		float y = 0.0f;
 		float3 appleDestination = float3(x, y, z);
 
-		setNextDestination(appleDestination);*/
-	}
+		setNextDestination(appleDestination);
+	}*/
 }
 
 void Apple::flee(float3 playerDir) {
-	if (m_currentState == AI::PASSIVE) {
-		ErrorLogger::log("Fleeing!");
-		AI::changeState(AI::ACTIVE);
-		pathfinding(float3(m_startPos.x, 0.0, m_startPos.z),
-			float3(m_startPos.x + 10.0f, 0.0f, m_startPos.z + 10.f));
-		setNextDestination(m_availablePath.front());
-	}
+	ErrorLogger::log("Fleeing!");
+	float3 start = float3(m_startPos.x, 0.0, m_startPos.z);
+	float3 end = float3(playerDir.x, 0.0f, playerDir.z);
+	pathfinding(start, end);
+	setNextDestination(m_availablePath.front());
 }

@@ -26,6 +26,7 @@ public:
 	// virtual float3 getNextPosition();
 	void pathfinding(float3 start, float3 end);
 	void changeState(State newState);
+	State getState() const;
 	// void idle();
 	// void detectPlayer(float3 playerPosition);
 

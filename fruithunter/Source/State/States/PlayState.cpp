@@ -20,18 +20,20 @@ void PlayState::initialize() {
 	m_bow.loadAnimated("Bow", 3);
 	m_bow.setPosition(float3(2.f, 0.f, 0.f));
 
-	m_player.setPosition(float3(13.f));
-	float3 bananaPos(12.f);
+	m_player.setPosition(float3(5.f, 5.f, 5.f));
+	float3 bananaPos(12.f); // middle of terrain ish..
 	bananaPos =
 		float3(bananaPos.x, m_terrain.getHeightFromPosition(bananaPos.x, bananaPos.z), bananaPos.z);
 	m_banana.setStartPosition(bananaPos);
 	m_melon.setPosition(float3(-1.f));
+
+	m_apple.setPosition(float3(19.f));
 }
 
 void PlayState::update() {
-	float3 pos = m_player.getPosition();
-	float3 normal = m_terrain.getNormalFromPosition(pos.x, pos.z);
-	float h = m_terrain.getHeightFromPosition(pos.x, pos.z);
+	float3 playerPos = m_player.getPosition();
+	float3 normal = m_terrain.getNormalFromPosition(playerPos.x, playerPos.z);
+	float h = m_terrain.getHeightFromPosition(playerPos.x, playerPos.z);
 
 	m_timer.update();
 	float dt = m_timer.getDt();
@@ -40,21 +42,27 @@ void PlayState::update() {
 	// m_bow.updateAnimated(dt);
 
 	// update apple
-	m_apple.update(dt, pos);
-	// m_apple.update(dt,
-	//	m_terrain.getHeightFromPosition(m_apple.getPosition().x, m_apple.getPosition().z),
-	//	m_terrain.getNormalFromPosition(m_apple.getPosition().x, m_apple.getPosition().z), pos);
+	float appleHeight =
+		0.1f + m_terrain.getHeightFromPosition(m_apple.getPosition().x, m_apple.getPosition().y);
+	float x = m_apple.getPosition().x;
+	float z = m_apple.getPosition().z;
+	float3 newApplePosition = float3(x, appleHeight, z);
+
+	if (m_apple.getState() != AI::State::ACTIVE) {
+		m_apple.setNextDestination(newApplePosition);
+	}
+	m_apple.update(dt, playerPos);
 
 
 	// update banana
-	float3 bounceDir =
+	float3 bounceDestination =
 		m_terrain.getNormalFromPosition(m_banana.getPosition().x, m_banana.getPosition().y);
-	bounceDir.y = 0;
-	bounceDir.Normalize();
-	bounceDir *= 3;
-	bounceDir += m_banana.getPosition();
-	bounceDir.y = m_terrain.getHeightFromPosition(bounceDir.x, bounceDir.z);
-	m_banana.setNextDestination(bounceDir);
+	bounceDestination.y = 0;
+	bounceDestination.Normalize();
+	bounceDestination *= 3;
+	bounceDestination += m_banana.getPosition();
+	bounceDestination.y = m_terrain.getHeightFromPosition(bounceDestination.x, bounceDestination.z);
+	m_banana.setNextDestination(bounceDestination);
 	m_banana.updateAnimated(dt);
 }
 

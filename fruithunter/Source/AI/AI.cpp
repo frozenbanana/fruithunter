@@ -87,3 +87,5 @@ void AI::pathfinding(float3 start, float3 end) {
 }
 
 void AI::changeState(State newState) { m_currentState = newState; }
+
+AI::State AI::getState() const { return m_currentState; }
