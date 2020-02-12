@@ -41,7 +41,7 @@ void PlayState::update() {
 	m_timer.update();
 	float dt = m_timer.getDt();
 
-	m_player.update(dt, h + 1.5f, normal);
+	m_player.update(dt, &m_terrain);
 	// m_bow.updateAnimated(dt);
 
 	// update apple

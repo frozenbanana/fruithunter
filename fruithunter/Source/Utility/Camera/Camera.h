@@ -17,6 +17,7 @@ public:
 	void updateBuffer();
 	void bindMatrix();
 	DirectX::SimpleMath::Matrix getViewProjMatrix() const;
+	float3 getPosition() const;
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;

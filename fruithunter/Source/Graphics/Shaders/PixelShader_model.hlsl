@@ -46,11 +46,15 @@ float4 main(PS_IN ip) : SV_TARGET {
 	float diffuseTint = max(dot(toLight, ip.Normal), 0.0);
 
 	// specular
-	float3 specular =
-		mapUsages.z ? (textures[2].Sample(samplerAni, ip.TexCoord)).rgb : (specular3_shininess.rgb);
-	float reflectTint =
-		pow(max(dot(normalize(reflect(-toLight, ip.Normal)), normalize(-ip.PosW)), 0.0),
-			specular3_shininess.w * 50);
+	float3 specular = (0.0f, 0.0f, 0.0f);
+	float reflectTint = 0.0f;
+	if (diffuseTint > 0.0) {
+		specular = mapUsages.z ? (textures[2].Sample(samplerAni, ip.TexCoord)).rgb
+									  : (specular3_shininess.rgb);
+		reflectTint =
+			pow(max(dot(normalize(reflect(-toLight, ip.Normal)), normalize(-ip.PosW)), 0.0),
+				specular3_shininess.w * 50);
+	}
 
 	// final color
 	float3 col = pixelBaseColor * (0.2 + diffuseTint) + specular * reflectTint;
