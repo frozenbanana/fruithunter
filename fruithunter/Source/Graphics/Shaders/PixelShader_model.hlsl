@@ -48,8 +48,7 @@ float4 main(PS_IN ip) : SV_TARGET {
 	// specular
 	float3 specular = (0.0f, 0.0f, 0.0f);
 	float reflectTint = 0.0f;
-	float infront = dot(toLight, ip.Normal);
-	if (infront > 0.0) {
+	if (diffuseTint > 0.0) {
 		specular = mapUsages.z ? (textures[2].Sample(samplerAni, ip.TexCoord)).rgb
 									  : (specular3_shininess.rgb);
 		reflectTint =
