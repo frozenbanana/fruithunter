@@ -42,6 +42,7 @@ private:
 	float m_velocityFactorStrafe;
 	float m_groundHeight;
 	float m_dashCooldown;
+	size_t m_inventory[FRUITS]; // APPLE 0, BANANA 1, MELON 2
 
 	float3 m_playerForward;
 	float3 m_playerRight;
