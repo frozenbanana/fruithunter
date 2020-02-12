@@ -29,8 +29,8 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 
 	if (m_shooting) {
 		// Basic movement without physics or collisions.
-		m_arrow.setPosition(
-			m_arrow.getPosition() + m_arrowDirection * m_arrowSpeed * dt - float3(0.0f, dt, 0.0f));
+		arrowPhysics(dt);
+		m_arrow.setPosition(m_arrow.getPosition() + m_arrowDirection * dt);
 
 		if (m_arrow.getPosition().y < 0.0f ||
 			(m_bow.getPosition() - m_arrow.getPosition()).Length() > 20.0f) {
@@ -74,23 +74,64 @@ void Bow::rotate(float pitch, float yaw) {
 
 void Bow::aim() { m_aiming = true; }
 
-void Bow::release() {
+void Bow::release() { // Stops charging
 	ErrorLogger::log("Release");
 	m_charging = false;
 	m_chargeReset = false;
 }
 
-void Bow::charge() {
+void Bow::charge() { // Draws the arrow back on the bow
 	if (!m_shooting && m_chargeReset)
 		m_charging = true;
 }
 
-void Bow::shoot(float3 direction) {
+void Bow::shoot(float3 direction) { // Shoots/fires the arrow
 	m_chargeReset = true;
 
 	if (m_charging) {
 		m_charging = false;
 		m_shooting = true;
-		m_arrowDirection = direction;
+
+		float bowEfficiencyConstant = 400.0f;
+		float bowMaterialConstant = 0.05;
+
+		float velocity = pow((bowEfficiencyConstant * m_drawFactor) /
+								 (m_arrowMass + m_bowMass * bowMaterialConstant),
+			0.5f);
+
+		direction.Normalize();
+
+		m_arrowDirection = direction * velocity;
+		m_arrowForward = float3(direction.x, direction.y, direction.z);
+		ErrorLogger::log("Initial arrow speed: " + to_string(velocity));
 	}
+}
+
+void Bow::arrowPhysics(float dt) { // Updates arrow in flight
+	// Update acceleration
+	float3 acceleration =
+		float3(-m_dragDividedMass * m_arrowDirection.Length() * m_arrowDirection.x,
+			(-m_dragDividedMass * m_arrowDirection.Length() * m_arrowDirection.y) - 9.82,
+			-m_dragDividedMass * m_arrowDirection.Length() * m_arrowDirection.z);
+
+	m_arrowDirection += acceleration * dt;
+
+	if (m_arrowDirection.y > 0) {
+		/*m_arrow.setRotation(
+			float3(-acos(((m_arrowDirection.Dot(m_arrowForward) / (m_arrowDirection.Length())))),
+				m_arrowForward.z, m_arrowForward.x));*/
+		m_arrow.rotateX(
+			(acos(((m_arrowDirection.Dot(m_arrowForward) / (m_arrowDirection.Length()))))));
+	}
+	else { //YOU WERE HERE
+		/*m_arrow.setRotation(
+			float3(acos(((m_arrowDirection.Dot(m_arrowForward) / (m_arrowDirection.Length())))),
+				m_arrowForward.z, m_arrowForward.x));*/
+		m_arrow.rotateX((-acos(((m_arrowDirection.Dot(m_arrowForward) / (m_arrowDirection.Length()))))));
+	}
+
+	//m_arrow.rotateX(1.0f);
+
+	ErrorLogger::log("Current arrow speed: " + to_string(m_arrowDirection.Length()));
+	// m_arrow.setRotation();
 }
