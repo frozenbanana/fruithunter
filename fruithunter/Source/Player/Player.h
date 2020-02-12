@@ -98,8 +98,5 @@ private:
 	 * consumes stamina and next time restoreStamina() is called it will fail. Making so that the stamina only restores when not being used
 	*/
 	void consumeStamina(float amount);
-	/*
-	 * 
-	*/
 	void restoreStamina(float amount);
 };
