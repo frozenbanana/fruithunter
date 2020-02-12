@@ -20,12 +20,16 @@ void PlayState::initialize() {
 	m_bow.loadAnimated("Bow", 3);
 	m_bow.setPosition(float3(2.f, 0.f, 0.f));
 
-	m_player.setPosition(float3(5.f, 5.f, 5.f));
+	m_player.setPosition(float3(13.f, 5.f, 7.f));
 	float3 bananaPos(12.f); // middle of terrain ish..
 	bananaPos =
 		float3(bananaPos.x, m_terrain.getHeightFromPosition(bananaPos.x, bananaPos.z), bananaPos.z);
 	m_banana.setStartPosition(bananaPos);
-	m_melon.setPosition(float3(-1.f));
+
+
+	m_melon.setPosition(float3(7.f, 1.f, 5.0f));
+	m_melon.setPosition(float3(m_melon.getPosition().x,
+		m_terrain.getHeightFromPosition(m_melon.getPosition()), m_melon.getPosition().z));
 
 
 	m_apple.setPosition(float3(7.f, 1.f, 7.f));
@@ -54,8 +58,12 @@ void PlayState::update() {
 	if (m_apple.getState() != AI::State::ACTIVE) {
 		m_apple.setNextDestination(newApplePosition);
 	}*/
-	m_apple.update(dt, playerPos, appleHeight);
+	// m_apple.update(dt, playerPos, appleHeight);
 
+
+
+	// update melon
+	m_melon.update(dt, playerPos, &m_terrain);
 
 	// update banana
 	float3 bounceDestination =

@@ -7,16 +7,17 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 	setScale(0.5);
 	changeState(AI::State::PASSIVE);
 	m_direction = float3((float)(rand() % 1), 0.0f, (float)(rand() % 1));
-	m_velocity = float3(0.f);
+	m_velocity = float3(1.f);
 	m_direction.Normalize();
 }
 
 void Apple::updateAnimated(float dt) {
+	m_startPos = m_position;
 	int frameOrder[] = { 0, 1, 0, 2, 0, 1 }; // Order of using keyframes
 	float3 posOrder[6] = {
 		m_startPos, m_startPos, m_startPos, m_startPos, m_startPos, m_startPos,
 		/*m_heightPos,
-		m_destinationPos,
+		m_destinationPos
 		m_destinationPos,*/
 	};
 	bool justChanged = false;
@@ -53,52 +54,35 @@ void Apple::updateAnimated(float dt) {
 }
 
 void Apple::move(float dt) {
-	m_position += m_velocity * dt;
+	if (!m_availablePath.empty() && m_currentState == ACTIVE) {
+		m_direction = (m_availablePath.back() - m_position);
+		m_availablePath.pop_back();
+	}
+
+	m_direction.y = 0.f;
+	m_position += m_direction * dt;
 	setPosition(m_position);
 }
 
 void Apple::update(float dt, float3 playerPosition, float height) {
-	float gravity = 9.82f * dt * dt / 2.;
-
-	if (m_inAir) {
-		m_velocity.y += -gravity;
-	}
-
-	if (m_position.y < height) {
-		m_position.y = height;
-		m_velocity.y = 0.f;
-		m_inAir = false;
-	}
-
-
-	// updateAnimated(dt);
-	float3 playerDir = float3(playerPosition - m_position);
-	playerDir.Normalize();
+	m_position.y = height;
 	float distanceToPlayer = (playerPosition - m_position).Length();
-	ErrorLogger::log("dist" + std::to_string(distanceToPlayer) + ", velo: " +
-					 std::to_string(m_velocity.y) + ", inAir: " + std::to_string(m_inAir));
-	if (distanceToPlayer < 5.f && !m_inAir) {
-		ErrorLogger::log("Trying to jump");
-		m_velocity.y += 20000.0 * dt * dt / 2.f;
-		m_inAir = true;
+
+	if (distanceToPlayer < 7.f && m_currentState == PASSIVE) {
+		flee(playerPosition); // updates path
+		changeState(AI::ACTIVE);
 	}
-	move(dt);
-
-	/*else {
+	else if (m_availablePath.empty()) { // is path finished set pasive state
 		AI::changeState(AI::PASSIVE);
-		float x = 5.0f;
-		float z = 5.0f;
-		float y = 0.0f;
-		float3 appleDestination = float3(x, y, z);
-
-		setNextDestination(appleDestination);
-	}*/
+		m_direction = float3(sin(dt), 0.0f, (float)(rand() % 5));
+		m_direction.Normalize();
+	}
+	updateAnimated(dt);
+	move(dt);
 }
 
-void Apple::flee(float3 playerDir) {
-	ErrorLogger::log("Fleeing!");
+void Apple::flee(float3 playerPos) {
 	float3 start = float3(m_startPos.x, 0.0, m_startPos.z);
-	float3 end = float3(playerDir.x, 0.0f, playerDir.z);
+	float3 end = float3(playerPos.x, 0.0f, playerPos.z);
 	pathfinding(start, end);
-	setNextDestination(m_availablePath.front());
 }
