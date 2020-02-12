@@ -19,13 +19,16 @@ private:
 
 	float3 m_arrowDirection;
 
+
+
 	bool m_ready = true;
 	bool m_aiming = false;
 	bool m_charging = false;
 	bool m_shooting = false;
 	bool m_chargeReset = true;
 
-
+	float m_armLength = 1.0f;
+	float m_arrowSpeed = 10.0f;
 	float m_drawFactor = 0.0f;
 	float m_aimMovement = 0.0f;
 };

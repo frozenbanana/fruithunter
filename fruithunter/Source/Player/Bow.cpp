@@ -11,9 +11,11 @@ Bow::Bow() {
 Bow::~Bow() {}
 
 void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 playerRight) {
+	// Set bow position based on player position and direction.
 	m_bow.setPosition(
-		playerPos + playerForward * 1.0f + playerRight * 0.5f * (1.0f - m_aimMovement));
+		playerPos + playerForward * m_armLength + playerRight * 0.5f * (1.0f - m_aimMovement));
 
+	// Bow animation.
 	if (m_charging) {
 		m_drawFactor = min(0.99f, m_drawFactor + dt);
 		m_bow.updateAnimatedSpecific(m_drawFactor);
@@ -26,17 +28,20 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 	}
 
 	if (m_shooting) {
+		// Basic movement without physics or collisions.
 		m_arrow.setPosition(
-			m_arrow.getPosition() + m_arrowDirection * 10.0f * dt - float3(0.0f, dt, 0.0f));
+			m_arrow.getPosition() + m_arrowDirection * m_arrowSpeed * dt - float3(0.0f, dt, 0.0f));
 
-		if (m_arrow.getPosition().y < 0.0f) {
+		if (m_arrow.getPosition().y < 0.0f ||
+			(m_bow.getPosition() - m_arrow.getPosition()).Length() > 20.0f) {
 			m_shooting = false;
 		}
 	}
 	else {
 		if (m_charging) {
+			// Move arrow with bowstring. Hardcoded values determined by experimentation.
 			m_arrow.setPosition(
-				m_bow.getPosition() + playerForward * 0.3f * (1.0f - 1.7f * m_drawFactor));
+				m_bow.getPosition() + playerForward * 0.3f * (1.0f - 1.6f * m_drawFactor));
 		}
 		else {
 			m_arrow.setPosition(m_bow.getPosition() + playerForward * 0.3f);
@@ -44,6 +49,7 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 		m_arrow.setRotation(m_bow.getRotation());
 	}
 
+	// Move arrow towards the center while aiming.
 	if (m_aiming) {
 		if (m_aimMovement < 0.9f)
 			m_aimMovement += dt * 4.0f;
