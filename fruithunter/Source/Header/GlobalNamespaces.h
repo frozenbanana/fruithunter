@@ -21,3 +21,8 @@ using float4x4 = DirectX::SimpleMath::Matrix;
 #define STANDARD_HEIGHT 720
 #define STANDARD_CORNER_X 100
 #define STANDARD_CORNER_Y 100
+
+#define FRUITS 3
+#define APPLE 0
+#define BANANA 1
+#define MELON 2
