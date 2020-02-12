@@ -11,12 +11,10 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 void Apple::updateAnimated(float dt) {
 	int frameOrder[] = { 0, 1, 0, 2, 0, 1 }; // Order of using keyframes
 	float3 posOrder[6] = {
-		m_startPos,
-		m_startPos,
-		m_startPos,
-		m_heightPos,
+		m_startPos, m_startPos, m_startPos, m_startPos, m_startPos, m_startPos,
+		/*m_heightPos,
 		m_destinationPos,
-		m_destinationPos,
+		m_destinationPos,*/
 	};
 	bool justChanged = false;
 	float frameSpeedOrder[] = { 4.f, 5.f, 2.0f, 1.9f, 4.f, 2.f };
@@ -51,17 +49,46 @@ void Apple::updateAnimated(float dt) {
 	m_meshAnim.updateSpecific(m_frameTime);
 }
 
-void Apple::update(float dt, float3 playerPosition) {
+void Apple::update(float dt, float3 playerPosition, float height) {
 	updateAnimated(dt);
 	float3 playerDir = float3(playerPosition - m_startPos);
 	playerDir.Normalize();
 	float distanceToPlayer = (playerPosition - m_startPos).Length();
-
-	if (distanceToPlayer < 5.f) {
-		ErrorLogger::log("Inside apple radius");
+	switch (m_currentState) {
+	case INACTIVE:
+		changeState(PASSIVE);
+		break;
+	case PASSIVE:
+		//------------------------------//
+		ErrorLogger::log("I am at " + std::to_string(getPosition().x) + " " +
+						 std::to_string(getPosition().y) + " " + std::to_string(getPosition().z));
+		if (distanceToPlayer < 5.f) {
+			ErrorLogger::log("Inside apple radius");
+			AI::changeState(AI::ACTIVE);
+		}
+		else {
+			float x = (float)(rand() % 10);
+			float z = (float)(rand() % 10);
+			float3 nextDest = float3(x, 0.0, z);
+			setNextDestination(nextDest);
+		}
+		//-----------------------------//
+		break;
+	case ACTIVE:
+		//-----------------------------//
 		flee(playerPosition);
-		AI::changeState(AI::ACTIVE);
+		if (distanceToPlayer > 10.f) {
+			changeState(PASSIVE);
+		}
+		//-----------------------------//
+		break;
+	case CAUGHT:
+		//-----------------------------//
+		flee(playerPosition);
+		//----------------------------//
+		break;
 	}
+
 	/*else {
 		AI::changeState(AI::PASSIVE);
 		float x = 5.0f;

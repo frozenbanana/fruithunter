@@ -7,6 +7,6 @@ private:
 public:
 	Apple(float3 pos = float3(0.f, 0.f, 0.f));
 	void updateAnimated(float dt);
-	void update(float dt, float3 playerPosition);
+	void update(float dt, float3 playerPosition, float height);
 	void flee(float3 playerDir);
 };

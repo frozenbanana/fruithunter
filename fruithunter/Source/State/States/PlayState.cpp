@@ -27,7 +27,10 @@ void PlayState::initialize() {
 	m_banana.setStartPosition(bananaPos);
 	m_melon.setPosition(float3(-1.f));
 
-	m_apple.setPosition(float3(19.f));
+
+	m_apple.setPosition(float3(1.f, 1.f, 1.f));
+	m_apple.setPosition(float3(m_apple.getPosition().x,
+		m_terrain.getHeightFromPosition(m_apple.getPosition()), m_apple.getPosition().z));
 }
 
 void PlayState::update() {
@@ -42,16 +45,16 @@ void PlayState::update() {
 	// m_bow.updateAnimated(dt);
 
 	// update apple
-	float appleHeight =
-		0.1f + m_terrain.getHeightFromPosition(m_apple.getPosition().x, m_apple.getPosition().y);
+	float appleHeight = 0.1f + m_terrain.getHeightFromPosition(m_apple.getPosition());
+	/*
 	float x = m_apple.getPosition().x;
 	float z = m_apple.getPosition().z;
 	float3 newApplePosition = float3(x, appleHeight, z);
 
 	if (m_apple.getState() != AI::State::ACTIVE) {
 		m_apple.setNextDestination(newApplePosition);
-	}
-	m_apple.update(dt, playerPos);
+	}*/
+	m_apple.update(dt, playerPos, appleHeight);
 
 
 	// update banana
