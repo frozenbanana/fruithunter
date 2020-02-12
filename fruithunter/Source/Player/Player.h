@@ -11,11 +11,12 @@ public:
 	~Player();
 	void initialize();
 	void update(float td, Terrain* terrain);
-	void movePlayer();
+	void bowUpdate();
 	void rotatePlayer();
 	void draw();
 
 	float3 getPosition() const;
+	float3 getCameraPosition() const;
 	float3 getForward() const;
 	float3 getVelocity() const;
 	void setPosition(float3 position);
@@ -25,6 +26,7 @@ private:
 	const float3 DEFAULTFORWARD = float3(0.0f, 0.0f, 1.0f);
 	const float3 DEFAULTRIGHT = float3(1.0f, 0.0f, 0.0f);
 	const float3 DEFAULTUP = float3(0.0f, 1.0f, 0.0f);
+	const float PLAYERHEIGHT = 1.5f;
 
 	Camera m_camera;
 	Bow m_bow;
@@ -47,7 +49,6 @@ private:
 	float m_cameraPitch, m_cameraYaw;
 
 	//- - - Functions - - -
-	void jump();
 	void groundCheck();
 	void bounceCheck(Vector3 normal);
 	void slideCheck(Vector3 normal);

@@ -98,3 +98,5 @@ void Camera::bindMatrix() {
 }
 
 DirectX::SimpleMath::Matrix Camera::getViewProjMatrix() const { return m_vpMatrix; }
+
+float3 Camera::getPosition() const { return m_camEye; }

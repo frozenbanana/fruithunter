@@ -24,19 +24,6 @@ void Player::initialize() {
 }
 
 void Player::update(float td, Terrain* terrain) {
-	// m_groundHeight = height; // update m_groundHeight
-	// groundCheck();
-	// slideCheck(normal);
-	// bounceCheck(normal);
-	// rotatePlayer();
-	// movePlayer();
-	// movement(normal, td, collisionPoint);
-	// m_position.x += m_speed * m_velocity.x * td;
-	// m_position.z += m_speed * m_velocity.z * td;
-	// m_dashCooldown += td; // Cooldown for dashing
-	// m_camera.setUp(m_playerUp);
-	// m_camera.setEye(m_position);
-	// m_camera.setTarget(m_position + m_playerForward);
 
 	// player rotation
 	rotatePlayer();
@@ -108,73 +95,19 @@ void Player::update(float td, Terrain* terrain) {
 
 	// update camera properties
 	m_camera.setUp(m_playerUp);
-	m_camera.setEye(m_position + float3(0, 0.5, 0));
-	m_camera.setTarget(m_position + float3(0, 0.5, 0) + m_playerForward);
+	m_camera.setEye(m_position + float3(0, PLAYERHEIGHT, 0));
+	m_camera.setTarget(m_position + float3(0, PLAYERHEIGHT, 0) + m_playerForward);
 	m_camera.updateBuffer();
 
 	// Update bow
+	bowUpdate();
 	m_bow.rotate(m_cameraPitch, m_cameraYaw);
-	m_bow.update(td, m_position, m_playerForward, m_playerRight);
+	m_bow.update(td, getCameraPosition(), m_playerForward, m_playerRight);
 }
 
-void Player::movePlayer() {
+void Player::bowUpdate() {
 	Input* input = Input::getInstance();
-	if (input->keyDown(Keyboard::Keys::W)) {
 
-		/*m_velocityFactorFrontBack < 1.0f ? m_velocityFactorFrontBack += FACTORSTEPS
-										 : m_velocityFactorFrontBack -= FACTORSTEPS;*/
-
-		if (m_velocityFactorFrontBack <= 1.0f) {
-			m_velocityFactorFrontBack += FACTORSTEPS;
-		}
-		else {
-			if (m_onGround) {
-				m_velocityFactorFrontBack -= FACTORSTEPS;
-			}
-		}
-		// ErrorLogger::log("pressing W ");
-	}
-	else {
-		if (m_velocityFactorFrontBack > 0.0f)
-			m_velocityFactorFrontBack -= FACTORSTEPS;
-	}
-
-	if (input->keyDown(Keyboard::Keys::S)) {
-		m_velocityFactorFrontBack >= -1.0f ? m_velocityFactorFrontBack -= FACTORSTEPS
-										   : m_velocityFactorFrontBack = -1.0f;
-		// ErrorLogger::log("pressing S ");
-	}
-	else {
-		if (m_velocityFactorFrontBack < (0.0f))
-			m_velocityFactorFrontBack += FACTORSTEPS;
-	}
-
-	if (input->keyDown(Keyboard::Keys::D)) {
-		m_velocityFactorStrafe < 1.0f ? m_velocityFactorStrafe += FACTORSTEPS
-									  : m_velocityFactorStrafe = 1.0f;
-	}
-	else {
-		if (m_velocityFactorStrafe > 0.0f) {
-			m_velocityFactorStrafe -= FACTORSTEPS;
-		}
-	}
-
-	if (input->keyDown(Keyboard::Keys::A)) {
-		m_velocityFactorStrafe > -1.0f ? m_velocityFactorStrafe -= FACTORSTEPS
-									   : m_velocityFactorStrafe = -1.0f;
-	}
-	else {
-		if (m_velocityFactorStrafe < 0.0f)
-			m_velocityFactorStrafe += FACTORSTEPS;
-	}
-
-	if (input->keyPressed(Keyboard::Keys::Space)) {
-		jump();
-	}
-
-	if (input->keyPressed(Keyboard::Keys::LeftShift)) {
-		dash();
-	}
 	if (input->mouseDown(Input::MouseButton::RIGHT)) {
 		m_bow.aim();
 	}
@@ -185,16 +118,7 @@ void Player::movePlayer() {
 		m_bow.shoot(m_playerForward);
 	}
 
-	/*if (input->keyDown(Keyboard::Keys::LeftControl)) {
-		m_sliding = true;
-	}*/
 
-
-	// STOPPED IT FROM MOVING
-	if (m_velocityFactorStrafe <= 0.1 && m_velocityFactorStrafe >= -0.1)
-		m_velocityFactorStrafe = 0;
-	if (m_velocityFactorFrontBack <= 0.1 && m_velocityFactorFrontBack >= -0.1)
-		m_velocityFactorFrontBack = 0;
 }
 
 void Player::rotatePlayer() {
@@ -245,20 +169,13 @@ void Player::draw() {
 
 float3 Player::getPosition() const { return m_position; }
 
+float3 Player::getCameraPosition() const { return m_camera.getPosition(); }
+
 float3 Player::getForward() const { return m_playerForward; }
 
 float3 Player::getVelocity() const { return m_velocity; }
 
 void Player::setPosition(float3 position) { m_position = position; }
-
-void Player::jump() {
-
-	if (onGround()) {
-		m_velocity.y =
-			3.0f; // If you are on the ground you may jump, giving yourself 3 m/s along the Y-axis.
-		m_onGround = false;
-	}
-}
 
 void Player::groundCheck() { // Check if you are on the ground
 	if (m_position.y <= m_groundHeight + 0.01f) {

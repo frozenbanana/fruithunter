@@ -38,7 +38,7 @@ void PlayState::update() {
 	// m_bow.updateAnimated(dt);
 
 	// update apple
-	m_apple.update(dt, pos);
+	m_apple.update(dt, m_player.getPosition());
 	// m_apple.update(dt,
 	//	m_terrain.getHeightFromPosition(m_apple.getPosition().x, m_apple.getPosition().z),
 	//	m_terrain.getNormalFromPosition(m_apple.getPosition().x, m_apple.getPosition().z), pos);
