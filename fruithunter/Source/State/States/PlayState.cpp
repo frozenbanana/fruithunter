@@ -28,7 +28,7 @@ void PlayState::initialize() {
 	m_melon.setPosition(float3(-1.f));
 
 
-	m_apple.setPosition(float3(1.f, 1.f, 1.f));
+	m_apple.setPosition(float3(7.f, 1.f, 7.f));
 	m_apple.setPosition(float3(m_apple.getPosition().x,
 		m_terrain.getHeightFromPosition(m_apple.getPosition()), m_apple.getPosition().z));
 }

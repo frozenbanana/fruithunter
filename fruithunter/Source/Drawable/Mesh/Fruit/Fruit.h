@@ -4,6 +4,10 @@
 
 class Fruit : public Entity, public AI {
 protected:
+	// Phyics based movment
+	float3 m_direction;
+	float3 m_velocity;
+	// -------------------
 	int m_nrOfFramePhases; // nr of phases to a movement
 	int m_currentFramePhase;
 	float m_frameTime;	// the value that is used to interpolate between key frames

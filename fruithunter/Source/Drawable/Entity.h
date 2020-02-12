@@ -7,7 +7,6 @@
 
 class Entity {
 private:
-	float3 m_position;
 	float3 m_rotation;
 	float3 m_scale;
 	bool m_matrixChanged = false; // if position, rotation or scale is changed then the model matrix
@@ -26,6 +25,7 @@ private:
 	void createBuffers();
 
 protected:
+	float3 m_position;
 	Animated m_meshAnim;
 
 	bool onGround(float height) const;

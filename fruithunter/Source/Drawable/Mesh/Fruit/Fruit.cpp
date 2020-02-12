@@ -42,7 +42,6 @@ void Fruit::setDestination() {
 }
 
 Fruit::Fruit(float3 pos) : Entity() {
-	ErrorLogger::log("blab" + std::to_string(m_availablePath.empty()));
 	setStartPosition(pos);
 	m_nrOfFramePhases = 0;
 	m_currentFramePhase = 0;

@@ -6,6 +6,9 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 	m_nrOfFramePhases = 6;
 	setScale(0.5);
 	changeState(AI::State::PASSIVE);
+	m_direction = float3((float)(rand() % 1), 0.0f, (float)(rand() % 1));
+	m_velocity = float3(0.f);
+	m_direction.Normalize();
 }
 
 void Apple::updateAnimated(float dt) {
@@ -49,45 +52,37 @@ void Apple::updateAnimated(float dt) {
 	m_meshAnim.updateSpecific(m_frameTime);
 }
 
+void Apple::move(float dt) {
+	m_position += m_velocity * dt;
+	setPosition(m_position);
+}
+
 void Apple::update(float dt, float3 playerPosition, float height) {
-	updateAnimated(dt);
-	float3 playerDir = float3(playerPosition - m_startPos);
-	playerDir.Normalize();
-	float distanceToPlayer = (playerPosition - m_startPos).Length();
-	switch (m_currentState) {
-	case INACTIVE:
-		changeState(PASSIVE);
-		break;
-	case PASSIVE:
-		//------------------------------//
-		ErrorLogger::log("I am at " + std::to_string(getPosition().x) + " " +
-						 std::to_string(getPosition().y) + " " + std::to_string(getPosition().z));
-		if (distanceToPlayer < 5.f) {
-			ErrorLogger::log("Inside apple radius");
-			AI::changeState(AI::ACTIVE);
-		}
-		else {
-			float x = (float)(rand() % 10);
-			float z = (float)(rand() % 10);
-			float3 nextDest = float3(x, 0.0, z);
-			setNextDestination(nextDest);
-		}
-		//-----------------------------//
-		break;
-	case ACTIVE:
-		//-----------------------------//
-		flee(playerPosition);
-		if (distanceToPlayer > 10.f) {
-			changeState(PASSIVE);
-		}
-		//-----------------------------//
-		break;
-	case CAUGHT:
-		//-----------------------------//
-		flee(playerPosition);
-		//----------------------------//
-		break;
+	float gravity = 9.82f * dt * dt / 2.;
+
+	if (m_inAir) {
+		m_velocity.y += -gravity;
 	}
+
+	if (m_position.y < height) {
+		m_position.y = height;
+		m_velocity.y = 0.f;
+		m_inAir = false;
+	}
+
+
+	// updateAnimated(dt);
+	float3 playerDir = float3(playerPosition - m_position);
+	playerDir.Normalize();
+	float distanceToPlayer = (playerPosition - m_position).Length();
+	ErrorLogger::log("dist" + std::to_string(distanceToPlayer) + ", velo: " +
+					 std::to_string(m_velocity.y) + ", inAir: " + std::to_string(m_inAir));
+	if (distanceToPlayer < 5.f && !m_inAir) {
+		ErrorLogger::log("Trying to jump");
+		m_velocity.y += 20000.0 * dt * dt / 2.f;
+		m_inAir = true;
+	}
+	move(dt);
 
 	/*else {
 		AI::changeState(AI::PASSIVE);

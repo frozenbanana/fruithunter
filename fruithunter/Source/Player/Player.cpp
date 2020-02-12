@@ -12,7 +12,7 @@ void Player::initialize() {
 	m_gravity = -9.82f;
 	m_playerForward = DEFAULTFORWARD;
 
-	m_speed = 2.10f;
+	m_speed = 4.10f;
 	m_velocityFactorFrontBack = 0.0f;
 	m_velocityFactorStrafe = 0.0f;
 
@@ -42,9 +42,9 @@ void Player::update(float td, Terrain* terrain) {
 	// player movement
 	float forceStrength = 10;
 	float3 force;
-	float3 playerStraightForward = float3(0, 1, 0).Cross(m_playerForward).Cross(float3(0,1,0));
+	float3 playerStraightForward = float3(0, 1, 0).Cross(m_playerForward).Cross(float3(0, 1, 0));
 	force += playerStraightForward * (Input::getInstance()->keyDown(Keyboard::W) -
-								   Input::getInstance()->keyDown(Keyboard::S));
+										 Input::getInstance()->keyDown(Keyboard::S));
 	force += m_playerRight * (Input::getInstance()->keyDown(Keyboard::D) -
 								 Input::getInstance()->keyDown(Keyboard::A));
 
@@ -117,8 +117,6 @@ void Player::bowUpdate() {
 	if (input->mouseUp(Input::MouseButton::LEFT)) {
 		m_bow.shoot(m_playerForward);
 	}
-
-
 }
 
 void Player::rotatePlayer() {
