@@ -29,14 +29,12 @@ void PlayState::initialize() {
 }
 
 void PlayState::update() {
-	float3 pos = m_player.getPosition();
-	float3 normal = m_terrain.getNormalFromPosition(pos.x, pos.z);
-	float h = m_terrain.getHeightFromPosition(pos.x, pos.z);
+	
 
 	m_timer.update();
 	float dt = m_timer.getDt();
 
-	m_player.update(dt, h + 1.5f, normal);
+	m_player.update(dt, &m_terrain);
 	// m_bow.updateAnimated(dt);
 
 	// update apple

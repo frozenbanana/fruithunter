@@ -11,7 +11,6 @@ private:
 		Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 
 		void createBuffers();
-
 	public:
 		void initilize();
 		vector<Vertex>* getPtr();

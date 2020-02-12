@@ -1,6 +1,8 @@
 #pragma once
 #include "Input.h"
 #include "Camera.h"
+#include "Terrain.h"
+
 #include "Bow.h"
 
 class Player {
@@ -8,13 +10,14 @@ public:
 	Player();
 	~Player();
 	void initialize();
-	void update(float td, float height, float3 normal = float3(0, 0, 0));
+	void update(float td, Terrain* terrain);
 	void movePlayer();
 	void rotatePlayer();
 	void draw();
 
 	float3 getPosition() const;
 	float3 getForward() const;
+	float3 getVelocity() const;
 	void setPosition(float3 position);
 
 private:
@@ -28,6 +31,9 @@ private:
 	float3 m_position;
 	float3 m_velocity;
 
+	bool m_onGround;
+	bool m_bouncing;
+	bool m_sliding;
 	float m_gravity;
 	float m_speed;
 	float m_velocityFactorFrontBack;
@@ -42,6 +48,12 @@ private:
 
 	//- - - Functions - - -
 	void jump();
-	bool onGround();
+	void groundCheck();
+	void bounceCheck(Vector3 normal);
+	void slideCheck(Vector3 normal);
+	void slide(float td, Vector3 normal, float l);
 	void dash();
+	void bounce(Vector3 normal, float dt);
+	void movement(Vector3 normal, float dt, Vector3 collisionPoint);
+	float clamp(float x, float high, float low);
 };
