@@ -2,7 +2,6 @@
 #include "Input.h"
 #include "Camera.h"
 #include "Terrain.h"
-
 #include "Bow.h"
 
 class Player {
@@ -11,7 +10,7 @@ public:
 	~Player();
 	void initialize();
 	void update(float td, Terrain* terrain);
-	void bowUpdate();
+	void bowUpdate(float dt);
 	void rotatePlayer();
 	void draw();
 
@@ -48,6 +47,8 @@ private:
 	float3 m_playerRight;
 	float3 m_playerUp;
 	float m_cameraPitch, m_cameraYaw;
+	float m_aimZoom;
+	bool m_releasing;
 
 	//- - - Functions - - -
 	void groundCheck();

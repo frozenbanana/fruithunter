@@ -21,6 +21,8 @@ void Player::initialize() {
 	m_playerRight = DEFAULTFORWARD;
 	m_playerUp = DEFAULTUP;
 	m_cameraPitch = m_cameraYaw = 0.0f;
+	m_aimZoom = 0.0f;
+	m_releasing = false;
 }
 
 void Player::update(float td, Terrain* terrain) {
@@ -42,9 +44,9 @@ void Player::update(float td, Terrain* terrain) {
 	// player movement
 	float forceStrength = 10;
 	float3 force;
-	float3 playerStraightForward = float3(0, 1, 0).Cross(m_playerForward).Cross(float3(0,1,0));
+	float3 playerStraightForward = float3(0, 1, 0).Cross(m_playerForward).Cross(float3(0, 1, 0));
 	force += playerStraightForward * (Input::getInstance()->keyDown(Keyboard::W) -
-								   Input::getInstance()->keyDown(Keyboard::S));
+										 Input::getInstance()->keyDown(Keyboard::S));
 	force += m_playerRight * (Input::getInstance()->keyDown(Keyboard::D) -
 								 Input::getInstance()->keyDown(Keyboard::A));
 
@@ -100,16 +102,29 @@ void Player::update(float td, Terrain* terrain) {
 	m_camera.updateBuffer();
 
 	// Update bow
-	bowUpdate();
+	bowUpdate(td);
 	m_bow.rotate(m_cameraPitch, m_cameraYaw);
 	m_bow.update(td, getCameraPosition(), m_playerForward, m_playerRight);
 }
 
-void Player::bowUpdate() {
+void Player::bowUpdate(float dt) {
 	Input* input = Input::getInstance();
 
 	if (input->mouseDown(Input::MouseButton::RIGHT)) {
+		m_aimZoom = min(1.0f, m_aimZoom + dt * 2.0f);
+		m_camera.setFov(XM_PI / (3.0f * (1.0f + m_aimZoom)));
 		m_bow.aim();
+	}
+	if (m_releasing || input->mouseReleased(Input::MouseButton::RIGHT)) {
+		m_releasing = true;
+		m_bow.release();
+
+		if (m_aimZoom > 0.0f)
+			m_aimZoom -= dt * 2.0f;
+		else
+			m_releasing = false;
+
+		m_camera.setFov(XM_PI / (3.0f * (1.0f + m_aimZoom)));
 	}
 	if (input->mouseDown(Input::MouseButton::LEFT)) {
 		m_bow.charge();
@@ -117,8 +132,6 @@ void Player::bowUpdate() {
 	if (input->mouseUp(Input::MouseButton::LEFT)) {
 		m_bow.shoot(m_playerForward);
 	}
-
-
 }
 
 void Player::rotatePlayer() {

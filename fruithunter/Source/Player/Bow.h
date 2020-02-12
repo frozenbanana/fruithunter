@@ -9,6 +9,7 @@ public:
 	void draw();
 	void rotate(float pitch, float yaw);
 	void aim();
+	void release();
 	void charge();
 	void shoot(float3 direction);
 
@@ -22,6 +23,8 @@ private:
 	bool m_aiming = false;
 	bool m_charging = false;
 	bool m_shooting = false;
+	bool m_chargeReset = true;
+
 
 	float m_drawFactor = 0.0f;
 	float m_aimMovement = 0.0f;

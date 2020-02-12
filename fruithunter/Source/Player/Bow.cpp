@@ -68,12 +68,20 @@ void Bow::rotate(float pitch, float yaw) {
 
 void Bow::aim() { m_aiming = true; }
 
+void Bow::release() {
+	ErrorLogger::log("Release");
+	m_charging = false;
+	m_chargeReset = false;
+}
+
 void Bow::charge() {
-	if (!m_shooting)
+	if (!m_shooting && m_chargeReset)
 		m_charging = true;
 }
 
 void Bow::shoot(float3 direction) {
+	m_chargeReset = true;
+
 	if (m_charging) {
 		m_charging = false;
 		m_shooting = true;
