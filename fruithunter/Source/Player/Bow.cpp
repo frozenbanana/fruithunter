@@ -29,11 +29,11 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 
 	if (m_shooting) {
 		// Basic movement without physics or collisions.
-		arrowPhysics(dt, float3(10.f, 0.f, 0.f));
-		m_arrow.setPosition(m_arrow.getPosition() + m_arrowDirection * dt);
+		arrowPhysics(dt, float3(10.f, 0.f, 0.f)); //Updates arrow in flight, wind is currently hard coded.
+		m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
 
 		if (m_arrow.getPosition().y < 0.0f ||
-			(m_bow.getPosition() - m_arrow.getPosition()).Length() > 20.0f) {
+			(m_bow.getPosition() - m_arrow.getPosition()).Length() > 20.0f) { //replace with collision later
 			m_shooting = false;
 		}
 	}
@@ -69,13 +69,11 @@ void Bow::draw() {
 
 void Bow::rotate(float pitch, float yaw) {
 	m_bow.setRotation(float3(pitch, yaw, 0.0f));
-	// ErrorLogger::log(to_string(rotX) + " " + to_string(rotZ));
 }
 
 void Bow::aim() { m_aiming = true; }
 
 void Bow::release() { // Stops charging
-	ErrorLogger::log("Release");
 	m_charging = false;
 	m_chargeReset = false;
 }
@@ -93,7 +91,7 @@ void Bow::shoot(float3 direction) { // Shoots/fires the arrow
 		m_shooting = true;
 
 		float bowEfficiencyConstant = 400.0f;
-		float bowMaterialConstant = 0.05;
+		float bowMaterialConstant = 0.05f;
 
 		float velocity = pow((bowEfficiencyConstant * m_drawFactor) /
 								 (m_arrowMass + m_bowMass * bowMaterialConstant),
@@ -101,17 +99,15 @@ void Bow::shoot(float3 direction) { // Shoots/fires the arrow
 
 		direction.Normalize();
 
-		m_arrowDirection = direction * velocity;
-		m_oldArrowDirection = m_arrowDirection;
-		m_arrowForward = float3(direction.x, 0, direction.z);
-		ErrorLogger::log("Initial arrow speed: " + to_string(velocity));
+		m_arrowVelocity = direction * velocity;
+		m_oldArrowVelocity = m_arrowVelocity;//Required to calc rotation
 	}
 }
 
 void Bow::arrowPhysics(float dt, float3 windVector) { // Updates arrow in flight
 	// Update acceleration
 
-	float3 relativeVelocity = m_arrowDirection - windVector;
+	float3 relativeVelocity = m_arrowVelocity - windVector;
 
 	calcArea(relativeVelocity);
 
@@ -119,45 +115,28 @@ void Bow::arrowPhysics(float dt, float3 windVector) { // Updates arrow in flight
 
 	float3 acceleration = float3(
 		totalDragTimesLength * relativeVelocity.x,
-		(totalDragTimesLength * relativeVelocity.y) - 9.82,
+		(totalDragTimesLength * relativeVelocity.y) - 9.82f,
 		totalDragTimesLength * relativeVelocity.z);
 
-	m_arrowDirection += acceleration * dt;
+	m_arrowVelocity += acceleration * dt;
 
-	float3 normalisedNewDirection = m_arrowDirection;
-	normalisedNewDirection.Normalize();
-
-	float3 normalisedOldDirection = m_oldArrowDirection;
-	normalisedOldDirection.Normalize();
-
-	float angle = acos(normalisedNewDirection.Dot(normalisedOldDirection));
-
+	float angle = calcAngle(m_arrowVelocity, m_oldArrowVelocity);
 	m_arrow.rotateX(angle);
 
-
-	/*if (m_arrowDirection.y >= 0) {
-	m_arrow.setRotation(float3(
-			-acos(((m_arrowDirection.Dot(m_arrowForward) / (m_arrowDirection.Length())))),
-			m_arrow.getRotation().y, m_arrow.getRotation().z));
-	}
-	else {
-		m_arrow.setRotation(
-			float3(acos(((m_arrowDirection.Dot(m_arrowForward) / (m_arrowDirection.Length())))),
-				m_arrow.getRotation().y, m_arrow.getRotation().z));
-	}*/
-
-	m_oldArrowDirection = m_arrowDirection;
-	//ErrorLogger::log("Current arrow speed: " + to_string(m_arrowDirection.Length()));
+	m_oldArrowVelocity = m_arrowVelocity;
 }
 
 void Bow::calcArea(float3 relativeWindVector) {
-	float3 normalisedRelativeWind = relativeWindVector;
-	normalisedRelativeWind.Normalize();
-
-	float3 normalisedArrowDirection = m_arrowDirection;
-	normalisedArrowDirection.Normalize();
-
-	float angle = acos(normalisedRelativeWind.Dot(normalisedArrowDirection));
-
+	float angle = calcAngle(relativeWindVector, m_arrowVelocity);
 	m_arrowArea = ((1 -sin(angle)) * 0.0001f) + (sin(angle) * 0.005f);
+}
+
+float Bow::calcAngle(float3 vec1, float3 vec2) {
+	float3 normalisedVec1 = vec1;
+	normalisedVec1.Normalize();
+
+	float3 normalisedVec2 = vec2;
+	normalisedVec2.Normalize();
+
+	return acos(normalisedVec1.Dot(normalisedVec2));
 }
