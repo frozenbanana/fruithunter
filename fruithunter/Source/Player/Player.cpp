@@ -35,8 +35,8 @@ void Player::update(float dt, Terrain* terrain) {
 	// player movement
 	float3 force;
 	float3 playerStraightForward = m_playerRight.Cross(float3(0, 1, 0));
-	force += playerStraightForward * (ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD));
-	force += m_playerRight * (ip->keyDown(KEY_RIGHT) - ip->keyDown(KEY_LEFT));
+	force += playerStraightForward * (float)(ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD));
+	force += m_playerRight * (float)(ip->keyDown(KEY_RIGHT) - ip->keyDown(KEY_LEFT));
 
 	// movement
 	m_position += m_velocity * dt;
@@ -125,7 +125,20 @@ void Player::updateBow(float dt) {
 	Input* input = Input::getInstance();
 
 	if (input->mouseDown(Input::MouseButton::RIGHT)) {
+		m_aimZoom = min(1.0f, m_aimZoom + dt * 2.0f);
+		m_camera.setFov(XM_PI / (3.0f * (1.0f + m_aimZoom)));
 		m_bow.aim();
+	}
+	if (m_releasing || input->mouseReleased(Input::MouseButton::RIGHT)) {
+		m_releasing = true;
+		m_bow.release();
+
+		if (m_aimZoom > 0.0f)
+			m_aimZoom -= dt * 2.0f;
+		else
+			m_releasing = false;
+
+		m_camera.setFov(XM_PI / (3.0f * (1.0f + m_aimZoom)));
 	}
 	if (input->mouseDown(Input::MouseButton::LEFT)) {
 		m_bow.charge();
@@ -139,7 +152,7 @@ void Player::updateBow(float dt) {
 }
 
 void Player::updateCamera() {
-	float playerHeight = PLAYER_HEIGHT - 0.5 * (m_dashCharge / DASHMAXCHARGE);
+	float playerHeight = PLAYER_HEIGHT - 0.5f * (m_dashCharge / DASHMAXCHARGE);
 	m_camera.setUp(m_playerUp);
 	m_camera.setEye(m_position + float3(0, playerHeight, 0));
 	m_camera.setTarget(m_position + float3(0, playerHeight, 0) + m_playerForward);
@@ -234,7 +247,7 @@ void Player::slide(float dt, float3 normal, float l) {
 		// standard slide effect with no friction
 		float3 longVel = m_velocity * dt; // full velocity this frame (called long velocity)
 		float3 shortVel = longVel * l;	  // velocity until collision (called short velocity)
-		m_velocity = (longVel - (longVel.Dot(normal) - shortVel.Dot(normal) - 0.001) * normal) / dt;
+		m_velocity = (longVel - (longVel.Dot(normal) - shortVel.Dot(normal) - 0.001f) * normal) / dt;
 	}
 }
 
