@@ -73,7 +73,6 @@ void Player::update(float dt, Terrain* terrain) {
 	}
 	else {
 		//FALL OF TERRAIN IF NO TERRAIN
-
 		// in air
 		updateVelocity_inAir(force, dt);
 	}
@@ -86,8 +85,6 @@ void Player::update(float dt, Terrain* terrain) {
 		else if (ip->keyReleased(KEY_DASH)) {
 			m_velocity += m_playerForward * m_dashForce * ((float)m_dashCharge / DASHMAXCHARGE);
 			consumeStamina(STAMINA_DASH_COST);
-			// reset
-			m_dashCharge = 0;
 		}
 	}
 	else {
@@ -290,7 +287,7 @@ void Player::updateVelocity_inAir(float3 playerForce, float dt) {
 }
 
 void Player::updateVelocity_onFlatGround(float3 playerForce, float dt) {
-	m_velocity *= GROUND_FRICTION; // ground friction
+	m_velocity *= pow(GROUND_FRICTION / 60.f, dt); // ground friction
 
 	// jump
 	if (Input::getInstance()->keyPressed(KEY_JUMP)) {
@@ -303,5 +300,5 @@ void Player::updateVelocity_onFlatGround(float3 playerForce, float dt) {
 
 void Player::updateVelocity_onSteepGround(float dt) {
 	m_velocity += m_gravity * dt;		// gravity if steep terrain
-	m_velocity *= GROUND_FRICTION_WEAK; // weak ground friction
+	m_velocity *= pow(GROUND_FRICTION_WEAK / 60.f, dt); // weak ground friction
 }
