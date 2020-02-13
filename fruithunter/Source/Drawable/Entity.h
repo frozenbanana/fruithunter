@@ -2,6 +2,7 @@
 #include "GlobalNamespaces.h"
 #include "Mesh.h"
 #include "Animated.h"
+#include "EntityCollision.h"
 
 #define MODEL_MATRIX_BUFFER_SLOT 0
 
@@ -13,8 +14,9 @@ private:
 								  // is updated when it is fetched
 
 	Mesh m_mesh;
-
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_modelMatrixBuffer;
+
+	EntityCollision m_collisionData;
 
 	struct MatrixBuffer {
 		float4x4 matWorld, matInvTraWorld;
@@ -23,6 +25,11 @@ private:
 	void updateMatrix();
 	void bindModelMatrixBuffer();
 	void createBuffers();
+
+	// Collision related
+	bool collisionSphere_Sphere(Entity& other);
+	bool collisionSphere_OBB(Entity& other);
+	bool collisionOBB_OBB(Entity& other);
 
 protected:
 	float3 m_position;
@@ -59,6 +66,13 @@ public:
 	void setFrameTargets(int first, int second);
 	bool load(string filename);
 	bool loadAnimated(string filename, int nrOfFrames);
+
+	float castRay(float3 point, float3 direction);
+
+	// Collisions
+	bool checkCollision(Entity& other);
+	void setCollisionData(EntityCollision data);
+	void setCollisionPosition(float3 pos);
 
 	Entity(string meshName = "", float3 position = float3(0, 0, 0),
 		float3 rotation = float3(0, 0, 0), float3 scale = float3(1, 1, 1));

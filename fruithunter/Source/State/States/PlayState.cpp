@@ -26,15 +26,8 @@ void PlayState::initialize() {
 	float3 bananaPos(12.f); // middle of terrain ish..
 	bananaPos = float3(bananaPos.x, m_terrainManager.getHeightFromPosition(bananaPos), bananaPos.z);
 	m_banana.setStartPosition(bananaPos);
-
-
-	m_melon.setPosition(float3(7.f, 1.f, 5.0f));
-	m_melon.setWorldHome(float3(5.f, 1.f, 7.f));
-
-
-	m_apple.setPosition(float3(7.f, 1.f, 7.f));
-	// m_apple.setPosition(float3(m_apple.getPosition().x,
-	//	m_terrain.getHeightFromPosition(m_apple.getPosition()), m_apple.getPosition().z));
+	m_melon.setPosition(float3(-1.f));
+	// m_melon.setCollisionData(EntityCollision(m_melon.getPosition(), 1.f));
 }
 
 void PlayState::update() {
