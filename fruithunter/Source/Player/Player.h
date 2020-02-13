@@ -53,8 +53,8 @@ private:
 	Bow m_bow;
 
 	// Player behavior
-	bool m_onGround;						 // if player is grounded
-	float3 m_gravity = float3(0, -1, 0) * 5; // direction * strength
+	bool m_onGround;						// if player is grounded
+	float3 m_gravity = float3(0, -9.82, 0); // direction * strength
 	// movement speed
 	float m_speed = 10.f;			   // player movement strength
 	float m_speedSprint = 25.f;		   // player movement strength when sprinting
@@ -77,8 +77,8 @@ private:
 	float m_dashCharge = 0.f;			  // charge of dash in seconds
 	bool m_chargingDash = false;		  // is the player charging
 
-		// Inventory
-		size_t m_inventory[FRUITS]; // APPLE 0, BANANA 1, MELON 2
+	// Inventory
+	size_t m_inventory[FRUITS]; // APPLE 0, BANANA 1, MELON 2
 
 	// Orientation
 	float3 m_playerForward = DEFAULTFORWARD;
@@ -95,8 +95,9 @@ private:
 	float getPlayerMovementSpeed() const;
 
 	/*
-	 * consumes stamina and next time restoreStamina() is called it will fail. Making so that the stamina only restores when not being used
-	*/
+	 * consumes stamina and next time restoreStamina() is called it will fail. Making so that the
+	 * stamina only restores when not being used
+	 */
 	void consumeStamina(float amount);
 	void restoreStamina(float amount);
 };

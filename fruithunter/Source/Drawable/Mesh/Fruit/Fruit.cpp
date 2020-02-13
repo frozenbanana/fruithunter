@@ -3,14 +3,15 @@
 
 void Fruit::setStartPosition(float3 pos) {
 	setPosition(pos);
-	m_startPos = pos;
-	m_heightPos = pos;
-	m_destinationPos = pos;
-	m_nextDestinationPos = pos;
+	setWorldHome(pos);
+	m_startAnimationPosition = pos;
+	m_heightAnimationPosition = pos;
+	m_destinationAnimationPosition = pos;
+	m_nextDestinationAnimationPosition = pos;
 }
 
 void Fruit::setNextDestination(float3 nextDest) {
-	m_nextDestinationPos =
+	m_nextDestinationAnimationPosition =
 		nextDest + float3(0.0f, 0.3f, 0.0f); // offset to adjust origo so pos it onup of terrain
 }
 
@@ -35,14 +36,17 @@ float Fruit::findRequiredRotation(float3 lookAt) {
 }
 
 void Fruit::setDestination() {
-	m_destinationPos = m_nextDestinationPos;
-	m_startPos = getPosition();
-	m_heightPos = XMVectorLerp(m_startPos, m_destinationPos, 0.5f);
-	m_heightPos.y += 1.f;
+	m_destinationAnimationPosition = m_nextDestinationAnimationPosition;
+	m_startAnimationPosition = getPosition();
+	m_heightAnimationPosition =
+		XMVectorLerp(m_startAnimationPosition, m_destinationAnimationPosition, 0.5f);
+	m_heightAnimationPosition.y += 1.f;
 }
+void Fruit::setWorldHome(float3 pos) { m_worldHome = pos; }
 
 Fruit::Fruit(float3 pos) : Entity() {
 	setStartPosition(pos);
+	m_worldHome = pos;
 	m_nrOfFramePhases = 0;
 	m_currentFramePhase = 0;
 	m_frameTime = 0.0f;

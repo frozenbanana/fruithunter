@@ -3,19 +3,11 @@
 
 class Melon : public Fruit {
 private:
-	// struct Phase {
-	//	float3 position;
-	//	float phaseSpeed;
-	//	float3 rotationSpeed;
-
-	//	Phase(float3 pos, float fspeed, float3 rotSpeed) {
-	//		position = pos;
-	//		phaseSpeed = fspeed;
-	//		rotationSpeed = rotSpeed;
-	//	}
-	//};
-
-	float m_rollSpeed;
+	float m_rollAnimationSpeed;
+	float3 m_secondWorldHome;
+	void behaviorPassive(float3 playerPosition) override;
+	void behaviorActive(float3 playerPosition) override;
+	void behaviorCaught(float3 playerPosition) override;
 
 	// void updatePhases(Phase phases[]);
 	void roll(float dt);

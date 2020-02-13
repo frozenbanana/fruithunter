@@ -9,8 +9,8 @@ Player::~Player() {}
 void Player::initialize() {
 	m_position = float3(0.0f, 0.0f, -4.0f);
 	m_velocity = float3(0.0f, 0.0f, 0.0f);
-	m_gravity = -9.82f;
 	m_playerForward = DEFAULTFORWARD;
+}
 
 void Player::update(float dt, Terrain* terrain) {
 	Input* ip = Input::getInstance();
@@ -98,8 +98,8 @@ void Player::update(float dt, Terrain* terrain) {
 		}
 	}
 	else {
-		//return to original state
-		m_dashCharge = clamp(m_dashCharge - 2*dt, DASHMAXCHARGE, 0);
+		// return to original state
+		m_dashCharge = clamp(m_dashCharge - 2 * dt, DASHMAXCHARGE, 0);
 	}
 
 	// sprint
@@ -268,7 +268,8 @@ void Player::consumeStamina(float amount) {
 
 void Player::restoreStamina(float amount) {
 	if (!m_staminaConsumed)
-		m_stamina = clamp(m_stamina + amount, STAMINA_MAX, 0);//restore stamina if no stamina was consumed
+		m_stamina =
+			clamp(m_stamina + amount, STAMINA_MAX, 0); // restore stamina if no stamina was consumed
 	m_staminaConsumed = false; // set to false because this function should be called only once per
 							   // frame, fixing the statement to next frame.
 }

@@ -30,11 +30,12 @@ void PlayState::initialize() {
 	m_melon.setPosition(float3(7.f, 1.f, 5.0f));
 	m_melon.setPosition(float3(m_melon.getPosition().x,
 		m_terrain.getHeightFromPosition(m_melon.getPosition()), m_melon.getPosition().z));
+	m_melon.setWorldHome(float3(5.f, 1.f, 7.f));
 
 
 	m_apple.setPosition(float3(7.f, 1.f, 7.f));
-	m_apple.setPosition(float3(m_apple.getPosition().x,
-		m_terrain.getHeightFromPosition(m_apple.getPosition()), m_apple.getPosition().z));
+	// m_apple.setPosition(float3(m_apple.getPosition().x,
+	//	m_terrain.getHeightFromPosition(m_apple.getPosition()), m_apple.getPosition().z));
 }
 
 void PlayState::update() {
@@ -49,39 +50,21 @@ void PlayState::update() {
 	// m_bow.updateAnimated(dt);
 
 	// update apple
-	float appleHeight = 0.1f + m_terrain.getHeightFromPosition(m_apple.getPosition());
-	/*
-	float x = m_apple.getPosition().x;
-	float z = m_apple.getPosition().z;
-	float3 newApplePosition = float3(x, appleHeight, z);
-
-	if (m_apple.getState() != AI::State::ACTIVE) {
-		m_apple.setNextDestination(newApplePosition);
-	}*/
-	// m_apple.update(dt, playerPos, appleHeight);
-
+	// m_apple.update(dt, playerPos, &m_terrain);
 
 
 	// update melon
 	m_melon.update(dt, playerPos, &m_terrain);
 
-	// update banana
-	float3 bounceDestination =
-		m_terrain.getNormalFromPosition(m_banana.getPosition().x, m_banana.getPosition().y);
-	bounceDestination.y = 0;
-	bounceDestination.Normalize();
-	bounceDestination *= 3;
-	bounceDestination += m_banana.getPosition();
-	bounceDestination.y = m_terrain.getHeightFromPosition(bounceDestination.x, bounceDestination.z);
-	m_banana.setNextDestination(bounceDestination);
-	m_banana.updateAnimated(dt);
-
 	// update melon
-	m_melon.setNextDestination(m_player.getPosition());
-	m_melon.updateAnimated(dt);
-	float3 melonPos = m_melon.getPosition();
-	melonPos.y = m_terrain.getHeightFromPosition(melonPos.x, melonPos.z);
-	m_melon.setPosition(melonPos);
+	// m_melon.setNextDestination(m_player.getPosition());
+
+	// float3 melonPos = m_melon.getPosition();
+	// melonPos.y = m_terrain.getHeightFromPosition(melonPos.x, melonPos.z);
+	// m_melon.setPosition(melonPos);
+
+	// update banana
+	// m_banana.update(dt, playerPos, &m_terrain);
 }
 
 void PlayState::handleEvent() { return; }

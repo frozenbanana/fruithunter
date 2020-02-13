@@ -1,5 +1,9 @@
 #include "Banana.h"
 
+void Banana::behaviorPassive(float3 playerPosition) { ErrorLogger::log("Banana:: Doing passive."); }
+void Banana::behaviorActive(float3 playerPosition) { ErrorLogger::log("Banana:: Doing active."); }
+void Banana::behaviorCaught(float3 playerPosition) { ErrorLogger::log("Banana:: Doing caught."); }
+
 Banana::Banana(float3 pos) : Fruit(pos) {
 	loadAnimated("Banana", 3);
 	m_nrOfFramePhases = 5;
@@ -26,15 +30,30 @@ void Banana::updateAnimated(float dt) {
 	}
 }
 
+void Banana::update(float dt, Vector3 playerPosition, Terrain* terrain) {
+
+	float3 bounceDestination = terrain->getNormalFromPosition(getPosition().x, getPosition().y);
+	bounceDestination.y = 0;
+	bounceDestination.Normalize();
+	bounceDestination *= 3;
+	bounceDestination += getPosition();
+	bounceDestination.y = terrain->getHeightFromPosition(bounceDestination.x, bounceDestination.z);
+	setNextDestination(bounceDestination);
+	updateAnimated(dt);
+
+
+	doBehavior(playerPosition);
+}
+
 void Banana::updateFirstJump(float dt) {
 	int frameOrder[] = { 0, 1, 0, 2, 0, 1 }; // Order of using keyframes
 	float3 posOrder[6] = {
-		m_startPos,
-		m_startPos,
-		m_startPos,
-		m_heightPos,
-		m_destinationPos,
-		m_destinationPos,
+		m_startAnimationPosition,
+		m_startAnimationPosition,
+		m_startAnimationPosition,
+		m_heightAnimationPosition,
+		m_destinationAnimationPosition,
+		m_destinationAnimationPosition,
 	};
 	bool justChanged = false;
 	float frameSpeedOrder[] = { 4.f, 5.f, 2.0f, 1.9f, 4.f, 2.f };
@@ -47,7 +66,7 @@ void Banana::updateFirstJump(float dt) {
 		if (m_currentFramePhase == m_nrOfFramePhases) {
 			m_currentFramePhase = 0;
 			justChanged = true;
-			setRotation(float3(0.f, findRequiredRotation(m_nextDestinationPos), 0.f));
+			setRotation(float3(0.f, findRequiredRotation(m_nextDestinationAnimationPosition), 0.f));
 
 			// start bouncing
 			m_nrOfFramePhases = 3;
@@ -77,9 +96,9 @@ void Banana::updateBounce(float dt) {
 
 	int frameOrder[] = { 1, 2, 1 }; // Order of using keyframes
 	float3 posOrder[] = {
-		m_startPos,
-		m_heightPos,
-		m_destinationPos,
+		m_startAnimationPosition,
+		m_heightAnimationPosition,
+		m_destinationAnimationPosition,
 	};
 	bool justChanged = false;
 	float frameSpeedOrder[] = { 2.f, 2.0f, 15.9f };
@@ -93,7 +112,7 @@ void Banana::updateBounce(float dt) {
 			m_currentFramePhase = 0;
 			justChanged = true;
 			bounce();
-			setRotation(float3(0.f, findRequiredRotation(m_nextDestinationPos), 0.f));
+			setRotation(float3(0.f, findRequiredRotation(m_nextDestinationAnimationPosition), 0.f));
 		}
 
 		m_meshAnim.setFrameTargets(frameOrder[m_currentFramePhase],
@@ -125,7 +144,7 @@ void Banana::bounce() {
 		m_nrOfFramePhases = 6;
 	}
 	else {
-		m_heightPos.y += m_bounciness;
+		m_heightAnimationPosition.y += m_bounciness;
 		m_bounciness -= 0.3f;
 		rotRandom();
 	}

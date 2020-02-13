@@ -89,3 +89,17 @@ void AI::pathfinding(float3 start, float3 end) {
 void AI::changeState(State newState) { m_currentState = newState; }
 
 AI::State AI::getState() const { return m_currentState; }
+
+void AI::doBehavior(float3 playerPosition) {
+	switch (m_currentState) {
+	case PASSIVE:
+		behaviorPassive(playerPosition);
+		break;
+	case ACTIVE:
+		behaviorActive(playerPosition);
+		break;
+	case CAUGHT:
+		behaviorCaught(playerPosition);
+		break;
+	}
+}
