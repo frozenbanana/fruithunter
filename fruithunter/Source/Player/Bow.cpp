@@ -102,7 +102,7 @@ void Bow::shoot(float3 direction) { // Shoots/fires the arrow
 		direction.Normalize();
 
 		m_arrowDirection = direction * velocity;
-		m_arrowForward = float3(direction.x, direction.y, direction.z);
+		m_arrowForward = float3(direction.x, 0, direction.z);
 		ErrorLogger::log("Initial arrow speed: " + to_string(velocity));
 	}
 }
@@ -116,22 +116,17 @@ void Bow::arrowPhysics(float dt) { // Updates arrow in flight
 
 	m_arrowDirection += acceleration * dt;
 
-	if (m_arrowDirection.y > 0) {
-		/*m_arrow.setRotation(
-			float3(-acos(((m_arrowDirection.Dot(m_arrowForward) / (m_arrowDirection.Length())))),
-				m_arrowForward.z, m_arrowForward.x));*/
-		m_arrow.rotateX(
-			(acos(((m_arrowDirection.Dot(m_arrowForward) / (m_arrowDirection.Length()))))));
+	if (m_arrowDirection.y >= 0) {
+	m_arrow.setRotation(float3(
+			-acos(((m_arrowDirection.Dot(m_arrowForward) / (m_arrowDirection.Length())))),
+			m_arrow.getRotation().y, m_arrow.getRotation().z));
 	}
-	else { //YOU WERE HERE
-		/*m_arrow.setRotation(
+	else {
+		m_arrow.setRotation(
 			float3(acos(((m_arrowDirection.Dot(m_arrowForward) / (m_arrowDirection.Length())))),
-				m_arrowForward.z, m_arrowForward.x));*/
-		m_arrow.rotateX((-acos(((m_arrowDirection.Dot(m_arrowForward) / (m_arrowDirection.Length()))))));
+				m_arrow.getRotation().y, m_arrow.getRotation().z));
 	}
 
-	//m_arrow.rotateX(1.0f);
 
 	ErrorLogger::log("Current arrow speed: " + to_string(m_arrowDirection.Length()));
-	// m_arrow.setRotation();
 }
