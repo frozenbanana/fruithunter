@@ -67,6 +67,8 @@ public:
 	bool load(string filename);
 	bool loadAnimated(string filename, int nrOfFrames);
 
+	float castRay(float3 point, float3 direction);
+
 	// Collisions
 	bool checkCollision(Entity& other);
 	void setCollisionData(EntityCollision data);

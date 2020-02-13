@@ -2,7 +2,6 @@
 #include "Input.h"
 #include "Camera.h"
 #include "Terrain.h"
-
 #include "Bow.h"
 
 class Player {
@@ -86,6 +85,8 @@ private:
 	float3 m_playerRight = DEFAULTRIGHT;
 	float3 m_playerUp = DEFAULTUP;
 	float m_cameraPitch, m_cameraYaw;
+	float m_aimZoom;
+	bool m_releasing;
 
 	//- - - Functions - - -
 	/*
@@ -101,4 +102,8 @@ private:
 	 */
 	void consumeStamina(float amount);
 	void restoreStamina(float amount);
+
+	void updateVelocity_inAir(float3 playerForce, float dt);
+	void updateVelocity_onFlatGround(float3 playerForce, float dt);
+	void updateVelocity_onSteepGround(float dt);
 };

@@ -8,10 +8,11 @@ Camera::Camera() {
 	m_camTarget = float3(0.0, 0.0, 0.0);
 	m_camUp = float3(0.0, 1.0, 0.0);
 
-	m_projMatrix = DirectX::XMMatrixPerspectiveFovLH(
-		3.14159265f / 4.0f, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, 0.1f, 100.0f);
-	m_viewMatrix = DirectX::XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
-	m_vpMatrix = DirectX::XMMatrixMultiply(m_viewMatrix, m_projMatrix);
+	m_fov = XM_PI / 3.0f;
+	m_projMatrix = XMMatrixPerspectiveFovLH(
+		m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, 0.1f, 100.0f);
+	m_viewMatrix = XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
+	m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 
 	// Create constant buffer
 	auto device = Renderer::getInstance()->getDevice();
@@ -35,10 +36,11 @@ Camera::Camera(float3 camEye, float3 camTarget, float3 camUp) {
 	m_camTarget = camTarget;
 	m_camUp = camUp;
 
-	m_projMatrix = DirectX::XMMatrixPerspectiveFovLH(
-		3.14159265f / 4.0f, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, 0.1f, 100.0f);
-	m_viewMatrix = DirectX::XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
-	m_vpMatrix = DirectX::XMMatrixMultiply(m_viewMatrix, m_projMatrix);
+	m_fov = XM_PI / 3.0f;
+	m_projMatrix = XMMatrixPerspectiveFovLH(
+		m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, 0.1f, 100.0f);
+	m_viewMatrix = XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
+	m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 
 	// Create constant buffer
 	auto device = Renderer::getInstance()->getDevice();
@@ -80,11 +82,22 @@ void Camera::setView(float3 camEye, float3 camTarget, float3 camUp) {
 	m_viewChanged = true;
 }
 
+void Camera::setFov(float fov) {
+	m_fov = fov;
+	m_projChanged = true;
+}
+
 void Camera::updateBuffer() {
 	if (m_viewChanged) {
-		m_viewMatrix = DirectX::XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
-		m_vpMatrix = DirectX::XMMatrixMultiply(m_viewMatrix, m_projMatrix);
+		m_viewMatrix = XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
+		m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 		m_viewChanged = false;
+	}
+	if (m_projChanged) {
+		m_projMatrix = XMMatrixPerspectiveFovLH(
+			m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, 0.1f, 100.0f);
+		m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
+		m_projChanged = false;
 	}
 
 	auto deviceContext = Renderer::getDeviceContext();
@@ -97,6 +110,6 @@ void Camera::bindMatrix() {
 	deviceContext->VSSetConstantBuffers(MATRIX_SLOT, 1, m_matrixBuffer.GetAddressOf());
 }
 
-DirectX::SimpleMath::Matrix Camera::getViewProjMatrix() const { return m_vpMatrix; }
+float4x4 Camera::getViewProjMatrix() const { return m_vpMatrix; }
 
 float3 Camera::getPosition() const { return m_camEye; }

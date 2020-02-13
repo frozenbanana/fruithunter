@@ -8,8 +8,10 @@
 void PlayState::initialize() {
 	m_name = "Play State";
 
-	m_terrain.initilize("heightmap1.png", XMINT2(50, 50), XMINT2(10, 10));
-	m_terrain.setScale(float3(1, 0.25, 1) * 25);
+	m_terrainManager.add(float3(0, 0, 0), "heightmap3.jpg", XMINT2(50, 50), XMINT2(5, 5));
+	m_terrainManager.add(float3(10, 0, 0), "heightmap3.jpg", XMINT2(50, 50), XMINT2(5, 5));
+	m_terrainManager.add(float3(0, 0, 10), "heightmap3.jpg", XMINT2(50, 50), XMINT2(5, 5));
+	m_terrainManager.add(float3(10, 0, 10), "heightmap3.jpg", XMINT2(50, 50), XMINT2(5, 5));
 
 	// m_entity.load("sphere");
 	// m_entity.setScale(0.1f);
@@ -22,8 +24,8 @@ void PlayState::initialize() {
 
 	m_player.setPosition(float3(13.f));
 	float3 bananaPos(12.f);
-	bananaPos =
-		float3(bananaPos.x, m_terrain.getHeightFromPosition(bananaPos.x, bananaPos.z), bananaPos.z);
+	bananaPos = float3(
+		bananaPos.x, m_terrainManager.getHeightFromPosition(bananaPos), bananaPos.z);
 	m_banana.setStartPosition(bananaPos);
 	m_melon.setPosition(float3(-1.f));
 	// m_melon.setCollisionData(EntityCollision(m_melon.getPosition(), 1.f));
@@ -35,7 +37,7 @@ void PlayState::update() {
 	m_timer.update();
 	float dt = m_timer.getDt();
 
-	m_player.update(dt, &m_terrain);
+	m_player.update(dt, m_terrainManager.getTerrainFromPosition(m_player.getPosition()));
 	// m_bow.updateAnimated(dt);
 
 	// update apple
@@ -47,19 +49,19 @@ void PlayState::update() {
 
 	// update banana
 	float3 bounceDir =
-		m_terrain.getNormalFromPosition(m_banana.getPosition().x, m_banana.getPosition().y);
+		m_terrainManager.getNormalFromPosition(m_banana.getPosition());
 	bounceDir.y = 0;
 	bounceDir.Normalize();
 	bounceDir *= 3;
 	bounceDir += m_banana.getPosition();
-	bounceDir.y = m_terrain.getHeightFromPosition(bounceDir.x, bounceDir.z);
+	bounceDir.y = m_terrainManager.getHeightFromPosition(bounceDir);
 	m_banana.setNextDestination(bounceDir);
 	m_banana.updateAnimated(dt);
 
 	// update melon
 	m_melon.setNextDestination(m_player.getPosition());
 	float3 melonPos = m_melon.getPosition();
-	melonPos.y = m_terrain.getHeightFromPosition(melonPos.x, melonPos.z);
+	melonPos.y = m_terrainManager.getHeightFromPosition(melonPos);
 	m_melon.setPosition(melonPos);
 	m_melon.updateAnimated(dt);
 
@@ -79,7 +81,7 @@ void PlayState::pause() {
 
 void PlayState::draw() {
 	m_player.draw();
-	m_terrain.draw();
+	m_terrainManager.draw();
 
 	/*
 	float3 p = m_player.getPosition();

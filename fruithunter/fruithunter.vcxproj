@@ -174,6 +174,7 @@
     <ClCompile Include="Source\Drawable\Mesh\Quad.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\SkyBox\SkyBox.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Terrain\Terrain.cpp" />
+    <ClCompile Include="Source\Drawable\Mesh\Terrain\TerrainManager.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Text\TextRenderer.cpp" />
     <ClCompile Include="Source\Graphics\Renderer.cpp" />
     <ClCompile Include="Source\Graphics\ShaderSet.cpp" />
@@ -205,6 +206,7 @@
     <ClInclude Include="Source\Drawable\Mesh\Quad.h" />
     <ClInclude Include="Source\Drawable\Mesh\SkyBox\SkyBox.h" />
     <ClInclude Include="Source\Drawable\Mesh\Terrain\Terrain.h" />
+    <ClInclude Include="Source\Drawable\Mesh\Terrain\TerrainManager.h" />
     <ClInclude Include="Source\Drawable\Mesh\Text\TextRenderer.h" />
     <ClInclude Include="Source\Graphics\Renderer.h" />
     <ClInclude Include="Source\Graphics\ShaderSet.h" />
