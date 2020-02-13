@@ -136,6 +136,23 @@ bool Entity::loadAnimated(string filename, int nrOfFrames) {
 	return m_meshAnim.load(filename, nrOfFrames);
 }
 
+float Entity::castRay(float3 rayPos, float3 rayDir) { 
+	float4x4 mWorld = getModelMatrix();
+	float4x4 mInvWorld = mWorld.Invert();
+	float3 lrayPos = XMVector4Transform(float4(rayPos.x, rayPos.y, rayPos.z, 1), mInvWorld);
+	float3 lrayDir =
+		XMVector4Transform(float4(rayDir.x, rayDir.y, rayDir.z, 0), mInvWorld.Transpose().Invert());
+	lrayDir.Normalize();
+
+	float t = m_mesh.castRayOnMesh(lrayPos, lrayDir);
+	if (t > 0) {
+		float3 target = XMVector3Transform(lrayPos + lrayDir * t, mWorld);
+		return (target.x - rayPos.x) / rayDir.x;
+	}
+	else
+		return -1;
+}
+
 Entity::Entity(string filename, float3 position, float3 rotation, float3 scale) {
 	load(filename);
 	m_position = position;
