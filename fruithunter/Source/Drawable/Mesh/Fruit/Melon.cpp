@@ -16,24 +16,26 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 }
 
 void Melon::behaviorPassive(float3 playerPosition) {
-	ErrorLogger::log("Melon:: Doing passive.");
+	/*ErrorLogger::log("Melon:: Doing passive.");
 
 	ErrorLogger::log("m_position:  (" + std::to_string(m_position.x) + " , " +
 					 std::to_string(m_position.y) + " , " + std::to_string(m_position.y) +
-					 "), \nm_worldHome: (" std::to_string(m_worldHome.x) + " , " +
+					 "), \nm_worldHome: (" + std::to_string(m_worldHome.x) + " , " +
 					 std::to_string(m_worldHome.y) + " , " + std::to_string(m_worldHome.z) + ")" +
 					 "\nm_secondWorldHome: (" + std::to_string(m_secondWorldHome.x) + " , " +
 					 std::to_string(m_secondWorldHome.y) + " , " +
-					 std::to_string(m_secondWorldHome.z) + ")");
-
-	if ((m_worldHome - m_position).Length() < 0.1f) {
+					 std::to_string(m_secondWorldHome.z) + ")");*/
+	m_worldHome.y = m_position.y;
+	m_secondWorldHome.y = m_position.y;
+	float3 toHome = m_worldHome - m_position;
+	if (toHome.Length() < 0.1f || toHome.Length() > (m_worldHome - m_secondWorldHome).Length()) {
 		ErrorLogger::log("Melon:: going to second home");
 		m_direction = m_secondWorldHome - m_position;
 		lookTo(m_secondWorldHome);
 		m_direction.Normalize();
 	}
-
-	if ((m_secondWorldHome - m_position).Length() < 0.1f) {
+	toHome = m_secondWorldHome - m_position;
+	if (toHome.Length() < 0.1f) {
 		m_direction = m_worldHome - m_position;
 		ErrorLogger::log("Melon:: going to home");
 
@@ -48,7 +50,23 @@ void Melon::behaviorPassive(float3 playerPosition) {
 
 void Melon::behaviorActive(float3 playerPosition) {
 	ErrorLogger::log("Melon:: Doing active.");
+	m_direction = m_worldHome - m_position;
+	m_direction.Normalize();
+	// TODO:
+	/*  1. Make a vektor from player to melon
+		2. Rotate that vektor with an angle
+		3. set the rotated vektor as new destination
 
+	*/
+	float3 target = m_worldHome - m_position;
+	target.Normalize();
+	float angle = 3.14f * 2.f;
+	Matrix rotationMatrix = Matrix(cos(angle), 0.f, -sin(angle), 0.f, 0.f, 1.f, 0.f, 0.f,
+		sin(angle), 0.f, cos(angle), 0.f, 0.f, 0.f, 0.f, 1.f);
+
+	target = m_direction.Transform(target, rotationMatrix);
+	m_direction = target - m_position;
+	lookTo(target);
 	if ((playerPosition - m_position).Length() > 4.0f) {
 		changeState(PASSIVE);
 	}
