@@ -2,112 +2,126 @@
 #include "Renderer.h"
 #include "Errorlogger.h"
 
-Player::Player() {}
+Player::Player() { initialize(); }
 
 Player::~Player() {}
 
-void Player::initialize() {
-	m_position = float3(0.0f, 0.0f, -4.0f);
-	m_velocity = float3(0.0f, 0.0f, 0.0f);
-	m_gravity = -9.82f;
-	m_playerForward = DEFAULTFORWARD;
+void Player::initialize() { m_camera.setView(m_position, m_playerForward, float3(0.0, 1.0, 0.0)); }
 
-	m_speed = 2.10f;
-	m_velocityFactorFrontBack = 0.0f;
-	m_velocityFactorStrafe = 0.0f;
-
-	m_camera.setView(m_position, m_playerForward, float3(0.0, 1.0, 0.0));
-
-	m_playerRight = DEFAULTFORWARD;
-	m_playerUp = DEFAULTUP;
-	m_cameraPitch = m_cameraYaw = 0.0f;
-	m_aimZoom = 0.0f;
-	m_releasing = false;
-}
-
-void Player::update(float td, Terrain* terrain) {
+void Player::update(float dt, Terrain* terrain) {
+	Input* ip = Input::getInstance();
 
 	// player rotation
 	rotatePlayer();
 
 	// modify velocity vector to match terrain
-	do {
-		Vector3 movement = m_velocity * 0.017f;
+	int loopCount = 100;
+	while (1) {
+		float3 movement = m_velocity * dt;
 		float l = terrain->castRay(m_position, movement);
 		if (l == -1)
-			break;
+			break; // break of no intersection was found!
 		float3 collisionPoint = m_position + movement * l;
 		float3 collisionNormal = terrain->getNormalFromPosition(collisionPoint.x, collisionPoint.z);
-		slide(td, collisionNormal, l);
-	} while (1);
+		slide(dt, collisionNormal, l);
+		loopCount--;
+		if (loopCount <= 0) {
+			ErrorLogger::logWarning(HRESULT(), "WARNING! Player collision with terrain calculated "
+											   "ALOT of iterations in the update function!");
+			break;
+		}
+	};
 
 	// player movement
-	float forceStrength = 10;
 	float3 force;
-	float3 playerStraightForward = float3(0, 1, 0).Cross(m_playerForward).Cross(float3(0, 1, 0));
-	force += playerStraightForward * (Input::getInstance()->keyDown(Keyboard::W) -
-										 Input::getInstance()->keyDown(Keyboard::S));
-	force += m_playerRight * (Input::getInstance()->keyDown(Keyboard::D) -
-								 Input::getInstance()->keyDown(Keyboard::A));
+	float3 playerStraightForward = m_playerRight.Cross(float3(0, 1, 0));
+	force += playerStraightForward * (ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD));
+	force += m_playerRight * (ip->keyDown(KEY_RIGHT) - ip->keyDown(KEY_LEFT));
 
 	// movement
-	m_position += m_velocity * td;
+	m_position += m_velocity * dt;
 
 	// onground
-	float3 normal = terrain->getNormalFromPosition(m_position.x, m_position.z);
-	float height = terrain->getHeightFromPosition(m_position.x, m_position.z);
+	float3 normal =
+		terrain->getNormalFromPosition(m_position.x, m_position.z); // normal on current position
+	float height = terrain->getHeightFromPosition(
+		m_position.x, m_position.z); // height of terrain on current position
 	float terrainSteepness = float3(0, 1, 0).Dot(normal);
 	m_position.y =
 		clamp(m_position.y, m_position.y, height); // clamp position to never go under terrain!
-	if (abs(m_position.y - height) < 0.025) {
+	if (abs(m_position.y - height) < ONGROUND_THRESHOLD) {
 		// on ground
 		m_onGround = true;
 
-		if (terrainSteepness < 0.6) {
+		if (terrainSteepness < STEEPNESS_BORDER) {
 			// STEEP terrain
-			m_velocity.y -= 5 * td; // gravity if steep terrain
-			m_velocity *= 0.99;		// weak ground friction
-
-			ErrorLogger::log("Steep terrain!");
+			m_velocity += m_gravity * dt;		// gravity if steep terrain
+			m_velocity *= GROUND_FRICTION_WEAK; // weak ground friction
 		}
 		else {
 			// FLAT terrian
-			m_velocity *= 0.9; // ground friction
+			m_velocity *= GROUND_FRICTION; // ground friction
 
 			// jump
-			if (Input::getInstance()->keyPressed(Keyboard::Space)) {
-				m_velocity.y = 2;
+			if (ip->keyPressed(KEY_JUMP)) {
+				m_velocity.y = m_jumpForce;
 			}
 
 			// add player forces
-			m_velocity += force * forceStrength * td;
+			m_velocity += force * getPlayerMovementSpeed() * dt;
 		}
 	}
 	else {
 		// in air
 		m_onGround = false;
 
-		m_velocity.y -= 5 * td; // gravity if not on ground
+		m_velocity += m_gravity * dt; // gravity if in air
 
 		// add forces
-		m_velocity += force * forceStrength * 0.2f * td;
+		m_velocity += force * m_speedInAir * dt;
 	}
 
+	// dash
+	if (m_stamina >= STAMINA_DASH_COST && !m_sprinting && m_onGround) {
+		if (ip->keyDown(KEY_DASH)) {
+			m_dashCharge = clamp(m_dashCharge + dt, DASHMAXCHARGE, 0);
+		}
+		else if (ip->keyReleased(KEY_DASH)) {
+			m_velocity += m_playerForward * m_dashForce * ((float)m_dashCharge / DASHMAXCHARGE);
+			consumeStamina(STAMINA_DASH_COST);
+			// reset
+			m_dashCharge = 0;
+		}
+	}
+	else {
+		//return to original state
+		m_dashCharge = clamp(m_dashCharge - 2*dt, DASHMAXCHARGE, 0);
+	}
 
+	// sprint
+	if (ip->keyPressed(KEY_SPRINT) && m_stamina > STAMINA_SPRINT_THRESHOLD && !m_chargingDash) {
+		// activate sprint
+		m_sprinting = true;
+	}
+	if (ip->keyDown(KEY_SPRINT) && m_sprinting && m_stamina > 0) {
+		// consume stamina
+		consumeStamina(STAMINA_SPRINT_CONSUMPTION * dt);
+	}
+	else {
+		m_sprinting = false;
+	}
+
+	// restore stamina
+	restoreStamina(dt); // should be called only once!
 
 	// update camera properties
-	m_camera.setUp(m_playerUp);
-	m_camera.setEye(m_position + float3(0, PLAYERHEIGHT, 0));
-	m_camera.setTarget(m_position + float3(0, PLAYERHEIGHT, 0) + m_playerForward);
-	m_camera.updateBuffer();
+	updateCamera();
 
 	// Update bow
-	bowUpdate(td);
-	m_bow.rotate(m_cameraPitch, m_cameraYaw);
-	m_bow.update(td, getCameraPosition(), m_playerForward, m_playerRight);
+	updateBow(dt);
 }
 
-void Player::bowUpdate(float dt) {
+void Player::updateBow(float dt) {
 	Input* input = Input::getInstance();
 
 	if (input->mouseDown(Input::MouseButton::RIGHT)) {
@@ -132,6 +146,17 @@ void Player::bowUpdate(float dt) {
 	if (input->mouseUp(Input::MouseButton::LEFT)) {
 		m_bow.shoot(m_playerForward);
 	}
+
+	m_bow.rotate(m_cameraPitch, m_cameraYaw);
+	m_bow.update(dt, getCameraPosition(), m_playerForward, m_playerRight);
+}
+
+void Player::updateCamera() {
+	float playerHeight = PLAYER_HEIGHT - 0.5 * (m_dashCharge / DASHMAXCHARGE);
+	m_camera.setUp(m_playerUp);
+	m_camera.setEye(m_position + float3(0, playerHeight, 0));
+	m_camera.setTarget(m_position + float3(0, playerHeight, 0) + m_playerForward);
+	m_camera.updateBuffer();
 }
 
 void Player::rotatePlayer() {
@@ -165,7 +190,7 @@ void Player::rotatePlayer() {
 		m_cameraPitch += 0.01f;
 
 	Matrix cameraRotationMatrix = XMMatrixRotationRollPitchYaw(m_cameraPitch, m_cameraYaw, 0.f);
-	Vector3 cameraTarget = XMVector3TransformCoord(m_playerForward, cameraRotationMatrix);
+	float3 cameraTarget = XMVector3TransformCoord(m_playerForward, cameraRotationMatrix);
 	cameraTarget = XMVector3Normalize(cameraTarget);
 
 	Matrix rotateYTempMatrix = XMMatrixRotationY(m_cameraYaw);
@@ -190,109 +215,39 @@ float3 Player::getVelocity() const { return m_velocity; }
 
 void Player::setPosition(float3 position) { m_position = position; }
 
-void Player::groundCheck() { // Check if you are on the ground
-	if (m_position.y <= m_groundHeight + 0.01f) {
-		m_onGround = true;
-		m_velocity.y = 0.0f; // Stop gravity if you are on the ground.
-		m_position.y = m_groundHeight;
-	}
-	else {
-		m_onGround = false;
-	}
-}
-
-void Player::bounceCheck(Vector3 normal) {
-	if (DEFAULTUP.Dot(normal) < 0.5f) {
-		m_bouncing = true;
-	}
-	else {
-		m_bouncing = false;
-	}
-}
-
-void Player::slideCheck(Vector3 normal) {
-	if (DEFAULTUP.Dot(normal) < 0.4f || m_velocity.Length() >= 1.5f) {
-		m_sliding = true;
-	}
-	else {
-		m_sliding = false;
-	}
-}
-
-void Player::slide(float td, Vector3 normal, float l) {
+void Player::slide(float dt, float3 normal, float l) {
 	if (l != -1) {
-		float friction = 0.0;
-		Vector3 longVel = m_velocity * td;
-		Vector3 shortVel = longVel * l;
-		Vector3 longVel_n = longVel.Dot(normal) * normal;
-		Vector3 shortVel_n = shortVel.Dot(normal) * normal;
-		Vector3 diffVel_n = longVel_n - shortVel_n;
-		Vector3 longVelocityOnPlane = longVel - longVel_n;
-		Vector3 shortVelocityOnPlane = shortVel - shortVel_n;
-		Vector3 diffVelocityOnPlane = longVelocityOnPlane - shortVelocityOnPlane;
-		Vector3 velOnPlaneNorm = longVelocityOnPlane;
-		velOnPlaneNorm.Normalize();
-		Vector3 frictionOnPlane = -velOnPlaneNorm * diffVel_n.Length() * friction;
-		if (frictionOnPlane.Length() > diffVelocityOnPlane.Length()) {
+		/*
+		 * Similar equation that applies friction to the sliding effect. Doesn't work nicely, so not
+		 * being used.
+		 */
+		/*
+		 float friction = 0.0;
+		 float3 longVel = m_velocity * dt;//full velocity this frame (called long velocity)
+		 float3 shortVel = longVel * l;//velocity until collision (called short velocity)
+		 float3 longVel_n = longVel.Dot(normal) * normal;//long velocity along normal
+		 float3 shortVel_n = shortVel.Dot(normal) * normal;// short velocity along normal
+		 float3 diffVel_n = longVel_n - shortVel_n;//difference between long and short velocity
+		along normal float3 longVelocityOnPlane = longVel - longVel_n;//long velocity along plane
+		 float3 shortVelocityOnPlane = shortVel - shortVel_n;// short velocity along plane
+		 float3 diffVelocityOnPlane = longVelocityOnPlane - shortVelocityOnPlane;//difference
+		between long and short velocity along plane float3 velOnPlaneNorm =
+		longVelocityOnPlane;//normalized direction of velocity along plane
+		 velOnPlaneNorm.Normalize();
+		 float3 frictionOnPlane = -velOnPlaneNorm * diffVel_n.Length() * friction;
+		 if (frictionOnPlane.Length() > diffVelocityOnPlane.Length()) {
 			frictionOnPlane *= 0;
 			diffVelocityOnPlane *= 0;
 		}
-		m_velocity = (shortVelocityOnPlane + shortVel_n + normal * 0.0001 + diffVelocityOnPlane +
+		 m_velocity = (shortVelocityOnPlane + shortVel_n + normal * 0.0001 + diffVelocityOnPlane +
 						 frictionOnPlane) /
-					 td;
-		return;
-		Vector3 slideVector =
-			longVel - ((longVel.Dot(normal) - shortVel.Dot(normal) - 0.001) * normal);
-		m_velocity = slideVector / td; // normalized
-	}
-}
+					 dt;
+		*/
 
-void Player::dash() {
-	if (m_dashCooldown > 0.0f) {
-		m_dashCooldown = 0.0f;
-		// m_velocityFactorFrontBack = 5.0f;
-		m_velocity += (m_playerForward * 10);
-		m_onGround = false;
-	}
-	else {
-		ErrorLogger::log(std::to_string(1 - m_dashCooldown));
-	}
-}
-
-void Player::bounce(Vector3 normal, float dt) {
-	// Reflection = InVector - 2(Invector * normal) * normal;
-	Vector3 bounceVector = 10 * (m_velocity - ((2 * m_velocity.Dot(normal) * normal)));
-	bounceVector.x = clamp(bounceVector.x, 0.5, -0.5);
-	bounceVector.z = clamp(bounceVector.z, 0.5, -0.5);
-	bounceVector.y = clamp(bounceVector.y, 0.5, -0.5);
-	bounceVector.y += m_gravity * dt;
-	m_velocity = bounceVector;
-	ErrorLogger::log("Boing " /* + std::to_string(m_velocity.y)*/);
-}
-
-void Player::movement(Vector3 normal, float dt, Vector3 collisionPoint) {
-	if (m_onGround) {
-		if (m_sliding) {
-			// slide(normal, collisionPoint);
-			m_velocity.y += (m_gravity * dt);
-		}
-		else if (m_bouncing) {
-			bounce(normal, dt);
-		}
-		else { // Running
-			   // To avoid "skipping" - Position along the Y-axis is avoided here under.
-			Vector3 flatForward =
-				XMVector3Normalize(Vector3(m_playerForward.x, 0.0f, m_playerForward.z));
-			m_velocity.x = m_velocityFactorFrontBack * flatForward.x;
-			m_velocity.z = m_velocityFactorFrontBack * flatForward.z;
-			m_velocity.x += m_velocityFactorStrafe * m_playerRight.x;
-			m_velocity.z += m_velocityFactorStrafe * m_playerRight.z;
-		}
-	}
-	else { // Flying
-		m_position.y = m_position.y + m_velocity.y * dt +
-					   (m_gravity * dt * dt) * 0.5f; // Pos2 = Pos1 + v1 * t + (a * t^2)/2
-		m_velocity.y += m_gravity * dt;
+		// standard slide effect with no friction
+		float3 longVel = m_velocity * dt; // full velocity this frame (called long velocity)
+		float3 shortVel = longVel * l;	  // velocity until collision (called short velocity)
+		m_velocity = (longVel - (longVel.Dot(normal) - shortVel.Dot(normal) - 0.001) * normal) / dt;
 	}
 }
 
@@ -304,4 +259,25 @@ float Player::clamp(float x, float high, float low) {
 		x = low;
 	}
 	return x;
+}
+
+float Player::getPlayerMovementSpeed() const {
+	if (m_dashCharge > 0)
+		return m_speedOnChargingDash;
+	if (Input::getInstance()->keyDown(KEY_SPRINT) && m_sprinting && m_stamina > 0)
+		return m_speedSprint;
+	else
+		return m_speed;
+}
+
+void Player::consumeStamina(float amount) {
+	m_stamina = clamp(m_stamina - amount, STAMINA_MAX, 0);
+	m_staminaConsumed = true;
+}
+
+void Player::restoreStamina(float amount) {
+	if (!m_staminaConsumed)
+		m_stamina = clamp(m_stamina + amount, STAMINA_MAX, 0);//restore stamina if no stamina was consumed
+	m_staminaConsumed = false; // set to false because this function should be called only once per
+							   // frame, fixing the statement to next frame.
 }

@@ -10,7 +10,8 @@ public:
 	~Player();
 	void initialize();
 	void update(float td, Terrain* terrain);
-	void bowUpdate(float dt);
+	void updateBow(float dt);
+	void updateCamera();
 	void rotatePlayer();
 	void draw();
 
@@ -21,42 +22,82 @@ public:
 	void setPosition(float3 position);
 
 private:
-	const float FACTORSTEPS = 0.1f;
+	// Keys
+	const Keyboard::Keys KEY_FORWARD = Keyboard::W;
+	const Keyboard::Keys KEY_BACKWARD = Keyboard::S;
+	const Keyboard::Keys KEY_LEFT = Keyboard::A;
+	const Keyboard::Keys KEY_RIGHT = Keyboard::D;
+	const Keyboard::Keys KEY_JUMP = Keyboard::Space;
+	const Keyboard::Keys KEY_DASH = Keyboard::LeftControl;
+	const Keyboard::Keys KEY_SPRINT = Keyboard::LeftShift;
+
 	const float3 DEFAULTFORWARD = float3(0.0f, 0.0f, 1.0f);
 	const float3 DEFAULTRIGHT = float3(1.0f, 0.0f, 0.0f);
 	const float3 DEFAULTUP = float3(0.0f, 1.0f, 0.0f);
-	const float PLAYERHEIGHT = 1.5f;
 
-	Camera m_camera;
-	Bow m_bow;
+	const float PLAYER_HEIGHT = 1.5f; // meters above ground
+	const float GROUND_FRICTION =
+		0.9f; // friction on flat terrain, reduces velocity by percentage (velocity *= friction)
+	const float GROUND_FRICTION_WEAK = 0.99f; // friction on steep terrain, --||--
+	const float STEEPNESS_BORDER =
+		0.6f; // value of dot product when flat terrain goes to steep terrain
+	const float ONGROUND_THRESHOLD =
+		0.025f; // extra height over terrain until player is not grounded
+
+
 	float3 m_position;
 	float3 m_velocity;
 
-	bool m_onGround;
-	bool m_bouncing;
-	bool m_sliding;
-	float m_gravity;
-	float m_speed;
-	float m_velocityFactorFrontBack;
-	float m_velocityFactorStrafe;
-	float m_groundHeight;
-	float m_dashCooldown;
-	size_t m_inventory[FRUITS]; // APPLE 0, BANANA 1, MELON 2
+	Camera m_camera;
+	Bow m_bow;
 
-	float3 m_playerForward;
-	float3 m_playerRight;
-	float3 m_playerUp;
+	// Player behavior
+	bool m_onGround;						 // if player is grounded
+	float3 m_gravity = float3(0, -1, 0) * 5; // direction * strength
+	// movement speed
+	float m_speed = 10.f;			   // player movement strength
+	float m_speedSprint = 25.f;		   // player movement strength when sprinting
+	float m_speedOnChargingDash = 2.f; // player movement when charging dash
+	float m_speedInAir = 2.f;		   // player movement in air
+	// jump
+	float m_jumpForce = 2.f; // strength of jump force
+	// stamina
+	const float STAMINA_MAX = 1.f;	// max value of sprint
+	float m_stamina = 1.f;			// stamina available
+	bool m_staminaConsumed = false; // stamina consumed this frame update
+	// sprint
+	const float STAMINA_SPRINT_THRESHOLD = 0.5f;  // threshold when sprinting is available
+	const float STAMINA_SPRINT_CONSUMPTION = 1.f; // stamina consumed per seconds
+	bool m_sprinting = false;					  // is the player sprinting
+	// dash
+	float m_dashForce = 10.f;
+	const float STAMINA_DASH_COST = 0.9f; // stamina cost of full charged dash
+	const float DASHMAXCHARGE = 1.f;	  // Max charge of dash charge in seconds
+	float m_dashCharge = 0.f;			  // charge of dash in seconds
+	bool m_chargingDash = false;		  // is the player charging
+
+		// Inventory
+		size_t m_inventory[FRUITS]; // APPLE 0, BANANA 1, MELON 2
+
+	// Orientation
+	float3 m_playerForward = DEFAULTFORWARD;
+	float3 m_playerRight = DEFAULTRIGHT;
+	float3 m_playerUp = DEFAULTUP;
 	float m_cameraPitch, m_cameraYaw;
 	float m_aimZoom;
 	bool m_releasing;
 
 	//- - - Functions - - -
-	void groundCheck();
-	void bounceCheck(Vector3 normal);
-	void slideCheck(Vector3 normal);
+	/*
+	 * Modifies m_velocity to have a sliding effect
+	 */
 	void slide(float td, Vector3 normal, float l);
-	void dash();
-	void bounce(Vector3 normal, float dt);
-	void movement(Vector3 normal, float dt, Vector3 collisionPoint);
 	float clamp(float x, float high, float low);
+	float getPlayerMovementSpeed() const;
+
+	/*
+	 * consumes stamina and next time restoreStamina() is called it will fail. Making so that the stamina only restores when not being used
+	*/
+	void consumeStamina(float amount);
+	void restoreStamina(float amount);
 };
