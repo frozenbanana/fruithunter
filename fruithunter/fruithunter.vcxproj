@@ -163,6 +163,7 @@
     <ClCompile Include="Source\AI\AI.cpp" />
     <ClCompile Include="Source\Drawable\Animated.cpp" />
     <ClCompile Include="Source\Drawable\Entity.cpp" />
+    <ClCompile Include="Source\Drawable\EntityCollision.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Banana.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Fruit.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="Source\AI\AI.h" />
     <ClInclude Include="Source\Drawable\Animated.h" />
     <ClInclude Include="Source\Drawable\Entity.h" />
+    <ClInclude Include="Source\Drawable\EntityCollision.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Banana.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Fruit.h" />
