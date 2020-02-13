@@ -31,6 +31,7 @@ shared_ptr<Mesh> MeshRepository::get(string OBJ_Name) {
 		// find mesh ...
 		for (size_t i = 0; i < mr->m_repository.size(); i++) {
 			if (mr->m_repository[i].get()->getName() == OBJ_Name) {
+				shared_ptr<Mesh> ptr = mr->m_repository[i];
 				return mr->m_repository[i];
 			}
 		}

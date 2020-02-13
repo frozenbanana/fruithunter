@@ -141,7 +141,7 @@ void Entity::setFrameTargets(int first, int second) { m_meshAnim.setFrameTargets
 bool Entity::load(string filename) { 
 	shared_ptr<Mesh> m = MeshRepository::get(filename);
 	if (m.get() != nullptr) {
-		//m_mesh = m;
+			m_mesh = m;
 		return true;
 	}
 	else {
