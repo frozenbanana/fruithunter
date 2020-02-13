@@ -42,7 +42,10 @@ void Fruit::setDestination() {
 		XMVectorLerp(m_startAnimationPosition, m_destinationAnimationPosition, 0.5f);
 	m_heightAnimationPosition.y += 1.f;
 }
-void Fruit::setWorldHome(float3 pos) { m_worldHome = pos; }
+void Fruit::setWorldHome(float3 pos) {
+	m_worldHome = pos;
+	m_worldHome.y = 0.f;
+}
 
 Fruit::Fruit(float3 pos) : Entity() {
 	setStartPosition(pos);

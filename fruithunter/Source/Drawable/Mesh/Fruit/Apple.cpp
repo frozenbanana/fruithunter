@@ -95,8 +95,8 @@ void Apple::move(float dt) {
 	setPosition(m_position);
 }
 
-void Apple::update(float dt, float3 playerPosition, Terrain* terrain) {
-	m_position.y = terrain->getHeightFromPosition(m_position);
+void Apple::update(float dt, float3 playerPosition, TerrainManager* terrainManager) {
+	m_position.y = terrainManager->getHeightFromPosition(m_position);
 	doBehavior(playerPosition);
 	updateAnimated(dt);
 	move(dt);

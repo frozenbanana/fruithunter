@@ -26,7 +26,7 @@ void PlayState::initialize() {
 	float3 bananaPos(12.f); // middle of terrain ish..
 	bananaPos = float3(bananaPos.x, m_terrainManager.getHeightFromPosition(bananaPos), bananaPos.z);
 	m_banana.setStartPosition(bananaPos);
-	m_melon.setPosition(float3(-1.f));
+	m_melon.setStartPosition(float3(7.0f, 0.0f, 5.0f));
 	// m_melon.setCollisionData(EntityCollision(m_melon.getPosition(), 1.f));
 }
 

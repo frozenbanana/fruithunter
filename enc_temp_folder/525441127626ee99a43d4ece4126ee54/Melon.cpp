@@ -20,7 +20,7 @@ void Melon::behaviorPassive(float3 playerPosition) {
 
 	ErrorLogger::log("m_position:  (" + std::to_string(m_position.x) + " , " +
 					 std::to_string(m_position.y) + " , " + std::to_string(m_position.y) +
-					 "), \nm_worldHome: (" std::to_string(m_worldHome.x) + " , " +
+					 "), \nm_worldHome: (" + std::to_string(m_worldHome.x) + " , " +
 					 std::to_string(m_worldHome.y) + " , " + std::to_string(m_worldHome.z) + ")" +
 					 "\nm_secondWorldHome: (" + std::to_string(m_secondWorldHome.x) + " , " +
 					 std::to_string(m_secondWorldHome.y) + " , " +
