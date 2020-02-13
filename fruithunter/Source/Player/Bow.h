@@ -12,6 +12,8 @@ public:
 	void charge();
 	void shoot(float3 direction);
 
+	Entity& getArrow() { return m_arrow; };
+
 private:
 	Entity m_bow;
 	Entity m_arrow;

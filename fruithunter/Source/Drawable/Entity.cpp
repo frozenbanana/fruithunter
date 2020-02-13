@@ -45,6 +45,12 @@ void Entity::createBuffers() {
 	}
 }
 
+bool Entity::collisionSphere_Sphere(Entity& other) { return false; }
+
+bool Entity::collisionSphere_OBB(Entity& other) { return false; }
+
+bool Entity::collisionOBB_OBB(Entity& other) { return false; }
+
 bool Entity::onGround(float height) const { return m_position.y - height < 0.0001; }
 
 float4x4 Entity::getModelMatrix() {
@@ -124,7 +130,10 @@ void Entity::draw_animate() {
 	m_meshAnim.draw();
 }
 
-void Entity::updateAnimated(float dt) { m_meshAnim.update(dt); }
+void Entity::updateAnimated(float dt) {
+	m_meshAnim.update(dt);
+	m_collisionData.setCollisionPosition(getPosition());
+}
 
 void Entity::updateAnimatedSpecific(float frameTime) { m_meshAnim.updateSpecific(frameTime); }
 
@@ -135,6 +144,16 @@ bool Entity::load(string filename) { return m_mesh.load(filename); }
 bool Entity::loadAnimated(string filename, int nrOfFrames) {
 	return m_meshAnim.load(filename, nrOfFrames);
 }
+
+bool Entity::checkCollision(Entity& other) {
+	m_collisionData.setCollisionPosition(getPosition());
+	other.setCollisionPosition(other.getPosition());
+	return m_collisionData.collide(other.m_collisionData);
+}
+
+void Entity::setCollisionData(EntityCollision data) { m_collisionData = data; }
+
+void Entity::setCollisionPosition(float3 pos) { m_collisionData.setCollisionPosition(pos); }
 
 Entity::Entity(string filename, float3 position, float3 rotation, float3 scale) {
 	load(filename);

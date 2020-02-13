@@ -20,6 +20,7 @@ public:
 	float3 getCameraPosition() const;
 	float3 getForward() const;
 	float3 getVelocity() const;
+	Entity& getArrow() { return m_bow.getArrow(); };
 	void setPosition(float3 position);
 
 private:
@@ -77,8 +78,8 @@ private:
 	float m_dashCharge = 0.f;			  // charge of dash in seconds
 	bool m_chargingDash = false;		  // is the player charging
 
-		// Inventory
-		size_t m_inventory[FRUITS]; // APPLE 0, BANANA 1, MELON 2
+	// Inventory
+	size_t m_inventory[FRUITS]; // APPLE 0, BANANA 1, MELON 2
 
 	// Orientation
 	float3 m_playerForward = DEFAULTFORWARD;
@@ -95,8 +96,9 @@ private:
 	float getPlayerMovementSpeed() const;
 
 	/*
-	 * consumes stamina and next time restoreStamina() is called it will fail. Making so that the stamina only restores when not being used
-	*/
+	 * consumes stamina and next time restoreStamina() is called it will fail. Making so that the
+	 * stamina only restores when not being used
+	 */
 	void consumeStamina(float amount);
 	void restoreStamina(float amount);
 };
