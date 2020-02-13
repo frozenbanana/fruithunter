@@ -75,7 +75,7 @@ void Melon::move(float dt) {
 }
 
 
-void Melon::update(float dt, float3 playerPosition, Terrain* terrain) {
+void Melon::update(float dt, float3 playerPosition, TerrainManager* terrain) {
 	doBehavior(playerPosition);
 	updateAnimated(dt);
 	move(dt);

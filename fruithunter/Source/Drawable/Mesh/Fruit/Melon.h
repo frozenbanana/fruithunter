@@ -1,5 +1,6 @@
 #pragma once
 #include "Fruit.h"
+#include "TerrainManager.h"
 
 class Melon : public Fruit {
 private:
@@ -16,7 +17,7 @@ public:
 	Melon(float3 pos = float3(0.f, 0.f, 0.f));
 	void updateAnimated(float dt);
 	void setRollSpeed(float rollSpeed);
-	void update(float dt, float3 playerPosition, Terrain* terrain);
+	void update(float dt, float3 playerPosition, TerrainManager* terrainManager);
 	void move(float dt);
 	void circulateAround(float3 playerPosition);
 };

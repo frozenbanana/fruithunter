@@ -24,14 +24,11 @@ void PlayState::initialize() {
 
 	m_player.setPosition(float3(13.f, 5.f, 7.f));
 	float3 bananaPos(12.f); // middle of terrain ish..
-	bananaPos =
-		float3(bananaPos.x, m_terrain.getHeightFromPosition(bananaPos.x, bananaPos.z), bananaPos.z);
+	bananaPos = float3(bananaPos.x, m_terrainManager.getHeightFromPosition(bananaPos), bananaPos.z);
 	m_banana.setStartPosition(bananaPos);
 
 
 	m_melon.setPosition(float3(7.f, 1.f, 5.0f));
-	m_melon.setPosition(float3(m_melon.getPosition().x,
-		m_terrain.getHeightFromPosition(m_melon.getPosition()), m_melon.getPosition().z));
 	m_melon.setWorldHome(float3(5.f, 1.f, 7.f));
 
 
@@ -42,8 +39,8 @@ void PlayState::initialize() {
 
 void PlayState::update() {
 	float3 playerPos = m_player.getPosition();
-	float3 normal = m_terrain.getNormalFromPosition(playerPos.x, playerPos.z);
-	float h = m_terrain.getHeightFromPosition(playerPos.x, playerPos.z);
+	float3 normal = m_terrainManager.getNormalFromPosition(playerPos);
+	float h = m_terrainManager.getHeightFromPosition(playerPos);
 
 	m_timer.update();
 	float dt = m_timer.getDt();
@@ -56,7 +53,7 @@ void PlayState::update() {
 
 
 	// update melon
-	m_melon.update(dt, playerPos, &m_terrain);
+	m_melon.update(dt, playerPos, &m_terrainManager);
 
 	// update melon
 	// m_melon.setNextDestination(m_player.getPosition());

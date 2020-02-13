@@ -60,8 +60,6 @@ public:
 	bool load(string filename);
 	bool loadAnimated(string filename, int nrOfFrames);
 
-	float castRay(float3 point, float3 direction);
-
 	Entity(string meshName = "", float3 position = float3(0, 0, 0),
 		float3 rotation = float3(0, 0, 0), float3 scale = float3(1, 1, 1));
 	~Entity();
