@@ -5,7 +5,7 @@ Bow::Bow() {
 	m_bow.setScale(0.2f);
 
 	m_arrow.load("Arrow");
-	m_arrow.setScale(float3(0.2f, 0.2f, 0.5f));
+	m_arrow.setScale(float3(0.2f, 0.2f, m_arrowLength));
 }
 
 Bow::~Bow() {}
@@ -29,7 +29,7 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 
 	if (m_shooting) {
 		// Basic movement without physics or collisions.
-		arrowPhysics(dt);
+		arrowPhysics(dt, float3(10.f, 0.f, 0.f));
 		m_arrow.setPosition(m_arrow.getPosition() + m_arrowDirection * dt);
 
 		if (m_arrow.getPosition().y < 0.0f ||
@@ -102,21 +102,40 @@ void Bow::shoot(float3 direction) { // Shoots/fires the arrow
 		direction.Normalize();
 
 		m_arrowDirection = direction * velocity;
+		m_oldArrowDirection = m_arrowDirection;
 		m_arrowForward = float3(direction.x, 0, direction.z);
 		ErrorLogger::log("Initial arrow speed: " + to_string(velocity));
 	}
 }
 
-void Bow::arrowPhysics(float dt) { // Updates arrow in flight
+void Bow::arrowPhysics(float dt, float3 windVector) { // Updates arrow in flight
 	// Update acceleration
-	float3 acceleration =
-		float3(-m_dragDividedMass * m_arrowDirection.Length() * m_arrowDirection.x,
-			(-m_dragDividedMass * m_arrowDirection.Length() * m_arrowDirection.y) - 9.82,
-			-m_dragDividedMass * m_arrowDirection.Length() * m_arrowDirection.z);
+
+	float3 relativeVelocity = m_arrowDirection - windVector;
+
+	calcArea(relativeVelocity);
+
+	float totalDragTimesLength = -m_arrowArea * relativeVelocity.Length() / m_arrowMass;
+
+	float3 acceleration = float3(
+		totalDragTimesLength * relativeVelocity.x,
+		(totalDragTimesLength * relativeVelocity.y) - 9.82,
+		totalDragTimesLength * relativeVelocity.z);
 
 	m_arrowDirection += acceleration * dt;
 
-	if (m_arrowDirection.y >= 0) {
+	float3 normalisedNewDirection = m_arrowDirection;
+	normalisedNewDirection.Normalize();
+
+	float3 normalisedOldDirection = m_oldArrowDirection;
+	normalisedOldDirection.Normalize();
+
+	float angle = acos(normalisedNewDirection.Dot(normalisedOldDirection));
+
+	m_arrow.rotateX(angle);
+
+
+	/*if (m_arrowDirection.y >= 0) {
 	m_arrow.setRotation(float3(
 			-acos(((m_arrowDirection.Dot(m_arrowForward) / (m_arrowDirection.Length())))),
 			m_arrow.getRotation().y, m_arrow.getRotation().z));
@@ -125,8 +144,20 @@ void Bow::arrowPhysics(float dt) { // Updates arrow in flight
 		m_arrow.setRotation(
 			float3(acos(((m_arrowDirection.Dot(m_arrowForward) / (m_arrowDirection.Length())))),
 				m_arrow.getRotation().y, m_arrow.getRotation().z));
-	}
+	}*/
 
+	m_oldArrowDirection = m_arrowDirection;
+	//ErrorLogger::log("Current arrow speed: " + to_string(m_arrowDirection.Length()));
+}
 
-	ErrorLogger::log("Current arrow speed: " + to_string(m_arrowDirection.Length()));
+void Bow::calcArea(float3 relativeWindVector) {
+	float3 normalisedRelativeWind = relativeWindVector;
+	normalisedRelativeWind.Normalize();
+
+	float3 normalisedArrowDirection = m_arrowDirection;
+	normalisedArrowDirection.Normalize();
+
+	float angle = acos(normalisedRelativeWind.Dot(normalisedArrowDirection));
+
+	m_arrowArea = ((1 -sin(angle)) * 0.0001f) + (sin(angle) * 0.005f);
 }

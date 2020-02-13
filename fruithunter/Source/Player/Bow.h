@@ -32,9 +32,13 @@ private:
 	float m_drawFactor = 0.0f;
 	float m_bowMass = 1.4f;
 
-	float m_dragDividedMass = 0.001f;
+	//float m_dragNumber = 1.0f; //Assuming Fluid density * dragCoefficient * 0.5 = 1.
+	float m_arrowArea = 0.0001;
 	float m_arrowMass = 0.1f;
+	float m_arrowLength = 0.5f;
 	float m_arrowRotation = 0.0f;
+	float3 m_oldArrowDirection = float3(0.f, 0.f, 0.f);
 
-	void arrowPhysics(float dt);
+	void arrowPhysics(float dt, float3 windVector);
+	void calcArea(float3 relativeWindVector);
 };
