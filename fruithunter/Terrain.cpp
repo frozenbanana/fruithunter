@@ -64,10 +64,10 @@ bool Terrain::loadHeightmap(string filePath) {
 	ID3D11Texture2D* tex = nullptr;
 	hr = res->QueryInterface(&tex);
 
-	//D3D11_TEXTURE2D_DESC m_heightmapDescription;
+	// D3D11_TEXTURE2D_DESC m_heightmapDescription;
 	tex->GetDesc(&m_heightmapDescription);
 
-	//D3D11_MAPPED_SUBRESOURCE m_heightmapMappedData;
+	// D3D11_MAPPED_SUBRESOURCE m_heightmapMappedData;
 	hr = gDeviceContext->Map(res, 0, D3D11_MAP_READ, 0, &m_heightmapMappedData);
 
 	return true;
@@ -77,7 +77,7 @@ float Terrain::sampleHeightmap(float2 uv) {
 	int texWidth = m_heightmapDescription.Width;
 	int texHeight = m_heightmapDescription.Height;
 
-	XMINT2 iUV(uv.x*(texWidth-1),uv.y*(texHeight-1));
+	XMINT2 iUV(uv.x * (texWidth - 1), uv.y * (texHeight - 1));
 
 	float v = 0;
 	if (m_heightmapDescription.Format == DXGI_FORMAT_R8_UNORM) {
@@ -87,14 +87,12 @@ float Terrain::sampleHeightmap(float2 uv) {
 		v = (float)d / (pow(2.f, 1.f * 8.f) - 1.f);
 	}
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R8G8B8A8_UNORM) {
-		unsigned char d =
-			((unsigned char*)m_heightmapMappedData
+		unsigned char d = ((unsigned char*)m_heightmapMappedData
 							   .pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
 		v = (float)d / (pow(2.f, 1.f * 8.f) - 1.f);
 	}
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R8G8B8A8_UNORM_SRGB) {
-		unsigned char d =
-			((unsigned char*)m_heightmapMappedData
+		unsigned char d = ((unsigned char*)m_heightmapMappedData
 							   .pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
 		v = (float)d / (pow(2.f, 1.f * 8.f) - 1.f);
 	}
@@ -488,11 +486,10 @@ float Terrain::castRay(float3 point, float3 direction) {
 	if (obb_l > 0) {
 		// values in grid coordinates [0,m_gridPointSize.x-1]
 		float2 tilt(n2.x * (m_gridPointSize.x - 1), n2.y * (m_gridPointSize.y - 1));
-		float2 start(clamp(startPoint.x * (m_gridPointSize.x - 1), 0, (float)m_gridPointSize.x - 2),
-			clamp((float)startPoint.z * (m_gridPointSize.y - 1), 0, (float)m_gridPointSize.y - 2));
+		float2 start(
+			startPoint.x * (m_gridPointSize.x - 1), (float)startPoint.z * (m_gridPointSize.y - 1));
 		XMINT2 iStart((int)start.x, (int)start.y);
-		float2 end(clamp(endPoint.x * (m_gridPointSize.x - 1), 0, (float)m_gridPointSize.x - 2),
-			clamp(endPoint.z * (m_gridPointSize.y - 1), 0, (float)m_gridPointSize.y - 2));
+		float2 end(endPoint.x * (m_gridPointSize.x - 1), endPoint.z * (m_gridPointSize.y - 1));
 		XMINT2 iEnd((int)end.x, (int)end.y);
 		// find intersection tiles
 		vector<float> tsX, tsY;
@@ -537,11 +534,10 @@ float Terrain::castRay(float3 point, float3 direction) {
 		float minL = -1;
 		for (int i = (int)ts.size() - 2; i >= 0; i--) {
 			float sampledT = (ts[i] + ts[i + 1]) / 2.f;
-			int ix =
-				(int)clamp((float)start.x + tilt.x * sampledT, 0, (float)m_gridPointSize.x - 2);
-			int iy =
-				(int)clamp((float)start.y + tilt.y * sampledT, 0, (float)m_gridPointSize.y - 2);
-			tileRayIntersectionTest(XMINT2(ix, iy), startPoint, n, minL);
+			int ix = (int)((float)start.x + tilt.x * sampledT);
+			int iy = (int)((float)start.y + tilt.y * sampledT);
+			if (ix >= 0 && ix < m_gridPointSize.x-1 && iy >= 0 && iy < m_gridPointSize.y-1)
+				tileRayIntersectionTest(XMINT2(ix, iy), startPoint, n, minL);
 			if (minL != -1)
 				break; // early break
 		}
