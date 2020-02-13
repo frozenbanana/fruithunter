@@ -1,14 +1,26 @@
 #include "Melon.h"
+//
+// void Melon::updatePhases(Phase phases[]) {
+//	for (size_t i = 0; i < 3; ++i) {
+//		phases[i].position = m_startPos;
+//	}
+//	for (size_t i = 3; i < 6; ++i) {
+//		phases[i].position = m_destinationPos;
+//	}
+//}
+
+void Melon::roll(float dt) { rotateX(dt * m_rollSpeed); }
 
 Melon::Melon(float3 pos) : Fruit(pos) {
 	loadAnimated("Melon", 1);
-	m_nrOfFramePhases = 1;
+	m_nrOfFramePhases = 6;
 	m_meshAnim.setFrameTargets(0, 0);
 	setScale(0.5);
 	changeState(AI::State::PASSIVE);
 	m_direction = float3((float)(rand() % 1), 0.0f, (float)(rand() % 1));
 	m_velocity = float3(1.f);
 	m_direction.Normalize();
+	m_rollSpeed = 5;
 }
 
 void Melon::updateAnimated(float dt) {}
@@ -57,3 +69,17 @@ void Melon::circulateAround(float3 playerPosition) {
 					 std::to_string(target.y) + " , " + std::to_string(target.z) + ")");
 	pathfinding(m_position, playerPosition);
 }
+void Melon::updateAnimated(float dt) {
+	m_frameTime += dt;
+	if (m_frameTime > 2) {
+		m_frameTime = 0.f;
+		setDestination();
+		lookTo(m_destinationPos);
+	}
+	float3 tempDir(m_destinationPos - getPosition());
+	tempDir.Normalize();
+	move(tempDir * dt * 4);
+	roll(dt);
+}
+
+void Melon::setRollSpeed(float rollSpeed) { m_rollSpeed = rollSpeed; }

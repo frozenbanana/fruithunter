@@ -75,6 +75,13 @@ void PlayState::update() {
 	bounceDestination.y = m_terrain.getHeightFromPosition(bounceDestination.x, bounceDestination.z);
 	m_banana.setNextDestination(bounceDestination);
 	m_banana.updateAnimated(dt);
+
+	// update melon
+	m_melon.setNextDestination(m_player.getPosition());
+	m_melon.updateAnimated(dt);
+	float3 melonPos = m_melon.getPosition();
+	melonPos.y = m_terrain.getHeightFromPosition(melonPos.x, melonPos.z);
+	m_melon.setPosition(melonPos);
 }
 
 void PlayState::handleEvent() { return; }
