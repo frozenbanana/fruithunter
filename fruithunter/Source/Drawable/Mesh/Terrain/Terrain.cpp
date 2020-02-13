@@ -473,6 +473,7 @@ float3 Terrain::getNormalFromPosition(float x, float z) {
  * miss!
  */
 float Terrain::castRay(float3 point, float3 direction) {
+	if (direction.Length() > 0) {
 	// convert to local space
 	float4x4 mTerrainWorld = getModelMatrix();
 	float4x4 mTerrainInvWorld = mTerrainWorld.Invert();

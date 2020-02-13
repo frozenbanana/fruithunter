@@ -100,4 +100,8 @@ private:
 	*/
 	void consumeStamina(float amount);
 	void restoreStamina(float amount);
+
+	void updateVelocity_inAir(float3 playerForce, float dt);
+	void updateVelocity_onFlatGround(float3 playerForce, float dt);
+	void updateVelocity_onSteepGround(float dt);
 };

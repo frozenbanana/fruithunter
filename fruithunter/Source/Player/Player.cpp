@@ -15,22 +15,26 @@ void Player::update(float dt, Terrain* terrain) {
 	rotatePlayer();
 
 	// modify velocity vector to match terrain
-	int loopCount = 100;
-	while (1) {
-		float3 movement = m_velocity * dt;
-		float l = terrain->castRay(m_position, movement);
-		if (l == -1)
-			break; // break of no intersection was found!
-		float3 collisionPoint = m_position + movement * l;
-		float3 collisionNormal = terrain->getNormalFromPosition(collisionPoint.x, collisionPoint.z);
-		slide(dt, collisionNormal, l);
-		loopCount--;
-		if (loopCount <= 0) {
-			ErrorLogger::logWarning(HRESULT(), "WARNING! Player collision with terrain calculated "
-											   "ALOT of iterations in the update function!");
-			break;
-		}
-	};
+	if (terrain != nullptr) {
+		int loopCount = 100;
+		while (1) {
+			float3 movement = m_velocity * dt;
+			float l = terrain->castRay(m_position, movement);
+			if (l == -1)
+				break; // break of no intersection was found!
+			float3 collisionPoint = m_position + movement * l;
+			float3 collisionNormal =
+				terrain->getNormalFromPosition(collisionPoint.x, collisionPoint.z);
+			slide(dt, collisionNormal, l);
+			loopCount--;
+			if (loopCount <= 0) {
+				ErrorLogger::logWarning(HRESULT(),
+					"WARNING! Player collision with terrain calculated "
+					"ALOT of iterations in the update function!");
+				break;
+			}
+		};
+	}
 
 	// player movement
 	float3 force;
@@ -41,44 +45,37 @@ void Player::update(float dt, Terrain* terrain) {
 	// movement
 	m_position += m_velocity * dt;
 
-	// onground
-	float3 normal =
-		terrain->getNormalFromPosition(m_position.x, m_position.z); // normal on current position
-	float height = terrain->getHeightFromPosition(
-		m_position.x, m_position.z); // height of terrain on current position
-	float terrainSteepness = float3(0, 1, 0).Dot(normal);
-	m_position.y =
-		clamp(m_position.y, m_position.y, height); // clamp position to never go under terrain!
-	if (abs(m_position.y - height) < ONGROUND_THRESHOLD) {
-		// on ground
-		m_onGround = true;
+	if (terrain != nullptr) {
+		float3 normal = terrain->getNormalFromPosition(
+			m_position.x, m_position.z); // normal on current position
+		float height = terrain->getHeightFromPosition(
+			m_position.x, m_position.z); // height of terrain on current position
+		float terrainSteepness = float3(0, 1, 0).Dot(normal);
+		m_position.y =
+			clamp(m_position.y, m_position.y, height); // clamp position to never go under terrain!
+		if (abs(m_position.y - height) < ONGROUND_THRESHOLD) {
+			// on ground
+			m_onGround = true;
 
-		if (terrainSteepness < STEEPNESS_BORDER) {
-			// STEEP terrain
-			m_velocity += m_gravity * dt;		// gravity if steep terrain
-			m_velocity *= GROUND_FRICTION_WEAK; // weak ground friction
+			if (terrainSteepness < STEEPNESS_BORDER) {
+				// STEEP terrain
+				updateVelocity_onSteepGround(dt);
+			}
+			else {
+				// FLAT terrian
+				updateVelocity_onFlatGround(force, dt);
+			}
 		}
 		else {
-			// FLAT terrian
-			m_velocity *= GROUND_FRICTION; // ground friction
-
-			// jump
-			if (ip->keyPressed(KEY_JUMP)) {
-				m_velocity.y = m_jumpForce;
-			}
-
-			// add player forces
-			m_velocity += force * getPlayerMovementSpeed() * dt;
+			// in air
+			updateVelocity_inAir(force, dt);
 		}
 	}
 	else {
+		//FALL OF TERRAIN IF NO TERRAIN
+
 		// in air
-		m_onGround = false;
-
-		m_velocity += m_gravity * dt; // gravity if in air
-
-		// add forces
-		m_velocity += force * m_speedInAir * dt;
+		updateVelocity_inAir(force, dt);
 	}
 
 	// dash
@@ -280,4 +277,31 @@ void Player::restoreStamina(float amount) {
 		m_stamina = clamp(m_stamina + amount, STAMINA_MAX, 0);//restore stamina if no stamina was consumed
 	m_staminaConsumed = false; // set to false because this function should be called only once per
 							   // frame, fixing the statement to next frame.
+}
+
+void Player::updateVelocity_inAir(float3 playerForce, float dt) {
+	// in air
+	m_onGround = false;
+
+	m_velocity += m_gravity * dt; // gravity if in air
+
+	// add forces
+	m_velocity += playerForce * m_speedInAir * dt;
+}
+
+void Player::updateVelocity_onFlatGround(float3 playerForce, float dt) {
+	m_velocity *= GROUND_FRICTION; // ground friction
+
+	// jump
+	if (Input::getInstance()->keyPressed(KEY_JUMP)) {
+		m_velocity.y = m_jumpForce;
+	}
+
+	// add player forces
+	m_velocity += playerForce * getPlayerMovementSpeed() * dt;
+}
+
+void Player::updateVelocity_onSteepGround(float dt) {
+	m_velocity += m_gravity * dt;		// gravity if steep terrain
+	m_velocity *= GROUND_FRICTION_WEAK; // weak ground friction
 }

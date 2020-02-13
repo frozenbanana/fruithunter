@@ -25,8 +25,8 @@ private:
 
 	bool m_isInitilized = false;
 	static ShaderSet m_shader;
-	float3 m_position;
-	float3 m_rotation;
+	float3 m_position = float3(0,0,0);
+	float3 m_rotation = float3(0,0,0);
 	float3 m_scale = float3(1, 0.25, 1) * 4;
 	bool m_modelMatrixChanged = true;
 	struct ModelBuffer {

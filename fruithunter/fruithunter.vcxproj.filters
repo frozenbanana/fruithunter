@@ -114,8 +114,8 @@
     <ClCompile Include="Source\Player\Bow.cpp">
       <Filter>Source\Player</Filter>
     </ClCompile>
-    <ClCompile Include="TerrainManager.cpp">
-      <Filter>Drawable\Mesh\Terrain</Filter>
+    <ClCompile Include="Source\Drawable\Mesh\Terrain\TerrainManager.cpp">
+      <Filter>Source\Drawable\Mesh\Terrain</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -206,8 +206,8 @@
     <ClInclude Include="Source\Player\Bow.h">
       <Filter>Source\Player</Filter>
     </ClInclude>
-    <ClInclude Include="TerrainManager.h">
-      <Filter>Drawable\Mesh\Terrain</Filter>
+    <ClInclude Include="Source\Drawable\Mesh\Terrain\TerrainManager.h">
+      <Filter>Source\Drawable\Mesh\Terrain</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
