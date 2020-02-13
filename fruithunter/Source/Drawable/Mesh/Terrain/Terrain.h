@@ -25,8 +25,8 @@ private:
 
 	bool m_isInitilized = false;
 	static ShaderSet m_shader;
-	float3 m_position;
-	float3 m_rotation;
+	float3 m_position = float3(0,0,0);
+	float3 m_rotation = float3(0,0,0);
 	float3 m_scale = float3(1, 0.25, 1) * 4;
 	bool m_modelMatrixChanged = true;
 	struct ModelBuffer {
@@ -34,9 +34,8 @@ private:
 	};
 
 	// heightmap
-	XMINT2 m_heightmapSize;
-	vector<vector<float>> m_heightmap;
-	vector<vector<float3>> m_heightmapNormals;
+	D3D11_TEXTURE2D_DESC m_heightmapDescription;
+	D3D11_MAPPED_SUBRESOURCE m_heightmapMappedData;
 
 	// grid
 	XMINT2 m_tileSize;
@@ -66,8 +65,6 @@ private:
 	// heightmap
 	bool loadHeightmap(string filePath);
 	float sampleHeightmap(float2 uv);
-	float3 calcNormalFromHeightmap(XMINT2 index);
-	float3 sampleHeightmapNormal(float2 uv);
 
 	// grids
 	void createGrid(XMINT2 size);
@@ -90,11 +87,14 @@ public:
 	static float triangleTest(
 		float3 rayOrigin, float3 rayDir, float3 tri0, float3 tri1, float3 tri2);
 
+	void setPosition(float3 position);
+
 	void initilize(string filename, XMINT2 subsize, XMINT2 splits = XMINT2(1, 1));
 
 	void rotateY(float radian);
 	void setScale(float3 scale);
 
+	bool pointInsideTerrainBoundingBox(float3 point);
 	float getHeightFromPosition(float x, float z);
 	float getHeightFromPosition(float3 pos);
 	float3 getNormalFromPosition(float x, float z);

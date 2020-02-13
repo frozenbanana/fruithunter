@@ -8,8 +8,10 @@
 void PlayState::initialize() {
 	m_name = "Play State";
 
-	m_terrain.initilize("heightmap1.png", XMINT2(50, 50), XMINT2(10, 10));
-	m_terrain.setScale(float3(1, 0.25, 1) * 25);
+	m_terrainManager.add(float3(0, 0, 0), "heightmap3.jpg", XMINT2(50, 50), XMINT2(5, 5));
+	m_terrainManager.add(float3(10, 0, 0), "heightmap3.jpg", XMINT2(50, 50), XMINT2(5, 5));
+	m_terrainManager.add(float3(0, 0, 10), "heightmap3.jpg", XMINT2(50, 50), XMINT2(5, 5));
+	m_terrainManager.add(float3(10, 0, 10), "heightmap3.jpg", XMINT2(50, 50), XMINT2(5, 5));
 
 	// m_entity.load("sphere");
 	// m_entity.setScale(0.1f);
@@ -46,7 +48,7 @@ void PlayState::update() {
 	m_timer.update();
 	float dt = m_timer.getDt();
 
-	m_player.update(dt, &m_terrain);
+	m_player.update(dt, m_terrainManager.getTerrainFromPosition(m_player.getPosition()));
 	// m_bow.updateAnimated(dt);
 
 	// update apple
@@ -76,7 +78,7 @@ void PlayState::pause() {
 
 void PlayState::draw() {
 	m_player.draw();
-	m_terrain.draw();
+	m_terrainManager.draw();
 
 	/*
 	float3 p = m_player.getPosition();
