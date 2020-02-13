@@ -114,6 +114,9 @@
     <ClCompile Include="Source\Player\Bow.cpp">
       <Filter>Source\Player</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Utility\Repositories\MeshRepository.cpp">
+      <Filter>Source\Utility\Repositories</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Drawable\Mesh\Terrain\TerrainManager.cpp">
       <Filter>Source\Drawable\Mesh\Terrain</Filter>
     </ClCompile>
@@ -209,6 +212,9 @@
     <ClInclude Include="Source\Player\Bow.h">
       <Filter>Source\Player</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Utility\Repositories\MeshRepository.h">
+      <Filter>Source\Utility\Repositories</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Drawable\Mesh\Terrain\TerrainManager.h">
       <Filter>Source\Drawable\Mesh\Terrain</Filter>
     </ClInclude>
@@ -279,6 +285,9 @@
     </Filter>
     <Filter Include="Source\AI">
       <UniqueIdentifier>{aa548265-5486-466e-81d7-9719a546e282}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Utility\Repositories">
+      <UniqueIdentifier>{0351c8e4-cfeb-4492-97c6-2514408dac40}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

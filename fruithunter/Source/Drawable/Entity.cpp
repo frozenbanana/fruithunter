@@ -45,11 +45,7 @@ void Entity::createBuffers() {
 	}
 }
 
-bool Entity::collisionSphere_Sphere(Entity& other) { return false; }
-
-bool Entity::collisionSphere_OBB(Entity& other) { return false; }
-
-bool Entity::collisionOBB_OBB(Entity& other) { return false; }
+bool Entity::isMeshInitialized() const { return (m_mesh.get() != nullptr); }
 
 bool Entity::onGround(float height) const { return m_position.y - height < 0.0001; }
 
@@ -111,18 +107,24 @@ void Entity::setScale(float scale) {
 }
 
 void Entity::draw() {
-	bindModelMatrixBuffer();
-	m_mesh.draw();
+	if (isMeshInitialized()) {
+		bindModelMatrixBuffer();
+		m_mesh.get()->draw();
+	}
 }
 
 void Entity::draw_onlyMesh(float3 color) {
-	bindModelMatrixBuffer();
-	m_mesh.draw_noMaterial(color);
+	if (isMeshInitialized()) {
+		bindModelMatrixBuffer();
+		m_mesh.get()->draw_noMaterial(color);
+	}
 }
 
 void Entity::draw_boundingBox() {
-	bindModelMatrixBuffer();
-	m_mesh.draw_BoundingBox();
+	if (isMeshInitialized()) {
+		bindModelMatrixBuffer();
+		m_mesh.get()->draw_BoundingBox();
+	}
 }
 
 void Entity::draw_animate() {
@@ -139,7 +141,16 @@ void Entity::updateAnimatedSpecific(float frameTime) { m_meshAnim.updateSpecific
 
 void Entity::setFrameTargets(int first, int second) { m_meshAnim.setFrameTargets(first, second); }
 
-bool Entity::load(string filename) { return m_mesh.load(filename); }
+bool Entity::load(string filename) { 
+	shared_ptr<Mesh> m = MeshRepository::get(filename);
+	if (m.get() != nullptr) {
+			m_mesh = m;
+		return true;
+	}
+	else {
+		return false;
+	}
+}
 
 bool Entity::loadAnimated(string filename, int nrOfFrames) {
 	return m_meshAnim.load(filename, nrOfFrames);
