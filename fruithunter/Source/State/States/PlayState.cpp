@@ -24,11 +24,9 @@ void PlayState::initialize() {
 
 	m_player.setPosition(float3(13.f));
 	float3 bananaPos(12.f);
-	bananaPos = float3(
-		bananaPos.x, m_terrainManager.getHeightFromPosition(bananaPos), bananaPos.z);
+	bananaPos = float3(bananaPos.x, m_terrainManager.getHeightFromPosition(bananaPos), bananaPos.z);
 	m_banana.setStartPosition(bananaPos);
 	m_melon.setPosition(float3(-1.f));
-	// m_melon.setCollisionData(EntityCollision(m_melon.getPosition(), 1.f));
 }
 
 void PlayState::update() {
@@ -48,8 +46,7 @@ void PlayState::update() {
 
 
 	// update banana
-	float3 bounceDir =
-		m_terrainManager.getNormalFromPosition(m_banana.getPosition());
+	float3 bounceDir = m_terrainManager.getNormalFromPosition(m_banana.getPosition());
 	bounceDir.y = 0;
 	bounceDir.Normalize();
 	bounceDir *= 3;
@@ -66,6 +63,8 @@ void PlayState::update() {
 	m_melon.updateAnimated(dt);
 
 	// collisionTest
+
+
 	if (m_player.getArrow().checkCollision(m_melon)) {
 		m_melon.setPosition(float3(0.f));
 		m_player.getArrow().setPosition(float3(-1.f));

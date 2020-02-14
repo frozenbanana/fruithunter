@@ -17,18 +17,31 @@ private:
 		}
 	};
 	struct ObbData : CollisionData {
-		// TODO:
+		float3 m_axis[3];
+		float3 m_halfSize;
+		ObbData(float3 point, float3 halfSize) {
+			m_point = point;
+			m_halfSize = halfSize;
+			m_axis[0] = float3::Right;
+			m_axis[1] = float3::Up;
+			m_axis[2] = float3::Forward;
+		}
 	};
 
 	CollisionType m_collisionType;
 	unique_ptr<CollisionData> m_collisionData;
 	bool collisionSphereSphere(SphereData* sphere1, SphereData* sphere2);
+	bool collisionOBBOBB(ObbData& obb1, ObbData& obb2);
 
 public:
 	EntityCollision(float3 point = float3(0.f), float radius = 0.5f); // default is sphere
+	EntityCollision(float3 point, float3 halfSizes);				  // default is sphere
+	// EntityCollision(const EntityCollision&);
 	~EntityCollision();
 	void operator=(EntityCollision& other);
-	void setCollisionData(CollisionType type, float3 point, float radius); // sphere
+	void setCollisionData(float3 point, float radius);	  // sphere
+	void setCollisionData(float3 point, float3 halfSize); // OBB
+	void rotateObbAxis(float4x4 matRotation);
 	bool collide(EntityCollision& other);
 	void setCollisionPosition(float3 pos);
 };

@@ -141,3 +141,5 @@ bool Animated::load(std::string filename, int nrOfFrames, bool combineParts) {
 	createInputAssembler();
 	return allClear;
 }
+
+float3 Animated::getBoundingBoxHalfSizes() const { return m_meshes[0].getBoundingBoxHalfSizes(); }

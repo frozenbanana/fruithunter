@@ -6,6 +6,7 @@ Bow::Bow() {
 
 	m_arrow.load("Arrow");
 	m_arrow.setScale(float3(0.2f, 0.2f, m_arrowLength));
+	m_arrow.setCollisionData(m_arrow.getPosition(), m_arrow.getHalfSizes());
 }
 
 Bow::~Bow() {}
@@ -29,11 +30,13 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 
 	if (m_shooting) {
 		// Basic movement without physics or collisions.
-		arrowPhysics(dt, float3(10.f, 0.f, 0.f)); //Updates arrow in flight, wind is currently hard coded.
+		arrowPhysics(
+			dt, float3(10.f, 0.f, 0.f)); // Updates arrow in flight, wind is currently hard coded.
 		m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
 
 		if (m_arrow.getPosition().y < 0.0f ||
-			(m_bow.getPosition() - m_arrow.getPosition()).Length() > 20.0f) { //replace with collision later
+			(m_bow.getPosition() - m_arrow.getPosition()).Length() >
+				20.0f) { // replace with collision later
 			m_shooting = false;
 		}
 	}
@@ -67,9 +70,7 @@ void Bow::draw() {
 	m_arrow.draw();
 }
 
-void Bow::rotate(float pitch, float yaw) {
-	m_bow.setRotation(float3(pitch, yaw, 0.0f));
-}
+void Bow::rotate(float pitch, float yaw) { m_bow.setRotation(float3(pitch, yaw, 0.0f)); }
 
 void Bow::aim() { m_aiming = true; }
 
@@ -100,7 +101,7 @@ void Bow::shoot(float3 direction) { // Shoots/fires the arrow
 		direction.Normalize();
 
 		m_arrowVelocity = direction * velocity;
-		m_oldArrowVelocity = m_arrowVelocity;//Required to calc rotation
+		m_oldArrowVelocity = m_arrowVelocity; // Required to calc rotation
 	}
 }
 
@@ -113,8 +114,7 @@ void Bow::arrowPhysics(float dt, float3 windVector) { // Updates arrow in flight
 
 	float totalDragTimesLength = -m_arrowArea * relativeVelocity.Length() / m_arrowMass;
 
-	float3 acceleration = float3(
-		totalDragTimesLength * relativeVelocity.x,
+	float3 acceleration = float3(totalDragTimesLength * relativeVelocity.x,
 		(totalDragTimesLength * relativeVelocity.y) - 9.82f,
 		totalDragTimesLength * relativeVelocity.z);
 
@@ -128,7 +128,7 @@ void Bow::arrowPhysics(float dt, float3 windVector) { // Updates arrow in flight
 
 void Bow::calcArea(float3 relativeWindVector) {
 	float angle = calcAngle(relativeWindVector, m_arrowVelocity);
-	m_arrowArea = ((1 -sin(angle)) * 0.0001f) + (sin(angle) * 0.005f);
+	m_arrowArea = ((1 - sin(angle)) * 0.0001f) + (sin(angle) * 0.005f);
 }
 
 float Bow::calcAngle(float3 vec1, float3 vec2) {
