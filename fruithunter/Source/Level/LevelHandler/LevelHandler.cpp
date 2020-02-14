@@ -1,4 +1,5 @@
 #include "LevelHandler.h"
+#include "TerrainManager.h"
 
 void levelHandler::initialise() {
 	level level0;
@@ -33,4 +34,10 @@ void levelHandler::initialise() {
 	level0.m_fruitType.push_back(1);
 
 	m_levelsArr.push_back(level0);
+}
+
+void levelHandler::loadLevel(int levelNr) {
+	for (int i = 0; i < m_levelsArr.at(levelNr).m_heightMapNames.size(); i++) {
+
+	}
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "GlobalNamespaces.h"
+#include "Fruit.h"
 
 #define LEVELS = 1;
 
@@ -14,11 +15,11 @@ struct level {
 	std::vector<int> m_fruitType;
 	std::vector<float3> m_fruitPos;
 
-	//Playerinfo
+	// Playerinfo
 	float3 m_playerStartPos;
 
-	//Level utility info
-	std::vector<int> m_winCondition;
+	// Level utility info
+	int m_winCondition[FRUITS];
 };
 
 class levelHandler {
@@ -27,4 +28,7 @@ private:
 	
 public:
 	void initialise();
+	void loadLevel(int levelNr);
+
+	std::vector<Fruit> fruitsInLevel;
 };
