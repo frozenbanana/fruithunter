@@ -1,6 +1,7 @@
 #pragma once
 #include "Entity.h"
 #include "AI.h"
+#include "..\Terrain\TerrainManager.h"
 
 class Fruit : public Entity, public AI {
 protected:

@@ -1,7 +1,19 @@
 #include "Banana.h"
 
-void Banana::behaviorPassive(float3 playerPosition) { ErrorLogger::log("Banana:: Doing passive."); }
-void Banana::behaviorActive(float3 playerPosition) { ErrorLogger::log("Banana:: Doing active."); }
+void Banana::behaviorPassive(float3 playerPosition) {
+	m_bounceDestination *= 0.01;
+	ErrorLogger::log("Banana:: Doing Passive.");
+	if ((m_position - playerPosition).Length() < 3.f) {
+		changeState(ACTIVE);
+	}
+}
+void Banana::behaviorActive(float3 playerPosition) {
+	m_bounceDestination *= 10;
+	ErrorLogger::log("Banana:: Doing active.");
+	if ((m_position - playerPosition).Length() > 10.f) {
+		changeState(PASSIVE);
+	}
+}
 void Banana::behaviorCaught(float3 playerPosition) { ErrorLogger::log("Banana:: Doing caught."); }
 
 Banana::Banana(float3 pos) : Fruit(pos) {
@@ -12,6 +24,7 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 	m_state = Jump;
 	rotRandom();
 	setScale(2.f);
+	m_currentState = PASSIVE;
 }
 
 void Banana::updateAnimated(float dt) {
@@ -30,15 +43,15 @@ void Banana::updateAnimated(float dt) {
 	}
 }
 
-void Banana::update(float dt, Vector3 playerPosition, Terrain* terrain) {
+void Banana::update(float dt, Vector3 playerPosition, TerrainManager* terrain) {
 
-	float3 bounceDestination = terrain->getNormalFromPosition(getPosition().x, getPosition().y);
-	bounceDestination.y = 0;
-	bounceDestination.Normalize();
-	bounceDestination *= 3;
-	bounceDestination += getPosition();
-	bounceDestination.y = terrain->getHeightFromPosition(bounceDestination.x, bounceDestination.z);
-	setNextDestination(bounceDestination);
+	m_bounceDestination = terrain->getNormalFromPosition(getPosition());
+	//m_bounceDestination.y = 0;
+	m_bounceDestination.Normalize();
+	
+	m_bounceDestination += getPosition();
+	m_bounceDestination.y = terrain->getHeightFromPosition(m_bounceDestination);
+	setNextDestination(m_bounceDestination);
 	updateAnimated(dt);
 
 

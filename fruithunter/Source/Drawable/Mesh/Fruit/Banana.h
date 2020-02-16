@@ -23,8 +23,10 @@ private:
 	void behaviorActive(float3 playerPosition) override;
 	void behaviorCaught(float3 playerPosition) override;
 
+	float3 m_bounceDestination;
+
 public:
 	Banana(float3 pos = float3(0.f, 0.f, 0.f));
 	void updateAnimated(float dt);
-	void update(float dt, Vector3 playerPos, Terrain* terrain);
+	void update(float dt, Vector3 playerPos, TerrainManager* terrain);
 };

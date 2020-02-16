@@ -1,7 +1,6 @@
 #pragma once
 #include "AI.h"
 #include "Fruit.h"
-#include "TerrainManager.h"
 
 class Apple : public Fruit {
 private:
