@@ -50,23 +50,22 @@ void Melon::behaviorPassive(float3 playerPosition) {
 
 void Melon::behaviorActive(float3 playerPosition) {
 	ErrorLogger::log("Melon:: Doing active.");
-	m_direction = m_worldHome - m_position;
-	m_direction.Normalize();
 	// TODO:
 	/*  1. Make a vektor from player to melon
 		2. Rotate that vektor with an angle
 		3. set the rotated vektor as new destination
 
 	*/
-	float3 target = m_worldHome - m_position;
-	target.Normalize();
-	float angle = 3.14f * 2.f;
-	Matrix rotationMatrix = Matrix(cos(angle), 0.f, -sin(angle), 0.f, 0.f, 1.f, 0.f, 0.f,
-		sin(angle), 0.f, cos(angle), 0.f, 0.f, 0.f, 0.f, 1.f);
+	float3 toPlayer = m_position - playerPosition;
+	float3 sideStep = toPlayer.Cross(float3(0.0f, 1.0f, 0.0f));
+	if (toPlayer.Length() > 3.f) {
+		sideStep -= toPlayer;
+	}
+	m_direction = sideStep;
+	//lookTo(playerPosition);
+	//pathfinding(m_position, sideStep - m_position);
 
-	target = m_direction.Transform(target, rotationMatrix);
-	m_direction = target - m_position;
-	lookTo(target);
+	
 	if ((playerPosition - m_position).Length() > 4.0f) {
 		changeState(PASSIVE);
 	}
@@ -91,7 +90,7 @@ void Melon::move(float dt) {
 		m_direction = (m_availablePath.back() - m_position);
 		m_availablePath.pop_back();
 	}
-
+	updateAnimated(dt);
 	m_direction.y = 0.f;
 	m_position += m_direction * dt;
 	setPosition(m_position);
@@ -104,25 +103,25 @@ void Melon::update(float dt, float3 playerPosition, TerrainManager* terrain) {
 	move(dt);
 	m_position.y = terrain->getHeightFromPosition(m_position);
 }
-
-void Melon::circulateAround(float3 playerPosition) {
-
-	float3 playerToMelon = m_position - playerPosition;
-	// playerToMelon.Transform();
-	float angle = 3.1416 * 0.25; // 8th of halfcircle
-
-	// rotate to find target
-	/*float3 rotated = (float4x4::CreateRotationY(angle).
-					  float4(playerToMelon.x, playerToMelon.y, playerToMelon.z, 1.0f))
-						 .xyz;*/
-	float3 target = playerToMelon;
-
-
-
-	ErrorLogger::log("inside circulateAround, target: (" + std::to_string(target.x) + " , " +
-					 std::to_string(target.y) + " , " + std::to_string(target.z) + ")");
-	pathfinding(m_position, playerPosition);
-}
+//
+//void Melon::circulateAround(float3 playerPosition) {
+//
+//	float3 playerToMelon = m_position - playerPosition;
+//	// playerToMelon.Transform();
+//	float angle = 3.1416 * 0.25; // 8th of halfcircle
+//
+//	// rotate to find target
+//	/*float3 rotated = (float4x4::CreateRotationY(angle).
+//					  float4(playerToMelon.x, playerToMelon.y, playerToMelon.z, 1.0f))
+//						 .xyz;*/
+//	float3 target = playerToMelon;
+//
+//
+//
+//	ErrorLogger::log("inside circulateAround, target: (" + std::to_string(target.x) + " , " +
+//					 std::to_string(target.y) + " , " + std::to_string(target.z) + ")");
+//	pathfinding(m_position, playerPosition);
+//}
 
 void Melon::updateAnimated(float dt) {
 	m_frameTime += dt;
