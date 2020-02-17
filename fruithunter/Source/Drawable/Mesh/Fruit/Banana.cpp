@@ -5,7 +5,7 @@ void Banana::jump(float3 direction, float power) { m_direction = power * directi
 void Banana::behaviorPassive(float3 playerPosition) {
 	ErrorLogger::log("Banana:: Doing Passive.");
 
-	if (onGround(0.2)) {
+	if (onGround(0.2f)) {
 		float3 terrainNormal = float3(0.0, 1.0f, 0.0);
 		terrainNormal.Normalize();
 		jump(terrainNormal, 5.0);
@@ -18,7 +18,7 @@ void Banana::behaviorPassive(float3 playerPosition) {
 void Banana::behaviorActive(float3 playerPosition) {
 	ErrorLogger::log("Banana:: Doing active.");
 
-	if (onGround(0.2)) {
+	if (onGround(0.2f)) {
 		float3 terrainNormal = float3(0.0, 1.0f, 0.0);
 		terrainNormal.x = (float)(rand() % 4);
 		terrainNormal.z = (float)(rand() % 4);
@@ -32,7 +32,7 @@ void Banana::behaviorActive(float3 playerPosition) {
 }
 void Banana::behaviorCaught(float3 playerPosition) {
 	ErrorLogger::log("Banana:: Doing caught.");
-	if (onGround(0.2)) {
+	if (onGround(0.2f)) {
 		float3 toPlayer = playerPosition - m_position;
 		toPlayer.Normalize();
 		toPlayer.y = 1.0f;
@@ -74,10 +74,8 @@ void Banana::update(float dt, Vector3 playerPosition, TerrainManager* terrainMan
 		terrainNormal.Normalize();
 		float jumpPower = 5.f;
 
-		m_direction = jumpPower * (terrainNormal + 0.1 * float3((float)(rand() % 1), 0.0,
-															 (float)(rand() % 1))); // active
-		m_direction.x += 0.5;
-		m_direction.z += -0.5;
+		m_direction = jumpPower * (terrainNormal + 0.1f * float3((float)(rand() % 1), 0.0f,
+															  (float)(rand() % 1))); // active
 	}
 	ErrorLogger::logFloat3("bananadir", m_direction);
 

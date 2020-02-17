@@ -5,7 +5,7 @@ void Apple::behaviorPassive(float3 playerPosition) {
 	ErrorLogger::log("Apple:: Doing passive.");
 	m_direction = m_worldHome - m_position;
 	m_direction.Normalize();
-	if (onGround(0.2) && (m_worldHome - m_position).Length() < 0.3f) {
+	if (onGround(0.2f) && (m_worldHome - m_position).Length() < 0.3f) {
 		m_direction.y = 1.f;
 	}
 

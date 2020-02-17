@@ -51,7 +51,9 @@ bool Entity::collisionSphere_OBB(Entity& other) { return false; }
 
 bool Entity::collisionOBB_OBB(Entity& other) { return false; }
 
-bool Entity::onGround(float terrainHeight) const { return m_position.y - terrainHeight < 0.0001; }
+bool Entity::onGround(float terrainHeight) const {
+	return ((m_position.y - terrainHeight) < 0.001f);
+}
 
 float4x4 Entity::getModelMatrix() {
 	if (m_matrixChanged)
