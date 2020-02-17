@@ -17,6 +17,7 @@ struct Level {
 	std::vector<float3> m_heightMapPos;
 	std::vector<XMINT2> m_heightMapSubSize;
 	std::vector<XMINT2> m_heightMapDivision;
+	std::vector<std::vector<string>> m_heightmapTextures;
 
 	// Fruits
 	int m_nrOfFruits[NR_OF_FRUITS];
