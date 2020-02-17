@@ -30,11 +30,6 @@ private:
 	void createBuffers();
 	bool isMeshInitialized() const;
 
-	// Collision related
-	bool collisionSphere_Sphere(Entity& other);
-	bool collisionSphere_OBB(Entity& other);
-	bool collisionOBB_OBB(Entity& other);
-
 protected:
 	Animated m_meshAnim;
 
@@ -74,8 +69,10 @@ public:
 
 	// Collisions
 	bool checkCollision(Entity& other);
-	void setCollisionData(EntityCollision data);
-	void setCollisionPosition(float3 pos);
+	void setCollisionData(float3 point, float radius);
+	void setCollisionData(float3 point, float3 halfSizes);
+	float3 getHalfSizes() const;
+	float3 getHalfSizesAnimated() const;
 
 	Entity(string meshName = "", float3 position = float3(0, 0, 0),
 		float3 rotation = float3(0, 0, 0), float3 scale = float3(1, 1, 1));

@@ -17,6 +17,9 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	m_meshAnim.setFrameTargets(0, 0);
 	m_rollSpeed = 5;
 	m_fruitType = MELON;
+
+	setCollisionData(getPosition(),
+		m_meshAnim.getBoundingBoxHalfSizes().y); // sets to sphere with radius same as y halfsize;
 }
 
 void Melon::updateAnimated(float dt) {

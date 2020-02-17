@@ -33,4 +33,6 @@ public:
 	void updateSpecific(float frameTime); // or deltaFrameTime
 	void draw();
 	bool load(std::string filename, int nrOfFrames = 1, bool combineParts = true);
+
+	float3 getBoundingBoxHalfSizes() const;
 };
