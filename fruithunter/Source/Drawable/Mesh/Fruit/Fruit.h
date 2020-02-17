@@ -34,4 +34,6 @@ public:
 	void setNextDestination(float3 nextDest);
 	void lookTo(float3 lookAt);
 	void setWorldHome(float3 pos);
+
+	void hit() { changeState(CAUGHT); }
 };

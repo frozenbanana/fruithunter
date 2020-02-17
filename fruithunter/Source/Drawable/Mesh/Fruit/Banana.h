@@ -31,4 +31,6 @@ public:
 	Banana(float3 pos = float3(0.f, 0.f, 0.f));
 	void updateAnimated(float dt);
 	void update(float dt, Vector3 playerPos, TerrainManager* terrain);
+
+	// void hit();
 };

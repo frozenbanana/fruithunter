@@ -30,7 +30,15 @@ void Banana::behaviorActive(float3 playerPosition) {
 		changeState(PASSIVE);
 	}
 }
-void Banana::behaviorCaught(float3 playerPosition) { ErrorLogger::log("Banana:: Doing caught."); }
+void Banana::behaviorCaught(float3 playerPosition) {
+	ErrorLogger::log("Banana:: Doing caught.");
+	if (onGround(0.2)) {
+		float3 toPlayer = playerPosition - m_position;
+		toPlayer.Normalize();
+		toPlayer.y = 1.0f;
+		jump(toPlayer, 3.0f);
+	}
+}
 
 void Banana::move(float dt) {
 	m_direction += m_acceleration * dt * dt / 2.0f;
@@ -57,17 +65,6 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 // void Banana::setJump() {}
 void Banana::update(float dt, Vector3 playerPosition, TerrainManager* terrainManager) {
 
-	// m_bounceDestination = terrain->getNormalFromPosition(getPosition());
-	//// m_bounceDestination.y = 0;
-	// m_bounceDestination.Normalize();
-
-	// m_bounceDestination += getPosition();
-	// m_bounceDestination.y = terrain->getHeightFromPosition(m_bounceDestination);
-	// setNextDestination(m_bounceDestination);
-	// updateAnimated(dt);
-
-
-	// doBehavior(playerPosition);
 	float terrainHeight = terrainManager->getHeightFromPosition(m_position);
 	m_position.y = max(m_position.y, terrainHeight);
 
@@ -76,7 +73,7 @@ void Banana::update(float dt, Vector3 playerPosition, TerrainManager* terrainMan
 		float3 terrainNormal = terrainManager->getNormalFromPosition(m_position);
 		terrainNormal.Normalize();
 		float jumpPower = 5.f;
-		// m_direction = jumpPower * terrainNormal; // passive
+
 		m_direction = jumpPower * (terrainNormal + 0.1 * float3((float)(rand() % 1), 0.0,
 															 (float)(rand() % 1))); // active
 		m_direction.x += 0.5;

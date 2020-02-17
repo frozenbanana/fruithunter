@@ -11,20 +11,12 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	m_secondWorldHome = m_worldHome + float3(3.f, 0.0, 3.0f);
 	m_direction = m_position - m_secondWorldHome;
 	m_direction.Normalize();
-	m_velocity = float3(1.f);
+	// m_velocity = float3(1.f);
 	m_rollAnimationSpeed = 2;
 }
 
 void Melon::behaviorPassive(float3 playerPosition) {
-	/*ErrorLogger::log("Melon:: Doing passive.");
 
-	ErrorLogger::log("m_position:  (" + std::to_string(m_position.x) + " , " +
-					 std::to_string(m_position.y) + " , " + std::to_string(m_position.y) +
-					 "), \nm_worldHome: (" + std::to_string(m_worldHome.x) + " , " +
-					 std::to_string(m_worldHome.y) + " , " + std::to_string(m_worldHome.z) + ")" +
-					 "\nm_secondWorldHome: (" + std::to_string(m_secondWorldHome.x) + " , " +
-					 std::to_string(m_secondWorldHome.y) + " , " +
-					 std::to_string(m_secondWorldHome.z) + ")");*/
 	m_worldHome.y = m_position.y;
 	m_secondWorldHome.y = m_position.y;
 	float3 toHome = m_worldHome - m_position;
@@ -50,12 +42,7 @@ void Melon::behaviorPassive(float3 playerPosition) {
 
 void Melon::behaviorActive(float3 playerPosition) {
 	ErrorLogger::log("Melon:: Doing active.");
-	// TODO:
-	/*  1. Make a vektor from player to melon
-		2. Rotate that vektor with an angle
-		3. set the rotated vektor as new destination
 
-	*/
 	float3 toPlayer = m_position - playerPosition;
 	float3 sideStep = toPlayer.Cross(float3(0.0f, 1.0f, 0.0f));
 	if (toPlayer.Length() > 5.f) {
@@ -94,8 +81,8 @@ void Melon::move(float dt) {
 		m_direction = (m_availablePath.back() - m_position);
 		m_availablePath.pop_back();
 	}
-	updateAnimated(dt);
-	// m_direction.y = 0.f;
+	// updateAnimated(dt);
+	m_direction.y;
 	m_position += m_direction * dt;
 	setPosition(m_position);
 }

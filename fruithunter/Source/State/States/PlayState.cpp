@@ -27,6 +27,8 @@ void PlayState::initialize() {
 	bananaPos = float3(bananaPos.x, m_terrainManager.getHeightFromPosition(bananaPos), bananaPos.z);
 	m_banana.setStartPosition(bananaPos);
 	m_melon.setStartPosition(float3(7.0f, 0.0f, 5.0f));
+
+	m_apple.setStartPosition(float3(10.f, 0.0f, 5.0f));
 	// m_melon.setCollisionData(EntityCollision(m_melon.getPosition(), 1.f));
 }
 
@@ -42,11 +44,11 @@ void PlayState::update() {
 	// m_bow.updateAnimated(dt);
 
 	// update apple
-	// m_apple.update(dt, playerPos, &m_terrain);
+	m_apple.update(dt, playerPos, &m_terrainManager);
 
 
 	// update melon
-	// m_melon.update(dt, playerPos, &m_terrainManager);
+	m_melon.update(dt, playerPos, &m_terrainManager);
 	if (Input::getInstance()->keyDown(DirectX::Keyboard::M)) {
 		m_player.setPosition(float3(2.f, 0.f, 2.0f));
 	}
@@ -58,6 +60,11 @@ void PlayState::update() {
 	// m_melon.setPosition(melonPos);
 
 	// update banana
+	if (Input::getInstance()->keyDown(DirectX::Keyboard::Enter)) {
+		m_banana.hit();
+		m_melon.hit();
+		m_apple.hit();
+	}
 	m_banana.update(dt, playerPos, &m_terrainManager);
 }
 

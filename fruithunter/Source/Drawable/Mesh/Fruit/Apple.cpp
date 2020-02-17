@@ -5,6 +5,9 @@ void Apple::behaviorPassive(float3 playerPosition) {
 	ErrorLogger::log("Apple:: Doing passive.");
 	m_direction = m_worldHome - m_position;
 	m_direction.Normalize();
+	if (onGround(0.2) && (m_worldHome - m_position).Length() < 0.3f) {
+		m_direction.y = 1.f;
+	}
 
 	if ((playerPosition - m_position).Length() < 4.0f) {
 		changeState(ACTIVE);
@@ -37,7 +40,7 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 	setScale(0.5);
 	changeState(AI::State::PASSIVE);
 	m_direction = float3((float)(rand() % 1), 0.0f, (float)(rand() % 1));
-	m_velocity = float3(1.f);
+	// m_velocity = float3(1.f);
 	m_direction.Normalize();
 }
 
@@ -90,7 +93,7 @@ void Apple::move(float dt) {
 	//	m_availablePath.pop_back();
 	//}
 
-	m_direction.y = 0.f;
+	// m_direction.y = 0.f;
 	m_position += m_direction * dt;
 	setPosition(m_position);
 }
