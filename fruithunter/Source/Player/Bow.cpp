@@ -10,8 +10,7 @@ Bow::Bow() {
 
 Bow::~Bow() {}
 
-void Bow::update(
-	float dt, float3 playerPos, float3 playerForward, float3 playerRight, float3 playerUp) {
+void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 playerRight) {
 	// Set bow position based on player position and direction.
 	m_bow.setPosition(
 		playerPos + playerForward * m_armLength + playerRight * 0.5f * (1.0f - m_aimMovement));

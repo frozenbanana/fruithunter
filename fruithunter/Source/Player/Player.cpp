@@ -145,7 +145,7 @@ void Player::updateBow(float dt) {
 	}
 
 	m_bow.rotate(m_cameraPitch, m_cameraYaw);
-	m_bow.update(dt, getCameraPosition(), m_playerForward, m_playerRight, m_playerUp);
+	m_bow.update(dt, getCameraPosition(), m_playerForward, m_playerRight);
 }
 
 void Player::updateCamera() {
