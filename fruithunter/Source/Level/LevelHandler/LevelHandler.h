@@ -38,6 +38,8 @@ private:
 	Entity m_entity;
 	SkyBox m_skyBox;
 
+	int m_currentLevel = -1;
+
 public:
 	LevelHandler();
 	~LevelHandler();

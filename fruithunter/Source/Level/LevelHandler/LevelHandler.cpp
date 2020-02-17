@@ -44,28 +44,31 @@ void LevelHandler::initialise() {
 }
 
 void LevelHandler::loadLevel(int levelNr) {
-	Level currentLevel = m_levelsArr.at(levelNr);
+	if (m_currentLevel != levelNr) {
+		m_currentLevel = levelNr;
+		Level currentLevel = m_levelsArr.at(levelNr);
 
-	for (int i = 0; i < m_levelsArr.at(levelNr).m_heightMapNames.size(); i++) {
-		m_terrainManager->add(currentLevel.m_heightMapPos.at(i),
-			currentLevel.m_heightMapNames.at(i), currentLevel.m_heightMapSubSize.at(i),
-			currentLevel.m_heightMapDivision.at(i));
-	}
+		for (int i = 0; i < m_levelsArr.at(levelNr).m_heightMapNames.size(); i++) {
+			m_terrainManager->add(currentLevel.m_heightMapPos.at(i),
+				currentLevel.m_heightMapNames.at(i), currentLevel.m_heightMapSubSize.at(i),
+				currentLevel.m_heightMapDivision.at(i));
+		}
 
-	for (int i = 0; i < currentLevel.m_nrOfFruits[APPLE]; i++) {
-		shared_ptr<Apple> apple = make_shared<Apple>(currentLevel.m_fruitPos[APPLE]);
-		m_fruits.push_back(apple);
-	}
-	for (int i = 0; i < currentLevel.m_nrOfFruits[BANANA]; i++) {
-		shared_ptr<Banana> banana = make_shared<Banana>(currentLevel.m_fruitPos[BANANA]);
-		m_fruits.push_back(banana);
-	}
-	for (int i = 0; i < currentLevel.m_nrOfFruits[MELON]; i++) {
-		shared_ptr<Melon> melon = make_shared<Melon>(currentLevel.m_fruitPos[MELON]);
-		m_fruits.push_back(melon);
-	}
+		for (int i = 0; i < currentLevel.m_nrOfFruits[APPLE]; i++) {
+			shared_ptr<Apple> apple = make_shared<Apple>(currentLevel.m_fruitPos[APPLE]);
+			m_fruits.push_back(apple);
+		}
+		for (int i = 0; i < currentLevel.m_nrOfFruits[BANANA]; i++) {
+			shared_ptr<Banana> banana = make_shared<Banana>(currentLevel.m_fruitPos[BANANA]);
+			m_fruits.push_back(banana);
+		}
+		for (int i = 0; i < currentLevel.m_nrOfFruits[MELON]; i++) {
+			shared_ptr<Melon> melon = make_shared<Melon>(currentLevel.m_fruitPos[MELON]);
+			m_fruits.push_back(melon);
+		}
 
-	m_player.setPosition(currentLevel.m_playerStartPos);
+		m_player.setPosition(currentLevel.m_playerStartPos);
+	}
 }
 
 void LevelHandler::draw() {
@@ -89,7 +92,8 @@ void LevelHandler::update(float dt) {
 			m_fruits[i]->setPosition(float3(0.f));
 			m_player.getArrow().setPosition(float3(-10.f));
 		}
-		if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() < 1.0f) { //If the fruit is close to the player get picked up
+		if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() <
+			1.0f) { // If the fruit is close to the player get picked up
 			m_player.pickup(m_fruits[i].get()->getFruitType());
 			m_fruits.erase(m_fruits.begin() + i);
 		}
