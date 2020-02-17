@@ -31,7 +31,7 @@ void LevelHandler::initialise() {
 	level0.m_heightMapDivision.push_back(XMINT2(5, 5));
 
 	level0.m_nrOfFruits[APPLE] = 1;
-	level0.m_nrOfFruits[BANANA] = 1;
+	level0.m_nrOfFruits[BANANA] = 100;
 	level0.m_nrOfFruits[MELON] = 1;
 
 	level0.m_playerStartPos = float3(5.f, 0.0f, 5.0f);
@@ -83,6 +83,8 @@ void LevelHandler::draw() {
 void LevelHandler::update(float dt) {
 	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
 
+	dropFruit();
+
 	float3 playerPos = m_player.getPosition();
 
 	for (int i = 0; i < m_fruits.size(); i++) {
@@ -92,10 +94,42 @@ void LevelHandler::update(float dt) {
 			m_fruits[i]->setPosition(float3(0.f));
 			m_player.getArrow().setPosition(float3(-10.f));
 		}
-		if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() <
-			1.0f) { // If the fruit is close to the player get picked up
-			m_player.pickup(m_fruits[i].get()->getFruitType());
+		if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() < 1.0f) { //If the fruit is close to the player get picked up
+			pickUpFruit(m_fruits[i].get()->getFruitType());
 			m_fruits.erase(m_fruits.begin() + i);
+		}
+	}
+}
+
+void LevelHandler::pickUpFruit(int fruitType) { 
+	m_inventory[fruitType]++; }
+
+void LevelHandler::dropFruit() { 
+	Input* ip = Input::getInstance();
+
+	if (ip->keyPressed(Keyboard::D1)) {
+		if (m_inventory[APPLE] > 0) {
+			shared_ptr<Apple> apple =
+				make_shared<Apple>(float3(m_player.getPosition() + m_player.getForward() * 3.0f));
+			m_fruits.push_back(apple);
+			m_inventory[APPLE]--;
+		}
+	}
+	if (ip->keyPressed(Keyboard::D2)) {
+		if (m_inventory[BANANA] > 0) {
+			shared_ptr<Banana> banana =
+				make_shared<Banana>(float3(m_player.getPosition() + m_player.getForward() * 3.0f));
+			m_fruits.push_back(banana);
+			m_inventory[BANANA]--;
+		}
+	}
+	if (ip->keyPressed(Keyboard::D3)) {
+		if (m_inventory[MELON] > 0) {
+			shared_ptr<Melon> melon =
+				make_shared<Melon>(float3(m_player.getPosition() + m_player.getForward() * 3.0f));
+
+			m_fruits.push_back(melon);
+			m_inventory[MELON]--;
 		}
 	}
 }
