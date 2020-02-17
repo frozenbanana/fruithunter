@@ -21,6 +21,7 @@ public:
 	float3 getVelocity() const;
 	Entity& getArrow() { return m_bow.getArrow(); };
 	void setPosition(float3 position);
+	void pickup(int fruitType);
 
 private:
 	// Keys
