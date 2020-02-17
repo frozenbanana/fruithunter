@@ -5,6 +5,7 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 	loadAnimated("Bouncing_apple", 3);
 	m_nrOfFramePhases = 6;
 	setScale(0.5);
+	m_fruitType = APPLE;
 }
 
 void Apple::updateAnimated(float dt) {

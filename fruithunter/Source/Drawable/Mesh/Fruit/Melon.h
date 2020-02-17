@@ -24,4 +24,5 @@ public:
 	Melon(float3 pos = float3(0.f, 0.f, 0.f));
 	void updateAnimated(float dt);
 	void setRollSpeed(float rollSpeed);
+	void update(float dt, float3 playerPos);
 };
