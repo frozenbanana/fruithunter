@@ -15,7 +15,7 @@ void vecToArray(float arr[], float3 vec) {
 
 
 bool EntityCollision::collisionOBBOBB(ObbData& a, ObbData& b) {
-	// Borrowed from ch 4.4.1 "real-time collision detecton" - Christer Ericson
+	// "Borrowed" from ch 4.4.1 "real-time collision detecton" - Christer Ericson
 
 	// TODO: Sätt om float3 i Obbdata till float[3]
 	// och lägg till vector functioner som Dot istället.
@@ -126,6 +126,13 @@ bool EntityCollision::collisionOBBOBB(ObbData& a, ObbData& b) {
 	return 1;
 }
 
+bool EntityCollision::collisionSphereOBB(SphereData& sphere, ObbData& obb) {
+	float3 closestOnOBB = obb.closestPtPointOBB(sphere.m_point);
+	float distSq = (closestOnOBB - sphere.m_point).LengthSquared();
+
+	return distSq < sphere.m_radius * sphere.m_radius;
+}
+
 EntityCollision::EntityCollision(float3 point, float radius) { setCollisionData(point, radius); }
 
 EntityCollision::EntityCollision(float3 point, float3 halfSizes) {
@@ -165,31 +172,22 @@ bool EntityCollision::collide(EntityCollision& other) {
 				(SphereData*)m_collisionData.get(), (SphereData*)other.m_collisionData.get());
 			break;
 		case ctOBB:
-			// collides = collisionSphere_OBB(other);
-			break;
-		case ctSimpleMesh:
+			collides = collisionSphereOBB(
+				*(SphereData*)m_collisionData.get(), *(ObbData*)other.m_collisionData.get());
 			break;
 		}
 		break;
 	case ctOBB:
 		switch (other.m_collisionType) {
 		case ctSphere:
-			// collides = collisionSphere_OBB(other);
+			collides = collisionSphereOBB(
+				*(SphereData*)other.m_collisionData.get(), *(ObbData*)m_collisionData.get());
 			break;
 		case ctOBB:
 			collides = collisionOBBOBB(
 				*(ObbData*)m_collisionData.get(), *(ObbData*)other.m_collisionData.get());
 			break;
-		case ctSimpleMesh:
-			break;
 		}
-		break;
-	case ctSimpleMesh:
-		// switch (other.m_collisionType) {
-		// case ctSphere:
-		// case ctOBB:
-		// case ctSimpleMesh:
-		//}
 		break;
 	}
 	return collides;
@@ -198,4 +196,26 @@ bool EntityCollision::collide(EntityCollision& other) {
 void EntityCollision::setCollisionPosition(float3 pos) {
 	if (m_collisionData->m_point != pos)
 		m_collisionData->m_point = pos;
+}
+
+// Returns point on OBB that is closest to a point
+float3 EntityCollision::ObbData::closestPtPointOBB(float3 point) {
+	// Theory from ch 5.1.4 "real-time collision detecton" - Christer Ericson
+	// x = (P-C).dot(axis[0])
+	float closest[3] = { 0 };
+	float3 vec = point - m_point;
+	float halfSize[3];
+	vecToArray(halfSize, m_halfSize);
+
+	for (size_t i = 0; i < 3; ++i) {
+		// get composite distance along axis
+		float dist = vec.Dot(m_axis[i]);
+
+		// clamp distance to box size
+		dist = min(max(halfSize[i], dist), -halfSize[i]);
+
+		closest[i] = dist;
+	}
+
+	return float3(closest[0], closest[1], closest[2]) + m_point;
 }

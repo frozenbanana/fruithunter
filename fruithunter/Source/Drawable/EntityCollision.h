@@ -26,12 +26,15 @@ private:
 			m_axis[1] = float3::Up;
 			m_axis[2] = float3::Forward;
 		}
+		float3 closestPtPointOBB(float3 point);
 	};
 
 	CollisionType m_collisionType;
 	unique_ptr<CollisionData> m_collisionData;
 	bool collisionSphereSphere(SphereData* sphere1, SphereData* sphere2);
 	bool collisionOBBOBB(ObbData& obb1, ObbData& obb2);
+	bool collisionSphereOBB(SphereData& sphere, ObbData& obb);
+
 
 public:
 	EntityCollision(float3 point = float3(0.f), float radius = 0.5f); // default is sphere
