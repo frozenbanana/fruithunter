@@ -34,7 +34,7 @@ void LevelHandler::initialise() {
 	level0.m_nrOfFruits[BANANA] = 1;
 	level0.m_nrOfFruits[MELON] = 1;
 
-	level0.m_playerStartPos = float3(13.f, 0.0f, 0.0f);
+	level0.m_playerStartPos = float3(5.f, 0.0f, 5.0f);
 
 	level0.m_fruitPos[APPLE] = float3(5.0f, 0.0f, 0.0f);
 	level0.m_fruitPos[BANANA] = float3(0.0f, 0.0f, 5.0f);
@@ -88,6 +88,10 @@ void LevelHandler::update(float dt) {
 		if (m_player.getArrow().checkCollision(*m_fruits[i])) {
 			m_fruits[i]->setPosition(float3(0.f));
 			m_player.getArrow().setPosition(float3(-10.f));
+		}
+		if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() < 1.0f) { //If the fruit is close to the player get picked up
+			m_player.pickup(m_fruits[i].get()->getFruitType());
+			m_fruits.erase(m_fruits.begin() + i);
 		}
 	}
 }
