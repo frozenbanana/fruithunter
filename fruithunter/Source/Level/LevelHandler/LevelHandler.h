@@ -40,6 +40,8 @@ private:
 	size_t m_inventory[NR_OF_FRUITS]; // APPLE 0, BANANA 1, MELON 2
 	
 
+	int m_currentLevel = -1;
+
 public:
 	LevelHandler();
 	~LevelHandler();
