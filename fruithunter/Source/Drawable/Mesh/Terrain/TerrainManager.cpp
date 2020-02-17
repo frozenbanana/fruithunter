@@ -1,5 +1,9 @@
 #include "TerrainManager.h"
 
+TerrainManager TerrainManager::m_this;
+TerrainManager* TerrainManager::getInstance() { return &m_this; }
+TerrainManager::TerrainManager() {}
+
 void TerrainManager::add(
 	float3 position, string heightmapFilename, XMINT2 subSize, XMINT2 division) {
 	Terrain terrain(heightmapFilename, subSize, division);
@@ -30,7 +34,7 @@ float TerrainManager::getHeightFromPosition(float3 position) {
 
 float3 TerrainManager::getNormalFromPosition(float3 position) {
 	float highest = 0;
-	float3 normal = float3(0,1,0);
+	float3 normal = float3(0, 1, 0);
 	for (size_t i = 0; i < m_terrains.size(); i++) {
 		float h = m_terrains[i].getHeightFromPosition(position.x, position.z);
 		if (h > highest) {

@@ -34,10 +34,10 @@ private:
 	std::vector<Level> m_levelsArr;
 	std::vector<shared_ptr<Fruit>> m_fruits;
 	Player m_player;
-	TerrainManager m_terrainManager;
+	TerrainManager* m_terrainManager;
 	Entity m_entity;
 	SkyBox m_skyBox;
-	
+
 public:
 	LevelHandler();
 	~LevelHandler();
@@ -46,7 +46,7 @@ public:
 	void loadLevel(int levelNr);
 	void draw();
 	void update(float dt);
-	
+
 
 	std::vector<Fruit> fruitsInLevel;
 };
