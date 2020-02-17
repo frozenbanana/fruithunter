@@ -202,20 +202,20 @@ void EntityCollision::setCollisionPosition(float3 pos) {
 float3 EntityCollision::ObbData::closestPtPointOBB(float3 point) {
 	// Theory from ch 5.1.4 "real-time collision detecton" - Christer Ericson
 	// x = (P-C).dot(axis[0])
-	float closest[3] = { 0 };
 	float3 vec = point - m_point;
 	float halfSize[3];
 	vecToArray(halfSize, m_halfSize);
+	float3 pointOnObb = m_point;
 
 	for (size_t i = 0; i < 3; ++i) {
 		// get composite distance along axis
 		float dist = vec.Dot(m_axis[i]);
 
 		// clamp distance to box size
-		dist = min(max(halfSize[i], dist), -halfSize[i]);
+		dist = max(min(halfSize[i], dist), -halfSize[i]);
 
-		closest[i] = dist;
+		pointOnObb += dist * m_axis[i];
 	}
 
-	return float3(closest[0], closest[1], closest[2]) + m_point;
+	return pointOnObb;
 }

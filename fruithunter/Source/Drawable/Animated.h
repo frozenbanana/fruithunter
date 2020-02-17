@@ -34,5 +34,6 @@ public:
 	void draw();
 	bool load(std::string filename, int nrOfFrames = 1, bool combineParts = true);
 
+	void scaleBoundingBoxHalfSizes(float3 scale);
 	float3 getBoundingBoxHalfSizes() const;
 };
