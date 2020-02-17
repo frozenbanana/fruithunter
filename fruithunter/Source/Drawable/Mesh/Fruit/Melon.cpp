@@ -4,7 +4,7 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	loadAnimated("Melon", 1);
 	m_nrOfFramePhases = 6;
 	m_meshAnim.setFrameTargets(0, 0);
-	m_rollSpeed = 5;
+	m_rollSpeed = 5.f;
 	m_fruitType = MELON;
 
 	setCollisionData(getPosition(),
@@ -13,34 +13,30 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	changeState(AI::State::PASSIVE);
 	setStartPosition(pos);
 	ErrorLogger::log("Melon:: going to second home");
+	// enforce that homes are on terrain
+	m_worldHome.y = TerrainManager::getInstance()->getHeightFromPosition(m_worldHome);
 	m_secondWorldHome = m_worldHome + float3(3.f, 0.0, 3.0f);
-	m_direction = m_position - m_secondWorldHome;
-	m_direction.Normalize();
-	// m_velocity = float3(1.f);
-	m_rollAnimationSpeed = 2;
+	m_secondWorldHome.y = TerrainManager::getInstance()->getHeightFromPosition(m_secondWorldHome);
+	m_directionalVelocity = m_position - m_secondWorldHome;
+	m_directionalVelocity.Normalize();
+	m_rollAnimationSpeed = 2.0f;
 }
 
 void Melon::behaviorPassive(float3 playerPosition) {
-
-	m_worldHome.y = m_position.y;
-	m_secondWorldHome.y = m_position.y;
-	float3 toHome = m_worldHome - m_position;
-	if (toHome.Length() < 0.1f || toHome.Length() > (m_worldHome - m_secondWorldHome).Length()) {
+	if (withinDistanceTo(m_worldHome, 0.1f)) {
 		ErrorLogger::log("Melon:: going to second home");
-		m_direction = m_secondWorldHome - m_position;
+		m_directionalVelocity = m_secondWorldHome - m_position;
 		lookTo(m_secondWorldHome);
-		m_direction.Normalize();
+		m_directionalVelocity.Normalize();
 	}
-	toHome = m_secondWorldHome - m_position;
-	if (toHome.Length() < 0.1f) {
-		m_direction = m_worldHome - m_position;
-		ErrorLogger::log("Melon:: going to home");
-
+	else if (withinDistanceTo(m_secondWorldHome, 0.1f)) {
+		ErrorLogger::log("Melon:: going to first home");
+		m_directionalVelocity = m_worldHome - m_position;
 		lookTo(m_worldHome);
-		m_direction.Normalize();
+		m_directionalVelocity.Normalize();
 	}
 
-	if ((playerPosition - m_position).Length() < 8.0f) {
+	if (withinDistanceTo(playerPosition, 4.0f)) {
 		changeState(ACTIVE);
 	}
 }
@@ -48,6 +44,40 @@ void Melon::behaviorPassive(float3 playerPosition) {
 void Melon::behaviorActive(float3 playerPosition) {
 	ErrorLogger::log("Melon:: Doing active.");
 
+	circulateAround(playerPosition);
+	// pathfinding(m_position, sideStep - m_position);
+
+
+	if (withinDistanceTo(playerPosition, 5.0f)) {
+		changeState(PASSIVE);
+	}
+}
+
+void Melon::behaviorCaught(float3 playerPosition) {
+	ErrorLogger::log("Melon:: Doing caught.");
+	m_directionalVelocity = playerPosition - m_position; // run to player
+	m_directionalVelocity.Normalize();
+
+	if (withinDistanceTo(playerPosition, 1.0f)) {
+		// delete yourself
+		ErrorLogger::log("Melon:: is picked up");
+	}
+}
+
+void Melon::roll(float dt) { rotateX(dt * m_rollAnimationSpeed); }
+
+void Melon::move(float dt) {
+	if (!m_availablePath.empty() && m_currentState == ACTIVE) {
+		m_directionalVelocity = (m_availablePath.back() - m_position);
+		m_availablePath.pop_back();
+	}
+	m_directionalVelocity += m_acceleration * dt * dt / 2.0f;
+	m_position += m_directionalVelocity * dt;
+	enforceOverTerrain();
+	setPosition(m_position);
+}
+
+void Melon::circulateAround(float3 playerPosition) {
 	float3 toPlayer = m_position - playerPosition;
 	float3 sideStep = toPlayer.Cross(float3(0.0f, 1.0f, 0.0f));
 	if (toPlayer.Length() > 5.f) {
@@ -57,47 +87,14 @@ void Melon::behaviorActive(float3 playerPosition) {
 
 		sideStep += toPlayer;
 	}
-	m_direction = sideStep;
-	// lookTo(m_direction);
-	// pathfinding(m_position, sideStep - m_position);
-
-
-	if ((playerPosition - m_position).Length() > 4.0f) {
-		changeState(PASSIVE);
-	}
-}
-
-void Melon::behaviorCaught(float3 playerPosition) {
-	ErrorLogger::log("Melon:: Doing caught.");
-	m_direction = playerPosition - m_position; // run to player
-	m_direction.Normalize();
-
-	if ((playerPosition - m_position).Length() < 1.0f) {
-		// delete yourself
-		ErrorLogger::log("Melon:: is picked up");
-	}
-}
-
-void Melon::roll(float dt) { rotateX(dt * m_rollAnimationSpeed); }
-
-// TODO, deside is we are going to use m_direction or m_velocity or both for movement.
-void Melon::move(float dt) {
-	if (!m_availablePath.empty() && m_currentState == ACTIVE) {
-		m_direction = (m_availablePath.back() - m_position);
-		m_availablePath.pop_back();
-	}
-	// updateAnimated(dt);
-	m_direction.y;
-	m_position += m_direction * dt;
-	setPosition(m_position);
+	m_directionalVelocity = sideStep;
 }
 
 
-void Melon::update(float dt, float3 playerPosition, TerrainManager* terrain) {
+void Melon::update(float dt, float3 playerPosition) {
 	doBehavior(playerPosition);
 	updateAnimated(dt);
 	move(dt);
-	m_position.y = terrain->getHeightFromPosition(m_position);
 }
 //
 // void Melon::circulateAround(float3 playerPosition) {

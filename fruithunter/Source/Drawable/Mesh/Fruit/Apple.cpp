@@ -1,59 +1,63 @@
 #include "Apple.h"
 #include "Input.h"
 
+Apple::Apple(float3 pos) : Fruit(pos) {
+	loadAnimated("Bouncing_apple", 3);
+	m_nrOfFramePhases = 6;
+	setScale(0.5);
+	changeState(AI::State::PASSIVE);
+
+	m_directionalVelocity = float3((float)(rand() % 1), 0.0f, (float)(rand() % 1));
+	m_directionalVelocity.Normalize();
+	m_fruitType = APPLE;
+}
+
 void Apple::behaviorPassive(float3 playerPosition) {
 	ErrorLogger::log("Apple:: Doing passive.");
-	m_direction = m_worldHome - m_position;
-	m_direction.Normalize();
-	if (onGround(0.2f) && (m_worldHome - m_position).Length() < 0.3f) {
-		m_direction.y = 1.f;
+	m_directionalVelocity = m_worldHome - m_position;
+	m_directionalVelocity.Normalize();
+	if (onGround(0.2f) && withinDistanceTo(m_worldHome, 2.0f)) {
+		float3 terrainNormal = TerrainManager::getInstance()->getNormalFromPosition(m_position);
+		terrainNormal.Normalize();
+		jump(terrainNormal, 5.0);
 	}
 
-	if ((playerPosition - m_position).Length() < 4.0f) {
+	if (withinDistanceTo(playerPosition, 3.f)) {
 		changeState(ACTIVE);
 	}
 }
 
 void Apple::behaviorActive(float3 playerPosition) {
 	ErrorLogger::log("Apple:: Doing active.");
-	m_direction = m_position - playerPosition; // run away from player
-	m_direction.Normalize();
-	if ((playerPosition - m_position).Length() > 4.0f) {
+	m_directionalVelocity = m_position - playerPosition; // run away from player
+	m_directionalVelocity.Normalize();
+	if (!withinDistanceTo(playerPosition, 4.0f)) {
 		changeState(PASSIVE);
 	}
 }
 
 void Apple::behaviorCaught(float3 playerPosition) {
 	ErrorLogger::log("Apple:: Doing caught.");
-	m_direction = playerPosition - m_position; // run to player
-	m_direction.Normalize();
+	m_directionalVelocity = playerPosition - m_position; // run to player
+	m_directionalVelocity.Normalize();
 
-	if ((playerPosition - m_position).Length() < 1.0f) {
+	if (withinDistanceTo(playerPosition, 1.0f)) {
 		// delete yourself
 		ErrorLogger::log("Apple:: is picked up");
 	}
 }
 
-Apple::Apple(float3 pos) : Fruit(pos) {
-	loadAnimated("Bouncing_apple", 3);
-	m_nrOfFramePhases = 6;
-	setScale(0.5);
-	changeState(AI::State::PASSIVE);
-	m_direction = float3((float)(rand() % 1), 0.0f, (float)(rand() % 1));
-	// m_velocity = float3(1.f);
-	m_direction.Normalize();
-	m_fruitType = APPLE;
-}
 
 void Apple::updateAnimated(float dt) {
 	m_startAnimationPosition = m_position;
 	int frameOrder[] = { 0, 1, 0, 2, 0, 1 }; // Order of using keyframes
 	float3 posOrder[6] = {
-		m_startAnimationPosition, m_startAnimationPosition, m_startAnimationPosition,
-		m_startAnimationPosition, m_startAnimationPosition, m_startAnimationPosition,
-		/*m_heightPos,
-		m_destinationPos
-		m_destinationPos,*/
+		m_startAnimationPosition,
+		m_startAnimationPosition,
+		m_startAnimationPosition,
+		m_startAnimationPosition,
+		m_startAnimationPosition,
+		m_startAnimationPosition,
 	};
 	bool justChanged = false;
 	float frameSpeedOrder[] = { 4.f, 5.f, 2.0f, 1.9f, 4.f, 2.f };
@@ -94,13 +98,15 @@ void Apple::move(float dt) {
 	//	m_availablePath.pop_back();
 	//}
 
-	// m_direction.y = 0.f;
-	m_position += m_direction * dt;
+	m_directionalVelocity += m_acceleration * dt * dt / 2.f;
+	m_position += m_directionalVelocity * dt;
+	// TODO: check if legal
+	// CURRENT: Enforece terrain height
+	enforceOverTerrain();
 	setPosition(m_position);
 }
 
-void Apple::update(float dt, float3 playerPosition, TerrainManager* terrainManager) {
-	m_position.y = terrainManager->getHeightFromPosition(m_position);
+void Apple::update(float dt, float3 playerPosition) {
 	doBehavior(playerPosition);
 	updateAnimated(dt);
 	move(dt);

@@ -10,7 +10,6 @@ private:
 	float3 m_rotation;
 	float3 m_acceleration;
 
-	void update(float dt, float3 playerPos);
 	void updateFirstJump(float dt);
 	void updateBounce(float dt);
 	void updateStopped(float dt);
@@ -26,13 +25,10 @@ private:
 	void behaviorCaught(float3 playerPosition) override;
 
 	void move(float dt);
-	void jump(float3 direction, float power);
 	float3 m_bounceDestination;
 
 public:
 	Banana(float3 pos = float3(0.f, 0.f, 0.f));
 	void updateAnimated(float dt);
-	void update(float dt, Vector3 playerPos, TerrainManager* terrain);
-
-	// void hit();
+	void update(float dt, float3 playerPos) override;
 };

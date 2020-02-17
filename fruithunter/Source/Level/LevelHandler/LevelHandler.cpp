@@ -34,11 +34,11 @@ void LevelHandler::initialise() {
 	level0.m_nrOfFruits[BANANA] = 1;
 	level0.m_nrOfFruits[MELON] = 1;
 
-	level0.m_playerStartPos = float3(13.f, 0.0f, 0.0f);
+	level0.m_playerStartPos = float3(13.f, 0.0f, 5.0f);
 
-	level0.m_fruitPos[APPLE] = float3(5.0f, 0.0f, 0.0f);
-	level0.m_fruitPos[BANANA] = float3(0.0f, 0.0f, 5.0f);
-	level0.m_fruitPos[MELON] = float3(5.0f, 0.0f, 5.0f);
+	level0.m_fruitPos[APPLE] = float3(9.0f, 0.0f, 6.0f);
+	level0.m_fruitPos[BANANA] = float3(7.0f, 0.0f, 7.0f);
+	level0.m_fruitPos[MELON] = float3(6.0f, 0.0f, 8.0f);
 
 	m_levelsArr.push_back(level0);
 }
@@ -82,11 +82,15 @@ void LevelHandler::update(float dt) {
 
 	float3 playerPos = m_player.getPosition();
 
+	if (Input::getInstance()->keyDown(DirectX::Keyboard::M)) {
+		m_player.setPosition(float3(2.f, 0.f, 2.0f));
+	}
+
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->update(dt, playerPos);
 		m_fruits[i]->updateAnimated(dt);
 		if (m_player.getArrow().checkCollision(*m_fruits[i])) {
-			m_fruits[i]->setPosition(float3(0.f));
+			m_fruits[i]->setPosition(m_fruits[i]->getHomePosition() + float3(0.0f, 5.0f, 0.0f));
 			m_player.getArrow().setPosition(float3(-10.f));
 		}
 	}

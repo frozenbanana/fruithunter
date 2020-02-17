@@ -3,12 +3,12 @@
 #include "AI.h"
 #include "TerrainManager.h"
 
-class Fruit : public Entity, public AI
-{
+class Fruit : public Entity, public AI {
 protected:
 	// Phyics based movment
-	float3 m_direction;
-	float3 m_velocity;
+	float3 m_directionalVelocity;
+	float3 m_acceleration = float3(0.0f, -40.0f, 0.0f);
+
 	// -------------------
 	int m_nrOfFramePhases; // nr of phases to a movement
 	int m_currentFramePhase;
@@ -26,21 +26,21 @@ protected:
 	float m_endRotation;
 	void setDestination();
 	float findRequiredRotation(float3 lookAt);
-
+	void enforceOverTerrain();
 	Fruit(float3 pos = float3(0.f, 0.f, 0.f));
 
 public:
 	virtual void update(float dt, float3 playerPos) = 0;
 	virtual void updateAnimated(float dt) = 0;
+	void jump(float3 direction, float power);
 	void setStartPosition(float3 pos);
 	void setNextDestination(float3 nextDest);
 	void lookTo(float3 lookAt);
 	void setWorldHome(float3 pos);
+	bool withinDistanceTo(float3 target, float treshhold);
+	float3 getHomePosition() const;
 
-	void hit()
-	{
-		changeState(CAUGHT);
-	}
+	void hit() { changeState(CAUGHT); }
 
 	int getFruitType();
 };

@@ -1,20 +1,39 @@
 #include "Banana.h"
 
-void Banana::jump(float3 direction, float power) { m_direction = power * direction; }
+
+Banana::Banana(float3 pos) : Fruit(pos) {
+	loadAnimated("Banana", 3);
+	m_nrOfFramePhases = 5;
+	m_maxBounciness = 3;
+	m_bounciness = 0;
+	m_state = Jump;
+	rotRandom();
+	setScale(2.f);
+	m_currentState = PASSIVE;
+	m_worldHome = m_position;
+}
 
 void Banana::behaviorPassive(float3 playerPosition) {
 	ErrorLogger::log("Banana:: Doing Passive.");
+	// if far away from world home go back
+	if (withinDistanceTo(m_worldHome, 2.0f)) {
+		float3 toHome = m_worldHome - m_position;
+		toHome.Normalize();
+		toHome.y = 1.0f;
+		jump(toHome, 3.0f);
+	}
 
 	if (onGround(0.2f)) {
-		float3 terrainNormal = float3(0.0, 1.0f, 0.0);
+		float3 terrainNormal = TerrainManager::getInstance()->getNormalFromPosition(m_position);
 		terrainNormal.Normalize();
 		jump(terrainNormal, 5.0);
 	}
 
-	if ((m_position - playerPosition).Length() < 5.f) {
+	if (withinDistanceTo(playerPosition, 5.0f)) {
 		changeState(ACTIVE);
 	}
 }
+
 void Banana::behaviorActive(float3 playerPosition) {
 	ErrorLogger::log("Banana:: Doing active.");
 
@@ -26,7 +45,7 @@ void Banana::behaviorActive(float3 playerPosition) {
 		jump(terrainNormal, 5.0);
 	}
 
-	if ((m_position - playerPosition).Length() > 8.f) {
+	if (withinDistanceTo(playerPosition, 8.0f)) {
 		changeState(PASSIVE);
 	}
 }
@@ -41,43 +60,23 @@ void Banana::behaviorCaught(float3 playerPosition) {
 }
 
 void Banana::move(float dt) {
-	m_direction += m_acceleration * dt * dt / 2.0f;
-	m_position += m_direction * dt;
+	m_directionalVelocity += m_acceleration * dt * dt / 2.0f;
+	m_position += m_directionalVelocity * dt;
 	m_startAnimationPosition = m_position;
 	m_destinationAnimationPosition = m_position;
-
+	enforceOverTerrain();
 	setPosition(m_position);
 }
 
-Banana::Banana(float3 pos) : Fruit(pos) {
-	loadAnimated("Banana", 3);
-	m_nrOfFramePhases = 5;
-	m_maxBounciness = 3;
-	m_bounciness = 0;
-	m_state = Jump;
-	rotRandom();
-	setScale(2.f);
-	m_currentState = PASSIVE;
-	m_acceleration = float3(0.0f, -400.f, 0.0f);
-	m_worldHome = m_position;
-}
-
 // void Banana::setJump() {}
-void Banana::update(float dt, Vector3 playerPosition, TerrainManager* terrainManager) {
+void Banana::update(float dt, Vector3 playerPosition) {
+	TerrainManager* terrainManager = TerrainManager::getInstance();
 
 	float terrainHeight = terrainManager->getHeightFromPosition(m_position);
 	m_position.y = max(m_position.y, terrainHeight);
 
-	ErrorLogger::logFloat3("bananapos", m_position);
-	if (onGround(terrainHeight)) {
-		float3 terrainNormal = terrainManager->getNormalFromPosition(m_position);
-		terrainNormal.Normalize();
-		float jumpPower = 5.f;
-
-		m_direction = jumpPower * (terrainNormal + 0.1f * float3((float)(rand() % 1), 0.0f,
-															  (float)(rand() % 1))); // active
-	}
-	ErrorLogger::logFloat3("bananadir", m_direction);
+	// ErrorLogger::logFloat3("bananapos", m_position);
+	// ErrorLogger::logFloat3("bananadir", m_directionalVelocity);
 
 	doBehavior(playerPosition);
 	updateAnimated(dt);
@@ -101,10 +100,6 @@ void Banana::updateAnimated(float dt) {
 	}
 }
 
-void Banana::update(float dt, float3 playerPos) {
-	//TODO: update banana
-	bounce();
-}
 
 void Banana::updateFirstJump(float dt) {
 	int frameOrder[] = { 0, 1, 0, 2, 0, 1 }; // Order of using keyframes

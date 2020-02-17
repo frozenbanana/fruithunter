@@ -1,6 +1,9 @@
 #include "Fruit.h"
 #include "Input.h"
 
+
+void Fruit::jump(float3 direction, float power) { m_directionalVelocity = power * direction; }
+
 void Fruit::setStartPosition(float3 pos) {
 	setPosition(pos);
 	setWorldHome(pos);
@@ -37,6 +40,13 @@ float Fruit::findRequiredRotation(float3 lookAt) {
 	return rot + 3.14f * 0.5f;
 }
 
+void Fruit::enforceOverTerrain() {
+	if (!onGround(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
+		m_position.y = TerrainManager::getInstance()->getHeightFromPosition(m_position) +
+					   getHalfSizesAnimated().y / 2.;
+	}
+}
+
 void Fruit::setDestination() {
 	m_destinationAnimationPosition = m_nextDestinationAnimationPosition;
 	m_startAnimationPosition = getPosition();
@@ -49,8 +59,15 @@ void Fruit::setWorldHome(float3 pos) {
 	m_worldHome.y = 0.f;
 }
 
+bool Fruit::withinDistanceTo(float3 target, float treshhold) {
+	return (m_position - target).Length() < treshhold;
+}
+
+float3 Fruit::getHomePosition() const { return m_worldHome; }
+
 Fruit::Fruit(float3 pos) : Entity() {
 	setStartPosition(pos);
+	setPosition(pos);
 	m_worldHome = pos;
 	m_nrOfFramePhases = 0;
 	m_currentFramePhase = 0;
