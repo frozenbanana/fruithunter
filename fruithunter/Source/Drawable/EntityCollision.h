@@ -36,9 +36,7 @@ private:
 public:
 	EntityCollision(float3 point = float3(0.f), float radius = 0.5f); // default is sphere
 	EntityCollision(float3 point, float3 halfSizes);				  // default is sphere
-	// EntityCollision(const EntityCollision&);
 	~EntityCollision();
-	void operator=(EntityCollision& other);
 	void setCollisionData(float3 point, float radius);	  // sphere
 	void setCollisionData(float3 point, float3 halfSize); // OBB
 	void rotateObbAxis(float4x4 matRotation);

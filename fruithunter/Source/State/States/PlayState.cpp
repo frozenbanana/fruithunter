@@ -67,7 +67,7 @@ void PlayState::update() {
 
 	if (m_player.getArrow().checkCollision(m_melon)) {
 		m_melon.setPosition(float3(0.f));
-		m_player.getArrow().setPosition(float3(-1.f));
+		m_player.getArrow().setPosition(float3(-10.f));
 	}
 }
 

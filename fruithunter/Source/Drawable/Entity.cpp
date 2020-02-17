@@ -1,5 +1,6 @@
 #include "Entity.h"
 #include "Errorlogger.h"
+#include "Input.h"
 
 void Entity::updateMatrix() {
 	m_matrixChanged = false;
@@ -109,6 +110,9 @@ void Entity::setScale(float scale) {
 
 void Entity::draw() {
 	bindModelMatrixBuffer();
+	if (Input::getInstance()->keyDown(Keyboard::B)) {
+		draw_boundingBox();
+	}
 	m_mesh.draw();
 }
 

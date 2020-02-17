@@ -17,8 +17,7 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	m_meshAnim.setFrameTargets(0, 0);
 	m_rollSpeed = 5;
 
-	// temp coll shound be removed:
-	setCollisionData(getPosition(), getHalfSizesAnimated());
+	setCollisionData(getPosition(), m_meshAnim.getBoundingBoxHalfSizes().y);
 }
 
 void Melon::updateAnimated(float dt) {

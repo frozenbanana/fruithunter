@@ -126,35 +126,14 @@ bool EntityCollision::collisionOBBOBB(ObbData& a, ObbData& b) {
 	return 1;
 }
 
-
 EntityCollision::EntityCollision(float3 point, float radius) { setCollisionData(point, radius); }
 
 EntityCollision::EntityCollision(float3 point, float3 halfSizes) {
 	setCollisionData(point, halfSizes);
 }
 
-// EntityCollision::EntityCollision(const EntityCollision& other) {
-//	int test = 0;
-//	if (this != &other) {
-//		m_collisionType = other.m_collisionType;
-//		if (m_collisionType == ctSphere) {
-//			SphereData sphere = *((SphereData*)other.m_collisionData.get());
-//			m_collisionData = make_unique<SphereData>(SphereData(sphere));
-//			// make_unique<SphereData>(new SphereData(sphere.m_point, sphere.m_radius));
-//		}
-//		else if (m_collisionType == ctOBB) {
-//			ObbData obb = *((ObbData*)other.m_collisionData.get());
-//			m_collisionData = make_unique<ObbData>(ObbData(obb));
-//		}
-//	}
-//}
+EntityCollision::~EntityCollision() {}
 
-EntityCollision::~EntityCollision() { m_collisionData.reset(); }
-
-void EntityCollision::operator=(EntityCollision& other) {
-	m_collisionType = other.m_collisionType;
-	m_collisionData.swap(other.m_collisionData);
-}
 
 void EntityCollision::setCollisionData(float3 point, float radius) {
 	m_collisionType = ctSphere;
@@ -167,9 +146,13 @@ void EntityCollision::setCollisionData(float3 point, float3 halfSize) {
 }
 
 void EntityCollision::rotateObbAxis(float4x4 matRotation) {
-	((ObbData*)m_collisionData.get())->m_axis[0] = float3::Transform(float3::Right, matRotation);
-	((ObbData*)m_collisionData.get())->m_axis[1] = float3::Transform(float3::Up, matRotation);
-	((ObbData*)m_collisionData.get())->m_axis[2] = float3::Transform(float3::Forward, matRotation);
+	if (m_collisionType == ctOBB) {
+		((ObbData*)m_collisionData.get())->m_axis[0] =
+			float3::Transform(float3::Right, matRotation);
+		((ObbData*)m_collisionData.get())->m_axis[1] = float3::Transform(float3::Up, matRotation);
+		((ObbData*)m_collisionData.get())->m_axis[2] =
+			float3::Transform(float3::Forward, matRotation);
+	}
 }
 
 bool EntityCollision::collide(EntityCollision& other) {

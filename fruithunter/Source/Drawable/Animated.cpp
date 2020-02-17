@@ -1,4 +1,5 @@
 #include "Animated.h"
+#include "Input.h"
 
 void Animated::bindMeshes() {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
@@ -119,6 +120,10 @@ void Animated::updateSpecific(float frameTime) {
 }
 
 void Animated::draw() {
+	if (Input::getInstance()->keyDown(Keyboard::B)) {
+		m_meshes[0].draw_BoundingBox();
+	}
+
 	bindMeshes();
 	bindConstantBuffer();
 	m_shaderObject_animation.bindShadersAndLayout();
