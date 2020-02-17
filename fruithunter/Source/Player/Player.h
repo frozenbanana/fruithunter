@@ -9,10 +9,10 @@ public:
 	Player();
 	~Player();
 	void initialize();
-	void update(float td, Terrain* terrain);
+	void update(float dt, Terrain* terrain);
 	void updateBow(float dt);
 	void updateCamera();
-	void rotatePlayer();
+	void rotatePlayer(float dt);
 	void draw();
 
 	float3 getPosition() const;
@@ -85,8 +85,8 @@ private:
 	float3 m_playerRight = DEFAULTRIGHT;
 	float3 m_playerUp = DEFAULTUP;
 	float m_cameraPitch, m_cameraYaw;
-	float m_aimZoom;
-	bool m_releasing;
+	float m_aimZoom = 1.f;
+	bool m_releasing = false;
 
 	//- - - Functions - - -
 	/*
