@@ -30,7 +30,8 @@ protected:
 	Fruit(float3 pos = float3(0.f, 0.f, 0.f));
 
 public:
-	virtual void update(float dt, float3 playerPos) = 0;
+	void move(float dt);
+	void update(float dt, float3 playerPos);
 	virtual void updateAnimated(float dt) = 0;
 	void jump(float3 direction, float power);
 	void setStartPosition(float3 pos);
@@ -39,6 +40,7 @@ public:
 	void setWorldHome(float3 pos);
 	bool withinDistanceTo(float3 target, float treshhold);
 	float3 getHomePosition() const;
+	void setVelocity(float3 velo);
 
 	void hit() { changeState(CAUGHT); }
 

@@ -24,11 +24,9 @@ private:
 	void behaviorActive(float3 playerPosition) override;
 	void behaviorCaught(float3 playerPosition) override;
 
-	void move(float dt);
 	float3 m_bounceDestination;
 
 public:
 	Banana(float3 pos = float3(0.f, 0.f, 0.f));
 	void updateAnimated(float dt);
-	void update(float dt, float3 playerPos) override;
 };

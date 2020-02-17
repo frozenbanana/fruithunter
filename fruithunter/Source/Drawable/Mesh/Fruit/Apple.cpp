@@ -84,33 +84,33 @@ void Apple::updateAnimated(float dt) {
 		posOrder[1] = getPosition();
 	}
 	// Set position
-	float3 pos = XMVectorLerp(posOrder[m_currentFramePhase],
+	/*float3 pos = XMVectorLerp(posOrder[m_currentFramePhase],
 		posOrder[(m_currentFramePhase + 1) % (m_nrOfFramePhases)], m_frameTime);
-	setPosition(pos);
+	setPosition(pos);*/
 
 	// Update mesh specificly with our frametime
 	m_meshAnim.updateSpecific(m_frameTime);
 }
 
-void Apple::move(float dt) {
-	// if (!m_availablePath.empty() && m_currentState == ACTIVE) {
-	//	m_direction = (m_availablePath.back() - m_position);
-	//	m_availablePath.pop_back();
-	//}
-
-	m_directionalVelocity += m_acceleration * dt * dt / 2.f;
-	m_position += m_directionalVelocity * dt;
-	// TODO: check if legal
-	// CURRENT: Enforece terrain height
-	enforceOverTerrain();
-	setPosition(m_position);
-}
-
-void Apple::update(float dt, float3 playerPosition) {
-	doBehavior(playerPosition);
-	updateAnimated(dt);
-	move(dt);
-}
+// void Apple::move(float dt) {
+//	// if (!m_availablePath.empty() && m_currentState == ACTIVE) {
+//	//	m_direction = (m_availablePath.back() - m_position);
+//	//	m_availablePath.pop_back();
+//	//}
+//
+//	m_directionalVelocity += m_acceleration * dt * dt / 2.f;
+//	m_position += m_directionalVelocity * dt;
+//	// TODO: check if legal
+//	// CURRENT: Enforece terrain height
+//	enforceOverTerrain();
+//	setPosition(m_position);
+//}
+//
+// void Apple::update(float dt, float3 playerPosition) {
+//	doBehavior(playerPosition);
+//	updateAnimated(dt);
+//	move(dt);
+//}
 
 void Apple::flee(float3 playerPos) {
 	float3 start = float3(m_startAnimationPosition.x, 0.0, m_startAnimationPosition.z);

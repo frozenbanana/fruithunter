@@ -2,6 +2,7 @@
 
 
 Banana::Banana(float3 pos) : Fruit(pos) {
+	m_fruitType = BANANA;
 	loadAnimated("Banana", 3);
 	m_nrOfFramePhases = 5;
 	m_maxBounciness = 3;
@@ -58,31 +59,22 @@ void Banana::behaviorCaught(float3 playerPosition) {
 		jump(toPlayer, 3.0f);
 	}
 }
-
-void Banana::move(float dt) {
-	m_directionalVelocity += m_acceleration * dt * dt / 2.0f;
-	m_position += m_directionalVelocity * dt;
-	m_startAnimationPosition = m_position;
-	m_destinationAnimationPosition = m_position;
-	enforceOverTerrain();
-	setPosition(m_position);
-}
+//
+// void Banana::move(float dt) {
+//	m_directionalVelocity += m_acceleration * dt * dt / 2.0f;
+//	m_position += m_directionalVelocity * dt;
+//	m_startAnimationPosition = m_position;
+//	m_destinationAnimationPosition = m_position;
+//	enforceOverTerrain();
+//	setPosition(m_position);
+//}
 
 // void Banana::setJump() {}
-void Banana::update(float dt, Vector3 playerPosition) {
-	TerrainManager* terrainManager = TerrainManager::getInstance();
-
-	float terrainHeight = terrainManager->getHeightFromPosition(m_position);
-	m_position.y = max(m_position.y, terrainHeight);
-
-	// ErrorLogger::logFloat3("bananapos", m_position);
-	// ErrorLogger::logFloat3("bananadir", m_directionalVelocity);
-
-	doBehavior(playerPosition);
-	updateAnimated(dt);
-	move(dt);
-	m_fruitType = BANANA;
-}
+// void Banana::update(float dt, Vector3 playerPosition) {
+//	doBehavior(playerPosition);
+//	updateAnimated(dt);
+//	move(dt);
+//}
 
 void Banana::updateAnimated(float dt) {
 	switch (m_state) {

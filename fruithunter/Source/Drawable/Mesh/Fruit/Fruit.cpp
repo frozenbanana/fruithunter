@@ -43,7 +43,7 @@ float Fruit::findRequiredRotation(float3 lookAt) {
 void Fruit::enforceOverTerrain() {
 	if (!onGround(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
 		m_position.y = TerrainManager::getInstance()->getHeightFromPosition(m_position) +
-					   getHalfSizesAnimated().y / 2.;
+					   getHalfSizesAnimated().y / 2.f;
 	}
 }
 
@@ -63,7 +63,24 @@ bool Fruit::withinDistanceTo(float3 target, float treshhold) {
 	return (m_position - target).Length() < treshhold;
 }
 
+void Fruit::update(float dt, float3 playerPosition) {
+	doBehavior(playerPosition);
+	updateAnimated(dt);
+	move(dt);
+}
+
+void Fruit::move(float dt) {
+	m_directionalVelocity += m_acceleration * dt * dt / 2.f;
+	m_position += m_directionalVelocity * dt;
+	// TODO: check if legal
+	// CURRENT: Enforece terrain height
+	enforceOverTerrain();
+	setPosition(m_position);
+}
+
 float3 Fruit::getHomePosition() const { return m_worldHome; }
+
+void Fruit::setVelocity(float3 velo) { m_directionalVelocity = velo; }
 
 Fruit::Fruit(float3 pos) : Entity() {
 	setStartPosition(pos);

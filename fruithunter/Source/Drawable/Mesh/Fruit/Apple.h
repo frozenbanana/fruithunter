@@ -11,7 +11,5 @@ private:
 public:
 	Apple(float3 pos = float3(12.f, 0.f, 6.f));
 	void updateAnimated(float dt);
-	void move(float dt);
-	void update(float dt, float3 playerPosition) override;
 	void flee(float3 playerDir);
 };
