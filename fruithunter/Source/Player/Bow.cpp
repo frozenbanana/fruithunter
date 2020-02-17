@@ -28,15 +28,14 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 		m_bow.setFrameTargets(0, 1);
 	}
 
+	// Update arrow.
 	if (m_shooting) {
-		// Basic movement without physics or collisions.
 		arrowPhysics(
 			dt, float3(10.f, 0.f, 0.f)); // Updates arrow in flight, wind is currently hard coded.
 		m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
 
-		if (m_arrow.getPosition().y < 0.0f ||
-			(m_bow.getPosition() - m_arrow.getPosition()).Length() >
-				20.0f) { // replace with collision later
+		if ((m_bow.getPosition() - m_arrow.getPosition()).Length() >
+			20.0f) { // replace with collision later
 			m_shooting = false;
 		}
 	}
@@ -52,7 +51,7 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 		m_arrow.setRotation(m_bow.getRotation());
 	}
 
-	// Move arrow towards the center while aiming.
+	// Move bow towards the center while aiming.
 	if (m_aiming) {
 		if (m_aimMovement < 0.9f)
 			m_aimMovement += dt * 4.0f;
@@ -75,8 +74,10 @@ void Bow::rotate(float pitch, float yaw) { m_bow.setRotation(float3(pitch, yaw, 
 void Bow::aim() { m_aiming = true; }
 
 void Bow::release() { // Stops charging
-	m_charging = false;
-	m_chargeReset = false;
+	if (m_aimMovement < 0.1f) {
+		m_charging = false;
+		m_chargeReset = false;
+	}
 }
 
 void Bow::charge() { // Draws the arrow back on the bow

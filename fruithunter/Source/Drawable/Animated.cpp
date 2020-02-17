@@ -8,7 +8,7 @@ void Animated::bindMeshes() {
 	UINT offset[NR_OF_MESHES_TO_SEND] = { 0 };
 	for (int i = 0; i < 2; ++i)
 		deviceContext->IASetVertexBuffers(
-			i, 1, m_meshes[m_frameTargets[i]].getVertexBuffer().GetAddressOf(), strides, offset);
+			i, 1, m_meshes[m_frameTargets[i]]->getVertexBuffer().GetAddressOf(), strides, offset);
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 }
@@ -128,7 +128,7 @@ void Animated::draw() {
 	bindConstantBuffer();
 	m_shaderObject_animation.bindShadersAndLayout();
 
-	m_meshes[0].draw_withoutBinding();
+	m_meshes[0]->draw_withoutBinding();
 }
 
 bool Animated::load(std::string filename, int nrOfFrames, bool combineParts) {
@@ -137,7 +137,11 @@ bool Animated::load(std::string filename, int nrOfFrames, bool combineParts) {
 	m_meshes.clear();
 	m_meshes.resize(nrOfFrames);
 	for (int i = 0; i < nrOfFrames && allClear; ++i) {
-		if (!m_meshes[i].load(filename + "_00000" + std::to_string(i))) {
+		shared_ptr<Mesh> ptr = MeshRepository::get(filename + "_00000" + std::to_string(i));
+		if (ptr.get() != nullptr) {
+			m_meshes[i] = ptr;
+		}
+		else {
 			allClear = false;
 			ErrorLogger::messageBox(0, "In Animated::load, failed to load mesh: " + filename +
 										   " number: " + std::to_string(i));

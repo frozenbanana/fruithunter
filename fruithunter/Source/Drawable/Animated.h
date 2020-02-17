@@ -1,5 +1,6 @@
 #pragma once
 #include "Mesh.h"
+#include "MeshRepository.h"
 #define ANIMATION_BUFFER_SLOT 3
 #define NR_OF_MESHES_TO_SEND 2 // for now 2. May change later if we want to
 // interpolate between more meshes at the same time
@@ -7,7 +8,7 @@
 
 class Animated {
 private:
-	std::vector<Mesh> m_meshes;
+	std::vector<shared_ptr<Mesh>> m_meshes;
 	int m_nrOfMeshes;
 	int m_frameTargets[2];
 	float m_frameTimer;

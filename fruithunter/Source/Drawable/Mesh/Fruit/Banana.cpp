@@ -8,6 +8,7 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 	m_state = Jump;
 	rotRandom();
 	setScale(2.f);
+	m_fruitType = BANANA;
 }
 
 void Banana::updateAnimated(float dt) {
@@ -24,6 +25,11 @@ void Banana::updateAnimated(float dt) {
 	default:
 		ErrorLogger::log("wrong state in banana");
 	}
+}
+
+void Banana::update(float dt, float3 playerPos) {
+	//TODO: update banana
+	bounce();
 }
 
 void Banana::updateFirstJump(float dt) {

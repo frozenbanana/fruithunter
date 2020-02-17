@@ -3,6 +3,7 @@
 #include "Mesh.h"
 #include "Animated.h"
 #include "EntityCollision.h"
+#include "MeshRepository.h"
 
 #define MODEL_MATRIX_BUFFER_SLOT 0
 
@@ -14,7 +15,8 @@ private:
 	bool m_matrixChanged = false; // if position, rotation or scale is changed then the model matrix
 								  // is updated when it is fetched
 
-	Mesh m_mesh;
+	shared_ptr<Mesh> m_mesh;
+
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_modelMatrixBuffer;
 
 	EntityCollision m_collisionData;
@@ -26,6 +28,7 @@ private:
 	void updateMatrix();
 	void bindModelMatrixBuffer();
 	void createBuffers();
+	bool isMeshInitialized() const;
 
 protected:
 	Animated m_meshAnim;

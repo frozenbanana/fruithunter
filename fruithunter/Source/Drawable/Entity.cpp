@@ -49,6 +49,8 @@ void Entity::createBuffers() {
 	}
 }
 
+bool Entity::isMeshInitialized() const { return (m_mesh.get() != nullptr); }
+
 bool Entity::onGround(float height) const { return m_position.y - height < 0.0001; }
 
 float4x4 Entity::getModelMatrix() {
@@ -109,21 +111,24 @@ void Entity::setScale(float scale) {
 }
 
 void Entity::draw() {
-	bindModelMatrixBuffer();
-	if (Input::getInstance()->keyDown(Keyboard::B)) {
-		draw_boundingBox();
+	if (isMeshInitialized()) {
+		bindModelMatrixBuffer();
+		m_mesh.get()->draw();
 	}
-	m_mesh.draw();
 }
 
 void Entity::draw_onlyMesh(float3 color) {
-	bindModelMatrixBuffer();
-	m_mesh.draw_noMaterial(color);
+	if (isMeshInitialized()) {
+		bindModelMatrixBuffer();
+		m_mesh.get()->draw_noMaterial(color);
+	}
 }
 
 void Entity::draw_boundingBox() {
-	bindModelMatrixBuffer();
-	m_mesh.draw_BoundingBox();
+	if (isMeshInitialized()) {
+		bindModelMatrixBuffer();
+		m_mesh.get()->draw_BoundingBox();
+	}
 }
 
 void Entity::draw_animate() {
@@ -137,7 +142,16 @@ void Entity::updateAnimatedSpecific(float frameTime) { m_meshAnim.updateSpecific
 
 void Entity::setFrameTargets(int first, int second) { m_meshAnim.setFrameTargets(first, second); }
 
-bool Entity::load(string filename) { return m_mesh.load(filename); }
+bool Entity::load(string filename) { 
+	shared_ptr<Mesh> m = MeshRepository::get(filename);
+	if (m.get() != nullptr) {
+			m_mesh = m;
+		return true;
+	}
+	else {
+		return false;
+	}
+}
 
 bool Entity::loadAnimated(string filename, int nrOfFrames) {
 	return m_meshAnim.load(filename, nrOfFrames);
@@ -147,21 +161,24 @@ bool Entity::checkCollision(Entity& other) {
 	return m_collisionData.collide(other.m_collisionData);
 }
 
-float Entity::castRay(float3 rayPos, float3 rayDir) {
-	float4x4 mWorld = getModelMatrix();
-	float4x4 mInvWorld = mWorld.Invert();
-	float3 lrayPos = XMVector4Transform(float4(rayPos.x, rayPos.y, rayPos.z, 1), mInvWorld);
-	float3 lrayDir =
-		XMVector4Transform(float4(rayDir.x, rayDir.y, rayDir.z, 0), mInvWorld.Transpose().Invert());
-	lrayDir.Normalize();
+float Entity::castRay(float3 rayPos, float3 rayDir) { 
+	if (m_mesh.get() != nullptr) {
+		float4x4 mWorld = getModelMatrix();
+		float4x4 mInvWorld = mWorld.Invert();
+		float3 lrayPos = XMVector4Transform(float4(rayPos.x, rayPos.y, rayPos.z, 1), mInvWorld);
+		float3 lrayDir = XMVector4Transform(
+			float4(rayDir.x, rayDir.y, rayDir.z, 0), mInvWorld.Transpose().Invert());
+		lrayDir.Normalize();
 
-	float t = m_mesh.castRayOnMesh(lrayPos, lrayDir);
-	if (t > 0) {
-		float3 target = XMVector3Transform(lrayPos + lrayDir * t, mWorld);
-		return (target.x - rayPos.x) / rayDir.x;
+		float t = m_mesh->castRayOnMesh(lrayPos, lrayDir);
+		if (t > 0) {
+			float3 target = XMVector3Transform(lrayPos + lrayDir * t, mWorld);
+			return (target.x - rayPos.x) / rayDir.x;
+		}
+		else
+			return -1;
 	}
-	else
-		return -1;
+	return -1;
 }
 
 void Entity::setCollisionData(float3 point, float radius) {

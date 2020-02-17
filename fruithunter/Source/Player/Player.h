@@ -9,10 +9,10 @@ public:
 	Player();
 	~Player();
 	void initialize();
-	void update(float td, Terrain* terrain);
+	void update(float dt, Terrain* terrain);
 	void updateBow(float dt);
 	void updateCamera();
-	void rotatePlayer();
+	void rotatePlayer(float dt);
 	void draw();
 
 	float3 getPosition() const;
@@ -38,7 +38,7 @@ private:
 
 	const float PLAYER_HEIGHT = 1.5f; // meters above ground
 	const float GROUND_FRICTION =
-		0.9f; // friction on flat terrain, reduces velocity by percentage (velocity *= friction)
+		0.9f; // friction on flat terrain, reduces velocity by percentage per seconds
 	const float GROUND_FRICTION_WEAK = 0.99f; // friction on steep terrain, --||--
 	const float STEEPNESS_BORDER =
 		0.6f; // value of dot product when flat terrain goes to steep terrain
@@ -78,15 +78,15 @@ private:
 	bool m_chargingDash = false;		  // is the player charging
 
 	// Inventory
-	size_t m_inventory[FRUITS]; // APPLE 0, BANANA 1, MELON 2
+	size_t m_inventory[NR_OF_FRUITS]; // APPLE 0, BANANA 1, MELON 2
 
 	// Orientation
 	float3 m_playerForward = DEFAULTFORWARD;
 	float3 m_playerRight = DEFAULTRIGHT;
 	float3 m_playerUp = DEFAULTUP;
 	float m_cameraPitch, m_cameraYaw;
-	float m_aimZoom;
-	bool m_releasing;
+	float m_aimZoom = 1.f;
+	bool m_releasing = false;
 
 	//- - - Functions - - -
 	/*
