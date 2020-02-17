@@ -43,7 +43,7 @@ void Melon::behaviorPassive(float3 playerPosition) {
 		m_direction.Normalize();
 	}
 
-	if ((playerPosition - m_position).Length() < 4.0f) {
+	if ((playerPosition - m_position).Length() < 8.0f) {
 		changeState(ACTIVE);
 	}
 }
@@ -58,14 +58,18 @@ void Melon::behaviorActive(float3 playerPosition) {
 	*/
 	float3 toPlayer = m_position - playerPosition;
 	float3 sideStep = toPlayer.Cross(float3(0.0f, 1.0f, 0.0f));
-	if (toPlayer.Length() > 3.f) {
+	if (toPlayer.Length() > 5.f) {
 		sideStep -= toPlayer;
 	}
-	m_direction = sideStep;
-	//lookTo(playerPosition);
-	//pathfinding(m_position, sideStep - m_position);
+	else if (toPlayer.Length() < 5.f) {
 
-	
+		sideStep += toPlayer;
+	}
+	m_direction = sideStep;
+	// lookTo(m_direction);
+	// pathfinding(m_position, sideStep - m_position);
+
+
 	if ((playerPosition - m_position).Length() > 4.0f) {
 		changeState(PASSIVE);
 	}
@@ -91,7 +95,7 @@ void Melon::move(float dt) {
 		m_availablePath.pop_back();
 	}
 	updateAnimated(dt);
-	m_direction.y = 0.f;
+	// m_direction.y = 0.f;
 	m_position += m_direction * dt;
 	setPosition(m_position);
 }
@@ -104,7 +108,7 @@ void Melon::update(float dt, float3 playerPosition, TerrainManager* terrain) {
 	m_position.y = terrain->getHeightFromPosition(m_position);
 }
 //
-//void Melon::circulateAround(float3 playerPosition) {
+// void Melon::circulateAround(float3 playerPosition) {
 //
 //	float3 playerToMelon = m_position - playerPosition;
 //	// playerToMelon.Transform();

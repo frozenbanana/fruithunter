@@ -1,4 +1,5 @@
 #pragma once
+#include "GlobalNamespaces.h"
 #include <Windows.h>
 #include <iostream>
 #include <memory>
@@ -14,6 +15,7 @@ public:
 	static void logWarning(HRESULT res, std::string message);
 	static void logError(HRESULT res, std::string message);
 	static void log(std::string message);
+	static void logFloat3(std::string description, float3 f3);
 
 private:
 	std::unique_ptr<FILE*> m_filePtr = std::make_unique<FILE*>();

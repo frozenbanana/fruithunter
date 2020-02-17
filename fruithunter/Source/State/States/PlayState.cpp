@@ -46,9 +46,9 @@ void PlayState::update() {
 
 
 	// update melon
-	//m_melon.update(dt, playerPos, &m_terrainManager);
+	// m_melon.update(dt, playerPos, &m_terrainManager);
 	if (Input::getInstance()->keyDown(DirectX::Keyboard::M)) {
-		m_player.setPosition(float3(2.f, 0.f, 0.2f));
+		m_player.setPosition(float3(2.f, 0.f, 2.0f));
 	}
 	// update melon
 	// m_melon.setNextDestination(m_player.getPosition());
@@ -58,7 +58,7 @@ void PlayState::update() {
 	// m_melon.setPosition(melonPos);
 
 	// update banana
-	 m_banana.update(dt, playerPos, &m_terrainManager);
+	m_banana.update(dt, playerPos, &m_terrainManager);
 }
 
 void PlayState::handleEvent() { return; }

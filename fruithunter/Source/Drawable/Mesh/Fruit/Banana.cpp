@@ -1,20 +1,45 @@
 #include "Banana.h"
 
+void Banana::jump(float3 direction, float power) { m_direction = power * direction; }
+
 void Banana::behaviorPassive(float3 playerPosition) {
-	m_bounceDestination *= 0.01;
 	ErrorLogger::log("Banana:: Doing Passive.");
-	if ((m_position - playerPosition).Length() < 3.f) {
+
+	if (onGround(0.2)) {
+		float3 terrainNormal = float3(0.0, 1.0f, 0.0);
+		terrainNormal.Normalize();
+		jump(terrainNormal, 5.0);
+	}
+
+	if ((m_position - playerPosition).Length() < 5.f) {
 		changeState(ACTIVE);
 	}
 }
 void Banana::behaviorActive(float3 playerPosition) {
-	m_bounceDestination *= 10;
 	ErrorLogger::log("Banana:: Doing active.");
-	if ((m_position - playerPosition).Length() > 10.f) {
+
+	if (onGround(0.2)) {
+		float3 terrainNormal = float3(0.0, 1.0f, 0.0);
+		terrainNormal.x = (float)(rand() % 4);
+		terrainNormal.z = (float)(rand() % 4);
+		terrainNormal.Normalize();
+		jump(terrainNormal, 5.0);
+	}
+
+	if ((m_position - playerPosition).Length() > 8.f) {
 		changeState(PASSIVE);
 	}
 }
 void Banana::behaviorCaught(float3 playerPosition) { ErrorLogger::log("Banana:: Doing caught."); }
+
+void Banana::move(float dt) {
+	m_direction += m_acceleration * dt * dt / 2.0f;
+	m_position += m_direction * dt;
+	m_startAnimationPosition = m_position;
+	m_destinationAnimationPosition = m_position;
+
+	setPosition(m_position);
+}
 
 Banana::Banana(float3 pos) : Fruit(pos) {
 	loadAnimated("Banana", 3);
@@ -25,6 +50,43 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 	rotRandom();
 	setScale(2.f);
 	m_currentState = PASSIVE;
+	m_acceleration = float3(0.0f, -400.f, 0.0f);
+	m_worldHome = m_position;
+}
+
+// void Banana::setJump() {}
+void Banana::update(float dt, Vector3 playerPosition, TerrainManager* terrainManager) {
+
+	// m_bounceDestination = terrain->getNormalFromPosition(getPosition());
+	//// m_bounceDestination.y = 0;
+	// m_bounceDestination.Normalize();
+
+	// m_bounceDestination += getPosition();
+	// m_bounceDestination.y = terrain->getHeightFromPosition(m_bounceDestination);
+	// setNextDestination(m_bounceDestination);
+	// updateAnimated(dt);
+
+
+	// doBehavior(playerPosition);
+	float terrainHeight = terrainManager->getHeightFromPosition(m_position);
+	m_position.y = max(m_position.y, terrainHeight);
+
+	ErrorLogger::logFloat3("bananapos", m_position);
+	if (onGround(terrainHeight)) {
+		float3 terrainNormal = terrainManager->getNormalFromPosition(m_position);
+		terrainNormal.Normalize();
+		float jumpPower = 5.f;
+		// m_direction = jumpPower * terrainNormal; // passive
+		m_direction = jumpPower * (terrainNormal + 0.1 * float3((float)(rand() % 1), 0.0,
+															 (float)(rand() % 1))); // active
+		m_direction.x += 0.5;
+		m_direction.z += -0.5;
+	}
+	ErrorLogger::logFloat3("bananadir", m_direction);
+
+	doBehavior(playerPosition);
+	updateAnimated(dt);
+	move(dt);
 }
 
 void Banana::updateAnimated(float dt) {
@@ -43,30 +105,15 @@ void Banana::updateAnimated(float dt) {
 	}
 }
 
-void Banana::update(float dt, Vector3 playerPosition, TerrainManager* terrain) {
-
-	m_bounceDestination = terrain->getNormalFromPosition(getPosition());
-	//m_bounceDestination.y = 0;
-	m_bounceDestination.Normalize();
-	
-	m_bounceDestination += getPosition();
-	m_bounceDestination.y = terrain->getHeightFromPosition(m_bounceDestination);
-	setNextDestination(m_bounceDestination);
-	updateAnimated(dt);
-
-
-	doBehavior(playerPosition);
-}
-
 void Banana::updateFirstJump(float dt) {
 	int frameOrder[] = { 0, 1, 0, 2, 0, 1 }; // Order of using keyframes
 	float3 posOrder[6] = {
 		m_startAnimationPosition,
 		m_startAnimationPosition,
 		m_startAnimationPosition,
-		m_heightAnimationPosition,
-		m_destinationAnimationPosition,
-		m_destinationAnimationPosition,
+		m_startAnimationPosition,
+		m_startAnimationPosition,
+		m_startAnimationPosition,
 	};
 	bool justChanged = false;
 	float frameSpeedOrder[] = { 4.f, 5.f, 2.0f, 1.9f, 4.f, 2.f };
@@ -110,8 +157,8 @@ void Banana::updateBounce(float dt) {
 	int frameOrder[] = { 1, 2, 1 }; // Order of using keyframes
 	float3 posOrder[] = {
 		m_startAnimationPosition,
-		m_heightAnimationPosition,
-		m_destinationAnimationPosition,
+		m_startAnimationPosition,
+		m_startAnimationPosition,
 	};
 	bool justChanged = false;
 	float frameSpeedOrder[] = { 2.f, 2.0f, 15.9f };

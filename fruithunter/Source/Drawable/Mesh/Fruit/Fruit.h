@@ -23,7 +23,6 @@ protected:
 
 	float m_startRotation; // start and end to interpolate between.
 	float m_endRotation;
-
 	void setDestination();
 	float findRequiredRotation(float3 lookAt);
 

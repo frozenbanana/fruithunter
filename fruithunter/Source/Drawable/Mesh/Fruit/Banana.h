@@ -8,7 +8,7 @@ private:
 	State m_state;
 
 	float3 m_rotation;
-
+	float3 m_acceleration;
 	void updateFirstJump(float dt);
 	void updateBounce(float dt);
 	void updateStopped(float dt);
@@ -23,6 +23,8 @@ private:
 	void behaviorActive(float3 playerPosition) override;
 	void behaviorCaught(float3 playerPosition) override;
 
+	void move(float dt);
+	void jump(float3 direction, float power);
 	float3 m_bounceDestination;
 
 public:

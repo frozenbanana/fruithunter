@@ -51,7 +51,7 @@ bool Entity::collisionSphere_OBB(Entity& other) { return false; }
 
 bool Entity::collisionOBB_OBB(Entity& other) { return false; }
 
-bool Entity::onGround(float height) const { return m_position.y - height < 0.0001; }
+bool Entity::onGround(float terrainHeight) const { return m_position.y - terrainHeight < 0.0001; }
 
 float4x4 Entity::getModelMatrix() {
 	if (m_matrixChanged)
@@ -151,7 +151,7 @@ bool Entity::checkCollision(Entity& other) {
 	return m_collisionData.collide(other.m_collisionData);
 }
 
-float Entity::castRay(float3 rayPos, float3 rayDir) { 
+float Entity::castRay(float3 rayPos, float3 rayDir) {
 	float4x4 mWorld = getModelMatrix();
 	float4x4 mInvWorld = mWorld.Invert();
 	float3 lrayPos = XMVector4Transform(float4(rayPos.x, rayPos.y, rayPos.z, 1), mInvWorld);
