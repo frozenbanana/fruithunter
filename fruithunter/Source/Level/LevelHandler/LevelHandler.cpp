@@ -1,17 +1,14 @@
 #include "LevelHandler.h"
 #include "TerrainManager.h"
 
-LevelHandler::LevelHandler() {
-	initialise();
-}
+LevelHandler::LevelHandler() { initialise(); }
 
-LevelHandler::~LevelHandler() {
-}
+LevelHandler::~LevelHandler() {}
 
 void LevelHandler::initialise() {
 
 	m_player.initialize();
-
+	m_terrainManager = TerrainManager::getInstance();
 	Level level0;
 	level0.m_heightMapNames.push_back("heightmap3.jpg");
 	level0.m_heightMapNames.push_back("heightmap3.jpg");
@@ -50,8 +47,9 @@ void LevelHandler::loadLevel(int levelNr) {
 	Level currentLevel = m_levelsArr.at(levelNr);
 
 	for (int i = 0; i < m_levelsArr.at(levelNr).m_heightMapNames.size(); i++) {
-		m_terrainManager.add(currentLevel.m_heightMapPos.at(i), currentLevel.m_heightMapNames.at(i),
-			currentLevel.m_heightMapSubSize.at(i), currentLevel.m_heightMapDivision.at(i));
+		m_terrainManager->add(currentLevel.m_heightMapPos.at(i),
+			currentLevel.m_heightMapNames.at(i), currentLevel.m_heightMapSubSize.at(i),
+			currentLevel.m_heightMapDivision.at(i));
 	}
 
 	for (int i = 0; i < currentLevel.m_nrOfFruits[APPLE]; i++) {
@@ -75,12 +73,12 @@ void LevelHandler::draw() {
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->draw_animate();
 	}
-	m_terrainManager.draw();
+	m_terrainManager->draw();
 	m_skyBox.draw();
 }
 
 void LevelHandler::update(float dt) {
-	m_player.update(dt, m_terrainManager.getTerrainFromPosition(m_player.getPosition()));
+	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
 
 	float3 playerPos = m_player.getPosition();
 
