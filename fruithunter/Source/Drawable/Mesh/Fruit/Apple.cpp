@@ -42,6 +42,7 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 	m_direction = float3((float)(rand() % 1), 0.0f, (float)(rand() % 1));
 	// m_velocity = float3(1.f);
 	m_direction.Normalize();
+	m_fruitType = APPLE;
 }
 
 void Apple::updateAnimated(float dt) {

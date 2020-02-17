@@ -16,7 +16,7 @@ void Player::update(float dt, Terrain* terrain) {
 	Input* ip = Input::getInstance();
 
 	// player rotation
-	rotatePlayer();
+	rotatePlayer(dt);
 
 	// modify velocity vector to match terrain
 	if (terrain != nullptr) {
@@ -76,8 +76,7 @@ void Player::update(float dt, Terrain* terrain) {
 		}
 	}
 	else {
-		//FALL OF TERRAIN IF NO TERRAIN
-
+		// FALL OF TERRAIN IF NO TERRAIN
 		// in air
 		updateVelocity_inAir(force, dt);
 	}
@@ -90,8 +89,6 @@ void Player::update(float dt, Terrain* terrain) {
 		else if (ip->keyReleased(KEY_DASH)) {
 			m_velocity += m_playerForward * m_dashForce * ((float)m_dashCharge / DASHMAXCHARGE);
 			consumeStamina(STAMINA_DASH_COST);
-			// reset
-			m_dashCharge = 0;
 		}
 	}
 	else {
@@ -126,25 +123,28 @@ void Player::updateBow(float dt) {
 	Input* input = Input::getInstance();
 
 	if (input->mouseDown(Input::MouseButton::RIGHT)) {
-		m_aimZoom = min(1.0f, m_aimZoom + dt * 2.0f);
-		m_camera.setFov(XM_PI / (3.0f * (1.0f + m_aimZoom)));
+		m_aimZoom = max(0.5f, m_aimZoom - dt);
+		m_camera.setFov(m_camera.getDefaultFov() * m_aimZoom);
 		m_bow.aim();
 	}
-	if (m_releasing || input->mouseReleased(Input::MouseButton::RIGHT)) {
+	else if (m_releasing || input->mouseReleased(Input::MouseButton::RIGHT)) {
 		m_releasing = true;
 		m_bow.release();
 
-		if (m_aimZoom > 0.0f)
-			m_aimZoom -= dt * 2.0f;
-		else
+		if (m_aimZoom < 1.0f) {
+			m_aimZoom += dt;
+		}
+		else {
+			m_aimZoom = 1.0f;
 			m_releasing = false;
+		}
 
-		m_camera.setFov(XM_PI / (3.0f * (1.0f + m_aimZoom)));
+		m_camera.setFov(m_camera.getDefaultFov() * m_aimZoom);
 	}
 	if (input->mouseDown(Input::MouseButton::LEFT)) {
 		m_bow.charge();
 	}
-	if (input->mouseUp(Input::MouseButton::LEFT)) {
+	else if (input->mouseUp(Input::MouseButton::LEFT)) {
 		m_bow.shoot(m_playerForward);
 	}
 
@@ -160,7 +160,7 @@ void Player::updateCamera() {
 	m_camera.updateBuffer();
 }
 
-void Player::rotatePlayer() {
+void Player::rotatePlayer(float dt) {
 	Input* ip = Input::getInstance();
 
 	float deltaX = 0.0f;
@@ -171,7 +171,7 @@ void Player::rotatePlayer() {
 		deltaY = (float)ip->mouseY();
 	}
 
-	float rotationSpeed = 0.01f;
+	float rotationSpeed = 0.6f * dt;
 
 	if (deltaX != 0.0f) {
 		m_cameraYaw += deltaX * rotationSpeed;
@@ -248,7 +248,8 @@ void Player::slide(float dt, float3 normal, float l) {
 		// standard slide effect with no friction
 		float3 longVel = m_velocity * dt; // full velocity this frame (called long velocity)
 		float3 shortVel = longVel * l;	  // velocity until collision (called short velocity)
-		m_velocity = (longVel - (longVel.Dot(normal) - shortVel.Dot(normal) - 0.001f) * normal) / dt;
+		m_velocity =
+			(longVel - (longVel.Dot(normal) - shortVel.Dot(normal) - 0.001f) * normal) / dt;
 	}
 }
 
@@ -295,7 +296,7 @@ void Player::updateVelocity_inAir(float3 playerForce, float dt) {
 }
 
 void Player::updateVelocity_onFlatGround(float3 playerForce, float dt) {
-	m_velocity *= GROUND_FRICTION; // ground friction
+	m_velocity *= pow(GROUND_FRICTION / 60.f, dt); // ground friction
 
 	// jump
 	if (Input::getInstance()->keyPressed(KEY_JUMP)) {
@@ -307,6 +308,6 @@ void Player::updateVelocity_onFlatGround(float3 playerForce, float dt) {
 }
 
 void Player::updateVelocity_onSteepGround(float dt) {
-	m_velocity += m_gravity * dt;		// gravity if steep terrain
-	m_velocity *= GROUND_FRICTION_WEAK; // weak ground friction
+	m_velocity += m_gravity * dt;						// gravity if steep terrain
+	m_velocity *= pow(GROUND_FRICTION_WEAK / 60.f, dt); // weak ground friction
 }

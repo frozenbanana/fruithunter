@@ -324,6 +324,12 @@ float Mesh::castRayOnMesh(float3 rayPos, float3 rayDir) {
 	return -1;
 }
 
+float3 Mesh::getBoundingBoxHalfSizes() const {
+	return float3((m_MinMaxXPosition.y - m_MinMaxXPosition.x) * 0.5,
+		(m_MinMaxYPosition.y - m_MinMaxYPosition.x) * 0.5,
+		(m_MinMaxZPosition.y - m_MinMaxZPosition.x) * 0.5);
+}
+
 Mesh::Mesh(std::string OBJFile) {
 	D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = {
 		{

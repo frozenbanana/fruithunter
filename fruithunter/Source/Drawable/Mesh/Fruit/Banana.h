@@ -9,6 +9,8 @@ private:
 
 	float3 m_rotation;
 	float3 m_acceleration;
+
+	void update(float dt, float3 playerPos);
 	void updateFirstJump(float dt);
 	void updateBounce(float dt);
 	void updateStopped(float dt);

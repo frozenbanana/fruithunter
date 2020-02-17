@@ -82,6 +82,7 @@ void Banana::update(float dt, Vector3 playerPosition, TerrainManager* terrainMan
 	doBehavior(playerPosition);
 	updateAnimated(dt);
 	move(dt);
+	m_fruitType = BANANA;
 }
 
 void Banana::updateAnimated(float dt) {
@@ -98,6 +99,11 @@ void Banana::updateAnimated(float dt) {
 	default:
 		ErrorLogger::log("wrong state in banana");
 	}
+}
+
+void Banana::update(float dt, float3 playerPos) {
+	//TODO: update banana
+	bounce();
 }
 
 void Banana::updateFirstJump(float dt) {

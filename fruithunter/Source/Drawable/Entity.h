@@ -3,6 +3,7 @@
 #include "Mesh.h"
 #include "Animated.h"
 #include "EntityCollision.h"
+#include "MeshRepository.h"
 
 #define MODEL_MATRIX_BUFFER_SLOT 0
 
@@ -13,7 +14,8 @@ private:
 	bool m_matrixChanged = false; // if position, rotation or scale is changed then the model matrix
 								  // is updated when it is fetched
 
-	Mesh m_mesh;
+	shared_ptr<Mesh> m_mesh;
+
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_modelMatrixBuffer;
 
 	EntityCollision m_collisionData;
@@ -25,11 +27,7 @@ private:
 	void updateMatrix();
 	void bindModelMatrixBuffer();
 	void createBuffers();
-
-	// Collision related
-	bool collisionSphere_Sphere(Entity& other);
-	bool collisionSphere_OBB(Entity& other);
-	bool collisionOBB_OBB(Entity& other);
+	bool isMeshInitialized() const;
 
 protected:
 	float3 m_position;
@@ -71,8 +69,10 @@ public:
 
 	// Collisions
 	bool checkCollision(Entity& other);
-	void setCollisionData(EntityCollision data);
-	void setCollisionPosition(float3 pos);
+	void setCollisionData(float3 point, float radius);
+	void setCollisionData(float3 point, float3 halfSizes);
+	float3 getHalfSizes() const;
+	float3 getHalfSizesAnimated() const;
 
 	Entity(string meshName = "", float3 position = float3(0, 0, 0),
 		float3 rotation = float3(0, 0, 0), float3 scale = float3(1, 1, 1));

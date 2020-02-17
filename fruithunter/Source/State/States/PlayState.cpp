@@ -7,29 +7,6 @@
 
 void PlayState::initialize() {
 	m_name = "Play State";
-
-	m_terrainManager.add(float3(0, 0, 0), "heightmap3.jpg", XMINT2(50, 50), XMINT2(5, 5));
-	m_terrainManager.add(float3(10, 0, 0), "heightmap3.jpg", XMINT2(50, 50), XMINT2(5, 5));
-	m_terrainManager.add(float3(0, 0, 10), "heightmap3.jpg", XMINT2(50, 50), XMINT2(5, 5));
-	m_terrainManager.add(float3(10, 0, 10), "heightmap3.jpg", XMINT2(50, 50), XMINT2(5, 5));
-
-	// m_entity.load("sphere");
-	// m_entity.setScale(0.1f);
-
-	m_player.initialize();
-	m_player.setPosition(float3(2.f, 0.f, 0.2f));
-
-	m_bow.loadAnimated("Bow", 3);
-	m_bow.setPosition(float3(2.f, 0.f, 0.f));
-
-	m_player.setPosition(float3(13.f, 5.f, 7.f));
-	float3 bananaPos(12.f); // middle of terrain ish..
-	bananaPos = float3(bananaPos.x, m_terrainManager.getHeightFromPosition(bananaPos), bananaPos.z);
-	m_banana.setStartPosition(bananaPos);
-	m_melon.setStartPosition(float3(7.0f, 0.0f, 5.0f));
-
-	m_apple.setStartPosition(float3(10.f, 0.0f, 5.0f));
-	// m_melon.setCollisionData(EntityCollision(m_melon.getPosition(), 1.f));
 }
 
 void PlayState::update() {
@@ -76,30 +53,7 @@ void PlayState::pause() {
 }
 
 void PlayState::draw() {
-	m_player.draw();
-	m_terrainManager.draw();
-
-	/*
-	float3 p = m_player.getPosition();
-	float3 d = m_player.getForward() * 10;
-	m_entity.setPosition(p + d);
-	m_entity.draw();
-	m_terrain.castRay(p, d);
-	m_entity.setPosition(p);
-	m_entity.draw();
-	*/
-
-	// Apple
-	m_apple.draw_animate();
-	// Banana
-	m_banana.draw_animate();
-	// Melon
-	m_melon.draw_animate();
-	// Bow
-	m_bow.draw_animate();
-
-	// SkyBox
-	m_skyBox.draw();
+	m_levelHandler.draw();
 
 	// Text
 	float t = m_timer.getTimePassed();
@@ -111,4 +65,5 @@ void PlayState::play() {
 	Input::getInstance()->setMouseModeRelative();
 	AudioHandler::startPlayAmbient();
 	ErrorLogger::log(m_name + " play() called.");
+	m_levelHandler.loadLevel(0);
 }

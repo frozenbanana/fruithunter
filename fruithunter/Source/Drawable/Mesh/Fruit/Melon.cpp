@@ -4,6 +4,11 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	loadAnimated("Melon", 1);
 	m_nrOfFramePhases = 6;
 	m_meshAnim.setFrameTargets(0, 0);
+	m_rollSpeed = 5;
+	m_fruitType = MELON;
+
+	setCollisionData(getPosition(),
+		m_meshAnim.getBoundingBoxHalfSizes().y); // sets to sphere with radius same as y halfsize;
 	setScale(0.5);
 	changeState(AI::State::PASSIVE);
 	setStartPosition(pos);

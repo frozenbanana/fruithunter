@@ -1,9 +1,10 @@
 #pragma once
 #include "Entity.h"
 #include "AI.h"
-#include "..\Terrain\TerrainManager.h"
+#include "TerrainManager.h"
 
-class Fruit : public Entity, public AI {
+class Fruit : public Entity, public AI
+{
 protected:
 	// Phyics based movment
 	float3 m_direction;
@@ -19,7 +20,7 @@ protected:
 	float3 m_nextDestinationAnimationPosition;
 	// -------------------
 	float3 m_worldHome;
-
+	int m_fruitType;
 
 	float m_startRotation; // start and end to interpolate between.
 	float m_endRotation;
@@ -29,11 +30,17 @@ protected:
 	Fruit(float3 pos = float3(0.f, 0.f, 0.f));
 
 public:
+	virtual void update(float dt, float3 playerPos) = 0;
 	virtual void updateAnimated(float dt) = 0;
 	void setStartPosition(float3 pos);
 	void setNextDestination(float3 nextDest);
 	void lookTo(float3 lookAt);
 	void setWorldHome(float3 pos);
 
-	void hit() { changeState(CAUGHT); }
+	void hit()
+	{
+		changeState(CAUGHT);
+	}
+
+	int getFruitType();
 };

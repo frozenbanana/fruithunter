@@ -30,7 +30,7 @@ private:
 	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_colorBuffer;
 
 	// FUNCTIONS
-	
+
 	bool findMinMaxValues();
 	// bounding box functions
 	void updateBoundingBoxBuffer();
@@ -62,6 +62,8 @@ public:
 	bool load(std::string filename, bool combineParts = true);
 
 	float castRayOnMesh(float3 rayPos, float3 rayDir);
+
+	float3 getBoundingBoxHalfSizes() const; // for collision detection
 
 	Mesh(std::string OBJFile = "");
 	Mesh& operator=(const Mesh& other) = delete;
