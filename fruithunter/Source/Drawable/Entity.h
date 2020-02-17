@@ -52,6 +52,7 @@ public:
 	void rotateZ(float val);
 	void setScale(float3 scale);
 	void setScale(float scale);
+	void scaleBoundingBoxHalfSizes(float3 scale);
 
 	// Drawing
 	void draw();

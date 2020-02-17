@@ -37,6 +37,4 @@ void Melon::updateAnimated(float dt) {
 
 void Melon::setRollSpeed(float rollSpeed) { m_rollSpeed = rollSpeed; }
 
-void Melon::update(float dt, float3 playerPos) { 
-	setNextDestination(playerPos);
-}
+void Melon::update(float dt, float3 playerPos) { setNextDestination(playerPos); }

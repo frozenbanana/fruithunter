@@ -102,17 +102,30 @@ void Entity::rotateZ(float val) {
 
 void Entity::setScale(float3 scale) {
 	m_scale = float3(abs(scale.x), abs(scale.y), abs(scale.z));
+	scaleBoundingBoxHalfSizes(m_scale);
 	m_matrixChanged = true;
 }
 
 void Entity::setScale(float scale) {
 	m_scale = float3(abs(scale), abs(scale), abs(scale));
+	scaleBoundingBoxHalfSizes(m_scale);
 	m_matrixChanged = true;
+}
+
+void Entity::scaleBoundingBoxHalfSizes(float3 scale) {
+	if (m_mesh.get() != nullptr)
+		m_mesh->scaleBoundingBoxHalfSizes(scale);
+	else
+		m_meshAnim.scaleBoundingBoxHalfSizes(scale);
 }
 
 void Entity::draw() {
 	if (isMeshInitialized()) {
 		bindModelMatrixBuffer();
+
+		if (Input::getInstance()->keyDown(Keyboard::B))
+			m_mesh->draw_BoundingBox();
+
 		m_mesh.get()->draw();
 	}
 }
