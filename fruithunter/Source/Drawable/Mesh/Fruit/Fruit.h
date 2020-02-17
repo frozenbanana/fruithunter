@@ -11,6 +11,7 @@ protected:
 	float3 m_heightPos; // middle of movement animation
 	float3 m_destinationPos;
 	float3 m_nextDestinationPos;
+	int m_fruitType;
 
 	float m_startRotation; // start and end to interpolate between.
 	float m_endRotation;
@@ -21,8 +22,11 @@ protected:
 	Fruit(float3 pos = float3(0.f, 0.f, 0.f));
 
 public:
+	virtual void update(float dt, float3 playerPos) = 0;
 	virtual void updateAnimated(float dt) = 0;
 	void setStartPosition(float3 pos);
 	void setNextDestination(float3 nextDest);
 	void lookTo(float3 lookAt);
+
+	int getFruitType();
 };
