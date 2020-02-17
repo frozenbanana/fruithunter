@@ -37,6 +37,8 @@ private:
 	TerrainManager* m_terrainManager;
 	Entity m_entity;
 	SkyBox m_skyBox;
+	size_t m_inventory[NR_OF_FRUITS]; // APPLE 0, BANANA 1, MELON 2
+	
 
 public:
 	LevelHandler();
@@ -46,6 +48,10 @@ public:
 	void loadLevel(int levelNr);
 	void draw();
 	void update(float dt);
+
+	//Fruit stuff
+	void pickUpFruit(int fruitType);
+	void dropFruit();
 
 
 	std::vector<Fruit> fruitsInLevel;

@@ -212,10 +212,6 @@ float3 Player::getVelocity() const { return m_velocity; }
 
 void Player::setPosition(float3 position) { m_position = position; }
 
-void Player::pickup(int fruitType) {
-	m_inventory[fruitType]++;
-}
-
 void Player::slide(float dt, float3 normal, float l) {
 	if (l != -1) {
 		/*
