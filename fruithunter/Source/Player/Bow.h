@@ -5,7 +5,7 @@ class Bow {
 public:
 	Bow();
 	~Bow();
-	void update(float dt, float3 playerPos, float3 playerForward, float3 playerRight);
+	void update(float dt, float3 playerPos, float3 playerForward, float3 playerRigh);
 	void draw();
 	void rotate(float pitch, float yaw);
 	void aim();
@@ -27,13 +27,13 @@ private:
 	bool m_shooting = false;
 	bool m_chargeReset = true;
 
-	float m_armLength = 1.0f;
+	float m_armLength = 0.75f;
 	float m_aimMovement = 0.0f;
 
 	float m_drawFactor = 0.0f;
 	float m_bowMass = 1.4f;
 
-	//Assuming Fluid density * dragCoefficient * 0.5 = 1.
+	// Assuming Fluid density * dragCoefficient * 0.5 = 1.
 	float m_arrowArea = 0.0001f;
 	float m_arrowMass = 0.1f;
 	float m_arrowLength = 0.5f;

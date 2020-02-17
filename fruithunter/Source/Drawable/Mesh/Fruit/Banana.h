@@ -9,6 +9,7 @@ private:
 
 	float3 m_rotation;
 
+	void update(float dt, float3 playerPos);
 	void updateFirstJump(float dt);
 	void updateBounce(float dt);
 	void updateStopped(float dt);

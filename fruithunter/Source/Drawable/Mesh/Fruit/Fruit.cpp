@@ -16,6 +16,8 @@ void Fruit::setNextDestination(float3 nextDest) {
 
 void Fruit::lookTo(float3 lookAt) { setRotation(float3(0.f, findRequiredRotation(lookAt), 0.f)); }
 
+int Fruit::getFruitType() { return m_fruitType; }
+
 float Fruit::findRequiredRotation(float3 lookAt) {
 	float rot = 0.f;
 
