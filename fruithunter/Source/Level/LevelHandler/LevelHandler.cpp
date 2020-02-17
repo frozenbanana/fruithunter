@@ -31,7 +31,7 @@ void LevelHandler::initialise() {
 	level0.m_heightMapDivision.push_back(XMINT2(5, 5));
 
 	level0.m_nrOfFruits[APPLE] = 1;
-	level0.m_nrOfFruits[BANANA] = 1;
+	level0.m_nrOfFruits[BANANA] = 100;
 	level0.m_nrOfFruits[MELON] = 1;
 
 	level0.m_playerStartPos = float3(5.f, 0.0f, 5.0f);
@@ -106,7 +106,8 @@ void LevelHandler::dropFruit() {
 
 	if (ip->keyPressed(Keyboard::D1)) {
 		if (m_inventory[APPLE] > 0) {
-			shared_ptr<Apple> apple = make_shared<Apple>(float3(m_player.getPosition() + m_player.getForward()));
+			shared_ptr<Apple> apple =
+				make_shared<Apple>(float3(m_player.getPosition() + m_player.getForward() * 3.0f));
 			m_fruits.push_back(apple);
 			m_inventory[APPLE]--;
 		}
@@ -114,7 +115,7 @@ void LevelHandler::dropFruit() {
 	if (ip->keyPressed(Keyboard::D2)) {
 		if (m_inventory[BANANA] > 0) {
 			shared_ptr<Banana> banana =
-				make_shared<Banana>(float3(m_player.getPosition() + m_player.getForward()));
+				make_shared<Banana>(float3(m_player.getPosition() + m_player.getForward() * 3.0f));
 			m_fruits.push_back(banana);
 			m_inventory[BANANA]--;
 		}
@@ -122,7 +123,8 @@ void LevelHandler::dropFruit() {
 	if (ip->keyPressed(Keyboard::D3)) {
 		if (m_inventory[MELON] > 0) {
 			shared_ptr<Melon> melon =
-				make_shared<Melon>(float3(m_player.getPosition() + m_player.getForward()));
+				make_shared<Melon>(float3(m_player.getPosition() + m_player.getForward() * 3.0f));
+
 			m_fruits.push_back(melon);
 			m_inventory[MELON]--;
 		}
