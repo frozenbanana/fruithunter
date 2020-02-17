@@ -1,16 +1,16 @@
 #pragma once
 #include "State.h"
 #include "Quad.h"
-#include "Player.h"
 #include "Timer.h"
 #include "TextRenderer.h"
 #include "AudioHandler.h"
-#include "Entity.h"
-#include "TerrainManager.h"
-#include "Apple.h"
-#include "SkyBox.h"
-#include "Banana.h"
-#include "Melon.h"
+#include "LevelHandler.h"
+//#include "Entity.h"
+//#include "TerrainManager.h"
+//#include "Apple.h"
+//#include "SkyBox.h"
+//#include "Banana.h"
+//#include "Melon.h"
 
 class PlayState : public State {
 public:
@@ -26,13 +26,8 @@ public:
 private:
 	Timer m_timer;
 	TextRenderer m_textRenderer;
-	Player m_player;
+	//Player m_player;
 	Quad m_quad;
-	Apple m_apple;
-	TerrainManager m_terrainManager;
-	Entity m_entity;
-	Entity m_bow;
-	SkyBox m_skyBox;
-	Banana m_banana;
-	Melon m_melon;
+	LevelHandler m_levelHandler;
+	//Entity m_bow;
 };

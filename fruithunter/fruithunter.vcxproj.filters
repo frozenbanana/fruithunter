@@ -120,7 +120,9 @@
     <ClCompile Include="Source\Drawable\EntityCollision.cpp">
       <Filter>Source\Drawable</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Level\LevelHandler\LevelHandler.cpp" />
+    <ClCompile Include="Source\Level\LevelHandler\LevelHandler.cpp">
+      <Filter>Source\Level\levelHandler</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
