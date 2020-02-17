@@ -121,7 +121,7 @@ void Animated::updateSpecific(float frameTime) {
 
 void Animated::draw() {
 	if (Input::getInstance()->keyDown(Keyboard::B)) {
-		m_meshes[0].draw_BoundingBox();
+		m_meshes[0]->draw_BoundingBox();
 	}
 
 	bindMeshes();
@@ -151,4 +151,4 @@ bool Animated::load(std::string filename, int nrOfFrames, bool combineParts) {
 	return allClear;
 }
 
-float3 Animated::getBoundingBoxHalfSizes() const { return m_meshes[0].getBoundingBoxHalfSizes(); }
+float3 Animated::getBoundingBoxHalfSizes() const { return m_meshes[0]->getBoundingBoxHalfSizes(); }

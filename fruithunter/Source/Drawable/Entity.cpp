@@ -142,10 +142,10 @@ void Entity::updateAnimatedSpecific(float frameTime) { m_meshAnim.updateSpecific
 
 void Entity::setFrameTargets(int first, int second) { m_meshAnim.setFrameTargets(first, second); }
 
-bool Entity::load(string filename) { 
+bool Entity::load(string filename) {
 	shared_ptr<Mesh> m = MeshRepository::get(filename);
 	if (m.get() != nullptr) {
-			m_mesh = m;
+		m_mesh = m;
 		return true;
 	}
 	else {
@@ -161,7 +161,7 @@ bool Entity::checkCollision(Entity& other) {
 	return m_collisionData.collide(other.m_collisionData);
 }
 
-float Entity::castRay(float3 rayPos, float3 rayDir) { 
+float Entity::castRay(float3 rayPos, float3 rayDir) {
 	if (m_mesh.get() != nullptr) {
 		float4x4 mWorld = getModelMatrix();
 		float4x4 mInvWorld = mWorld.Invert();
@@ -189,7 +189,7 @@ void Entity::setCollisionData(float3 point, float3 halfSizes) {
 	m_collisionData.setCollisionData(point, halfSizes);
 }
 
-float3 Entity::getHalfSizes() const { return m_mesh.getBoundingBoxHalfSizes(); }
+float3 Entity::getHalfSizes() const { return m_mesh->getBoundingBoxHalfSizes(); }
 
 float3 Entity::getHalfSizesAnimated() const { return m_meshAnim.getBoundingBoxHalfSizes(); }
 
