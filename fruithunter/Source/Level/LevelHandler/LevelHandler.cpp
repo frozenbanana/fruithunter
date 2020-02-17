@@ -8,7 +8,6 @@ LevelHandler::~LevelHandler() {}
 void LevelHandler::initialise() {
 
 	m_player.initialize();
-	TerrainManager::getInstance();
 	m_terrainManager = TerrainManager::getInstance();
 	Level level0;
 	level0.m_heightMapNames.push_back("heightmap3.jpg");
