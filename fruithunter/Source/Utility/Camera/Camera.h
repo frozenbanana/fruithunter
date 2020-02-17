@@ -15,6 +15,7 @@ public:
 	void setView(float3 camEye, float3 camTarget, float3 camUp);
 
 	void setFov(float fov);
+	float getDefaultFov() const;
 
 	void updateBuffer();
 	void bindMatrix();
@@ -22,6 +23,8 @@ public:
 	float3 getPosition() const;
 
 private:
+	const float DEFAULT_FOV = XM_PI / 2.5f;
+
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;
 
 	bool m_viewChanged = false;
@@ -29,7 +32,6 @@ private:
 	float4x4 m_vpMatrix;
 	float4x4 m_viewMatrix;
 	float4x4 m_projMatrix;
-
 
 	float m_fov;
 	float3 m_camEye;
