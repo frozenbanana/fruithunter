@@ -8,7 +8,7 @@ Camera::Camera() {
 	m_camTarget = float3(0.0, 0.0, 0.0);
 	m_camUp = float3(0.0, 1.0, 0.0);
 
-	m_fov = XM_PI / 3.0f;
+	m_fov = DEFAULT_FOV;
 	m_projMatrix = XMMatrixPerspectiveFovLH(
 		m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, 0.1f, 100.0f);
 	m_viewMatrix = XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
@@ -36,7 +36,7 @@ Camera::Camera(float3 camEye, float3 camTarget, float3 camUp) {
 	m_camTarget = camTarget;
 	m_camUp = camUp;
 
-	m_fov = XM_PI / 3.0f;
+	m_fov = DEFAULT_FOV;
 	m_projMatrix = XMMatrixPerspectiveFovLH(
 		m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, 0.1f, 100.0f);
 	m_viewMatrix = XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
@@ -86,6 +86,8 @@ void Camera::setFov(float fov) {
 	m_fov = fov;
 	m_projChanged = true;
 }
+
+float Camera::getDefaultFov() const { return DEFAULT_FOV; }
 
 void Camera::updateBuffer() {
 	if (m_viewChanged) {

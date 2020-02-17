@@ -190,6 +190,7 @@
     <ClCompile Include="Source\Utility\Camera\Camera.cpp" />
     <ClCompile Include="Source\Utility\Error\ErrorLogger.cpp" />
     <ClCompile Include="Source\Utility\Input\Input.cpp" />
+    <ClCompile Include="Source\Utility\Repositories\MeshRepository.cpp" />
     <ClCompile Include="Source\Utility\Timer\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -224,6 +225,7 @@
     <ClInclude Include="Source\Utility\Camera\Camera.h" />
     <ClInclude Include="Source\Utility\Error\ErrorLogger.h" />
     <ClInclude Include="Source\Utility\Input\Input.h" />
+    <ClInclude Include="Source\Utility\Repositories\MeshRepository.h" />
     <ClInclude Include="Source\Utility\Timer\Timer.h" />
   </ItemGroup>
   <ItemGroup>
