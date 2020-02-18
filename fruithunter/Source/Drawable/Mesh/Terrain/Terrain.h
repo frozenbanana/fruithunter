@@ -2,6 +2,7 @@
 #include "ShaderSet.h"
 #include "MeshHandler.h"
 #define MATRIX_BUFFER_SLOT 0
+#define SAMPLERSTATE_SLOT 0
 
 class Terrain {
 private:
@@ -63,6 +64,9 @@ private:
 
 	//World Matrix
 	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;
+
+	//Sampler description
+	static Microsoft::WRL::ComPtr<ID3D11SamplerState> m_sampler;
 
 	//	--Functions--
 

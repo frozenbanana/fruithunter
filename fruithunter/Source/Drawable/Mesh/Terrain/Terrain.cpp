@@ -5,10 +5,28 @@
 #include "Input.h"
 ShaderSet Terrain::m_shader;
 Microsoft::WRL::ComPtr<ID3D11Buffer> Terrain::m_matrixBuffer;
+Microsoft::WRL::ComPtr<ID3D11SamplerState> Terrain::m_sampler;
 
 void Terrain::createBuffers() {
 	auto gDevice = Renderer::getDevice();
 	auto gDeviceContext = Renderer::getDeviceContext();
+	//sampler
+	if (m_sampler.Get() == nullptr) {
+		D3D11_SAMPLER_DESC sampDesc;
+		sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.MipLODBias = 0.0f;
+		sampDesc.MaxAnisotropy = 16;
+		sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		sampDesc.MinLOD = -3.402823466e+38F;
+		sampDesc.MaxLOD = 3.402823466e+38F;
+		HRESULT res = gDevice->CreateSamplerState(&sampDesc, m_sampler.GetAddressOf());
+		if (FAILED(res))
+			ErrorLogger::logError(res, "Failed creating sampler state in Terrain class!\n");
+	}
+
 	// matrix buffer
 	if (m_matrixBuffer.Get() == nullptr) {
 		D3D11_BUFFER_DESC desc;
@@ -516,7 +534,7 @@ float Terrain::castRay(float3 point, float3 direction) {
 		float length = n.Length();
 		n.Normalize();
 		float obb_l = obbTest(startPoint, n, float3(1, 1, 1) * 0.5f, float3(1, 1, 1) * 0.5f);
-		if (obb_l > 0) {
+		if (obb_l > 0 && obb_l < length) {
 			// values in grid coordinates [0,m_gridPointSize.x-1]
 			float2 tilt(n2.x * (m_gridPointSize.x - 1), n2.y * (m_gridPointSize.y - 1));
 			float2 start(startPoint.x * (m_gridPointSize.x - 1),
@@ -597,14 +615,21 @@ void Terrain::draw() {
 
 		ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
+		//bind shaders
 		m_shader.bindShadersAndLayout();
 
+		//bind samplerstate
+		deviceContext->PSSetSamplers(SAMPLERSTATE_SLOT,1,m_sampler.GetAddressOf());
+
+		//bind texture resources
 		for (int i = 0; i < m_mapCount; i++) {
 			deviceContext->PSSetShaderResources(i, 1, m_maps[i].GetAddressOf());
 		}
 
+		//bind world matrix
 		bindModelMatrix();
 
+		//draw grids
 		for (int xx = 0; xx < m_gridSize.x; xx++) {
 			for (int yy = 0; yy < m_gridSize.y; yy++) {
 				m_subMeshes[xx][yy].bind();
