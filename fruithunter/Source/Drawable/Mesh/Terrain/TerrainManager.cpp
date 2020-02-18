@@ -1,10 +1,10 @@
 #include "TerrainManager.h"
 
-void TerrainManager::add(float3 position, string heightmapFilename, vector<string> textures,
+void TerrainManager::add(float3 position, float3 scale, string heightmapFilename, vector<string> textures,
 	XMINT2 subSize, XMINT2 division) {
 	Terrain terrain(heightmapFilename, textures, subSize, division);
 	terrain.setPosition(position);
-	terrain.setScale(float3(1, 0.25, 1) * 100);
+	terrain.setScale(scale);
 	m_terrains.push_back(terrain);
 }
 
