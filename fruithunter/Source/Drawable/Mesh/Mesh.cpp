@@ -325,9 +325,9 @@ float Mesh::castRayOnMesh(float3 rayPos, float3 rayDir) {
 }
 
 float3 Mesh::getBoundingBoxHalfSizes() const {
-	return float3((m_MinMaxXPosition.y - m_MinMaxXPosition.x) * 0.5,
-		(m_MinMaxYPosition.y - m_MinMaxYPosition.x) * 0.5,
-		(m_MinMaxZPosition.y - m_MinMaxZPosition.x) * 0.5);
+	return float3((m_MinMaxXPosition.y - m_MinMaxXPosition.x) * 0.5f,
+		(m_MinMaxYPosition.y - m_MinMaxYPosition.x) * 0.5f,
+		(m_MinMaxZPosition.y - m_MinMaxZPosition.x) * 0.5f);
 }
 
 void Mesh::scaleBoundingBoxHalfSizes(float3 scale) {

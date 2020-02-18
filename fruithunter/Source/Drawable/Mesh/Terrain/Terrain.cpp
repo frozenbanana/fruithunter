@@ -77,7 +77,7 @@ float Terrain::sampleHeightmap(float2 uv) {
 	int texWidth = m_heightmapDescription.Width;
 	int texHeight = m_heightmapDescription.Height;
 
-	XMINT2 iUV(uv.x * (texWidth - 1), uv.y * (texHeight - 1));
+	XMINT2 iUV((int)(uv.x * (float)(texWidth - 1)), (int)(uv.y * (float)(texHeight - 1)));
 
 	float v = 0;
 	if (m_heightmapDescription.Format == DXGI_FORMAT_R8_UNORM) {
@@ -508,8 +508,8 @@ float Terrain::castRay(float3 point, float3 direction) {
 					((iStart.y + (iStart.y > iEnd.y ? -1 * i : i * 1 + 1)) - start.y) / tilt.y;
 				tsY.push_back(t);
 			}
-			vector<float> ts;						 // sorted intersection time array
-			ts.reserve(changeInX + changeInY + 2.f); //+2 for start and end point
+			vector<float> ts;					   // sorted intersection time array
+			ts.reserve(changeInX + changeInY + 2); //+2 for start and end point
 			// sort largest first
 			ts.push_back((end - start).Length() / tilt.Length());
 			while (tsX.size() > 0 || tsY.size() > 0) {
