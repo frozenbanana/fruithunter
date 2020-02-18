@@ -47,7 +47,7 @@ bool EntityCollision::collisionOBBOBB(ObbData& a, ObbData& b) {
 	// Compute common subexpressions. Add in an epsilon term to
 	// counteract arithmetic errors when two edges are parallel and
 	// their cross product is (near) null (see text for details)
-	const float EPSILON = 0.00001;
+	const float EPSILON = 0.00001f;
 	for (int i = 0; i < 3; i++)
 		for (int j = 0; j < 3; j++)
 			AbsR.m[i][j] = abs(R.m[i][j]) + EPSILON;

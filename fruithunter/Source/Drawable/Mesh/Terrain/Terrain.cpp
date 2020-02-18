@@ -77,7 +77,7 @@ float Terrain::sampleHeightmap(float2 uv) {
 	int texWidth = m_heightmapDescription.Width;
 	int texHeight = m_heightmapDescription.Height;
 
-	XMINT2 iUV(uv.x * (texWidth - 1), uv.y * (texHeight - 1));
+	XMINT2 iUV((int)(uv.x * (float)(texWidth - 1)), (int)(uv.y * (float)(texHeight - 1)));
 
 	float v = 0;
 	if (m_heightmapDescription.Format == DXGI_FORMAT_R8_UNORM) {
@@ -474,78 +474,80 @@ float3 Terrain::getNormalFromPosition(float x, float z) {
  */
 float Terrain::castRay(float3 point, float3 direction) {
 	if (direction.Length() > 0) {
-	// convert to local space
-	float4x4 mTerrainWorld = getModelMatrix();
-	float4x4 mTerrainInvWorld = mTerrainWorld.Invert();
-	float3 startPoint = float3::Transform(point, mTerrainInvWorld);
-	float3 endPoint = float3::Transform(point + direction, mTerrainInvWorld);
-	float3 n = endPoint - startPoint;
-	float2 n2 = float2(n.x, n.z);
-	float length = n.Length();
-	n.Normalize();
-	float obb_l = obbTest(startPoint, n, float3(1, 1, 1) * 0.5f, float3(1, 1, 1) * 0.5f);
-	if (obb_l > 0) {
-		// values in grid coordinates [0,m_gridPointSize.x-1]
-		float2 tilt(n2.x * (m_gridPointSize.x - 1), n2.y * (m_gridPointSize.y - 1));
-		float2 start(
-			startPoint.x * (m_gridPointSize.x - 1), (float)startPoint.z * (m_gridPointSize.y - 1));
-		XMINT2 iStart((int)start.x, (int)start.y);
-		float2 end(endPoint.x * (m_gridPointSize.x - 1), endPoint.z * (m_gridPointSize.y - 1));
-		XMINT2 iEnd((int)end.x, (int)end.y);
-		// find intersection tiles
-		vector<float> tsX, tsY;
-		int changeInX = abs(iEnd.x - iStart.x);
-		int changeInY = abs(iEnd.y - iStart.y);
-		tsX.reserve(changeInX);
-		tsY.reserve(changeInY);
-		for (int i = 0; i < changeInX; i++) {
-			float t = ((iStart.x + (iStart.x > iEnd.x ? -1 * i : 1 * i + 1)) - start.x) / tilt.x;
-			tsX.push_back(t);
-		}
-		for (int i = 0; i < changeInY; i++) {
-			float t = ((iStart.y + (iStart.y > iEnd.y ? -1 * i : i * 1 + 1)) - start.y) / tilt.y;
-			tsY.push_back(t);
-		}
-		vector<float> ts;						 // sorted intersection time array
-		ts.reserve(changeInX + changeInY + 2.f); //+2 for start and end point
-		// sort largest first
-		ts.push_back((end - start).Length() / tilt.Length());
-		while (tsX.size() > 0 || tsY.size() > 0) {
-			if (tsX.size() > 0 && tsY.size() > 0) {
-				if (tsX.back() < tsY.back()) {
-					ts.push_back(tsY.back());
-					tsY.pop_back();
+		// convert to local space
+		float4x4 mTerrainWorld = getModelMatrix();
+		float4x4 mTerrainInvWorld = mTerrainWorld.Invert();
+		float3 startPoint = float3::Transform(point, mTerrainInvWorld);
+		float3 endPoint = float3::Transform(point + direction, mTerrainInvWorld);
+		float3 n = endPoint - startPoint;
+		float2 n2 = float2(n.x, n.z);
+		float length = n.Length();
+		n.Normalize();
+		float obb_l = obbTest(startPoint, n, float3(1, 1, 1) * 0.5f, float3(1, 1, 1) * 0.5f);
+		if (obb_l > 0) {
+			// values in grid coordinates [0,m_gridPointSize.x-1]
+			float2 tilt(n2.x * (m_gridPointSize.x - 1), n2.y * (m_gridPointSize.y - 1));
+			float2 start(startPoint.x * (m_gridPointSize.x - 1),
+				(float)startPoint.z * (m_gridPointSize.y - 1));
+			XMINT2 iStart((int)start.x, (int)start.y);
+			float2 end(endPoint.x * (m_gridPointSize.x - 1), endPoint.z * (m_gridPointSize.y - 1));
+			XMINT2 iEnd((int)end.x, (int)end.y);
+			// find intersection tiles
+			vector<float> tsX, tsY;
+			int changeInX = abs(iEnd.x - iStart.x);
+			int changeInY = abs(iEnd.y - iStart.y);
+			tsX.reserve(changeInX);
+			tsY.reserve(changeInY);
+			for (int i = 0; i < changeInX; i++) {
+				float t =
+					((iStart.x + (iStart.x > iEnd.x ? -1 * i : 1 * i + 1)) - start.x) / tilt.x;
+				tsX.push_back(t);
+			}
+			for (int i = 0; i < changeInY; i++) {
+				float t =
+					((iStart.y + (iStart.y > iEnd.y ? -1 * i : i * 1 + 1)) - start.y) / tilt.y;
+				tsY.push_back(t);
+			}
+			vector<float> ts;					   // sorted intersection time array
+			ts.reserve(changeInX + changeInY + 2); //+2 for start and end point
+			// sort largest first
+			ts.push_back((end - start).Length() / tilt.Length());
+			while (tsX.size() > 0 || tsY.size() > 0) {
+				if (tsX.size() > 0 && tsY.size() > 0) {
+					if (tsX.back() < tsY.back()) {
+						ts.push_back(tsY.back());
+						tsY.pop_back();
+					}
+					else {
+						ts.push_back(tsX.back());
+						tsX.pop_back();
+					}
 				}
-				else {
+				else if (tsX.size() > 0) {
 					ts.push_back(tsX.back());
 					tsX.pop_back();
 				}
+				else {
+					ts.push_back(tsY.back());
+					tsY.pop_back();
+				}
 			}
-			else if (tsX.size() > 0) {
-				ts.push_back(tsX.back());
-				tsX.pop_back();
+			ts.push_back(0);
+			// check all intersected tiles
+			float minL = -1;
+			for (int i = (int)ts.size() - 2; i >= 0; i--) {
+				float sampledT = (ts[i] + ts[i + 1]) / 2.f;
+				int ix = (int)((float)start.x + tilt.x * sampledT);
+				int iy = (int)((float)start.y + tilt.y * sampledT);
+				if (ix >= 0 && ix < m_gridPointSize.x - 1 && iy >= 0 && iy < m_gridPointSize.y - 1)
+					tileRayIntersectionTest(XMINT2(ix, iy), startPoint, n, minL);
+				if (minL != -1)
+					break; // early break
 			}
-			else {
-				ts.push_back(tsY.back());
-				tsY.pop_back();
-			}
-		}
-		ts.push_back(0);
-		// check all intersected tiles
-		float minL = -1;
-		for (int i = (int)ts.size() - 2; i >= 0; i--) {
-			float sampledT = (ts[i] + ts[i + 1]) / 2.f;
-			int ix = (int)((float)start.x + tilt.x * sampledT);
-			int iy = (int)((float)start.y + tilt.y * sampledT);
-			if (ix >= 0 && ix < m_gridPointSize.x-1 && iy >= 0 && iy < m_gridPointSize.y-1)
-				tileRayIntersectionTest(XMINT2(ix, iy), startPoint, n, minL);
-			if (minL != -1)
-				break; // early break
-		}
-		// convert back to world space
-		if (minL != -1) {
-			float3 intersectPoint = startPoint + n * minL;
-			intersectPoint = float3::Transform(intersectPoint, mTerrainWorld);
+			// convert back to world space
+			if (minL != -1) {
+				float3 intersectPoint = startPoint + n * minL;
+				intersectPoint = float3::Transform(intersectPoint, mTerrainWorld);
 
 				float l = (intersectPoint - point).Length() / direction.Length();
 				if (l > 0 && l <= 1)
