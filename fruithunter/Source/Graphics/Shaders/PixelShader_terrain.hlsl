@@ -8,11 +8,7 @@ struct PS_IN {
 	//float Height : LOCAL_Y;
 };
 
-SamplerState samplerAni {
-	Filter = MIN_MAG_MIP_LINEAR;
-	AddressU = ADDRESS_CLAMP;
-	AddressV = ADDRESS_CLAMP;
-};
+SamplerState samplerAni : register(s0);
 Texture2D texture_aboveFlat : register(t0);
 Texture2D texture_beneathFlat : register(t1);
 Texture2D texture_aboveTilt : register(t2);
@@ -38,11 +34,11 @@ float specialLerp(float v, float min, float max) {
 }
 
 float4 main(PS_IN ip) : SV_TARGET {
-	float3 aboveFlat = texture_aboveFlat.Sample(samplerAni, (ip.TexCoord * 50.) % 1.).rgb;
-	float3 beneathFlat = texture_beneathFlat.Sample(samplerAni, (ip.TexCoord * 50.) % 1.).rgb;
-	float3 aboveTilt = texture_aboveTilt.Sample(samplerAni, (ip.TexCoord * 50.f) % 1.).rgb;
+	float3 aboveFlat = texture_aboveFlat.Sample(samplerAni, (ip.TexCoord * 50.)).rgb;
+	float3 beneathFlat = texture_beneathFlat.Sample(samplerAni, (ip.TexCoord * 50.)).rgb;
+	float3 aboveTilt = texture_aboveTilt.Sample(samplerAni, (ip.TexCoord * 50.f)).rgb;
 	float3 betweenTiltAndFlat =
-		texture_betweenTiltAndFlat.Sample(samplerAni, (ip.TexCoord * 50.) % 1.).rgb;
+		texture_betweenTiltAndFlat.Sample(samplerAni, (ip.TexCoord * 50.)).rgb;
 	//float3 beneathTilt = texture_beneathTilt.Sample(samplerAni, (ip.TexCoord * 50.) % 1.).rgb;
 
 	float height = specialLerp(ip.PosW.y, 0.1f, 1.f);
