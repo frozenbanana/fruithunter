@@ -88,7 +88,6 @@ void LevelHandler::update(float dt) {
 
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->update(dt, playerPos);
-		// m_fruits[i]->updateAnimated(dt);
 		if (m_player.getArrow().checkCollision(*m_fruits[i])) {
 			m_fruits[i]->setVelocity(float3(0.0, 10.f, 0.f));
 			m_player.getArrow().setPosition(float3(-10.f));
