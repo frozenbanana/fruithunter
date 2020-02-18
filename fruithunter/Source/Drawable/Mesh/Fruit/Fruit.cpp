@@ -41,7 +41,12 @@ float Fruit::findRequiredRotation(float3 lookAt) {
 }
 
 void Fruit::enforceOverTerrain() {
-	if (!onGround(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
+	if (underGround(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
+		// ErrorLogger::log(
+		//	"ENFORCING:: " +
+		//	std::to_string(
+		//		m_position.y - TerrainManager::getInstance()->getHeightFromPosition(m_position)));
+
 		m_position.y = TerrainManager::getInstance()->getHeightFromPosition(m_position) +
 					   getHalfSizesAnimated().y / 2.f;
 	}
@@ -56,7 +61,7 @@ void Fruit::setDestination() {
 }
 void Fruit::setWorldHome(float3 pos) {
 	m_worldHome = pos;
-	m_worldHome.y = 0.f;
+	m_worldHome.y = TerrainManager::getInstance()->getHeightFromPosition(pos);
 }
 
 bool Fruit::withinDistanceTo(float3 target, float treshhold) {

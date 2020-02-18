@@ -10,7 +10,6 @@ private:
 	void behaviorActive(float3 playerPosition) override;
 	void behaviorCaught(float3 playerPosition) override;
 
-	// void updatePhases(Phase phases[]);
 	void roll(float dt);
 	float m_rollSpeed;
 
