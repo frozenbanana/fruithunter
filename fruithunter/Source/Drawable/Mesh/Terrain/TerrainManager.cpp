@@ -22,6 +22,15 @@ Terrain* TerrainManager::getTerrainFromPosition(float3 position) {
 	return nullptr;
 }
 
+int TerrainManager::getTerrainIndexFromPosition(float3 position) { 
+	for (size_t i = 0; i < m_terrains.size(); i++) {
+		if (m_terrains[i].pointInsideTerrainBoundingBox(position)) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 float TerrainManager::getHeightFromPosition(float3 position) {
 	float highest = 0;
 	for (size_t i = 0; i < m_terrains.size(); i++) {

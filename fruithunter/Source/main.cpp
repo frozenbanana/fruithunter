@@ -24,15 +24,16 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 
 	MSG msg = { 0 };
 	stateHandler->initialize();
+	//Hardcoded statechange here. (TESTING)
 	stateHandler->changeState(StateHandler::PLAY);
 	while (StateHandler::getInstance()->isRunning()) {
 		input->update();
-		if (input->keyPressed(DirectX::Keyboard::D1)) {
+		if (input->keyPressed(DirectX::Keyboard::F1)) {
 			ErrorLogger::log("Number 1 was pressed!");
 			stateHandler->changeState(StateHandler::INTRO);
 		}
 
-		if (input->keyPressed(DirectX::Keyboard::D2)) {
+		if (input->keyPressed(DirectX::Keyboard::F2)) {
 			ErrorLogger::log("Number 2 was pressed!");
 			stateHandler->changeState(StateHandler::PLAY);
 		}

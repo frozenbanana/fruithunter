@@ -13,6 +13,8 @@
 
 struct Level {
 	// HeightMap
+	enum TerrainTags { Forest, Desert, Plains, Volcano, Count };
+	vector<TerrainTags> m_terrainTags;
 	std::vector<std::string> m_heightMapNames;
 	std::vector<float3> m_heightMapPos;
 	std::vector<XMINT2> m_heightMapSubSize;
@@ -37,6 +39,11 @@ private:
 	TerrainManager* m_terrainManager;
 	Entity m_entity;
 	SkyBox m_skyBox;
+	size_t m_inventory[NR_OF_FRUITS]; // APPLE 0, BANANA 1, MELON 2
+
+	int m_currentLevel = -1;
+	Level::TerrainTags m_currentTerrain = Level::TerrainTags::Forest;
+	Level::TerrainTags m_oldTerrain = Level::TerrainTags::Forest;
 
 public:
 	LevelHandler();
@@ -46,6 +53,10 @@ public:
 	void loadLevel(int levelNr);
 	void draw();
 	void update(float dt);
+
+	// Fruit stuff
+	void pickUpFruit(int fruitType);
+	void dropFruit();
 
 
 	std::vector<Fruit> fruitsInLevel;

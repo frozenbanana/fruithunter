@@ -77,9 +77,6 @@ private:
 	float m_dashCharge = 0.f;			  // charge of dash in seconds
 	bool m_chargingDash = false;		  // is the player charging
 
-	// Inventory
-	size_t m_inventory[NR_OF_FRUITS]; // APPLE 0, BANANA 1, MELON 2
-
 	// Orientation
 	float3 m_playerForward = DEFAULTFORWARD;
 	float3 m_playerRight = DEFAULTRIGHT;

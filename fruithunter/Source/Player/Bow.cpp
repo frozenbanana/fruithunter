@@ -24,6 +24,8 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 					  playerUp * OFFSET_UP * m_aimMovement);
 
 
+	// Update m_arrowReturnTimer
+	m_arrowReturnTimer -= dt;
 	// Bow animation.
 	if (m_charging) {
 		m_drawFactor = min(0.99f, m_drawFactor + dt);
@@ -38,12 +40,19 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 
 	// Update arrow.
 	if (m_shooting) {
-		arrowPhysics(
-			dt, float3(10.f, 0.f, 0.f)); // Updates arrow in flight, wind is currently hard coded.
-		m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
+		if (!m_arrowHitObject) {
+			arrowPhysics(dt,
+				float3(10.f, 0.f, 0.f)); // Updates arrow in flight, wind is currently hard coded.
+			m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
 
-		if ((m_bow.getPosition() - m_arrow.getPosition()).Length() >
-			20.0f) { // replace with collision later
+			float castray =
+				TerrainManager::getInstance()->castRay(m_arrow.getPosition(), m_arrowVelocity * dt);
+			if (castray != -1) {
+				m_arrowHitObject = true;
+				m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * castray * dt);
+			}
+		}
+		if (m_arrowReturnTimer < 0) { // replace with collision later
 			m_shooting = false;
 		}
 	}
@@ -99,6 +108,8 @@ void Bow::shoot(float3 direction) { // Shoots/fires the arrow
 	if (m_charging) {
 		m_charging = false;
 		m_shooting = true;
+		m_arrowReturnTimer = m_arrowTimeBeforeReturn;
+		m_arrowHitObject = false;
 
 		float bowEfficiencyConstant = 400.0f;
 		float bowMaterialConstant = 0.05f;
