@@ -1,14 +1,12 @@
 #include "TerrainManager.h"
-
 TerrainManager TerrainManager::m_this;
 TerrainManager* TerrainManager::getInstance() { return &m_this; }
 TerrainManager::TerrainManager() {}
-
-void TerrainManager::add(
-	float3 position, string heightmapFilename, XMINT2 subSize, XMINT2 division) {
-	Terrain terrain(heightmapFilename, subSize, division);
+void TerrainManager::add(float3 position, float3 scale, string heightmapFilename, vector<string> textures,
+	XMINT2 subSize, XMINT2 division) {
+	Terrain terrain(heightmapFilename, textures, subSize, division);
 	terrain.setPosition(position);
-	terrain.setScale(float3(1, 0.25, 1) * 10);
+	terrain.setScale(scale);
 	m_terrains.push_back(terrain);
 }
 
