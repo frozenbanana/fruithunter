@@ -13,10 +13,7 @@ void Fruit::setStartPosition(float3 pos) {
 	m_nextDestinationAnimationPosition = pos;
 }
 
-void Fruit::setNextDestination(float3 nextDest) {
-	m_nextDestinationAnimationPosition =
-		nextDest + float3(0.0f, 0.3f, 0.0f); // offset to adjust origo so pos it onup of terrain
-}
+void Fruit::setNextDestination(float3 nextDest) { m_nextDestinationAnimationPosition = nextDest; }
 
 void Fruit::lookTo(float3 lookAt) { setRotation(float3(0.f, findRequiredRotation(lookAt), 0.f)); }
 
@@ -41,7 +38,7 @@ float Fruit::findRequiredRotation(float3 lookAt) {
 }
 
 void Fruit::enforceOverTerrain() {
-	if (underGround(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
+	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
 		// ErrorLogger::log(
 		//	"ENFORCING:: " +
 		//	std::to_string(
@@ -52,8 +49,8 @@ void Fruit::enforceOverTerrain() {
 	}
 }
 
-void Fruit::setDestination() {
-	m_destinationAnimationPosition = m_nextDestinationAnimationPosition;
+void Fruit::setAnimationDestination() {
+	/*m_destinationAnimationPosition = m_nextDestinationAnimationPosition;*/
 	m_startAnimationPosition = getPosition();
 	m_heightAnimationPosition =
 		XMVectorLerp(m_startAnimationPosition, m_destinationAnimationPosition, 0.5f);
@@ -79,6 +76,7 @@ void Fruit::move(float dt) {
 	m_position += m_directionalVelocity * dt;
 	// TODO: check if legal
 	// CURRENT: Enforece terrain height
+	ErrorLogger::logFloat3("Moving: ", m_position);
 	enforceOverTerrain();
 	setPosition(m_position);
 }

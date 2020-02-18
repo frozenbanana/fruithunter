@@ -31,6 +31,9 @@ public:
 	// void detectPlayer(float3 playerPosition);
 
 protected:
+	float m_passiveRadius, m_activationRadius;
+
+
 	State m_currentState;
 	std::shared_ptr<Terrain> m_terrain;
 	std::vector<float3> m_availablePath;

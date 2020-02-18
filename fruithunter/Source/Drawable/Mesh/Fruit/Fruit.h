@@ -7,7 +7,7 @@ class Fruit : public Entity, public AI {
 protected:
 	// Phyics based movment
 	float3 m_directionalVelocity;
-	float3 m_acceleration = float3(0.0f, -40.0f, 0.0f);
+	float3 m_acceleration = float3(0.0f, -400.0f, 0.0f);
 
 	// -------------------
 	int m_nrOfFramePhases; // nr of phases to a movement
@@ -24,7 +24,7 @@ protected:
 
 	float m_startRotation; // start and end to interpolate between.
 	float m_endRotation;
-	void setDestination();
+	void setAnimationDestination();
 	float findRequiredRotation(float3 lookAt);
 	void enforceOverTerrain();
 	Fruit(float3 pos = float3(0.f, 0.f, 0.f));

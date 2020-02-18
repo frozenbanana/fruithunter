@@ -51,8 +51,8 @@ void Entity::createBuffers() {
 
 bool Entity::isMeshInitialized() const { return (m_mesh.get() != nullptr); }
 
-bool Entity::underGround(float terrainHeight) const {
-	return m_position.y < (terrainHeight + getHalfSizesAnimated().y / 2.f);
+bool Entity::atOrUnder(float terrainHeight) const {
+	return m_position.y <= (terrainHeight + getHalfSizesAnimated().y / 2.f);
 }
 
 float4x4 Entity::getModelMatrix() {
@@ -67,7 +67,10 @@ float3 Entity::getRotation() const { return m_rotation; }
 
 float3 Entity::getScale() const { return m_scale; }
 
-void Entity::setPosition(float3 position) { m_position = position; }
+void Entity::setPosition(float3 position) {
+	m_position = position;
+	m_matrixChanged = true;
+}
 
 void Entity::move(float3 movement) {
 	m_position += movement;

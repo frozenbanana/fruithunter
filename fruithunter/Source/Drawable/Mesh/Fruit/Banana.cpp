@@ -24,7 +24,7 @@ void Banana::behaviorPassive(float3 playerPosition) {
 		jump(toHome, 3.0f);
 	}
 
-	if (onGround(0.2f)) {
+	if (atOrUnder(0.2f)) {
 		float3 terrainNormal = TerrainManager::getInstance()->getNormalFromPosition(m_position);
 		terrainNormal.Normalize();
 		jump(terrainNormal, 5.0);
@@ -38,7 +38,7 @@ void Banana::behaviorPassive(float3 playerPosition) {
 void Banana::behaviorActive(float3 playerPosition) {
 	ErrorLogger::log("Banana:: Doing active.");
 
-	if (onGround(0.2f)) {
+	if (atOrUnder(0.2f)) {
 		float3 terrainNormal = float3(0.0, 1.0f, 0.0);
 		terrainNormal.x = (float)(rand() % 4);
 		terrainNormal.z = (float)(rand() % 4);
@@ -52,7 +52,7 @@ void Banana::behaviorActive(float3 playerPosition) {
 }
 void Banana::behaviorCaught(float3 playerPosition) {
 	ErrorLogger::log("Banana:: Doing caught.");
-	if (onGround(0.2f)) {
+	if (atOrUnder(0.2f)) {
 		float3 toPlayer = playerPosition - m_position;
 		toPlayer.Normalize();
 		toPlayer.y = 1.0f;
@@ -171,9 +171,9 @@ void Banana::updateBounce(float dt) {
 		posOrder[1] = getPosition();
 	}
 	// Set position
-	float3 pos = XMVectorLerp(posOrder[m_currentFramePhase],
+	/*float3 pos = XMVectorLerp(posOrder[m_currentFramePhase],
 		posOrder[(m_currentFramePhase + 1) % (m_nrOfFramePhases)], m_frameTime);
-	setPosition(pos);
+	setPosition(pos);*/
 	rotate(m_rotation * dt);
 	// Update mesh specificly with our frametime
 	m_meshAnim.updateSpecific(m_frameTime);
@@ -186,7 +186,7 @@ void Banana::updateStopped(float dt) {
 void Banana::stop() {}
 
 void Banana::bounce() {
-	setDestination();
+	setAnimationDestination();
 	if (m_bounciness <= 0) { // Will be stopped
 		m_state = Jump;
 		m_nrOfFramePhases = 6;

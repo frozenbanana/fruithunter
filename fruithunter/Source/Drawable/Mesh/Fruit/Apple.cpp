@@ -7,31 +7,36 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 	setScale(0.5);
 	changeState(AI::State::PASSIVE);
 
-	m_directionalVelocity = float3((float)(rand() % 1), 0.0f, (float)(rand() % 1));
-	m_directionalVelocity.Normalize();
+	m_directionalVelocity = float3(1.f, 0.f, 1.f);
 	m_fruitType = APPLE;
+
+	m_activationRadius = 3.f;
+	m_passiveRadius = 6.f;
 }
 
 void Apple::behaviorPassive(float3 playerPosition) {
 	ErrorLogger::log("Apple:: Doing passive.");
-	m_directionalVelocity = m_worldHome - m_position;
-	m_directionalVelocity.Normalize();
-	if (onGround(0.2f) && withinDistanceTo(m_worldHome, 2.0f)) {
-		float3 terrainNormal = TerrainManager::getInstance()->getNormalFromPosition(m_position);
-		terrainNormal.Normalize();
-		jump(terrainNormal, 5.0);
+	ErrorLogger::logFloat3("m_position", m_position);
+	float terrainHeight = TerrainManager::getInstance()->getHeightFromPosition(m_position);
+	if (!withinDistanceTo(m_worldHome, 0.75f) && atOrUnder(terrainHeight)) {
+		m_directionalVelocity = m_worldHome - m_position;
+		m_directionalVelocity.Normalize();
+	}
+	else {
+		if (atOrUnder(terrainHeight)) {
+			jump(float3(0.0f, 1.0f, 0.0), 2.5f);
+		}
 	}
 
-	if (withinDistanceTo(playerPosition, 3.f)) {
+	if (withinDistanceTo(playerPosition, m_activationRadius)) {
 		changeState(ACTIVE);
 	}
 }
 
 void Apple::behaviorActive(float3 playerPosition) {
 	ErrorLogger::log("Apple:: Doing active.");
-	m_directionalVelocity = m_position - playerPosition; // run away from player
-	m_directionalVelocity.Normalize();
-	if (!withinDistanceTo(playerPosition, 4.0f)) {
+	flee(playerPosition);
+	if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
 		changeState(PASSIVE);
 	}
 }
@@ -71,7 +76,7 @@ void Apple::updateAnimated(float dt) {
 
 		if (m_currentFramePhase == m_nrOfFramePhases) {
 			m_currentFramePhase = 0;
-			setDestination();
+			setAnimationDestination();
 			justChanged = true;
 			setRotation(float3(0.f, findRequiredRotation(m_nextDestinationAnimationPosition), 0.f));
 		}
@@ -92,28 +97,14 @@ void Apple::updateAnimated(float dt) {
 	m_meshAnim.updateSpecific(m_frameTime);
 }
 
-// void Apple::move(float dt) {
-//	// if (!m_availablePath.empty() && m_currentState == ACTIVE) {
-//	//	m_direction = (m_availablePath.back() - m_position);
-//	//	m_availablePath.pop_back();
-//	//}
-//
-//	m_directionalVelocity += m_acceleration * dt * dt / 2.f;
-//	m_position += m_directionalVelocity * dt;
-//	// TODO: check if legal
-//	// CURRENT: Enforece terrain height
-//	enforceOverTerrain();
-//	setPosition(m_position);
-//}
-//
-// void Apple::update(float dt, float3 playerPosition) {
-//	doBehavior(playerPosition);
-//	updateAnimated(dt);
-//	move(dt);
-//}
 
 void Apple::flee(float3 playerPos) {
-	float3 start = float3(m_startAnimationPosition.x, 0.0, m_startAnimationPosition.z);
+	/*float3 start = float3(m_startAnimationPosition.x, 0.0, m_startAnimationPosition.z);
 	float3 end = float3(playerPos.x, 0.0f, playerPos.z);
-	pathfinding(start, end);
+	pathfinding(start, end);*/
+	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
+		m_directionalVelocity += m_position - playerPos;
+		m_directionalVelocity.Normalize();
+		m_directionalVelocity *= 3.f;
+	}
 }

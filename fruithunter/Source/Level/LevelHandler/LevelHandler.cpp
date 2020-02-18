@@ -10,10 +10,10 @@ void LevelHandler::initialise() {
 	m_player.initialize();
 	m_terrainManager = TerrainManager::getInstance();
 	Level level0;
-	level0.m_heightMapNames.push_back("heightmap3.jpg");
-	level0.m_heightMapNames.push_back("heightmap3.jpg");
-	level0.m_heightMapNames.push_back("heightmap3.jpg");
-	level0.m_heightMapNames.push_back("heightmap3.jpg");
+	level0.m_heightMapNames.push_back("flatmap.jpg");
+	level0.m_heightMapNames.push_back("flatmap.jpg");
+	level0.m_heightMapNames.push_back("flatmap.jpg");
+	level0.m_heightMapNames.push_back("flatmap.jpg");
 
 	level0.m_heightMapPos.push_back(float3(0.f, 0.f, 0.f));
 	level0.m_heightMapPos.push_back(float3(10.f, 0.f, 0.f));
@@ -31,14 +31,14 @@ void LevelHandler::initialise() {
 	level0.m_heightMapDivision.push_back(XMINT2(5, 5));
 
 	level0.m_nrOfFruits[APPLE] = 1;
-	level0.m_nrOfFruits[BANANA] = 1;
-	level0.m_nrOfFruits[MELON] = 1;
+	level0.m_nrOfFruits[BANANA] = 0;
+	level0.m_nrOfFruits[MELON] = 0;
 
 	level0.m_playerStartPos = float3(13.f, 0.0f, 5.0f);
 
 	level0.m_fruitPos[APPLE] = float3(9.0f, 0.0f, 6.0f);
 	level0.m_fruitPos[BANANA] = float3(7.0f, 0.0f, 7.0f);
-	level0.m_fruitPos[MELON] = float3(6.0f, 0.0f, 8.0f);
+	level0.m_fruitPos[MELON] = float3(10.0f, 0.0f, 8.0f);
 
 	m_levelsArr.push_back(level0);
 }
@@ -89,8 +89,7 @@ void LevelHandler::update(float dt) {
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->update(dt, playerPos);
 		if (m_player.getArrow().checkCollision(*m_fruits[i])) {
-			m_fruits[i]->setVelocity(float3(0.0, 10.f, 0.f));
-			m_player.getArrow().setPosition(float3(-10.f));
+			m_fruits[i]->hit();
 		}
 	}
 }

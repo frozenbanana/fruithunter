@@ -34,7 +34,7 @@ protected:
 	float3 m_position;
 	Animated m_meshAnim;
 
-	bool underGround(float terrainHeight) const;
+	bool atOrUnder(float terrainHeight) const;
 
 
 public:

@@ -86,7 +86,7 @@ void Melon::updateAnimated(float dt) {
 	m_frameTime += dt;
 	if (m_frameTime > 2) {
 		m_frameTime = 0.f;
-		setDestination();
+		setAnimationDestination();
 		lookTo(m_destinationAnimationPosition);
 	}
 	float3 tempDir(m_destinationAnimationPosition - getPosition());
