@@ -79,12 +79,12 @@ void LevelHandler::loadLevel(int levelNr) {
 		m_currentLevel = levelNr;
 		Level currentLevel = m_levelsArr.at(levelNr);
 
-	for (int i = 0; i < m_levelsArr.at(levelNr).m_heightMapNames.size(); i++) {
-		m_terrainManager.add(currentLevel.m_heightMapPos.at(i), currentLevel.m_heightMapScales[i],
-			currentLevel.m_heightMapNames.at(i), currentLevel.m_heightmapTextures[i],
-			currentLevel.m_heightMapSubSize.at(i), currentLevel.m_heightMapDivision.at(i));
-
-	}
+		for (int i = 0; i < m_levelsArr.at(levelNr).m_heightMapNames.size(); i++) {
+			m_terrainManager->add(currentLevel.m_heightMapPos.at(i),
+				currentLevel.m_heightMapScales[i], currentLevel.m_heightMapNames.at(i),
+				currentLevel.m_heightmapTextures[i], currentLevel.m_heightMapSubSize.at(i),
+				currentLevel.m_heightMapDivision.at(i));
+		}
 
 		for (int i = 0; i < currentLevel.m_nrOfFruits[APPLE]; i++) {
 			shared_ptr<Apple> apple = make_shared<Apple>(currentLevel.m_fruitPos[APPLE]);
