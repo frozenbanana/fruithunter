@@ -40,6 +40,11 @@ private:
 	float m_arrowRotation = 0.0f;
 	float3 m_oldArrowVelocity = float3(0.f, 0.f, 0.f);
 
+	// for arrow return
+	float m_arrowReturnTimer = 0.f;
+	float m_arrowTimeBeforeReturn = 1.5f;
+	bool m_arrowHitObject = false;
+
 	void arrowPhysics(float dt, float3 windVector);
 	void calcArea(float3 relativeWindVector);
 	float calcAngle(float3 vec1, float3 vec2);
