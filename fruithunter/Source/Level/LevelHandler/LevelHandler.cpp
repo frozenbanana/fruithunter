@@ -37,7 +37,7 @@ void LevelHandler::initialise() {
 	level0.m_heightMapDivision.push_back(XMINT2(5, 5));
 
 	level0.m_nrOfFruits[APPLE] = 1;
-	level0.m_nrOfFruits[BANANA] = 100;
+	level0.m_nrOfFruits[BANANA] = 1;
 	level0.m_nrOfFruits[MELON] = 1;
 
 	level0.m_playerStartPos = float3(5.f, 0.0f, 5.0f);
@@ -86,10 +86,12 @@ void LevelHandler::draw() {
 		m_fruits[i]->draw_animate();
 	}
 	m_terrainManager->draw();
-	m_skyBox.draw();
+	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 }
 
 void LevelHandler::update(float dt) {
+	m_skyBox.updateDelta(dt);
+
 	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
 
 	dropFruit();
@@ -99,7 +101,11 @@ void LevelHandler::update(float dt) {
 	int activeTerrain = m_terrainManager->getTerrainIndexFromPosition(playerPos);
 	if (activeTerrain != -1 && m_currentLevel != -1) {
 		Level::TerrainTags tag = m_levelsArr[m_currentLevel].m_terrainTags[activeTerrain];
-		m_currentTerrain = tag;
+		if (m_currentTerrain != tag) {
+			m_oldTerrain = m_currentTerrain;
+			m_currentTerrain = tag;
+			m_skyBox.resetDelta();
+		}
 	}
 
 	// update stuff
