@@ -45,7 +45,7 @@ void Fruit::enforceOverTerrain() {
 		//		m_position.y - TerrainManager::getInstance()->getHeightFromPosition(m_position)));
 
 		m_position.y = TerrainManager::getInstance()->getHeightFromPosition(m_position) +
-					   getHalfSizesAnimated().y / 2.f;
+					   abs(getHalfSizesAnimated().y / 2);
 	}
 }
 

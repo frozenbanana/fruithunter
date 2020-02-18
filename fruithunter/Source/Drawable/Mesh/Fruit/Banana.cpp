@@ -16,65 +16,60 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 
 void Banana::behaviorPassive(float3 playerPosition) {
 	ErrorLogger::log("Banana:: Doing Passive.");
-	// if far away from world home go back
-	if (withinDistanceTo(m_worldHome, 2.0f)) {
-		float3 toHome = m_worldHome - m_position;
-		toHome.Normalize();
-		toHome.y = 1.0f;
-		jump(toHome, 3.0f);
-	}
+	TerrainManager* terrainManger = TerrainManager::getInstance();
+	float terrainHeight = terrainManger->getHeightFromPosition(m_position);
+	// Only decide what to do on ground
+	if (atOrUnder(terrainHeight)) {
+		float3 direction = float3(0.f);
+		if (!withinDistanceTo(m_worldHome, 0.75f)) {
+			float3 toHome = m_worldHome - m_position;
+			toHome.Normalize();
+			toHome.y = 1.0f;
+			direction = toHome;
+		}
+		else {
+			float3 terrainNormal = terrainManger->getNormalFromPosition(m_position);
+			terrainNormal.Normalize();
+			direction = terrainNormal;
+		}
+		jump(direction, 4.0f);
 
-	if (atOrUnder(0.2f)) {
-		float3 terrainNormal = TerrainManager::getInstance()->getNormalFromPosition(m_position);
-		terrainNormal.Normalize();
-		jump(terrainNormal, 5.0);
-	}
-
-	if (withinDistanceTo(playerPosition, 5.0f)) {
-		changeState(ACTIVE);
+		if (withinDistanceTo(playerPosition, 5.0f)) {
+			changeState(ACTIVE);
+		}
 	}
 }
 
 void Banana::behaviorActive(float3 playerPosition) {
 	ErrorLogger::log("Banana:: Doing active.");
+	TerrainManager* terrainManger = TerrainManager::getInstance();
+	float terrainHeight = terrainManger->getHeightFromPosition(m_position);
+	// Only decide what to do on ground
+	if (atOrUnder(terrainHeight)) {
+		float3 terrainNormal = terrainManger->getNormalFromPosition(m_position);
+		// Go bananas!
+		terrainNormal.x += 0.1f * (float)(rand() % 1) - 0.5f;
+		terrainNormal.z += 0.1f * (float)(rand() % 1) - 0.5f;
+		terrainNormal.y = 1.0f;
+		jump(terrainNormal, 3.0f);
 
-	if (atOrUnder(0.2f)) {
-		float3 terrainNormal = float3(0.0, 1.0f, 0.0);
-		terrainNormal.x = (float)(rand() % 4);
-		terrainNormal.z = (float)(rand() % 4);
-		terrainNormal.Normalize();
-		jump(terrainNormal, 5.0);
-	}
-
-	if (withinDistanceTo(playerPosition, 8.0f)) {
-		changeState(PASSIVE);
+		if (!withinDistanceTo(playerPosition, 5.0f)) {
+			changeState(PASSIVE);
+		}
 	}
 }
 void Banana::behaviorCaught(float3 playerPosition) {
 	ErrorLogger::log("Banana:: Doing caught.");
-	if (atOrUnder(0.2f)) {
+	TerrainManager* terrainManger = TerrainManager::getInstance();
+	float terrainHeight = terrainManger->getHeightFromPosition(m_position);
+
+	if (atOrUnder(terrainHeight)) {
 		float3 toPlayer = playerPosition - m_position;
 		toPlayer.Normalize();
 		toPlayer.y = 1.0f;
 		jump(toPlayer, 3.0f);
 	}
 }
-//
-// void Banana::move(float dt) {
-//	m_directionalVelocity += m_acceleration * dt * dt / 2.0f;
-//	m_position += m_directionalVelocity * dt;
-//	m_startAnimationPosition = m_position;
-//	m_destinationAnimationPosition = m_position;
-//	enforceOverTerrain();
-//	setPosition(m_position);
-//}
-
-// void Banana::setJump() {}
-// void Banana::update(float dt, Vector3 playerPosition) {
-//	doBehavior(playerPosition);
-//	updateAnimated(dt);
-//	move(dt);
-//}
 
 void Banana::updateAnimated(float dt) {
 	switch (m_state) {
