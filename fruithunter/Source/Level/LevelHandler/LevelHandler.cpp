@@ -77,6 +77,31 @@ void LevelHandler::loadLevel(int levelNr) {
 
 		m_currentTerrain = currentLevel.m_terrainTags[m_terrainManager->getTerrainIndexFromPosition(
 			currentLevel.m_playerStartPos)];
+
+		// temp
+		shared_ptr<Entity> newEntity = make_shared<Entity>();
+		newEntity->load("Smelter");
+		newEntity->setScale(1);
+		newEntity->setPosition(float3(10.f, 0.f, 10.f));
+		newEntity->setCollisionDataOBB();
+		m_collidableEntities.push_back(newEntity);
+		newEntity = make_shared<Entity>();
+		newEntity->load("Cube");
+		newEntity->setScale(0.4);
+		newEntity->setPosition(float3(10.f, 0.f, 13.f));
+		newEntity->setCollisionDataOBB();
+		m_collidableEntities.push_back(newEntity);
+
+		newEntity = make_shared<Entity>();
+		newEntity->load("Cube");
+		newEntity->setScale(1);
+		newEntity->setPosition(float3(10.f, 0.f, 15.f));
+		newEntity->setCollisionDataOBB();
+		m_collidableEntities.push_back(newEntity);
+
+		m_entity.load("Sphere");
+		m_entity.setScale(0.1f);
+		m_entity.setPosition(float3(-2.f));
 	}
 }
 
@@ -87,6 +112,11 @@ void LevelHandler::draw() {
 	}
 	m_terrainManager->draw();
 	m_skyBox.draw();
+
+	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
+		m_collidableEntities[i]->draw();
+	}
+	m_entity.draw();
 }
 
 void LevelHandler::update(float dt) {
@@ -106,7 +136,7 @@ void LevelHandler::update(float dt) {
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->update(dt, playerPos);
 		m_fruits[i]->updateAnimated(dt);
-		if (m_player.getArrow().checkCollision(*m_fruits[i])) {
+		if (m_player.getArrow().checkCollision(*m_fruits[i])) { // temp
 			m_fruits[i]->setPosition(float3(0.f));
 			m_player.getArrow().setPosition(float3(-10.f));
 		}
@@ -114,6 +144,18 @@ void LevelHandler::update(float dt) {
 			1.0f) { // If the fruit is close to the player get picked up
 			pickUpFruit(m_fruits[i].get()->getFruitType());
 			m_fruits.erase(m_fruits.begin() + i);
+		}
+	}
+
+	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
+		m_player.collideObject(*m_collidableEntities[i]);
+	}
+
+	for (int i = 0; i < 3; ++i) {
+		float t =
+			m_collidableEntities[i]->castRay(m_player.getCameraPosition(), m_player.getForward());
+		if (t != -1) {
+			m_entity.setPosition(m_player.getCameraPosition() + t * m_player.getForward() * 0.9);
 		}
 	}
 }

@@ -70,8 +70,10 @@ public:
 
 	// Collisions
 	bool checkCollision(Entity& other);
+	bool checkCollision(EntityCollision& other);
 	void setCollisionData(float3 point, float radius);
 	void setCollisionData(float3 point, float3 halfSizes);
+	void setCollisionDataOBB();
 	float3 getHalfSizes() const;
 	float3 getHalfSizesAnimated() const;
 

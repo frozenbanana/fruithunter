@@ -40,7 +40,7 @@ private:
 	Entity m_entity;
 	SkyBox m_skyBox;
 	size_t m_inventory[NR_OF_FRUITS]; // APPLE 0, BANANA 1, MELON 2
-
+	vector<shared_ptr<Entity>> m_collidableEntities;
 
 	int m_currentLevel = -1;
 	Level::TerrainTags m_currentTerrain = Level::TerrainTags::Forest;
