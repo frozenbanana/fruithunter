@@ -39,7 +39,7 @@ void LevelHandler::initialise() {
 	level0.m_heightMapScales.push_back(float3(1, 0.10, 1) * 100);
 
 	vector<string> maps(4);
-	maps[0] = "texture_rock8_1jpg"; // flat
+	maps[0] = "texture_rock8.jpg"; // flat
 	maps[1] = "texture_lava1.jpg"; // low flat
 	maps[2] = "texture_rock2.jpg"; // tilt
 	maps[3] = "texture_rock2.jpg"; // low tilt
