@@ -44,7 +44,7 @@ void LevelHandler::initialise() {
 	maps[2] = "texture_rock2.jpg"; // tilt
 	maps[3] = "texture_rock2.jpg"; // low tilt
 	level0.m_heightmapTextures.push_back(maps);
-	maps[0] = "texture_grass2_1.jpg";
+	maps[0] = "texture_grass3.jpg";
 	maps[1] = "texture_sand1.jpg";
 	maps[2] = "texture_mossyRock.jpg";
 	maps[3] = "texture_mossyRock.jpg";
