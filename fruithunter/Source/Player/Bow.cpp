@@ -1,9 +1,12 @@
 #include "Bow.h"
+#define ARM_LENGTH 0.55f
+#define OFFSET_RIGHT 0.37f
+#define OFFSET_UP -0.1f
+#define BOW_ANGLE XM_PI / 8.0f
 
 Bow::Bow() {
 	m_bow.loadAnimated("Bow", 3);
 	m_bow.setScale(0.2f);
-
 	m_arrow.load("Arrow");
 	m_arrow.setScale(float3(0.2f, 0.2f, m_arrowLength));
 	m_arrow.setCollisionData(m_arrow.getPosition(), m_arrow.getHalfSizes());
@@ -12,9 +15,14 @@ Bow::Bow() {
 Bow::~Bow() {}
 
 void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 playerRight) {
+	m_bow.setRotationByAxis(playerForward, BOW_ANGLE * m_aimMovement);
+
 	// Set bow position based on player position and direction.
-	m_bow.setPosition(
-		playerPos + playerForward * m_armLength + playerRight * 0.5f * (1.0f - m_aimMovement));
+	float3 playerUp = playerForward.Cross(playerRight);
+	m_bow.setPosition(playerPos + playerForward * ARM_LENGTH +
+					  playerRight * OFFSET_RIGHT * m_aimMovement +
+					  playerUp * OFFSET_UP * m_aimMovement);
+
 
 	// Bow animation.
 	if (m_charging) {
@@ -53,12 +61,12 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 
 	// Move bow towards the center while aiming.
 	if (m_aiming) {
-		if (m_aimMovement < 0.9f)
-			m_aimMovement += dt * 4.0f;
+		if (m_aimMovement > 0.1f)
+			m_aimMovement -= dt * 4.0f;
 	}
 	else {
-		if (m_aimMovement > 0.0f)
-			m_aimMovement -= dt * 4.0f;
+		if (m_aimMovement < 1.0f)
+			m_aimMovement += dt * 4.0f;
 	}
 
 	m_aiming = false;
@@ -74,7 +82,7 @@ void Bow::rotate(float pitch, float yaw) { m_bow.setRotation(float3(pitch, yaw, 
 void Bow::aim() { m_aiming = true; }
 
 void Bow::release() { // Stops charging
-	if (m_aimMovement < 0.1f) {
+	if (m_aimMovement > 0.8f) {
 		m_charging = false;
 		m_chargeReset = false;
 	}

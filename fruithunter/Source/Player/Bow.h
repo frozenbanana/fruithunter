@@ -27,8 +27,7 @@ private:
 	bool m_shooting = false;
 	bool m_chargeReset = true;
 
-	float m_armLength = 0.75f;
-	float m_aimMovement = 0.0f;
+	float m_aimMovement = 1.0f; // moves bow from right (1.) to middle (0.)
 
 	float m_drawFactor = 0.0f;
 	float m_bowMass = 1.4f;
