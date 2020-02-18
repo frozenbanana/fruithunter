@@ -2,11 +2,15 @@
 #include "Renderer.h"
 #include "Errorlogger.h"
 
-Player::Player() { initialize(); }
+Player::Player() {}
 
 Player::~Player() {}
 
-void Player::initialize() { m_camera.setView(m_position, m_playerForward, float3(0.0, 1.0, 0.0)); }
+void Player::initialize() {
+	m_position = float3(0.0f, 0.0f, -4.0f);
+	m_velocity = float3(0.0f, 0.0f, 0.0f);
+	m_playerForward = DEFAULTFORWARD;
+}
 
 void Player::update(float dt, Terrain* terrain) {
 	Input* ip = Input::getInstance();

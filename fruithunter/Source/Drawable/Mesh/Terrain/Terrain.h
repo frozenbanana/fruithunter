@@ -96,6 +96,7 @@ public:
 
 	bool pointInsideTerrainBoundingBox(float3 point);
 	float getHeightFromPosition(float x, float z);
+	float getHeightFromPosition(float3 pos);
 	float3 getNormalFromPosition(float x, float z);
 	float castRay(float3 point, float3 direction);
 

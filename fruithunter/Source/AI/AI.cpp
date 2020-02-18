@@ -1,9 +1,12 @@
 #include "AI.h"
 #include <algorithm>
+#define STEP_SCALE 1.
 
 void AI::setWorld(std::shared_ptr<Terrain> terrain) { m_terrain = terrain; }
 
 void AI::pathfinding(float3 start, float3 end) {
+	start.y = 0.f;
+	end.y = 0.f;
 	ErrorLogger::log("Inside pathfinding");
 	AI::Node currentNode;
 	std::vector<AI::Node> open, closed;
@@ -14,7 +17,6 @@ void AI::pathfinding(float3 start, float3 end) {
 	open.push_back(AI::Node(start, start, end));
 
 	while (!open.empty()) {
-		// ErrorLogger::log("Inside while loop");
 		std::sort(open.begin(), open.end(),
 			[](const AI::Node& n1, const AI::Node& n2) -> bool { return n1.f > n2.f; });
 
@@ -26,7 +28,8 @@ void AI::pathfinding(float3 start, float3 end) {
 						 " , " + std::to_string(closed.back().position.y) + " , " +
 						 std::to_string(closed.back().position.z) + "), end: (" +
 						 std::to_string(end.x) + " , " + std::to_string(end.y) + " , " +
-						 std::to_string(end.z) + ")");
+						 std::to_string(end.z) + "), " +
+						 std::to_string((closed.back().position - end).Length()));
 		// ErrorLogger::log("open[0-3]:  (" +   std::to_string(open[0].x) + " , " +
 		//									 std::to_string(open[0].y) + " , " +
 		//									 std::to_string(open[0].z) + "), , (" +
@@ -38,7 +41,7 @@ void AI::pathfinding(float3 start, float3 end) {
 		// std::to_string(open[2].z)
 		//+));
 
-		if ((closed.back().position - end).Length() < 3.0f) {
+		if ((closed.back().position - end).Length() < 1.4f) {
 			m_availablePath.clear(); // Reset path
 			// Add path steps
 			while (!closed.empty()) {
@@ -48,7 +51,7 @@ void AI::pathfinding(float3 start, float3 end) {
 			ErrorLogger::log(
 				"Path found! Amout of steps: " + std::to_string(m_availablePath.size()));
 
-			ErrorLogger::log(std::to_string(m_availablePath.front().x));
+			/*ErrorLogger::log(std::to_string(m_availablePath.front().x));*/
 			return;
 		}
 
@@ -64,14 +67,12 @@ void AI::pathfinding(float3 start, float3 end) {
 			// E.g object detection from grid
 
 			// Create child AI::Node
-			float3 childPosition = currentNode.position + childOffset;
+			float3 childPosition = currentNode.position + STEP_SCALE * childOffset;
 			AI::Node child = AI::Node(childPosition, start, end);
-			// ErrorLogger::log("Checking if child inside closed list");
 			// Check is child is in closed
 			if (std::find(closed.begin(), closed.end(), child) != closed.end()) {
 				continue;
 			}
-			// ErrorLogger::log("Checking if child inside open list");
 
 			// Check is child is in open
 			if (std::find(open.begin(), open.end(), child) != open.end()) {
@@ -79,7 +80,6 @@ void AI::pathfinding(float3 start, float3 end) {
 			}
 
 			// Add child to open
-			// ErrorLogger::log("Adding child to open list");
 			open.push_back(child);
 		}
 	}
@@ -87,3 +87,19 @@ void AI::pathfinding(float3 start, float3 end) {
 }
 
 void AI::changeState(State newState) { m_currentState = newState; }
+
+AI::State AI::getState() const { return m_currentState; }
+
+void AI::doBehavior(float3 playerPosition) {
+	switch (m_currentState) {
+	case PASSIVE:
+		behaviorPassive(playerPosition);
+		break;
+	case ACTIVE:
+		behaviorActive(playerPosition);
+		break;
+	case CAUGHT:
+		behaviorCaught(playerPosition);
+		break;
+	}
+}
