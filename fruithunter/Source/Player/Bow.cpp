@@ -1,4 +1,5 @@
 #include "Bow.h"
+#include "TerrainManager.h"
 #define ARM_LENGTH 0.55f
 #define OFFSET_RIGHT 0.37f
 #define OFFSET_UP -0.1f
