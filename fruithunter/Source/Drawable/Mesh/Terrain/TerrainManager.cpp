@@ -22,10 +22,10 @@ Terrain* TerrainManager::getTerrainFromPosition(float3 position) {
 	return nullptr;
 }
 
-int TerrainManager::getTerrainIndexFromPosition(float3 position) { 
+int TerrainManager::getTerrainIndexFromPosition(float3 position) {
 	for (size_t i = 0; i < m_terrains.size(); i++) {
 		if (m_terrains[i].pointInsideTerrainBoundingBox(position)) {
-			return i;
+			return (int)i;
 		}
 	}
 	return -1;
