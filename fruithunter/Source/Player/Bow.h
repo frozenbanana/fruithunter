@@ -43,6 +43,7 @@ private:
 	// for arrow return
 	float m_arrowReturnTimer = 0.f;
 	float m_arrowTimeBeforeReturn = 1.5f;
+	bool m_arrowHitObject = false;
 
 	void arrowPhysics(float dt, float3 windVector);
 	void calcArea(float3 relativeWindVector);
