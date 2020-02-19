@@ -7,9 +7,8 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	m_rollSpeed = 5.f;
 	m_fruitType = MELON;
 
-	setCollisionData(getPosition(),
-		m_meshAnim.getBoundingBoxHalfSizes().y); // sets to sphere with radius same as y halfsize;
 	setScale(0.5);
+	setCollisionDataSphere();
 	changeState(AI::State::PASSIVE);
 	setStartPosition(pos);
 	ErrorLogger::log("Melon:: going to second home");

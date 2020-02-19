@@ -330,12 +330,6 @@ float3 Mesh::getBoundingBoxHalfSizes() const {
 		(m_MinMaxZPosition.y - m_MinMaxZPosition.x) * 0.5f);
 }
 
-void Mesh::scaleBoundingBoxHalfSizes(float3 scale) {
-	m_MinMaxXPosition *= scale.x;
-	m_MinMaxYPosition *= scale.y;
-	m_MinMaxZPosition *= scale.z;
-	m_minmaxChanged = true;
-}
 
 Mesh::Mesh(std::string OBJFile) {
 	D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = {

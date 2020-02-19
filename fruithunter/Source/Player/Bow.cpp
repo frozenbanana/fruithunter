@@ -10,7 +10,7 @@ Bow::Bow() {
 	m_bow.setScale(0.2f);
 	m_arrow.load("Arrow");
 	m_arrow.setScale(float3(0.2f, 0.2f, m_arrowLength));
-	m_arrow.setCollisionData(m_arrow.getPosition(), m_arrow.getHalfSizes());
+	m_arrow.setCollisionDataOBB();
 }
 
 Bow::~Bow() {}

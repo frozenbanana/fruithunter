@@ -151,9 +151,6 @@ bool Animated::load(std::string filename, int nrOfFrames, bool combineParts) {
 	return allClear;
 }
 
-void Animated::scaleBoundingBoxHalfSizes(float3 scale) {
-	if (m_meshes[0].get() != nullptr)
-		m_meshes[0]->scaleBoundingBoxHalfSizes(scale);
-}
-
 float3 Animated::getBoundingBoxHalfSizes() const { return m_meshes[0]->getBoundingBoxHalfSizes(); }
+
+float3 Animated::getBoundingBoxPos() const { return m_meshes[0]->getBoundingBoxPos(); }
