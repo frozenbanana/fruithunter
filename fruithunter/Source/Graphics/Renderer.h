@@ -17,6 +17,7 @@ public:
 	void bindBackAndDepthBuffer();
 	void clearDepth();
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthDSV;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthDSS;
 
 	void bindEverything();
 
@@ -26,6 +27,7 @@ private:
 	void createDevice(HWND window);
 	void createRenderTarget();
 	void createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd);
+	void createDepthState();
 	static Renderer m_this;
 	bool m_isLoaded = false;
 
