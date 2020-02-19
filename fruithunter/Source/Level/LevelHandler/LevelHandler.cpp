@@ -10,15 +10,15 @@ void LevelHandler::initialise() {
 	m_player.initialize();
 	m_terrainManager = TerrainManager::getInstance();
 	Level level0;
-	level0.m_terrainTags.push_back(Level::TerrainTags::Volcano);
 	level0.m_terrainTags.push_back(Level::TerrainTags::Forest);
 	level0.m_terrainTags.push_back(Level::TerrainTags::Desert);
 	level0.m_terrainTags.push_back(Level::TerrainTags::Plains);
+	level0.m_terrainTags.push_back(Level::TerrainTags::Volcano);
 
-	level0.m_heightMapNames.push_back("VolcanoMap.png");
 	level0.m_heightMapNames.push_back("ForestMap.png");
 	level0.m_heightMapNames.push_back("DesertMap.png");
 	level0.m_heightMapNames.push_back("PlainMap.png");
+	level0.m_heightMapNames.push_back("VolcanoMap.png");
 
 	level0.m_heightMapPos.push_back(float3(100.f, 0.f, 100.f));
 	level0.m_heightMapPos.push_back(float3(0.f, 0.f, 0.f));
@@ -35,17 +35,12 @@ void LevelHandler::initialise() {
 	level0.m_heightMapDivision.push_back(XMINT2(5, 5));
 	level0.m_heightMapDivision.push_back(XMINT2(5, 5));
 
-	level0.m_heightMapScales.push_back(float3(1, 0.20, 1) * 100);
-	level0.m_heightMapScales.push_back(float3(1, 0.15, 1) * 100);
-	level0.m_heightMapScales.push_back(float3(1, 0.20, 1) * 100);
-	level0.m_heightMapScales.push_back(float3(1, 0.10, 1) * 100);
+	level0.m_heightMapScales.push_back(float3(1, 0.20, 1) * 100.0f);
+	level0.m_heightMapScales.push_back(float3(1, 0.15, 1) * 100.0f);
+	level0.m_heightMapScales.push_back(float3(1, 0.20, 1) * 100.0f);
+	level0.m_heightMapScales.push_back(float3(1, 0.10, 1) * 100.0f);
 
 	vector<string> maps(4);
-	maps[0] = "texture_rock8.jpg"; // flat
-	maps[1] = "texture_lava1.jpg"; // low flat
-	maps[2] = "texture_rock2.jpg"; // tilt
-	maps[3] = "texture_rock2.jpg"; // low tilt
-	level0.m_heightmapTextures.push_back(maps);
 	maps[0] = "texture_grass3.jpg";
 	maps[1] = "texture_sand1.jpg";
 	maps[2] = "texture_mossyRock.jpg";
@@ -61,12 +56,17 @@ void LevelHandler::initialise() {
 	maps[2] = "texture_rock6.jpg";
 	maps[3] = "texture_rock6.jpg";
 	level0.m_heightmapTextures.push_back(maps);
+	maps[0] = "texture_rock8.jpg"; // flat
+	maps[1] = "texture_lava1.jpg"; // low flat
+	maps[2] = "texture_rock2.jpg"; // tilt
+	maps[3] = "texture_rock2.jpg"; // low tilt
+	level0.m_heightmapTextures.push_back(maps);
 
 	level0.m_nrOfFruits[APPLE] = 1;
-	level0.m_nrOfFruits[BANANA] = 1;
-	level0.m_nrOfFruits[MELON] = 0;
+	level0.m_nrOfFruits[BANANA] = 125;
+	level0.m_nrOfFruits[MELON] = 1;
 
-	level0.m_playerStartPos = float3(50.f, 0.0f, 50.f);
+	level0.m_playerStartPos = float3(115.f, 0.0f, 115.f);
 
 	level0.m_fruitPos[APPLE] = float3(9.0f, 0.0f, 6.0f);
 	level0.m_fruitPos[BANANA] = float3(7.0f, 0.0f, 7.0f);
@@ -88,15 +88,17 @@ void LevelHandler::loadLevel(int levelNr) {
 		}
 
 		for (int i = 0; i < currentLevel.m_nrOfFruits[APPLE]; i++) {
-			shared_ptr<Apple> apple = make_shared<Apple>(currentLevel.m_fruitPos[APPLE]);
+			shared_ptr<Apple> apple = make_shared<Apple>(m_terrainManager->getSpawnpoint(Level::Forest));
 			m_fruits.push_back(apple);
 		}
 		for (int i = 0; i < currentLevel.m_nrOfFruits[BANANA]; i++) {
-			shared_ptr<Banana> banana = make_shared<Banana>(currentLevel.m_fruitPos[BANANA]);
+			shared_ptr<Banana> banana =
+				make_shared<Banana>(m_terrainManager->getSpawnpoint(Level::Forest));
 			m_fruits.push_back(banana);
 		}
 		for (int i = 0; i < currentLevel.m_nrOfFruits[MELON]; i++) {
-			shared_ptr<Melon> melon = make_shared<Melon>(currentLevel.m_fruitPos[MELON]);
+			shared_ptr<Melon> melon =
+				make_shared<Melon>(m_terrainManager->getSpawnpoint(Level::Forest));
 			m_fruits.push_back(melon);
 		}
 
@@ -149,6 +151,8 @@ void LevelHandler::update(float dt) {
 			m_fruits.erase(m_fruits.begin() + i);
 		}
 	}
+
+	ErrorLogger::logFloat3("Banana is where? Banana is here",m_fruits[1].get()->getPosition());
 }
 
 void LevelHandler::pickUpFruit(int fruitType) { m_inventory[fruitType]++; }

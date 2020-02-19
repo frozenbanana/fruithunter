@@ -104,27 +104,31 @@ float Terrain::sampleHeightmap(float2 uv) {
 
 	float v = 0;
 	if (m_heightmapDescription.Format == DXGI_FORMAT_R8_UNORM) {
-		unsigned char d =
+		unsigned char r =
 			((unsigned char*)
 					m_heightmapMappedData.pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x];
-		v = (float)d / (pow(2.f, 1.f * 8.f) - 1.f);
+		v = (float)r / (pow(2.f, 1.f * 8.f) - 1.f);
 	}
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R8G8B8A8_UNORM) {
-		unsigned char d = ((unsigned char*)m_heightmapMappedData
+		unsigned char r = ((unsigned char*)m_heightmapMappedData
 							   .pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
-		v = (float)d / (pow(2.f, 1.f * 8.f) - 1.f);
+		v = (float)r / (pow(2.f, 1.f * 8.f) - 1.f);
 	}
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R8G8B8A8_UNORM_SRGB) {
-		unsigned char d = ((unsigned char*)m_heightmapMappedData
+		unsigned char r = ((unsigned char*)m_heightmapMappedData
 							   .pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
-		v = (float)d / (pow(2.f, 1.f * 8.f) - 1.f);
+		unsigned char g = ((unsigned char*)m_heightmapMappedData
+							   .pData)[(iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4)+1];
+		if ((float)g > 0.0f)
+			m_spawnPoint.push_back(float2(iUV.x, iUV.y));
+		v = (float)r / 255.f;
 	}
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R16G16B16A16_UNORM) {
-		unsigned short int d =
+		unsigned short int r =
 			((unsigned short int*)m_heightmapMappedData
 					.pData)[iUV.y * (m_heightmapMappedData.RowPitch / sizeof(short int)) +
 							iUV.x * 4];
-		v = (float)d / (pow(2.f, sizeof(short int) * 8.f) - 1.f);
+		v = (float)r / (pow(2.f, sizeof(short int) * 8.f) - 1.f);
 	}
 	return v;
 }
@@ -337,6 +341,16 @@ void Terrain::tileRayIntersectionTest(
 	float t2 = triangleTest(point, direction, triangles[3], triangles[4], triangles[5]);
 	if ((t2 > 0.f) && (minL == -1 || t2 < minL)) {
 		minL = t2;
+	}
+}
+
+float3 Terrain::getRandomSpawnPoint() { 
+	if (m_spawnPoint.size() > 0) {
+		size_t random = rand() % m_spawnPoint.size();
+		float3 spawnPoint = float3(m_spawnPoint[random].x, 0.0f, m_spawnPoint[random].y);
+		spawnPoint = (spawnPoint / 10) + m_position;
+		spawnPoint.y = getHeightFromPosition(spawnPoint.x, spawnPoint.z);
+		return spawnPoint;
 	}
 }
 

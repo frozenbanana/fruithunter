@@ -68,3 +68,7 @@ void TerrainManager::draw() {
 		m_terrains[i].draw();
 	}
 }
+
+float3 TerrainManager::getSpawnpoint(int terrainType) {
+	return m_terrains[terrainType].getRandomSpawnPoint();
+}

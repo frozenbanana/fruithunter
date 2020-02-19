@@ -68,6 +68,9 @@ private:
 	//Sampler description
 	static Microsoft::WRL::ComPtr<ID3D11SamplerState> m_sampler;
 
+	//Spawn point
+	vector<float2> m_spawnPoint;
+
 	//	--Functions--
 
 	// buffers
@@ -98,6 +101,11 @@ private:
 	}
 
 public:
+	// Spawn point
+	float3 getRandomSpawnPoint();
+
+	//Other stuff
+
 	static float obbTest(float3 rayOrigin, float3 rayDir, float3 boxPos, float3 boxScale);
 	static float triangleTest(
 		float3 rayOrigin, float3 rayDir, float3 tri0, float3 tri1, float3 tri2);
