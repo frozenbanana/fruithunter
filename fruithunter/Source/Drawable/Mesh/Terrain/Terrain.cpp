@@ -561,7 +561,7 @@ float Terrain::castRay(float3 point, float3 direction) {
 			vector<float> ts;					   // sorted intersection time array
 			ts.reserve(changeInX + changeInY + 2); //+2 for start and end point
 			// sort largest first
-			ts.push_back((end - start).Length() / tilt.Length());
+			ts.push_back(1);
 			while (tsX.size() > 0 || tsY.size() > 0) {
 				if (tsX.size() > 0 && tsY.size() > 0) {
 					if (tsX.back() < tsY.back()) {
