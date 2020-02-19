@@ -28,9 +28,6 @@
     <FxCompile Include="Source\Graphics\Shaders\VertexShader_model_onlyMesh.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Source\Graphics\Shaders\VertexShader_terrain.hlsl">
-      <Filter>Source\Graphics\Shaders</Filter>
-    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp">
