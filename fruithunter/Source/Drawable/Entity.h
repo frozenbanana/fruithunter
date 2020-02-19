@@ -71,11 +71,13 @@ public:
 	// Collisions
 	bool checkCollision(Entity& other);
 	bool checkCollision(EntityCollision& other);
-	void setCollisionData(float3 point, float radius);
-	void setCollisionData(float3 point, float3 halfSizes);
+	void setCollisionData(float3 point, float3 posOffset, float3 scale, float radius);
+	void setCollisionData(float3 point, float3 posOffset, float3 scale, float3 halfSizes);
 	void setCollisionDataOBB();
+	void setCollisionDataSphere(); // Sets with radius as boundingbox size Y
 	float3 getHalfSizes() const;
-	float3 getHalfSizesAnimated() const;
+	float3 getBoundingBoxPos() const;
+	int getCollisionType() const;
 
 	Entity(string meshName = "", float3 position = float3(0, 0, 0),
 		float3 rotation = float3(0, 0, 0), float3 scale = float3(1, 1, 1));

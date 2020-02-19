@@ -210,15 +210,16 @@ void Player::collideObject(Entity& obj) {
 	// Check
 	// oeoepeoe
 	float radius = 0.2;
-	float stepHeight = 1.6f; // height able to simply step over
-	EntityCollision feet(m_position + float3(0.f, radius, 0.f), radius);
-	EntityCollision hip(m_position + float3(0.f, stepHeight + radius, 0.f), radius);
+	float stepHeight = 0.45f; // height able to simply step over
+	EntityCollision feet(m_position + float3(0.f, radius, 0.f), float3(0.f), float3(1.f), radius);
+	EntityCollision hip(m_position + float3(0.f, stepHeight + radius * 2, 0.f), float3(0.f),
+		float3(1.f), radius * 2);
 
 	if (obj.checkCollision(hip)) { // bump into
 		float3 objToPlayer = m_position - obj.getPosition();
 		if (objToPlayer.Dot(m_velocity) < 0) {
 			objToPlayer.Normalize();
-			// float3 tangentObj = float3::Up.Cross(objToPlayer);
+			float3 tangentObj = float3::Up.Cross(objToPlayer);
 			float3 reflection = float3::Reflect(m_velocity, objToPlayer);
 			reflection.y = m_velocity.y;
 			m_velocity += reflection;
@@ -226,11 +227,16 @@ void Player::collideObject(Entity& obj) {
 		}
 	}
 	else if (obj.checkCollision(feet)) { // walk on/to
-		if (m_velocity.y < 0) {
+		if (m_velocity.y <= 0) {
 			m_velocity.y = 0;
 			m_onGround = true;
 			m_onEntity = true;
-			// stepHeight = 01.1f; // height able to simply step over
+			if (obj.getCollisionType() == EntityCollision::ctOBB)
+				m_position.y =
+					obj.getBoundingBoxPos().y + obj.getHalfSizes().y * obj.getScale().y - 0.01f;
+
+
+			// I we fix castray
 			// float cast =
 			//	obj.castRay(m_position + float3(0.f, stepHeight, 0.f), float3(0.01, -1, 0.01));
 			// if (cast != -1) {

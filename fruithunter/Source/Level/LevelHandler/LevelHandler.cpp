@@ -93,10 +93,10 @@ void LevelHandler::loadLevel(int levelNr) {
 		m_collidableEntities.push_back(newEntity);
 
 		newEntity = make_shared<Entity>();
-		newEntity->load("Cube");
+		newEntity->load("Sphere");
 		newEntity->setScale(1);
 		newEntity->setPosition(float3(10.f, 0.f, 15.f));
-		newEntity->setCollisionDataOBB();
+		newEntity->setCollisionDataSphere();
 		m_collidableEntities.push_back(newEntity);
 
 		m_entity.load("Sphere");
@@ -138,7 +138,7 @@ void LevelHandler::update(float dt) {
 		m_fruits[i]->updateAnimated(dt);
 		if (m_player.getArrow().checkCollision(*m_fruits[i])) { // temp
 			m_fruits[i]->setPosition(float3(0.f));
-			m_player.getArrow().setPosition(float3(-10.f));
+			// m_player.getArrow().setPosition(float3(-10.f));
 		}
 		if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() <
 			1.0f) { // If the fruit is close to the player get picked up
@@ -150,11 +150,14 @@ void LevelHandler::update(float dt) {
 	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
 		m_player.collideObject(*m_collidableEntities[i]);
 	}
+	// m_player.collideObject(*m_collidableEntities[1]);
 
+	// castray sphere
 	for (int i = 0; i < 3; ++i) {
 		float t =
 			m_collidableEntities[i]->castRay(m_player.getCameraPosition(), m_player.getForward());
 		if (t != -1) {
+			float3 tem = m_collidableEntities[i]->getHalfSizes();
 			m_entity.setPosition(m_player.getCameraPosition() + t * m_player.getForward() * 0.9);
 		}
 	}

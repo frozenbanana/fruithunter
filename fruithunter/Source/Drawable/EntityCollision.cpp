@@ -2,7 +2,9 @@
 
 bool EntityCollision::collisionSphereSphere(SphereData* sphere1, SphereData* sphere2) {
 	float dist = (sphere1->m_point - sphere2->m_point).LengthSquared();
-	float radSum = pow(sphere1->m_radius + sphere2->m_radius, 2);
+	float radSum =
+		pow(sphere1->m_radius * sphere1->m_scale.y + sphere2->m_radius * sphere2->m_scale.y,
+			2); // Assume scale is uniform
 	return dist < radSum;
 }
 
@@ -28,8 +30,8 @@ bool EntityCollision::collisionOBBOBB(ObbData& a, ObbData& b) {
 	float be[3];
 	vecToArray(ac, a.m_point);
 	vecToArray(bc, b.m_point);
-	vecToArray(ae, a.m_halfSize);
-	vecToArray(be, b.m_halfSize);
+	vecToArray(ae, a.m_halfSize * a.m_scale); // element-wise multiplication
+	vecToArray(be, b.m_halfSize * b.m_scale);
 
 	// Compute rotation matrix expressing b in a’s coordinate frame
 	for (int i = 0; i < 3; i++)
@@ -128,28 +130,31 @@ bool EntityCollision::collisionOBBOBB(ObbData& a, ObbData& b) {
 
 bool EntityCollision::collisionSphereOBB(SphereData& sphere, ObbData& obb) {
 	float3 closestOnOBB = obb.closestPtPointOBB(sphere.m_point);
-	float distSq = (closestOnOBB - sphere.m_point).LengthSquared();
+	float distSq = (closestOnOBB - sphere.m_point * sphere.m_scale.y).LengthSquared();
 
 	return distSq < sphere.m_radius * sphere.m_radius;
 }
 
-EntityCollision::EntityCollision(float3 point, float radius) { setCollisionData(point, radius); }
+EntityCollision::EntityCollision(float3 point, float3 posOffset, float3 scale, float radius) {
+	setCollisionData(point, posOffset, scale, radius);
+}
 
-EntityCollision::EntityCollision(float3 point, float3 halfSizes) {
-	setCollisionData(point, halfSizes);
+EntityCollision::EntityCollision(float3 point, float3 posOffset, float3 scale, float3 halfSizes) {
+	setCollisionData(point, posOffset, scale, halfSizes);
 }
 
 EntityCollision::~EntityCollision() {}
 
 
-void EntityCollision::setCollisionData(float3 point, float radius) {
+void EntityCollision::setCollisionData(float3 point, float3 posOffset, float3 scale, float radius) {
 	m_collisionType = ctSphere;
-	m_collisionData = make_unique<SphereData>(point, radius);
+	m_collisionData = make_unique<SphereData>(point, posOffset, scale, radius);
 }
 
-void EntityCollision::setCollisionData(float3 point, float3 halfSize) {
+void EntityCollision::setCollisionData(
+	float3 point, float3 posOffset, float3 scale, float3 halfSize) {
 	m_collisionType = ctOBB;
-	m_collisionData = make_unique<ObbData>(point, halfSize);
+	m_collisionData = make_unique<ObbData>(point, posOffset, scale, halfSize);
 }
 
 void EntityCollision::rotateObbAxis(float4x4 matRotation) {
@@ -194,9 +199,17 @@ bool EntityCollision::collide(EntityCollision& other) {
 }
 
 void EntityCollision::setCollisionPosition(float3 pos) {
-	if (m_collisionData->m_point != pos)
-		m_collisionData->m_point = pos;
+	float3 newPos = pos + m_collisionData->m_posOffset;
+	if ((m_collisionData->m_point - newPos).LengthSquared() < 0.01)
+		m_collisionData->m_point = newPos;
 }
+
+void EntityCollision::setCollisionScale(float3 scale) {
+	if (m_collisionData->m_scale != scale)
+		m_collisionData->m_scale = scale;
+}
+
+int EntityCollision::getCollisionType() const { return m_collisionType; }
 
 // Returns point on OBB that is closest to a point
 float3 EntityCollision::ObbData::closestPtPointOBB(float3 point) {
@@ -204,7 +217,7 @@ float3 EntityCollision::ObbData::closestPtPointOBB(float3 point) {
 	// x = (P-C).dot(axis[0])
 	float3 vec = point - m_point;
 	float halfSize[3];
-	vecToArray(halfSize, m_halfSize);
+	vecToArray(halfSize, m_halfSize * m_scale);
 	float3 pointOnObb = m_point;
 
 	for (size_t i = 0; i < 3; ++i) {
