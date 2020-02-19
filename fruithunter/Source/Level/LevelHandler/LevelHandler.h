@@ -8,6 +8,7 @@
 #include "Banana.h"
 #include "Melon.h"
 #include "Player.h"
+#include "EntityRepository.h"
 
 #define LEVELS = 1;
 
@@ -21,6 +22,9 @@ struct Level {
 	std::vector<XMINT2> m_heightMapDivision;
 	std::vector<float3> m_heightMapScales;
 	std::vector<std::vector<string>> m_heightmapTextures;
+
+	//terrain props
+	string m_terrainPropsFilename;
 
 	// Fruits
 	int m_nrOfFruits[NR_OF_FRUITS];
@@ -39,6 +43,7 @@ private:
 	std::vector<shared_ptr<Fruit>> m_fruits;
 	Player m_player;
 	TerrainManager* m_terrainManager;
+	EntityRepository m_terrainProps;
 	Entity m_entity;
 	SkyBox m_skyBox;
 	size_t m_inventory[NR_OF_FRUITS]; // APPLE 0, BANANA 1, MELON 2
