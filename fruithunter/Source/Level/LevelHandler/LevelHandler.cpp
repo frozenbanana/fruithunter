@@ -16,10 +16,10 @@ void LevelHandler::initialise() {
 	level0.m_terrainTags.push_back(Level::TerrainTags::Volcano);
 	level0.m_terrainTags.push_back(Level::TerrainTags::Plains);
 
-	level0.m_heightMapNames.push_back("heightmap3.jpg");
-	level0.m_heightMapNames.push_back("heightmap3.jpg");
-	level0.m_heightMapNames.push_back("heightmap3.jpg");
-	level0.m_heightMapNames.push_back("heightmap3.jpg");
+	level0.m_heightMapNames.push_back("flatmap.jpg");
+	level0.m_heightMapNames.push_back("flatmap.jpg");
+	level0.m_heightMapNames.push_back("flatmap.jpg");
+	level0.m_heightMapNames.push_back("flatmap.jpg");
 
 	level0.m_heightMapPos.push_back(float3(0.f, 0.f, 0.f));
 	level0.m_heightMapPos.push_back(float3(10.f, 0.f, 0.f));

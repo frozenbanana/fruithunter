@@ -1,7 +1,7 @@
 #pragma once
 #include "GlobalNamespaces.h"
-#include "Terrain.h"
-//#include"Player.h"
+#include "TerrainManager.h"
+#include "Player.h"
 
 class AI {
 public:

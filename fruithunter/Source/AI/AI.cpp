@@ -1,12 +1,15 @@
 #include "AI.h"
 #include <algorithm>
-#define STEP_SCALE 1.
+#include "Fruit.h"
+#define STEP_SCALE 1.f
+#define MAX_STEAPNESS 5.f
 
 void AI::setWorld(std::shared_ptr<Terrain> terrain) { m_terrain = terrain; }
 
 void AI::pathfinding(float3 start, float3 end) {
 	start.y = 0.f;
 	end.y = 0.f;
+	TerrainManager* tm = TerrainManager::getInstance();
 	ErrorLogger::log("Inside pathfinding");
 	AI::Node currentNode;
 	std::vector<AI::Node> open, closed;
@@ -24,12 +27,12 @@ void AI::pathfinding(float3 start, float3 end) {
 		open.pop_back();
 
 		// Check if path is complete
-		ErrorLogger::log("closed.back().position:  (" + std::to_string(closed.back().position.x) +
+		/*ErrorLogger::log("closed.back().position:  (" + std::to_string(closed.back().position.x) +
 						 " , " + std::to_string(closed.back().position.y) + " , " +
 						 std::to_string(closed.back().position.z) + "), end: (" +
 						 std::to_string(end.x) + " , " + std::to_string(end.y) + " , " +
 						 std::to_string(end.z) + "), " +
-						 std::to_string((closed.back().position - end).Length()));
+						 std::to_string((closed.back().position - end).Length()));*/
 		// ErrorLogger::log("open[0-3]:  (" +   std::to_string(open[0].x) + " , " +
 		//									 std::to_string(open[0].y) + " , " +
 		//									 std::to_string(open[0].z) + "), , (" +
@@ -68,6 +71,15 @@ void AI::pathfinding(float3 start, float3 end) {
 
 			// Create child AI::Node
 			float3 childPosition = currentNode.position + STEP_SCALE * childOffset;
+			childPosition.y = tm->getHeightFromPosition(childPosition);
+			if (childPosition.y - currentNode.position.y > MAX_STEAPNESS) {
+				continue;
+			}
+
+			// check if in objects
+
+
+
 			AI::Node child = AI::Node(childPosition, start, end);
 			// Check is child is in closed
 			if (std::find(closed.begin(), closed.end(), child) != closed.end()) {
