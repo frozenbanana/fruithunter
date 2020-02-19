@@ -15,8 +15,6 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 }
 
 void Apple::behaviorPassive(float3 playerPosition) {
-	ErrorLogger::log("Apple:: Doing passive.");
-	ErrorLogger::logFloat3("m_position", m_position);
 	float terrainHeight = TerrainManager::getInstance()->getHeightFromPosition(m_position);
 	if (!withinDistanceTo(m_worldHome, 0.75f) && atOrUnder(terrainHeight)) {
 		m_directionalVelocity = m_worldHome - m_position;
@@ -34,7 +32,6 @@ void Apple::behaviorPassive(float3 playerPosition) {
 }
 
 void Apple::behaviorActive(float3 playerPosition) {
-	ErrorLogger::log("Apple:: Doing active.");
 	flee(playerPosition);
 	if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
 		changeState(PASSIVE);
@@ -42,7 +39,6 @@ void Apple::behaviorActive(float3 playerPosition) {
 }
 
 void Apple::behaviorCaught(float3 playerPosition) {
-	ErrorLogger::log("Apple:: Doing caught.");
 	m_directionalVelocity = playerPosition - m_position; // run to player
 	m_directionalVelocity.Normalize();
 
