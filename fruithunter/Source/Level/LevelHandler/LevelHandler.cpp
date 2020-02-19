@@ -140,12 +140,12 @@ void LevelHandler::draw() {
 		m_fruits[i]->draw_animate();
 	}
 	m_terrainManager->draw();
-	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 
 	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
 		m_collidableEntities[i]->draw();
 	}
 	m_entity.draw();
+	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 }
 
 void LevelHandler::update(float dt) {
