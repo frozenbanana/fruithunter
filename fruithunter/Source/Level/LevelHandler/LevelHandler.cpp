@@ -106,29 +106,31 @@ void LevelHandler::loadLevel(int levelNr) {
 			currentLevel.m_playerStartPos)];
 
 		// temp
+		float height =
+			TerrainManager::getInstance()->getHeightFromPosition(currentLevel.m_playerStartPos);
 		shared_ptr<Entity> newEntity = make_shared<Entity>();
-		newEntity->load("Smelter");
+		newEntity->load("bush1");
 		newEntity->setScale(1);
-		newEntity->setPosition(float3(10.f, 0.f, 10.f));
-		newEntity->setCollisionDataOBB();
+		newEntity->setPosition(currentLevel.m_playerStartPos + float3(1.f, height, 1.f));
+		newEntity->setCollisionDataSphere();
 		m_collidableEntities.push_back(newEntity);
 		newEntity = make_shared<Entity>();
 		newEntity->load("Cube");
 		newEntity->setScale(0.4);
-		newEntity->setPosition(float3(10.f, 0.f, 13.f));
-		newEntity->setCollisionDataOBB();
-		m_collidableEntities.push_back(newEntity);
-
-		newEntity = make_shared<Entity>();
-		newEntity->load("Sphere");
-		newEntity->setScale(1);
-		newEntity->setPosition(float3(10.f, 0.f, 15.f));
+		newEntity->setPosition(currentLevel.m_playerStartPos + float3(1.f, height, 3.f));
 		newEntity->setCollisionDataSphere();
 		m_collidableEntities.push_back(newEntity);
 
-		m_entity.load("Sphere");
-		m_entity.setScale(0.1f);
-		m_entity.setPosition(float3(-2.f));
+		newEntity = make_shared<Entity>();
+		newEntity->load("bush2");
+		newEntity->setScale(1);
+		newEntity->setPosition(currentLevel.m_playerStartPos + float3(0.f, height, 5.f));
+		newEntity->setCollisionDataSphere();
+		m_collidableEntities.push_back(newEntity);
+
+		// m_entity.load("Sphere"); // castray debug don't delete
+		// m_entity.setScale(0.1f);
+		// m_entity.setPosition(float3(-2.f));
 	}
 }
 
@@ -149,7 +151,8 @@ void LevelHandler::draw() {
 void LevelHandler::update(float dt) {
 	m_skyBox.updateDelta(dt);
 
-	if (Input::getInstance()->keyPressed(Keyboard::R) && m_currentLevel >= 0)m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
+	if (Input::getInstance()->keyPressed(Keyboard::R) && m_currentLevel >= 0)
+		m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
 
 	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
 
@@ -186,7 +189,7 @@ void LevelHandler::update(float dt) {
 	// m_player.collideObject(*m_collidableEntities[1]);
 
 	// castray sphere	// Debug thing will need later as well please don't delete - Linus
-	//for (int i = 0; i < 3; ++i) {
+	// for (int i = 0; i < 3; ++i) {
 	//	float t =
 	//		m_collidableEntities[i]->castRay(m_player.getCameraPosition(), m_player.getForward());
 	//	if (t != -1) {

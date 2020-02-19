@@ -52,7 +52,7 @@ void Entity::createBuffers() {
 bool Entity::isMeshInitialized() const { return (m_mesh.get() != nullptr); }
 
 bool Entity::atOrUnder(float terrainHeight) const {
-	return m_position.y <= (terrainHeight + getHalfSizesAnimated().y / 2.f);
+	return m_position.y <= (terrainHeight + getHalfSizes().y / 2.f);
 }
 
 float4x4 Entity::getModelMatrix() {
