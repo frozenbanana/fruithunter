@@ -534,7 +534,7 @@ float Terrain::castRay(float3 point, float3 direction) {
 		float length = n.Length();
 		n.Normalize();
 		float obb_l = obbTest(startPoint, n, float3(1, 1, 1) * 0.5f, float3(1, 1, 1) * 0.5f);
-		if (obb_l > 0 && obb_l < length) {
+		if (obb_l > 0) {
 			// values in grid coordinates [0,m_gridPointSize.x-1]
 			float2 tilt(n2.x * (m_gridPointSize.x - 1), n2.y * (m_gridPointSize.y - 1));
 			float2 start(startPoint.x * (m_gridPointSize.x - 1),
