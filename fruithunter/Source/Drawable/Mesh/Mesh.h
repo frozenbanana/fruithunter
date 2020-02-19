@@ -64,7 +64,6 @@ public:
 	float castRayOnMesh(float3 rayPos, float3 rayDir);
 
 	float3 getBoundingBoxHalfSizes() const; // for collision detection
-	void scaleBoundingBoxHalfSizes(float3 scale);
 
 	Mesh(std::string OBJFile = "");
 	Mesh& operator=(const Mesh& other) = delete;

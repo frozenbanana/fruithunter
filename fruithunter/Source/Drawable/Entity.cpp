@@ -52,7 +52,7 @@ void Entity::createBuffers() {
 bool Entity::isMeshInitialized() const { return (m_mesh.get() != nullptr); }
 
 bool Entity::atOrUnder(float terrainHeight) const {
-	return m_position.y <= (terrainHeight + getHalfSizesAnimated().y / 2.f);
+	return m_position.y <= (terrainHeight + getHalfSizes().y / 2.f);
 }
 
 float4x4 Entity::getModelMatrix() {
@@ -135,12 +135,7 @@ void Entity::setScale(float scale) {
 	m_matrixChanged = true;
 }
 
-void Entity::scaleBoundingBoxHalfSizes(float3 scale) {
-	if (m_mesh.get() != nullptr)
-		m_mesh->scaleBoundingBoxHalfSizes(scale);
-	else
-		m_meshAnim.scaleBoundingBoxHalfSizes(scale);
-}
+void Entity::scaleBoundingBoxHalfSizes(float3 scale) { m_collisionData.setCollisionScale(scale); }
 
 void Entity::draw() {
 	if (isMeshInitialized()) {
@@ -197,13 +192,17 @@ bool Entity::checkCollision(Entity& other) {
 	return m_collisionData.collide(other.m_collisionData);
 }
 
+bool Entity::checkCollision(EntityCollision& other) { return m_collisionData.collide(other); }
+
 float Entity::castRay(float3 rayPos, float3 rayDir) {
 	if (m_mesh.get() != nullptr) {
 		float4x4 mWorld = getModelMatrix();
 		float4x4 mInvWorld = mWorld.Invert();
-		float3 lrayPos = XMVector4Transform(float4(rayPos.x, rayPos.y, rayPos.z, 1), mInvWorld);
-		float3 lrayDir = XMVector4Transform(
-			float4(rayDir.x, rayDir.y, rayDir.z, 0), mInvWorld.Transpose().Invert());
+		// float3 lrayPos = XMVector4Transform(float4(rayPos.x, rayPos.y, rayPos.z, 1), mInvWorld);
+		float3 lrayPos = float3::Transform(rayPos, mInvWorld);
+		/*float3 lrayDir = XMVector4Transform(
+			float4(rayDir.x, rayDir.y, rayDir.z, 0), mInvWorld.Transpose().Invert());*/
+		float3 lrayDir = float3::Transform(rayDir, mInvWorld.Transpose().Invert());
 		lrayDir.Normalize();
 
 		float t = m_mesh->castRayOnMesh(lrayPos, lrayDir);
@@ -217,17 +216,47 @@ float Entity::castRay(float3 rayPos, float3 rayDir) {
 	return -1;
 }
 
-void Entity::setCollisionData(float3 point, float radius) {
-	m_collisionData.setCollisionData(point, radius);
+void Entity::setCollisionData(float3 point, float3 posOffset, float3 scale, float radius) {
+	m_collisionData.setCollisionData(point, posOffset, scale, radius);
 }
 
-void Entity::setCollisionData(float3 point, float3 halfSizes) {
-	m_collisionData.setCollisionData(point, halfSizes);
+void Entity::setCollisionData(float3 point, float3 posOffset, float3 scale, float3 halfSizes) {
+	m_collisionData.setCollisionData(point, posOffset, scale, halfSizes);
 }
 
-float3 Entity::getHalfSizes() const { return m_mesh->getBoundingBoxHalfSizes(); }
+void Entity::setCollisionDataOBB() {
+	if (m_mesh.get() != nullptr)
+		setCollisionData(
+			getPosition(), m_mesh->getBoundingBoxPos(), m_scale, m_mesh->getBoundingBoxHalfSizes());
+	else
+		setCollisionData(getPosition(), m_meshAnim.getBoundingBoxPos(), m_scale,
+			m_meshAnim.getBoundingBoxHalfSizes());
+}
 
-float3 Entity::getHalfSizesAnimated() const { return m_meshAnim.getBoundingBoxHalfSizes(); }
+void Entity::setCollisionDataSphere() {
+	if (m_mesh.get() != nullptr)
+		setCollisionData(getPosition(), m_mesh->getBoundingBoxPos(), m_scale,
+			m_mesh->getBoundingBoxHalfSizes().y);
+	else
+		setCollisionData(getPosition(), m_meshAnim.getBoundingBoxPos(), m_scale,
+			m_meshAnim.getBoundingBoxHalfSizes().y);
+}
+
+float3 Entity::getHalfSizes() const {
+	if (m_mesh.get() != nullptr)
+		return m_mesh->getBoundingBoxHalfSizes();
+	else
+		return m_meshAnim.getBoundingBoxHalfSizes();
+}
+
+float3 Entity::getBoundingBoxPos() const {
+	if (m_mesh.get() != nullptr)
+		return m_mesh->getBoundingBoxPos();
+	else
+		return m_meshAnim.getBoundingBoxPos();
+}
+
+int Entity::getCollisionType() const { return m_collisionData.getCollisionType(); }
 
 Entity::Entity(string filename, float3 position, float3 rotation, float3 scale) {
 	load(filename);

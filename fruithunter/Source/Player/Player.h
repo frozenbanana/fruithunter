@@ -14,6 +14,7 @@ public:
 	void updateCamera();
 	void rotatePlayer(float dt);
 	void draw();
+	void collideObject(Entity& obj);
 
 	float3 getPosition() const;
 	float3 getCameraPosition() const;
@@ -21,6 +22,7 @@ public:
 	float3 getVelocity() const;
 	Entity& getArrow() { return m_bow.getArrow(); };
 	void setPosition(float3 position);
+	void standsOnObject();
 
 private:
 	// Keys
@@ -54,6 +56,7 @@ private:
 
 	// Player behavior
 	bool m_onGround;						 // if player is grounded
+	bool m_onEntity;						 // if player is standing on an object
 	float3 m_gravity = float3(0, -1, 0) * 15.f; // direction * strength
 	// movement speed
 	float m_speed = 20.f;			   // player movement strength
