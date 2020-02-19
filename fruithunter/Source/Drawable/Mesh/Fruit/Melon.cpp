@@ -22,7 +22,7 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	m_rollAnimationSpeed = 2.0f;
 }
 
-void Melon::behaviorPassive(float3 playerPosition) {
+void Melon::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
 	if (withinDistanceTo(m_worldHome, 0.75f)) {
 		m_directionalVelocity = m_secondWorldHome - m_position;
 		lookTo(m_secondWorldHome);
@@ -44,7 +44,7 @@ void Melon::behaviorPassive(float3 playerPosition) {
 	}
 }
 
-void Melon::behaviorActive(float3 playerPosition) {
+void Melon::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
 	ErrorLogger::log("Melon:: Doing active.");
 
 	circulateAround(playerPosition);
@@ -55,7 +55,7 @@ void Melon::behaviorActive(float3 playerPosition) {
 	}
 }
 
-void Melon::behaviorCaught(float3 playerPosition) {
+void Melon::behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
 	ErrorLogger::log("Melon:: Doing caught.");
 	m_directionalVelocity = playerPosition - m_position; // run to player
 	m_directionalVelocity.Normalize();

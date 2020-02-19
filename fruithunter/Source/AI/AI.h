@@ -2,6 +2,8 @@
 #include "GlobalNamespaces.h"
 #include "TerrainManager.h"
 #include "Player.h"
+#include <list>
+
 
 class AI {
 public:
@@ -23,12 +25,9 @@ public:
 	};
 	enum State { INACTIVE, PASSIVE, ACTIVE, CAUGHT };
 	void setWorld(std::shared_ptr<Terrain> terrain);
-	// virtual float3 getNextPosition();
-	void pathfinding(float3 start, float3 end);
+	void pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collidables);
 	void changeState(State newState);
 	State getState() const;
-	// void idle();
-	// void detectPlayer(float3 playerPosition);
 
 protected:
 	float m_passiveRadius, m_activationRadius;
@@ -36,10 +35,10 @@ protected:
 
 	State m_currentState;
 	std::shared_ptr<Terrain> m_terrain;
-	std::vector<float3> m_availablePath;
+	std::list<float3> m_availablePath;
 	float3 m_direction;
-	virtual void behaviorPassive(float3 playerPosition){};
-	virtual void behaviorActive(float3 playerPosition){};
-	virtual void behaviorCaught(float3 playerPosition){};
-	void doBehavior(float3 playerPosition);
+	virtual void behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables){};
+	virtual void behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables){};
+	virtual void behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> collidables){};
+	void doBehavior(float3 playerPosition, vector<shared_ptr<Entity>> collidables);
 };

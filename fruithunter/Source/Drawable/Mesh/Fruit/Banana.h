@@ -20,9 +20,9 @@ private:
 			float3((float)(rand() % 100), (float)(rand() % 10), (float)(rand() % 100)) * 0.1f;
 	};
 
-	void behaviorPassive(float3 playerPosition) override;
-	void behaviorActive(float3 playerPosition) override;
-	void behaviorCaught(float3 playerPosition) override;
+	void behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) override;
+	void behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) override;
+	void behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> collidables) override;
 
 	float3 m_bounceDestination;
 

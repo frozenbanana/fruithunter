@@ -213,7 +213,7 @@ void Player::draw() {
 void Player::collideObject(Entity& obj) {
 	// Check
 	// oeoepeoe
-	float radius = 0.2;
+	float radius = 0.2f;
 	float stepHeight = 1.6f; // height able to simply step over
 	EntityCollision feet(m_position + float3(0.f, radius, 0.f), radius);
 	EntityCollision hip(m_position + float3(0.f, stepHeight + radius, 0.f), radius);

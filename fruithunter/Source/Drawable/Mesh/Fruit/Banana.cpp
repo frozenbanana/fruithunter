@@ -14,7 +14,7 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 	m_worldHome = m_position;
 }
 
-void Banana::behaviorPassive(float3 playerPosition) {
+void Banana::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
 	ErrorLogger::log("Banana:: Doing Passive.");
 	TerrainManager* terrainManger = TerrainManager::getInstance();
 	float terrainHeight = terrainManger->getHeightFromPosition(m_position);
@@ -40,7 +40,7 @@ void Banana::behaviorPassive(float3 playerPosition) {
 	}
 }
 
-void Banana::behaviorActive(float3 playerPosition) {
+void Banana::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
 	ErrorLogger::log("Banana:: Doing active.");
 	TerrainManager* terrainManger = TerrainManager::getInstance();
 	float terrainHeight = terrainManger->getHeightFromPosition(m_position);
@@ -58,7 +58,7 @@ void Banana::behaviorActive(float3 playerPosition) {
 		}
 	}
 }
-void Banana::behaviorCaught(float3 playerPosition) {
+void Banana::behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
 	ErrorLogger::log("Banana:: Doing caught.");
 	TerrainManager* terrainManger = TerrainManager::getInstance();
 	float terrainHeight = terrainManger->getHeightFromPosition(m_position);

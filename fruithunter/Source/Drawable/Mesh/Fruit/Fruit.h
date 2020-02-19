@@ -29,9 +29,11 @@ protected:
 	void enforceOverTerrain();
 	Fruit(float3 pos = float3(0.f, 0.f, 0.f));
 
+
 public:
 	void move(float dt);
-	void update(float dt, float3 playerPos);
+	void update(float dt, float3 playerPosition, vector<shared_ptr<Entity>> collidables);
+	void handleAvailablePath();
 	virtual void updateAnimated(float dt) = 0;
 	void jump(float3 direction, float power);
 	void setStartPosition(float3 pos);

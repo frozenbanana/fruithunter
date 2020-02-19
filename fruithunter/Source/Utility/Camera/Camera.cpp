@@ -2,7 +2,7 @@
 #include "Renderer.h"
 #include "ErrorLogger.h"
 
-#define NEAR_PLANE 0.001f
+#define NEAR_PLANE 0.1f
 #define FAR_PLANE 100.f
 
 Camera::Camera() {

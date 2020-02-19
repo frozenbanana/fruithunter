@@ -39,11 +39,6 @@ float Fruit::findRequiredRotation(float3 lookAt) {
 
 void Fruit::enforceOverTerrain() {
 	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
-		// ErrorLogger::log(
-		//	"ENFORCING:: " +
-		//	std::to_string(
-		//		m_position.y - TerrainManager::getInstance()->getHeightFromPosition(m_position)));
-
 		m_position.y = TerrainManager::getInstance()->getHeightFromPosition(m_position) +
 					   abs(getHalfSizesAnimated().y / 2);
 	}
@@ -65,10 +60,26 @@ bool Fruit::withinDistanceTo(float3 target, float treshhold) {
 	return (m_position - target).Length() < treshhold;
 }
 
-void Fruit::update(float dt, float3 playerPosition) {
-	doBehavior(playerPosition);
+void Fruit::update(float dt, float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
+	doBehavior(playerPosition, collidables);
 	updateAnimated(dt);
 	move(dt);
+	enforceOverTerrain();
+	handleAvailablePath();
+}
+
+void Fruit::handleAvailablePath() {
+	if (!m_availablePath.empty()) {
+		float3 positionXZ = float3(m_position.x, 0.0f, m_position.z);
+		float3 currentTargetXZ = float3(m_availablePath.front().x, 0.0f, m_availablePath.front().z);
+
+		// Update next path point
+		if ((positionXZ - currentTargetXZ).Length() < 0.6f) {
+			ErrorLogger::logFloat3("position     ", m_position);
+			ErrorLogger::logFloat3("Popping front", m_availablePath.front());
+			m_availablePath.pop_front();
+		}
+	}
 }
 
 void Fruit::move(float dt) {
@@ -76,8 +87,6 @@ void Fruit::move(float dt) {
 	m_position += m_directionalVelocity * dt;
 	// TODO: check if legal
 	// CURRENT: Enforece terrain height
-	ErrorLogger::logFloat3("Moving: ", m_position);
-	enforceOverTerrain();
 	setPosition(m_position);
 }
 

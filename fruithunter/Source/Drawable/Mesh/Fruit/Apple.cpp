@@ -12,17 +12,27 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 
 	m_activationRadius = 3.f;
 	m_passiveRadius = 6.f;
+
+	// SET TEST WORLDHOME
+	setWorldHome(float3(14.0f, 0.0f, 18.0f));
 }
 
-void Apple::behaviorPassive(float3 playerPosition) {
-	ErrorLogger::log("Apple:: Doing passive.");
-	ErrorLogger::logFloat3("m_position", m_position);
+void Apple::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
+	// ErrorLogger::logFloat3("Apple:: Doing passive.", m_position);
 	float terrainHeight = TerrainManager::getInstance()->getHeightFromPosition(m_position);
 	if (!withinDistanceTo(m_worldHome, 0.75f) && atOrUnder(terrainHeight)) {
-		m_directionalVelocity = m_worldHome - m_position;
-		m_directionalVelocity.Normalize();
+		// Check if path is anything different than going home
+		if (m_availablePath.empty() || m_availablePath.back() != m_worldHome) {
+			ErrorLogger::log("Apple:: Finding Path for home.");
+			pathfinding(m_position, m_worldHome, collidables);
+		}
+		// if path decided update velocity towards current point.
+		if (!m_availablePath.empty()) {
+			m_directionalVelocity = m_availablePath.front() - m_position;
+			m_directionalVelocity.Normalize();
+		}
 	}
-	else {
+	else { // Just jump when home
 		if (atOrUnder(terrainHeight)) {
 			jump(float3(0.0f, 1.0f, 0.0), 2.5f);
 		}
@@ -33,23 +43,18 @@ void Apple::behaviorPassive(float3 playerPosition) {
 	}
 }
 
-void Apple::behaviorActive(float3 playerPosition) {
-	ErrorLogger::log("Apple:: Doing active.");
+void Apple::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
+	// ErrorLogger::log("Apple:: Doing active.");
 	flee(playerPosition);
 	if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
 		changeState(PASSIVE);
 	}
 }
 
-void Apple::behaviorCaught(float3 playerPosition) {
-	ErrorLogger::log("Apple:: Doing caught.");
+void Apple::behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
+	// ErrorLogger::log("Apple:: Doing caught.");
 	m_directionalVelocity = playerPosition - m_position; // run to player
 	m_directionalVelocity.Normalize();
-
-	if (withinDistanceTo(playerPosition, 1.0f)) {
-		// delete yourself
-		ErrorLogger::log("Apple:: is picked up");
-	}
 }
 
 
