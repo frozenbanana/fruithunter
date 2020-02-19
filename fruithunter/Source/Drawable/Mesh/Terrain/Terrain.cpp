@@ -5,10 +5,28 @@
 #include "Input.h"
 ShaderSet Terrain::m_shader;
 Microsoft::WRL::ComPtr<ID3D11Buffer> Terrain::m_matrixBuffer;
+Microsoft::WRL::ComPtr<ID3D11SamplerState> Terrain::m_sampler;
 
 void Terrain::createBuffers() {
 	auto gDevice = Renderer::getDevice();
 	auto gDeviceContext = Renderer::getDeviceContext();
+	//sampler
+	if (m_sampler.Get() == nullptr) {
+		D3D11_SAMPLER_DESC sampDesc;
+		sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.MipLODBias = 0.0f;
+		sampDesc.MaxAnisotropy = 16;
+		sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		sampDesc.MinLOD = -3.402823466e+38F;
+		sampDesc.MaxLOD = 3.402823466e+38F;
+		HRESULT res = gDevice->CreateSamplerState(&sampDesc, m_sampler.GetAddressOf());
+		if (FAILED(res))
+			ErrorLogger::logError(res, "Failed creating sampler state in Terrain class!\n");
+	}
+
 	// matrix buffer
 	if (m_matrixBuffer.Get() == nullptr) {
 		D3D11_BUFFER_DESC desc;
@@ -21,8 +39,13 @@ void Terrain::createBuffers() {
 		if (FAILED(res))
 			ErrorLogger::logError(res, "Failed creating matrix buffer in Terrain class!\n");
 	}
-	// grass texture
-	createResourceBuffer(m_grassPath, m_map_grass.GetAddressOf());
+	// textures
+	m_mapsInitilized = true;
+	for (size_t i = 0; i < m_mapCount; i++) {
+		bool state = createResourceBuffer(m_mapNames[i], m_maps[i].GetAddressOf());
+		if (state == false)
+			m_mapsInitilized = false;
+	}
 }
 
 float4x4 Terrain::getModelMatrix() {
@@ -77,7 +100,7 @@ float Terrain::sampleHeightmap(float2 uv) {
 	int texWidth = m_heightmapDescription.Width;
 	int texHeight = m_heightmapDescription.Height;
 
-	XMINT2 iUV(uv.x * (texWidth - 1), uv.y * (texHeight - 1));
+	XMINT2 iUV((int)(uv.x * (float)(texWidth - 1)), (int)(uv.y * (float)(texHeight - 1)));
 
 	float v = 0;
 	if (m_heightmapDescription.Format == DXGI_FORMAT_R8_UNORM) {
@@ -129,7 +152,7 @@ void Terrain::createGridPointsFromHeightmap() {
 		}
 	}
 	// smooth positions
-	int smoothSteps = 2;
+	int smoothSteps = SMOOTH_STEPS;
 	for (int i = 0; i < smoothSteps; i++) {
 		vector<vector<Vertex>> mapCopy = m_gridPoints;
 		for (int xx = 1; xx < m_gridPointSize.x - 1; xx++) {
@@ -161,7 +184,7 @@ void Terrain::createGridPointsFromHeightmap() {
 			m_gridPoints[xx + 0][yy + 1].normal = normal1;
 
 			m_gridPoints[xx + 0][yy + 0].normal = normal2;
-			m_gridPoints[xx + 0][yy + 0].normal = normal2;
+			m_gridPoints[xx + 1][yy + 1].normal = normal2;
 			m_gridPoints[xx + 1][yy + 0].normal = normal2;
 		}
 	}
@@ -187,7 +210,7 @@ void Terrain::createGrid(XMINT2 size) {
 	}
 }
 
-void Terrain::fillSubMeshes(bool flatShaded) {
+void Terrain::fillSubMeshes() {
 	if (m_gridPointSize.x != 0 && m_gridPointSize.y != 0) {
 		XMINT2 order[6] = { // tri1
 			XMINT2(1, 1), XMINT2(0, 0), XMINT2(0, 1),
@@ -211,7 +234,7 @@ void Terrain::fillSubMeshes(bool flatShaded) {
 					}
 				}
 				// flatshade
-				if (flatShaded) {
+				if (FLAT_SHADING) {
 					// fix normals to flat shading
 					for (size_t i = 0; i < vertices->size(); i += 3) {
 						float3 p1 = (*vertices)[i + 0].position;
@@ -222,6 +245,26 @@ void Terrain::fillSubMeshes(bool flatShaded) {
 						(*vertices)[i + 0].normal = normal;
 						(*vertices)[i + 1].normal = normal;
 						(*vertices)[i + 2].normal = normal;
+					}
+				}
+				// EDGE SHADING
+				if (EDGE_SHADING) {
+					for (size_t i = 0; i < vertices->size(); i += 3) {
+						float3 p1 = (*vertices)[i + 0].position;
+						float3 p2 = (*vertices)[i + 1].position;
+						float3 p3 = (*vertices)[i + 2].position;
+						float3 normal = (p2 - p1).Cross(p3 - p1); // flat normal
+						normal.Normalize();
+						float3 pn1 = (*vertices)[i + 0].normal;
+						float3 pn2 = (*vertices)[i + 1].normal;
+						float3 pn3 = (*vertices)[i + 2].normal;
+
+						(*vertices)[i + 0].normal =
+							(pn1.Dot(normal) > EDGE_THRESHOLD ? pn1 : normal);
+						(*vertices)[i + 1].normal =
+							(pn2.Dot(normal) > EDGE_THRESHOLD ? pn2 : normal);
+						(*vertices)[i + 2].normal =
+							(pn3.Dot(normal) > EDGE_THRESHOLD ? pn3 : normal);
 					}
 				}
 				// create buffers
@@ -258,14 +301,14 @@ string Terrain::LPWSTR_to_STRING(LPWSTR str) {
 	return sbuff;
 }
 
-bool Terrain::createResourceBuffer(string path, ID3D11ShaderResourceView** buffer) {
+bool Terrain::createResourceBuffer(string filename, ID3D11ShaderResourceView** buffer) {
 	auto device = Renderer::getDevice();
 	auto deviceContext = Renderer::getDeviceContext();
-	wstring wstr = s2ws(path);
+	wstring wstr = s2ws(m_texturePath + filename);
 	LPCWCHAR str = wstr.c_str();
 	HRESULT hrA = DirectX::CreateWICTextureFromFile(device, deviceContext, str, nullptr, buffer);
 	if (FAILED(hrA)) {
-		ErrorLogger::messageBox(hrA, "Failed creating texturebuffer from texture\n" + path);
+		ErrorLogger::messageBox(hrA, "Failed creating texturebuffer from texture\n" + filename);
 		return false;
 	}
 	return true;
@@ -357,7 +400,14 @@ float Terrain::triangleTest(
 
 void Terrain::setPosition(float3 position) { m_position = position; }
 
-void Terrain::initilize(string filename, XMINT2 subsize, XMINT2 splits) {
+void Terrain::initilize(string filename, vector<string> textures, XMINT2 subsize, XMINT2 splits) {
+	// set texture
+	if (textures.size() == 4) {
+		for (size_t i = 0; i < m_mapCount; i++) {
+			m_mapNames[i] = textures[i];
+		}
+	}
+	// load terrain
 	if (filename == "" || (splits.x == 0 || splits.y == 0) || (subsize.x == 0 || subsize.y == 0)) {
 		// do nothing
 	}
@@ -474,78 +524,80 @@ float3 Terrain::getNormalFromPosition(float x, float z) {
  */
 float Terrain::castRay(float3 point, float3 direction) {
 	if (direction.Length() > 0) {
-	// convert to local space
-	float4x4 mTerrainWorld = getModelMatrix();
-	float4x4 mTerrainInvWorld = mTerrainWorld.Invert();
-	float3 startPoint = float3::Transform(point, mTerrainInvWorld);
-	float3 endPoint = float3::Transform(point + direction, mTerrainInvWorld);
-	float3 n = endPoint - startPoint;
-	float2 n2 = float2(n.x, n.z);
-	float length = n.Length();
-	n.Normalize();
-	float obb_l = obbTest(startPoint, n, float3(1, 1, 1) * 0.5f, float3(1, 1, 1) * 0.5f);
-	if (obb_l > 0) {
-		// values in grid coordinates [0,m_gridPointSize.x-1]
-		float2 tilt(n2.x * (m_gridPointSize.x - 1), n2.y * (m_gridPointSize.y - 1));
-		float2 start(
-			startPoint.x * (m_gridPointSize.x - 1), (float)startPoint.z * (m_gridPointSize.y - 1));
-		XMINT2 iStart((int)start.x, (int)start.y);
-		float2 end(endPoint.x * (m_gridPointSize.x - 1), endPoint.z * (m_gridPointSize.y - 1));
-		XMINT2 iEnd((int)end.x, (int)end.y);
-		// find intersection tiles
-		vector<float> tsX, tsY;
-		int changeInX = abs(iEnd.x - iStart.x);
-		int changeInY = abs(iEnd.y - iStart.y);
-		tsX.reserve(changeInX);
-		tsY.reserve(changeInY);
-		for (int i = 0; i < changeInX; i++) {
-			float t = ((iStart.x + (iStart.x > iEnd.x ? -1 * i : 1 * i + 1)) - start.x) / tilt.x;
-			tsX.push_back(t);
-		}
-		for (int i = 0; i < changeInY; i++) {
-			float t = ((iStart.y + (iStart.y > iEnd.y ? -1 * i : i * 1 + 1)) - start.y) / tilt.y;
-			tsY.push_back(t);
-		}
-		vector<float> ts;						 // sorted intersection time array
-		ts.reserve(changeInX + changeInY + 2.f); //+2 for start and end point
-		// sort largest first
-		ts.push_back((end - start).Length() / tilt.Length());
-		while (tsX.size() > 0 || tsY.size() > 0) {
-			if (tsX.size() > 0 && tsY.size() > 0) {
-				if (tsX.back() < tsY.back()) {
-					ts.push_back(tsY.back());
-					tsY.pop_back();
+		// convert to local space
+		float4x4 mTerrainWorld = getModelMatrix();
+		float4x4 mTerrainInvWorld = mTerrainWorld.Invert();
+		float3 startPoint = float3::Transform(point, mTerrainInvWorld);
+		float3 endPoint = float3::Transform(point + direction, mTerrainInvWorld);
+		float3 n = endPoint - startPoint;
+		float2 n2 = float2(n.x, n.z);
+		float length = n.Length();
+		n.Normalize();
+		float obb_l = obbTest(startPoint, n, float3(1, 1, 1) * 0.5f, float3(1, 1, 1) * 0.5f);
+		if (obb_l > 0) {
+			// values in grid coordinates [0,m_gridPointSize.x-1]
+			float2 tilt(n2.x * (m_gridPointSize.x - 1), n2.y * (m_gridPointSize.y - 1));
+			float2 start(startPoint.x * (m_gridPointSize.x - 1),
+				(float)startPoint.z * (m_gridPointSize.y - 1));
+			XMINT2 iStart((int)start.x, (int)start.y);
+			float2 end(endPoint.x * (m_gridPointSize.x - 1), endPoint.z * (m_gridPointSize.y - 1));
+			XMINT2 iEnd((int)end.x, (int)end.y);
+			// find intersection tiles
+			vector<float> tsX, tsY;
+			int changeInX = abs(iEnd.x - iStart.x);
+			int changeInY = abs(iEnd.y - iStart.y);
+			tsX.reserve(changeInX);
+			tsY.reserve(changeInY);
+			for (int i = 0; i < changeInX; i++) {
+				float t =
+					((iStart.x + (iStart.x > iEnd.x ? -1 * i : 1 * i + 1)) - start.x) / tilt.x;
+				tsX.push_back(t);
+			}
+			for (int i = 0; i < changeInY; i++) {
+				float t =
+					((iStart.y + (iStart.y > iEnd.y ? -1 * i : i * 1 + 1)) - start.y) / tilt.y;
+				tsY.push_back(t);
+			}
+			vector<float> ts;					   // sorted intersection time array
+			ts.reserve(changeInX + changeInY + 2); //+2 for start and end point
+			// sort largest first
+			ts.push_back(1);
+			while (tsX.size() > 0 || tsY.size() > 0) {
+				if (tsX.size() > 0 && tsY.size() > 0) {
+					if (tsX.back() < tsY.back()) {
+						ts.push_back(tsY.back());
+						tsY.pop_back();
+					}
+					else {
+						ts.push_back(tsX.back());
+						tsX.pop_back();
+					}
 				}
-				else {
+				else if (tsX.size() > 0) {
 					ts.push_back(tsX.back());
 					tsX.pop_back();
 				}
+				else {
+					ts.push_back(tsY.back());
+					tsY.pop_back();
+				}
 			}
-			else if (tsX.size() > 0) {
-				ts.push_back(tsX.back());
-				tsX.pop_back();
+			ts.push_back(0);
+			// check all intersected tiles
+			float minL = -1;
+			for (int i = (int)ts.size() - 2; i >= 0; i--) {
+				float sampledT = (ts[i] + ts[i + 1]) / 2.f;
+				int ix = (int)((float)start.x + tilt.x * sampledT);
+				int iy = (int)((float)start.y + tilt.y * sampledT);
+				if (ix >= 0 && ix < m_gridPointSize.x - 1 && iy >= 0 && iy < m_gridPointSize.y - 1)
+					tileRayIntersectionTest(XMINT2(ix, iy), startPoint, n, minL);
+				if (minL != -1)
+					break; // early break
 			}
-			else {
-				ts.push_back(tsY.back());
-				tsY.pop_back();
-			}
-		}
-		ts.push_back(0);
-		// check all intersected tiles
-		float minL = -1;
-		for (int i = (int)ts.size() - 2; i >= 0; i--) {
-			float sampledT = (ts[i] + ts[i + 1]) / 2.f;
-			int ix = (int)((float)start.x + tilt.x * sampledT);
-			int iy = (int)((float)start.y + tilt.y * sampledT);
-			if (ix >= 0 && ix < m_gridPointSize.x-1 && iy >= 0 && iy < m_gridPointSize.y-1)
-				tileRayIntersectionTest(XMINT2(ix, iy), startPoint, n, minL);
-			if (minL != -1)
-				break; // early break
-		}
-		// convert back to world space
-		if (minL != -1) {
-			float3 intersectPoint = startPoint + n * minL;
-			intersectPoint = float3::Transform(intersectPoint, mTerrainWorld);
+			// convert back to world space
+			if (minL != -1) {
+				float3 intersectPoint = startPoint + n * minL;
+				intersectPoint = float3::Transform(intersectPoint, mTerrainWorld);
 
 				float l = (intersectPoint - point).Length() / direction.Length();
 				if (l > 0 && l <= 1)
@@ -559,24 +611,36 @@ float Terrain::castRay(float3 point, float3 direction) {
 }
 
 void Terrain::draw() {
-	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+	if (m_mapsInitilized) {
 
-	m_shader.bindShadersAndLayout();
+		ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
-	deviceContext->PSSetShaderResources(0, 1, m_map_grass.GetAddressOf());
+		//bind shaders
+		m_shader.bindShadersAndLayout();
 
-	bindModelMatrix();
+		//bind samplerstate
+		deviceContext->PSSetSamplers(SAMPLERSTATE_SLOT,1,m_sampler.GetAddressOf());
 
-	for (int xx = 0; xx < m_gridSize.x; xx++) {
-		for (int yy = 0; yy < m_gridSize.y; yy++) {
-			m_subMeshes[xx][yy].bind();
-			deviceContext->Draw(m_subMeshes[xx][yy].getVerticeCount(), 0);
+		//bind texture resources
+		for (int i = 0; i < m_mapCount; i++) {
+			deviceContext->PSSetShaderResources(i, 1, m_maps[i].GetAddressOf());
+		}
+
+		//bind world matrix
+		bindModelMatrix();
+
+		//draw grids
+		for (int xx = 0; xx < m_gridSize.x; xx++) {
+			for (int yy = 0; yy < m_gridSize.y; yy++) {
+				m_subMeshes[xx][yy].bind();
+				deviceContext->Draw(m_subMeshes[xx][yy].getVerticeCount(), 0);
+			}
 		}
 	}
 }
 
-Terrain::Terrain(string filename, XMINT2 subsize, XMINT2 splits) {
-	initilize(filename, subsize, splits);
+Terrain::Terrain(string filename, vector<string> textures, XMINT2 subsize, XMINT2 splits) {
+	initilize(filename, textures, subsize, splits);
 	if (!m_shader.isLoaded()) {
 		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = {
 			{

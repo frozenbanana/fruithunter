@@ -9,9 +9,9 @@
 
 class Entity {
 private:
-	float3 m_position;
 	float3 m_rotation;
 	float3 m_scale;
+	float4x4 m_matRotation;
 	bool m_matrixChanged = false; // if position, rotation or scale is changed then the model matrix
 								  // is updated when it is fetched
 
@@ -31,9 +31,10 @@ private:
 	bool isMeshInitialized() const;
 
 protected:
+	float3 m_position;
 	Animated m_meshAnim;
 
-	bool onGround(float height) const;
+	bool atOrUnder(float terrainHeight) const;
 
 
 public:
@@ -45,6 +46,7 @@ public:
 	// Transformations
 	void setPosition(float3 position);
 	void move(float3 movement);
+	void setRotationByAxis(float3 axis, float angle);
 	void setRotation(float3 rotation);
 	void rotate(float3 rotate);
 	void rotateX(float val);

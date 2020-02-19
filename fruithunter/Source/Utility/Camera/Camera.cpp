@@ -2,6 +2,9 @@
 #include "Renderer.h"
 #include "ErrorLogger.h"
 
+#define NEAR_PLANE 0.1f
+#define FAR_PLANE 100.f
+
 Camera::Camera() {
 	// Set initial values
 	m_camEye = float3(0.0, 0.0, -4.0);
@@ -10,7 +13,7 @@ Camera::Camera() {
 
 	m_fov = DEFAULT_FOV;
 	m_projMatrix = XMMatrixPerspectiveFovLH(
-		m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, 0.1f, 100.0f);
+		m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, NEAR_PLANE, FAR_PLANE);
 	m_viewMatrix = XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
 	m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 
@@ -38,7 +41,7 @@ Camera::Camera(float3 camEye, float3 camTarget, float3 camUp) {
 
 	m_fov = DEFAULT_FOV;
 	m_projMatrix = XMMatrixPerspectiveFovLH(
-		m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, 0.1f, 100.0f);
+		m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, NEAR_PLANE, FAR_PLANE);
 	m_viewMatrix = XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
 	m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 
@@ -97,7 +100,7 @@ void Camera::updateBuffer() {
 	}
 	if (m_projChanged) {
 		m_projMatrix = XMMatrixPerspectiveFovLH(
-			m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, 0.1f, 100.0f);
+			m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, NEAR_PLANE, FAR_PLANE);
 		m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 		m_projChanged = false;
 	}

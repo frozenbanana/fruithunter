@@ -1,18 +1,19 @@
 #include "Fruit.h"
 #include "Input.h"
 
+
+void Fruit::jump(float3 direction, float power) { m_directionalVelocity = power * direction; }
+
 void Fruit::setStartPosition(float3 pos) {
 	setPosition(pos);
-	m_startPos = pos;
-	m_heightPos = pos;
-	m_destinationPos = pos;
-	m_nextDestinationPos = pos;
+	setWorldHome(pos);
+	m_startAnimationPosition = pos;
+	m_heightAnimationPosition = pos;
+	m_destinationAnimationPosition = pos;
+	m_nextDestinationAnimationPosition = pos;
 }
 
-void Fruit::setNextDestination(float3 nextDest) {
-	m_nextDestinationPos =
-		nextDest + float3(0.0f, 0.3f, 0.0f); // offset to adjust origo so pos it onup of terrain
-}
+void Fruit::setNextDestination(float3 nextDest) { m_nextDestinationAnimationPosition = nextDest; }
 
 void Fruit::lookTo(float3 lookAt) { setRotation(float3(0.f, findRequiredRotation(lookAt), 0.f)); }
 
@@ -36,16 +37,57 @@ float Fruit::findRequiredRotation(float3 lookAt) {
 	return rot + 3.14f * 0.5f;
 }
 
-void Fruit::setDestination() {
-	m_destinationPos = m_nextDestinationPos;
-	m_startPos = getPosition();
-	m_heightPos = XMVectorLerp(m_startPos, m_destinationPos, 0.5f);
-	m_heightPos.y += 1.f;
+void Fruit::enforceOverTerrain() {
+	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
+		// ErrorLogger::log(
+		//	"ENFORCING:: " +
+		//	std::to_string(
+		//		m_position.y - TerrainManager::getInstance()->getHeightFromPosition(m_position)));
+
+		m_position.y = TerrainManager::getInstance()->getHeightFromPosition(m_position) +
+					   abs(getHalfSizesAnimated().y / 2);
+	}
 }
 
+void Fruit::setAnimationDestination() {
+	/*m_destinationAnimationPosition = m_nextDestinationAnimationPosition;*/
+	m_startAnimationPosition = getPosition();
+	m_heightAnimationPosition =
+		XMVectorLerp(m_startAnimationPosition, m_destinationAnimationPosition, 0.5f);
+	m_heightAnimationPosition.y += 1.f;
+}
+void Fruit::setWorldHome(float3 pos) {
+	m_worldHome = pos;
+	m_worldHome.y = TerrainManager::getInstance()->getHeightFromPosition(pos);
+}
+
+bool Fruit::withinDistanceTo(float3 target, float treshhold) {
+	return (m_position - target).Length() < treshhold;
+}
+
+void Fruit::update(float dt, float3 playerPosition) {
+	doBehavior(playerPosition);
+	updateAnimated(dt);
+	move(dt);
+}
+
+void Fruit::move(float dt) {
+	m_directionalVelocity += m_acceleration * dt * dt / 2.f;
+	m_position += m_directionalVelocity * dt;
+	// TODO: check if legal
+	// CURRENT: Enforece terrain height
+	enforceOverTerrain();
+	setPosition(m_position);
+}
+
+float3 Fruit::getHomePosition() const { return m_worldHome; }
+
+void Fruit::setVelocity(float3 velo) { m_directionalVelocity = velo; }
+
 Fruit::Fruit(float3 pos) : Entity() {
-	ErrorLogger::log("blab" + std::to_string(m_availablePath.empty()));
 	setStartPosition(pos);
+	setPosition(pos);
+	m_worldHome = pos;
 	m_nrOfFramePhases = 0;
 	m_currentFramePhase = 0;
 	m_frameTime = 0.0f;

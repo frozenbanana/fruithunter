@@ -8,8 +8,8 @@ private:
 	State m_state;
 
 	float3 m_rotation;
+	float3 m_acceleration;
 
-	void update(float dt, float3 playerPos);
 	void updateFirstJump(float dt);
 	void updateBounce(float dt);
 	void updateStopped(float dt);
@@ -19,6 +19,12 @@ private:
 		m_rotation =
 			float3((float)(rand() % 100), (float)(rand() % 10), (float)(rand() % 100)) * 0.1f;
 	};
+
+	void behaviorPassive(float3 playerPosition) override;
+	void behaviorActive(float3 playerPosition) override;
+	void behaviorCaught(float3 playerPosition) override;
+
+	float3 m_bounceDestination;
 
 public:
 	Banana(float3 pos = float3(0.f, 0.f, 0.f));

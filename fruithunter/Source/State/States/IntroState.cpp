@@ -12,8 +12,8 @@ void IntroState::initialize() {
 
 	// m_apples.resize(16);
 
-	m_entity.loadAnimated("Bow", 3);
-	m_entity.load("Melon_000000");
+	//m_entity.loadAnimated("Bow", 3);
+	//m_entity.load("Melon_000000");
 	m_camera.setView(float3(0.f, 0.f, -10.f), float3(0.f, 0.f, 0.f), float3(0.f, 1.f, 0.f));
 }
 
@@ -55,16 +55,16 @@ void IntroState::draw() {
 	// ErrorLogger::log(m_name + " draw() called.");
 	float t = m_timer.getTimePassed();
 
-	if (Input::getInstance()->keyDown(Keyboard::Space))
-		m_entity.draw_boundingBox();
+	/*if (Input::getInstance()->keyDown(Keyboard::Space))
+		m_entity.draw_boundingBox();*/
 
 	/*for (size_t i = 0; i < 16; i++) {
 		m_apples[i].draw_animate();
 	}*/
 
 	float4 menuColor = float4(0.f, 1.0f, 0.f, 1.0f);
-	m_entity.draw_animate();
-	m_entity.draw();
+	//m_entity.draw_animate();
+	//m_entity.draw();
 	m_textRenderer.draw("Main Menu", float2(400., 75.), float4(0.6f, .3f, 0.3f, 1.f));
 	m_textRenderer.draw("Play", float2(400., 200.), menuColor);
 	m_textRenderer.draw("See Highscore", float2(400., 275.), menuColor);

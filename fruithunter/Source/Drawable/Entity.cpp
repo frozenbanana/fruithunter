@@ -5,16 +5,16 @@
 void Entity::updateMatrix() {
 	m_matrixChanged = false;
 	float4x4 matTranform = float4x4::CreateTranslation(m_position);
-	float4x4 matRotation = float4x4::CreateRotationX(m_rotation.x) *
-						   float4x4::CreateRotationY(m_rotation.y) *
-						   float4x4::CreateRotationZ(m_rotation.z);
 	float4x4 matScale = float4x4::CreateScale(m_scale);
-	float4x4 matWorld = matScale * matRotation * matTranform;
+	float4x4 matWorld = matScale * m_matRotation * matTranform;
 	m_matrixBufferData.matWorld = matWorld;
 	m_matrixBufferData.matInvTraWorld = matWorld.Invert().Transpose();
 
-	m_collisionData.rotateObbAxis(matRotation);
+	m_collisionData.rotateObbAxis(m_matRotation);
 	m_collisionData.setCollisionPosition(m_position);
+
+	// reset matricies
+	m_matRotation = XMMatrixIdentity();
 }
 
 void Entity::bindModelMatrixBuffer() {
@@ -51,7 +51,9 @@ void Entity::createBuffers() {
 
 bool Entity::isMeshInitialized() const { return (m_mesh.get() != nullptr); }
 
-bool Entity::onGround(float height) const { return m_position.y - height < 0.0001; }
+bool Entity::atOrUnder(float terrainHeight) const {
+	return m_position.y <= (terrainHeight + getHalfSizesAnimated().y / 2.f);
+}
 
 float4x4 Entity::getModelMatrix() {
 	if (m_matrixChanged)
@@ -75,29 +77,50 @@ void Entity::move(float3 movement) {
 	m_matrixChanged = true;
 }
 
+void Entity::setRotationByAxis(float3 axis, float angle) {
+	axis.Normalize();
+	Quaternion q = Quaternion(axis, angle);
+	q.Normalize();
+	// ref:
+	// https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
+	float4x4 convertedMatrix = float4x4(float4(q.w, q.z, -q.y, q.x), float4(-q.z, q.w, q.x, q.y),
+								   float4(q.y, -q.x, q.w, q.z), float4(-q.x, -q.y, -q.z, q.w)) *
+							   float4x4(float4(q.w, q.z, -q.y, -q.x), float4(-q.z, q.w, q.x, -q.y),
+								   float4(q.y, -q.x, q.w, -q.z), float4(q.x, q.y, q.z, q.w));
+
+	m_matRotation *= convertedMatrix;
+	m_matrixChanged = true;
+}
+
+
 void Entity::setRotation(float3 rotation) {
 	m_rotation = rotation;
+
+	m_matRotation *= float4x4::CreateRotationX(m_rotation.x) *
+					 float4x4::CreateRotationY(m_rotation.y) *
+					 float4x4::CreateRotationZ(m_rotation.z);
+
 	m_matrixChanged = true;
 }
 
 void Entity::rotate(float3 rotate) {
 	m_rotation += rotate;
-	m_matrixChanged = true;
+	setRotation(m_rotation);
 }
 
 void Entity::rotateX(float val) {
 	m_rotation.x += val;
-	m_matrixChanged = true;
+	setRotation(m_rotation);
 }
 
 void Entity::rotateY(float val) {
 	m_rotation.y += val;
-	m_matrixChanged = true;
+	setRotation(m_rotation);
 }
 
 void Entity::rotateZ(float val) {
 	m_rotation.z += val;
-	m_matrixChanged = true;
+	setRotation(m_rotation);
 }
 
 void Entity::setScale(float3 scale) {

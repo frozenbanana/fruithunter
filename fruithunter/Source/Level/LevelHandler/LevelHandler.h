@@ -19,6 +19,8 @@ struct Level {
 	std::vector<float3> m_heightMapPos;
 	std::vector<XMINT2> m_heightMapSubSize;
 	std::vector<XMINT2> m_heightMapDivision;
+	std::vector<float3> m_heightMapScales;
+	std::vector<std::vector<string>> m_heightmapTextures;
 
 	// Fruits
 	int m_nrOfFruits[NR_OF_FRUITS];
@@ -44,6 +46,7 @@ private:
 
 	int m_currentLevel = -1;
 	Level::TerrainTags m_currentTerrain = Level::TerrainTags::Forest;
+	Level::TerrainTags m_oldTerrain = Level::TerrainTags::Forest;
 
 public:
 	LevelHandler();

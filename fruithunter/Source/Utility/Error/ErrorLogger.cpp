@@ -61,3 +61,8 @@ void ErrorLogger::logError(HRESULT res, std::string message) {
 }
 
 void ErrorLogger::log(std::string message) { std::cout << message + "\n"; }
+
+void ErrorLogger::logFloat3(std::string description, float3 f3) {
+	std::cout << description + " : " + std::to_string(f3.x) + ", " + std::to_string(f3.y) + ", " +
+					 std::to_string(f3.z) + "\n";
+}
