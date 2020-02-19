@@ -119,7 +119,7 @@ void LevelHandler::draw() {
 void LevelHandler::update(float dt) {
 	m_skyBox.updateDelta(dt);
 
-	if(Input::getInstance()->keyPressed(Keyboard::R))m_player.setPosition(m_levelsArr[0].m_playerStartPos);
+	if(Input::getInstance()->keyPressed(Keyboard::R) && m_currentLevel >= 0)m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
 
 	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
 
