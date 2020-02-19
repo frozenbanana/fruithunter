@@ -48,8 +48,10 @@ void Player::update(float dt, Terrain* terrain) {
 
 	// movement
 	m_position += m_velocity * dt;
-
-	if (terrain != nullptr) {
+	if (m_onEntity) {
+		updateVelocity_onFlatGround(force, dt);
+	}
+	else if (terrain != nullptr) {
 		float3 normal = terrain->getNormalFromPosition(
 			m_position.x, m_position.z); // normal on current position
 		float height = terrain->getHeightFromPosition(
@@ -80,6 +82,8 @@ void Player::update(float dt, Terrain* terrain) {
 		// in air
 		updateVelocity_inAir(force, dt);
 	}
+	// reset value
+	m_onEntity = false;
 
 	// dash
 	if (m_stamina >= STAMINA_DASH_COST && !m_sprinting && m_onGround) {
@@ -206,6 +210,40 @@ void Player::draw() {
 	m_bow.draw();
 }
 
+void Player::collideObject(Entity& obj) {
+	// Check
+	// oeoepeoe
+	float radius = 0.2;
+	float stepHeight = 1.6f; // height able to simply step over
+	EntityCollision feet(m_position + float3(0.f, radius, 0.f), radius);
+	EntityCollision hip(m_position + float3(0.f, stepHeight + radius, 0.f), radius);
+
+	if (obj.checkCollision(hip)) { // bump into
+		float3 objToPlayer = m_position - obj.getPosition();
+		if (objToPlayer.Dot(m_velocity) < 0) {
+			objToPlayer.Normalize();
+			// float3 tangentObj = float3::Up.Cross(objToPlayer);
+			float3 reflection = float3::Reflect(m_velocity, objToPlayer);
+			reflection.y = m_velocity.y;
+			m_velocity += reflection;
+			m_velocity *= 0.5;
+		}
+	}
+	else if (obj.checkCollision(feet)) { // walk on/to
+		if (m_velocity.y < 0) {
+			m_velocity.y = 0;
+			m_onGround = true;
+			m_onEntity = true;
+			// stepHeight = 01.1f; // height able to simply step over
+			// float cast =
+			//	obj.castRay(m_position + float3(0.f, stepHeight, 0.f), float3(0.01, -1, 0.01));
+			// if (cast != -1) {
+			//	m_position.y += (stepHeight - cast) * 0.1;
+			//}
+		}
+	}
+}
+
 float3 Player::getPosition() const { return m_position; }
 
 float3 Player::getCameraPosition() const { return m_camera.getPosition(); }
@@ -215,6 +253,8 @@ float3 Player::getForward() const { return m_playerForward; }
 float3 Player::getVelocity() const { return m_velocity; }
 
 void Player::setPosition(float3 position) { m_position = position; }
+
+void Player::standsOnObject() { m_onEntity = true; }
 
 void Player::slide(float dt, float3 normal, float l) {
 	if (l != -1) {
