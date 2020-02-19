@@ -2,6 +2,7 @@
 #include "ShaderSet.h"
 #include "MeshHandler.h"
 #define MATRIX_BUFFER_SLOT 0
+#define SAMPLERSTATE_SLOT 0
 
 class Terrain {
 private:
@@ -27,7 +28,7 @@ private:
 	static ShaderSet m_shader;
 	float3 m_position = float3(0,0,0);
 	float3 m_rotation = float3(0,0,0);
-	float3 m_scale = float3(1, 0.25, 1) * 4;
+	float3 m_scale = float3(1, 0.25, 1) * 100;
 	bool m_modelMatrixChanged = true;
 	struct ModelBuffer {
 		float4x4 mWorld, mWorldInvTra;
@@ -36,11 +37,15 @@ private:
 	// heightmap
 	D3D11_TEXTURE2D_DESC m_heightmapDescription;
 	D3D11_MAPPED_SUBRESOURCE m_heightmapMappedData;
+	const int SMOOTH_STEPS = 2;
 
 	// grid
 	XMINT2 m_tileSize;
 	XMINT2 m_gridSize;
 	vector<vector<SubGrid>> m_subMeshes;
+	const bool FLAT_SHADING = false;
+	const bool EDGE_SHADING = false;
+	const float EDGE_THRESHOLD = 0.3f;
 
 	// grid points !! USED FOR COLLISION
 	XMINT2 m_gridPointSize;
@@ -50,10 +55,20 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 
 	// resource buffer
-	const string m_grassPath = "assets/Meshes/Textures/texture_grass.jpg";
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_map_grass;
+	const string m_texturePath = "assets/Meshes/Textures/";
+	// 0 = flat, 1 = lowFlat, 2 = tilt, 3 = lessTilt
+	const int m_mapCount = 4;
+	string m_mapNames[4];
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_maps[4];
+	bool m_mapsInitilized = false;
 
+	//World Matrix
 	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;
+
+	//Sampler description
+	static Microsoft::WRL::ComPtr<ID3D11SamplerState> m_sampler;
+
+	//	--Functions--
 
 	// buffers
 	void createBuffers();
@@ -69,13 +84,13 @@ private:
 	// grids
 	void createGrid(XMINT2 size);
 	void createGridPointsFromHeightmap();
-	void fillSubMeshes(bool flatShaded = false);
+	void fillSubMeshes();
 
 	std::wstring s2ws(const std::string& s);
 	string LPWSTR_to_STRING(LPWSTR str);
 
 	// resource
-	bool createResourceBuffer(string path, ID3D11ShaderResourceView** buffer);
+	bool createResourceBuffer(string filename, ID3D11ShaderResourceView** buffer);
 
 	void tileRayIntersectionTest(XMINT2 gridIndex, float3 point, float3 direction, float& minL);
 	float clamp(float val, float min, float max) {
@@ -89,7 +104,7 @@ public:
 
 	void setPosition(float3 position);
 
-	void initilize(string filename, XMINT2 subsize, XMINT2 splits = XMINT2(1, 1));
+	void initilize(string filename, vector<string> textures, XMINT2 subsize, XMINT2 splits = XMINT2(1, 1));
 
 	void rotateY(float radian);
 	void setScale(float3 scale);
@@ -102,6 +117,7 @@ public:
 
 	void draw();
 
-	Terrain(string filename = "", XMINT2 subsize = XMINT2(0, 0), XMINT2 splits = XMINT2(1, 1));
+	Terrain(string filename = "", vector<string> textures = vector<string>(), XMINT2 subsize = XMINT2(0, 0),
+		XMINT2 splits = XMINT2(1, 1));
 	~Terrain();
 };

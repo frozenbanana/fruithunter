@@ -14,6 +14,7 @@ float3 lighting(float3 pos, float3 normal, float3 color) {
 	// light
 	float3 lightPos = float3(-5, 2, -3);
 	float3 toLight = normalize(lightPos - pos);
+	toLight = float3(1, 1, 1);
 	// diffuse
 	float shadowTint = max(dot(toLight, normal), 0.0);
 	// specular

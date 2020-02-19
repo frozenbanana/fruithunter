@@ -76,7 +76,6 @@ void Fruit::move(float dt) {
 	m_position += m_directionalVelocity * dt;
 	// TODO: check if legal
 	// CURRENT: Enforece terrain height
-	ErrorLogger::logFloat3("Moving: ", m_position);
 	enforceOverTerrain();
 	setPosition(m_position);
 }

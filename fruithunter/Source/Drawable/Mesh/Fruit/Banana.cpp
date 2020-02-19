@@ -15,7 +15,6 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 }
 
 void Banana::behaviorPassive(float3 playerPosition) {
-	ErrorLogger::log("Banana:: Doing Passive.");
 	TerrainManager* terrainManger = TerrainManager::getInstance();
 	float terrainHeight = terrainManger->getHeightFromPosition(m_position);
 	// Only decide what to do on ground
@@ -41,7 +40,6 @@ void Banana::behaviorPassive(float3 playerPosition) {
 }
 
 void Banana::behaviorActive(float3 playerPosition) {
-	ErrorLogger::log("Banana:: Doing active.");
 	TerrainManager* terrainManger = TerrainManager::getInstance();
 	float terrainHeight = terrainManger->getHeightFromPosition(m_position);
 	// Only decide what to do on ground
@@ -59,7 +57,6 @@ void Banana::behaviorActive(float3 playerPosition) {
 	}
 }
 void Banana::behaviorCaught(float3 playerPosition) {
-	ErrorLogger::log("Banana:: Doing caught.");
 	TerrainManager* terrainManger = TerrainManager::getInstance();
 	float terrainHeight = terrainManger->getHeightFromPosition(m_position);
 
