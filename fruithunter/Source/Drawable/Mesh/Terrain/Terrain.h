@@ -37,7 +37,7 @@ private:
 	// heightmap
 	D3D11_TEXTURE2D_DESC m_heightmapDescription;
 	D3D11_MAPPED_SUBRESOURCE m_heightmapMappedData;
-	const int SMOOTH_STEPS = 2;
+	const int SMOOTH_STEPS = 1;
 
 	// grid
 	XMINT2 m_tileSize;
