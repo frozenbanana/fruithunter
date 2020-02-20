@@ -91,7 +91,6 @@ void LevelHandler::loadLevel(int levelNr) {
 		newEntity->setPosition(float3(10.f, 0.f, 13.f));
 		newEntity->setCollisionDataOBB();
 		m_collidableEntities.push_back(newEntity);
-
 		/*newEntity = make_shared<Entity>();
 		newEntity->load("Cube");
 		newEntity->setScale(1.f);
@@ -167,16 +166,16 @@ void LevelHandler::dropFruit() {
 
 	if (ip->keyPressed(Keyboard::D1)) {
 		if (m_inventory[APPLE] > 0) {
-			shared_ptr<Apple> apple =
-				make_shared<Apple>(float3(m_player.getPosition() + m_player.getForward() * 3.0f));
+			shared_ptr<Apple> apple = make_shared<Apple>(m_player.getPosition());
+			apple->release(m_player.getForward());
 			m_fruits.push_back(apple);
 			m_inventory[APPLE]--;
 		}
 	}
 	if (ip->keyPressed(Keyboard::D2)) {
 		if (m_inventory[BANANA] > 0) {
-			shared_ptr<Banana> banana =
-				make_shared<Banana>(float3(m_player.getPosition() + m_player.getForward() * 3.0f));
+			shared_ptr<Banana> banana = make_shared<Banana>(float3(m_player.getPosition()));
+			banana->release(m_player.getForward());
 			m_fruits.push_back(banana);
 			m_inventory[BANANA]--;
 		}
@@ -185,6 +184,7 @@ void LevelHandler::dropFruit() {
 		if (m_inventory[MELON] > 0) {
 			shared_ptr<Melon> melon =
 				make_shared<Melon>(float3(m_player.getPosition() + m_player.getForward() * 3.0f));
+			melon->release(m_player.getForward());
 
 			m_fruits.push_back(melon);
 			m_inventory[MELON]--;

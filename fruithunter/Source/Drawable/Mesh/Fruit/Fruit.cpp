@@ -102,3 +102,15 @@ Fruit::Fruit(float3 pos) : Entity() {
 	m_currentFramePhase = 0;
 	m_frameTime = 0.0f;
 }
+
+void Fruit::behaviorReleased() {
+	// Placeholder for later adding sound effects
+	if (!m_currentState == RELEASED) {
+		changeState(PASSIVE);
+	}
+}
+
+void Fruit::release(float3 direction) {
+	changeState(RELEASED);
+	m_directionalVelocity = direction;
+}

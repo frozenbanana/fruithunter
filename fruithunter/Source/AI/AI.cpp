@@ -164,5 +164,8 @@ void AI::doBehavior(float3 playerPosition, vector<shared_ptr<Entity>> collidable
 	case CAUGHT:
 		behaviorCaught(playerPosition, collidables);
 		break;
+	case RELEASED:
+		behaviorReleased();
+		break;
 	}
 }

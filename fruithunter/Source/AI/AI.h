@@ -36,7 +36,7 @@ public:
 			position = other.position;
 		}
 	};
-	enum State { INACTIVE, PASSIVE, ACTIVE, CAUGHT };
+	enum State { INACTIVE, PASSIVE, ACTIVE, CAUGHT, RELEASED };
 	void setWorld(std::shared_ptr<Terrain> terrain);
 	void pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collidables);
 	void changeState(State newState);
@@ -44,8 +44,6 @@ public:
 
 protected:
 	float m_passiveRadius, m_activationRadius;
-
-
 	State m_currentState;
 	std::shared_ptr<Terrain> m_terrain;
 	std::list<float3> m_availablePath;
@@ -53,6 +51,8 @@ protected:
 	virtual void behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables){};
 	virtual void behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables){};
 	virtual void behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> collidables){};
+	virtual void behaviorReleased(){};
+
 	void doBehavior(float3 playerPosition, vector<shared_ptr<Entity>> collidables);
 	void quickSort(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, int high);
 	int partition(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, int high);

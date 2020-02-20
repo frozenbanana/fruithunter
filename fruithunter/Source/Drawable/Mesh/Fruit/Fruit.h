@@ -28,9 +28,11 @@ protected:
 	float findRequiredRotation(float3 lookAt);
 	void enforceOverTerrain();
 	Fruit(float3 pos = float3(0.f, 0.f, 0.f));
+	void behaviorReleased() override;
 
 
 public:
+	void release(float3 direction);
 	void move(float dt);
 	void update(float dt, float3 playerPosition, vector<shared_ptr<Entity>> collidables);
 	void handleAvailablePath();
