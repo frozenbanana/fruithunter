@@ -10,13 +10,14 @@ Bow::Bow() {
 	m_bow.setScale(0.2f);
 	m_arrow.load("Arrow");
 	m_arrow.setScale(float3(0.2f, 0.2f, m_arrowLength));
+	m_arrow.setPosition(float3(-10.f)); // To make sure that arrow doesn't spawn in fruits.
 	m_arrow.setCollisionDataOBB();
 }
 
 Bow::~Bow() {}
 
 void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 playerRight) {
-	//m_bow.setRotationByAxis(playerForward, BOW_ANGLE * m_aimMovement);
+	// m_bow.setRotationByAxis(playerForward, BOW_ANGLE * m_aimMovement);
 
 	// Set bow position based on player position and direction.
 	float3 playerUp = playerForward.Cross(playerRight);
@@ -45,7 +46,7 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 			arrowPhysics(dt,
 				float3(10.f, 0.f, 0.f)); // Updates arrow in flight, wind is currently hard coded.
 			m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
-			m_arrow.setRotation(float3(m_arrowPitch,m_arrowYaw,0));
+			m_arrow.setRotation(float3(m_arrowPitch, m_arrowYaw, 0));
 			float castray =
 				TerrainManager::getInstance()->castRay(m_arrow.getPosition(), m_arrowVelocity * dt);
 			if (castray != -1) {
@@ -105,7 +106,8 @@ void Bow::charge() { // Draws the arrow back on the bow
 		m_charging = true;
 }
 
-void Bow::shoot(float3 direction, float3 startVelocity, float pitch, float yaw) { // Shoots/fires the arrow
+void Bow::shoot(
+	float3 direction, float3 startVelocity, float pitch, float yaw) { // Shoots/fires the arrow
 	m_chargeReset = true;
 
 	if (m_charging) {
@@ -126,11 +128,14 @@ void Bow::shoot(float3 direction, float3 startVelocity, float pitch, float yaw) 
 		m_arrowPitch = pitch;
 		m_arrowYaw = yaw;
 
-		//m_arrowVelocity = startVelocity * direction * velocity; //adds player velocity but it looks weird :/
+		// m_arrowVelocity = startVelocity * direction * velocity; //adds player velocity but it
+		// looks weird :/
 		m_arrowVelocity = direction * velocity;
 		m_oldArrowVelocity = m_arrowVelocity; // Required to calc rotation
 	}
 }
+
+bool Bow::isShooting() const { return m_arrowReturnTimer > 0; }
 
 void Bow::arrowPhysics(float dt, float3 windVector) { // Updates arrow in flight
 	// Update acceleration

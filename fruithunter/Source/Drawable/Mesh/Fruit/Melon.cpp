@@ -8,7 +8,6 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	m_fruitType = MELON;
 
 	setScale(0.5);
-	setCollisionDataSphere();
 	changeState(AI::State::PASSIVE);
 	setStartPosition(pos);
 	ErrorLogger::log("Melon:: going to second home");
@@ -19,6 +18,7 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	m_directionalVelocity = m_position - m_secondWorldHome;
 	m_directionalVelocity.Normalize();
 	m_rollAnimationSpeed = 2.0f;
+	setCollisionDataOBB();
 }
 
 void Melon::behaviorPassive(float3 playerPosition) {

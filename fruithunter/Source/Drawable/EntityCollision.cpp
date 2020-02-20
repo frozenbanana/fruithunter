@@ -200,7 +200,7 @@ bool EntityCollision::collide(EntityCollision& other) {
 
 void EntityCollision::setCollisionPosition(float3 pos) {
 	float3 newPos = pos + m_collisionData->m_posOffset;
-	if ((m_collisionData->m_point - newPos).LengthSquared() < 0.01)
+	if ((m_collisionData->m_point - newPos).LengthSquared() > 0.01f)
 		m_collisionData->m_point = newPos;
 }
 

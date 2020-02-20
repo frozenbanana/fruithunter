@@ -12,9 +12,9 @@ void Entity::updateMatrix() {
 
 	m_collisionData.rotateObbAxis(m_matRotation);
 	m_collisionData.setCollisionPosition(m_position);
-
+	m_collisionData.setCollisionScale(m_scale);
 	// reset matricies
-	//m_matRotation = XMMatrixIdentity();
+	// m_matRotation = XMMatrixIdentity();
 }
 
 void Entity::bindModelMatrixBuffer() {
@@ -95,29 +95,19 @@ void Entity::setRotationByAxis(float3 axis, float angle) {
 	q.Normalize();
 	// ref:
 	// https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
-	float4x4 convertedMatrix = float4x4(
-		float4(q.w, q.z, -q.y, q.x), 
-		float4(-q.z, q.w, q.x, q.y),		
-		float4(q.y, -q.x, q.w, q.z), 
-		float4(-q.x, -q.y, -q.z, q.w)
-	) 
-	*
-	float4x4(
-		float4(q.w, q.z, -q.y, -q.x), 
-		float4(-q.z, q.w, q.x, -q.y),
-		float4(q.y, -q.x, q.w, -q.z), 
-		float4(q.x, q.y, q.z, q.w)
-	);
+	float4x4 convertedMatrix = float4x4(float4(q.w, q.z, -q.y, q.x), float4(-q.z, q.w, q.x, q.y),
+								   float4(q.y, -q.x, q.w, q.z), float4(-q.x, -q.y, -q.z, q.w)) *
+							   float4x4(float4(q.w, q.z, -q.y, -q.x), float4(-q.z, q.w, q.x, -q.y),
+								   float4(q.y, -q.x, q.w, -q.z), float4(q.x, q.y, q.z, q.w));
 
 	m_matRotation = convertedMatrix;
 	m_transformPropertiesChanged = true;
 }
 
-void Entity::setRotation(float3 rotation) { 
+void Entity::setRotation(float3 rotation) {
 
-	//m_matRotation = float4x4::CreateRotationX(rotation.x) * float4x4::CreateRotationY(rotation.y) *
-	//				float4x4::CreateRotationZ(rotation.z);
-	//m_transformPropertiesChanged = true;
+	// m_matRotation = float4x4::CreateRotationX(rotation.x) * float4x4::CreateRotationY(rotation.y)
+	// * 				float4x4::CreateRotationZ(rotation.z); m_transformPropertiesChanged = true;
 
 	m_matRotation = XMMatrixIdentity();
 	rotate(rotation);
@@ -150,7 +140,7 @@ void Entity::rotateX(float val) {
 	m_transformPropertiesChanged = true;
 }
 
-void Entity::rotateY(float val) { 
+void Entity::rotateY(float val) {
 	m_matRotation *= float4x4::CreateRotationY(val);
 	m_transformPropertiesChanged = true;
 }

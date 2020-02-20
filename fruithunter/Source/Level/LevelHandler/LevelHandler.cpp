@@ -207,13 +207,18 @@ void LevelHandler::update(float dt) {
 	// update stuff
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->update(dt, playerPos);
-		if (m_player.getArrow().checkCollision(*m_fruits[i])) {
-			m_fruits[i]->hit();
+		if (m_player.isShooting()) {
+			if (m_player.getArrow().checkCollision(*m_fruits[i])) {
+				m_fruits[i]->hit();
+				ErrorLogger::log("Hit a fruit");
+			}
 		}
-		if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() <
-			1.0f) { // If the fruit is close to the player get picked up
-			pickUpFruit(m_fruits[i].get()->getFruitType());
-			m_fruits.erase(m_fruits.begin() + i);
+		if (m_fruits[i]->getState() == AI::State::CAUGHT) {
+			if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() <
+				1.0f) { // If the fruit is close to the player get picked up
+				pickUpFruit(m_fruits[i].get()->getFruitType());
+				m_fruits.erase(m_fruits.begin() + i);
+			}
 		}
 	}
 

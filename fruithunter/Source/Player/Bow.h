@@ -14,6 +14,7 @@ public:
 	void shoot(float3 direction, float3 startVelocity, float pitch, float yaw);
 
 	Entity& getArrow() { return m_arrow; };
+	bool isShooting() const;
 
 private:
 	Entity m_bow;

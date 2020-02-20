@@ -12,6 +12,7 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 
 	m_activationRadius = 3.f;
 	m_passiveRadius = 6.f;
+	setCollisionDataOBB();
 }
 
 void Apple::behaviorPassive(float3 playerPosition) {
