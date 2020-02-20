@@ -33,6 +33,7 @@ float4 main(PS_IN ip) : SV_TARGET {
 	// light
 	float3 lightPos = float3(-5, 2, -3);
 	float3 toLight = normalize(lightPos - ip.PosW);
+	toLight = float3(1, 1, 1);
 
 	// ambient base
 	float3 ambientBase =
