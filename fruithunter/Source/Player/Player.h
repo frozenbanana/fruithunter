@@ -12,6 +12,7 @@ public:
 	void update(float dt, Terrain* terrain);
 	void updateBow(float dt);
 	void updateCamera();
+	void updateCameraGod();
 	void rotatePlayer(float dt);
 	void draw();
 	void collideObject(Entity& obj);
@@ -55,14 +56,15 @@ private:
 	Bow m_bow;
 
 	// Player behavior
-	bool m_onGround;						 // if player is grounded
-	bool m_onEntity;						 // if player is standing on an object
+	bool m_godMode = false;
+	bool m_onGround;							// if player is grounded
+	bool m_onEntity;							// if player is standing on an object
 	float3 m_gravity = float3(0, -1, 0) * 15.f; // direction * strength
 	// movement speed
-	float m_speed = 20.f;			   // player movement strength
-	float m_speedSprint = 40.f;		   // player movement strength when sprinting
+	float m_speed = 20.f;				// player movement strength
+	float m_speedSprint = 40.f;			// player movement strength when sprinting
 	float m_speedOnChargingDash = 10.f; // player movement when charging dash
-	float m_speedInAir = 5.f;		   // player movement in air
+	float m_speedInAir = 5.f;			// player movement in air
 	// jump
 	float m_jumpForce = 5.f; // strength of jump force
 	// stamina
@@ -70,9 +72,9 @@ private:
 	float m_stamina = STAMINA_MAX;	// stamina available
 	bool m_staminaConsumed = false; // stamina consumed this frame update
 	// sprint
-	const float STAMINA_SPRINT_THRESHOLD = 0.5f;  // threshold when sprinting is available
+	const float STAMINA_SPRINT_THRESHOLD = 0.5f;   // threshold when sprinting is available
 	const float STAMINA_SPRINT_CONSUMPTION = 0.2f; // stamina consumed per seconds
-	bool m_sprinting = false;					  // is the player sprinting
+	bool m_sprinting = false;					   // is the player sprinting
 	// dash
 	float m_dashForce = 10.f;
 	const float STAMINA_DASH_COST = 0.9f; // stamina cost of full charged dash
