@@ -28,7 +28,6 @@ void LevelHandler::initialise() {
 	level0.m_terrainTags.push_back(Level::TerrainTags::Forest);
 	level0.m_terrainTags.push_back(Level::TerrainTags::Desert);
 	level0.m_terrainTags.push_back(Level::TerrainTags::Plains);
-	level0.m_terrainTags.push_back(Level::TerrainTags::Volcano);
 
 	level0.m_heightMapNames.push_back("ForestMap.png");
 	level0.m_heightMapNames.push_back("DesertMap.png");
