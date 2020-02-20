@@ -128,11 +128,9 @@ void Player::update(float dt, Terrain* terrain) {
 					  speedFactor;
 		m_position += m_playerRight * (float)(ip->keyDown(KEY_RIGHT) - ip->keyDown(KEY_LEFT)) * dt *
 					  speedFactor;
-		ErrorLogger::logFloat3("Pos", m_position);
 
 		updateCameraGod();
 	}
-
 
 	if (ip->keyPressed(Keyboard::Keys::G))
 		m_godMode = !m_godMode;
