@@ -104,7 +104,7 @@ float EntityRepository::random(float min, float max) const {
 
 void EntityRepository::randomizeProperties(Entity* entity) const {
 	entity->setScale(random(0.8f, 1.3f));
-	entity->setRotationByAxis(float3(0, 1, 0), random(0.f, 3.14f * 2.f));
+	entity->rotateY(random(0.f, 3.14f * 2.f));
 }
 
 void EntityRepository::savePlacements(string filename) const {
