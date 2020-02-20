@@ -18,7 +18,10 @@ void LevelHandler::initialise() {
 	m_terrainProps.addPlaceableEntity("stone3");
 	m_terrainProps.addPlaceableEntity("bush1");
 	m_terrainProps.addPlaceableEntity("bush2");
-	m_terrainProps.addPlaceableEntity("Block");
+	m_terrainProps.addPlaceableEntity("BurnedTree1");
+	m_terrainProps.addPlaceableEntity("BurnedTree2");
+	m_terrainProps.addPlaceableEntity("BurnedTree3");
+	m_terrainProps.addPlaceableEntity("DeadBush");
 
 	Level level0;
 
@@ -177,7 +180,7 @@ void LevelHandler::draw() {
 
 void LevelHandler::update(float dt) {
 
-	m_terrainProps.update(dt,m_player.getCameraPosition(),m_player.getForward());
+	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
 	m_skyBox.updateDelta(dt);
 
