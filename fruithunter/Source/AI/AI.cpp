@@ -17,7 +17,7 @@ bool isIn(shared_ptr<AI::Node> target, std::vector<shared_ptr<AI::Node>> vector)
 	return false;
 }
 
-void AI::quickSort(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, int high) {
+void AI::quickSort(std::vector<shared_ptr<AI::Node>>& unsortedVector, size_t low, size_t high) {
 	if (low < high) {
 		int partitionIndex = partition(unsortedVector, low, high);
 		quickSort(unsortedVector, low, partitionIndex - 1);	 // Before pi
@@ -26,7 +26,7 @@ void AI::quickSort(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, i
 	// It is now sorted
 }
 
-int AI::partition(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, int high) {
+int AI::partition(std::vector<shared_ptr<AI::Node>>& unsortedVector, size_t low, size_t high) {
 	// pivot (Element to be placed at right position)
 	AI::Node* pivotElement = unsortedVector[high].get();
 

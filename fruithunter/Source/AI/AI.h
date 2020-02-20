@@ -55,6 +55,6 @@ protected:
 	virtual void behaviorReleased(){};
 
 	void doBehavior(float3 playerPosition, vector<shared_ptr<Entity>> collidables);
-	void quickSort(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, int high);
-	int partition(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, int high);
+	void quickSort(std::vector<shared_ptr<AI::Node>>& unsortedVector, size_t low, size_t high);
+	int partition(std::vector<shared_ptr<AI::Node>>& unsortedVector, size_t low, size_t high);
 };
