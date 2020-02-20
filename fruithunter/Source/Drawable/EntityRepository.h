@@ -9,15 +9,17 @@ private:
 	const string m_fileEndings = ".teps"; //tep = Terrain Entity Placements
 
 	struct EntityInstance {
-		float3 position, scale, rotation;
+		float3 position, scale;
+		float4x4 matRotation;
 		bool operator==(const EntityInstance& other) {
-			return (
-				position == other.position && scale == other.scale && rotation == other.rotation);
+			return (position == other.position && scale == other.scale &&
+					matRotation == other.matRotation);
 		}
-		EntityInstance(float3 _position = float3(0,0,0), float3 _scale = float3(1,1,1), float3 _rotation = float3(0,0,0)) {
+		EntityInstance(float3 _position = float3(0, 0, 0), float3 _scale = float3(1, 1, 1),
+			float4x4 _matRotation = XMMatrixIdentity()) {
 			position = _position;
 			scale = _scale;
-			rotation = _rotation;
+			matRotation = _matRotation;
 		}
 	};
 	struct EntityInstances {
@@ -43,7 +45,7 @@ private:
 	Keyboard::Keys m_stateSwitchKey = Keyboard::Tab;//switch placing mode
 	Keyboard::Keys m_indexIncreaseKey = Keyboard::NumPad2;//increase index
 	Keyboard::Keys m_indexDecreaseKey = Keyboard::NumPad1;//decrease index
-	Keyboard::Keys m_placeKey = Keyboard::Enter;//place entity
+	Input::MouseButton m_placeKey = Input::MouseButton::LEFT;//place entity
 	Keyboard::Keys m_deleteKey = Keyboard::Back;//delete entity
 	Keyboard::Keys m_randomizeKey = Keyboard::NumPad0;//randomize values of entity
 	Keyboard::Keys m_saveKey = Keyboard::NumPad9;//randomize values of entity

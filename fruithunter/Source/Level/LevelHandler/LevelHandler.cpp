@@ -152,7 +152,7 @@ void LevelHandler::loadLevel(int levelNr) {
 		m_collidableEntities.push_back(newEntity);
 
 		newEntity = make_shared<Entity>();
-		newEntity->load("bush2");
+		newEntity->load("DeadBush");
 		newEntity->setScale(1);
 		newEntity->setPosition(currentLevel.m_playerStartPos + float3(0.f, height, 5.f));
 		newEntity->setCollisionDataSphere();
@@ -181,7 +181,7 @@ void LevelHandler::draw() {
 
 void LevelHandler::update(float dt) {
 
-	m_terrainProps.update(dt,m_player.getCameraPosition(),m_player.getForward());
+	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
 	m_skyBox.updateDelta(dt);
 
