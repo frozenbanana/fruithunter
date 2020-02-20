@@ -18,106 +18,124 @@ void Player::update(float dt, Terrain* terrain) {
 	// player rotation
 	rotatePlayer(dt);
 
-	// modify velocity vector to match terrain
-	if (terrain != nullptr) {
-		int loopCount = 100;
-		while (1) {
-			float3 movement = m_velocity * dt;
-			float l = terrain->castRay(m_position, movement);
-			if (l == -1)
-				break; // break of no intersection was found!
-			float3 collisionPoint = m_position + movement * l;
-			float3 collisionNormal =
-				terrain->getNormalFromPosition(collisionPoint.x, collisionPoint.z);
-			slide(dt, collisionNormal, l);
-			loopCount--;
-			if (loopCount <= 0) {
-				ErrorLogger::logWarning(HRESULT(),
-					"WARNING! Player collision with terrain calculated "
-					"ALOT of iterations in the update function!");
-				break;
-			}
-		};
-	}
+	if (!m_godMode) {
+		// modify velocity vector to match terrain
+		if (terrain != nullptr) {
+			int loopCount = 100;
+			while (1) {
+				float3 movement = m_velocity * dt;
+				float l = terrain->castRay(m_position, movement);
+				if (l == -1)
+					break; // break of no intersection was found!
+				float3 collisionPoint = m_position + movement * l;
+				float3 collisionNormal =
+					terrain->getNormalFromPosition(collisionPoint.x, collisionPoint.z);
+				slide(dt, collisionNormal, l);
+				loopCount--;
+				if (loopCount <= 0) {
+					ErrorLogger::logWarning(HRESULT(),
+						"WARNING! Player collision with terrain calculated "
+						"ALOT of iterations in the update function!");
+					break;
+				}
+			};
+		}
 
-	// player movement
-	float3 force;
-	float3 playerStraightForward = m_playerRight.Cross(float3(0, 1, 0));
-	force += playerStraightForward * (float)(ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD));
-	force += m_playerRight * (float)(ip->keyDown(KEY_RIGHT) - ip->keyDown(KEY_LEFT));
+		// player movement
+		float3 force;
+		float3 playerStraightForward = m_playerRight.Cross(float3(0, 1, 0));
+		force +=
+			playerStraightForward * (float)(ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD));
+		force += m_playerRight * (float)(ip->keyDown(KEY_RIGHT) - ip->keyDown(KEY_LEFT));
 
-	// movement
-	m_position += m_velocity * dt;
-	if (m_onEntity) {
-		updateVelocity_onFlatGround(force, dt);
-	}
-	else if (terrain != nullptr) {
-		float3 normal = terrain->getNormalFromPosition(
-			m_position.x, m_position.z); // normal on current position
-		float height = terrain->getHeightFromPosition(
-			m_position.x, m_position.z); // height of terrain on current position
-		float terrainSteepness = float3(0, 1, 0).Dot(normal);
-		m_position.y =
-			clamp(m_position.y, m_position.y, height); // clamp position to never go under terrain!
-		if (abs(m_position.y - height) < ONGROUND_THRESHOLD) {
-			// on ground
-			m_onGround = true;
+		// movement
+		m_position += m_velocity * dt;
+		if (m_onEntity) {
+			updateVelocity_onFlatGround(force, dt);
+		}
+		else if (terrain != nullptr) {
+			float3 normal = terrain->getNormalFromPosition(
+				m_position.x, m_position.z); // normal on current position
+			float height = terrain->getHeightFromPosition(
+				m_position.x, m_position.z); // height of terrain on current position
+			float terrainSteepness = float3(0, 1, 0).Dot(normal);
+			m_position.y = clamp(
+				m_position.y, m_position.y, height); // clamp position to never go under terrain!
+			if (abs(m_position.y - height) < ONGROUND_THRESHOLD) {
+				// on ground
+				m_onGround = true;
 
-			if (terrainSteepness < STEEPNESS_BORDER) {
-				// STEEP terrain
-				updateVelocity_onSteepGround(dt);
+				if (terrainSteepness < STEEPNESS_BORDER) {
+					// STEEP terrain
+					updateVelocity_onSteepGround(dt);
+				}
+				else {
+					// FLAT terrian
+					updateVelocity_onFlatGround(force, dt);
+				}
 			}
 			else {
-				// FLAT terrian
-				updateVelocity_onFlatGround(force, dt);
+				// in air
+				updateVelocity_inAir(force, dt);
 			}
 		}
 		else {
+			// FALL OF TERRAIN IF NO TERRAIN
 			// in air
 			updateVelocity_inAir(force, dt);
 		}
-	}
-	else {
-		// FALL OF TERRAIN IF NO TERRAIN
-		// in air
-		updateVelocity_inAir(force, dt);
-	}
-	// reset value
-	m_onEntity = false;
+		// reset value
+		m_onEntity = false;
 
-	// dash
-	if (m_stamina >= STAMINA_DASH_COST && !m_sprinting && m_onGround) {
-		if (ip->keyDown(KEY_DASH)) {
-			m_dashCharge = clamp(m_dashCharge + dt, DASHMAXCHARGE, 0);
+		// dash
+		if (m_stamina >= STAMINA_DASH_COST && !m_sprinting && m_onGround) {
+			if (ip->keyDown(KEY_DASH)) {
+				m_dashCharge = clamp(m_dashCharge + dt, DASHMAXCHARGE, 0);
+			}
+			else if (ip->keyReleased(KEY_DASH)) {
+				m_velocity += m_playerForward * m_dashForce * ((float)m_dashCharge / DASHMAXCHARGE);
+				consumeStamina(STAMINA_DASH_COST);
+			}
 		}
-		else if (ip->keyReleased(KEY_DASH)) {
-			m_velocity += m_playerForward * m_dashForce * ((float)m_dashCharge / DASHMAXCHARGE);
-			consumeStamina(STAMINA_DASH_COST);
+		else {
+			// return to original state
+			m_dashCharge = clamp(m_dashCharge - 2 * dt, DASHMAXCHARGE, 0);
 		}
+
+		// sprint
+		if (ip->keyPressed(KEY_SPRINT) && m_stamina > STAMINA_SPRINT_THRESHOLD && !m_chargingDash) {
+			// activate sprint
+			m_sprinting = true;
+		}
+		if (ip->keyDown(KEY_SPRINT) && m_sprinting && m_stamina > 0) {
+			// consume stamina
+			consumeStamina(STAMINA_SPRINT_CONSUMPTION * dt);
+		}
+		else {
+			m_sprinting = false;
+		}
+
+		// restore stamina
+		restoreStamina(dt); // should be called only once!
+
+		// update camera properties
+		updateCamera();
 	}
 	else {
-		// return to original state
-		m_dashCharge = clamp(m_dashCharge - 2 * dt, DASHMAXCHARGE, 0);
+		float speedFactor = 20.0f;
+		m_position += m_playerForward *
+					  (float)(ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD)) * dt *
+					  speedFactor;
+		m_position += m_playerRight * (float)(ip->keyDown(KEY_RIGHT) - ip->keyDown(KEY_LEFT)) * dt *
+					  speedFactor;
+		ErrorLogger::logFloat3("Pos", m_position);
+
+		updateCameraGod();
 	}
 
-	// sprint
-	if (ip->keyPressed(KEY_SPRINT) && m_stamina > STAMINA_SPRINT_THRESHOLD && !m_chargingDash) {
-		// activate sprint
-		m_sprinting = true;
-	}
-	if (ip->keyDown(KEY_SPRINT) && m_sprinting && m_stamina > 0) {
-		// consume stamina
-		consumeStamina(STAMINA_SPRINT_CONSUMPTION * dt);
-	}
-	else {
-		m_sprinting = false;
-	}
 
-	// restore stamina
-	restoreStamina(dt); // should be called only once!
-
-	// update camera properties
-	updateCamera();
+	if (ip->keyPressed(Keyboard::Keys::G))
+		m_godMode = !m_godMode;
 
 	// Update bow
 	updateBow(dt);
@@ -161,6 +179,11 @@ void Player::updateCamera() {
 	m_camera.setUp(m_playerUp);
 	m_camera.setEye(m_position + float3(0, playerHeight, 0));
 	m_camera.setTarget(m_position + float3(0, playerHeight, 0) + m_playerForward);
+	m_camera.updateBuffer();
+}
+
+void Player::updateCameraGod() {
+	m_camera.setView(m_position, m_position + m_playerForward, m_playerUp);
 	m_camera.updateBuffer();
 }
 
@@ -213,7 +236,7 @@ void Player::draw() {
 void Player::collideObject(Entity& obj) {
 	// Check
 	// oeoepeoe
-	float radius = 0.2;
+	float radius = 0.2f;
 	float stepHeight = 0.45f; // height able to simply step over
 	EntityCollision feet(m_position + float3(0.f, radius, 0.f), float3(0.f), float3(1.f), radius);
 	EntityCollision hip(m_position + float3(0.f, stepHeight + radius * 2, 0.f), float3(0.f),
