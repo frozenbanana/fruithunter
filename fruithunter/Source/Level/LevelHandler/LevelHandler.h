@@ -53,6 +53,9 @@ private:
 	Level::TerrainTags m_currentTerrain = Level::TerrainTags::Forest;
 	Level::TerrainTags m_oldTerrain = Level::TerrainTags::Forest;
 
+	//Creating data for levels.
+	void initialiseLevel0();
+
 public:
 	LevelHandler();
 	~LevelHandler();
