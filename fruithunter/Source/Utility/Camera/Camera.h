@@ -18,7 +18,6 @@ public:
 	float getDefaultFov() const;
 
 	void bindMatrix();
-	void bindMatrix_noViewMatrix();
 	float4x4 getViewMatrix() const;
 	float4x4 getViewProjMatrix() const;
 	float3 getPosition() const;
@@ -40,5 +39,4 @@ private:
 	float3 m_camUp;
 
 	void updateBuffer();
-	void updateBuffer_noViewMatrix();
 };

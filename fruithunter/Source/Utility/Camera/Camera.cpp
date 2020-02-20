@@ -110,27 +110,8 @@ void Camera::updateBuffer() {
 	}
 }
 
-void Camera::updateBuffer_noViewMatrix() {
-	// update projection matrix
-	m_projMatrix = XMMatrixPerspectiveFovLH(
-		m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, NEAR_PLANE, FAR_PLANE);
-	m_vpMatrix = m_projMatrix;
-	m_projChanged = false;
-
-	// update resource
-	auto deviceContext = Renderer::getDeviceContext();
-	Matrix vpMatrixTransposed = m_vpMatrix.Transpose();
-	deviceContext->UpdateSubresource(m_matrixBuffer.Get(), 0, NULL, &vpMatrixTransposed, 0, 0);
-}
-
 void Camera::bindMatrix() {
 	updateBuffer();
-	auto deviceContext = Renderer::getDeviceContext();
-	deviceContext->VSSetConstantBuffers(MATRIX_SLOT, 1, m_matrixBuffer.GetAddressOf());
-}
-
-void Camera::bindMatrix_noViewMatrix() {
-	updateBuffer_noViewMatrix();
 	auto deviceContext = Renderer::getDeviceContext();
 	deviceContext->VSSetConstantBuffers(MATRIX_SLOT, 1, m_matrixBuffer.GetAddressOf());
 }
