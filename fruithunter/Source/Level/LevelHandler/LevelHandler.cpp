@@ -9,7 +9,21 @@ void LevelHandler::initialise() {
 
 	m_player.initialize();
 	m_terrainManager = TerrainManager::getInstance();
+
+	m_terrainProps.addPlaceableEntity("treeMedium1");
+	m_terrainProps.addPlaceableEntity("treeMedium2");
+	m_terrainProps.addPlaceableEntity("treeMedium3");
+	m_terrainProps.addPlaceableEntity("stone1");
+	m_terrainProps.addPlaceableEntity("stone2");
+	m_terrainProps.addPlaceableEntity("stone3");
+	m_terrainProps.addPlaceableEntity("bush1");
+	m_terrainProps.addPlaceableEntity("bush2");
+	m_terrainProps.addPlaceableEntity("Block");
+
 	Level level0;
+
+	level0.m_terrainPropsFilename = "level0";
+
 	level0.m_terrainTags.push_back(Level::TerrainTags::Volcano);
 	level0.m_terrainTags.push_back(Level::TerrainTags::Forest);
 	level0.m_terrainTags.push_back(Level::TerrainTags::Desert);
@@ -35,10 +49,10 @@ void LevelHandler::initialise() {
 	level0.m_heightMapDivision.push_back(XMINT2(5, 5));
 	level0.m_heightMapDivision.push_back(XMINT2(5, 5));
 
-	level0.m_heightMapScales.push_back(float3(1, 0.20, 1) * 100);
-	level0.m_heightMapScales.push_back(float3(1, 0.15, 1) * 100);
-	level0.m_heightMapScales.push_back(float3(1, 0.20, 1) * 100);
-	level0.m_heightMapScales.push_back(float3(1, 0.10, 1) * 100);
+	level0.m_heightMapScales.push_back(float3(1.f, 0.20f, 1.f) * 100);
+	level0.m_heightMapScales.push_back(float3(1.f, 0.15f, 1.f) * 100);
+	level0.m_heightMapScales.push_back(float3(1.f, 0.20f, 1.f) * 100);
+	level0.m_heightMapScales.push_back(float3(1.f, 0.10f, 1.f) * 100);
 
 	vector<string> maps(4);
 	maps[0] = "texture_rock8.jpg"; // flat
@@ -79,6 +93,8 @@ void LevelHandler::loadLevel(int levelNr) {
 	if (m_currentLevel != levelNr) {
 		m_currentLevel = levelNr;
 		Level currentLevel = m_levelsArr.at(levelNr);
+
+		m_terrainProps.load(currentLevel.m_terrainPropsFilename);
 
 		for (int i = 0; i < m_levelsArr.at(levelNr).m_heightMapNames.size(); i++) {
 			m_terrainManager->add(currentLevel.m_heightMapPos.at(i),
@@ -145,10 +161,14 @@ void LevelHandler::draw() {
 		m_collidableEntities[i]->draw();
 	}
 	m_entity.draw();
+	m_terrainProps.draw();
 	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 }
 
 void LevelHandler::update(float dt) {
+
+	m_terrainProps.update(dt,m_player.getCameraPosition(),m_player.getForward());
+
 	m_skyBox.updateDelta(dt);
 
 	if (Input::getInstance()->keyPressed(Keyboard::R) && m_currentLevel >= 0)
