@@ -5,7 +5,7 @@
 #define STEP_SCALE 1.f
 #define MAX_STEAPNESS 5.f
 #define EPSILON 0.001f
-#define MAX_STEPS 50
+#define MAX_STEPS 35
 
 bool areSame(float3 a, float3 b) { return (a - b).LengthSquared() < EPSILON; }
 
@@ -48,6 +48,10 @@ void AI::setWorld(std::shared_ptr<Terrain> terrain) { m_terrain = terrain; }
 
 void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collidables) {
 	TerrainManager* tm = TerrainManager::getInstance();
+	// enforce start and end to terrain
+	start.y = tm->getHeightFromPosition(start);
+	end.y = tm->getHeightFromPosition(end);
+
 	shared_ptr<AI::Node> currentNode =
 		make_shared<AI::Node>(shared_ptr<AI::Node>(), start, start, end);
 	bool collidedWithSomething = false;
@@ -57,27 +61,20 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 	std::list<float3> childPositionOffsets = { float3(-1.f, 0.f, -1.f), float3(0.f, 0.f, -1.f),
 		float3(1.f, 0.f, -1.f), float3(-1.f, 0.f, 0.f), float3(1.f, 0.f, 0.f),
 		float3(-1.f, 0.f, 1.f), float3(0.f, 0.f, 1.f), float3(1.f, 0.f, 1.f) };
-	/*std::vector<float3> childPositionOffsets = {
-		float3(0.f, 0.f, -1.f),
-		float3(0.f, 0.f, 1.f),
-		float3(1.f, 0.f, 0.f),
-		float3(-1.f, 0.f, 0.f),
-	};*/
+
+	ErrorLogger::logFloat3("end", end);
 
 	open.push_back(currentNode);
 	ErrorLogger::log("-------------- STARING A NEW ROUND OF PATHFINDING --------------");
 	while (!open.empty() && counter++ < MAX_STEPS) {
-		/*if (!closed.empty()) {
-			ErrorLogger::logFloat3("Standing at", closed.back()->position);
-		}*/
 		quickSort(open, 0, open.size() - 1);
-
 
 		closed.push_back(open.back());
 		open.pop_back();
 
 		// Check to see if we're inside a certain radius of end location
 		shared_ptr<AI::Node> currentNode = closed.back();
+		ErrorLogger::logFloat3("cn ", currentNode->position);
 		if ((currentNode->position - end).LengthSquared() < ARRIVAL_RADIUS) {
 			m_availablePath.clear(); // Reset path
 
@@ -87,14 +84,17 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 				currentNode = currentNode->parent;
 			}
 
-			/*ErrorLogger::log(
-				"Path found! Amout of steps: " + std::to_string(m_availablePath.size()));*/
+
 			int counter = 0;
 			for (float3 p : m_availablePath) {
 				ErrorLogger::logFloat3("step " + to_string(counter++), p);
 			}
-			// m_availablePath.pop_front(); // remove first position because it is the same as
-			// start.
+
+			if (!m_availablePath.empty()) {
+				m_availablePath
+					.pop_back(); // remove first position because it is the same as start.
+			}
+
 			return;
 		}
 
@@ -129,8 +129,6 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 				float collidableRadiusSquared = collidables.at(i)->getHalfSizes().LengthSquared();
 
 				if (lengthChildToCollidableSquared < collidableRadiusSquared) {
-					/*ErrorLogger::logFloat3("Failed child::", childPosition);
-					ErrorLogger::logFloat3("        with::", collidables.at(i)->getPosition());*/
 					collidedWithSomething = true;
 					break;
 				}
@@ -148,7 +146,10 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 	ErrorLogger::log("Exiting pathfinding");
 }
 
-void AI::changeState(State newState) { m_currentState = newState; }
+void AI::changeState(State newState) {
+	m_availablePath.clear();
+	m_currentState = newState;
+}
 
 AI::State AI::getState() const { return m_currentState; }
 

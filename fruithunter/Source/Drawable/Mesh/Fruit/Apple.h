@@ -11,5 +11,5 @@ private:
 public:
 	Apple(float3 pos = float3(12.f, 0.f, 6.f));
 	void updateAnimated(float dt);
-	void flee(float3 playerDir);
+	void flee(float3 playerDir, vector<shared_ptr<Entity>> collidables);
 };

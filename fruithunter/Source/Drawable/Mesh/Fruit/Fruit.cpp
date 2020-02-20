@@ -71,13 +71,13 @@ void Fruit::update(float dt, float3 playerPosition, vector<shared_ptr<Entity>> c
 void Fruit::handleAvailablePath() {
 	if (!m_availablePath.empty()) {
 		float3 positionXZ = float3(m_position.x, 0.0f, m_position.z);
-		float3 currentTargetXZ = float3(m_availablePath.front().x, 0.0f, m_availablePath.front().z);
+		float3 currentTargetXZ = float3(m_availablePath.back().x, 0.0f, m_availablePath.back().z);
 
 		// Update next path point
-		if ((positionXZ - currentTargetXZ).Length() < 0.6f) {
+		if ((positionXZ - currentTargetXZ).Length() < ARRIVAL_RADIUS) {
 			ErrorLogger::logFloat3("position     ", positionXZ);
-			ErrorLogger::logFloat3("Popping front", m_availablePath.front());
-			m_availablePath.pop_front();
+			ErrorLogger::logFloat3("Popping back", m_availablePath.back());
+			m_availablePath.pop_back();
 		}
 	}
 }

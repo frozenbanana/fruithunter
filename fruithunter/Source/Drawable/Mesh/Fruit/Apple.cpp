@@ -20,19 +20,19 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 void Apple::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
 	// ErrorLogger::logFloat3("Apple:: Doing passive.", m_position);
 	float terrainHeight = TerrainManager::getInstance()->getHeightFromPosition(m_position);
+	// Check if not at home
 	if (!withinDistanceTo(m_worldHome, 0.75f) && atOrUnder(terrainHeight)) {
-		// Check if path is anything different than going home
+		// Check if there is no other path on going
 		if (m_availablePath.empty()) {
 			if ((m_position - m_worldHome).LengthSquared() > ARRIVAL_RADIUS) {
 				ErrorLogger::logFloat3("Apple:: Finding Path for home from", m_position);
-				pathfinding(m_position, m_worldHome, collidables);
+				pathfinding(m_position, m_worldHome, collidables); // go home
 			}
 		}
 		// if path decided update velocity towards current point.
 		if (!m_availablePath.empty()) {
-			m_directionalVelocity = m_availablePath.front() - m_position;
+			m_directionalVelocity = m_availablePath.back() - m_position;
 			m_directionalVelocity.Normalize();
-			// ErrorLogger::logFloat3("Updating velocity", m_directionalVelocity);
 		}
 	}
 	else { // Just jump when home
@@ -48,9 +48,8 @@ void Apple::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> co
 
 void Apple::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
 	// ErrorLogger::log("Apple:: Doing active.");
-	flee(playerPosition);
+	flee(playerPosition, collidables);
 	if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
-		m_availablePath.clear();
 		changeState(PASSIVE);
 	}
 }
@@ -97,23 +96,27 @@ void Apple::updateAnimated(float dt) {
 		posOrder[0] = getPosition();
 		posOrder[1] = getPosition();
 	}
-	// Set position
-	/*float3 pos = XMVectorLerp(posOrder[m_currentFramePhase],
-		posOrder[(m_currentFramePhase + 1) % (m_nrOfFramePhases)], m_frameTime);
-	setPosition(pos);*/
 
 	// Update mesh specificly with our frametime
 	m_meshAnim.updateSpecific(m_frameTime);
 }
 
 
-void Apple::flee(float3 playerPos) {
-	/*float3 start = float3(m_startAnimationPosition.x, 0.0, m_startAnimationPosition.z);
-	float3 end = float3(playerPos.x, 0.0f, playerPos.z);
-	pathfinding(start, end);*/
-	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
-		m_directionalVelocity += m_position - playerPos;
+void Apple::flee(float3 playerPos, vector<shared_ptr<Entity>> collidables) {
+	// Update fleeing path if ther is none
+	if (m_availablePath.empty()) {
+		float3 runTo = m_position - playerPos;
+		runTo.Normalize();
+		runTo *= m_passiveRadius;
+		runTo += m_position;
+		pathfinding(m_position, runTo, collidables);
+	}
+
+	// set new velocity from path
+	if (!m_availablePath.empty() &&
+		atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
+		m_directionalVelocity = m_availablePath.back() - m_position;
 		m_directionalVelocity.Normalize();
-		m_directionalVelocity *= 3.f;
+		m_directionalVelocity *= 5.f;
 	}
 }
