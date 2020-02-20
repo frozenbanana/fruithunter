@@ -17,8 +17,8 @@ public:
 	void setFov(float fov);
 	float getDefaultFov() const;
 
-	void updateBuffer();
 	void bindMatrix();
+	float4x4 getViewMatrix() const;
 	float4x4 getViewProjMatrix() const;
 	float3 getPosition() const;
 
@@ -37,4 +37,6 @@ private:
 	float3 m_camEye;
 	float3 m_camTarget;
 	float3 m_camUp;
+
+	void updateBuffer();
 };

@@ -5,10 +5,28 @@
 #include "Input.h"
 ShaderSet Terrain::m_shader;
 Microsoft::WRL::ComPtr<ID3D11Buffer> Terrain::m_matrixBuffer;
+Microsoft::WRL::ComPtr<ID3D11SamplerState> Terrain::m_sampler;
 
 void Terrain::createBuffers() {
 	auto gDevice = Renderer::getDevice();
 	auto gDeviceContext = Renderer::getDeviceContext();
+	//sampler
+	if (m_sampler.Get() == nullptr) {
+		D3D11_SAMPLER_DESC sampDesc;
+		sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.MipLODBias = 0.0f;
+		sampDesc.MaxAnisotropy = 16;
+		sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		sampDesc.MinLOD = -3.402823466e+38F;
+		sampDesc.MaxLOD = 3.402823466e+38F;
+		HRESULT res = gDevice->CreateSamplerState(&sampDesc, m_sampler.GetAddressOf());
+		if (FAILED(res))
+			ErrorLogger::logError(res, "Failed creating sampler state in Terrain class!\n");
+	}
+
 	// matrix buffer
 	if (m_matrixBuffer.Get() == nullptr) {
 		D3D11_BUFFER_DESC desc;
@@ -21,8 +39,13 @@ void Terrain::createBuffers() {
 		if (FAILED(res))
 			ErrorLogger::logError(res, "Failed creating matrix buffer in Terrain class!\n");
 	}
-	// grass texture
-	createResourceBuffer(m_grassPath, m_map_grass.GetAddressOf());
+	// textures
+	m_mapsInitilized = true;
+	for (size_t i = 0; i < m_mapCount; i++) {
+		bool state = createResourceBuffer(m_mapNames[i], m_maps[i].GetAddressOf());
+		if (state == false)
+			m_mapsInitilized = false;
+	}
 }
 
 float4x4 Terrain::getModelMatrix() {
@@ -81,27 +104,31 @@ float Terrain::sampleHeightmap(float2 uv) {
 
 	float v = 0;
 	if (m_heightmapDescription.Format == DXGI_FORMAT_R8_UNORM) {
-		unsigned char d =
+		unsigned char r =
 			((unsigned char*)
 					m_heightmapMappedData.pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x];
-		v = (float)d / (pow(2.f, 1.f * 8.f) - 1.f);
+		v = (float)r / (pow(2.f, 1.f * 8.f) - 1.f);
 	}
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R8G8B8A8_UNORM) {
-		unsigned char d = ((unsigned char*)m_heightmapMappedData
+		unsigned char r = ((unsigned char*)m_heightmapMappedData
 							   .pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
-		v = (float)d / (pow(2.f, 1.f * 8.f) - 1.f);
+		v = (float)r / (pow(2.f, 1.f * 8.f) - 1.f);
 	}
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R8G8B8A8_UNORM_SRGB) {
-		unsigned char d = ((unsigned char*)m_heightmapMappedData
+		unsigned char r = ((unsigned char*)m_heightmapMappedData
 							   .pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
-		v = (float)d / (pow(2.f, 1.f * 8.f) - 1.f);
+		unsigned char g = ((unsigned char*)m_heightmapMappedData
+							   .pData)[(iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4)+1];
+		if ((float)g > 0.0f)
+			m_spawnPoint.push_back(float2((float)iUV.x, (float)iUV.y));
+		v = (float)r / 255.f;
 	}
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R16G16B16A16_UNORM) {
-		unsigned short int d =
+		unsigned short int r =
 			((unsigned short int*)m_heightmapMappedData
 					.pData)[iUV.y * (m_heightmapMappedData.RowPitch / sizeof(short int)) +
 							iUV.x * 4];
-		v = (float)d / (pow(2.f, sizeof(short int) * 8.f) - 1.f);
+		v = (float)r / (pow(2.f, sizeof(short int) * 8.f) - 1.f);
 	}
 	return v;
 }
@@ -129,7 +156,7 @@ void Terrain::createGridPointsFromHeightmap() {
 		}
 	}
 	// smooth positions
-	int smoothSteps = 2;
+	int smoothSteps = SMOOTH_STEPS;
 	for (int i = 0; i < smoothSteps; i++) {
 		vector<vector<Vertex>> mapCopy = m_gridPoints;
 		for (int xx = 1; xx < m_gridPointSize.x - 1; xx++) {
@@ -161,7 +188,7 @@ void Terrain::createGridPointsFromHeightmap() {
 			m_gridPoints[xx + 0][yy + 1].normal = normal1;
 
 			m_gridPoints[xx + 0][yy + 0].normal = normal2;
-			m_gridPoints[xx + 0][yy + 0].normal = normal2;
+			m_gridPoints[xx + 1][yy + 1].normal = normal2;
 			m_gridPoints[xx + 1][yy + 0].normal = normal2;
 		}
 	}
@@ -187,7 +214,7 @@ void Terrain::createGrid(XMINT2 size) {
 	}
 }
 
-void Terrain::fillSubMeshes(bool flatShaded) {
+void Terrain::fillSubMeshes() {
 	if (m_gridPointSize.x != 0 && m_gridPointSize.y != 0) {
 		XMINT2 order[6] = { // tri1
 			XMINT2(1, 1), XMINT2(0, 0), XMINT2(0, 1),
@@ -211,7 +238,7 @@ void Terrain::fillSubMeshes(bool flatShaded) {
 					}
 				}
 				// flatshade
-				if (flatShaded) {
+				if (FLAT_SHADING) {
 					// fix normals to flat shading
 					for (size_t i = 0; i < vertices->size(); i += 3) {
 						float3 p1 = (*vertices)[i + 0].position;
@@ -222,6 +249,26 @@ void Terrain::fillSubMeshes(bool flatShaded) {
 						(*vertices)[i + 0].normal = normal;
 						(*vertices)[i + 1].normal = normal;
 						(*vertices)[i + 2].normal = normal;
+					}
+				}
+				// EDGE SHADING
+				if (EDGE_SHADING) {
+					for (size_t i = 0; i < vertices->size(); i += 3) {
+						float3 p1 = (*vertices)[i + 0].position;
+						float3 p2 = (*vertices)[i + 1].position;
+						float3 p3 = (*vertices)[i + 2].position;
+						float3 normal = (p2 - p1).Cross(p3 - p1); // flat normal
+						normal.Normalize();
+						float3 pn1 = (*vertices)[i + 0].normal;
+						float3 pn2 = (*vertices)[i + 1].normal;
+						float3 pn3 = (*vertices)[i + 2].normal;
+
+						(*vertices)[i + 0].normal =
+							(pn1.Dot(normal) > EDGE_THRESHOLD ? pn1 : normal);
+						(*vertices)[i + 1].normal =
+							(pn2.Dot(normal) > EDGE_THRESHOLD ? pn2 : normal);
+						(*vertices)[i + 2].normal =
+							(pn3.Dot(normal) > EDGE_THRESHOLD ? pn3 : normal);
 					}
 				}
 				// create buffers
@@ -258,14 +305,14 @@ string Terrain::LPWSTR_to_STRING(LPWSTR str) {
 	return sbuff;
 }
 
-bool Terrain::createResourceBuffer(string path, ID3D11ShaderResourceView** buffer) {
+bool Terrain::createResourceBuffer(string filename, ID3D11ShaderResourceView** buffer) {
 	auto device = Renderer::getDevice();
 	auto deviceContext = Renderer::getDeviceContext();
-	wstring wstr = s2ws(path);
+	wstring wstr = s2ws(m_texturePath + filename);
 	LPCWCHAR str = wstr.c_str();
 	HRESULT hrA = DirectX::CreateWICTextureFromFile(device, deviceContext, str, nullptr, buffer);
 	if (FAILED(hrA)) {
-		ErrorLogger::messageBox(hrA, "Failed creating texturebuffer from texture\n" + path);
+		ErrorLogger::messageBox(hrA, "Failed creating texturebuffer from texture\n" + filename);
 		return false;
 	}
 	return true;
@@ -295,6 +342,17 @@ void Terrain::tileRayIntersectionTest(
 	if ((t2 > 0.f) && (minL == -1 || t2 < minL)) {
 		minL = t2;
 	}
+}
+
+float3 Terrain::getRandomSpawnPoint() { 
+	if (m_spawnPoint.size() > 0) {
+		size_t random = rand() % m_spawnPoint.size();
+		float3 spawnPoint = float3(m_spawnPoint[random].x, 0.0f, m_spawnPoint[random].y);
+		spawnPoint = (spawnPoint / 10) + m_position;
+		spawnPoint.y = getHeightFromPosition(spawnPoint.x, spawnPoint.z);
+		return spawnPoint;
+	}
+	return float3(0.f);
 }
 
 float Terrain::obbTest(float3 rayOrigin, float3 rayDir, float3 boxPos, float3 boxScale) {
@@ -357,7 +415,14 @@ float Terrain::triangleTest(
 
 void Terrain::setPosition(float3 position) { m_position = position; }
 
-void Terrain::initilize(string filename, XMINT2 subsize, XMINT2 splits) {
+void Terrain::initilize(string filename, vector<string> textures, XMINT2 subsize, XMINT2 splits) {
+	// set texture
+	if (textures.size() == 4) {
+		for (size_t i = 0; i < m_mapCount; i++) {
+			m_mapNames[i] = textures[i];
+		}
+	}
+	// load terrain
 	if (filename == "" || (splits.x == 0 || splits.y == 0) || (subsize.x == 0 || subsize.y == 0)) {
 		// do nothing
 	}
@@ -511,7 +576,7 @@ float Terrain::castRay(float3 point, float3 direction) {
 			vector<float> ts;					   // sorted intersection time array
 			ts.reserve(changeInX + changeInY + 2); //+2 for start and end point
 			// sort largest first
-			ts.push_back((end - start).Length() / tilt.Length());
+			ts.push_back(1);
 			while (tsX.size() > 0 || tsY.size() > 0) {
 				if (tsX.size() > 0 && tsY.size() > 0) {
 					if (tsX.back() < tsY.back()) {
@@ -561,24 +626,36 @@ float Terrain::castRay(float3 point, float3 direction) {
 }
 
 void Terrain::draw() {
-	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+	if (m_mapsInitilized) {
 
-	m_shader.bindShadersAndLayout();
+		ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
-	deviceContext->PSSetShaderResources(0, 1, m_map_grass.GetAddressOf());
+		//bind shaders
+		m_shader.bindShadersAndLayout();
 
-	bindModelMatrix();
+		//bind samplerstate
+		deviceContext->PSSetSamplers(SAMPLERSTATE_SLOT,1,m_sampler.GetAddressOf());
 
-	for (int xx = 0; xx < m_gridSize.x; xx++) {
-		for (int yy = 0; yy < m_gridSize.y; yy++) {
-			m_subMeshes[xx][yy].bind();
-			deviceContext->Draw(m_subMeshes[xx][yy].getVerticeCount(), 0);
+		//bind texture resources
+		for (int i = 0; i < m_mapCount; i++) {
+			deviceContext->PSSetShaderResources(i, 1, m_maps[i].GetAddressOf());
+		}
+
+		//bind world matrix
+		bindModelMatrix();
+
+		//draw grids
+		for (int xx = 0; xx < m_gridSize.x; xx++) {
+			for (int yy = 0; yy < m_gridSize.y; yy++) {
+				m_subMeshes[xx][yy].bind();
+				deviceContext->Draw(m_subMeshes[xx][yy].getVerticeCount(), 0);
+			}
 		}
 	}
 }
 
-Terrain::Terrain(string filename, XMINT2 subsize, XMINT2 splits) {
-	initilize(filename, subsize, splits);
+Terrain::Terrain(string filename, vector<string> textures, XMINT2 subsize, XMINT2 splits) {
+	initilize(filename, textures, subsize, splits);
 	if (!m_shader.isLoaded()) {
 		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = {
 			{

@@ -12,6 +12,7 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 
 	m_activationRadius = 3.f;
 	m_passiveRadius = 6.f;
+	setCollisionDataOBB();
 
 	// SET TEST WORLDHOME
 	setWorldHome(float3(14.0f, 0.0f, 18.0f));

@@ -146,7 +146,7 @@ void Renderer::createDevice(HWND window) {
 		ErrorLogger::messageBox(swpFlag, L"Error creating DX11.");
 		return;
 	}
-
+	createDepthState();
 	createDepthBuffer(swapChainDesc);
 }
 
@@ -193,4 +193,28 @@ void Renderer::createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd) {
 	HRESULT hr2 = m_device->CreateDepthStencilView(tex, &viewDesc, m_depthDSV.GetAddressOf());
 
 	tex->Release();
+}
+
+void Renderer::createDepthState() {
+	D3D11_DEPTH_STENCIL_DESC DeStState;
+	DeStState.DepthEnable = true;
+	DeStState.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	DeStState.DepthFunc = D3D11_COMPARISON_LESS;
+	DeStState.StencilEnable = true;
+	DeStState.StencilReadMask = 0xFF;
+	DeStState.StencilWriteMask = 0xFF;
+	// Stencil operations if pixel is front-facing
+	DeStState.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	DeStState.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	DeStState.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	DeStState.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// Stencil operations if pixel is back-facing
+	DeStState.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	DeStState.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	DeStState.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	DeStState.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	HRESULT hr = m_device->CreateDepthStencilState(&DeStState, m_depthDSS.GetAddressOf());
+	m_deviceContext->OMSetDepthStencilState(m_depthDSS.Get(), 1);
 }

@@ -7,8 +7,6 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	m_rollSpeed = 5.f;
 	m_fruitType = MELON;
 
-	setCollisionData(getPosition(),
-		m_meshAnim.getBoundingBoxHalfSizes().y); // sets to sphere with radius same as y halfsize;
 	setScale(0.5);
 	changeState(AI::State::PASSIVE);
 	setStartPosition(pos);
@@ -20,6 +18,7 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	m_directionalVelocity = m_position - m_secondWorldHome;
 	m_directionalVelocity.Normalize();
 	m_rollAnimationSpeed = 2.0f;
+	setCollisionDataOBB();
 }
 
 void Melon::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {

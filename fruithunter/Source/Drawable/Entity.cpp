@@ -3,22 +3,22 @@
 #include "Input.h"
 
 void Entity::updateMatrix() {
-	m_matrixChanged = false;
-	float4x4 matTranform = float4x4::CreateTranslation(m_position);
+	m_transformPropertiesChanged = false;
+	float4x4 matTranslation = float4x4::CreateTranslation(m_position);
 	float4x4 matScale = float4x4::CreateScale(m_scale);
-	float4x4 matWorld = matScale * m_matRotation * matTranform;
+	float4x4 matWorld = matScale * m_matRotation * matTranslation;
 	m_matrixBufferData.matWorld = matWorld;
 	m_matrixBufferData.matInvTraWorld = matWorld.Invert().Transpose();
 
 	m_collisionData.rotateObbAxis(m_matRotation);
 	m_collisionData.setCollisionPosition(m_position);
-
+	m_collisionData.setCollisionScale(m_scale);
 	// reset matricies
-	m_matRotation = XMMatrixIdentity();
+	// m_matRotation = XMMatrixIdentity();
 }
 
 void Entity::bindModelMatrixBuffer() {
-	if (m_matrixChanged) {
+	if (m_transformPropertiesChanged) {
 		// update matrix if needed
 		updateMatrix();
 	}
@@ -52,29 +52,41 @@ void Entity::createBuffers() {
 bool Entity::isMeshInitialized() const { return (m_mesh.get() != nullptr); }
 
 bool Entity::atOrUnder(float terrainHeight) const {
-	return m_position.y <= (terrainHeight + getHalfSizesAnimated().y / 2.f);
+	return m_position.y <= (terrainHeight + getHalfSizes().y / 2.f);
+}
+
+string Entity::getModelName() const {
+	if (m_mesh != nullptr) {
+		return m_mesh->getName();
+	}
+	return "";
 }
 
 float4x4 Entity::getModelMatrix() {
-	if (m_matrixChanged)
+	if (m_transformPropertiesChanged)
 		updateMatrix();
 	return m_matrixBufferData.matWorld;
 }
 
-float3 Entity::getPosition() const { return m_position; }
+float4x4 Entity::getRotationMatrix() const { return m_matRotation; }
 
-float3 Entity::getRotation() const { return m_rotation; }
+float3 Entity::getPosition() const { return m_position; }
 
 float3 Entity::getScale() const { return m_scale; }
 
 void Entity::setPosition(float3 position) {
 	m_position = position;
-	m_matrixChanged = true;
+	m_transformPropertiesChanged = true;
 }
 
 void Entity::move(float3 movement) {
 	m_position += movement;
-	m_matrixChanged = true;
+	m_transformPropertiesChanged = true;
+}
+
+void Entity::setRotationMatrix(float4x4 matrix) {
+	m_matRotation = matrix;
+	m_transformPropertiesChanged = true;
 }
 
 void Entity::setRotationByAxis(float3 axis, float angle) {
@@ -88,59 +100,69 @@ void Entity::setRotationByAxis(float3 axis, float angle) {
 							   float4x4(float4(q.w, q.z, -q.y, -q.x), float4(-q.z, q.w, q.x, -q.y),
 								   float4(q.y, -q.x, q.w, -q.z), float4(q.x, q.y, q.z, q.w));
 
-	m_matRotation *= convertedMatrix;
-	m_matrixChanged = true;
+	m_matRotation = convertedMatrix;
+	m_transformPropertiesChanged = true;
 }
-
 
 void Entity::setRotation(float3 rotation) {
-	m_rotation = rotation;
 
-	m_matRotation *= float4x4::CreateRotationX(m_rotation.x) *
-					 float4x4::CreateRotationY(m_rotation.y) *
-					 float4x4::CreateRotationZ(m_rotation.z);
+	// m_matRotation = float4x4::CreateRotationX(rotation.x) * float4x4::CreateRotationY(rotation.y)
+	// * 				float4x4::CreateRotationZ(rotation.z); m_transformPropertiesChanged = true;
 
-	m_matrixChanged = true;
+	m_matRotation = XMMatrixIdentity();
+	rotate(rotation);
 }
 
-void Entity::rotate(float3 rotate) {
-	m_rotation += rotate;
-	setRotation(m_rotation);
+void Entity::rotate(float3 rotation) {
+	rotateZ(rotation.z);
+	rotateX(rotation.x);
+	rotateY(rotation.y);
+}
+
+void Entity::rotateByAxis(float3 axis, float angle) {
+	axis.Normalize();
+	Quaternion q = Quaternion(axis, angle);
+	q.Normalize();
+	// ref:
+	// https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
+	float4x4 convertedMatrix = float4x4(float4(q.w, q.z, -q.y, q.x), float4(-q.z, q.w, q.x, q.y),
+								   float4(q.y, -q.x, q.w, q.z), float4(-q.x, -q.y, -q.z, q.w)) *
+
+							   float4x4(float4(q.w, q.z, -q.y, -q.x), float4(-q.z, q.w, q.x, -q.y),
+								   float4(q.y, -q.x, q.w, -q.z), float4(q.x, q.y, q.z, q.w));
+
+	m_matRotation *= convertedMatrix;
+	m_transformPropertiesChanged = true;
 }
 
 void Entity::rotateX(float val) {
-	m_rotation.x += val;
-	setRotation(m_rotation);
+	m_matRotation *= float4x4::CreateRotationX(val);
+	m_transformPropertiesChanged = true;
 }
 
 void Entity::rotateY(float val) {
-	m_rotation.y += val;
-	setRotation(m_rotation);
+	m_matRotation *= float4x4::CreateRotationY(val);
+	m_transformPropertiesChanged = true;
 }
 
 void Entity::rotateZ(float val) {
-	m_rotation.z += val;
-	setRotation(m_rotation);
+	m_matRotation *= float4x4::CreateRotationZ(val);
+	m_transformPropertiesChanged = true;
 }
 
 void Entity::setScale(float3 scale) {
 	m_scale = float3(abs(scale.x), abs(scale.y), abs(scale.z));
 	scaleBoundingBoxHalfSizes(m_scale);
-	m_matrixChanged = true;
+	m_transformPropertiesChanged = true;
 }
 
 void Entity::setScale(float scale) {
 	m_scale = float3(abs(scale), abs(scale), abs(scale));
 	scaleBoundingBoxHalfSizes(m_scale);
-	m_matrixChanged = true;
+	m_transformPropertiesChanged = true;
 }
 
-void Entity::scaleBoundingBoxHalfSizes(float3 scale) {
-	if (m_mesh.get() != nullptr)
-		m_mesh->scaleBoundingBoxHalfSizes(scale);
-	else
-		m_meshAnim.scaleBoundingBoxHalfSizes(scale);
-}
+void Entity::scaleBoundingBoxHalfSizes(float3 scale) { m_collisionData.setCollisionScale(scale); }
 
 void Entity::draw() {
 	if (isMeshInitialized()) {
@@ -221,24 +243,51 @@ float Entity::castRay(float3 rayPos, float3 rayDir) {
 	return -1;
 }
 
-void Entity::setCollisionData(float3 point, float radius) {
-	m_collisionData.setCollisionData(point, radius);
+void Entity::setCollisionData(float3 point, float3 posOffset, float3 scale, float radius) {
+	m_collisionData.setCollisionData(point, posOffset, scale, radius);
 }
 
-void Entity::setCollisionData(float3 point, float3 halfSizes) {
-	m_collisionData.setCollisionData(point, halfSizes);
+void Entity::setCollisionData(float3 point, float3 posOffset, float3 scale, float3 halfSizes) {
+	m_collisionData.setCollisionData(point, posOffset, scale, halfSizes);
 }
 
-void Entity::setCollisionDataOBB() { setCollisionData(getPosition(), getHalfSizes()); }
+void Entity::setCollisionDataOBB() {
+	if (m_mesh.get() != nullptr)
+		setCollisionData(
+			getPosition(), m_mesh->getBoundingBoxPos(), m_scale, m_mesh->getBoundingBoxHalfSizes());
+	else
+		setCollisionData(getPosition(), m_meshAnim.getBoundingBoxPos(), m_scale,
+			m_meshAnim.getBoundingBoxHalfSizes());
+}
 
-float3 Entity::getHalfSizes() const { return m_mesh->getBoundingBoxHalfSizes(); }
+void Entity::setCollisionDataSphere() {
+	if (m_mesh.get() != nullptr)
+		setCollisionData(getPosition(), m_mesh->getBoundingBoxPos(), m_scale,
+			m_mesh->getBoundingBoxHalfSizes().y);
+	else
+		setCollisionData(getPosition(), m_meshAnim.getBoundingBoxPos(), m_scale,
+			m_meshAnim.getBoundingBoxHalfSizes().y);
+}
 
-float3 Entity::getHalfSizesAnimated() const { return m_meshAnim.getBoundingBoxHalfSizes(); }
+float3 Entity::getHalfSizes() const {
+	if (m_mesh.get() != nullptr)
+		return m_mesh->getBoundingBoxHalfSizes();
+	else
+		return m_meshAnim.getBoundingBoxHalfSizes();
+}
 
-Entity::Entity(string filename, float3 position, float3 rotation, float3 scale) {
+float3 Entity::getBoundingBoxPos() const {
+	if (m_mesh.get() != nullptr)
+		return m_mesh->getBoundingBoxPos();
+	else
+		return m_meshAnim.getBoundingBoxPos();
+}
+
+int Entity::getCollisionType() const { return m_collisionData.getCollisionType(); }
+
+Entity::Entity(string filename, float3 position, float3 scale) {
 	load(filename);
 	m_position = position;
-	m_rotation = rotation;
 	m_scale = scale;
 	createBuffers();
 }

@@ -306,21 +306,21 @@ float Mesh::castRayOnMesh(float3 rayPos, float3 rayDir) {
 	float3 bPos = getBoundingBoxPos();
 	float3 bScale = getBoundingBoxSize();
 	// check if close
-	// if (obbTest(rayDir, rayPos, bPos, bScale) != -1) {
-	// find the exact point
-	float closest = -1;
-	int length = (int)m_meshVertices.size() / 3;
-	for (int i = 0; i < length; i++) {
-		int index = i * 3;
-		float3 v0 = m_meshVertices[index + 0].position;
-		float3 v1 = m_meshVertices[index + 1].position;
-		float3 v2 = m_meshVertices[index + 2].position;
-		float t = triangleTest(rayDir, rayPos, v0, v1, v2);
-		if ((t > 0 && t < closest) || closest < 0)
-			closest = t;
+	if (obbTest(rayDir, rayPos, bPos, bScale) != -1) {
+		// find the exact point
+		float closest = -1;
+		int length = (int)m_meshVertices.size() / 3;
+		for (int i = 0; i < length; i++) {
+			int index = i * 3;
+			float3 v0 = m_meshVertices[index + 0].position;
+			float3 v1 = m_meshVertices[index + 1].position;
+			float3 v2 = m_meshVertices[index + 2].position;
+			float t = triangleTest(rayDir, rayPos, v0, v1, v2);
+			if ((t > 0 && t < closest) || closest < 0)
+				closest = t;
+		}
+		return closest;
 	}
-	return closest;
-	//}
 	return -1;
 }
 
@@ -330,12 +330,6 @@ float3 Mesh::getBoundingBoxHalfSizes() const {
 		(m_MinMaxZPosition.y - m_MinMaxZPosition.x) * 0.5f);
 }
 
-void Mesh::scaleBoundingBoxHalfSizes(float3 scale) {
-	m_MinMaxXPosition *= scale.x;
-	m_MinMaxYPosition *= scale.y;
-	m_MinMaxZPosition *= scale.z;
-	m_minmaxChanged = true;
-}
 
 Mesh::Mesh(std::string OBJFile) {
 	D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = {

@@ -11,9 +11,10 @@ public:
 	void aim();
 	void release();
 	void charge();
-	void shoot(float3 direction);
+	void shoot(float3 direction, float3 startVelocity, float pitch, float yaw);
 
 	Entity& getArrow() { return m_arrow; };
+	bool isShooting() const;
 
 private:
 	Entity m_bow;
@@ -31,6 +32,9 @@ private:
 
 	float m_drawFactor = 0.0f;
 	float m_bowMass = 1.4f;
+
+	float m_arrowPitch = 0;
+	float m_arrowYaw = 0;
 
 	// Assuming Fluid density * dragCoefficient * 0.5 = 1.
 	float m_arrowArea = 0.0001f;

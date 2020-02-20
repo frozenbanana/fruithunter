@@ -164,6 +164,7 @@
     <ClCompile Include="Source\Drawable\Animated.cpp" />
     <ClCompile Include="Source\Drawable\Entity.cpp" />
     <ClCompile Include="Source\Drawable\EntityCollision.cpp" />
+    <ClCompile Include="Source\Drawable\EntityRepository.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Banana.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Fruit.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="Source\Drawable\Animated.h" />
     <ClInclude Include="Source\Drawable\Entity.h" />
     <ClInclude Include="Source\Drawable\EntityCollision.h" />
+    <ClInclude Include="Source\Drawable\EntityRepository.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Banana.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Fruit.h" />
@@ -250,6 +252,7 @@
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_terrain.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\VertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>

@@ -93,27 +93,30 @@ void Camera::setFov(float fov) {
 float Camera::getDefaultFov() const { return DEFAULT_FOV; }
 
 void Camera::updateBuffer() {
-	if (m_viewChanged) {
+	if (m_viewChanged || m_projChanged) {
+
 		m_viewMatrix = XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
-		m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
-		m_viewChanged = false;
-	}
-	if (m_projChanged) {
+
 		m_projMatrix = XMMatrixPerspectiveFovLH(
 			m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, NEAR_PLANE, FAR_PLANE);
-		m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
-		m_projChanged = false;
-	}
 
-	auto deviceContext = Renderer::getDeviceContext();
-	Matrix vpMatrixTransposed = m_vpMatrix.Transpose();
-	deviceContext->UpdateSubresource(m_matrixBuffer.Get(), 0, NULL, &vpMatrixTransposed, 0, 0);
+		m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
+
+		auto deviceContext = Renderer::getDeviceContext();
+		Matrix vpMatrixTransposed = m_vpMatrix.Transpose();
+		deviceContext->UpdateSubresource(m_matrixBuffer.Get(), 0, NULL, &vpMatrixTransposed, 0, 0);
+		m_projChanged = false;
+		m_viewChanged = false;
+	}
 }
 
 void Camera::bindMatrix() {
+	updateBuffer();
 	auto deviceContext = Renderer::getDeviceContext();
 	deviceContext->VSSetConstantBuffers(MATRIX_SLOT, 1, m_matrixBuffer.GetAddressOf());
 }
+
+float4x4 Camera::getViewMatrix() const { return m_viewMatrix; }
 
 float4x4 Camera::getViewProjMatrix() const { return m_vpMatrix; }
 

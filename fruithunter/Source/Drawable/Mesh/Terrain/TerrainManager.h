@@ -4,8 +4,8 @@
 class TerrainManager {
 public:
 	static TerrainManager* getInstance();
-	void add(
-		float3 position, string heightmapFilename, XMINT2 subSize, XMINT2 division = XMINT2(1, 1));
+	void add(float3 position, float3 scale, string heightmapFilename, vector<string> textures, XMINT2 subSize,
+		XMINT2 division = XMINT2(1, 1));
 	Terrain* getTerrainFromPosition(float3 position);
 	int getTerrainIndexFromPosition(float3 position);
 	float getHeightFromPosition(float3 position);
@@ -13,6 +13,8 @@ public:
 	float castRay(float3 point, float3 direction);
 
 	void draw();
+
+	float3 getSpawnpoint(int terrainType);
 
 private:
 	TerrainManager();

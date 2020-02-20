@@ -126,6 +126,9 @@
     <ClCompile Include="Source\Level\LevelHandler\LevelHandler.cpp">
       <Filter>Source\Level\levelHandler</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Drawable\EntityRepository.cpp">
+      <Filter>Source\Drawable</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -227,6 +230,9 @@
     <ClInclude Include="Source\Level\LevelHandler\LevelHandler.h">
       <Filter>Source\Level\levelHandler</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Drawable\EntityRepository.h">
+      <Filter>Source\Drawable</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
@@ -298,9 +304,6 @@
     </Filter>
     <Filter Include="Source\Level\levelHandler">
       <UniqueIdentifier>{5d3acfd7-c907-4e84-928d-e506b0f46ea4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Level\Levels">
-      <UniqueIdentifier>{7406f1eb-c3ef-4aa1-b36c-0825edf888fe}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Utility\Repositories">
       <UniqueIdentifier>{0351c8e4-cfeb-4492-97c6-2514408dac40}</UniqueIdentifier>
