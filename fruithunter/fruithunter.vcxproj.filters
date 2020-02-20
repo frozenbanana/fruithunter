@@ -126,6 +126,9 @@
     <ClCompile Include="Source\Level\LevelHandler\LevelHandler.cpp">
       <Filter>Source\Level\levelHandler</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Drawable\EntityRepository.cpp">
+      <Filter>Source\Drawable</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -226,6 +229,9 @@
     </ClInclude>
     <ClInclude Include="Source\Level\LevelHandler\LevelHandler.h">
       <Filter>Source\Level\levelHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\EntityRepository.h">
+      <Filter>Source\Drawable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
