@@ -1,25 +1,7 @@
 #include "LevelHandler.h"
 #include "TerrainManager.h"
 
-LevelHandler::LevelHandler() { initialise(); }
-
-LevelHandler::~LevelHandler() {}
-
-void LevelHandler::initialise() {
-
-	m_player.initialize();
-	m_terrainManager = TerrainManager::getInstance();
-
-	m_terrainProps.addPlaceableEntity("treeMedium1");
-	m_terrainProps.addPlaceableEntity("treeMedium2");
-	m_terrainProps.addPlaceableEntity("treeMedium3");
-	m_terrainProps.addPlaceableEntity("stone1");
-	m_terrainProps.addPlaceableEntity("stone2");
-	m_terrainProps.addPlaceableEntity("stone3");
-	m_terrainProps.addPlaceableEntity("bush1");
-	m_terrainProps.addPlaceableEntity("bush2");
-	m_terrainProps.addPlaceableEntity("Block");
-
+void LevelHandler::initialiseLevel0() {
 	Level level0;
 
 	level0.m_terrainPropsFilename = "level0";
@@ -91,6 +73,28 @@ void LevelHandler::initialise() {
 	level0.m_playerStartPos = float3(50.f, 0.0f, 50.f);
 
 	m_levelsArr.push_back(level0);
+}
+
+LevelHandler::LevelHandler() { initialise(); }
+
+LevelHandler::~LevelHandler() {}
+
+void LevelHandler::initialise() {
+
+	m_player.initialize();
+	m_terrainManager = TerrainManager::getInstance();
+
+	m_terrainProps.addPlaceableEntity("treeMedium1");
+	m_terrainProps.addPlaceableEntity("treeMedium2");
+	m_terrainProps.addPlaceableEntity("treeMedium3");
+	m_terrainProps.addPlaceableEntity("stone1");
+	m_terrainProps.addPlaceableEntity("stone2");
+	m_terrainProps.addPlaceableEntity("stone3");
+	m_terrainProps.addPlaceableEntity("bush1");
+	m_terrainProps.addPlaceableEntity("bush2");
+	m_terrainProps.addPlaceableEntity("Block");
+
+	initialiseLevel0();
 }
 
 void LevelHandler::loadLevel(int levelNr) {
