@@ -9,11 +9,10 @@
 
 class Entity {
 private:
-	float3 m_rotation;
 	float3 m_scale;
 	float4x4 m_matRotation;
-	bool m_matrixChanged = false; // if position, rotation or scale is changed then the model matrix
-								  // is updated when it is fetched
+	bool m_transformPropertiesChanged = false; // if position, rotation or scale is changed then the
+											   // model matrix is updated when it is fetched
 
 	shared_ptr<Mesh> m_mesh;
 
@@ -40,16 +39,20 @@ protected:
 public:
 	string getModelName() const;
 	float4x4 getModelMatrix();
+	float4x4 getRotationMatrix() const;
 	float3 getPosition() const;
-	float3 getRotation() const;
 	float3 getScale() const;
 
 	// Transformations
 	void setPosition(float3 position);
 	void move(float3 movement);
+	void setRotationMatrix(float4x4 matrix);
 	void setRotationByAxis(float3 axis, float angle);
+	void rotateByAxis(float3 axis, float angle);
+	//order ZXY
 	void setRotation(float3 rotation);
-	void rotate(float3 rotate);
+	//order ZXY
+	void rotate(float3 rotation);
 	void rotateX(float val);
 	void rotateY(float val);
 	void rotateZ(float val);
@@ -82,7 +85,6 @@ public:
 	float3 getBoundingBoxPos() const;
 	int getCollisionType() const;
 
-	Entity(string meshName = "", float3 position = float3(0, 0, 0),
-		float3 rotation = float3(0, 0, 0), float3 scale = float3(1, 1, 1));
+	Entity(string meshName = "", float3 position = float3(0, 0, 0), float3 scale = float3(1, 1, 1));
 	~Entity();
 };

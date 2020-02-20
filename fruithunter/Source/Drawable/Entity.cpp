@@ -3,10 +3,10 @@
 #include "Input.h"
 
 void Entity::updateMatrix() {
-	m_matrixChanged = false;
-	float4x4 matTranform = float4x4::CreateTranslation(m_position);
+	m_transformPropertiesChanged = false;
+	float4x4 matTranslation = float4x4::CreateTranslation(m_position);
 	float4x4 matScale = float4x4::CreateScale(m_scale);
-	float4x4 matWorld = matScale * m_matRotation * matTranform;
+	float4x4 matWorld = matScale * m_matRotation * matTranslation;
 	m_matrixBufferData.matWorld = matWorld;
 	m_matrixBufferData.matInvTraWorld = matWorld.Invert().Transpose();
 
@@ -14,11 +14,11 @@ void Entity::updateMatrix() {
 	m_collisionData.setCollisionPosition(m_position);
 
 	// reset matricies
-	m_matRotation = XMMatrixIdentity();
+	//m_matRotation = XMMatrixIdentity();
 }
 
 void Entity::bindModelMatrixBuffer() {
-	if (m_matrixChanged) {
+	if (m_transformPropertiesChanged) {
 		// update matrix if needed
 		updateMatrix();
 	}
@@ -63,25 +63,30 @@ string Entity::getModelName() const {
 }
 
 float4x4 Entity::getModelMatrix() {
-	if (m_matrixChanged)
+	if (m_transformPropertiesChanged)
 		updateMatrix();
 	return m_matrixBufferData.matWorld;
 }
 
-float3 Entity::getPosition() const { return m_position; }
+float4x4 Entity::getRotationMatrix() const { return m_matRotation; }
 
-float3 Entity::getRotation() const { return m_rotation; }
+float3 Entity::getPosition() const { return m_position; }
 
 float3 Entity::getScale() const { return m_scale; }
 
 void Entity::setPosition(float3 position) {
 	m_position = position;
-	m_matrixChanged = true;
+	m_transformPropertiesChanged = true;
 }
 
 void Entity::move(float3 movement) {
 	m_position += movement;
-	m_matrixChanged = true;
+	m_transformPropertiesChanged = true;
+}
+
+void Entity::setRotationMatrix(float4x4 matrix) {
+	m_matRotation = matrix;
+	m_transformPropertiesChanged = true;
 }
 
 void Entity::setRotationByAxis(float3 axis, float angle) {
@@ -90,56 +95,81 @@ void Entity::setRotationByAxis(float3 axis, float angle) {
 	q.Normalize();
 	// ref:
 	// https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
+	float4x4 convertedMatrix = float4x4(
+		float4(q.w, q.z, -q.y, q.x), 
+		float4(-q.z, q.w, q.x, q.y),		
+		float4(q.y, -q.x, q.w, q.z), 
+		float4(-q.x, -q.y, -q.z, q.w)
+	) 
+	*
+	float4x4(
+		float4(q.w, q.z, -q.y, -q.x), 
+		float4(-q.z, q.w, q.x, -q.y),
+		float4(q.y, -q.x, q.w, -q.z), 
+		float4(q.x, q.y, q.z, q.w)
+	);
+
+	m_matRotation = convertedMatrix;
+	m_transformPropertiesChanged = true;
+}
+
+void Entity::setRotation(float3 rotation) { 
+
+	//m_matRotation = float4x4::CreateRotationX(rotation.x) * float4x4::CreateRotationY(rotation.y) *
+	//				float4x4::CreateRotationZ(rotation.z);
+	//m_transformPropertiesChanged = true;
+
+	m_matRotation = XMMatrixIdentity();
+	rotate(rotation);
+}
+
+void Entity::rotate(float3 rotation) {
+	rotateZ(rotation.z);
+	rotateX(rotation.x);
+	rotateY(rotation.y);
+}
+
+void Entity::rotateByAxis(float3 axis, float angle) {
+	axis.Normalize();
+	Quaternion q = Quaternion(axis, angle);
+	q.Normalize();
+	// ref:
+	// https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
 	float4x4 convertedMatrix = float4x4(float4(q.w, q.z, -q.y, q.x), float4(-q.z, q.w, q.x, q.y),
 								   float4(q.y, -q.x, q.w, q.z), float4(-q.x, -q.y, -q.z, q.w)) *
+
 							   float4x4(float4(q.w, q.z, -q.y, -q.x), float4(-q.z, q.w, q.x, -q.y),
 								   float4(q.y, -q.x, q.w, -q.z), float4(q.x, q.y, q.z, q.w));
 
 	m_matRotation *= convertedMatrix;
-	m_matrixChanged = true;
-}
-
-
-void Entity::setRotation(float3 rotation) {
-	m_rotation = rotation;
-
-	m_matRotation *= float4x4::CreateRotationX(m_rotation.x) *
-					 float4x4::CreateRotationY(m_rotation.y) *
-					 float4x4::CreateRotationZ(m_rotation.z);
-
-	m_matrixChanged = true;
-}
-
-void Entity::rotate(float3 rotate) {
-	m_rotation += rotate;
-	setRotation(m_rotation);
+	m_transformPropertiesChanged = true;
 }
 
 void Entity::rotateX(float val) {
-	m_rotation.x += val;
-	setRotation(m_rotation);
+	m_matRotation *= float4x4::CreateRotationX(val);
+	m_transformPropertiesChanged = true;
 }
 
-void Entity::rotateY(float val) {
-	m_rotation.y += val;
-	setRotation(m_rotation);
+void Entity::rotateY(float val) { 
+	m_matRotation *= float4x4::CreateRotationY(val);
+	m_transformPropertiesChanged = true;
 }
 
 void Entity::rotateZ(float val) {
-	m_rotation.z += val;
-	setRotation(m_rotation);
+	m_matRotation *= float4x4::CreateRotationZ(val);
+	m_transformPropertiesChanged = true;
 }
 
 void Entity::setScale(float3 scale) {
 	m_scale = float3(abs(scale.x), abs(scale.y), abs(scale.z));
 	scaleBoundingBoxHalfSizes(m_scale);
-	m_matrixChanged = true;
+	m_transformPropertiesChanged = true;
 }
 
 void Entity::setScale(float scale) {
 	m_scale = float3(abs(scale), abs(scale), abs(scale));
 	scaleBoundingBoxHalfSizes(m_scale);
-	m_matrixChanged = true;
+	m_transformPropertiesChanged = true;
 }
 
 void Entity::scaleBoundingBoxHalfSizes(float3 scale) { m_collisionData.setCollisionScale(scale); }
@@ -265,10 +295,9 @@ float3 Entity::getBoundingBoxPos() const {
 
 int Entity::getCollisionType() const { return m_collisionData.getCollisionType(); }
 
-Entity::Entity(string filename, float3 position, float3 rotation, float3 scale) {
+Entity::Entity(string filename, float3 position, float3 scale) {
 	load(filename);
 	m_position = position;
-	m_rotation = rotation;
 	m_scale = scale;
 	createBuffers();
 }
