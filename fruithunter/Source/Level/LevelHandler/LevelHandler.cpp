@@ -29,10 +29,10 @@ void LevelHandler::initialise() {
 	level0.m_terrainTags.push_back(Level::TerrainTags::Desert);
 	level0.m_terrainTags.push_back(Level::TerrainTags::Plains);
 
+	level0.m_heightMapNames.push_back("VolcanoMap.png");
 	level0.m_heightMapNames.push_back("ForestMap.png");
 	level0.m_heightMapNames.push_back("DesertMap.png");
 	level0.m_heightMapNames.push_back("PlainMap.png");
-	level0.m_heightMapNames.push_back("VolcanoMap.png");
 
 	level0.m_heightMapPos.push_back(float3(100.f, 0.f, 100.f));
 	level0.m_heightMapPos.push_back(float3(0.f, 0.f, 0.f));
@@ -55,6 +55,11 @@ void LevelHandler::initialise() {
 	level0.m_heightMapScales.push_back(float3(1.f, 0.10f, 1.f) * 100);
 
 	vector<string> maps(4);
+	maps[0] = "texture_rock8.jpg"; // flat
+	maps[1] = "texture_lava1.jpg"; // low flat
+	maps[2] = "texture_rock2.jpg"; // tilt
+	maps[3] = "texture_rock2.jpg"; // low tilt
+	level0.m_heightmapTextures.push_back(maps);
 	maps[0] = "texture_grass3.jpg";
 	maps[1] = "texture_sand1.jpg";
 	maps[2] = "texture_mossyRock.jpg";
@@ -69,11 +74,6 @@ void LevelHandler::initialise() {
 	maps[1] = "texture_rock4.jpg";
 	maps[2] = "texture_rock6.jpg";
 	maps[3] = "texture_rock6.jpg";
-	level0.m_heightmapTextures.push_back(maps);
-	maps[0] = "texture_rock8.jpg"; // flat
-	maps[1] = "texture_lava1.jpg"; // low flat
-	maps[2] = "texture_rock2.jpg"; // tilt
-	maps[3] = "texture_rock2.jpg"; // low tilt
 	level0.m_heightmapTextures.push_back(maps);
 
 	level0.m_nrOfFruits[APPLE] = 25;
