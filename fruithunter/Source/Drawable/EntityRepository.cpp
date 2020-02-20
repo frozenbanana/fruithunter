@@ -104,7 +104,7 @@ float EntityRepository::random(float min, float max) const {
 
 void EntityRepository::randomizeProperties(Entity* entity) const {
 	entity->setScale(random(0.8f, 1.3f));
-	entity->setRotation(float3(0.f, random(0.f, 3.14f * 2.f), 0.f));
+	entity->setRotationByAxis(float3(0, 1, 0), random(0.f, 3.14f * 2.f));
 }
 
 void EntityRepository::savePlacements(string filename) const {
@@ -237,13 +237,13 @@ void EntityRepository::removeEntity(const Entity* entity) {
 }
 
 EntityRepository::EntityInstance EntityRepository::getEntityInstance(const Entity* entity) const {
-	return EntityInstance(entity->getPosition(), entity->getScale(), entity->getRotation());
+	return EntityInstance(entity->getPosition(), entity->getScale(), entity->getRotationMatrix());
 }
 
 void EntityRepository::setEntityByInstance(Entity* entity, EntityInstance instance) {
 	entity->setPosition(instance.position);
 	entity->setScale(instance.scale);
-	entity->setRotation(instance.rotation);
+	entity->setRotationMatrix(instance.matRotation);
 }
 
 void EntityRepository::update(float dt, float3 point, float3 direction) {
@@ -267,14 +267,15 @@ void EntityRepository::update(float dt, float3 point, float3 direction) {
 		}
 		if (ip->keyPressed(m_deleteKey)) {
 			//delete newest entity
-			removeEntity(m_entities.back().get());
+			if (m_entities.size() > 0)
+				removeEntity(m_entities.back().get());
 		}
 		if (ip->keyPressed(m_placeKey)) {
 			// place entity
 			string meshName = m_placeable[m_activePlaceableIndex]->getModelName();
 			EntityInstance instance(m_placeable[m_activePlaceableIndex]->getPosition(),
 				m_placeable[m_activePlaceableIndex]->getScale(),
-				m_placeable[m_activePlaceableIndex]->getRotation());
+				m_placeable[m_activePlaceableIndex]->getRotationMatrix());
 			addEntity(meshName, instance);
 			// randomize properties
 			randomizeProperties(m_placeable[m_activePlaceableIndex].get());

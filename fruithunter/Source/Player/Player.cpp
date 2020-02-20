@@ -165,7 +165,7 @@ void Player::updateBow(float dt) {
 		m_bow.charge();
 	}
 	else if (input->mouseUp(Input::MouseButton::LEFT)) {
-		m_bow.shoot(m_playerForward);
+		m_bow.shoot(m_playerForward, m_velocity, m_cameraPitch, m_cameraYaw);
 	}
 
 	m_bow.rotate(m_cameraPitch, m_cameraYaw);
@@ -177,12 +177,10 @@ void Player::updateCamera() {
 	m_camera.setUp(m_playerUp);
 	m_camera.setEye(m_position + float3(0, playerHeight, 0));
 	m_camera.setTarget(m_position + float3(0, playerHeight, 0) + m_playerForward);
-	m_camera.updateBuffer();
 }
 
 void Player::updateCameraGod() {
 	m_camera.setView(m_position, m_position + m_playerForward, m_playerUp);
-	m_camera.updateBuffer();
 }
 
 void Player::rotatePlayer(float dt) {

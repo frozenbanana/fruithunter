@@ -23,7 +23,6 @@ void IntroState::update() {
 	float dt = m_timer.getDt();
 
 	m_entity.updateAnimated(dt);
-	m_camera.updateBuffer();
 	/*for (size_t i = 0; i < 16; ++i) {
 		float dir = (float)(((int)i % 2) * 2.f) - 1.f;
 		float angle = dir * m_timer.getTimePassed() * 0.3f;
