@@ -115,8 +115,8 @@ void LevelHandler::loadLevel(int levelNr) {
 		newEntity->setCollisionDataSphere();
 		m_collidableEntities.push_back(newEntity);
 		newEntity = make_shared<Entity>();
-		newEntity->load("Cube");
-		newEntity->setScale(0.4);
+		newEntity->load("Cactus_tall");
+		newEntity->setScale(1);
 		newEntity->setPosition(currentLevel.m_playerStartPos + float3(1.f, height, 3.f));
 		newEntity->setCollisionDataSphere();
 		m_collidableEntities.push_back(newEntity);
