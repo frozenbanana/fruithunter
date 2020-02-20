@@ -103,8 +103,8 @@ float EntityRepository::random(float min, float max) const {
 }
 
 void EntityRepository::randomizeProperties(Entity* entity) const {
-	entity->setScale(random(1, 2));
-	entity->setRotation(float3(0, random(0, 3.14f * 2.f), 0));
+	entity->setScale(random(0.8f, 1.3f));
+	entity->setRotation(float3(0.f, random(0.f, 3.14f * 2.f), 0.f));
 }
 
 void EntityRepository::savePlacements(string filename) const {
@@ -257,7 +257,7 @@ void EntityRepository::update(float dt, float3 point, float3 direction) {
 		// keys
 		if (ip->keyPressed(m_indexIncreaseKey)) {
 			// increment up
-			m_activePlaceableIndex = (m_activePlaceableIndex + 1) % m_placeable.size();
+			m_activePlaceableIndex = (size_t)(m_activePlaceableIndex + 1.f) % m_placeable.size();
 		}
 		if (ip->keyPressed(m_indexDecreaseKey)) {
 			// increment down
@@ -309,10 +309,4 @@ void EntityRepository::draw() {
 
 EntityRepository::EntityRepository(string filename) { load(filename); }
 
-EntityRepository::~EntityRepository() {
-	if (AUTOSAVE) {
-		if (m_repositoryLoaded) {
-			savePlacements(m_repositoryFilenameLoadedFrom);
-		}
-	}
-}
+EntityRepository::~EntityRepository() {}

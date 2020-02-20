@@ -2,8 +2,6 @@
 #include "Entity.h"
 #include "Input.h"
 
-#define AUTOSAVE 0
-
 class EntityRepository {
 
 private:
@@ -32,15 +30,15 @@ private:
 	//repository stuff
 	vector<EntityInstances> m_repository;
 	bool m_repositoryLoaded = false;//true if loadPlacement() was called and succesful
-	bool m_repositoryChangedSinceLoad = false;
-	string m_repositoryFilenameLoadedFrom = "";
+	bool m_repositoryChangedSinceLoad = false;// true if addEntity/removeEntity was called
+	string m_repositoryFilenameLoadedFrom = "";// loaded repository, writes to this filename at saving
 
 	vector<unique_ptr<Entity>> m_entities;// array used to store placed entities for drawing
 
 	//placeable stuff
 	vector<unique_ptr<Entity>> m_placeable;//entities defined to be placeable
-	bool m_placing = false;
-	int m_activePlaceableIndex = 0;
+	bool m_placing = false;//state of mode
+	int m_activePlaceableIndex = 0;//index in m_placeable currently selected
 	Keyboard::Keys m_stateSwitchKey = Keyboard::Tab;//switch placing mode
 	Keyboard::Keys m_indexIncreaseKey = Keyboard::NumPad2;//increase index
 	Keyboard::Keys m_indexDecreaseKey = Keyboard::NumPad1;//decrease index
