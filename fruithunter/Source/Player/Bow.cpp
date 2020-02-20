@@ -87,7 +87,9 @@ void Bow::draw() {
 	m_arrow.draw();
 }
 
-void Bow::rotate(float pitch, float yaw) { m_bow.setRotation(float3(pitch, yaw, 0.0f)); }
+void Bow::rotate(float pitch, float yaw) {
+	m_bow.setRotation(float3(pitch, yaw, -BOW_ANGLE * m_aimMovement));
+}
 
 void Bow::aim() { m_aiming = true; }
 
