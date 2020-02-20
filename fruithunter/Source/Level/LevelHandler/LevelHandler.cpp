@@ -62,9 +62,9 @@ void LevelHandler::initialise() {
 	maps[3] = "texture_rock2.jpg"; // low tilt
 	level0.m_heightmapTextures.push_back(maps);
 
-	level0.m_nrOfFruits[APPLE] = 1;
-	level0.m_nrOfFruits[BANANA] = 125;
-	level0.m_nrOfFruits[MELON] = 1;
+	level0.m_nrOfFruits[APPLE] = 25;
+	level0.m_nrOfFruits[BANANA] = 25;
+	level0.m_nrOfFruits[MELON] = 25;
 
 	level0.m_playerStartPos = float3(115.f, 0.0f, 115.f);
 
@@ -88,7 +88,7 @@ void LevelHandler::loadLevel(int levelNr) {
 		}
 
 		for (int i = 0; i < currentLevel.m_nrOfFruits[APPLE]; i++) {
-			shared_ptr<Apple> apple = make_shared<Apple>(m_terrainManager->getSpawnpoint(Level::Forest));
+			shared_ptr<Apple> apple = make_shared<Apple>(m_terrainManager->getSpawnpoint(Level::Desert));
 			m_fruits.push_back(apple);
 		}
 		for (int i = 0; i < currentLevel.m_nrOfFruits[BANANA]; i++) {
@@ -98,7 +98,7 @@ void LevelHandler::loadLevel(int levelNr) {
 		}
 		for (int i = 0; i < currentLevel.m_nrOfFruits[MELON]; i++) {
 			shared_ptr<Melon> melon =
-				make_shared<Melon>(m_terrainManager->getSpawnpoint(Level::Forest));
+				make_shared<Melon>(m_terrainManager->getSpawnpoint(Level::Volcano));
 			m_fruits.push_back(melon);
 		}
 
@@ -199,8 +199,6 @@ void LevelHandler::update(float dt) {
 	//		m_entity.setPosition(m_player.getCameraPosition() + t * m_player.getForward() * 0.9);
 	//	}
 	//}
-
-	ErrorLogger::logFloat3("Banana is where? Banana is here",m_fruits[1].get()->getPosition());
 }
 
 void LevelHandler::pickUpFruit(int fruitType) { m_inventory[fruitType]++; }
