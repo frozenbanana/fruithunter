@@ -11,21 +11,6 @@ void PlayState::update() {
 	m_timer.update();
 	float dt = m_timer.getDt();
 	m_levelHandler.update(dt);
-	// m_bow.updateAnimated(dt);
-
-	// update apple
-	// m_apple.update(dt, playerPos, &m_terrainManager);
-
-
-	// update melon
-	// m_melon.update(dt, playerPos, &m_terrainManager);
-
-	// update melon
-	// m_melon.setNextDestination(m_player.getPosition());
-
-	// float3 melonPos = m_melon.getPosition();
-	// melonPos.y = m_terrain.getHeightFromPosition(melonPos.x, melonPos.z);
-	// m_melon.setPosition(melonPos);
 }
 
 void PlayState::handleEvent() { return; }

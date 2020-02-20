@@ -10,7 +10,6 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	setScale(0.5);
 	changeState(AI::State::PASSIVE);
 	setStartPosition(pos);
-	ErrorLogger::log("Melon:: going to second home");
 	// enforce that homes are on terrain
 	setWorldHome(m_position);
 	m_secondWorldHome = m_worldHome + float3(3.f, 0.0, 3.0f);
@@ -44,7 +43,6 @@ void Melon::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> co
 }
 
 void Melon::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
-	ErrorLogger::log("Melon:: Doing active.");
 
 	circulateAround(playerPosition);
 	// pathfinding(m_position, sideStep - m_position);
@@ -55,13 +53,11 @@ void Melon::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> col
 }
 
 void Melon::behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
-	ErrorLogger::log("Melon:: Doing caught.");
 	m_directionalVelocity = playerPosition - m_position; // run to player
 	m_directionalVelocity.Normalize();
 
 	if (withinDistanceTo(playerPosition, 1.0f)) {
 		// delete yourself
-		ErrorLogger::log("Melon:: is picked up");
 	}
 }
 

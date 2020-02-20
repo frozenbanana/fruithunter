@@ -13,20 +13,15 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 	m_activationRadius = 3.f;
 	m_passiveRadius = 6.f;
 	setCollisionDataOBB();
-
-	// SET TEST WORLDHOME
-	setWorldHome(float3(14.0f, 0.0f, 18.0f));
 }
 
 void Apple::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
-	// ErrorLogger::logFloat3("Apple:: Doing passive.", m_position);
 	float terrainHeight = TerrainManager::getInstance()->getHeightFromPosition(m_position);
 	// Check if not at home
-	if (!withinDistanceTo(m_worldHome, 0.75f) && atOrUnder(terrainHeight)) {
+	if (!withinDistanceTo(m_worldHome, ARRIVAL_RADIUS) && atOrUnder(terrainHeight)) {
 		// Check if there is no other path on going
 		if (m_availablePath.empty()) {
 			if ((m_position - m_worldHome).LengthSquared() > ARRIVAL_RADIUS) {
-				ErrorLogger::logFloat3("Apple:: Finding Path for home from", m_position);
 				pathfinding(m_position, m_worldHome, collidables); // go home
 			}
 		}
@@ -48,7 +43,6 @@ void Apple::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> co
 }
 
 void Apple::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
-	// ErrorLogger::log("Apple:: Doing active.");
 	flee(playerPosition, collidables);
 	if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
 		changeState(PASSIVE);
@@ -56,9 +50,9 @@ void Apple::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> col
 }
 
 void Apple::behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
-	// ErrorLogger::log("Apple:: Doing caught.");
 	m_directionalVelocity = playerPosition - m_position; // run to player
 	m_directionalVelocity.Normalize();
+	m_directionalVelocity *= 3.0f;
 }
 
 

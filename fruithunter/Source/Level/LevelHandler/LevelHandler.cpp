@@ -66,9 +66,9 @@ void LevelHandler::initialiseLevel0() {
 	maps[3] = "texture_rock6.jpg";
 	level0.m_heightmapTextures.push_back(maps);
 
-	level0.m_nrOfFruits[APPLE] = 30;
-	level0.m_nrOfFruits[BANANA] = 30;
-	level0.m_nrOfFruits[MELON] = 10;
+	level0.m_nrOfFruits[APPLE] = 2;
+	level0.m_nrOfFruits[BANANA] = 0;
+	level0.m_nrOfFruits[MELON] = 5;
 
 	level0.m_playerStartPos = float3(50.f, 0.0f, 150.f);
 
@@ -142,21 +142,21 @@ void LevelHandler::loadLevel(int levelNr) {
 		newEntity->load("bush1");
 		newEntity->setScale(1);
 		newEntity->setPosition(currentLevel.m_playerStartPos + float3(1.f, height, 1.f));
-		newEntity->setCollisionDataSphere();
+		newEntity->setCollisionDataOBB();
 		m_collidableEntities.push_back(newEntity);
 		newEntity = make_shared<Entity>();
 		newEntity->load("Cactus_tall");
 		newEntity->setScale(1);
 		newEntity->setPosition(currentLevel.m_playerStartPos + float3(1.f, height, 3.f));
-		newEntity->setCollisionDataSphere();
+		newEntity->setCollisionDataOBB();
 		m_collidableEntities.push_back(newEntity);
 
+		// FOR SPRINT DEMO
 		newEntity = make_shared<Entity>();
-		newEntity->load("DeadBush");
-		newEntity->setScale(1);
-		newEntity->setPosition(currentLevel.m_playerStartPos + float3(0.f, height, 5.f));
-		newEntity->setCollisionDataSphere();
-		m_collidableEntities.push_back(newEntity);
+		newEntity->load("Smelter");
+		newEntity->setScale(1.f);
+		newEntity->setPosition(currentLevel.m_playerStartPos + float3(1.f, height, 6.f));
+		newEntity->setCollisionDataOBB();
 
 		// m_entity.load("Sphere"); // castray debug don't delete
 		// m_entity.setScale(0.1f);
@@ -207,7 +207,7 @@ void LevelHandler::update(float dt) {
 
 	// update stuff
 	for (int i = 0; i < m_fruits.size(); i++) {
-		m_fruits[i]->update(dt, playerPos);
+		m_fruits[i]->update(dt, playerPos, m_collidableEntities);
 		if (m_player.isShooting()) {
 			if (m_player.getArrow().checkCollision(*m_fruits[i])) {
 				m_fruits[i]->hit();

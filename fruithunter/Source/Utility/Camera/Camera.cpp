@@ -2,9 +2,6 @@
 #include "Renderer.h"
 #include "ErrorLogger.h"
 
-#define NEAR_PLANE 0.1f
-#define FAR_PLANE 100.f
-
 Camera::Camera() {
 	// Set initial values
 	m_camEye = float3(0.0, 0.0, -4.0);

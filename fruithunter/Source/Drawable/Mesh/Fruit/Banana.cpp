@@ -1,8 +1,7 @@
 #include "Banana.h"
 
 
-Banana::Banana(float3 pos) : Fruit(pos)
-{
+Banana::Banana(float3 pos) : Fruit(pos) {
 	m_fruitType = BANANA;
 	loadAnimated("Banana", 3);
 	m_nrOfFramePhases = 5;
@@ -16,45 +15,36 @@ Banana::Banana(float3 pos) : Fruit(pos)
 	setCollisionDataOBB();
 }
 
-void Banana::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables)
-{
-	ErrorLogger::log("Banana:: Doing Passive.");
+void Banana::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
 	TerrainManager* terrainManger = TerrainManager::getInstance();
 	float terrainHeight = terrainManger->getHeightFromPosition(m_position);
 	// Only decide what to do on ground
-	if (atOrUnder(terrainHeight))
-	{
+	if (atOrUnder(terrainHeight)) {
 		float3 direction = float3(0.f);
-		if (!withinDistanceTo(m_worldHome, 0.75f))
-		{
+		if (!withinDistanceTo(m_worldHome, ARRIVAL_RADIUS)) {
 			float3 toHome = m_worldHome - m_position;
 			toHome.Normalize();
 			toHome.y = 1.0f;
 			direction = toHome;
 		}
-		else
-		{
+		else {
 			float3 terrainNormal = terrainManger->getNormalFromPosition(m_position);
 			terrainNormal.Normalize();
 			direction = terrainNormal;
 		}
 		jump(direction, 4.0f);
 
-		if (withinDistanceTo(playerPosition, 5.0f))
-		{
+		if (withinDistanceTo(playerPosition, m_activationRadius)) {
 			changeState(ACTIVE);
 		}
 	}
 }
 
-void Banana::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables)
-{
-	ErrorLogger::log("Banana:: Doing active.");
+void Banana::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
 	TerrainManager* terrainManger = TerrainManager::getInstance();
 	float terrainHeight = terrainManger->getHeightFromPosition(m_position);
 	// Only decide what to do on ground
-	if (atOrUnder(terrainHeight))
-	{
+	if (atOrUnder(terrainHeight)) {
 		float3 terrainNormal = terrainManger->getNormalFromPosition(m_position);
 		// Go bananas!
 		terrainNormal.x += 0.1f * (float)(rand() % 1) - 0.5f;
@@ -62,20 +52,17 @@ void Banana::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> co
 		terrainNormal.y = 1.0f;
 		jump(terrainNormal, 3.0f);
 
-		if (!withinDistanceTo(playerPosition, 5.0f))
-		{
+		if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
 			changeState(PASSIVE);
 		}
 	}
 }
-void Banana::behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> collidables)
-{
+void Banana::behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
 
 	TerrainManager* terrainManger = TerrainManager::getInstance();
 	float terrainHeight = terrainManger->getHeightFromPosition(m_position);
 
-	if (atOrUnder(terrainHeight))
-	{
+	if (atOrUnder(terrainHeight)) {
 		float3 toPlayer = playerPosition - m_position;
 		toPlayer.Normalize();
 		toPlayer.y = 1.0f;
@@ -83,10 +70,8 @@ void Banana::behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> co
 	}
 }
 
-void Banana::updateAnimated(float dt)
-{
-	switch (m_state)
-	{
+void Banana::updateAnimated(float dt) {
+	switch (m_state) {
 	case Jump:
 		updateFirstJump(dt);
 		break;
@@ -102,8 +87,7 @@ void Banana::updateAnimated(float dt)
 }
 
 
-void Banana::updateFirstJump(float dt)
-{
+void Banana::updateFirstJump(float dt) {
 	int frameOrder[] = { 0, 1, 0, 2, 0, 1 }; // Order of using keyframes
 	float3 posOrder[6] = {
 		m_startAnimationPosition,
@@ -117,13 +101,11 @@ void Banana::updateFirstJump(float dt)
 	float frameSpeedOrder[] = { 4.f, 5.f, 2.0f, 1.9f, 4.f, 2.f };
 	m_frameTime += dt * frameSpeedOrder[m_currentFramePhase];
 	// Maybe change keyframes
-	if (m_frameTime > 1)
-	{
+	if (m_frameTime > 1) {
 		m_frameTime -= 1;
 		m_currentFramePhase = m_currentFramePhase + 1;
 
-		if (m_currentFramePhase == m_nrOfFramePhases)
-		{
+		if (m_currentFramePhase == m_nrOfFramePhases) {
 			m_currentFramePhase = 0;
 			justChanged = true;
 			setRotation(float3(0.f, findRequiredRotation(m_nextDestinationAnimationPosition), 0.f));
@@ -138,8 +120,7 @@ void Banana::updateFirstJump(float dt)
 		m_meshAnim.setFrameTargets(frameOrder[m_currentFramePhase],
 			frameOrder[(m_currentFramePhase + 1) % (m_nrOfFramePhases)]);
 	}
-	if (m_currentFramePhase >= 2 || justChanged)
-	{
+	if (m_currentFramePhase >= 2 || justChanged) {
 		posOrder[0] = getPosition();
 		posOrder[1] = getPosition();
 	}
@@ -152,8 +133,7 @@ void Banana::updateFirstJump(float dt)
 	m_meshAnim.updateSpecific(m_frameTime);
 }
 
-void Banana::updateBounce(float dt)
-{
+void Banana::updateBounce(float dt) {
 	// TODO: Bounce. physics?
 
 	int frameOrder[] = { 1, 2, 1 }; // Order of using keyframes
@@ -166,13 +146,11 @@ void Banana::updateBounce(float dt)
 	float frameSpeedOrder[] = { 2.f, 2.0f, 15.9f };
 	m_frameTime += dt * frameSpeedOrder[m_currentFramePhase];
 	// Maybe change keyframes
-	if (m_frameTime > 1)
-	{
+	if (m_frameTime > 1) {
 		m_frameTime -= 1;
 		m_currentFramePhase = m_currentFramePhase + 1;
 
-		if (m_currentFramePhase == m_nrOfFramePhases)
-		{
+		if (m_currentFramePhase == m_nrOfFramePhases) {
 			m_currentFramePhase = 0;
 			justChanged = true;
 			bounce();
@@ -182,8 +160,7 @@ void Banana::updateBounce(float dt)
 		m_meshAnim.setFrameTargets(frameOrder[m_currentFramePhase],
 			frameOrder[(m_currentFramePhase + 1) % (m_nrOfFramePhases)]);
 	}
-	if (m_currentFramePhase >= 2 || justChanged)
-	{
+	if (m_currentFramePhase >= 2 || justChanged) {
 		posOrder[0] = getPosition();
 		posOrder[1] = getPosition();
 	}
@@ -196,25 +173,19 @@ void Banana::updateBounce(float dt)
 	m_meshAnim.updateSpecific(m_frameTime);
 }
 
-void Banana::updateStopped(float dt)
-{
+void Banana::updateStopped(float dt) {
 	// TODO: Straighten up and prepare to jump again.
 }
 
-void Banana::stop()
-{
-}
+void Banana::stop() {}
 
-void Banana::bounce()
-{
+void Banana::bounce() {
 	setAnimationDestination();
-	if (m_bounciness <= 0)
-	{ // Will be stopped
+	if (m_bounciness <= 0) { // Will be stopped
 		m_state = Jump;
 		m_nrOfFramePhases = 6;
 	}
-	else
-	{
+	else {
 		m_heightAnimationPosition.y += m_bounciness;
 		m_bounciness -= 0.3f;
 		rotRandom();

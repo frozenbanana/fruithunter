@@ -48,6 +48,7 @@ protected:
 	std::shared_ptr<Terrain> m_terrain;
 	std::list<float3> m_availablePath;
 	float3 m_direction;
+	virtual void behaviorInactive(float3 playerPosition){};
 	virtual void behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables){};
 	virtual void behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables){};
 	virtual void behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> collidables){};

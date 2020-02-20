@@ -1,9 +1,8 @@
 #include "AI.h"
 #include <algorithm>
-//#include <bits/stdc++.h>
 #include "Fruit.h"
-#define STEP_SCALE 1.f
-#define MAX_STEAPNESS 5.f
+#define STEP_SCALE 1.0f
+#define MAX_STEAPNESS 1.5f
 #define EPSILON 0.001f
 #define MAX_STEPS 35
 
@@ -62,19 +61,17 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 		float3(1.f, 0.f, -1.f), float3(-1.f, 0.f, 0.f), float3(1.f, 0.f, 0.f),
 		float3(-1.f, 0.f, 1.f), float3(0.f, 0.f, 1.f), float3(1.f, 0.f, 1.f) };
 
-	ErrorLogger::logFloat3("end", end);
+
 
 	open.push_back(currentNode);
-	ErrorLogger::log("-------------- STARING A NEW ROUND OF PATHFINDING --------------");
 	while (!open.empty() && counter++ < MAX_STEPS) {
-		quickSort(open, 0, open.size() - 1);
+		quickSort(open, (size_t)0, open.size() - (size_t)1);
 
 		closed.push_back(open.back());
 		open.pop_back();
 
 		// Check to see if we're inside a certain radius of end location
 		shared_ptr<AI::Node> currentNode = closed.back();
-		ErrorLogger::logFloat3("cn ", currentNode->position);
 		if ((currentNode->position - end).LengthSquared() < ARRIVAL_RADIUS) {
 			m_availablePath.clear(); // Reset path
 
@@ -82,12 +79,6 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 			while (currentNode->parent != nullptr) {
 				m_availablePath.push_back(currentNode->position);
 				currentNode = currentNode->parent;
-			}
-
-
-			int counter = 0;
-			for (float3 p : m_availablePath) {
-				ErrorLogger::logFloat3("step " + to_string(counter++), p);
 			}
 
 			if (!m_availablePath.empty()) {
@@ -117,6 +108,8 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 
 			// Check for too big height difference
 			if (childPosition.y - currentNode->position.y > MAX_STEAPNESS) {
+				ErrorLogger::log(
+					"TOO HIGH FOR ME: " + to_string(childPosition.y - currentNode->position.y));
 				continue;
 			}
 
@@ -143,7 +136,6 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 			open.push_back(child);
 		}
 	}
-	ErrorLogger::log("Exiting pathfinding");
 }
 
 void AI::changeState(State newState) {
@@ -155,6 +147,9 @@ AI::State AI::getState() const { return m_currentState; }
 
 void AI::doBehavior(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
 	switch (m_currentState) {
+	case INACTIVE:
+		behaviorInactive(playerPosition);
+		break;
 	case PASSIVE:
 		behaviorPassive(playerPosition, collidables);
 		break;

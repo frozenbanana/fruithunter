@@ -29,6 +29,7 @@ protected:
 	void enforceOverTerrain();
 	Fruit(float3 pos = float3(0.f, 0.f, 0.f));
 	void behaviorReleased() override;
+	void behaviorInactive(float3 playerPosition) override;
 
 
 public:

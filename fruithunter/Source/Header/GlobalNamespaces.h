@@ -22,4 +22,7 @@ using float4x4 = DirectX::SimpleMath::Matrix;
 #define STANDARD_CORNER_X 100
 #define STANDARD_CORNER_Y 100
 
+#define NEAR_PLANE 0.05f
+#define FAR_PLANE 100.f
+
 enum FruitType { APPLE, BANANA, MELON, NR_OF_FRUITS };

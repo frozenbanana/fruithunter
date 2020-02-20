@@ -61,11 +61,13 @@ bool Fruit::withinDistanceTo(float3 target, float treshhold) {
 }
 
 void Fruit::update(float dt, float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
-	doBehavior(playerPosition, collidables);
-	updateAnimated(dt);
-	move(dt);
-	enforceOverTerrain();
-	handleAvailablePath();
+	if (withinDistanceTo(playerPosition, FAR_PLANE / 2.f)) {
+		doBehavior(playerPosition, collidables);
+		updateAnimated(dt);
+		move(dt);
+		enforceOverTerrain();
+		handleAvailablePath();
+	}
 }
 
 void Fruit::handleAvailablePath() {
@@ -75,8 +77,6 @@ void Fruit::handleAvailablePath() {
 
 		// Update next path point
 		if ((positionXZ - currentTargetXZ).Length() < ARRIVAL_RADIUS) {
-			ErrorLogger::logFloat3("position     ", positionXZ);
-			ErrorLogger::logFloat3("Popping back", m_availablePath.back());
 			m_availablePath.pop_back();
 		}
 	}
@@ -86,7 +86,6 @@ void Fruit::move(float dt) {
 	m_directionalVelocity += m_acceleration * dt * dt / 2.f;
 	m_position += m_directionalVelocity * dt;
 	// TODO: check if legal
-	// CURRENT: Enforece terrain height
 	setPosition(m_position);
 }
 
@@ -103,14 +102,16 @@ Fruit::Fruit(float3 pos) : Entity() {
 	m_frameTime = 0.0f;
 }
 
+
+// Perhaps a useful function later.
+void Fruit::behaviorInactive(float3 playerPosition) { return; }
+
 void Fruit::behaviorReleased() {
-	// Placeholder for later adding sound effects
-	if (!m_currentState == RELEASED) {
-		changeState(PASSIVE);
-	}
+	// TODO: Placeholder for later adding sound effects
+	changeState(PASSIVE);
 }
 
 void Fruit::release(float3 direction) {
 	changeState(RELEASED);
-	m_directionalVelocity = direction;
+	m_directionalVelocity = direction * 10.f;
 }

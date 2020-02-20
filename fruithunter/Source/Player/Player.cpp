@@ -58,7 +58,8 @@ void Player::update(float dt, Terrain* terrain) {
 				m_position.x, m_position.z); // normal on current position
 			float height = terrain->getHeightFromPosition(
 				m_position.x, m_position.z); // height of terrain on current position
-			float terrainSteepness = abs(float3(0, 1, 0).Dot(normal));//abs() because sometime the dot product becomes negative
+			float terrainSteepness = abs(float3(0, 1, 0).Dot(
+				normal)); // abs() because sometime the dot product becomes negative
 			m_position.y = clamp(
 				m_position.y, m_position.y, height); // clamp position to never go under terrain!
 			if (abs(m_position.y - height) < ONGROUND_THRESHOLD) {
@@ -233,9 +234,10 @@ void Player::collideObject(Entity& obj) {
 	// Check
 	float radius = 0.2f;
 	float stepHeight = 0.45f; // height able to simply step over
-	EntityCollision feet(m_position + float3(0.f, radius, 0.f), float3(0.f), float3(1.f), radius);
+	EntityCollision feet(
+		m_position + float3(0.f, radius, 0.f), float3(0.f), float3(1.f), float3(radius));
 	EntityCollision hip(m_position + float3(0.f, stepHeight + radius * 2, 0.f), float3(0.f),
-		float3(1.f), radius * 2);
+		float3(1.f), float3(radius * 2.f));
 
 	if (obj.checkCollision(hip)) { // bump into
 		float3 objToPlayer = m_position - obj.getPosition();
