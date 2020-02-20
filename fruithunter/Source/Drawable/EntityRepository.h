@@ -38,6 +38,7 @@ private:
 	//placeable stuff
 	vector<unique_ptr<Entity>> m_placeable;//entities defined to be placeable
 	bool m_placing = false;//state of mode
+	float m_placingDistance = 25.f; // distance of ray tracing on terrain
 	int m_activePlaceableIndex = 0;//index in m_placeable currently selected
 	Keyboard::Keys m_stateSwitchKey = Keyboard::Tab;//switch placing mode
 	Keyboard::Keys m_indexIncreaseKey = Keyboard::NumPad2;//increase index

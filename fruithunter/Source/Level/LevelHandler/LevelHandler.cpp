@@ -49,10 +49,10 @@ void LevelHandler::initialise() {
 	level0.m_heightMapDivision.push_back(XMINT2(5, 5));
 	level0.m_heightMapDivision.push_back(XMINT2(5, 5));
 
-	level0.m_heightMapScales.push_back(float3(1, 0.20, 1) * 100);
-	level0.m_heightMapScales.push_back(float3(1, 0.15, 1) * 100);
-	level0.m_heightMapScales.push_back(float3(1, 0.20, 1) * 100);
-	level0.m_heightMapScales.push_back(float3(1, 0.10, 1) * 100);
+	level0.m_heightMapScales.push_back(float3(1.f, 0.20f, 1.f) * 100);
+	level0.m_heightMapScales.push_back(float3(1.f, 0.15f, 1.f) * 100);
+	level0.m_heightMapScales.push_back(float3(1.f, 0.20f, 1.f) * 100);
+	level0.m_heightMapScales.push_back(float3(1.f, 0.10f, 1.f) * 100);
 
 	vector<string> maps(4);
 	maps[0] = "texture_rock8.jpg"; // flat

@@ -11,7 +11,7 @@ void EntityRepository::fillEntitiesFromRepository() {
 		// get count of instances
 		int count = 0;
 		for (size_t m = 0; m < m_repository.size(); m++)
-			count += m_repository[m].instances.size();
+			count += (int)m_repository[m].instances.size();
 		// clear entities and fill from repository
 		m_entities.clear();
 		m_entities.resize(count);
@@ -114,16 +114,16 @@ void EntityRepository::savePlacements(string filename) const {
 		file.open(path, ios::out | ios::binary);
 		if (file.is_open()) {
 			// write mesh count
-			int meshCount = m_repository.size();
+			int meshCount = (int)m_repository.size();
 			file.write((const char*)&meshCount, sizeof(meshCount));
 			for (size_t m = 0; m < meshCount; m++) {
 				// write mesh name
 				string meshName = m_repository[m].meshName;
-				int meshNameCount = meshName.length();
+				int meshNameCount = (int)meshName.length();
 				file.write((const char*)&meshNameCount, sizeof(meshNameCount));
 				file.write(meshName.c_str(), meshNameCount);
 				// write mesh instance count
-				int instanceCount = m_repository[m].instances.size();
+				int instanceCount = (int)m_repository[m].instances.size();
 				file.write((const char*)&instanceCount, sizeof(instanceCount));
 				// write instances
 				const vector<EntityInstance>* instances = &m_repository[m].instances;
@@ -257,13 +257,13 @@ void EntityRepository::update(float dt, float3 point, float3 direction) {
 		// keys
 		if (ip->keyPressed(m_indexIncreaseKey)) {
 			// increment up
-			m_activePlaceableIndex = (size_t)(m_activePlaceableIndex + 1.f) % m_placeable.size();
+			m_activePlaceableIndex = (m_activePlaceableIndex + 1) % (int)m_placeable.size();
 		}
 		if (ip->keyPressed(m_indexDecreaseKey)) {
 			// increment down
 			m_activePlaceableIndex--;
 			if (m_activePlaceableIndex < 0)
-				m_activePlaceableIndex = m_placeable.size() - 1;
+				m_activePlaceableIndex = (int)m_placeable.size() - 1;
 		}
 		if (ip->keyPressed(m_deleteKey)) {
 			//delete newest entity
@@ -289,7 +289,7 @@ void EntityRepository::update(float dt, float3 point, float3 direction) {
 		}
 		// placement position
 		direction.Normalize();
-		direction *= 10.f;
+		direction *= m_placingDistance;
 		float l = TerrainManager::getInstance()->castRay(point, direction);
 		if (l != -1) {
 			float3 intersection = point + direction * l;
