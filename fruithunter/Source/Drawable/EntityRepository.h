@@ -9,15 +9,17 @@ private:
 	const string m_fileEndings = ".teps"; //tep = Terrain Entity Placements
 
 	struct EntityInstance {
-		float3 position, scale, rotation;
+		float3 position, scale;
+		float4x4 matRotation;
 		bool operator==(const EntityInstance& other) {
-			return (
-				position == other.position && scale == other.scale && rotation == other.rotation);
+			return (position == other.position && scale == other.scale &&
+					matRotation == other.matRotation);
 		}
-		EntityInstance(float3 _position = float3(0,0,0), float3 _scale = float3(1,1,1), float3 _rotation = float3(0,0,0)) {
+		EntityInstance(float3 _position = float3(0, 0, 0), float3 _scale = float3(1, 1, 1),
+			float4x4 _matRotation = XMMatrixIdentity()) {
 			position = _position;
 			scale = _scale;
-			rotation = _rotation;
+			matRotation = _matRotation;
 		}
 	};
 	struct EntityInstances {
