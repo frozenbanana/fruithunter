@@ -70,7 +70,7 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_nrOfFruits[BANANA] = 30;
 	level0.m_nrOfFruits[MELON] = 10;
 
-	level0.m_playerStartPos = float3(50.f, 0.0f, 50.f);
+	level0.m_playerStartPos = float3(50.f, 0.0f, 150.f);
 
 	m_levelsArr.push_back(level0);
 }
