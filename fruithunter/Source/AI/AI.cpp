@@ -17,7 +17,7 @@ bool isIn(shared_ptr<AI::Node> target, std::vector<shared_ptr<AI::Node>> vector)
 	return false;
 }
 
-void AI::quickSort(std::vector<shared_ptr<AI::Node>>& unsortedVector, size_t low, size_t high) {
+void AI::quickSort(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, int high) {
 	if (low < high) {
 		int partitionIndex = partition(unsortedVector, low, high);
 		quickSort(unsortedVector, low, partitionIndex - 1);	 // Before pi
@@ -26,7 +26,7 @@ void AI::quickSort(std::vector<shared_ptr<AI::Node>>& unsortedVector, size_t low
 	// It is now sorted
 }
 
-int AI::partition(std::vector<shared_ptr<AI::Node>>& unsortedVector, size_t low, size_t high) {
+int AI::partition(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, int high) {
 	// pivot (Element to be placed at right position)
 	AI::Node* pivotElement = unsortedVector[high].get();
 
@@ -65,7 +65,7 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 
 	open.push_back(currentNode);
 	while (!open.empty() && counter++ < MAX_STEPS) {
-		quickSort(open, (size_t)0, open.size() - (size_t)1);
+		quickSort(open, 0, (int)open.size() - 1);
 
 		closed.push_back(open.back());
 		open.pop_back();
@@ -108,8 +108,6 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 
 			// Check for too big height difference
 			if (childPosition.y - currentNode->position.y > MAX_STEAPNESS) {
-				ErrorLogger::log(
-					"TOO HIGH FOR ME: " + to_string(childPosition.y - currentNode->position.y));
 				continue;
 			}
 
