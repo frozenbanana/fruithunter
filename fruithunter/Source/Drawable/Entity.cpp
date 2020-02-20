@@ -55,6 +55,13 @@ bool Entity::atOrUnder(float terrainHeight) const {
 	return m_position.y <= (terrainHeight + getHalfSizes().y / 2.f);
 }
 
+string Entity::getModelName() const {
+	if (m_mesh != nullptr) {
+		return m_mesh->getName();
+	}
+	return "";
+}
+
 float4x4 Entity::getModelMatrix() {
 	if (m_matrixChanged)
 		updateMatrix();
