@@ -40,9 +40,9 @@ void LevelHandler::initialise() {
 	level0.m_nrOfFruits[BANANA] = 0;
 	level0.m_nrOfFruits[MELON] = 0;
 
-	level0.m_playerStartPos = float3(13.f, 0.0f, 5.0f);
+	level0.m_playerStartPos = float3(2.f, 0.0f, 10.0f);
 
-	level0.m_fruitPos[APPLE] = float3(9.0f, 0.0f, 6.0f);
+	level0.m_fruitPos[APPLE] = float3(5.0f, 0.0f, 5.0f);
 	level0.m_fruitPos[BANANA] = float3(7.0f, 0.0f, 7.0f);
 	level0.m_fruitPos[MELON] = float3(10.0f, 0.0f, 8.0f);
 
@@ -92,12 +92,12 @@ void LevelHandler::loadLevel(int levelNr) {
 		newEntity->setCollisionDataOBB();
 		m_collidableEntities.push_back(newEntity);
 
-		newEntity = make_shared<Entity>();
+		/*newEntity = make_shared<Entity>();
 		newEntity->load("Cube");
 		newEntity->setScale(1.f);
 		newEntity->setPosition(float3(10.f, 0.f, 15.f));
 		newEntity->setCollisionDataOBB();
-		m_collidableEntities.push_back(newEntity);
+		m_collidableEntities.push_back(newEntity);*/
 
 		m_entity.load("Sphere");
 		m_entity.setScale(0.1f);
@@ -145,22 +145,13 @@ void LevelHandler::update(float dt) {
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->update(dt, playerPos, m_collidableEntities);
 		m_fruits[i]->updateAnimated(dt);
-		if (m_player.getArrow().checkCollision(*m_fruits[i])) { // temp
-			m_fruits[i]->setPosition(float3(0.f));
-			m_player.getArrow().setPosition(float3(-10.f));
-		}
-		if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() <
-			1.0f) { // If the fruit is close to the player get picked up
-			pickUpFruit(m_fruits[i].get()->getFruitType());
-			m_fruits.erase(m_fruits.begin() + i);
-		}
 	}
 
 	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
 		m_player.collideObject(*m_collidableEntities[i]);
 	}
 
-	for (int i = 0; i < 3; ++i) {
+	for (int i = 0; i < m_collidableEntities.size(); ++i) {
 		float t =
 			m_collidableEntities[i]->castRay(m_player.getCameraPosition(), m_player.getForward());
 		if (t != -1) {

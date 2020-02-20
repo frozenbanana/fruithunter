@@ -22,14 +22,17 @@ void Apple::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> co
 	float terrainHeight = TerrainManager::getInstance()->getHeightFromPosition(m_position);
 	if (!withinDistanceTo(m_worldHome, 0.75f) && atOrUnder(terrainHeight)) {
 		// Check if path is anything different than going home
-		if (m_availablePath.empty() || m_availablePath.back() != m_worldHome) {
-			ErrorLogger::log("Apple:: Finding Path for home.");
-			pathfinding(m_position, m_worldHome, collidables);
+		if (m_availablePath.empty()) {
+			if ((m_position - m_worldHome).LengthSquared() > ARRIVAL_RADIUS) {
+				ErrorLogger::logFloat3("Apple:: Finding Path for home from", m_position);
+				pathfinding(m_position, m_worldHome, collidables);
+			}
 		}
 		// if path decided update velocity towards current point.
 		if (!m_availablePath.empty()) {
 			m_directionalVelocity = m_availablePath.front() - m_position;
 			m_directionalVelocity.Normalize();
+			// ErrorLogger::logFloat3("Updating velocity", m_directionalVelocity);
 		}
 	}
 	else { // Just jump when home
@@ -47,6 +50,7 @@ void Apple::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> col
 	// ErrorLogger::log("Apple:: Doing active.");
 	flee(playerPosition);
 	if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
+		m_availablePath.clear();
 		changeState(PASSIVE);
 	}
 }

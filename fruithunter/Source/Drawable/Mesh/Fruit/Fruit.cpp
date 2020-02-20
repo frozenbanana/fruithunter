@@ -75,7 +75,7 @@ void Fruit::handleAvailablePath() {
 
 		// Update next path point
 		if ((positionXZ - currentTargetXZ).Length() < 0.6f) {
-			ErrorLogger::logFloat3("position     ", m_position);
+			ErrorLogger::logFloat3("position     ", positionXZ);
 			ErrorLogger::logFloat3("Popping front", m_availablePath.front());
 			m_availablePath.pop_front();
 		}
