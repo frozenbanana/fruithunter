@@ -270,7 +270,7 @@ void EntityRepository::update(float dt, float3 point, float3 direction) {
 			if (m_entities.size() > 0)
 				removeEntity(m_entities.back().get());
 		}
-		if (ip->keyPressed(m_placeKey)) {
+		if (ip->mousePressed(m_placeKey)) {
 			// place entity
 			string meshName = m_placeable[m_activePlaceableIndex]->getModelName();
 			EntityInstance instance(m_placeable[m_activePlaceableIndex]->getPosition(),

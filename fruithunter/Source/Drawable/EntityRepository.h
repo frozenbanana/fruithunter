@@ -45,7 +45,7 @@ private:
 	Keyboard::Keys m_stateSwitchKey = Keyboard::Tab;//switch placing mode
 	Keyboard::Keys m_indexIncreaseKey = Keyboard::NumPad2;//increase index
 	Keyboard::Keys m_indexDecreaseKey = Keyboard::NumPad1;//decrease index
-	Keyboard::Keys m_placeKey = Keyboard::Enter;//place entity
+	Input::MouseButton m_placeKey = Input::MouseButton::LEFT;//place entity
 	Keyboard::Keys m_deleteKey = Keyboard::Back;//delete entity
 	Keyboard::Keys m_randomizeKey = Keyboard::NumPad0;//randomize values of entity
 	Keyboard::Keys m_saveKey = Keyboard::NumPad9;//randomize values of entity
