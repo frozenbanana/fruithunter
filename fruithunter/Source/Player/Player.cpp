@@ -58,7 +58,7 @@ void Player::update(float dt, Terrain* terrain) {
 				m_position.x, m_position.z); // normal on current position
 			float height = terrain->getHeightFromPosition(
 				m_position.x, m_position.z); // height of terrain on current position
-			float terrainSteepness = float3(0, 1, 0).Dot(normal);
+			float terrainSteepness = abs(float3(0, 1, 0).Dot(normal));//abs() because sometime the dot product becomes negative
 			m_position.y = clamp(
 				m_position.y, m_position.y, height); // clamp position to never go under terrain!
 			if (abs(m_position.y - height) < ONGROUND_THRESHOLD) {

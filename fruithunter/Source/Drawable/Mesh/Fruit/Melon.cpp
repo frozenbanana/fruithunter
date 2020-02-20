@@ -44,7 +44,7 @@ void Melon::behaviorPassive(float3 playerPosition) {
 }
 
 void Melon::behaviorActive(float3 playerPosition) {
-	ErrorLogger::log("Melon:: Doing active.");
+	//ErrorLogger::log("Melon:: Doing active.");
 
 	circulateAround(playerPosition);
 	// pathfinding(m_position, sideStep - m_position);
@@ -55,7 +55,7 @@ void Melon::behaviorActive(float3 playerPosition) {
 }
 
 void Melon::behaviorCaught(float3 playerPosition) {
-	ErrorLogger::log("Melon:: Doing caught.");
+	//ErrorLogger::log("Melon:: Doing caught.");
 	m_directionalVelocity = playerPosition - m_position; // run to player
 	m_directionalVelocity.Normalize();
 
