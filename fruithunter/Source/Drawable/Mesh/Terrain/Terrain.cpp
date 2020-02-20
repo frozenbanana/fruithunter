@@ -120,7 +120,7 @@ float Terrain::sampleHeightmap(float2 uv) {
 		unsigned char g = ((unsigned char*)m_heightmapMappedData
 							   .pData)[(iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4)+1];
 		if ((float)g > 0.0f)
-			m_spawnPoint.push_back(float2(iUV.x, iUV.y));
+			m_spawnPoint.push_back(float2((float)iUV.x, (float)iUV.y));
 		v = (float)r / 255.f;
 	}
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R16G16B16A16_UNORM) {
@@ -352,6 +352,7 @@ float3 Terrain::getRandomSpawnPoint() {
 		spawnPoint.y = getHeightFromPosition(spawnPoint.x, spawnPoint.z);
 		return spawnPoint;
 	}
+	return float3(0.f);
 }
 
 float Terrain::obbTest(float3 rayOrigin, float3 rayDir, float3 boxPos, float3 boxScale) {

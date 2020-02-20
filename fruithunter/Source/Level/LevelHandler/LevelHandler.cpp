@@ -29,6 +29,14 @@ void LevelHandler::initialise() {
 	level0.m_terrainTags.push_back(Level::TerrainTags::Desert);
 	level0.m_terrainTags.push_back(Level::TerrainTags::Plains);
 
+	level0.m_fruitPos[APPLE].push_back(1);
+	level0.m_fruitPos[APPLE].push_back(2);
+	level0.m_fruitPos[APPLE].push_back(3);
+	level0.m_fruitPos[BANANA].push_back(1);
+	level0.m_fruitPos[BANANA].push_back(2);
+	level0.m_fruitPos[BANANA].push_back(3);
+	level0.m_fruitPos[MELON].push_back(0);
+
 	level0.m_heightMapNames.push_back("VolcanoMap.png");
 	level0.m_heightMapNames.push_back("ForestMap.png");
 	level0.m_heightMapNames.push_back("DesertMap.png");
@@ -76,15 +84,11 @@ void LevelHandler::initialise() {
 	maps[3] = "texture_rock6.jpg";
 	level0.m_heightmapTextures.push_back(maps);
 
-	level0.m_nrOfFruits[APPLE] = 25;
-	level0.m_nrOfFruits[BANANA] = 25;
-	level0.m_nrOfFruits[MELON] = 25;
+	level0.m_nrOfFruits[APPLE] = 300;
+	level0.m_nrOfFruits[BANANA] = 300;
+	level0.m_nrOfFruits[MELON] = 100;
 
-	level0.m_playerStartPos = float3(115.f, 0.0f, 115.f);
-
-	level0.m_fruitPos[APPLE] = float3(9.0f, 0.0f, 6.0f);
-	level0.m_fruitPos[BANANA] = float3(7.0f, 0.0f, 7.0f);
-	level0.m_fruitPos[MELON] = float3(10.0f, 0.0f, 8.0f);
+	level0.m_playerStartPos = float3(50.f, 0.0f, 50.f);
 
 	m_levelsArr.push_back(level0);
 }
@@ -104,17 +108,21 @@ void LevelHandler::loadLevel(int levelNr) {
 		}
 
 		for (int i = 0; i < currentLevel.m_nrOfFruits[APPLE]; i++) {
-			shared_ptr<Apple> apple = make_shared<Apple>(m_terrainManager->getSpawnpoint(Level::Desert));
+			int terrainTagNr = i % currentLevel.m_fruitPos[APPLE].size();
+			shared_ptr<Apple> apple = make_shared<Apple>(
+				m_terrainManager->getSpawnpoint(currentLevel.m_fruitPos[APPLE].at(terrainTagNr)));
 			m_fruits.push_back(apple);
 		}
 		for (int i = 0; i < currentLevel.m_nrOfFruits[BANANA]; i++) {
-			shared_ptr<Banana> banana =
-				make_shared<Banana>(m_terrainManager->getSpawnpoint(Level::Forest));
+			int terrainTagNr = i % currentLevel.m_fruitPos[BANANA].size();
+			shared_ptr<Banana> banana = make_shared<Banana>(
+				m_terrainManager->getSpawnpoint(currentLevel.m_fruitPos[BANANA].at(terrainTagNr)));
 			m_fruits.push_back(banana);
 		}
 		for (int i = 0; i < currentLevel.m_nrOfFruits[MELON]; i++) {
-			shared_ptr<Melon> melon =
-				make_shared<Melon>(m_terrainManager->getSpawnpoint(Level::Volcano));
+			int terrainTagNr = i % currentLevel.m_fruitPos[MELON].size();
+			shared_ptr<Melon> melon = make_shared<Melon>(
+				m_terrainManager->getSpawnpoint(currentLevel.m_fruitPos[MELON].at(terrainTagNr)));
 			m_fruits.push_back(melon);
 		}
 

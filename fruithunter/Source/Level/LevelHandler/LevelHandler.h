@@ -28,7 +28,7 @@ struct Level {
 
 	// Fruits
 	int m_nrOfFruits[NR_OF_FRUITS];
-	float3 m_fruitPos[NR_OF_FRUITS];
+	vector<int> m_fruitPos[NR_OF_FRUITS];
 
 	// Playerinfo
 	float3 m_playerStartPos;
