@@ -14,6 +14,8 @@ public:
 
 	void draw();
 
+	float3 getSpawnpoint(int terrainType);
+
 private:
 	TerrainManager();
 	vector<Terrain> m_terrains;
