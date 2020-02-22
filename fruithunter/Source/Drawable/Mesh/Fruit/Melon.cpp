@@ -18,6 +18,10 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	m_directionalVelocity.Normalize();
 	m_rollAnimationSpeed = 2.0f;
 	setCollisionDataOBB();
+
+
+	m_passiveRadius = 15.f;
+	m_activeRadius = 15.f;
 }
 
 void Melon::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
@@ -37,17 +41,22 @@ void Melon::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> co
 		m_directionalVelocity.Normalize();
 	}
 
-	if (withinDistanceTo(playerPosition, 4.0f)) {
+	if (withinDistanceTo(playerPosition, m_activeRadius)) {
 		changeState(ACTIVE);
 	}
 }
 
 void Melon::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
 
-	circulateAround(playerPosition);
-	// pathfinding(m_position, sideStep - m_position);
+	float3 target =  circulateAround(playerPosition);
+	if (m_availablePath.empty()) {
+		pathfinding(m_position, target, collidables);
 
-	if (!withinDistanceTo(playerPosition, 5.0f)) {
+	}
+	if (!m_availablePath.empty())
+		m_directionalVelocity = (m_availablePath.back() - m_position)*2.f;
+
+	if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
 		changeState(PASSIVE);
 	}
 }
@@ -56,24 +65,42 @@ void Melon::behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> col
 	m_directionalVelocity = playerPosition - m_position; // run to player
 	m_directionalVelocity.Normalize();
 
-	if (withinDistanceTo(playerPosition, 1.0f)) {
-		// delete yourself
-	}
 }
 
 void Melon::roll(float dt) { rotateX(dt * m_rollAnimationSpeed); }
 
-void Melon::circulateAround(float3 playerPosition) {
-	float3 toPlayer = m_position - playerPosition;
+float3 Melon::circulateAround(float3 playerPosition) {
+
+	float3 toMelon = m_position - playerPosition;
+	toMelon.y = playerPosition.y;
+	float angle = XM_PI / 8;
+	Matrix rotate = Matrix(
+		cos(angle), 0.f, -sin(angle), 0.f,
+		0.f, 1.f, 0.f, 0.f,
+		sin(angle), 0.f, cos(angle), 0.f, 
+		0.f, 0.f, 0.f, 1.f);
+
+
+	float3 target = target.Transform(toMelon, rotate);
+	target.Normalize();
+	target *= 10.f;
+
+	target += playerPosition;
+	target.y = playerPosition.y;
+
+	/*float3 toPlayer = m_position - playerPosition;
 	float3 sideStep = toPlayer.Cross(float3(0.0f, 1.0f, 0.0f));
 	if (toPlayer.Length() > 5.f) {
 		sideStep -= toPlayer;
 	}
-	/*else if (toPlayer.Length() < 5.f) {
+	*/
+	return target;
+	//m_directionalVelocity = (target - m_position)*2.f;
 
-		sideStep += toPlayer;
-	}*/
-	m_directionalVelocity = sideStep;
+	/*rotate = Matrix(cos(-angle), 0.f, -sin(-angle), 0.f, 0.f, 1.f, 0.f, 0.f, sin(-angle), 0.f,
+		cos(-angle), 0.f, 0.f, 0.f, 0.f, 1.f);
+	m_directionalVelocity.Transform(m_directionalVelocity, rotate);*/
+	
 }
 
 

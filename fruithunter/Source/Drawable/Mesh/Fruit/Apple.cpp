@@ -10,8 +10,8 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 	m_directionalVelocity = float3(1.f, 0.f, 1.f);
 	m_fruitType = APPLE;
 
-	m_activationRadius = 3.f;
-	m_passiveRadius = 6.f;
+	m_activeRadius = 10.f;
+	m_passiveRadius = 15.f;
 	setCollisionDataOBB();
 }
 
@@ -37,7 +37,7 @@ void Apple::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> co
 		}
 	}
 
-	if (withinDistanceTo(playerPosition, m_activationRadius)) {
+	if (withinDistanceTo(playerPosition, m_activeRadius)) {
 		changeState(ACTIVE);
 	}
 }

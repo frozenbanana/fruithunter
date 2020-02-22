@@ -2,7 +2,7 @@
 #include <algorithm>
 #include "Fruit.h"
 #define STEP_SCALE 1.0f
-#define MAX_STEAPNESS 1.5f
+#define MAX_STEAPNESS .5f
 #define EPSILON 0.001f
 #define MAX_STEPS 35
 
@@ -82,8 +82,10 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 			}
 
 			if (!m_availablePath.empty()) {
-				m_availablePath
-					.pop_back(); // remove first position because it is the same as start.
+				m_availablePath.pop_back(); // remove first position because it is the same as start.
+			}
+			for (auto p : m_availablePath) {
+				ErrorLogger::logFloat3("Target: ", p);
 			}
 
 			return;

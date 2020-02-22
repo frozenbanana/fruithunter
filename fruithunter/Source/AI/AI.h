@@ -43,7 +43,7 @@ public:
 	State getState() const;
 
 protected:
-	float m_passiveRadius, m_activationRadius;
+	float m_passiveRadius, m_activeRadius;
 	State m_currentState;
 	std::shared_ptr<Terrain> m_terrain;
 	std::list<float3> m_availablePath;
