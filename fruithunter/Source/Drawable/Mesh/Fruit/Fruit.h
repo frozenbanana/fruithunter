@@ -2,6 +2,7 @@
 #include "Entity.h"
 #include "AI.h"
 #include "TerrainManager.h"
+#include <thread>
 
 class Fruit : public Entity, public AI {
 protected:

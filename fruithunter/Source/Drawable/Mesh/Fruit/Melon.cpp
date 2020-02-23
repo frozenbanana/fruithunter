@@ -48,8 +48,8 @@ void Melon::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> co
 
 void Melon::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
 
-	float3 target =  circulateAround(playerPosition);
 	if (m_availablePath.empty()) {
+		float3 target =  circulateAround(playerPosition);
 		pathfinding(m_position, target, collidables);
 
 	}
@@ -88,18 +88,18 @@ float3 Melon::circulateAround(float3 playerPosition) {
 	target += playerPosition;
 	target.y = playerPosition.y;
 
-	/*float3 toPlayer = m_position - playerPosition;
-	float3 sideStep = toPlayer.Cross(float3(0.0f, 1.0f, 0.0f));
-	if (toPlayer.Length() > 5.f) {
-		sideStep -= toPlayer;
-	}
-	*/
-	return target;
+	//float3 toPlayer = m_position - playerPosition;
+	//float3 target = toPlayer.Cross(float3(0.0f, 1.0f, 0.0f));
+	//if (toPlayer.Length() > 5.f) {
+	//	target -= toPlayer;
+	//}
+	//
 	//m_directionalVelocity = (target - m_position)*2.f;
 
 	/*rotate = Matrix(cos(-angle), 0.f, -sin(-angle), 0.f, 0.f, 1.f, 0.f, 0.f, sin(-angle), 0.f,
 		cos(-angle), 0.f, 0.f, 0.f, 0.f, 1.f);
 	m_directionalVelocity.Transform(m_directionalVelocity, rotate);*/
+	return target;
 	
 }
 

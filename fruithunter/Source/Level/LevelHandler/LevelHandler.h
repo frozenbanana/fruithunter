@@ -56,6 +56,14 @@ private:
 	//Creating data for levels.
 	void initialiseLevel0();
 
+
+	//thread for pathfinding,
+	std::thread *m_pathFindingThread;
+	bool* m_threadRunning;
+	int* nr = new int;
+	shared_ptr<list<float3>> m_listOfPathsToBeUpdated;
+	void initiatePathFindingThread();
+
 public:
 	LevelHandler();
 	~LevelHandler();
