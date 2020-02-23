@@ -8,6 +8,9 @@
 #include "PlayState.h"
 #include "IntroState.h"
 #include "Camera.h"
+#include "VariableSyncer.h"
+
+void onLoad(void* ptr) { ErrorLogger::log("Loaded struct!"); }
 
 int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
 	_In_ int cmdCount) {
@@ -27,6 +30,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	//Hardcoded statechange here. (TESTING)
 	stateHandler->changeState(StateHandler::PLAY);
 	while (StateHandler::getInstance()->isRunning()) {
+		VariableSyncer::getInstance()->sync();
 		input->update();
 		if (input->keyPressed(DirectX::Keyboard::F1)) {
 			ErrorLogger::log("Number 1 was pressed!");
