@@ -62,6 +62,8 @@ private:
 		FileSyncer(string path = "", void (*onLoad)(void) = nullptr);
 	};
 
+	const float m_syncInterval = 0.5f;//time until sync interval occurs, in seconds
+	clock_t m_latestSyncTime;
 	vector<FileSyncer> files;
 
 	// --Functions--

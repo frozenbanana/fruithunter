@@ -1,4 +1,4 @@
-speed walk:50.000000
+speed walk:20.000000
 speed sprint:40.000000
 speed in air:5.000000
 jump force:5.000000

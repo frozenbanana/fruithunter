@@ -98,12 +98,12 @@ void VariableSyncer::FileSyncer::writeFile() {
 
 bool VariableSyncer::FileSyncer::sync() {
 	if (valid()) {
-		//create if not already created
+		// create if not already created
 		if (!m_fileCreated) {
 			m_fileCreated = true;
 			writeFile();
 		}
-		//read from file if updated
+		// read from file if updated
 		time_t time = getModificationTime();
 		if (time > m_timestamp) {
 			// update
@@ -285,8 +285,14 @@ bool VariableSyncer::create(string path, void (*onLoad)(void)) {
 }
 
 void VariableSyncer::sync() {
-	for (size_t i = 0; i < files.size(); i++) {
-		files[i].sync();
+	clock_t time = clock();
+	if ((time - m_latestSyncTime) / 1000.f > m_syncInterval) {
+		m_latestSyncTime = time;
+		// sync
+		ErrorLogger::log("log");
+		for (size_t i = 0; i < files.size(); i++) {
+			files[i].sync();
+		}
 	}
 }
 
