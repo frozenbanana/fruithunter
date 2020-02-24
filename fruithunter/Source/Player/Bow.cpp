@@ -62,8 +62,9 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 					AudioHandler::HIT_WOOD, m_bow.getPosition(), target);
 			}
 		}
-		if (m_arrowReturnTimer < 0.0f || (m_arrow.getPosition() - playerPos).Length() >
-											 m_max_travel_length) { // replace with collision later
+		if (m_arrowReturnTimer < 0.0f ||
+			(m_arrow.getPosition() - playerPos).LengthSquared() >
+				m_maxTravelLengthSquared) { // replace with collision later
 			m_shooting = false;
 		}
 	}
@@ -139,11 +140,9 @@ void Bow::shoot(
 						  direction * velocity; // adds player velocity and it looks okay
 		m_oldArrowVelocity = m_arrowVelocity;	// Required to calc rotation
 		if (m_drawFactor > 0.5) {
-			ErrorLogger::log("HEAVY ARROW");
 			AudioHandler::getInstance()->playOnce(AudioHandler::HEAVY_ARROW);
 		}
 		else {
-			ErrorLogger::log("LIGHT ARROW");
 			AudioHandler::getInstance()->playOnce(AudioHandler::LIGHT_ARROW);
 		}
 	}

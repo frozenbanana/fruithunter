@@ -35,7 +35,7 @@ private:
 
 	float m_arrowPitch = 0;
 	float m_arrowYaw = 0;
-	float m_max_travel_length = 80.f;
+	float m_maxTravelLengthSquared = 80.f * 80.f;
 
 	// Assuming Fluid density * dragCoefficient * 0.5 = 1.
 	float m_arrowArea = 0.0001f;

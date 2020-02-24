@@ -39,7 +39,6 @@ void IntroState::handleEvent() {
 	Input* input = Input::getInstance();
 	AudioHandler* audioHandler = AudioHandler::getInstance();
 	if (input->keyDown(DirectX::Keyboard::B)) {
-		ErrorLogger::log("B pressed.");
 		audioHandler->playOnce(AudioHandler::Sounds::HEAVY_ARROW);
 	}
 }

@@ -75,7 +75,6 @@ void AudioHandler::playOnce(AudioHandler::Sounds sound) {
 
 void AudioHandler::playInstance(AudioHandler::Sounds sound) {
 	if (m_soundEffectsInstance[sound]->GetState() != SoundState::PLAYING) {
-		ErrorLogger::log("I am actually starting");
 		m_soundEffectsInstance[sound]->Play();
 	}
 }
@@ -91,7 +90,6 @@ void AudioHandler::playOnceByDistance(
 	float volume = 1.f - map(0.f, m_maxHearingDistance, 0.f, 1.f, distance);
 	// Tweak to volume change more realistic
 	volume *= volume;
-	ErrorLogger::log("volume: " + to_string(volume));
 	m_soundEffects[sound]->Play(volume, 0.f, 0.f);
 }
 
