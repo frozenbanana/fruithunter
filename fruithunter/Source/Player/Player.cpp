@@ -1,15 +1,22 @@
 #include "Player.h"
 #include "Renderer.h"
 #include "Errorlogger.h"
+#include "VariableSyncer.h"
 
 Player::Player() {}
 
 Player::~Player() {}
 
 void Player::initialize() {
-	m_position = float3(0.0f, 0.0f, -4.0f);
+	m_position = float3(1.0f, 2.0f, 3.0f);
 	m_velocity = float3(0.0f, 0.0f, 0.0f);
 	m_playerForward = DEFAULTFORWARD;
+	VariableSyncer::getInstance()->create("Player.txt", nullptr);
+	VariableSyncer::getInstance()->bind("Player.txt", "speed walk:f", &m_speed);
+	VariableSyncer::getInstance()->bind("Player.txt", "speed sprint:f", &m_speedSprint);
+	VariableSyncer::getInstance()->bind("Player.txt", "speed in air:f", &m_speedInAir);
+	VariableSyncer::getInstance()->bind("Player.txt", "jump force:f", &m_jumpForce);
+	VariableSyncer::getInstance()->bind("Player.txt", "dash force:f", &m_dashForce);
 }
 
 void Player::update(float dt, Terrain* terrain) {
