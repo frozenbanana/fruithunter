@@ -9,6 +9,9 @@ float map(float low, float high, float newLow, float newHigh, float value) {
 	return oldCoefficient * newRange;
 }
 
+bool AudioHandler::isPlaying(AudioHandler::Sounds sound) {
+	return m_soundEffects[sound]->IsInUse();
+}
 
 void AudioHandler::initalize() {
 	// Needed to be able to load textures and possibly other things.
@@ -20,7 +23,6 @@ void AudioHandler::initalize() {
 
 	// Can add flags to parameters
 	m_this.m_audioEngine = std::make_unique<DirectX::AudioEngine>();
-
 	// One time sound effects
 	m_this.m_soundEffects[LIGHT_ARROW] = std::make_unique<DirectX::SoundEffect>(
 		m_audioEngine.get(), L"assets/sounds/light-arrow-release.wav");
@@ -30,7 +32,14 @@ void AudioHandler::initalize() {
 		m_audioEngine.get(), L"assets/sounds/stretch-bow.wav");
 	m_this.m_soundEffects[HIT_WOOD] =
 		std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), L"assets/sounds/hit-wood.wav");
+	m_this.m_soundEffects[HIT_FRUIT] = std::make_unique<DirectX::SoundEffect>(
+		m_audioEngine.get(), L"assets/sounds/fruit-impact-wet.wav");
+	m_this.m_soundEffects[COLLECT] = std::make_unique<DirectX::SoundEffect>(
+		m_audioEngine.get(), L"assets/sounds/collected-item.wav");
 
+	// Some effect require instances for more control
+	m_this.m_soundEffectsInstance[STRETCH_BOW] =
+		m_this.m_soundEffects[STRETCH_BOW]->CreateInstance();
 
 	// Ambient sounds
 	m_this.m_ambientMenu =
@@ -56,9 +65,24 @@ void AudioHandler::startPlayAmbient() {
 	m_this.m_ambientPlaySound->Play(true);
 }
 
+void AudioHandler::pauseInstance(AudioHandler::Sounds sound) {
+	m_soundEffectsInstance[sound]->Stop(true); // Play one time
+}
 
 void AudioHandler::playOnce(AudioHandler::Sounds sound) {
 	m_soundEffects[sound]->Play(); // Play one time
+}
+
+void AudioHandler::playInstance(AudioHandler::Sounds sound) {
+	if (m_soundEffectsInstance[sound]->GetState() != SoundState::PLAYING) {
+		ErrorLogger::log("I am actually starting");
+		m_soundEffectsInstance[sound]->Play();
+	}
+}
+void AudioHandler::playInstance(AudioHandler::Sounds sound, float coefficient) {
+	if (m_soundEffectsInstance[sound]->GetState() != SoundState::PLAYING) {
+		m_soundEffectsInstance[sound]->Play();
+	}
 }
 
 void AudioHandler::playOnceByDistance(

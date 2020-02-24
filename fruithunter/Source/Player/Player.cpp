@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "Errorlogger.h"
 #include "VariableSyncer.h"
+#include "AudioHandler.h"
 
 Player::Player() {}
 

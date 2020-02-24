@@ -23,8 +23,8 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 	// Set bow position based on player position and direction.
 	float3 playerUp = playerForward.Cross(playerRight);
 	m_bow.setPosition(playerPos + playerForward * ARM_LENGTH +
-		playerRight * OFFSET_RIGHT * m_aimMovement +
-		playerUp * OFFSET_UP * m_aimMovement);
+					  playerRight * OFFSET_RIGHT * m_aimMovement +
+					  playerUp * OFFSET_UP * m_aimMovement);
 
 
 	// Update m_arrowReturnTimer
@@ -60,8 +60,8 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 					AudioHandler::HIT_WOOD, m_bow.getPosition(), target);
 			}
 		}
-		if (m_arrowReturnTimer < 0.0f ||
-			(m_arrow.getPosition() - playerPos).Length() > 40.0f) { // replace with collision later
+		if (m_arrowReturnTimer < 0.0f || (m_arrow.getPosition() - playerPos).Length() >
+											 m_max_travel_length) { // replace with collision later
 			m_shooting = false;
 		}
 	}
@@ -105,8 +105,9 @@ void Bow::release() { // Stops charging
 }
 
 void Bow::charge() { // Draws the arrow back on the bow
-	if (!m_shooting && m_chargeReset)
+	if (!m_shooting && m_chargeReset) {
 		m_charging = true;
+	}
 }
 
 void Bow::shoot(
@@ -123,7 +124,7 @@ void Bow::shoot(
 		float bowMaterialConstant = 0.05f;
 
 		float velocity = pow((bowEfficiencyConstant * m_drawFactor) /
-			(m_arrowMass + m_bowMass * bowMaterialConstant),
+								 (m_arrowMass + m_bowMass * bowMaterialConstant),
 			0.5f);
 
 		direction.Normalize();
@@ -133,7 +134,7 @@ void Bow::shoot(
 
 
 		m_arrowVelocity = direction * startVelocity.Length() +
-			direction * velocity; // adds player velocity and it looks okay
+						  direction * velocity; // adds player velocity and it looks okay
 		m_oldArrowVelocity = m_arrowVelocity;	// Required to calc rotation
 		if (m_drawFactor > 0.5) {
 			ErrorLogger::log("HEAVY ARROW");
