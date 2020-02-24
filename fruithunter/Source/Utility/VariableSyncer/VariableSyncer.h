@@ -73,6 +73,7 @@ private:
 public:
 	static VariableSyncer* getInstance();
 	/*
+	 *	types - f = float, d = double, i = int, s = string, v3 = float3
 	 *	description = "name1:type1&name2:type2"
 	*/
 	bool bind(string path, string description, void* data_ptr);

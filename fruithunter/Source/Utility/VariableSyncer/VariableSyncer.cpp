@@ -289,7 +289,6 @@ void VariableSyncer::sync() {
 	if ((time - m_latestSyncTime) / 1000.f > m_syncInterval) {
 		m_latestSyncTime = time;
 		// sync
-		ErrorLogger::log("log");
 		for (size_t i = 0; i < files.size(); i++) {
 			files[i].sync();
 		}
