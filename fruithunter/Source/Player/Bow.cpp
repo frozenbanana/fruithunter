@@ -1,5 +1,6 @@
 #include "Bow.h"
 #include "TerrainManager.h"
+#include "AudioHandler.h"
 #define ARM_LENGTH 0.55f
 #define OFFSET_RIGHT 0.37f
 #define OFFSET_UP -0.1f
@@ -30,11 +31,13 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 	m_arrowReturnTimer -= dt;
 	// Bow animation.
 	if (m_charging) {
+		AudioHandler::getInstance()->playInstance(AudioHandler::STRETCH_BOW, m_drawFactor);
 		m_drawFactor = min(0.99f, m_drawFactor + dt);
 		m_bow.updateAnimatedSpecific(m_drawFactor);
 		m_bow.setFrameTargets(0, 1);
 	}
 	else {
+		AudioHandler::getInstance()->pauseInstance(AudioHandler::STRETCH_BOW);
 		m_drawFactor = max(0.0f, m_drawFactor - 5.0f * dt);
 		m_bow.updateAnimatedSpecific(m_drawFactor);
 		m_bow.setFrameTargets(0, 1);
@@ -50,13 +53,18 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 			float castray =
 				TerrainManager::getInstance()->castRay(m_arrow.getPosition(), m_arrowVelocity * dt);
 			if (castray != -1) {
-				m_arrowHitObject = true;
+				// Arrow is hitting terrain
 				m_arrowReturnTimer = 0.5f;
-				m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * castray * dt);
+				m_arrowHitObject = true;
+				float3 target = m_arrow.getPosition() + m_arrowVelocity * castray * dt;
+				m_arrow.setPosition(target);
+				AudioHandler::getInstance()->playOnceByDistance(
+					AudioHandler::HIT_WOOD, m_bow.getPosition(), target);
 			}
 		}
 		if (m_arrowReturnTimer < 0.0f ||
-			(m_arrow.getPosition() - playerPos).Length() > 40.0f) { // replace with collision later
+			(m_arrow.getPosition() - playerPos).LengthSquared() >
+				m_maxTravelLengthSquared) { // replace with collision later
 			m_shooting = false;
 		}
 	}
@@ -100,8 +108,9 @@ void Bow::release() { // Stops charging
 }
 
 void Bow::charge() { // Draws the arrow back on the bow
-	if (!m_shooting && m_chargeReset)
+	if (!m_shooting && m_chargeReset) {
 		m_charging = true;
+	}
 }
 
 void Bow::shoot(
@@ -126,9 +135,16 @@ void Bow::shoot(
 		m_arrowPitch = pitch;
 		m_arrowYaw = yaw;
 
+
 		m_arrowVelocity = direction * startVelocity.Length() +
 						  direction * velocity; // adds player velocity and it looks okay
 		m_oldArrowVelocity = m_arrowVelocity;	// Required to calc rotation
+		if (m_drawFactor > 0.5) {
+			AudioHandler::getInstance()->playOnce(AudioHandler::HEAVY_ARROW);
+		}
+		else {
+			AudioHandler::getInstance()->playOnce(AudioHandler::LIGHT_ARROW);
+		}
 	}
 }
 
