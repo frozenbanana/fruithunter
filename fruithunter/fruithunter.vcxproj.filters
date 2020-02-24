@@ -129,6 +129,9 @@
     <ClCompile Include="Source\Drawable\EntityRepository.cpp">
       <Filter>Source\Drawable</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Graphics\ShadowMapping\ShadowMapping.cpp">
+      <Filter>Source\Graphics\ShadowMapping</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -233,6 +236,9 @@
     <ClInclude Include="Source\Drawable\EntityRepository.h">
       <Filter>Source\Drawable</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Graphics\ShadowMapping\ShadowMapping.h">
+      <Filter>Source\Graphics\ShadowMapping</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
@@ -307,6 +313,9 @@
     </Filter>
     <Filter Include="Source\Utility\Repositories">
       <UniqueIdentifier>{0351c8e4-cfeb-4492-97c6-2514408dac40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Graphics\ShadowMapping">
+      <UniqueIdentifier>{d6645390-c2fd-4363-96bb-d57d2ac12609}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
