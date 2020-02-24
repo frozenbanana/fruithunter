@@ -2,7 +2,7 @@
 #include <algorithm>
 #include "Fruit.h"
 #define STEP_SCALE 1.0f
-#define MAX_STEAPNESS 1.5f
+#define MAX_STEAPNESS .5f
 #define EPSILON 0.001f
 #define MAX_STEPS 35
 
@@ -40,6 +40,73 @@ int AI::partition(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, in
 	}
 	std::swap(unsortedVector[i + 1], unsortedVector[high]);
 	return (i + 1);
+}
+
+bool AI::beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>> openList,
+	std::vector<shared_ptr<AI::Node>> closedList) {
+	return isIn(child, closedList) && isIn(child, openList);
+
+
+	//Previous check
+	//// Check is child is in closed
+	// if (isIn(child, closed)) {
+	//	continue;
+	//}
+
+	//// Check is child is in open
+	// if (isIn(child, open)) {
+	//	continue;
+	//}
+
+}
+
+bool AI::isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entity>> collidables) {
+	if (childPos.y - currentNodePos.y > MAX_STEAPNESS) {
+		return false;
+	}
+
+
+	for (size_t i = 0; i < collidables.size(); ++i) {
+		float3 obstacle = collidables.at(i)->getPosition();
+		obstacle.y = 0.f;
+		childPos.y = 0.f;
+		float lengthChildToCollidableSquared = (childPos - obstacle).LengthSquared();
+		float collidableRadiusSquared = collidables.at(i)->getHalfSizes().LengthSquared();
+
+		if (lengthChildToCollidableSquared < collidableRadiusSquared) {
+
+			return false;
+		}
+	}
+
+	return true;
+
+
+	//previous check
+	// Check for too big height difference
+	// if (childPosition.y - currentNode->position.y > MAX_STEAPNESS) {
+	//	continue;
+	//}
+
+	//// check if collision with objects
+	// for (size_t i = 0; i < collidables.size(); ++i) {
+	//	float3 obstacle = collidables.at(i)->getPosition();
+	//	obstacle.y = 0.f;
+	//	childPosition.y = 0.f;
+	//	float lengthChildToCollidableSquared = (childPosition - obstacle).LengthSquared();
+	//	float collidableRadiusSquared = collidables.at(i)->getHalfSizes().LengthSquared();
+
+	//	if (lengthChildToCollidableSquared < collidableRadiusSquared) {
+	//		collidedWithSomething = true;
+	//		break;
+	//	}
+	//}
+
+
+	/*if (collidedWithSomething) {
+		collidedWithSomething = false;
+		continue;
+	}*/
 }
 
 
@@ -82,8 +149,10 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 			}
 
 			if (!m_availablePath.empty()) {
-				m_availablePath
-					.pop_back(); // remove first position because it is the same as start.
+				m_availablePath.pop_back(); // remove first position because it is the same as start.
+			}
+			for (auto p : m_availablePath) {
+				ErrorLogger::logFloat3("Target: ", p);
 			}
 
 			return;
@@ -96,37 +165,14 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 
 			shared_ptr<AI::Node> child =
 				make_shared<AI::Node>(currentNode, childPosition, start, end);
-			// Check is child is in closed
-			if (isIn(child, closed)) {
+
+
+			//Check if node is in open or closed.
+			if (beingUsed(child, open, closed)) {
 				continue;
 			}
-
-			// Check is child is in open
-			if (isIn(child, open)) {
-				continue;
-			}
-
-			// Check for too big height difference
-			if (childPosition.y - currentNode->position.y > MAX_STEAPNESS) {
-				continue;
-			}
-
-			// check if collision with objects
-			for (size_t i = 0; i < collidables.size(); ++i) {
-				float3 obstacle = collidables.at(i)->getPosition();
-				obstacle.y = 0.f;
-				childPosition.y = 0.f;
-				float lengthChildToCollidableSquared = (childPosition - obstacle).LengthSquared();
-				float collidableRadiusSquared = collidables.at(i)->getHalfSizes().LengthSquared();
-
-				if (lengthChildToCollidableSquared < collidableRadiusSquared) {
-					collidedWithSomething = true;
-					break;
-				}
-			}
-
-			if (collidedWithSomething) {
-				collidedWithSomething = false;
+			
+			if (!isValid(child->position, currentNode->position, collidables)) {
 				continue;
 			}
 

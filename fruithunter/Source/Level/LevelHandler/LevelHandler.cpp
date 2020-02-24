@@ -1,5 +1,8 @@
 #include "LevelHandler.h"
 #include "TerrainManager.h"
+#include "mutex"
+
+std::mutex mu;
 
 void LevelHandler::initialiseLevel0() {
 	Level level0;
@@ -75,14 +78,38 @@ void LevelHandler::initialiseLevel0() {
 	m_levelsArr.push_back(level0);
 }
 
+void LevelHandler::initiatePathFindingThread() {
+	*m_threadRunning = true;
+	while (*m_threadRunning) {
+		ErrorLogger::log("Thread Running\n");
+	}
+
+}
+
 LevelHandler::LevelHandler() { initialise(); }
 
-LevelHandler::~LevelHandler() {}
+LevelHandler::~LevelHandler() {
+	if (!*m_threadRunning)
+		m_pathFindingThread->join();
+}
+
+void test(bool* running, int* nr) {
+	bool* r = running;
+	int* n = nr;
+	while (*r) {
+		Sleep(1000);
+		mu.lock();
+		//n = nr;
+		ErrorLogger::log("thread running I has been pressed" + to_string(*n) + " nr of times\n");
+		mu.unlock();
+	}
+};
 
 void LevelHandler::initialise() {
 
 	m_player.initialize();
 	m_terrainManager = TerrainManager::getInstance();
+	
 
 	m_terrainProps.addPlaceableEntity("treeMedium1");
 	m_terrainProps.addPlaceableEntity("treeMedium2");
@@ -95,6 +122,15 @@ void LevelHandler::initialise() {
 	m_terrainProps.addPlaceableEntity("Block");
 
 	initialiseLevel0();
+	
+
+	//thread p(test);
+	m_threadRunning = new bool;
+	*m_threadRunning = true;
+	*nr = 0;
+	m_pathFindingThread = new thread(test, m_threadRunning, nr);
+	//*m_threadRunning = false;
+	//m_pathFindingThread->join();
 }
 
 void LevelHandler::loadLevel(int levelNr) {
@@ -180,7 +216,6 @@ void LevelHandler::draw() {
 }
 
 void LevelHandler::update(float dt) {
-
 	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
 	m_skyBox.updateDelta(dt);
@@ -269,5 +304,12 @@ void LevelHandler::dropFruit() {
 			m_fruits.push_back(melon);
 			// m_inventory[MELON]--;
 		}
+	}
+	if (ip->keyPressed(Keyboard::Escape)) {
+		*m_threadRunning = false;
+	}
+	if (ip->keyPressed(Keyboard::Enter)) {
+		++*nr;
+		//ErrorLogger::log("Actual nr " + to_string(++*nr) + "\n");
 	}
 }
