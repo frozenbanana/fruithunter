@@ -253,12 +253,9 @@ void Player::collideObject(Entity& obj) {
 			m_onEntity = true;
 			if (obj.getCollisionType() == EntityCollision::ctOBB)
 				m_position.y = obj.getPointOnOBB(m_position).y;
-			/*m_position.y = obj.getPosition().y + obj.getBoundingBoxPos().y +
-						   obj.getHalfSizes().y * obj.getScale().y - 0.01f;*/
 
-			// TODO använd point closest to functionen för placering.
 
-			// I we fix castray
+			// If we fix castray
 			// float cast =
 			//	obj.castRay(m_position + float3(0.f, stepHeight, 0.f), float3(0.01, -1, 0.01));
 			// if (cast != -1) {
