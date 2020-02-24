@@ -17,7 +17,7 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	m_directionalVelocity = m_position - m_secondWorldHome;
 	m_directionalVelocity.Normalize();
 	m_rollAnimationSpeed = 2.0f;
-	setCollisionDataOBB();
+	setCollisionDataSphere();
 }
 
 void Melon::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
