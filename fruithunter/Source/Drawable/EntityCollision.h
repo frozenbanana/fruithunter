@@ -32,7 +32,7 @@ private:
 			m_axis[1] = float3::Up;
 			m_axis[2] = float3::Forward;
 		}
-		float3 closestPtPointOBB(float3 point);
+		float3 closestPtPointOBB(float3 point) const;
 	};
 
 	CollisionType m_collisionType;
@@ -56,4 +56,5 @@ public:
 	void setCollisionScale(float3 scale);
 
 	int getCollisionType() const;
+	float3 getClosestPointOnBox(float3 point) const;
 };

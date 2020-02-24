@@ -236,10 +236,30 @@ void Player::collideObject(Entity& obj) {
 	float stepHeight = 0.45f; // height able to simply step over
 	EntityCollision feet(
 		m_position + float3(0.f, radius, 0.f), float3(0.f), float3(1.f), float3(radius));
-	EntityCollision hip(m_position + float3(0.f, stepHeight + radius * 2, 0.f), float3(0.f),
-		float3(1.f), float3(radius * 2.f));
+	EntityCollision hip(m_position + float3(0.f, stepHeight + radius * 3, 0.f), float3(0.f),
+		float3(1.f), float3(radius * 3.f));
 
-	if (obj.checkCollision(hip)) { // bump into
+	if (obj.checkCollision(feet)) { // walk on/to
+		if (m_velocity.y <= 0) {
+			m_velocity.y = 0;
+			m_onGround = true;
+			m_onEntity = true;
+			if (obj.getCollisionType() == EntityCollision::ctOBB)
+				m_position.y = obj.getPointOnOBB(m_position).y;
+			/*m_position.y = obj.getPosition().y + obj.getBoundingBoxPos().y +
+						   obj.getHalfSizes().y * obj.getScale().y - 0.01f;*/
+
+			// TODO använd point closest to functionen för placering.
+
+			// I we fix castray
+			// float cast =
+			//	obj.castRay(m_position + float3(0.f, stepHeight, 0.f), float3(0.01, -1, 0.01));
+			// if (cast != -1) {
+			//	m_position.y += (stepHeight - cast) * 0.1;
+			//}
+		}
+	}
+	else if (obj.checkCollision(hip)) { // bump into
 		float3 objToPlayer = m_position - obj.getPosition();
 		if (objToPlayer.Dot(m_velocity) < 0) {
 			objToPlayer.Normalize();
@@ -248,24 +268,6 @@ void Player::collideObject(Entity& obj) {
 			reflection.y = m_velocity.y;
 			m_velocity += reflection;
 			m_velocity *= 0.5;
-		}
-	}
-	else if (obj.checkCollision(feet)) { // walk on/to
-		if (m_velocity.y <= 0) {
-			m_velocity.y = 0;
-			m_onGround = true;
-			m_onEntity = true;
-			if (obj.getCollisionType() == EntityCollision::ctOBB)
-				m_position.y =
-					obj.getBoundingBoxPos().y + obj.getHalfSizes().y * obj.getScale().y - 0.01f;
-
-
-			// I we fix castray
-			// float cast =
-			//	obj.castRay(m_position + float3(0.f, stepHeight, 0.f), float3(0.01, -1, 0.01));
-			// if (cast != -1) {
-			//	m_position.y += (stepHeight - cast) * 0.1;
-			//}
 		}
 	}
 }

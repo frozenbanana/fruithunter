@@ -285,6 +285,10 @@ float3 Entity::getBoundingBoxPos() const {
 
 int Entity::getCollisionType() const { return m_collisionData.getCollisionType(); }
 
+float3 Entity::getPointOnOBB(float3 point) const {
+	return m_collisionData.getClosestPointOnBox(point);
+}
+
 Entity::Entity(string filename, float3 position, float3 scale) {
 	load(filename);
 	m_position = position;

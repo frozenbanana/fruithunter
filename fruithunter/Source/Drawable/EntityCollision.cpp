@@ -1,4 +1,5 @@
 #include "EntityCollision.h"
+#include "ErrorLogger.h"
 
 bool EntityCollision::collisionSphereSphere(SphereData* sphere1, SphereData* sphere2) {
 	float dist = (sphere1->m_point - sphere2->m_point).LengthSquared();
@@ -211,8 +212,10 @@ void EntityCollision::setCollisionScale(float3 scale) {
 
 int EntityCollision::getCollisionType() const { return m_collisionType; }
 
+
+
 // Returns point on OBB that is closest to a point
-float3 EntityCollision::ObbData::closestPtPointOBB(float3 point) {
+float3 EntityCollision::ObbData::closestPtPointOBB(float3 point) const {
 	// Theory from ch 5.1.4 "real-time collision detecton" - Christer Ericson
 	// x = (P-C).dot(axis[0])
 	float3 vec = point - m_point;
@@ -231,4 +234,16 @@ float3 EntityCollision::ObbData::closestPtPointOBB(float3 point) {
 	}
 
 	return pointOnObb;
+}
+
+float3 EntityCollision::getClosestPointOnBox(float3 point) const {
+
+
+	if (m_collisionType == ctOBB) {
+		return ((ObbData*)m_collisionData.get())->closestPtPointOBB(point);
+	}
+	else {
+		ErrorLogger::log("Called getClosestPointOnBox in a sphere!");
+		return float3(-1.f);
+	}
 }
