@@ -12,7 +12,7 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 	setScale(2.f);
 	m_currentState = PASSIVE;
 	m_worldHome = m_position;
-	setCollisionDataOBB();
+	setCollisionDataSphere();
 }
 
 void Banana::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {

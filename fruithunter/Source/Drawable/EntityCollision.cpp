@@ -131,9 +131,9 @@ bool EntityCollision::collisionOBBOBB(ObbData& a, ObbData& b) {
 
 bool EntityCollision::collisionSphereOBB(SphereData& sphere, ObbData& obb) {
 	float3 closestOnOBB = obb.closestPtPointOBB(sphere.m_point);
-	float distSq = (closestOnOBB - sphere.m_point * sphere.m_scale.y).LengthSquared();
+	float distSq = (closestOnOBB - sphere.m_point).LengthSquared();
 
-	return distSq < sphere.m_radius * sphere.m_radius;
+	return distSq < sphere.m_radius * sphere.m_radius * sphere.m_scale.y * sphere.m_scale.y;
 }
 
 EntityCollision::EntityCollision(float3 point, float3 posOffset, float3 scale, float radius) {
