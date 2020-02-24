@@ -31,11 +31,13 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 	m_arrowReturnTimer -= dt;
 	// Bow animation.
 	if (m_charging) {
+		AudioHandler::getInstance()->playInstance(AudioHandler::STRETCH_BOW, m_drawFactor);
 		m_drawFactor = min(0.99f, m_drawFactor + dt);
 		m_bow.updateAnimatedSpecific(m_drawFactor);
 		m_bow.setFrameTargets(0, 1);
 	}
 	else {
+		AudioHandler::getInstance()->pauseInstance(AudioHandler::STRETCH_BOW);
 		m_drawFactor = max(0.0f, m_drawFactor - 5.0f * dt);
 		m_bow.updateAnimatedSpecific(m_drawFactor);
 		m_bow.setFrameTargets(0, 1);

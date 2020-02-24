@@ -80,7 +80,7 @@ void AudioHandler::playInstance(AudioHandler::Sounds sound) {
 	}
 }
 void AudioHandler::playInstance(AudioHandler::Sounds sound, float coefficient) {
-	if (m_soundEffectsInstance[sound]->GetState() != SoundState::PLAYING) {
+	if (m_soundEffectsInstance[sound]->GetState() != SoundState::PLAYING && coefficient < 0.99f) {
 		m_soundEffectsInstance[sound]->Play();
 	}
 }
