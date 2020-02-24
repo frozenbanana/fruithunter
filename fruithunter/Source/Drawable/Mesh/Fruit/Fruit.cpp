@@ -77,6 +77,7 @@ void Fruit::handleAvailablePath() {
 
 		// Update next path point
 		if ((positionXZ - currentTargetXZ).Length() < ARRIVAL_RADIUS) {
+			ErrorLogger::logFloat3("Popping point: ", m_availablePath.back());
 			m_availablePath.pop_back();
 		}
 	}
