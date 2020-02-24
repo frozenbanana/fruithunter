@@ -31,7 +31,7 @@ void PlayState::draw() {
 
 void PlayState::play() {
 	Input::getInstance()->setMouseModeRelative();
-	AudioHandler::startPlayAmbient();
+	// AudioHandler::startPlayAmbient();
 	ErrorLogger::log(m_name + " play() called.");
 	m_levelHandler.loadLevel(0);
 }

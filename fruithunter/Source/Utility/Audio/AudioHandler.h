@@ -1,17 +1,21 @@
 #pragma once
 #include <Audio.h>
+#include "GlobalNamespaces.h"
 
 class AudioHandler {
 public:
-	enum Sounds { LALA = 0, LENGTH = 1 };
+	enum Sounds { LIGHT_ARROW = 0, HEAVY_ARROW = 1, STRETCH_BOW = 2, HIT_WOOD = 3, LENGTH = 4 };
 	void initalize();
 	static void startMenuAmbient();
 	static void startPlayAmbient();
 	static void pauseAmbient();
-	void playOneTime(AudioHandler::Sounds sound);
+	void playOnce(AudioHandler::Sounds sound);
+	void playOnceByDistance(
+		AudioHandler::Sounds sound, float3 listnerPosition, float3 soundPosition);
 	static void logStats();
 	static AudioHandler* getInstance();
 	AudioHandler() { initalize(); }
+	float m_maxHearingDistance = 80.f;
 
 private:
 	static AudioHandler m_this;
