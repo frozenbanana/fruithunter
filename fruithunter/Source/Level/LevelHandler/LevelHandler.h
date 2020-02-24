@@ -23,7 +23,7 @@ struct Level {
 	std::vector<float3> m_heightMapScales;
 	std::vector<std::vector<string>> m_heightmapTextures;
 
-	//terrain props
+	// terrain props
 	string m_terrainPropsFilename;
 
 	// Fruits
@@ -53,16 +53,12 @@ private:
 	Level::TerrainTags m_currentTerrain = Level::TerrainTags::Forest;
 	Level::TerrainTags m_oldTerrain = Level::TerrainTags::Forest;
 
-	//Creating data for levels.
+	// Creating data for levels.
 	void initialiseLevel0();
 
 
-	//thread for pathfinding,
-	std::thread *m_pathFindingThread;
-	bool* m_threadRunning;
-	int* nr = new int;
-	shared_ptr<list<float3>> m_listOfPathsToBeUpdated;
-	void initiatePathFindingThread();
+	// thread for pathfinding,
+
 
 public:
 	LevelHandler();

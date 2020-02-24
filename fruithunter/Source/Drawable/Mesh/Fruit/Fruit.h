@@ -8,6 +8,7 @@ class Fruit : public Entity, public AI {
 protected:
 	// Phyics based movment
 	float3 m_directionalVelocity;
+	float m_speed = 0.0f;
 	float3 m_acceleration = float3(0.0f, -400.0f, 0.0f);
 
 	// -------------------
@@ -32,12 +33,13 @@ protected:
 	void behaviorReleased() override;
 	void behaviorInactive(float3 playerPosition) override;
 
+	void setDirection();
+
 
 public:
 	void release(float3 direction);
 	void move(float dt);
 	void update(float dt, float3 playerPosition, vector<shared_ptr<Entity>> collidables);
-	void handleAvailablePath();
 	virtual void updateAnimated(float dt) = 0;
 	void jump(float3 direction, float power);
 	void setStartPosition(float3 pos);

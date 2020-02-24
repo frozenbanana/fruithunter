@@ -3,7 +3,7 @@
 #include "TerrainManager.h"
 #include "Player.h"
 #include <list>
-#define ARRIVAL_RADIUS 1.0f
+#define ARRIVAL_RADIUS 3.0f
 
 
 
@@ -58,9 +58,10 @@ protected:
 	void quickSort(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, int high);
 	int partition(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, int high);
 
-private:
-	bool beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>> openList,
-		std::vector<shared_ptr<AI::Node>> closedList);
+	void handleAvailablePath(float3 myPosition);
 
-	bool isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entity>> collidables);
+private:
+	bool isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entity>>& collidables);
+	bool beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>>& openList,
+		std::vector<shared_ptr<AI::Node>>& closedList);
 };

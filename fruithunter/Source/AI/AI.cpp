@@ -2,9 +2,9 @@
 #include <algorithm>
 #include "Fruit.h"
 #define STEP_SCALE 1.0f
-#define MAX_STEAPNESS .5f
+#define MAX_STEAPNESS .2f
 #define EPSILON 0.001f
-#define MAX_STEPS 35
+#define MAX_STEPS 70
 
 bool areSame(float3 a, float3 b) { return (a - b).LengthSquared() < EPSILON; }
 
@@ -42,25 +42,38 @@ int AI::partition(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, in
 	return (i + 1);
 }
 
-bool AI::beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>> openList,
-	std::vector<shared_ptr<AI::Node>> closedList) {
-	return isIn(child, closedList) && isIn(child, openList);
+void AI::handleAvailablePath(float3 myPosition) {
+	if (!m_availablePath.empty()) {
+		float3 positionXZ = float3(myPosition.x, 0.0f, myPosition.z);
+		float3 currentTargetXZ = float3(m_availablePath.back().x, 0.0f, m_availablePath.back().z);
 
-
-	//Previous check
-	//// Check is child is in closed
-	// if (isIn(child, closed)) {
-	//	continue;
-	//}
-
-	//// Check is child is in open
-	// if (isIn(child, open)) {
-	//	continue;
-	//}
-
+		// Update next path point
+		if ((positionXZ - currentTargetXZ).Length() < ARRIVAL_RADIUS) {
+			ErrorLogger::logFloat3("Popping point: ", m_availablePath.back());
+			m_availablePath.pop_back();
+		}
+	}
 }
 
-bool AI::isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entity>> collidables) {
+bool AI::beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>>& openList,
+	std::vector<shared_ptr<AI::Node>>& closedList) {
+	// return isIn(child, closedList) && isIn(child, openList);
+
+
+	// Previous check
+	//// Check is child is in closed
+	if (isIn(child, closedList)) {
+		return false;
+	}
+
+	// Check is child is in open
+	if (isIn(child, openList)) {
+		return false;
+	}
+	return true;
+}
+
+bool AI::isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entity>>& collidables) {
 	if (childPos.y - currentNodePos.y > MAX_STEAPNESS) {
 		return false;
 	}
@@ -82,7 +95,7 @@ bool AI::isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entit
 	return true;
 
 
-	//previous check
+	// previous check
 	// Check for too big height difference
 	// if (childPosition.y - currentNode->position.y > MAX_STEAPNESS) {
 	//	continue;
@@ -113,6 +126,7 @@ bool AI::isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entit
 void AI::setWorld(std::shared_ptr<Terrain> terrain) { m_terrain = terrain; }
 
 void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collidables) {
+	m_availablePath.clear();
 	TerrainManager* tm = TerrainManager::getInstance();
 	// enforce start and end to terrain
 	start.y = tm->getHeightFromPosition(start);
@@ -133,7 +147,7 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 	open.push_back(currentNode);
 	while (!open.empty() && counter++ < MAX_STEPS) {
 		quickSort(open, 0, (int)open.size() - 1);
-
+		ErrorLogger::log(to_string(counter));
 		closed.push_back(open.back());
 		open.pop_back();
 
@@ -149,7 +163,8 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 			}
 
 			if (!m_availablePath.empty()) {
-				m_availablePath.pop_back(); // remove first position because it is the same as start.
+				m_availablePath
+					.pop_back(); // remove first position because it is the same as start.
 			}
 			for (auto p : m_availablePath) {
 				ErrorLogger::logFloat3("Target: ", p);
@@ -167,11 +182,11 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 				make_shared<AI::Node>(currentNode, childPosition, start, end);
 
 
-			//Check if node is in open or closed.
-			if (beingUsed(child, open, closed)) {
+			// Check if node is in open or closed.
+			if (!beingUsed(child, open, closed)) {
 				continue;
 			}
-			
+
 			if (!isValid(child->position, currentNode->position, collidables)) {
 				continue;
 			}
@@ -179,6 +194,10 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 			// Add child to open
 			open.push_back(child);
 		}
+	}
+	while (currentNode->parent != nullptr) {
+		m_availablePath.push_back(currentNode->position);
+		currentNode = currentNode->parent;
 	}
 }
 
