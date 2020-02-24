@@ -151,18 +151,18 @@ void Player::updateBow(float dt) {
 	Input* input = Input::getInstance();
 
 	if (input->mouseDown(Input::MouseButton::RIGHT)) {
-		m_aimZoom = max(0.5f, m_aimZoom - dt);
+		m_aimZoom = max(0.4f, m_aimZoom - dt * 1.5f);
 		m_camera.setFov(m_camera.getDefaultFov() * m_aimZoom);
 		m_bow.aim();
 	}
 	else if (m_releasing || input->mouseReleased(Input::MouseButton::RIGHT)) {
 		m_releasing = true;
-		m_bow.release();
 
 		if (m_aimZoom < 1.0f) {
-			m_aimZoom += dt;
+			m_aimZoom += dt * 1.5f;
 		}
 		else {
+			m_bow.release();
 			m_aimZoom = 1.0f;
 			m_releasing = false;
 		}
