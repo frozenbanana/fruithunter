@@ -75,6 +75,36 @@ void LevelHandler::initialiseLevel0() {
 	m_levelsArr.push_back(level0);
 }
 
+void LevelHandler::placeBridge(float3 pos, float3 rot) {
+	// Place floor / planks
+	shared_ptr<Entity> newEntity = make_shared<Entity>();
+	newEntity->load("RopeBridgeFloor");
+	newEntity->setCollisionDataOBB();
+	newEntity->setScale(1);
+	newEntity->setPosition(pos);
+	newEntity->rotate(rot);
+	m_collidableEntities.push_back(newEntity);
+
+	// place railings
+
+	newEntity = make_shared<Entity>();
+	newEntity->load("RopeBridgeRailing");
+	newEntity->setCollisionDataOBB();
+	newEntity->setScale(1);
+	newEntity->setPosition(pos);
+	newEntity->rotate(rot);
+	m_collidableEntities.push_back(newEntity);
+
+	newEntity = make_shared<Entity>();
+	newEntity->load("RopeBridgeRailing");
+	newEntity->setCollisionDataOBB();
+	newEntity->setScale(1);
+	newEntity->setPosition(pos);
+	newEntity->rotate(rot);
+	newEntity->rotateY(XM_PI);
+	m_collidableEntities.push_back(newEntity);
+}
+
 LevelHandler::LevelHandler() { initialise(); }
 
 LevelHandler::~LevelHandler() {}
@@ -151,12 +181,10 @@ void LevelHandler::loadLevel(int levelNr) {
 		newEntity->setCollisionDataOBB();
 		m_collidableEntities.push_back(newEntity);
 
-		// FOR SPRINT DEMO
-		newEntity = make_shared<Entity>();
-		newEntity->load("Smelter");
-		newEntity->setScale(1.f);
-		newEntity->setPosition(currentLevel.m_playerStartPos + float3(1.f, height, 6.f));
-		newEntity->setCollisionDataOBB();
+
+
+		placeBridge(
+			currentLevel.m_playerStartPos + float3(1.f, height + 3, 6.f), float3(0.f, 1.f, 0.f));
 
 		// m_entity.load("Sphere"); // castray debug don't delete
 		// m_entity.setScale(0.1f);
