@@ -1,5 +1,6 @@
 #include "LevelHandler.h"
 #include "TerrainManager.h"
+#include "AudioHandler.h"
 
 void LevelHandler::initialiseLevel0() {
 	Level level0;
@@ -243,6 +244,11 @@ void LevelHandler::update(float dt) {
 		if (m_player.isShooting()) {
 			if (m_player.getArrow().checkCollision(*m_fruits[i])) {
 				m_fruits[i]->hit();
+				AudioHandler::getInstance()->playOnceByDistance(
+					AudioHandler::HIT_FRUIT, m_player.getPosition(), m_fruits[i]->getPosition());
+
+				m_player.getArrow().setPosition(
+					float3(-100.f)); // temporary to disable arrow until returning
 				ErrorLogger::log("Hit a fruit");
 			}
 		}
@@ -250,6 +256,7 @@ void LevelHandler::update(float dt) {
 			if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() <
 				1.0f) { // If the fruit is close to the player get picked up
 				pickUpFruit(m_fruits[i].get()->getFruitType());
+				AudioHandler::getInstance()->playOnce(AudioHandler::COLLECT);
 				m_fruits.erase(m_fruits.begin() + i);
 			}
 		}
