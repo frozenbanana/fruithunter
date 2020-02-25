@@ -165,6 +165,10 @@ void EntityCollision::rotateObbAxis(float4x4 matRotation) {
 		((ObbData*)m_collisionData.get())->m_axis[1] = float3::Transform(float3::Up, matRotation);
 		((ObbData*)m_collisionData.get())->m_axis[2] =
 			float3::Transform(float3::Forward, matRotation);
+
+		m_collisionData.get()->m_point =
+			m_collisionData->m_origin +
+			float3::Transform(m_collisionData->m_posOffset * m_collisionData->m_scale, matRotation);
 	}
 }
 
@@ -200,9 +204,8 @@ bool EntityCollision::collide(EntityCollision& other) {
 }
 
 void EntityCollision::setCollisionPosition(float3 pos) {
-	float3 newPos = pos + m_collisionData->m_posOffset;
-	if ((m_collisionData->m_point - newPos).LengthSquared() > 0.01f)
-		m_collisionData->m_point = newPos;
+	if (m_collisionData->m_origin != pos)
+		m_collisionData->m_origin = pos;
 }
 
 void EntityCollision::setCollisionScale(float3 scale) {

@@ -10,9 +10,9 @@ void Entity::updateMatrix() {
 	m_matrixBufferData.matWorld = matWorld;
 	m_matrixBufferData.matInvTraWorld = matWorld.Invert().Transpose();
 
-	m_collisionData.rotateObbAxis(m_matRotation);
 	m_collisionData.setCollisionPosition(m_position);
 	m_collisionData.setCollisionScale(m_scale);
+	m_collisionData.rotateObbAxis(m_matRotation);
 	// reset matricies
 	// m_matRotation = XMMatrixIdentity();
 }
