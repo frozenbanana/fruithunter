@@ -4,6 +4,8 @@
 #include "Player.h"
 #include <list>
 #define ARRIVAL_RADIUS 3.0f
+#define MAX_STEAPNESS .2f
+
 
 
 
@@ -60,8 +62,9 @@ protected:
 
 	void handleAvailablePath(float3 myPosition);
 
-private:
 	bool isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entity>>& collidables);
+
+private:
 	bool beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>>& openList,
 		std::vector<shared_ptr<AI::Node>>& closedList);
 };

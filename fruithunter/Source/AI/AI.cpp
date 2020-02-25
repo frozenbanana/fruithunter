@@ -2,7 +2,6 @@
 #include <algorithm>
 #include "Fruit.h"
 #define STEP_SCALE 1.0f
-#define MAX_STEAPNESS .2f
 #define EPSILON 0.001f
 #define MAX_STEPS 70
 

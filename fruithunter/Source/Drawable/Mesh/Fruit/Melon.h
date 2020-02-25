@@ -13,6 +13,7 @@ private:
 	void roll(float dt);
 	float m_rollSpeed;
 
+
 public:
 	Melon(float3 pos = float3(0.f, 0.f, 0.f));
 	void updateAnimated(float dt);
