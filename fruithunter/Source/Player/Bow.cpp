@@ -135,10 +135,12 @@ void Bow::shoot(
 		m_arrowPitch = pitch;
 		m_arrowYaw = yaw;
 
+		float3 arrowStartVelocity =
+			float3(abs(direction.x), 0.0f, abs(direction.z)) * startVelocity;
 
-		m_arrowVelocity = direction * startVelocity.Length() +
-						  direction * velocity; // adds player velocity and it looks okay
-		m_oldArrowVelocity = m_arrowVelocity;	// Required to calc rotation
+		m_arrowVelocity =
+			arrowStartVelocity + direction * velocity; // adds player velocity and it looks okay
+		m_oldArrowVelocity = m_arrowVelocity;		   // Required to calc rotation
 		if (m_drawFactor > 0.5) {
 			AudioHandler::getInstance()->playOnce(AudioHandler::HEAVY_ARROW);
 		}
