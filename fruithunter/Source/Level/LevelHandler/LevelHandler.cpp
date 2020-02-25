@@ -199,9 +199,11 @@ void LevelHandler::loadLevel(int levelNr) {
 
 void LevelHandler::draw() {
 	m_player.draw();
+	Renderer::getInstance()->enableAlphaBlending();
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->draw_animate();
 	}
+	Renderer::getInstance()->disableAlphaBlending();
 	m_terrainManager->draw();
 
 	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {

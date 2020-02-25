@@ -2,7 +2,8 @@
 #include "Input.h"
 
 Apple::Apple(float3 pos) : Fruit(pos) {
-	loadAnimated("Bouncing_apple", 3);
+	loadAnimated("Apple", 3);
+	// loadAnimated("Bouncing_apple", 3);
 	m_nrOfFramePhases = 6;
 	setScale(0.5);
 	changeState(AI::State::PASSIVE);

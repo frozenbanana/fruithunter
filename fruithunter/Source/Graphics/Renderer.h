@@ -20,6 +20,8 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthDSS;
 
 	void bindEverything();
+	void enableAlphaBlending();
+	void disableAlphaBlending();
 
 private:
 	Renderer(int width, int height);
@@ -28,6 +30,7 @@ private:
 	void createRenderTarget();
 	void createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd);
 	void createDepthState();
+	void createBlendState();
 	static Renderer m_this;
 	bool m_isLoaded = false;
 
@@ -40,5 +43,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;
 
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
+	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendStateAlphaBlending;
+	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendStateWithoutAlphaBlending;
 	D3D11_TEXTURE2D_DESC m_backBufferDesc;
 };
