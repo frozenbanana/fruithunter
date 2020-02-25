@@ -124,6 +124,7 @@ public:
 	float castRay(float3 point, float3 direction);
 
 	void draw();
+	void drawShadow();
 
 	Terrain(string filename = "", vector<string> textures = vector<string>(), XMINT2 subsize = XMINT2(0, 0),
 		XMINT2 splits = XMINT2(1, 1));

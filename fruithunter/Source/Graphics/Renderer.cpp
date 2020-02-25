@@ -80,6 +80,7 @@ Renderer::Renderer(int width, int height) {
 		r->createRenderTarget();
 		r->m_isLoaded = true;
 	}
+	m_shadowMap = make_unique<ShadowMapper>();
 }
 
 Renderer::~Renderer() {}
@@ -89,6 +90,11 @@ Renderer* Renderer::getInstance() { return &m_this; }
 HWND Renderer::getHandle() { return m_handle; }
 
 void Renderer::initalize(HWND window) {}
+
+void Renderer::beginShadowFrame() { 
+	m_shadowMap.get()->bindDSVAndSetNullRenderTarget(); 
+	m_shadowMap.get()->bindMatrix();
+}
 
 void Renderer::beginFrame() {
 	// Bind rendertarget

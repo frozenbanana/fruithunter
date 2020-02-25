@@ -15,6 +15,7 @@ public:
 	void updateCameraGod();
 	void rotatePlayer(float dt);
 	void draw();
+	void drawShadow();
 	void collideObject(Entity& obj);
 
 	float3 getPosition() const;

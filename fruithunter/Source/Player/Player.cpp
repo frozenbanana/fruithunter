@@ -230,6 +230,8 @@ void Player::draw() {
 	m_bow.draw();
 }
 
+void Player::drawShadow() { m_bow.drawShadow(); }
+
 void Player::collideObject(Entity& obj) {
 	// Check
 	float radius = 0.2f;

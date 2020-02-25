@@ -63,6 +63,7 @@ public:
 	void initialise();
 	void loadLevel(int levelNr);
 	void draw();
+	void drawShadow();
 	void update(float dt);
 
 	// Fruit stuff

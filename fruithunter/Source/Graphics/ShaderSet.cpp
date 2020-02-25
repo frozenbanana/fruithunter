@@ -207,6 +207,18 @@ void ShaderSet::bindShadersAndLayout() {
 	deviceContext->IASetInputLayout(m_vertexLayout);
 }
 
+void ShaderSet::bindShadersAndLayoutForShadowMap() {
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+
+	deviceContext->VSSetShader(m_vertexShader, nullptr, 0);
+	deviceContext->HSSetShader(nullptr, nullptr, 0);
+	deviceContext->DSSetShader(nullptr, nullptr, 0);
+	deviceContext->GSSetShader(m_geometryShader, nullptr, 0);
+	deviceContext->PSSetShader(nullptr, nullptr, 0);
+
+	deviceContext->IASetInputLayout(m_vertexLayout);
+}
+
 void ShaderSet::release() {
 	if (m_vertexShader != nullptr)
 		m_vertexShader->Release();

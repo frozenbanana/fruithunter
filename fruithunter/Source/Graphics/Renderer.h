@@ -1,5 +1,6 @@
 #pragma once
 #include "GlobalNamespaces.h"
+#include "ShadowMapping.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -7,6 +8,7 @@
 class Renderer {
 public:
 	static void initalize(HWND window);
+	void beginShadowFrame();
 	void beginFrame();
 	void endFrame();
 	static ID3D11Device* getDevice();
@@ -41,4 +43,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
 	D3D11_TEXTURE2D_DESC m_backBufferDesc;
+
+	//Shadow stuff
+	unique_ptr<ShadowMapper> m_shadowMap;
 };

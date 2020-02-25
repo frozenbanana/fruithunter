@@ -50,6 +50,7 @@ public:
 	std::string getName() const;
 
 	void draw();
+	void drawShadow();
 	void draw_noMaterial(float3 color = float3(1, 1, 1));
 	void draw_BoundingBox();
 	void draw_forShadowMap();

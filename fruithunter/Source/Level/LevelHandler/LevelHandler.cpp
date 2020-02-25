@@ -67,7 +67,7 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_heightmapTextures.push_back(maps);
 
 	level0.m_nrOfFruits[APPLE] = 2;
-	level0.m_nrOfFruits[BANANA] = 0;
+	level0.m_nrOfFruits[BANANA] = 100;
 	level0.m_nrOfFruits[MELON] = 5;
 
 	level0.m_playerStartPos = float3(50.f, 0.0f, 150.f);
@@ -179,6 +179,18 @@ void LevelHandler::draw() {
 	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 }
 
+void LevelHandler::drawShadow() {
+	m_player.drawShadow();
+	for (int i = 0; i < m_fruits.size(); i++) {
+		m_fruits[i]->draw_animate_shadow();
+	}
+	m_terrainManager->drawShadow();
+
+	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
+		m_collidableEntities[i]->drawShadow();
+	}
+}
+
 void LevelHandler::update(float dt) {
 
 	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
@@ -193,6 +205,10 @@ void LevelHandler::update(float dt) {
 	dropFruit();
 
 	float3 playerPos = m_player.getPosition();
+
+	ErrorLogger::logFloat3("Player pos:",playerPos);
+	ErrorLogger::logFloat3("Player look at:", m_player.getForward());
+	
 
 	// update terrain tag
 	int activeTerrain = m_terrainManager->getTerrainIndexFromPosition(playerPos);

@@ -14,6 +14,7 @@ public:
 	void update();
 	void play();
 	void draw();
+	void drawShadow();
 	bool isRunning();
 	void quit();
 

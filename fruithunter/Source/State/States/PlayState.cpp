@@ -29,6 +29,8 @@ void PlayState::draw() {
 	m_textRenderer.draw("Time: " + std::to_string(t), Vector2(400., 75.), col);
 }
 
+void PlayState::drawShadow() { m_levelHandler.drawShadow(); }
+
 void PlayState::play() {
 	Input::getInstance()->setMouseModeRelative();
 	AudioHandler::startPlayAmbient();

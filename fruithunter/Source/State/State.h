@@ -11,6 +11,7 @@ public:
 	virtual void pause() = 0;
 	virtual void play() = 0;
 	virtual void draw() = 0;
+	virtual void drawShadow() = 0;
 	void changeState(int state);
 	std::string getName() const;
 	virtual ~State(){};

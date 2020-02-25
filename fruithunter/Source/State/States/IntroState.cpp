@@ -71,6 +71,8 @@ void IntroState::draw() {
 	m_textRenderer.draw("Quit", float2(400., 425.), menuColor);
 }
 
+void IntroState::drawShadow() {}
+
 void IntroState::play() {
 	Input::getInstance()->setMouseModeAbsolute();
 	AudioHandler::startMenuAmbient();
