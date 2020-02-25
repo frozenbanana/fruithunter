@@ -22,8 +22,8 @@ private:
 	std::vector<Vertex> m_meshVertices; // vertices of mesh, position, uv, normal
 	std::vector<Material> m_materials;
 	// bounding box
-	static std::vector<Vertex> m_boxVertices;
-	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer_BoundingBox;
+	std::vector<Vertex> m_boxVertices;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer_BoundingBox;
 	// vertex buffer
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 	// color buffer

@@ -46,10 +46,6 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 	// Update arrow.
 	if (m_shooting) {
 		if (!m_arrowHitObject) {
-			arrowPhysics(dt,
-				float3(10.f, 0.f, 0.f)); // Updates arrow in flight, wind is currently hard coded.
-			m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
-			m_arrow.setRotation(float3(m_arrowPitch, m_arrowYaw, 0));
 			float castray =
 				TerrainManager::getInstance()->castRay(m_arrow.getPosition(), m_arrowVelocity * dt);
 			if (castray != -1) {
@@ -60,6 +56,13 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 				m_arrow.setPosition(target);
 				AudioHandler::getInstance()->playOnceByDistance(
 					AudioHandler::HIT_WOOD, m_bow.getPosition(), target);
+			}
+			else {
+				arrowPhysics(
+					dt, float3(10.f, 0.f,
+							0.f)); // Updates arrow in flight, wind is currently hard coded.
+				m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
+				m_arrow.setRotation(float3(m_arrowPitch, m_arrowYaw, 0));
 			}
 		}
 		if (m_arrowReturnTimer < 0.0f ||

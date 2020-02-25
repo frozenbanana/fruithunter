@@ -243,9 +243,9 @@ void Player::collideObject(Entity& obj) {
 	float radius = 0.2f;
 	float stepHeight = 0.45f; // height able to simply step over
 	EntityCollision feet(
-		m_position + float3(0.f, radius, 0.f), float3(0.f), float3(1.f), float3(radius));
+		m_position + float3(0.f, radius, 0.f), float3(0.f), float3(1.f), float(radius));
 	EntityCollision hip(m_position + float3(0.f, stepHeight + radius * 3, 0.f), float3(0.f),
-		float3(1.f), float3(radius * 3.f));
+		float3(1.f), float(radius * 3.f));
 
 	if (obj.checkCollision(feet)) { // walk on/to
 		if (m_velocity.y <= 0) {
@@ -265,7 +265,8 @@ void Player::collideObject(Entity& obj) {
 		}
 	}
 	else if (obj.checkCollision(hip)) { // bump into
-		float3 objToPlayer = m_position - obj.getPosition();
+		float3 pointOnOBBClosestToPlayer = obj.getPointOnOBB(m_position);
+		float3 objToPlayer = m_position - pointOnOBBClosestToPlayer;
 		if (objToPlayer.Dot(m_velocity) < 0) {
 			objToPlayer.Normalize();
 			float3 tangentObj = float3::Up.Cross(objToPlayer);
