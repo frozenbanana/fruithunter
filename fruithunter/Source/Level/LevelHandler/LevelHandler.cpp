@@ -197,6 +197,20 @@ void LevelHandler::update(float dt) {
 
 	// update terrain tag
 	int activeTerrain = m_terrainManager->getTerrainIndexFromPosition(playerPos);
+
+	if (activeTerrain == 2) {
+		AudioHandler::getInstance()->changeMusicTo(AudioHandler::SPANISH_GUITAR, dt);
+	}
+	else if (activeTerrain == 1) {
+		AudioHandler::getInstance()->changeMusicTo(AudioHandler::KETAPOP, dt);
+	}
+	else if (activeTerrain == 0) {
+		AudioHandler::getInstance()->changeMusicTo(AudioHandler::KETAPOP_DARK, dt);
+	}
+	else {
+		AudioHandler::getInstance()->changeMusicTo(AudioHandler::JINGLE_GUITAR, dt);
+	}
+
 	if (activeTerrain != -1 && m_currentLevel != -1) {
 		Level::TerrainTags tag = m_levelsArr[m_currentLevel].m_terrainTags[activeTerrain];
 		if (m_currentTerrain != tag) {
