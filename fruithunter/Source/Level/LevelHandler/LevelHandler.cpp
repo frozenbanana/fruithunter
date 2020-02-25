@@ -106,7 +106,7 @@ void LevelHandler::placeBridge(float3 pos, float3 rot, float3 scale) {
 }
 
 void LevelHandler::placeAllBridges() {
-	placeBridge(float3(103.2f, 3.1f, 39.f), float3(0.f, -0.1f, -0.07), float3(1.9f, 1.f, 1.4f));
+	placeBridge(float3(103.2f, 3.1f, 39.f), float3(0.f, -0.1f, -0.07f), float3(1.9f, 1.f, 1.4f));
 	placeBridge(float3(35.f, 3.2f, 99.f), float3(0.f, 1.7f, 0.13f), float3(1.6f, 1.f, 1.4f));
 	placeBridge(float3(98.f, 8.2f, 152.f), float3(0.f, -0.1f, -0.13f), float3(1.8f, 1.f, 1.4f));
 }
