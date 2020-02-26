@@ -4,9 +4,9 @@
 void ShadowMapper::createBuffer() { 
 	m_viewMatrix = XMMatrixLookAtLH(
 		float3(21.43f, 36.567f, 183.6f), float3(22.06f, 36.2f, 182.9f), float3(0.f, 1.f, 0.f));
-	//m_projMatrix = XMMatrixOrthographicLH(285.f, 320.f, NEAR_PLANE, 250.f);
-	m_projMatrix = XMMatrixPerspectiveFovLH(
-		(XM_PI / 2.f), (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, NEAR_PLANE, FAR_PLANE);
+	m_projMatrix = XMMatrixOrthographicLH(285.f, 320.f, NEAR_PLANE, 250.f);
+	/*m_projMatrix = XMMatrixPerspectiveFovLH(
+		(XM_PI / 2.f), (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, NEAR_PLANE, FAR_PLANE);*/
 	Matrix vp_matrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 
 	m_vpMatrix_t = vp_matrix.Transpose();
