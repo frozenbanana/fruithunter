@@ -43,7 +43,10 @@ void IntroState::handleEvent() {
 	}
 }
 
-void IntroState::pause() { ErrorLogger::log(m_name + " pause() called."); }
+void IntroState::pause() {
+	ErrorLogger::log(m_name + " pause() called.");
+	AudioHandler::getInstance()->pauseAllMusic();
+}
 
 void IntroState::draw() {
 	m_camera.bindMatrix();
