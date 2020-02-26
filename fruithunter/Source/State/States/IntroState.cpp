@@ -45,7 +45,7 @@ void IntroState::handleEvent() {
 
 void IntroState::pause() {
 	ErrorLogger::log(m_name + " pause() called.");
-	AudioHandler::pauseAmbient();
+	AudioHandler::getInstance()->pauseAllMusic();
 }
 
 void IntroState::draw() {
@@ -72,6 +72,5 @@ void IntroState::draw() {
 
 void IntroState::play() {
 	Input::getInstance()->setMouseModeAbsolute();
-	AudioHandler::startMenuAmbient();
 	ErrorLogger::log(m_name + " play() called.");
 }
