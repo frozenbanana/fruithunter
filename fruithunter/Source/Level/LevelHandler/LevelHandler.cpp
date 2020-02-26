@@ -228,7 +228,6 @@ void LevelHandler::draw() {
 	m_terrainProps.draw();
 	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 
-	m_hud.draw();
 
 	// water/lava effect
 	Renderer::getInstance()->copyDepthToSRV();
@@ -236,6 +235,8 @@ void LevelHandler::draw() {
 	lavaEffect.draw();
 
 	m_player.draw(); // draw after water/lava effect, bow will affect the depth buffer
+
+	m_hud.draw();
 }
 
 void LevelHandler::update(float dt) {

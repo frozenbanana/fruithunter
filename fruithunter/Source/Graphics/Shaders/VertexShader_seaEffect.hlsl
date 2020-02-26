@@ -68,7 +68,7 @@ VS_OUT main(VS_IN input) {
 	float sampledHeight = texSample(heightmap, (uint2)heightmapSize, (uvTime) % 1.f).x;
 	float sampledHeight2 = texSample(heightmap, (uint2)heightmapSize, (uvTime2) % 1.f).x;
 	input.Pos.y = clamp(length(input.TexCoord * 2 - float2(1, 1)) * tideHeightStrength,
-					  float2(1, 1) * tideHeightScaling.x, float2(1, 1) * tideHeightScaling.y) *
+					  tideHeightScaling.x, tideHeightScaling.y) *
 				  (sampledHeight + sampledHeight2) / 2.f;
 
 	//transforms

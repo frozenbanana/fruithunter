@@ -122,7 +122,7 @@ bool AI::isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entit
 void AI::setWorld(std::shared_ptr<Terrain> terrain) { m_terrain = terrain; }
 
 void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collidables) {
-	ErrorLogger::log("thread starting for pathfinding");
+	//ErrorLogger::log("thread starting for pathfinding");
 
 	thread t([this, start, end, collidables] {
 		m_lookingForPath = true;
@@ -170,8 +170,8 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 				}
 
 				m_lookingForPath = false;
-				ErrorLogger::log(
-					"thread successfully closed. Path found. Steps: " + to_string(counter));
+				//ErrorLogger::log(
+				//	"thread successfully closed. Path found. Steps: " + to_string(counter));
 				return;
 			}
 
