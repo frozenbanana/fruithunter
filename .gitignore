@@ -1,6 +1,6 @@
 Debug/
 Release/
-assets/FileSyncs/
+assets/FileSyncs/*
 x64/
 .vs/
 fruithunter/Debug/

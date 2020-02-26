@@ -131,14 +131,20 @@ size_t VariableSyncer::FileSyncer::getByteSizeFromType(VarTypes type) const {
 	switch (type) {
 	case VariableSyncer::FileSyncer::type_noone:
 		break;
-	case VariableSyncer::FileSyncer::type_float:
-		size = sizeof(float);
-		break;
 	case VariableSyncer::FileSyncer::type_double:
 		size = sizeof(double);
 		break;
+	case VariableSyncer::FileSyncer::type_float:
+		size = sizeof(float);
+		break;
+	case VariableSyncer::FileSyncer::type_vector2:
+		size = sizeof(float) * 2;
+		break;
 	case VariableSyncer::FileSyncer::type_vector3:
 		size = sizeof(float) * 3;
+		break;
+	case VariableSyncer::FileSyncer::type_vector4:
+		size = sizeof(float) * 4;
 		break;
 	case VariableSyncer::FileSyncer::type_int:
 		size = sizeof(int);
@@ -187,15 +193,20 @@ bool VariableSyncer::FileSyncer::valid() { return (m_description.size() > 0 && m
 
 void VariableSyncer::FileSyncer::parseToPointer(string str, VarTypes type, void* ptr_data) {
 	void* data = ptr_data;
-	size_t split1, split2;
+	size_t split1, split2, split3;
 	switch (type) {
 	case VariableSyncer::FileSyncer::type_noone:
+		break;
+	case VariableSyncer::FileSyncer::type_double:
+		*((double*)data) = std::stod(str);
 		break;
 	case VariableSyncer::FileSyncer::type_float:
 		*((float*)data) = std::stof(str);
 		break;
-	case VariableSyncer::FileSyncer::type_double:
-		*((double*)data) = std::stod(str);
+	case VariableSyncer::FileSyncer::type_vector2:
+		split1 = str.find(" ", 0);
+		((float*)data)[0] = std::stof(str.substr(0, split1));
+		((float*)data)[1] = std::stof(str.substr(split1 + 1, str.length() - (split1 + 1)));
 		break;
 	case VariableSyncer::FileSyncer::type_vector3:
 		split1 = str.find(" ", 0);
@@ -203,6 +214,15 @@ void VariableSyncer::FileSyncer::parseToPointer(string str, VarTypes type, void*
 		((float*)data)[0] = std::stof(str.substr(0, split1));
 		((float*)data)[1] = std::stof(str.substr(split1 + 1, split2 - (split1 + 1)));
 		((float*)data)[2] = std::stof(str.substr(split2 + 1, str.length() - (split2 + 1)));
+		break;
+	case VariableSyncer::FileSyncer::type_vector4:
+		split1 = str.find(" ", 0);
+		split2 = str.find(" ", split1 + 1);
+		split3 = str.find(" ", split2 + 1);
+		((float*)data)[0] = std::stof(str.substr(0, split1));
+		((float*)data)[1] = std::stof(str.substr(split1 + 1, split2 - (split1 + 1)));
+		((float*)data)[2] = std::stof(str.substr(split2 + 1, split3 - (split2 + 1)));
+		((float*)data)[3] = std::stof(str.substr(split3 + 1, str.length() - (split3 + 1)));
 		break;
 	case VariableSyncer::FileSyncer::type_int:
 		*((int*)data) = std::stoi(str);
@@ -219,11 +239,16 @@ string VariableSyncer::FileSyncer::typeToString(VarTypes type, void* ptr_data) {
 	switch (type) {
 	case VariableSyncer::FileSyncer::type_noone:
 		break;
+	case VariableSyncer::FileSyncer::type_double:
+		ret = to_string(*(double*)data);
+		break;
 	case VariableSyncer::FileSyncer::type_float:
 		ret = to_string(*(float*)data);
 		break;
-	case VariableSyncer::FileSyncer::type_double:
-		ret = to_string(*(double*)data);
+	case VariableSyncer::FileSyncer::type_vector2:
+		ret += to_string(((float*)data)[0]);
+		ret += " ";
+		ret += to_string(((float*)data)[1]);
 		break;
 	case VariableSyncer::FileSyncer::type_vector3:
 		ret += to_string(((float*)data)[0]);
@@ -231,6 +256,15 @@ string VariableSyncer::FileSyncer::typeToString(VarTypes type, void* ptr_data) {
 		ret += to_string(((float*)data)[1]);
 		ret += " ";
 		ret += to_string(((float*)data)[2]);
+		break;
+	case VariableSyncer::FileSyncer::type_vector4:
+		ret += to_string(((float*)data)[0]);
+		ret += " ";
+		ret += to_string(((float*)data)[1]);
+		ret += " ";
+		ret += to_string(((float*)data)[2]);
+		ret += " ";
+		ret += to_string(((float*)data)[3]);
 		break;
 	case VariableSyncer::FileSyncer::type_int:
 		ret = to_string(*(int*)data);

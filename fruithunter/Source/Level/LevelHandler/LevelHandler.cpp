@@ -74,7 +74,7 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_nrOfFruits[BANANA] = 1;
 	level0.m_nrOfFruits[MELON] = 5;
 
-	level0.m_playerStartPos = float3(50.f, 0.0f, 150.f);
+	level0.m_playerStartPos = float3(20.f, 0.0f, 20.f);
 
 	level0.m_timeTargets[GOLD] = 20;
 	level0.m_timeTargets[SILVER] = 35;
@@ -139,6 +139,11 @@ void LevelHandler::initialise() {
 	m_terrainProps.addPlaceableEntity("Block");
 
 	initialiseLevel0();
+
+	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(400, 400), XMINT2(1, 1),
+		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
+	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(100, 100), XMINT2(1, 1),
+		float3(100.f, 2.f, 100.f), float3(100.f, 2.f, 100.f));
 }
 
 void LevelHandler::loadLevel(int levelNr) {
@@ -211,7 +216,6 @@ void LevelHandler::loadLevel(int levelNr) {
 }
 
 void LevelHandler::draw() {
-	m_player.draw();
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->draw_animate();
 	}
@@ -225,6 +229,13 @@ void LevelHandler::draw() {
 	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 
 	m_hud.draw();
+
+	// water/lava effect
+	Renderer::getInstance()->copyDepthToSRV();
+	waterEffect.draw();
+	lavaEffect.draw();
+
+	m_player.draw(); // draw after water/lava effect, bow will affect the depth buffer
 }
 
 void LevelHandler::update(float dt) {
@@ -306,6 +317,8 @@ void LevelHandler::update(float dt) {
 	//}
 
 	m_hud.update(dt);
+	waterEffect.update(dt);
+	lavaEffect.update(dt);
 }
 
 void LevelHandler::pickUpFruit(int fruitType) {
