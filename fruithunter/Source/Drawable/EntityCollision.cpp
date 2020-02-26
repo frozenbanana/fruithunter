@@ -1,4 +1,5 @@
 #include "EntityCollision.h"
+#include "ErrorLogger.h"
 
 bool EntityCollision::collisionSphereSphere(SphereData* sphere1, SphereData* sphere2) {
 	float dist = (sphere1->m_point - sphere2->m_point).LengthSquared();
@@ -13,8 +14,6 @@ void vecToArray(float arr[], float3 vec) {
 	arr[1] = vec.y;
 	arr[2] = vec.z;
 }
-
-
 
 bool EntityCollision::collisionOBBOBB(ObbData& a, ObbData& b) {
 	// "Borrowed" from ch 4.4.1 "real-time collision detecton" - Christer Ericson
@@ -130,9 +129,9 @@ bool EntityCollision::collisionOBBOBB(ObbData& a, ObbData& b) {
 
 bool EntityCollision::collisionSphereOBB(SphereData& sphere, ObbData& obb) {
 	float3 closestOnOBB = obb.closestPtPointOBB(sphere.m_point);
-	float distSq = (closestOnOBB - sphere.m_point * sphere.m_scale.y).LengthSquared();
+	float distSq = (closestOnOBB - sphere.m_point).LengthSquared();
 
-	return distSq < sphere.m_radius * sphere.m_radius;
+	return distSq < sphere.m_radius * sphere.m_radius * sphere.m_scale.y * sphere.m_scale.y;
 }
 
 EntityCollision::EntityCollision(float3 point, float3 posOffset, float3 scale, float radius) {
@@ -164,6 +163,10 @@ void EntityCollision::rotateObbAxis(float4x4 matRotation) {
 		((ObbData*)m_collisionData.get())->m_axis[1] = float3::Transform(float3::Up, matRotation);
 		((ObbData*)m_collisionData.get())->m_axis[2] =
 			float3::Transform(float3::Forward, matRotation);
+
+		m_collisionData.get()->m_point =
+			m_collisionData->m_origin +
+			float3::Transform(m_collisionData->m_posOffset * m_collisionData->m_scale, matRotation);
 	}
 }
 
@@ -199,20 +202,27 @@ bool EntityCollision::collide(EntityCollision& other) {
 }
 
 void EntityCollision::setCollisionPosition(float3 pos) {
-	float3 newPos = pos + m_collisionData->m_posOffset;
-	if ((m_collisionData->m_point - newPos).LengthSquared() > 0.01f)
-		m_collisionData->m_point = newPos;
+	if (m_collisionData->m_origin != pos) {
+		float3 diff = pos - m_collisionData->m_origin;
+		m_collisionData->m_point += diff;
+		m_collisionData->m_origin = pos;
+	}
 }
 
 void EntityCollision::setCollisionScale(float3 scale) {
-	if (m_collisionData->m_scale != scale)
+	if (m_collisionData->m_scale != scale) {
+		float3 scaleFactor = scale / m_collisionData->m_scale;
+		float3 diffPos = m_collisionData->m_point - m_collisionData->m_origin;
+
+		m_collisionData->m_point = m_collisionData->m_origin + diffPos * scaleFactor;
 		m_collisionData->m_scale = scale;
+	}
 }
 
 int EntityCollision::getCollisionType() const { return m_collisionType; }
 
 // Returns point on OBB that is closest to a point
-float3 EntityCollision::ObbData::closestPtPointOBB(float3 point) {
+float3 EntityCollision::ObbData::closestPtPointOBB(float3 point) const {
 	// Theory from ch 5.1.4 "real-time collision detecton" - Christer Ericson
 	// x = (P-C).dot(axis[0])
 	float3 vec = point - m_point;
@@ -231,4 +241,16 @@ float3 EntityCollision::ObbData::closestPtPointOBB(float3 point) {
 	}
 
 	return pointOnObb;
+}
+
+float3 EntityCollision::getClosestPointOnBox(float3 point) const {
+
+
+	if (m_collisionType == ctOBB) {
+		return ((ObbData*)m_collisionData.get())->closestPtPointOBB(point);
+	}
+	else {
+		ErrorLogger::log("Called getClosestPointOnBox in a sphere!");
+		return float3(-1.f);
+	}
 }

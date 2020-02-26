@@ -1,5 +1,9 @@
 #include "LevelHandler.h"
 #include "TerrainManager.h"
+#include "AudioHandler.h"
+#include "mutex"
+
+std::mutex mu;
 
 void LevelHandler::initialiseLevel0() {
 	Level level0;
@@ -67,12 +71,52 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_heightmapTextures.push_back(maps);
 
 	level0.m_nrOfFruits[APPLE] = 2;
-	level0.m_nrOfFruits[BANANA] = 0;
+	level0.m_nrOfFruits[BANANA] = 1;
 	level0.m_nrOfFruits[MELON] = 5;
 
 	level0.m_playerStartPos = float3(20.f, 0.0f, 20.f);
 
+	level0.m_timeTargets[GOLD] = 20;
+	level0.m_timeTargets[SILVER] = 35;
+	level0.m_timeTargets[BRONZE] = 80;
+
 	m_levelsArr.push_back(level0);
+	m_hud.setTimeTargets(level0.m_timeTargets);
+}
+
+void LevelHandler::placeBridge(float3 pos, float3 rot, float3 scale) {
+	// Place floor / planks
+	shared_ptr<Entity> newEntity = make_shared<Entity>();
+	newEntity->load("RopeBridgeFloor");
+	newEntity->setCollisionDataOBB();
+	newEntity->setScale(scale);
+	newEntity->setPosition(pos);
+	newEntity->rotate(rot);
+	m_collidableEntities.push_back(newEntity);
+
+	// place railings
+
+	newEntity = make_shared<Entity>();
+	newEntity->load("RopeBridgeRailing1");
+	newEntity->setCollisionDataOBB();
+	newEntity->setScale(scale);
+	newEntity->setPosition(pos);
+	newEntity->rotate(rot);
+	m_collidableEntities.push_back(newEntity);
+
+	newEntity = make_shared<Entity>();
+	newEntity->load("RopeBridgeRailing2");
+	newEntity->setCollisionDataOBB();
+	newEntity->setScale(scale);
+	newEntity->setPosition(pos);
+	newEntity->rotate(rot);
+	m_collidableEntities.push_back(newEntity);
+}
+
+void LevelHandler::placeAllBridges() {
+	placeBridge(float3(103.2f, 3.1f, 39.f), float3(0.f, -0.1f, -0.07f), float3(1.9f, 1.f, 1.4f));
+	placeBridge(float3(35.f, 3.2f, 99.f), float3(0.f, 1.7f, 0.13f), float3(1.6f, 1.f, 1.4f));
+	placeBridge(float3(98.f, 8.2f, 152.f), float3(0.f, -0.1f, -0.13f), float3(1.8f, 1.f, 1.4f));
 }
 
 LevelHandler::LevelHandler() { initialise(); }
@@ -156,12 +200,14 @@ void LevelHandler::loadLevel(int levelNr) {
 		newEntity->setCollisionDataOBB();
 		m_collidableEntities.push_back(newEntity);
 
-		// FOR SPRINT DEMO
-		newEntity = make_shared<Entity>();
-		newEntity->load("Smelter");
-		newEntity->setScale(1.f);
-		newEntity->setPosition(currentLevel.m_playerStartPos + float3(1.f, height, 6.f));
-		newEntity->setCollisionDataOBB();
+		placeAllBridges();
+
+		if (currentLevel.m_nrOfFruits[APPLE] != 0)
+			m_hud.createFruitSprite("apple");
+		if (currentLevel.m_nrOfFruits[BANANA] != 0)
+			m_hud.createFruitSprite("banana");
+		if (currentLevel.m_nrOfFruits[MELON] != 0)
+			m_hud.createFruitSprite("melon");
 
 		// m_entity.load("Sphere"); // castray debug don't delete
 		// m_entity.setScale(0.1f);
@@ -182,6 +228,8 @@ void LevelHandler::draw() {
 	m_terrainProps.draw();
 	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 
+	m_hud.draw();
+
 	// water/lava effect
 	Renderer::getInstance()->copyDepthToSRV();
 	waterEffect.draw();
@@ -191,7 +239,6 @@ void LevelHandler::draw() {
 }
 
 void LevelHandler::update(float dt) {
-
 	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
 	m_skyBox.updateDelta(dt);
@@ -207,6 +254,20 @@ void LevelHandler::update(float dt) {
 
 	// update terrain tag
 	int activeTerrain = m_terrainManager->getTerrainIndexFromPosition(playerPos);
+
+	if (activeTerrain == 2) {
+		AudioHandler::getInstance()->changeMusicTo(AudioHandler::SPANISH_GUITAR, dt);
+	}
+	else if (activeTerrain == 1) {
+		AudioHandler::getInstance()->changeMusicTo(AudioHandler::KETAPOP, dt);
+	}
+	else if (activeTerrain == 0) {
+		AudioHandler::getInstance()->changeMusicTo(AudioHandler::KETAPOP_DARK, dt);
+	}
+	else {
+		AudioHandler::getInstance()->changeMusicTo(AudioHandler::JINGLE_GUITAR, dt);
+	}
+
 	if (activeTerrain != -1 && m_currentLevel != -1) {
 		Level::TerrainTags tag = m_levelsArr[m_currentLevel].m_terrainTags[activeTerrain];
 		if (m_currentTerrain != tag) {
@@ -222,6 +283,11 @@ void LevelHandler::update(float dt) {
 		if (m_player.isShooting()) {
 			if (m_player.getArrow().checkCollision(*m_fruits[i])) {
 				m_fruits[i]->hit();
+				AudioHandler::getInstance()->playOnceByDistance(
+					AudioHandler::HIT_FRUIT, m_player.getPosition(), m_fruits[i]->getPosition());
+
+				m_player.getArrow().setPosition(
+					float3(-100.f)); // temporary to disable arrow until returning
 				ErrorLogger::log("Hit a fruit");
 			}
 		}
@@ -229,6 +295,7 @@ void LevelHandler::update(float dt) {
 			if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() <
 				1.0f) { // If the fruit is close to the player get picked up
 				pickUpFruit(m_fruits[i].get()->getFruitType());
+				AudioHandler::getInstance()->playOnce(AudioHandler::COLLECT);
 				m_fruits.erase(m_fruits.begin() + i);
 			}
 		}
@@ -248,11 +315,16 @@ void LevelHandler::update(float dt) {
 	//		m_entity.setPosition(m_player.getCameraPosition() + t * m_player.getForward() * 0.9);
 	//	}
 	//}
+
+	m_hud.update(dt);
 	waterEffect.update(dt);
 	lavaEffect.update(dt);
 }
 
-void LevelHandler::pickUpFruit(int fruitType) { m_inventory[fruitType]++; }
+void LevelHandler::pickUpFruit(int fruitType) {
+	m_inventory[fruitType]++;
+	m_hud.addFruit(fruitType);
+}
 
 void LevelHandler::dropFruit() {
 	Input* ip = Input::getInstance();
@@ -263,6 +335,7 @@ void LevelHandler::dropFruit() {
 			apple->release(m_player.getForward());
 			m_fruits.push_back(apple);
 			m_inventory[APPLE]--;
+			m_hud.removeFruit(APPLE);
 		}
 	}
 	if (ip->keyPressed(Keyboard::D2)) {
@@ -271,6 +344,7 @@ void LevelHandler::dropFruit() {
 			banana->release(m_player.getForward());
 			m_fruits.push_back(banana);
 			m_inventory[BANANA]--;
+			m_hud.removeFruit(BANANA);
 		}
 	}
 	if (ip->keyPressed(Keyboard::D3)) {
@@ -281,6 +355,7 @@ void LevelHandler::dropFruit() {
 
 			m_fruits.push_back(melon);
 			m_inventory[MELON]--;
+			m_hud.removeFruit(MELON);
 		}
 	}
 }

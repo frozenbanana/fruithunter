@@ -141,6 +141,9 @@
     <ClCompile Include="Source\Drawable\SeaEffect.cpp">
       <Filter>Source\Drawable</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Drawable\HUD.cpp">
+      <Filter>Source\Drawable</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -249,6 +252,9 @@
       <Filter>Source\Utility\VariableSyncer</Filter>
     </ClInclude>
     <ClInclude Include="Source\Drawable\SeaEffect.h">
+      <Filter>Source\Drawable</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\HUD.h">
       <Filter>Source\Drawable</Filter>
     </ClInclude>
   </ItemGroup>

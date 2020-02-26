@@ -9,6 +9,7 @@
 #include "Melon.h"
 #include "Player.h"
 #include "EntityRepository.h"
+#include "HUD.h"
 #include "SeaEffect.h"
 
 #define LEVELS = 1;
@@ -24,7 +25,7 @@ struct Level {
 	std::vector<float3> m_heightMapScales;
 	std::vector<std::vector<string>> m_heightmapTextures;
 
-	//terrain props
+	// terrain props
 	string m_terrainPropsFilename;
 
 	// Fruits
@@ -36,6 +37,7 @@ struct Level {
 
 	// Level utility info
 	int m_winCondition[NR_OF_FRUITS];
+	int m_timeTargets[NR_OF_TIME_TARGETS];
 };
 
 class LevelHandler {
@@ -55,8 +57,17 @@ private:
 	Level::TerrainTags m_currentTerrain = Level::TerrainTags::Forest;
 	Level::TerrainTags m_oldTerrain = Level::TerrainTags::Forest;
 
-	//Creating data for levels.
+	// HUD stuff
+	HUD m_hud;
+
+	// Creating data for levels.
 	void initialiseLevel0();
+	void placeBridge(float3 pos, float3 rot, float3 scale);
+	void placeAllBridges();
+
+
+	// thread for pathfinding,
+
 
 public:
 	LevelHandler();
@@ -70,7 +81,6 @@ public:
 	// Fruit stuff
 	void pickUpFruit(int fruitType);
 	void dropFruit();
-
 
 	std::vector<Fruit> fruitsInLevel;
 };

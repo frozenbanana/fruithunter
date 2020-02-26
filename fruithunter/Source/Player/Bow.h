@@ -35,6 +35,7 @@ private:
 
 	float m_arrowPitch = 0;
 	float m_arrowYaw = 0;
+	float m_maxTravelLengthSquared = 80.f * 80.f;
 
 	// Assuming Fluid density * dragCoefficient * 0.5 = 1.
 	float m_arrowArea = 0.0001f;
@@ -45,7 +46,7 @@ private:
 
 	// for arrow return
 	float m_arrowReturnTimer = 0.f;
-	float m_arrowTimeBeforeReturn = 1.5f;
+	float m_arrowTimeBeforeReturn = 3.0f;
 	bool m_arrowHitObject = false;
 
 	void arrowPhysics(float dt, float3 windVector);
