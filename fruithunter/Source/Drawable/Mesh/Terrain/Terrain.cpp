@@ -675,9 +675,9 @@ void Terrain::draw_frustumCulling(float3 point, vector<float3> planes) {
 		//find diagonal points
 		float3 boxDiagonalPoint1, boxDiagonalPoint2;
 		float largestDot = 0;
-		for (size_t i = 0; i < 4; i++) {
-			float3 p1 = boxPoints_all[i];
-			float3 p2 = boxPoints_all[4 + (i + 2) % 4];
+		for (size_t j = 0; j < 4; j++) {
+			float3 p1 = boxPoints_all[j];
+			float3 p2 = boxPoints_all[4 + (j + 2) % 4];
 			float dot = abs((p1 - p2).Dot(planes[i]));
 			if (dot > largestDot) {
 				largestDot = dot;
@@ -687,7 +687,8 @@ void Terrain::draw_frustumCulling(float3 point, vector<float3> planes) {
 		}
 
 		for (size_t j = 0; j < 8; j++) {
-			pointBehindOrInfrontPlane(boxPoints_all[j], point, planes[i])
+			bool stateP1 = pointBehindOrInfrontPlane(boxDiagonalPoint1, point, planes[i]);
+			bool stateP2 = pointBehindOrInfrontPlane(boxDiagonalPoint2, point, planes[i]);
 		}
 	}
 
