@@ -26,9 +26,7 @@ void Apple::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> co
 		if (!withinDistanceTo(m_worldHome, ARRIVAL_RADIUS) && atOrUnder(terrainHeight)) {
 			// Check if there is no other path on going
 			if (m_availablePath.empty() && !m_lookingForPath) {
-				ErrorLogger::log("Pathfinding called from Passive" + to_string(m_nrOfTriesGoHome));
-				if (m_nrOfTriesGoHome++ < 5) {
-
+				if (m_nrOfTriesGoHome++ < 10) {
 					pathfinding(m_position, m_worldHome, collidables); // go home
 				}
 				else {
@@ -117,7 +115,6 @@ void Apple::flee(float3 playerPos, vector<shared_ptr<Entity>> collidables) {
 		runTo.Normalize();
 		runTo *= m_passiveRadius;
 		runTo += m_position;
-		ErrorLogger::log("Pathfinding called from Flee");
 		pathfinding(m_position, runTo, collidables);
 	}
 	// set new velocity from path
