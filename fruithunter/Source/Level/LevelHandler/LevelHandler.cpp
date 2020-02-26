@@ -70,13 +70,18 @@ void LevelHandler::initialiseLevel0() {
 	maps[3] = "texture_rock6.jpg";
 	level0.m_heightmapTextures.push_back(maps);
 
-	level0.m_nrOfFruits[APPLE] = 3;
-	level0.m_nrOfFruits[BANANA] = 0;
-	level0.m_nrOfFruits[MELON] = 0;
+	level0.m_nrOfFruits[APPLE] = 2;
+	level0.m_nrOfFruits[BANANA] = 1;
+	level0.m_nrOfFruits[MELON] = 5;
 
 	level0.m_playerStartPos = float3(50.f, 0.0f, 150.f);
 
+	level0.m_timeTargets[GOLD] = 20;
+	level0.m_timeTargets[SILVER] = 35;
+	level0.m_timeTargets[BRONZE] = 80;
+
 	m_levelsArr.push_back(level0);
+	m_hud.setTimeTargets(level0.m_timeTargets);
 }
 
 void LevelHandler::placeBridge(float3 pos, float3 rot, float3 scale) {
@@ -190,9 +195,14 @@ void LevelHandler::loadLevel(int levelNr) {
 		newEntity->setCollisionDataOBB();
 		m_collidableEntities.push_back(newEntity);
 
-
-
 		placeAllBridges();
+
+		if (currentLevel.m_nrOfFruits[APPLE] != 0)
+			m_hud.createFruitSprite("apple");
+		if (currentLevel.m_nrOfFruits[BANANA] != 0)
+			m_hud.createFruitSprite("banana");
+		if (currentLevel.m_nrOfFruits[MELON] != 0)
+			m_hud.createFruitSprite("melon");
 
 		// m_entity.load("Sphere"); // castray debug don't delete
 		// m_entity.setScale(0.1f);
@@ -213,6 +223,8 @@ void LevelHandler::draw() {
 	m_entity.draw();
 	m_terrainProps.draw();
 	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
+
+	m_hud.draw();
 }
 
 void LevelHandler::update(float dt) {
@@ -292,9 +304,14 @@ void LevelHandler::update(float dt) {
 	//		m_entity.setPosition(m_player.getCameraPosition() + t * m_player.getForward() * 0.9);
 	//	}
 	//}
+
+	m_hud.update(dt);
 }
 
-void LevelHandler::pickUpFruit(int fruitType) { m_inventory[fruitType]++; }
+void LevelHandler::pickUpFruit(int fruitType) {
+	m_inventory[fruitType]++;
+	m_hud.addFruit(fruitType);
+}
 
 void LevelHandler::dropFruit() {
 	Input* ip = Input::getInstance();
@@ -305,6 +322,7 @@ void LevelHandler::dropFruit() {
 			apple->release(m_player.getForward());
 			m_fruits.push_back(apple);
 			m_inventory[APPLE]--;
+			m_hud.removeFruit(APPLE);
 		}
 	}
 	if (ip->keyPressed(Keyboard::D2)) {
@@ -313,6 +331,7 @@ void LevelHandler::dropFruit() {
 			banana->release(m_player.getForward());
 			m_fruits.push_back(banana);
 			m_inventory[BANANA]--;
+			m_hud.removeFruit(BANANA);
 		}
 	}
 	if (ip->keyPressed(Keyboard::D3)) {
@@ -323,6 +342,7 @@ void LevelHandler::dropFruit() {
 
 			m_fruits.push_back(melon);
 			m_inventory[MELON]--;
+			m_hud.removeFruit(MELON);
 		}
 	}
 }

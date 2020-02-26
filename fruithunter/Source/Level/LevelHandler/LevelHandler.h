@@ -9,6 +9,7 @@
 #include "Melon.h"
 #include "Player.h"
 #include "EntityRepository.h"
+#include "HUD.h"
 
 #define LEVELS = 1;
 
@@ -35,6 +36,7 @@ struct Level {
 
 	// Level utility info
 	int m_winCondition[NR_OF_FRUITS];
+	int m_timeTargets[NR_OF_TIME_TARGETS];
 };
 
 class LevelHandler {
@@ -52,6 +54,9 @@ private:
 	int m_currentLevel = -1;
 	Level::TerrainTags m_currentTerrain = Level::TerrainTags::Forest;
 	Level::TerrainTags m_oldTerrain = Level::TerrainTags::Forest;
+
+	// HUD stuff
+	HUD m_hud;
 
 	// Creating data for levels.
 	void initialiseLevel0();
@@ -74,7 +79,6 @@ public:
 	// Fruit stuff
 	void pickUpFruit(int fruitType);
 	void dropFruit();
-
 
 	std::vector<Fruit> fruitsInLevel;
 };
