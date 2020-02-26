@@ -9,6 +9,7 @@
 #include "Melon.h"
 #include "Player.h"
 #include "EntityRepository.h"
+#include "WaterEffect.h"
 
 #define LEVELS = 1;
 
@@ -44,6 +45,7 @@ private:
 	Player m_player;
 	TerrainManager* m_terrainManager;
 	EntityRepository m_terrainProps;
+	WaterEffect waterEffect, lavaEffect;
 	Entity m_entity;
 	SkyBox m_skyBox;
 	size_t m_inventory[NR_OF_FRUITS]; // APPLE 0, BANANA 1, MELON 2

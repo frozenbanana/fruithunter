@@ -17,14 +17,16 @@ private:
 	private:
 		enum VarTypes {
 			type_noone,
-			type_float,
 			type_double,
+			type_float,
+			type_vector2,
 			type_vector3,
+			type_vector4,
 			type_int,
 			type_string,
 			Count
 		};
-		const string m_typeInterpretations[Count] = { "0", "f", "d", "v3", "i", "s" };
+		const string m_typeInterpretations[Count] = { "0", "d", "f", "v2", "v3", "v4", "i", "s" };
 		const string m_prePath = "assets/FileSyncs/";
 
 		bool m_fileCreated = false;
