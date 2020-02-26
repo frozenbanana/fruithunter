@@ -53,7 +53,10 @@ public:
 	float3 getHomePosition() const;
 	void setVelocity(float3 velo);
 
-	void hit() { changeState(CAUGHT); }
+	void hit() {
+		changeState(CAUGHT);
+		m_currentFace = 2;
+	}
 
 	int getFruitType();
 };

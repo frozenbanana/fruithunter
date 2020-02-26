@@ -4,8 +4,8 @@
 Apple::Apple(float3 pos) : Fruit(pos) {
 	loadAnimated("Apple", 3);
 	// loadAnimated("Bouncing_apple", 3);
-	vector<string> names{ "Apple", "Apple2" };
-	loadMaterials(names, 2);
+	vector<string> names{ "Apple.mtl", "Apple2.mtl", "Apple3.mtl" };
+	loadMaterials(names, 3);
 
 	m_nrOfFramePhases = 6;
 	setScale(0.5);
@@ -102,11 +102,12 @@ void Apple::updateAnimated(float dt) {
 
 
 	if (Input::getInstance()->keyPressed(Keyboard::O)) {
-		setMaterial(0);
+		m_currentFace = 0;
 	}
 	if (Input::getInstance()->keyPressed(Keyboard::P)) {
-		setMaterial(1);
+		m_currentFace = 1;
 	}
+	setMaterial(m_currentFace);
 }
 
 void Apple::flee(float3 playerPos, vector<shared_ptr<Entity>> collidables) {
