@@ -70,7 +70,7 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_nrOfFruits[BANANA] = 100;
 	level0.m_nrOfFruits[MELON] = 5;
 
-	level0.m_playerStartPos = float3(50.f, 0.0f, 150.f);
+	level0.m_playerStartPos = float3(100.f, 1.0f, 100.f);
 
 	m_levelsArr.push_back(level0);
 }
@@ -204,11 +204,7 @@ void LevelHandler::update(float dt) {
 
 	dropFruit();
 
-	float3 playerPos = m_player.getPosition();
-
-	ErrorLogger::logFloat3("Player pos:",playerPos);
-	ErrorLogger::logFloat3("Player look at:", m_player.getForward());
-	
+	float3 playerPos = m_player.getPosition();	
 
 	// update terrain tag
 	int activeTerrain = m_terrainManager->getTerrainIndexFromPosition(playerPos);

@@ -97,6 +97,7 @@ void Renderer::beginShadowFrame() {
 }
 
 void Renderer::beginFrame() {
+	m_deviceContext->RSSetState(0);
 	// Bind rendertarget
 	m_deviceContext.Get()->OMSetRenderTargets(
 		1, m_renderTargetView.GetAddressOf(), m_depthDSV.Get());
@@ -117,11 +118,15 @@ void Renderer::beginFrame() {
 	float clearColor[] = { 0.25f, .5f, 1, 1 };
 	m_deviceContext->ClearRenderTargetView(m_renderTargetView.Get(), clearColor);
 	m_deviceContext->ClearDepthStencilView(m_depthDSV.Get(), D3D11_CLEAR_DEPTH, 1, 0);
+
+	m_shadowMap.get()->bindVPTMatrix();
+	m_shadowMap.get()->bindShadowMap();
 }
 
 void Renderer::endFrame() {
 	// Swap the buffer
 	m_swapChain->Present(1, 0);
+
 }
 
 ID3D11Device* Renderer::getDevice() {

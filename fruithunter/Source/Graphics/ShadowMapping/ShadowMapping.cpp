@@ -2,15 +2,47 @@
 #include "Renderer.h"
  
 void ShadowMapper::createBuffer() { 
-	Matrix viewMatrix = XMMatrixLookAtLH(
-		float3(100.f, 100.f, 100.f), float3(0.f, -1.f, 0.f), float3(0.f, 1.f, 0.f));
-	Matrix projMatrix = XMMatrixOrthographicLH(m_shadowPortSize.x, m_shadowPortSize.y, NEAR_PLANE, FAR_PLANE);
-	Matrix vp_matrix = XMMatrixMultiply(viewMatrix, projMatrix);
+	m_viewMatrix = XMMatrixLookAtLH(
+		float3(21.43f, 36.567f, 183.6f), float3(22.06f, 36.2f, 182.9f), float3(0.f, 1.f, 0.f));
+	//m_projMatrix = XMMatrixOrthographicLH(285.f, 320.f, NEAR_PLANE, 250.f);
+	m_projMatrix = XMMatrixPerspectiveFovLH(
+		(XM_PI / 2.f), (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, NEAR_PLANE, FAR_PLANE);
+	Matrix vp_matrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 
 	m_vpMatrix_t = vp_matrix.Transpose();
 
 	auto deviceContext = Renderer::getDeviceContext();
 	deviceContext->UpdateSubresource(m_matrixBuffer.Get(), 0, NULL, &m_vpMatrix_t, 0, 0);
+}
+
+void ShadowMapper::createVPTBuffer() {
+	createVPTMatrix();
+
+	auto device = Renderer::getDevice();
+	// Create constant buffer
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(m_VPT);
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = &m_VPT;
+	HRESULT res = device->CreateBuffer(&bufferDesc, &data, m_matrixVPTBuffer.GetAddressOf());
+
+	auto deviceContext = Renderer::getDeviceContext();
+	deviceContext->UpdateSubresource(m_matrixVPTBuffer.Get(), 0, NULL, &m_VPT, 0, 0);
+}
+
+void ShadowMapper::createVPTMatrix() { 
+	m_VPT = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
+	Matrix textureMatrix = {
+		0.5f, 0.f, 0.f, 0.f,
+		0.f, -0.5f, 0.f, 0.f,
+		0.f, 0.f, 1.0f, 0.f,
+		0.5f, 0.5, 0.f, 1.0f
+	};
+	m_VPT = XMMatrixMultiply(m_VPT, textureMatrix);
+	//m_VPT.Transpose();
 }
 
 ShadowMapper::ShadowMapper() { initiate(); }
@@ -64,7 +96,6 @@ ShadowMapper::~ShadowMapper() {
 
 void ShadowMapper::initiate() {
 	auto device = Renderer::getDevice();
-	m_shadowPortSize = XMINT2(STANDARD_WIDTH, STANDARD_HEIGHT);
 
 	m_shadowPort.TopLeftX = 0.0f;
 	m_shadowPort.TopLeftY = 0.0f;
@@ -114,12 +145,26 @@ void ShadowMapper::initiate() {
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = &m_vpMatrix_t;
 	HRESULT res = device->CreateBuffer(&bufferDesc, &data, m_matrixBuffer.GetAddressOf());
+
 	createBuffer();
+	createVPTBuffer();
 }
 
 void ShadowMapper::bindMatrix() {
 	auto deviceContext = Renderer::getDeviceContext();
 	deviceContext->VSSetConstantBuffers(1, 1, m_matrixBuffer.GetAddressOf());
+}
+
+void ShadowMapper::bindVPTMatrix() {
+	auto deviceContext = Renderer::getDeviceContext();
+	deviceContext->VSSetConstantBuffers(4, 1, m_matrixVPTBuffer.GetAddressOf());
+}
+
+void ShadowMapper::bindShadowMap() {
+	
+
+	auto deviceContext = Renderer::getDeviceContext();
+	deviceContext->PSSetShaderResources(4, 1, m_shadowSRV.GetAddressOf());
 }
 
 Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ShadowMapper::getDepthMapSRV() {
@@ -128,6 +173,9 @@ Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ShadowMapper::getDepthMapSRV() 
 
 void ShadowMapper::bindDSVAndSetNullRenderTarget() { 
 	auto deviceContext = Renderer::getDeviceContext();
+	ID3D11ShaderResourceView* test = { NULL };
+	deviceContext->PSSetShaderResources(4, 1, &test);
+
 	deviceContext->RSSetViewports(1, &m_shadowPort);
 
 	//Set null render target to disable color
