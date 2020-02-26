@@ -34,14 +34,13 @@ void ShadowMapper::createVPTBuffer() {
 }
 
 void ShadowMapper::createVPTMatrix() { 
-	m_VPT = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 	Matrix textureMatrix = {
 		0.5f, 0.f, 0.f, 0.f,
 		0.f, -0.5f, 0.f, 0.f,
 		0.f, 0.f, 1.0f, 0.f,
 		0.5f, 0.5, 0.f, 1.0f
 	};
-	m_VPT = XMMatrixMultiply(m_VPT, textureMatrix);
+	m_VPT = m_viewMatrix * m_projMatrix * textureMatrix;
 	//m_VPT.Transpose();
 }
 
