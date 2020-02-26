@@ -28,6 +28,12 @@
     <FxCompile Include="Source\Graphics\Shaders\VertexShader_model_onlyMesh.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\VertexShader_seaEffect.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_seaEffect.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp">
@@ -131,6 +137,12 @@
     </ClCompile>
     <ClCompile Include="Source\Utility\VariableSyncer\VariableSyncer.cpp">
       <Filter>Source\Utility\VariableSyncer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Drawable\SeaEffect.cpp">
+      <Filter>Source\Drawable</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Drawable\HUD.cpp">
+      <Filter>Source\Drawable</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -238,6 +250,12 @@
     </ClInclude>
     <ClInclude Include="Source\Utility\VariableSyncer\VariableSyncer.h">
       <Filter>Source\Utility\VariableSyncer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\SeaEffect.h">
+      <Filter>Source\Drawable</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\HUD.h">
+      <Filter>Source\Drawable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

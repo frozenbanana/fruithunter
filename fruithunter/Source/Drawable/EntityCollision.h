@@ -7,32 +7,37 @@ public:
 
 private:
 	struct CollisionData {
-		float3 m_point;
+		float3 m_origin; // The position of the entity
 		float3 m_posOffset;
+		float3 m_point; // The point to use in calculations (origin + rotated offset)
 		float3 m_scale;
 	};
 	struct SphereData : CollisionData {
 		float m_radius;
 		SphereData(float3 point, float3 posOffset, float3 scale, float radius) {
+			m_origin = point;
 			m_posOffset = posOffset;
-			m_point = point + m_posOffset;
-			m_radius = radius;
 			m_scale = scale;
+			m_point = point + posOffset * scale;
+
+			m_radius = radius;
 		}
 	};
 	struct ObbData : CollisionData {
 		float3 m_axis[3];
 		float3 m_halfSize;
 		ObbData(float3 point, float3 posOffset, float3 scale, float3 halfSize) {
+			m_origin = point;
 			m_posOffset = posOffset;
-			m_point = point + m_posOffset;
-			m_halfSize = halfSize;
 			m_scale = scale;
+			m_point = point + posOffset * scale;
+
+			m_halfSize = halfSize;
 			m_axis[0] = float3::Right;
 			m_axis[1] = float3::Up;
 			m_axis[2] = float3::Forward;
 		}
-		float3 closestPtPointOBB(float3 point);
+		float3 closestPtPointOBB(float3 point) const;
 	};
 
 	CollisionType m_collisionType;
@@ -40,7 +45,6 @@ private:
 	bool collisionSphereSphere(SphereData* sphere1, SphereData* sphere2);
 	bool collisionOBBOBB(ObbData& obb1, ObbData& obb2);
 	bool collisionSphereOBB(SphereData& sphere, ObbData& obb);
-
 
 public:
 	EntityCollision(float3 point = float3(0.f), float3 posOffset = float3(0.f),
@@ -56,4 +60,5 @@ public:
 	void setCollisionScale(float3 scale);
 
 	int getCollisionType() const;
+	float3 getClosestPointOnBox(float3 point) const;
 };

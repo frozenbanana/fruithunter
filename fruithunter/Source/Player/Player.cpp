@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "Errorlogger.h"
 #include "VariableSyncer.h"
+#include "AudioHandler.h"
 
 Player::Player() {}
 
@@ -151,18 +152,18 @@ void Player::updateBow(float dt) {
 	Input* input = Input::getInstance();
 
 	if (input->mouseDown(Input::MouseButton::RIGHT)) {
-		m_aimZoom = max(0.5f, m_aimZoom - dt);
+		m_aimZoom = max(0.4f, m_aimZoom - dt * 1.5f);
 		m_camera.setFov(m_camera.getDefaultFov() * m_aimZoom);
 		m_bow.aim();
 	}
 	else if (m_releasing || input->mouseReleased(Input::MouseButton::RIGHT)) {
 		m_releasing = true;
-		m_bow.release();
 
 		if (m_aimZoom < 1.0f) {
-			m_aimZoom += dt;
+			m_aimZoom += dt * 1.5f;
 		}
 		else {
+			m_bow.release();
 			m_aimZoom = 1.0f;
 			m_releasing = false;
 		}
@@ -238,16 +239,35 @@ void Player::draw() {
 }
 
 void Player::collideObject(Entity& obj) {
+	//ErrorLogger::log("Inside player collideObject");
 	// Check
 	float radius = 0.2f;
 	float stepHeight = 0.45f; // height able to simply step over
 	EntityCollision feet(
-		m_position + float3(0.f, radius, 0.f), float3(0.f), float3(1.f), float3(radius));
-	EntityCollision hip(m_position + float3(0.f, stepHeight + radius * 2, 0.f), float3(0.f),
-		float3(1.f), float3(radius * 2.f));
+		m_position + float3(0.f, radius, 0.f), float3(0.f), float3(1.f), float(radius));
+	EntityCollision hip(m_position + float3(0.f, stepHeight + radius * 3, 0.f), float3(0.f),
+		float3(1.f), float(radius * 3.f));
 
-	if (obj.checkCollision(hip)) { // bump into
-		float3 objToPlayer = m_position - obj.getPosition();
+	if (obj.checkCollision(feet)) { // walk on/to
+		if (m_velocity.y <= 0) {
+			m_velocity.y = 0;
+			m_onGround = true;
+			m_onEntity = true;
+			if (obj.getCollisionType() == EntityCollision::ctOBB)
+				m_position.y = obj.getPointOnOBB(m_position).y;
+
+
+			// If we fix castray
+			// float cast =
+			//	obj.castRay(m_position + float3(0.f, stepHeight, 0.f), float3(0.01, -1, 0.01));
+			// if (cast != -1) {
+			//	m_position.y += (stepHeight - cast) * 0.1;
+			//}
+		}
+	}
+	else if (obj.checkCollision(hip)) { // bump into
+		float3 pointOnOBBClosestToPlayer = obj.getPointOnOBB(m_position);
+		float3 objToPlayer = m_position - pointOnOBBClosestToPlayer;
 		if (objToPlayer.Dot(m_velocity) < 0) {
 			objToPlayer.Normalize();
 			float3 tangentObj = float3::Up.Cross(objToPlayer);
@@ -255,24 +275,6 @@ void Player::collideObject(Entity& obj) {
 			reflection.y = m_velocity.y;
 			m_velocity += reflection;
 			m_velocity *= 0.5;
-		}
-	}
-	else if (obj.checkCollision(feet)) { // walk on/to
-		if (m_velocity.y <= 0) {
-			m_velocity.y = 0;
-			m_onGround = true;
-			m_onEntity = true;
-			if (obj.getCollisionType() == EntityCollision::ctOBB)
-				m_position.y =
-					obj.getBoundingBoxPos().y + obj.getHalfSizes().y * obj.getScale().y - 0.01f;
-
-
-			// I we fix castray
-			// float cast =
-			//	obj.castRay(m_position + float3(0.f, stepHeight, 0.f), float3(0.01, -1, 0.01));
-			// if (cast != -1) {
-			//	m_position.y += (stepHeight - cast) * 0.1;
-			//}
 		}
 	}
 }

@@ -1,5 +1,6 @@
 #include "Bow.h"
 #include "TerrainManager.h"
+#include "AudioHandler.h"
 #define ARM_LENGTH 0.55f
 #define OFFSET_RIGHT 0.37f
 #define OFFSET_UP -0.1f
@@ -30,11 +31,13 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 	m_arrowReturnTimer -= dt;
 	// Bow animation.
 	if (m_charging) {
+		AudioHandler::getInstance()->playInstance(AudioHandler::STRETCH_BOW, m_drawFactor);
 		m_drawFactor = min(0.99f, m_drawFactor + dt);
 		m_bow.updateAnimatedSpecific(m_drawFactor);
 		m_bow.setFrameTargets(0, 1);
 	}
 	else {
+		AudioHandler::getInstance()->pauseInstance(AudioHandler::STRETCH_BOW);
 		m_drawFactor = max(0.0f, m_drawFactor - 5.0f * dt);
 		m_bow.updateAnimatedSpecific(m_drawFactor);
 		m_bow.setFrameTargets(0, 1);
@@ -43,18 +46,28 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 	// Update arrow.
 	if (m_shooting) {
 		if (!m_arrowHitObject) {
-			arrowPhysics(dt,
-				float3(10.f, 0.f, 0.f)); // Updates arrow in flight, wind is currently hard coded.
-			m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
-			m_arrow.setRotation(float3(m_arrowPitch, m_arrowYaw, 0));
 			float castray =
 				TerrainManager::getInstance()->castRay(m_arrow.getPosition(), m_arrowVelocity * dt);
 			if (castray != -1) {
+				// Arrow is hitting terrain
+				m_arrowReturnTimer = 0.5f;
 				m_arrowHitObject = true;
-				m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * castray * dt);
+				float3 target = m_arrow.getPosition() + m_arrowVelocity * castray * dt;
+				m_arrow.setPosition(target);
+				AudioHandler::getInstance()->playOnceByDistance(
+					AudioHandler::HIT_WOOD, m_bow.getPosition(), target);
+			}
+			else {
+				arrowPhysics(
+					dt, float3(10.f, 0.f,
+							0.f)); // Updates arrow in flight, wind is currently hard coded.
+				m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
+				m_arrow.setRotation(float3(m_arrowPitch, m_arrowYaw, 0));
 			}
 		}
-		if (m_arrowReturnTimer < 0) { // replace with collision later
+		if (m_arrowReturnTimer < 0.0f ||
+			(m_arrow.getPosition() - playerPos).LengthSquared() >
+				m_maxTravelLengthSquared) { // replace with collision later
 			m_shooting = false;
 		}
 	}
@@ -72,12 +85,10 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 
 	// Move bow towards the center while aiming.
 	if (m_aiming) {
-		if (m_aimMovement > 0.1f)
-			m_aimMovement -= dt * 4.0f;
+		m_aimMovement = max(0.2f, m_aimMovement - dt * 4.0f);
 	}
 	else {
-		if (m_aimMovement < 1.0f)
-			m_aimMovement += dt * 4.0f;
+		m_aimMovement = min(1.0f, m_aimMovement + dt * 4.0f);
 	}
 
 	m_aiming = false;
@@ -95,15 +106,14 @@ void Bow::rotate(float pitch, float yaw) {
 void Bow::aim() { m_aiming = true; }
 
 void Bow::release() { // Stops charging
-	if (m_aimMovement > 0.8f) {
-		m_charging = false;
-		m_chargeReset = false;
-	}
+	m_charging = false;
+	m_chargeReset = false;
 }
 
 void Bow::charge() { // Draws the arrow back on the bow
-	if (!m_shooting && m_chargeReset)
+	if (!m_shooting && m_chargeReset) {
 		m_charging = true;
+	}
 }
 
 void Bow::shoot(
@@ -128,14 +138,22 @@ void Bow::shoot(
 		m_arrowPitch = pitch;
 		m_arrowYaw = yaw;
 
-		// m_arrowVelocity = startVelocity * direction * velocity; //adds player velocity but it
-		// looks weird :/
-		m_arrowVelocity = direction * velocity;
-		m_oldArrowVelocity = m_arrowVelocity; // Required to calc rotation
+		float3 arrowStartVelocity =
+			float3(abs(direction.x), 0.0f, abs(direction.z)) * startVelocity;
+
+		m_arrowVelocity =
+			arrowStartVelocity + direction * velocity; // adds player velocity and it looks okay
+		m_oldArrowVelocity = m_arrowVelocity;		   // Required to calc rotation
+		if (m_drawFactor > 0.5) {
+			AudioHandler::getInstance()->playOnce(AudioHandler::HEAVY_ARROW);
+		}
+		else {
+			AudioHandler::getInstance()->playOnce(AudioHandler::LIGHT_ARROW);
+		}
 	}
 }
 
-bool Bow::isShooting() const { return m_arrowReturnTimer > 0; }
+bool Bow::isShooting() const { return m_shooting; }
 
 void Bow::arrowPhysics(float dt, float3 windVector) { // Updates arrow in flight
 	// Update acceleration
