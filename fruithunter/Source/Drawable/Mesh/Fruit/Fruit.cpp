@@ -90,7 +90,6 @@ Fruit::Fruit(float3 pos) : Entity() {
 	m_frameTime = 0.0f;
 }
 
-
 // Perhaps a useful function later.
 void Fruit::behaviorInactive(float3 playerPosition) { return; }
 

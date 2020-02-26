@@ -7,8 +7,6 @@
 #define MAX_STEAPNESS .2f
 
 
-
-
 class AI {
 public:
 	struct Node {
@@ -46,6 +44,7 @@ public:
 
 protected:
 	float m_passiveRadius, m_activeRadius;
+	bool m_lookingForPath = false;
 	State m_currentState;
 	std::shared_ptr<Terrain> m_terrain;
 	std::list<float3> m_availablePath;
@@ -62,7 +61,7 @@ protected:
 
 	void handleAvailablePath(float3 myPosition);
 
-	bool isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entity>>& collidables);
+	bool isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entity>> collidables);
 
 private:
 	bool beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>>& openList,

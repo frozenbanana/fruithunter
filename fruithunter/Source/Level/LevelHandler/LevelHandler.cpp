@@ -70,7 +70,7 @@ void LevelHandler::initialiseLevel0() {
 	maps[3] = "texture_rock6.jpg";
 	level0.m_heightmapTextures.push_back(maps);
 
-	level0.m_nrOfFruits[APPLE] = 0;
+	level0.m_nrOfFruits[APPLE] = 3;
 	level0.m_nrOfFruits[BANANA] = 0;
 	level0.m_nrOfFruits[MELON] = 0;
 
