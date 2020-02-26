@@ -344,7 +344,7 @@ void Terrain::tileRayIntersectionTest(
 	}
 }
 
-bool Terrain::pointBehindOrInfrontPlane(float3 point, float3 planePoint, float3 planeNormal) {
+bool Terrain::pointInfrontOrBehindPlane(float3 point, float3 planePoint, float3 planeNormal) {
 	return (point - planePoint).Dot(planeNormal) > 0 ? true : false;
 }
 
@@ -687,8 +687,15 @@ void Terrain::draw_frustumCulling(float3 point, vector<float3> planes) {
 		}
 
 		for (size_t j = 0; j < 8; j++) {
-			bool stateP1 = pointBehindOrInfrontPlane(boxDiagonalPoint1, point, planes[i]);
-			bool stateP2 = pointBehindOrInfrontPlane(boxDiagonalPoint2, point, planes[i]);
+			bool stateP1 = pointInfrontOrBehindPlane(boxDiagonalPoint1, point, planes[i]);
+			bool stateP2 = pointInfrontOrBehindPlane(boxDiagonalPoint2, point, planes[i]);
+			if (stateP1 && stateP2) {
+				//outside
+			}
+			else {
+				//inside
+				draw();
+			}
 		}
 	}
 

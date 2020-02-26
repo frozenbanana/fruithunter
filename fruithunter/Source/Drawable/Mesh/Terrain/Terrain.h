@@ -100,7 +100,7 @@ private:
 		return (val < min ? min : val > max ? max : val);
 	}
 
-	bool pointBehindOrInfrontPlane(float3 point, float3 planePoint, float3 planeNormal);
+	bool pointInfrontOrBehindPlane(float3 point, float3 planePoint, float3 planeNormal);
 
 public:
 	// Spawn point
