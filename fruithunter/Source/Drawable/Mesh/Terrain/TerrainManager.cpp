@@ -69,6 +69,12 @@ void TerrainManager::draw() {
 	}
 }
 
+void TerrainManager::draw_frustumCulling(float3 point, vector<float3> planes) {
+	for (size_t i = 0; i < m_terrains.size(); i++) {
+		m_terrains[i].draw_frustumCulling(point,planes);
+	}
+}
+
 float3 TerrainManager::getSpawnpoint(int terrainType) {
 	return m_terrains[terrainType].getRandomSpawnPoint();
 }

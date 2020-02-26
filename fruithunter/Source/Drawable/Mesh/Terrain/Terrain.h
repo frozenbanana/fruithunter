@@ -100,6 +100,8 @@ private:
 		return (val < min ? min : val > max ? max : val);
 	}
 
+	bool pointBehindOrInfrontPlane(float3 point, float3 planePoint, float3 planeNormal);
+
 public:
 	// Spawn point
 	float3 getRandomSpawnPoint();
@@ -119,11 +121,11 @@ public:
 
 	bool pointInsideTerrainBoundingBox(float3 point);
 	float getHeightFromPosition(float x, float z);
-	float getHeightFromPosition(float3 pos);
 	float3 getNormalFromPosition(float x, float z);
 	float castRay(float3 point, float3 direction);
 
 	void draw();
+	void draw_frustumCulling(float3 point, vector<float3> planes);
 
 	Terrain(string filename = "", vector<string> textures = vector<string>(), XMINT2 subsize = XMINT2(0, 0),
 		XMINT2 splits = XMINT2(1, 1));

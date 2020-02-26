@@ -10,7 +10,7 @@ Microsoft::WRL::ComPtr<ID3D11SamplerState> Terrain::m_sampler;
 void Terrain::createBuffers() {
 	auto gDevice = Renderer::getDevice();
 	auto gDeviceContext = Renderer::getDeviceContext();
-	//sampler
+	// sampler
 	if (m_sampler.Get() == nullptr) {
 		D3D11_SAMPLER_DESC sampDesc;
 		sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
@@ -118,7 +118,7 @@ float Terrain::sampleHeightmap(float2 uv) {
 		unsigned char r = ((unsigned char*)m_heightmapMappedData
 							   .pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
 		unsigned char g = ((unsigned char*)m_heightmapMappedData
-							   .pData)[(iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4)+1];
+							   .pData)[(iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4) + 1];
 		if ((float)g > 0.0f)
 			m_spawnPoint.push_back(float2((float)iUV.x, (float)iUV.y));
 		v = (float)r / 255.f;
@@ -344,7 +344,11 @@ void Terrain::tileRayIntersectionTest(
 	}
 }
 
-float3 Terrain::getRandomSpawnPoint() { 
+bool Terrain::pointBehindOrInfrontPlane(float3 point, float3 planePoint, float3 planeNormal) {
+	return (point - planePoint).Dot(planeNormal) > 0 ? true : false;
+}
+
+float3 Terrain::getRandomSpawnPoint() {
 	if (m_spawnPoint.size() > 0) {
 		size_t random = rand() % m_spawnPoint.size();
 		float3 spawnPoint = float3(m_spawnPoint[random].x, 0.0f, m_spawnPoint[random].y);
@@ -630,21 +634,21 @@ void Terrain::draw() {
 
 		ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
-		//bind shaders
+		// bind shaders
 		m_shader.bindShadersAndLayout();
 
-		//bind samplerstate
-		deviceContext->PSSetSamplers(SAMPLERSTATE_SLOT,1,m_sampler.GetAddressOf());
+		// bind samplerstate
+		deviceContext->PSSetSamplers(SAMPLERSTATE_SLOT, 1, m_sampler.GetAddressOf());
 
-		//bind texture resources
+		// bind texture resources
 		for (int i = 0; i < m_mapCount; i++) {
 			deviceContext->PSSetShaderResources(i, 1, m_maps[i].GetAddressOf());
 		}
 
-		//bind world matrix
+		// bind world matrix
 		bindModelMatrix();
 
-		//draw grids
+		// draw grids
 		for (int xx = 0; xx < m_gridSize.x; xx++) {
 			for (int yy = 0; yy < m_gridSize.y; yy++) {
 				m_subMeshes[xx][yy].bind();
@@ -652,6 +656,50 @@ void Terrain::draw() {
 			}
 		}
 	}
+}
+
+void Terrain::draw_frustumCulling(float3 point, vector<float3> planes) {
+	// CULL ENTIRE TERRAIN
+	float4x4 mWorld = getModelMatrix();
+	// normalized box points
+	float3 boxPoints[8] = { float3(0, 0, 0), float3(1, 0, 0), float3(1, 0, 1), float3(0, 0, 1),
+
+		float3(0, 1, 0), float3(1, 1, 0), float3(1, 1, 1), float3(0, 1, 1) };
+	// transform points to world space
+	float3 boxPoints_all[8];
+	for (size_t i = 0; i < 8; i++) {
+		boxPoints_all[i] = float3::Transform(boxPoints[i], mWorld);
+	}
+	for (size_t i = 0; i < 4; i++) {
+
+		//find diagonal points
+		float3 boxDiagonalPoint1, boxDiagonalPoint2;
+		float largestDot = 0;
+		for (size_t i = 0; i < 4; i++) {
+			float3 p1 = boxPoints_all[i];
+			float3 p2 = boxPoints_all[4 + (i + 2) % 4];
+			float dot = abs((p1 - p2).Dot(planes[i]));
+			if (dot > largestDot) {
+				largestDot = dot;
+				boxDiagonalPoint1 = p1;
+				boxDiagonalPoint2 = p2;
+			}
+		}
+
+		for (size_t j = 0; j < 8; j++) {
+			pointBehindOrInfrontPlane(boxPoints_all[j], point, planes[i])
+		}
+	}
+
+	// CULL EACH GRID
+
+	// for (size_t xx = 0; xx < m_gridSize.x; xx++) {
+	//	for (size_t yy = 0; yy < m_gridSize.y; yy++) {
+	//
+
+
+	//	}
+	//}
 }
 
 Terrain::Terrain(string filename, vector<string> textures, XMINT2 subsize, XMINT2 splits) {

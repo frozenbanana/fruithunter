@@ -13,6 +13,7 @@ public:
 	float castRay(float3 point, float3 direction);
 
 	void draw();
+	void draw_frustumCulling(float3 point, vector<float3> planes);
 
 	float3 getSpawnpoint(int terrainType);
 
