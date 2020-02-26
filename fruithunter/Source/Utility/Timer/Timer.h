@@ -8,6 +8,7 @@ public:
 	float getTimePassed();
 	string getTimeToString();
 	float getDt();
+	void reset();
 
 private:
 	clock_t m_timer;

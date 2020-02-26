@@ -43,10 +43,7 @@ void IntroState::handleEvent() {
 	}
 }
 
-void IntroState::pause() {
-	ErrorLogger::log(m_name + " pause() called.");
-	AudioHandler::pauseAmbient();
-}
+void IntroState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
 void IntroState::draw() {
 	m_camera.bindMatrix();
@@ -72,6 +69,5 @@ void IntroState::draw() {
 
 void IntroState::play() {
 	Input::getInstance()->setMouseModeAbsolute();
-	AudioHandler::startMenuAmbient();
 	ErrorLogger::log(m_name + " play() called.");
 }
