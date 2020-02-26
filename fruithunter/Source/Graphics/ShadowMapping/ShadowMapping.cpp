@@ -41,7 +41,7 @@ void ShadowMapper::createVPTMatrix() {
 		0.5f, 0.5, 0.f, 1.0f
 	};
 	m_VPT = m_viewMatrix * m_projMatrix * textureMatrix;
-	//m_VPT.Transpose();
+	m_VPT = m_VPT.Transpose();
 }
 
 ShadowMapper::ShadowMapper() { initiate(); }

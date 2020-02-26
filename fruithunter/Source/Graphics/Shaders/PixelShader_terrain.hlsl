@@ -57,9 +57,10 @@ float calcShadowFactor(SamplerComparisonState samShadow, Texture2D shadowMap, fl
 	// Texel size
 	const float dx = SMAP_DX;
 	float percentLit = 0.0f;
-	const float2 offsets[9] = { float2(-dx, -dx), float2(0.0f, -dx), float2(dx, -dx),
-		float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f), float2(-dx, +dx),
-		float2(0.0f, +dx), float2(dx, +dx) };
+	const float2 offsets[9] = { 
+		float2(-dx, -dx),	float2(0.0f, -dx),	float2(dx, -dx),
+		float2(-dx, 0.0f),	float2(0.0f, 0.0f),	float2(dx, 0.0f),
+		float2(-dx, +dx),	float2(0.0f, +dx),	float2(dx, +dx) };
 	// 3x3 box filter pattern. Each sample does a 4-tap PCF.
 	for (int i = 0; i < 9; i++) {
 		percentLit += shadowMap.SampleCmpLevelZero(samShadow, shadowPosH.xy + offsets[i], depth).r;
@@ -90,8 +91,10 @@ float4 main(PS_IN ip) : SV_TARGET {
 	//return float4(texture_shadowMap.Sample(samplerAni, ip.ShadowPosH.xy).rgb, 1);
 
 	//ip.PosH.xyz /= ip.PosH.w;
-	/*return float4(ip.ShadowPosH.xyz, 1);
-	return float4(ip.PosH);*/
+	//return float4(shade, 0, 0, 1);
+	//return float4(ip.ShadowPosH.x, ip.ShadowPosH.y, 0, 1);
+	//return float4(ip.ShadowPosH.xyz, 1);
+	//return float4(ip.PosH);
 	return float4(lighting(ip.PosW, ip.Normal, baseColor), 1.0);
 	return float4(abs(ip.Normal), 1.0);
 }

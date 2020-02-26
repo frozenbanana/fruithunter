@@ -25,8 +25,8 @@ VS_OUT main(VS_IN input) {
 	output.PosH = mul(float4(output.PosW, 1), mViewPerspective);
 	output.TexCoord = input.TexCoord;
 	output.Normal = normalize(mul(float4(input.Normal, 0), mInvTraWorld).xyz);
-	/*output.ShadowPosH = mul(float4(input.Pos, 1.0f), mWorld);
-	output.ShadowPosH = mul(output.ShadowPosH, mShadowVPT);*/
+	//output.ShadowPosH = mul(float4(input.Pos, 1.0f), mWorld);
+	//output.ShadowPosH = mul(output.ShadowPosH, mShadowVPT);
 	output.ShadowPosH = mul(float4(input.Pos, 1), mShadowVPT);
 	//output.ShadowPosH = mul(output.ShadowPosH, mShadowVPT); 
 	// mul(float4(input.Pos, 1), mShadowVPT);
