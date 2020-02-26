@@ -41,7 +41,7 @@ void TextRenderer::draw(std::string text, float2 pos) {
 
 	Vector2 origin = Vector2(m_spriteFont->MeasureString(wText.c_str())) / 2.0f;
 
-	m_spriteFont->DrawString(m_spriteBatch.get(), wText.c_str(), pos, m_color, 0.f, origin);
+	m_spriteFont->DrawString(m_spriteBatch.get(), wText.c_str(), pos, m_color); //, 0.f, origin);
 
 	m_spriteBatch->End();
 	setDepthStateToNull();
@@ -55,7 +55,7 @@ void TextRenderer::draw(std::string text, float2 pos, float4 col) {
 
 	DirectX::XMVECTORF32 _col = { col.x, col.y, col.z, col.w };
 
-	m_spriteFont->DrawString(m_spriteBatch.get(), wText.c_str(), pos, _col, 0.f, origin);
+	m_spriteFont->DrawString(m_spriteBatch.get(), wText.c_str(), pos, _col); //, 0.f, origin);
 
 	m_spriteBatch->End();
 	setDepthStateToNull();
