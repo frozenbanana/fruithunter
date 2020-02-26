@@ -1,6 +1,5 @@
 #pragma once
 #include "GlobalNamespaces.h"
-#include "TextRenderer.h"
 #include <memory>
 #include <SpriteBatch.h>
 #include <CommonStates.h>
@@ -15,15 +14,17 @@ private:
 		int fruitType;
 	};
 
-	TextRenderer m_textRenderer;
-
 	unique_ptr<SpriteBatch> m_spriteBatch;
+	unique_ptr<SpriteFont> m_spriteFont;
 	unique_ptr<CommonStates> m_states;
 
 	vector<Sprite> m_sprites;
 
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_backgroundTexture;
+
+	float2 m_backgroundPos;
 	float2 m_timerPos;
-	float4 m_fruitTextColors[NR_OF_FRUITS];
+	XMVECTORF32 m_fruitTextColors[NR_OF_FRUITS];
 
 	float m_secondsPassed = 0.0f;
 	int m_minutesPassed = 0;

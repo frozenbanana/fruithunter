@@ -36,7 +36,7 @@ void HUD::drawTargetTime() {
 	if (timePassed < goldTarget) {
 		timeString = "Target: 0" + to_string(goldTarget / 60) + ":" +
 					 (goldTarget % 60 < 10 ? "0" : "") + to_string(goldTarget % 60) + ".00";
-		color = float4(1.0f, 0.9f, 0.0f, 1.0f);
+		color = float4(1.0f, 0.85f, 0.0f, 1.0f);
 	}
 	else if (timePassed < silverTarget) {
 		timeString = "Target: 0" + to_string(silverTarget / 60) + ":" +
@@ -46,7 +46,7 @@ void HUD::drawTargetTime() {
 	else if (timePassed < bronzeTarget) {
 		timeString = "Target: 0" + to_string(bronzeTarget / 60) + ":" +
 					 (bronzeTarget % 60 < 10 ? "0" : "") + to_string(bronzeTarget % 60) + ".00";
-		color = float4(0.8f, 0.5f, 0.2f, 1.0f);
+		color = float4(0.85f, 0.55f, 0.25f, 1.0f);
 	}
 	else {
 		timeString = "Target: 0" + to_string(bronzeTarget / 60) + ":" +
@@ -54,7 +54,9 @@ void HUD::drawTargetTime() {
 		color = float4(1.0f, 0.0f, 0.0f, 1.0f);
 	}
 
-	m_textRenderer.draw(timeString, Vector2((float)STANDARD_WIDTH - 500.0f, 100.0f), color);
+	wstring wText = std::wstring(timeString.begin(), timeString.end());
+	m_spriteFont->DrawString(
+		m_spriteBatch.get(), wText.c_str(), float2(25.0f, STANDARD_HEIGHT - 150.0f), color);
 }
 
 void HUD::setDepthStateToNull() {
@@ -62,12 +64,35 @@ void HUD::setDepthStateToNull() {
 }
 
 HUD::HUD() {
-	m_fruitTextColors[APPLE] = float4(1.f, 0.f, 0.f, 1.f);
-	m_fruitTextColors[BANANA] = float4(0.9f, 0.7f, 0.2f, 1.f);
-	m_fruitTextColors[MELON] = float4(0.4f, 0.7f, 0.3f, 1.f);
+	m_spriteFont = std::make_unique<DirectX::SpriteFont>(
+		Renderer::getDevice(), L"assets/fonts/myfile.spritefont");
+
+	if (!m_spriteFont.get()) {
+		ErrorLogger::log("HUD failed to load font.");
+		return;
+	}
+
+	m_fruitTextColors[APPLE] = { 1.f, 0.f, 0.f, 1.f };
+	m_fruitTextColors[BANANA] = { 0.9f, 0.7f, 0.2f, 1.f };
+	m_fruitTextColors[MELON] = { 0.4f, 0.7f, 0.3f, 1.f };
 
 	m_spriteBatch = std::make_unique<SpriteBatch>(Renderer::getDeviceContext());
 	m_states = std::make_unique<CommonStates>(Renderer::getDevice());
+
+	Microsoft::WRL::ComPtr<ID3D11Resource> resource;
+
+	HRESULT t = CreateWICTextureFromFile(Renderer::getDevice(), L"assets/sprites/background.png",
+		resource.GetAddressOf(), m_backgroundTexture.ReleaseAndGetAddressOf());
+
+	if (t)
+		ErrorLogger::logError(t, "Failed to create sprite texture");
+
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> tex;
+	resource.As(&tex);
+	CD3D11_TEXTURE2D_DESC texDesc;
+	tex->GetDesc(&texDesc);
+
+	m_backgroundPos = float2(15.0f, STANDARD_HEIGHT - 150.0f);
 }
 
 HUD::~HUD() {
@@ -125,14 +150,29 @@ void HUD::draw() {
 	for (size_t i = 0; i < m_sprites.size(); i++) {
 		m_spriteBatch->Draw(m_sprites[i].texture.Get(), m_sprites[i].screenPos, nullptr,
 			Colors::White, 0.f, float2(0.0f, 0.0f), m_sprites[i].scale);
-		m_textRenderer.draw(to_string(m_inventory[m_sprites[i].fruitType]),
+	}
+
+	m_spriteBatch->Draw(m_backgroundTexture.Get(), m_backgroundPos);
+
+	m_spriteBatch->End();
+
+	m_spriteBatch->Begin();
+
+	string timeString = "  Time: " + getMinutes() + ":" + getSeconds();
+	wstring wText = wstring(timeString.begin(), timeString.end());
+
+	m_spriteFont->DrawString(
+		m_spriteBatch.get(), wText.c_str(), float2(25.0f, STANDARD_HEIGHT - 100.0f));
+	drawTargetTime();
+
+	for (size_t i = 0; i < m_sprites.size(); i++) {
+		wText = to_wstring(m_inventory[m_sprites[i].fruitType]);
+		m_spriteFont->DrawString(m_spriteBatch.get(), wText.c_str(),
 			m_sprites[i].screenPos + float2(75.0f, 0.0f),
 			m_fruitTextColors[m_sprites[i].fruitType]);
 	}
 
 	m_spriteBatch->End();
 
-	m_textRenderer.draw("  Time: " + getMinutes() + ":" + getSeconds(),
-		Vector2((float)STANDARD_WIDTH - 500.0f, 50.0f), float4(1.0f, 1.0f, 1.0f, 1.0f));
-	drawTargetTime();
+	setDepthStateToNull();
 }
