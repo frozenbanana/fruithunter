@@ -1,6 +1,6 @@
 # Blender v2.81 (sub 16) OBJ File: 'apple and animating.blend'
 # www.blender.org
-mtllib Apple_000001.mtl
+mtllib Apple.mtl
 o Bouncing_apple.001_Cylinder.005
 v -0.044507 0.287041 0.043240
 v 0.015073 0.770631 0.452672

@@ -19,6 +19,12 @@ protected:
 	float3 m_destinationAnimationPosition;
 	float3 m_nextDestinationAnimationPosition;
 	// -------------------
+	// Face
+	vector<vector<Material>> m_materials;
+	vector<string> m_materialNames;
+	int m_currentFace;
+	// -------------------
+
 	float3 m_worldHome;
 	int m_fruitType;
 

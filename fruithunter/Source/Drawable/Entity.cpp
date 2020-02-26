@@ -215,6 +215,16 @@ bool Entity::loadAnimated(string filename, int nrOfFrames) {
 	return m_meshAnim.load(filename, nrOfFrames);
 }
 
+void Entity::setMaterial(int index) {
+	// Asumes normal mesh won't change materials
+	m_meshAnim.setMaterials(index);
+}
+
+void Entity::loadMaterials(std::vector<string> fileNames, int nrOfMaterials) {
+	// Asumes normal mesh won't change materials
+	m_meshAnim.loadMaterials(fileNames, nrOfMaterials);
+}
+
 bool Entity::checkCollision(Entity& other) {
 	return m_collisionData.collide(other.m_collisionData);
 }
