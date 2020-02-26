@@ -1,7 +1,17 @@
 #include "AudioHandler.h"
 #include "ErrorLogger.h"
-
 AudioHandler AudioHandler::m_this;
+
+
+float map(float low, float high, float newLow, float newHigh, float value) {
+	float oldCoefficient = (value / (low + (high - low)));
+	float newRange = (newHigh - newLow) + newLow;
+	return oldCoefficient * newRange;
+}
+
+bool AudioHandler::isPlaying(AudioHandler::Sounds sound) {
+	return m_soundEffects[sound]->IsInUse();
+}
 
 void AudioHandler::initalize() {
 	// Needed to be able to load textures and possibly other things.
@@ -13,10 +23,23 @@ void AudioHandler::initalize() {
 
 	// Can add flags to parameters
 	m_this.m_audioEngine = std::make_unique<DirectX::AudioEngine>();
+	// One time sound effects
+	m_this.m_soundEffects[LIGHT_ARROW] = std::make_unique<DirectX::SoundEffect>(
+		m_audioEngine.get(), L"assets/sounds/light-arrow-release.wav");
+	m_this.m_soundEffects[HEAVY_ARROW] = std::make_unique<DirectX::SoundEffect>(
+		m_audioEngine.get(), L"assets/sounds/heavy-arrow-release.wav");
+	m_this.m_soundEffects[STRETCH_BOW] = std::make_unique<DirectX::SoundEffect>(
+		m_audioEngine.get(), L"assets/sounds/stretch-bow.wav");
+	m_this.m_soundEffects[HIT_WOOD] =
+		std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), L"assets/sounds/hit-wood.wav");
+	m_this.m_soundEffects[HIT_FRUIT] = std::make_unique<DirectX::SoundEffect>(
+		m_audioEngine.get(), L"assets/sounds/fruit-impact-wet.wav");
+	m_this.m_soundEffects[COLLECT] = std::make_unique<DirectX::SoundEffect>(
+		m_audioEngine.get(), L"assets/sounds/collected-item.wav");
 
-	// One time sound effects;
-	m_this.m_soundEffects[0] =
-		std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), L"assets/sounds/lala.wav");
+	// Some effect require instances for more control
+	m_this.m_soundEffectsInstance[STRETCH_BOW] =
+		m_this.m_soundEffects[STRETCH_BOW]->CreateInstance();
 
 	// Ambient sounds
 	m_this.m_ambientMenu =
@@ -42,9 +65,32 @@ void AudioHandler::startPlayAmbient() {
 	m_this.m_ambientPlaySound->Play(true);
 }
 
+void AudioHandler::pauseInstance(AudioHandler::Sounds sound) {
+	m_soundEffectsInstance[sound]->Stop(true); // Play one time
+}
 
-void AudioHandler::playOneTime(AudioHandler::Sounds sound) {
+void AudioHandler::playOnce(AudioHandler::Sounds sound) {
 	m_soundEffects[sound]->Play(); // Play one time
+}
+
+void AudioHandler::playInstance(AudioHandler::Sounds sound) {
+	if (m_soundEffectsInstance[sound]->GetState() != SoundState::PLAYING) {
+		m_soundEffectsInstance[sound]->Play();
+	}
+}
+void AudioHandler::playInstance(AudioHandler::Sounds sound, float coefficient) {
+	if (m_soundEffectsInstance[sound]->GetState() != SoundState::PLAYING && coefficient < 0.99f) {
+		m_soundEffectsInstance[sound]->Play();
+	}
+}
+
+void AudioHandler::playOnceByDistance(
+	AudioHandler::Sounds sound, float3 listnerPosition, float3 soundPosition) {
+	float distance = (listnerPosition - soundPosition).Length();
+	float volume = 1.f - map(0.f, m_maxHearingDistance, 0.f, 1.f, distance);
+	// Tweak to volume change more realistic
+	volume *= volume;
+	m_soundEffects[sound]->Play(volume, 0.f, 0.f);
 }
 
 void AudioHandler::logStats() {

@@ -1,5 +1,6 @@
 #include "LevelHandler.h"
 #include "TerrainManager.h"
+#include "AudioHandler.h"
 #include "mutex"
 
 std::mutex mu;
@@ -78,17 +79,49 @@ void LevelHandler::initialiseLevel0() {
 	m_levelsArr.push_back(level0);
 }
 
+void LevelHandler::placeBridge(float3 pos, float3 rot, float3 scale) {
+	// Place floor / planks
+	shared_ptr<Entity> newEntity = make_shared<Entity>();
+	newEntity->load("RopeBridgeFloor");
+	newEntity->setCollisionDataOBB();
+	newEntity->setScale(scale);
+	newEntity->setPosition(pos);
+	newEntity->rotate(rot);
+	m_collidableEntities.push_back(newEntity);
+
+	// place railings
+
+	newEntity = make_shared<Entity>();
+	newEntity->load("RopeBridgeRailing1");
+	newEntity->setCollisionDataOBB();
+	newEntity->setScale(scale);
+	newEntity->setPosition(pos);
+	newEntity->rotate(rot);
+	m_collidableEntities.push_back(newEntity);
+
+	newEntity = make_shared<Entity>();
+	newEntity->load("RopeBridgeRailing2");
+	newEntity->setCollisionDataOBB();
+	newEntity->setScale(scale);
+	newEntity->setPosition(pos);
+	newEntity->rotate(rot);
+	m_collidableEntities.push_back(newEntity);
+}
+
+void LevelHandler::placeAllBridges() {
+	placeBridge(float3(103.2f, 3.1f, 39.f), float3(0.f, -0.1f, -0.07f), float3(1.9f, 1.f, 1.4f));
+	placeBridge(float3(35.f, 3.2f, 99.f), float3(0.f, 1.7f, 0.13f), float3(1.6f, 1.f, 1.4f));
+	placeBridge(float3(98.f, 8.2f, 152.f), float3(0.f, -0.1f, -0.13f), float3(1.8f, 1.f, 1.4f));
+}
 
 LevelHandler::LevelHandler() { initialise(); }
 
 LevelHandler::~LevelHandler() {}
 
-
 void LevelHandler::initialise() {
 
 	m_player.initialize();
 	m_terrainManager = TerrainManager::getInstance();
-
 
 	m_terrainProps.addPlaceableEntity("treeMedium1");
 	m_terrainProps.addPlaceableEntity("treeMedium2");
@@ -157,12 +190,9 @@ void LevelHandler::loadLevel(int levelNr) {
 		newEntity->setCollisionDataOBB();
 		m_collidableEntities.push_back(newEntity);
 
-		// FOR SPRINT DEMO
-		newEntity = make_shared<Entity>();
-		newEntity->load("Smelter");
-		newEntity->setScale(1.f);
-		newEntity->setPosition(currentLevel.m_playerStartPos + float3(1.f, height, 6.f));
-		newEntity->setCollisionDataOBB();
+
+
+		placeAllBridges();
 
 		// m_entity.load("Sphere"); // castray debug don't delete
 		// m_entity.setScale(0.1f);
@@ -216,6 +246,11 @@ void LevelHandler::update(float dt) {
 		if (m_player.isShooting()) {
 			if (m_player.getArrow().checkCollision(*m_fruits[i])) {
 				m_fruits[i]->hit();
+				AudioHandler::getInstance()->playOnceByDistance(
+					AudioHandler::HIT_FRUIT, m_player.getPosition(), m_fruits[i]->getPosition());
+
+				m_player.getArrow().setPosition(
+					float3(-100.f)); // temporary to disable arrow until returning
 				ErrorLogger::log("Hit a fruit");
 			}
 		}
@@ -223,6 +258,7 @@ void LevelHandler::update(float dt) {
 			if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() <
 				1.0f) { // If the fruit is close to the player get picked up
 				pickUpFruit(m_fruits[i].get()->getFruitType());
+				AudioHandler::getInstance()->playOnce(AudioHandler::COLLECT);
 				m_fruits.erase(m_fruits.begin() + i);
 			}
 		}
@@ -250,29 +286,29 @@ void LevelHandler::dropFruit() {
 	Input* ip = Input::getInstance();
 
 	if (ip->keyPressed(Keyboard::D1)) {
-		if (m_inventory[APPLE] >= 0) {
+		if (m_inventory[APPLE] > 0) {
 			shared_ptr<Apple> apple = make_shared<Apple>(m_player.getPosition());
 			apple->release(m_player.getForward());
 			m_fruits.push_back(apple);
-			// m_inventory[APPLE]--;
+			m_inventory[APPLE]--;
 		}
 	}
 	if (ip->keyPressed(Keyboard::D2)) {
-		if (m_inventory[BANANA] >= 0) {
+		if (m_inventory[BANANA] > 0) {
 			shared_ptr<Banana> banana = make_shared<Banana>(float3(m_player.getPosition()));
 			banana->release(m_player.getForward());
 			m_fruits.push_back(banana);
-			// m_inventory[BANANA]--;
+			m_inventory[BANANA]--;
 		}
 	}
 	if (ip->keyPressed(Keyboard::D3)) {
-		if (m_inventory[MELON] >= 0) {
+		if (m_inventory[MELON] > 0) {
 			shared_ptr<Melon> melon =
 				make_shared<Melon>(float3(m_player.getPosition() + m_player.getForward() * 3.0f));
 			melon->release(m_player.getForward());
 
 			m_fruits.push_back(melon);
-			// m_inventory[MELON]--;
+			m_inventory[MELON]--;
 		}
 	}
 }

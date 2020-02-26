@@ -49,9 +49,9 @@ public:
 	void setRotationMatrix(float4x4 matrix);
 	void setRotationByAxis(float3 axis, float angle);
 	void rotateByAxis(float3 axis, float angle);
-	//order ZXY
+	// order ZXY
 	void setRotation(float3 rotation);
-	//order ZXY
+	// order ZXY
 	void rotate(float3 rotation);
 	void rotateX(float val);
 	void rotateY(float val);
@@ -84,6 +84,7 @@ public:
 	float3 getHalfSizes() const;
 	float3 getBoundingBoxPos() const;
 	int getCollisionType() const;
+	float3 getPointOnOBB(float3 point) const;
 
 	Entity(string meshName = "", float3 position = float3(0, 0, 0), float3 scale = float3(1, 1, 1));
 	~Entity();
