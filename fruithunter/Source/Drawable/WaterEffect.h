@@ -84,7 +84,7 @@ private:
 	XMINT2 getResourceSize(ID3D11ShaderResourceView* view);
 
 public:
-	enum SeaEffectTypes { effect_water, effect_lava };
+	enum SeaEffectTypes { water, lava };
 
 	float4x4 getModelMatrix();
 
