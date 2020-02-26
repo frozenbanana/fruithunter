@@ -2,11 +2,13 @@
 #include "Entity.h"
 #include "AI.h"
 #include "TerrainManager.h"
+#include <thread>
 
 class Fruit : public Entity, public AI {
 protected:
 	// Phyics based movment
 	float3 m_directionalVelocity;
+	float m_speed = 0.0f;
 	float3 m_acceleration = float3(0.0f, -400.0f, 0.0f);
 
 	// -------------------
@@ -20,8 +22,8 @@ protected:
 	float3 m_nextDestinationAnimationPosition;
 	// -------------------
 	float3 m_worldHome;
+	size_t m_nrOfTriesGoHome = 0;
 	int m_fruitType;
-
 	float m_startRotation; // start and end to interpolate between.
 	float m_endRotation;
 	void setAnimationDestination();
@@ -31,12 +33,13 @@ protected:
 	void behaviorReleased() override;
 	void behaviorInactive(float3 playerPosition) override;
 
+	void setDirection();
+
 
 public:
 	void release(float3 direction);
 	void move(float dt);
 	void update(float dt, float3 playerPosition, vector<shared_ptr<Entity>> collidables);
-	void handleAvailablePath();
 	virtual void updateAnimated(float dt) = 0;
 	void jump(float3 direction, float power);
 	void setStartPosition(float3 pos);

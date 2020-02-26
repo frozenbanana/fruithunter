@@ -37,10 +37,12 @@ void VariableSyncer::FileSyncer::readFile() {
 								break;
 							}
 						}
-						if (!found)
-							ErrorLogger::logWarning(
+						if (!found) {
+
+						/*	ErrorLogger::logWarning(
 								HRESULT(), "(VariableSyncer) At file: " + m_path +
 											   "\nVariable name (" + varNameStr + ") not found");
+						*/}
 					}
 					else {
 						// corrupt line
@@ -61,8 +63,8 @@ void VariableSyncer::FileSyncer::readFile() {
 			onLoad();
 		}
 		else {
-			ErrorLogger::logWarning(
-				HRESULT(), "(VariableSyncer) Failed at opening file: " + m_path);
+			/*ErrorLogger::logWarning(
+				HRESULT(), "(VariableSyncer) Failed at opening file: " + m_path);*/
 		}
 	}
 	else {

@@ -1,6 +1,9 @@
 #include "LevelHandler.h"
 #include "TerrainManager.h"
 #include "AudioHandler.h"
+#include "mutex"
+
+std::mutex mu;
 
 void LevelHandler::initialiseLevel0() {
 	Level level0;
@@ -225,7 +228,6 @@ void LevelHandler::draw() {
 }
 
 void LevelHandler::update(float dt) {
-
 	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
 	m_skyBox.updateDelta(dt);

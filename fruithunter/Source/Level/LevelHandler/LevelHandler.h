@@ -63,6 +63,10 @@ private:
 	void placeBridge(float3 pos, float3 rot, float3 scale);
 	void placeAllBridges();
 
+
+	// thread for pathfinding,
+
+
 public:
 	LevelHandler();
 	~LevelHandler();
