@@ -243,7 +243,7 @@ void WaterEffect::initilize(SeaEffectTypes type,XMINT2 tiles, XMINT2 gridSize, f
 
 	WaterShaderProperties properties;
 	switch (type) {
-	case WaterEffect::effect_water:
+	case WaterEffect::water:
 		properties.distortionStrength = 0.01f;
 		properties.whiteDepthDifferenceThreshold = 0.1f;
 		properties.timeSpeed = 0.05f;
@@ -256,7 +256,7 @@ void WaterEffect::initilize(SeaEffectTypes type,XMINT2 tiles, XMINT2 gridSize, f
 		properties.tideHeightScaling = float2(0.3f, 1.f);
 		properties.tideHeightStrength = 2.f;
 		break;
-	case WaterEffect::effect_lava:
+	case WaterEffect::lava:
 		properties.distortionStrength = 0.03f;
 		properties.whiteDepthDifferenceThreshold = 0.1f;
 		properties.timeSpeed = 0.02f;
