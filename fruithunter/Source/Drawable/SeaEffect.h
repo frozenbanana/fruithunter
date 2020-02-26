@@ -7,7 +7,7 @@
 #define CONSTANTBUFFER_PROPERTIES_SLOT 3
 #define CONSTANTBUFFER_MAPSSIZES_SLOT 4
 
-class WaterEffect {
+class SeaEffect {
 private:
 	float3 m_position;
 	float3 m_scale;
@@ -97,6 +97,6 @@ public:
 
 	void initilize(SeaEffectTypes type, XMINT2 tiles, XMINT2 gridSize = XMINT2(1,1), float3 position = float3(0,0,0), float3 scale = float3(1,1,1), float3 rotation = float3(0,0,0));
 
-	WaterEffect();
-	~WaterEffect();
+	SeaEffect();
+	~SeaEffect();
 };

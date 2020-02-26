@@ -177,7 +177,7 @@
     <ClCompile Include="Source\Drawable\Mesh\Terrain\Terrain.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Terrain\TerrainManager.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Text\TextRenderer.cpp" />
-    <ClCompile Include="Source\Drawable\WaterEffect.cpp" />
+    <ClCompile Include="Source\Drawable\SeaEffect.cpp" />
     <ClCompile Include="Source\Graphics\Renderer.cpp" />
     <ClCompile Include="Source\Graphics\ShaderSet.cpp" />
     <ClCompile Include="Source\Level\LevelHandler\LevelHandler.cpp" />
@@ -214,7 +214,7 @@
     <ClInclude Include="Source\Drawable\Mesh\Terrain\Terrain.h" />
     <ClInclude Include="Source\Drawable\Mesh\Terrain\TerrainManager.h" />
     <ClInclude Include="Source\Drawable\Mesh\Text\TextRenderer.h" />
-    <ClInclude Include="Source\Drawable\WaterEffect.h" />
+    <ClInclude Include="Source\Drawable\SeaEffect.h" />
     <ClInclude Include="Source\Graphics\Renderer.h" />
     <ClInclude Include="Source\Graphics\ShaderSet.h" />
     <ClInclude Include="Source\Header\GlobalNamespaces.h" />
@@ -258,7 +258,7 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="Source\Graphics\Shaders\PixelShader_WaterEffect.hlsl">
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_seaEffect.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
@@ -280,7 +280,7 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
     </FxCompile>
-    <FxCompile Include="Source\Graphics\Shaders\VertexShader_WaterEffect.hlsl">
+    <FxCompile Include="Source\Graphics\Shaders\VertexShader_seaEffect.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>

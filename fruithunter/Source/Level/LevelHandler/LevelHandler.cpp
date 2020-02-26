@@ -96,9 +96,9 @@ void LevelHandler::initialise() {
 
 	initialiseLevel0();
 
-	waterEffect.initilize(WaterEffect::SeaEffectTypes::water, XMINT2(400, 400), XMINT2(1, 1),
+	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(400, 400), XMINT2(1, 1),
 		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
-	lavaEffect.initilize(WaterEffect::SeaEffectTypes::lava, XMINT2(100, 100), XMINT2(1, 1),
+	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(100, 100), XMINT2(1, 1),
 		float3(100.f, 2.f, 100.f), float3(100.f, 2.f, 100.f));
 }
 
