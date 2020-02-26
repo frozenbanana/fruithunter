@@ -23,7 +23,7 @@ struct Level {
 	std::vector<float3> m_heightMapScales;
 	std::vector<std::vector<string>> m_heightmapTextures;
 
-	//terrain props
+	// terrain props
 	string m_terrainPropsFilename;
 
 	// Fruits
@@ -53,8 +53,10 @@ private:
 	Level::TerrainTags m_currentTerrain = Level::TerrainTags::Forest;
 	Level::TerrainTags m_oldTerrain = Level::TerrainTags::Forest;
 
-	//Creating data for levels.
+	// Creating data for levels.
 	void initialiseLevel0();
+	void placeBridge(float3 pos, float3 rot, float3 scale);
+	void placeAllBridges();
 
 public:
 	LevelHandler();
