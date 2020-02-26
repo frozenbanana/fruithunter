@@ -72,14 +72,15 @@ void AudioHandler::pauseAllMusic() {
 	}
 }
 
-void AudioHandler::doTransition(float timeStart, AudioHandler::Music newMusic) {
+// This is causing the game to freeze, should make music transition smooth.
+void AudioHandler::doTransition(AudioHandler::Music newMusic) {
+	m_this.m_musicInstances[newMusic]->Play(true);
+	m_timer.reset();
 	float coefficient;
-	float timePassed = 0.0f - timeStart;
 	float timeLimit = 3.0f;
-	while (timePassed < timeLimit) {
+	while (m_timer.getTimePassed() < timeLimit) {
 		m_timer.update();
-		timePassed = m_timer.getTimePassed() - timeStart;
-		coefficient = timePassed / timeLimit;
+		coefficient = m_timer.getTimePassed() / timeLimit;
 		m_this.m_musicInstances[m_currentMusic]->SetVolume(1.f - coefficient);
 		m_this.m_musicInstances[newMusic]->SetVolume(coefficient);
 	}
@@ -89,8 +90,10 @@ void AudioHandler::doTransition(float timeStart, AudioHandler::Music newMusic) {
 
 void AudioHandler::changeMusicTo(AudioHandler::Music newMusic, float dt) {
 	if (newMusic != m_currentMusic) {
-		ErrorLogger::log("Time to change music!, current: " + to_string(m_currentMusic) +
-						 ", news: " + to_string(newMusic));
+		/*thread td([this, newMusic] { this->AudioHandler::doTransition(newMusic); });
+		td.detach();*/
+
+		// Simple transition
 		m_this.m_musicInstances[m_currentMusic]->Pause();
 		m_this.m_musicInstances[newMusic]->Play(true);
 		m_currentMusic = newMusic;

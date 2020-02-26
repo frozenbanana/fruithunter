@@ -26,7 +26,7 @@ public:
 	void initalize();
 	void playMusic(Music music);
 	void pauseAllMusic();
-	void doTransition(float timeStart, AudioHandler::Music music);
+	void doTransition(AudioHandler::Music music);
 	void changeMusicTo(AudioHandler::Music music, float dt);
 	void pauseInstance(AudioHandler::Sounds sound);
 	void playOnce(AudioHandler::Sounds sound);
