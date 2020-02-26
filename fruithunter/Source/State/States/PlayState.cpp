@@ -17,7 +17,7 @@ void PlayState::handleEvent() { return; }
 
 void PlayState::pause() {
 	ErrorLogger::log(m_name + " pause() called.");
-	AudioHandler::pauseAmbient();
+	AudioHandler::getInstance()->pauseAllMusic();
 }
 
 void PlayState::draw() {
@@ -30,7 +30,6 @@ void PlayState::draw() {
 
 void PlayState::play() {
 	Input::getInstance()->setMouseModeRelative();
-	// AudioHandler::startPlayAmbient();
 	ErrorLogger::log(m_name + " play() called.");
 	m_levelHandler.loadLevel(0);
 }
