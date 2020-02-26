@@ -16,6 +16,7 @@ string HUD::getMinutes() {
 }
 
 string HUD::getSeconds() {
+	// Float to string with 2 decimals
 	stringstream tempStream;
 	tempStream << std::fixed << setprecision(2) << m_secondsPassed;
 	string seconds = tempStream.str();
@@ -24,6 +25,7 @@ string HUD::getSeconds() {
 }
 
 void HUD::drawTargetTime() {
+	// Get time passed in seconds
 	float timePassed = m_minutesPassed * 60.0f + m_secondsPassed;
 
 	int goldTarget = m_timeTargets[GOLD];
@@ -64,6 +66,7 @@ void HUD::setDepthStateToNull() {
 }
 
 HUD::HUD() {
+	// Text font
 	m_spriteFont = std::make_unique<DirectX::SpriteFont>(
 		Renderer::getDevice(), L"assets/fonts/myfile.spritefont");
 
@@ -72,6 +75,7 @@ HUD::HUD() {
 		return;
 	}
 
+	// Text colors for fruit inventory
 	m_fruitTextColors[APPLE] = { 1.f, 0.f, 0.f, 1.f };
 	m_fruitTextColors[BANANA] = { 0.9f, 0.7f, 0.2f, 1.f };
 	m_fruitTextColors[MELON] = { 0.4f, 0.7f, 0.3f, 1.f };
@@ -86,11 +90,6 @@ HUD::HUD() {
 
 	if (t)
 		ErrorLogger::logError(t, "Failed to create sprite texture");
-
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> tex;
-	resource.As(&tex);
-	CD3D11_TEXTURE2D_DESC texDesc;
-	tex->GetDesc(&texDesc);
 
 	m_backgroundPos = float2(15.0f, STANDARD_HEIGHT - 150.0f);
 }
@@ -125,6 +124,7 @@ void HUD::createFruitSprite(string fruitName) {
 	else if (fruitName == "melon")
 		sprite.fruitType = MELON;
 
+	// Set all sprites to the same size with equal spacing
 	sprite.scale = 75.0f / (float)texDesc.Height;
 	sprite.screenPos.x = 25.0f;
 	sprite.screenPos.y = 25.0f + 100.0f * m_sprites.size();
@@ -147,11 +147,13 @@ void HUD::update(float dt) { m_secondsPassed += dt; }
 void HUD::draw() {
 	m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
 
+	// Draw fruit icons
 	for (size_t i = 0; i < m_sprites.size(); i++) {
 		m_spriteBatch->Draw(m_sprites[i].texture.Get(), m_sprites[i].screenPos, nullptr,
 			Colors::White, 0.f, float2(0.0f, 0.0f), m_sprites[i].scale);
 	}
 
+	// Draw text background
 	m_spriteBatch->Draw(m_backgroundTexture.Get(), m_backgroundPos);
 
 	m_spriteBatch->End();
@@ -161,10 +163,12 @@ void HUD::draw() {
 	string timeString = "  Time: " + getMinutes() + ":" + getSeconds();
 	wstring wText = wstring(timeString.begin(), timeString.end());
 
+	// Draw time and target time
 	m_spriteFont->DrawString(
 		m_spriteBatch.get(), wText.c_str(), float2(25.0f, STANDARD_HEIGHT - 100.0f));
 	drawTargetTime();
 
+	// Draw inventory numbers
 	for (size_t i = 0; i < m_sprites.size(); i++) {
 		wText = to_wstring(m_inventory[m_sprites[i].fruitType]);
 		m_spriteFont->DrawString(m_spriteBatch.get(), wText.c_str(),
@@ -174,5 +178,6 @@ void HUD::draw() {
 
 	m_spriteBatch->End();
 
+	// Reset depth state
 	setDepthStateToNull();
 }
