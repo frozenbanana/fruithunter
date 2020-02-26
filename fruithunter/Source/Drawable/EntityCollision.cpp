@@ -15,8 +15,6 @@ void vecToArray(float arr[], float3 vec) {
 	arr[2] = vec.z;
 }
 
-
-
 bool EntityCollision::collisionOBBOBB(ObbData& a, ObbData& b) {
 	// "Borrowed" from ch 4.4.1 "real-time collision detecton" - Christer Ericson
 
@@ -204,18 +202,24 @@ bool EntityCollision::collide(EntityCollision& other) {
 }
 
 void EntityCollision::setCollisionPosition(float3 pos) {
-	if (m_collisionData->m_origin != pos)
+	if (m_collisionData->m_origin != pos) {
+		float3 diff = pos - m_collisionData->m_origin;
+		m_collisionData->m_point += diff;
 		m_collisionData->m_origin = pos;
+	}
 }
 
 void EntityCollision::setCollisionScale(float3 scale) {
-	if (m_collisionData->m_scale != scale)
+	if (m_collisionData->m_scale != scale) {
+		float3 scaleFactor = scale / m_collisionData->m_scale;
+		float3 diffPos = m_collisionData->m_point - m_collisionData->m_origin;
+
+		m_collisionData->m_point = m_collisionData->m_origin + diffPos * scaleFactor;
 		m_collisionData->m_scale = scale;
+	}
 }
 
 int EntityCollision::getCollisionType() const { return m_collisionType; }
-
-
 
 // Returns point on OBB that is closest to a point
 float3 EntityCollision::ObbData::closestPtPointOBB(float3 point) const {
