@@ -23,6 +23,14 @@ void Timer::update() {
 
 float Timer::getTimePassed() { return m_totalTime; }
 
+void Timer::reset() {
+	m_timer = clock();
+	m_startTime = (float)m_timer;
+	m_totalTime = 0.f;
+	m_elapsedTime = 0.f;
+}
+
+
 float Timer::getDt() { return m_elapsedTime; }
 
 std::string Timer::getTimeToString() { return std::to_string(m_totalTime); }

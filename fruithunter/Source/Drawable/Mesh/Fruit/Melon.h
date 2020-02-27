@@ -13,9 +13,10 @@ private:
 	void roll(float dt);
 	float m_rollSpeed;
 
+
 public:
 	Melon(float3 pos = float3(0.f, 0.f, 0.f));
 	void updateAnimated(float dt);
 	void setRollSpeed(float rollSpeed);
-	void circulateAround(float3 playerPosition);
+	float3 circulateAround(float3 playerPosition);
 };

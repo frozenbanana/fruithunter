@@ -3,8 +3,8 @@
 #include "TerrainManager.h"
 #include "Player.h"
 #include <list>
-#define ARRIVAL_RADIUS 1.0f
-
+#define ARRIVAL_RADIUS 3.0f
+#define MAX_STEAPNESS .2f
 
 
 class AI {
@@ -43,7 +43,8 @@ public:
 	State getState() const;
 
 protected:
-	float m_passiveRadius, m_activationRadius;
+	float m_passiveRadius, m_activeRadius;
+	bool m_lookingForPath = false;
 	State m_currentState;
 	std::shared_ptr<Terrain> m_terrain;
 	std::list<float3> m_availablePath;
@@ -57,4 +58,12 @@ protected:
 	void doBehavior(float3 playerPosition, vector<shared_ptr<Entity>> collidables);
 	void quickSort(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, int high);
 	int partition(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, int high);
+
+	void handleAvailablePath(float3 myPosition);
+
+	bool isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entity>> collidables);
+
+private:
+	bool beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>>& openList,
+		std::vector<shared_ptr<AI::Node>>& closedList);
 };

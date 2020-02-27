@@ -48,7 +48,7 @@ private:
 		0.6f; // value of dot product when flat terrain goes to steep terrain
 	const float ONGROUND_THRESHOLD =
 		0.025f; // extra height over terrain until player is not grounded
-
+	string testmebaby = "Yeeeee";
 
 	float3 m_position;
 	float3 m_velocity;

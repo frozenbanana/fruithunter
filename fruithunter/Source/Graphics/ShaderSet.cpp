@@ -49,7 +49,7 @@ HRESULT ShaderSet::createGeometryShader(LPCWSTR filename) {
 	ID3DBlob* errorBlob = nullptr;
 
 	HRESULT result = D3DCompileFromFile(
-		filename, nullptr, nullptr, "GS_main", "gs_5_0", D3DCOMPILE_DEBUG, 0, &pGS, &errorBlob);
+		filename, nullptr, nullptr, "main", "gs_5_0", D3DCOMPILE_DEBUG, 0, &pGS, &errorBlob);
 
 	if (FAILED(result)) {
 		// compilation failed
