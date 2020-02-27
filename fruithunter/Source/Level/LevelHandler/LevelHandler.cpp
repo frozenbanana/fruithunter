@@ -214,6 +214,7 @@ void LevelHandler::loadLevel(int levelNr) {
 }
 
 void LevelHandler::draw() {
+	m_player.draw(); // draw after water/lava effect, bow will affect the depth buffer
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->draw_animate();
 	}
@@ -224,15 +225,14 @@ void LevelHandler::draw() {
 	}
 	m_entity.draw();
 	m_terrainProps.draw();
-	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
+
 
 
 	// water/lava effect
 	Renderer::getInstance()->copyDepthToSRV();
 	waterEffect.draw();
 	lavaEffect.draw();
-
-	m_player.draw(); // draw after water/lava effect, bow will affect the depth buffer
+	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 
 	m_hud.draw();
 }

@@ -62,7 +62,7 @@ float calcShadowFactor(Texture2D shadowMap, float4 shadowPosH) {
 	//shadowPosH.xyz /= shadowPosH.w; //Not needed for orthographic
 
 	// Depth in NDC
-	float depth = shadowPosH.z - 0.005f;
+	float depth = shadowPosH.z - 0.001f;
 
 	// Texel size
 	const float dx = SMAP_DX;
