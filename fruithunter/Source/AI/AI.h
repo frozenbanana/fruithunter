@@ -7,6 +7,8 @@
 #define ARRIVAL_RADIUS 3.0f
 #define MAX_STEAPNESS .2f
 
+// int runningThreads = 0;
+
 
 class AI {
 public:
@@ -46,6 +48,7 @@ public:
 protected:
 	float m_passiveRadius, m_activeRadius;
 	mutex m_mutex;
+
 	bool m_isBusy = false;
 	State m_currentState;
 	std::shared_ptr<Terrain> m_terrain;

@@ -63,7 +63,7 @@ void Apple::behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> col
 	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
 		m_directionalVelocity = playerPosition - m_position; // run to player
 		m_directionalVelocity.Normalize();
-		m_directionalVelocity *= 6.0f;
+		m_speed = 5.0f;
 	}
 	lookTo(playerPosition);
 }

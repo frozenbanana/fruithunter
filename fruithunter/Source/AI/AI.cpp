@@ -98,8 +98,8 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 	// ErrorLogger::log("thread starting for pathfinding");
 	if (!m_isBusy) {
 		thread t([this, start, end, collidables] {
-			m_isBusy = true;
 			m_mutex.lock();
+			m_isBusy = true;
 			m_availablePath.clear();
 			m_mutex.unlock();
 
@@ -145,9 +145,9 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 						m_availablePath.pop_back(); // remove first position because it is the same
 													// as startCopy.
 					}
+					m_isBusy = false;
 					m_mutex.unlock();
 
-					m_isBusy = false;
 					// ErrorLogger::log(
 					//	"thread successfully closed. Path found. Steps: " + to_string(counter));
 					return;
@@ -181,6 +181,7 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 				m_availablePath.push_back(currentNode->position);
 				currentNode = currentNode->parent;
 			}
+			m_isBusy = false;
 			m_mutex.unlock();
 		});
 		t.detach();
@@ -188,7 +189,9 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 }
 
 void AI::changeState(State newState) {
+	m_mutex.lock();
 	m_availablePath.clear();
+	m_mutex.unlock();
 	m_currentState = newState;
 }
 
