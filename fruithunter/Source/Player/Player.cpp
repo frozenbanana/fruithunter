@@ -239,7 +239,7 @@ void Player::draw() {
 }
 
 void Player::collideObject(Entity& obj) {
-	//ErrorLogger::log("Inside player collideObject");
+	// ErrorLogger::log("Inside player collideObject");
 	// Check
 	float radius = 0.2f;
 	float stepHeight = 0.45f; // height able to simply step over
@@ -286,6 +286,8 @@ float3 Player::getCameraPosition() const { return m_camera.getPosition(); }
 float3 Player::getForward() const { return m_playerForward; }
 
 float3 Player::getVelocity() const { return m_velocity; }
+
+float Player::getStamina() const { return m_stamina; }
 
 bool Player::isShooting() const { return m_bow.isShooting(); }
 

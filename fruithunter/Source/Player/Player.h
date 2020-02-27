@@ -22,6 +22,7 @@ public:
 	float3 getForward() const;
 	float3 getVelocity() const;
 	Entity& getArrow() { return m_bow.getArrow(); };
+	float getStamina() const;
 	bool isShooting() const;
 	void setPosition(float3 position);
 	void standsOnObject();

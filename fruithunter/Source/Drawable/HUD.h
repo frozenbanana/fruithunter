@@ -21,15 +21,22 @@ private:
 	vector<Sprite> m_sprites;
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_backgroundTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_staminaTexture;
 
 	float2 m_backgroundPos;
+	float2 m_staminaPos;
 	float2 m_timerPos;
 	XMVECTORF32 m_fruitTextColors[NR_OF_FRUITS];
 
+	float m_stamina = 1.0f;
 	float m_secondsPassed = 0.0f;
 	int m_minutesPassed = 0;
+	bool m_victory = false;
+
 	int m_timeTargets[NR_OF_TIME_TARGETS];
 	int m_inventory[NR_OF_FRUITS];
+	int m_winCondition[NR_OF_FRUITS];
+
 
 	string getMinutes();
 	string getSeconds();
@@ -42,8 +49,9 @@ public:
 
 	void createFruitSprite(string fruitName);
 	void setTimeTargets(int targets[]);
+	void setWinCondition(int winCons[]);
 	void addFruit(int fruitType);
 	void removeFruit(int fruitType);
-	void update(float dt);
+	void update(float dt, float playerStamina);
 	void draw();
 };

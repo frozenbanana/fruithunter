@@ -38,6 +38,7 @@ struct Level {
 	// Level utility info
 	int m_winCondition[NR_OF_FRUITS];
 	int m_timeTargets[NR_OF_TIME_TARGETS];
+	float m_windStrength;
 };
 
 class LevelHandler {

@@ -72,6 +72,10 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_nrOfFruits[BANANA] = 1;
 	level0.m_nrOfFruits[MELON] = 5;
 
+	level0.m_winCondition[APPLE] = 1;
+	level0.m_winCondition[BANANA] = 1;
+	level0.m_winCondition[MELON] = 2;
+
 	level0.m_playerStartPos = float3(20.f, 0.0f, 20.f);
 
 	level0.m_timeTargets[GOLD] = 20;
@@ -79,7 +83,6 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_timeTargets[BRONZE] = 80;
 
 	m_levelsArr.push_back(level0);
-	m_hud.setTimeTargets(level0.m_timeTargets);
 }
 
 void LevelHandler::placeBridge(float3 pos, float3 rot, float3 scale) {
@@ -200,6 +203,9 @@ void LevelHandler::loadLevel(int levelNr) {
 
 		placeAllBridges();
 
+		m_hud.setTimeTargets(currentLevel.m_timeTargets);
+		m_hud.setWinCondition(currentLevel.m_winCondition);
+
 		if (currentLevel.m_nrOfFruits[APPLE] != 0)
 			m_hud.createFruitSprite("apple");
 		if (currentLevel.m_nrOfFruits[BANANA] != 0)
@@ -315,7 +321,7 @@ void LevelHandler::update(float dt) {
 	//	}
 	//}
 
-	m_hud.update(dt);
+	m_hud.update(dt, m_player.getStamina());
 	waterEffect.update(dt);
 	lavaEffect.update(dt);
 }
