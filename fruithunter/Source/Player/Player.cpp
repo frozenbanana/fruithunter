@@ -206,7 +206,7 @@ void Player::rotatePlayer(float dt) {
 		deltaY = (float)ip->mouseY();
 	}
 
-	float rotationSpeed = 0.6f * dt;
+	float rotationSpeed = m_aimZoom * 0.6f * dt;
 
 	if (deltaX != 0.0f) {
 		m_cameraYaw += deltaX * rotationSpeed;

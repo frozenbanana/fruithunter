@@ -68,10 +68,10 @@ void LevelHandler::initialiseLevel0() {
 	maps[3] = "texture_rock6.jpg";
 	level0.m_heightmapTextures.push_back(maps);
 
-	level0.m_wind.push_back(float3(0.f, 10.f, 0.f));
-	level0.m_wind.push_back(float3(10.f, 0.f, 10.f));
-	level0.m_wind.push_back(float3(20.f, 0.f, 0.f));
-	level0.m_wind.push_back(float3(0.f, 0.f, 40.f));
+	level0.m_wind.push_back(float3(0.f, 10.f, 0.f));  // Volcano
+	level0.m_wind.push_back(float3(10.f, 0.f, 10.f)); // Forest
+	level0.m_wind.push_back(float3(20.f, 0.f, 0.f));  // Desert
+	level0.m_wind.push_back(float3(0.f, 0.f, 40.f));  // Plains
 
 
 	level0.m_nrOfFruits[APPLE] = 2;
