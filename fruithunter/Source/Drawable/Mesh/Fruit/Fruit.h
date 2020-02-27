@@ -22,7 +22,6 @@ protected:
 	// Face
 	vector<vector<Material>> m_materials;
 	vector<string> m_materialNames;
-	int m_currentFace;
 	// -------------------
 
 	float3 m_worldHome;
@@ -55,7 +54,7 @@ public:
 
 	void hit() {
 		changeState(CAUGHT);
-		m_currentFace = 2;
+		m_currentMaterial = 2;
 	}
 
 	int getFruitType();

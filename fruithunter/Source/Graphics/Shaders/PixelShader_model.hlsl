@@ -42,7 +42,7 @@ float4 main(PS_IN ip) : SV_TARGET {
 	// base color
 	float3 pixelBaseColor =
 		mapUsages.y ? (textures[1].Sample(samplerAni, ip.TexCoord)).rgb : (diffuse3_strength.rgb);
-	if ((textures[1].Sample(samplerAni, ip.TexCoord)).a == 0)
+	if (mapUsages.y && (textures[1].Sample(samplerAni, ip.TexCoord)).a == 0)
 		return float4(0, 0, 0, 0);
 	// return textures[1].Sample(samplerAni, ip.TexCoord);
 	// diffuse

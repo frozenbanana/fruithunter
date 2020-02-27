@@ -191,6 +191,7 @@ void Entity::draw_boundingBox() {
 
 void Entity::draw_animate() {
 	bindModelMatrixBuffer();
+	setMaterial(m_currentMaterial);
 	m_meshAnim.draw();
 }
 
@@ -304,6 +305,7 @@ Entity::Entity(string filename, float3 position, float3 scale) {
 	m_position = position;
 	m_scale = scale;
 	createBuffers();
+	m_currentMaterial = 0;
 }
 
 Entity::~Entity() {}

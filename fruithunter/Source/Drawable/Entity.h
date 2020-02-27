@@ -32,7 +32,7 @@ private:
 protected:
 	float3 m_position;
 	Animated m_meshAnim;
-
+	int m_currentMaterial;
 	bool atOrUnder(float terrainHeight) const;
 
 
