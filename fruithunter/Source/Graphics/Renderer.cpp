@@ -57,6 +57,9 @@ void Renderer::clearDepth() {
 
 void Renderer::bindEverything() { bindBackAndDepthBuffer(); }
 
+void Renderer::bindDepthSRV(int slot) {
+	m_deviceContext->PSSetShaderResources(slot, 1, m_depthSRV.GetAddressOf());
+}
 void Renderer::enableAlphaBlending() {
 	float blendFactor[4] = { 0 };
 	m_deviceContext->OMSetBlendState(m_blendStateAlphaBlending.Get(), blendFactor, 0xffffffff);
@@ -67,6 +70,22 @@ void Renderer::disableAlphaBlending() {
 	m_deviceContext->OMSetBlendState(
 		m_blendStateWithoutAlphaBlending.Get(), blendFactor, 0xffffffff);
 }
+
+void Renderer::bindConstantBuffer_ScreenSize(int slot) { 
+	XMINT4 data = XMINT4(STANDARD_WIDTH, STANDARD_HEIGHT, 0, 0);
+	m_deviceContext->UpdateSubresource(m_screenSizeBuffer.Get(), 0, 0, &data, 0, 0);
+	m_deviceContext->PSSetConstantBuffers(slot, 1, m_screenSizeBuffer.GetAddressOf());
+}
+
+void Renderer::copyDepthToSRV() {
+	ID3D11Resource *dst, *src;
+	m_depthSRV.Get()->GetResource(&dst);
+	m_depthDSV.Get()->GetResource(&src);
+	m_deviceContext->CopyResource(dst, src);
+}
+
+
+
 
 
 Renderer::Renderer(int width, int height) {
@@ -89,6 +108,7 @@ Renderer::Renderer(int width, int height) {
 		r->m_swapChain.Get() == nullptr) {
 		r->createDevice(m_handle);
 		r->createRenderTarget();
+		r->createConstantBuffers();
 		r->m_isLoaded = true;
 	}
 }
@@ -183,6 +203,7 @@ void Renderer::createRenderTarget() {
 }
 
 void Renderer::createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd) {
+	//texture 2d
 	D3D11_TEXTURE2D_DESC DeStDesc;
 	DeStDesc.Width = STANDARD_WIDTH;
 	DeStDesc.Height = STANDARD_HEIGHT;
@@ -196,6 +217,10 @@ void Renderer::createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd) {
 	DeStDesc.SampleDesc = scd.SampleDesc; // same as swapChain
 	ID3D11Texture2D* tex = 0;
 	HRESULT res = m_device->CreateTexture2D(&DeStDesc, 0, &tex);
+	if (FAILED(res))
+		ErrorLogger::logError(res, "(Renderer) Failed creating depth 2D texture!");
+
+	//depth stencil
 	D3D11_DEPTH_STENCIL_VIEW_DESC viewDesc;
 	ZeroMemory(&viewDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
 	viewDesc.Format = DXGI_FORMAT_D32_FLOAT;
@@ -203,8 +228,35 @@ void Renderer::createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd) {
 	viewDesc.Flags = 0;
 	viewDesc.Texture2D.MipSlice = 0;
 	HRESULT hr2 = m_device->CreateDepthStencilView(tex, &viewDesc, m_depthDSV.GetAddressOf());
+	if (FAILED(hr2))
+		ErrorLogger::logError(hr2, "(Renderer) Failed creating depth stencil view!");
 
 	tex->Release();
+
+	//	DEPTH COPY
+
+			// texture 2d copy
+	ID3D11Texture2D* texCopy = 0;
+	D3D11_TEXTURE2D_DESC CopyDeStDesc = DeStDesc;
+	DeStDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	res = m_device->CreateTexture2D(&CopyDeStDesc, 0, &texCopy);
+	if (FAILED(res))
+		ErrorLogger::logError(res, "(Renderer) Failed creating depth 2D texture copy!");
+
+	//depth shader resource
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	srvDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT;//D32_FLOAT = INVALID, R32_FLOAT = SUCCESS
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	HRESULT srvHR =
+		m_device->CreateShaderResourceView(texCopy, &srvDesc, m_depthSRV.GetAddressOf());
+	if (FAILED(srvHR))
+		ErrorLogger::logError(srvHR,"(Renderer) Failed creating depthSRV!");
+
+	texCopy->Release();
+	
 }
 
 void Renderer::createDepthState() {
@@ -229,6 +281,22 @@ void Renderer::createDepthState() {
 
 	HRESULT hr = m_device->CreateDepthStencilState(&DeStState, m_depthDSS.GetAddressOf());
 	m_deviceContext->OMSetDepthStencilState(m_depthDSS.Get(), 1);
+}
+
+void Renderer::createConstantBuffers() {
+	// screen size Buffer
+	if (m_screenSizeBuffer.Get() == nullptr) {
+		D3D11_BUFFER_DESC desc;
+		memset(&desc, 0, sizeof(desc));
+		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.ByteWidth = sizeof(XMINT4);
+
+		HRESULT res =
+			Renderer::getDevice()->CreateBuffer(&desc, nullptr, m_screenSizeBuffer.GetAddressOf());
+		if (FAILED(res))
+			ErrorLogger::logError(res, "Failed creating screen size buffer in Renderer class!\n");
+	}
 }
 
 void Renderer::createBlendState() {

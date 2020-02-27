@@ -14,7 +14,10 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 	setScale(2.f);
 	m_currentState = PASSIVE;
 	m_worldHome = m_position;
-	setCollisionDataSphere();
+	setCollisionDataOBB();
+
+	m_activeRadius = 5.f;
+	m_passiveRadius = 0.f;
 }
 
 void Banana::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
@@ -36,7 +39,7 @@ void Banana::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> c
 		}
 		jump(direction, 4.0f);
 
-		if (withinDistanceTo(playerPosition, m_activationRadius)) {
+		if (withinDistanceTo(playerPosition, m_activeRadius)) {
 			changeState(ACTIVE);
 		}
 	}

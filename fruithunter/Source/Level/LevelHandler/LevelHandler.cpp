@@ -2,6 +2,7 @@
 #include "TerrainManager.h"
 #include "AudioHandler.h"
 
+
 void LevelHandler::initialiseLevel0() {
 	Level level0;
 
@@ -68,12 +69,17 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_heightmapTextures.push_back(maps);
 
 	level0.m_nrOfFruits[APPLE] = 2;
-	level0.m_nrOfFruits[BANANA] = 0;
+	level0.m_nrOfFruits[BANANA] = 1;
 	level0.m_nrOfFruits[MELON] = 5;
 
-	level0.m_playerStartPos = float3(50.f, 0.0f, 150.f);
+	level0.m_playerStartPos = float3(20.f, 0.0f, 20.f);
+
+	level0.m_timeTargets[GOLD] = 20;
+	level0.m_timeTargets[SILVER] = 35;
+	level0.m_timeTargets[BRONZE] = 80;
 
 	m_levelsArr.push_back(level0);
+	m_hud.setTimeTargets(level0.m_timeTargets);
 }
 
 void LevelHandler::placeBridge(float3 pos, float3 rot, float3 scale) {
@@ -131,6 +137,11 @@ void LevelHandler::initialise() {
 	m_terrainProps.addPlaceableEntity("Block");
 
 	initialiseLevel0();
+
+	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(400, 400), XMINT2(1, 1),
+		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
+	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(100, 100), XMINT2(1, 1),
+		float3(100.f, 2.f, 100.f), float3(100.f, 2.f, 100.f));
 }
 
 void LevelHandler::loadLevel(int levelNr) {
@@ -187,9 +198,14 @@ void LevelHandler::loadLevel(int levelNr) {
 		newEntity->setCollisionDataOBB();
 		m_collidableEntities.push_back(newEntity);
 
-
-
 		placeAllBridges();
+
+		if (currentLevel.m_nrOfFruits[APPLE] != 0)
+			m_hud.createFruitSprite("apple");
+		if (currentLevel.m_nrOfFruits[BANANA] != 0)
+			m_hud.createFruitSprite("banana");
+		if (currentLevel.m_nrOfFruits[MELON] != 0)
+			m_hud.createFruitSprite("melon");
 
 		// m_entity.load("Sphere"); // castray debug don't delete
 		// m_entity.setScale(0.1f);
@@ -198,7 +214,6 @@ void LevelHandler::loadLevel(int levelNr) {
 }
 
 void LevelHandler::draw() {
-	m_player.draw();
 	Renderer::getInstance()->enableAlphaBlending();
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->draw_animate();
@@ -212,10 +227,19 @@ void LevelHandler::draw() {
 	m_entity.draw();
 	m_terrainProps.draw();
 	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
+
+
+	// water/lava effect
+	Renderer::getInstance()->copyDepthToSRV();
+	waterEffect.draw();
+	lavaEffect.draw();
+
+	m_player.draw(); // draw after water/lava effect, bow will affect the depth buffer
+
+	m_hud.draw();
 }
 
 void LevelHandler::update(float dt) {
-
 	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
 	m_skyBox.updateDelta(dt);
@@ -292,39 +316,47 @@ void LevelHandler::update(float dt) {
 	//		m_entity.setPosition(m_player.getCameraPosition() + t * m_player.getForward() * 0.9);
 	//	}
 	//}
+
+	m_hud.update(dt);
+	waterEffect.update(dt);
+	lavaEffect.update(dt);
 }
 
-void LevelHandler::pickUpFruit(int fruitType) { m_inventory[fruitType]++; }
+void LevelHandler::pickUpFruit(int fruitType) {
+	m_inventory[fruitType]++;
+	m_hud.addFruit(fruitType);
+}
 
 void LevelHandler::dropFruit() {
 	Input* ip = Input::getInstance();
 
 	if (ip->keyPressed(Keyboard::D1)) {
-		// if (m_inventory[APPLE] > 0) {
-		shared_ptr<Apple> apple =
-			make_shared<Apple>(float3(m_player.getPosition() + m_player.getForward() * 3.0f));
-		apple->release(m_player.getForward());
-		m_fruits.push_back(apple);
-		m_inventory[APPLE]--;
-		//}
+		if (m_inventory[APPLE] >= 0) {
+			shared_ptr<Apple> apple = make_shared<Apple>(m_player.getPosition());
+			apple->release(m_player.getForward());
+			m_fruits.push_back(apple);
+			// m_inventory[APPLE]--;
+			m_hud.removeFruit(APPLE);
+		}
 	}
 	if (ip->keyPressed(Keyboard::D2)) {
-		// if (m_inventory[BANANA] > 0) {
-		shared_ptr<Banana> banana =
-			make_shared<Banana>(float3(m_player.getPosition() + m_player.getForward() * 3.0f));
-		banana->release(m_player.getForward());
-		m_fruits.push_back(banana);
-		m_inventory[BANANA]--;
-		//}
+		if (m_inventory[BANANA] >= 0) {
+			shared_ptr<Banana> banana = make_shared<Banana>(float3(m_player.getPosition()));
+			banana->release(m_player.getForward());
+			m_fruits.push_back(banana);
+			// m_inventory[BANANA]--;
+			m_hud.removeFruit(BANANA);
+		}
 	}
 	if (ip->keyPressed(Keyboard::D3)) {
-		// if (m_inventory[MELON] > 0) {
-		shared_ptr<Melon> melon =
-			make_shared<Melon>(float3(m_player.getPosition() + m_player.getForward() * 3.0f));
-		melon->release(m_player.getForward());
+		if (m_inventory[MELON] >= 0) {
+			shared_ptr<Melon> melon =
+				make_shared<Melon>(float3(m_player.getPosition() + m_player.getForward() * 3.0f));
+			melon->release(m_player.getForward());
 
-		m_fruits.push_back(melon);
-		m_inventory[MELON]--;
-		//}
+			m_fruits.push_back(melon);
+			// m_inventory[MELON]--;
+			m_hud.removeFruit(MELON);
+		}
 	}
 }

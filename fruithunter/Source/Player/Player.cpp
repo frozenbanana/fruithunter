@@ -239,6 +239,7 @@ void Player::draw() {
 }
 
 void Player::collideObject(Entity& obj) {
+	//ErrorLogger::log("Inside player collideObject");
 	// Check
 	float radius = 0.2f;
 	float stepHeight = 0.45f; // height able to simply step over
