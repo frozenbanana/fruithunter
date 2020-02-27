@@ -10,7 +10,7 @@ public:
 	~Player();
 	void initialize();
 	void update(float dt, Terrain* terrain);
-	void updateBow(float dt);
+	void updateBow(float dt, float3 wind);
 	void updateCamera();
 	void updateCameraGod();
 	void rotatePlayer(float dt);

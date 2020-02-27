@@ -17,7 +17,8 @@ Bow::Bow() {
 
 Bow::~Bow() {}
 
-void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 playerRight) {
+void Bow::update(
+	float dt, float3 playerPos, float3 playerForward, float3 playerRight, float3 wind) {
 	// m_bow.setRotationByAxis(playerForward, BOW_ANGLE * m_aimMovement);
 
 	// Set bow position based on player position and direction.
@@ -58,9 +59,7 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 					AudioHandler::HIT_WOOD, m_bow.getPosition(), target);
 			}
 			else {
-				arrowPhysics(
-					dt, float3(10.f, 0.f,
-							0.f)); // Updates arrow in flight, wind is currently hard coded.
+				arrowPhysics(dt, wind); // Updates arrow in flight, wind is no longer hard coded.
 				m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
 				m_arrow.setRotation(float3(m_arrowPitch, m_arrowYaw, 0));
 			}

@@ -68,6 +68,12 @@ void LevelHandler::initialiseLevel0() {
 	maps[3] = "texture_rock6.jpg";
 	level0.m_heightmapTextures.push_back(maps);
 
+	level0.m_wind.push_back(float3(0.f, 10.f, 0.f));
+	level0.m_wind.push_back(float3(10.f, 0.f, 10.f));
+	level0.m_wind.push_back(float3(20.f, 0.f, 0.f));
+	level0.m_wind.push_back(float3(0.f, 0.f, 40.f));
+
+
 	level0.m_nrOfFruits[APPLE] = 2;
 	level0.m_nrOfFruits[BANANA] = 1;
 	level0.m_nrOfFruits[MELON] = 5;
@@ -158,7 +164,7 @@ void LevelHandler::loadLevel(int levelNr) {
 			m_terrainManager->add(currentLevel.m_heightMapPos.at(i),
 				currentLevel.m_heightMapScales[i], currentLevel.m_heightMapNames.at(i),
 				currentLevel.m_heightmapTextures[i], currentLevel.m_heightMapSubSize.at(i),
-				currentLevel.m_heightMapDivision.at(i));
+				currentLevel.m_heightMapDivision.at(i), currentLevel.m_wind.at(i));
 		}
 
 		for (int i = 0; i < currentLevel.m_nrOfFruits[APPLE]; i++) {
