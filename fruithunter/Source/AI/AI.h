@@ -3,6 +3,7 @@
 #include "TerrainManager.h"
 #include "Player.h"
 #include <list>
+#include <mutex>
 #define ARRIVAL_RADIUS 3.0f
 #define MAX_STEAPNESS .2f
 
@@ -44,7 +45,8 @@ public:
 
 protected:
 	float m_passiveRadius, m_activeRadius;
-	bool m_lookingForPath = false;
+	mutex m_mutex;
+	bool m_isBusy = false;
 	State m_currentState;
 	std::shared_ptr<Terrain> m_terrain;
 	std::list<float3> m_availablePath;

@@ -25,7 +25,7 @@ void Apple::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> co
 	else {
 		if (!withinDistanceTo(m_worldHome, ARRIVAL_RADIUS) && atOrUnder(terrainHeight)) {
 			// Check if there is no other path on going
-			if (m_availablePath.empty() && !m_lookingForPath) {
+			if (m_availablePath.empty() && !m_isBusy) {
 				if (m_nrOfTriesGoHome++ < 10) {
 					pathfinding(m_position, m_worldHome, collidables); // go home
 				}
@@ -111,7 +111,7 @@ void Apple::updateAnimated(float dt) {
 
 void Apple::flee(float3 playerPos, vector<shared_ptr<Entity>> collidables) {
 	// Update fleeing path if ther is none
-	if (m_availablePath.empty() && !m_lookingForPath) {
+	if (m_availablePath.empty() && !m_isBusy) {
 		float3 runTo = m_position - playerPos;
 		runTo.Normalize();
 		runTo *= m_passiveRadius;

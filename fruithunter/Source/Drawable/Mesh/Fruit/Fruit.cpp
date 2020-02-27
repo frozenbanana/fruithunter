@@ -94,13 +94,14 @@ Fruit::Fruit(float3 pos) : Entity() {
 void Fruit::behaviorInactive(float3 playerPosition) { return; }
 
 void Fruit::setDirection() {
-
+	m_mutex.lock();
 	if (!m_availablePath.empty() &&
 		atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
 		m_directionalVelocity = m_availablePath.back() - m_position;
 		m_directionalVelocity.Normalize();
 		m_directionalVelocity *= m_speed;
 	}
+	m_mutex.unlock();
 }
 
 void Fruit::behaviorReleased() {

@@ -89,121 +89,102 @@ bool AI::isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entit
 	}
 
 	return true;
-
-
-	// previous check
-	// Check for too big height difference
-	// if (childPosition.y - currentNode->position.y > MAX_STEAPNESS) {
-	//	continue;
-	//}
-
-	//// check if collision with objects
-	// for (size_t i = 0; i < collidables.size(); ++i) {
-	//	float3 obstacle = collidables.at(i)->getPosition();
-	//	obstacle.y = 0.f;
-	//	childPosition.y = 0.f;
-	//	float lengthChildToCollidableSquared = (childPosition - obstacle).LengthSquared();
-	//	float collidableRadiusSquared = collidables.at(i)->getHalfSizes().LengthSquared();
-
-	//	if (lengthChildToCollidableSquared < collidableRadiusSquared) {
-	//		collidedWithSomething = true;
-	//		break;
-	//	}
-	//}
-
-
-	/*if (collidedWithSomething) {
-		collidedWithSomething = false;
-		continue;
-	}*/
 }
 
 
 void AI::setWorld(std::shared_ptr<Terrain> terrain) { m_terrain = terrain; }
 
 void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collidables) {
-	//ErrorLogger::log("thread starting for pathfinding");
+	// ErrorLogger::log("thread starting for pathfinding");
+	if (!m_isBusy) {
+		thread t([this, start, end, collidables] {
+			m_isBusy = true;
+			m_mutex.lock();
+			m_availablePath.clear();
+			m_mutex.unlock();
 
-	thread t([this, start, end, collidables] {
-		m_lookingForPath = true;
-		m_availablePath.clear();
-		TerrainManager* tm = TerrainManager::getInstance();
-		// enforce start and end to terrain
-		float3 startCopy = float3(start.x, tm->getHeightFromPosition(start), start.z);
-		float3 endCopy = float3(end.x, tm->getHeightFromPosition(end), end.z);
+			TerrainManager* tm = TerrainManager::getInstance();
+			// enforce start and end to terrain
+			float3 startCopy = float3(start.x, tm->getHeightFromPosition(start), start.z);
+			float3 endCopy = float3(end.x, tm->getHeightFromPosition(end), end.z);
+
+			shared_ptr<AI::Node> currentNode =
+				make_shared<AI::Node>(shared_ptr<AI::Node>(), startCopy, startCopy, endCopy);
+			bool collidedWithSomething = false;
+			size_t counter = 0;
+			std::vector<shared_ptr<AI::Node>> open;
+			std::vector<shared_ptr<AI::Node>> closed;
+			std::list<float3> childPositionOffsets = { float3(-1.f, 0.f, -1.f),
+				float3(0.f, 0.f, -1.f), float3(1.f, 0.f, -1.f), float3(-1.f, 0.f, 0.f),
+				float3(1.f, 0.f, 0.f), float3(-1.f, 0.f, 1.f), float3(0.f, 0.f, 1.f),
+				float3(1.f, 0.f, 1.f) };
 
 
-		shared_ptr<AI::Node> currentNode =
-			make_shared<AI::Node>(shared_ptr<AI::Node>(), startCopy, startCopy, endCopy);
-		bool collidedWithSomething = false;
-		size_t counter = 0;
-		std::vector<shared_ptr<AI::Node>> open;
-		std::vector<shared_ptr<AI::Node>> closed;
-		std::list<float3> childPositionOffsets = { float3(-1.f, 0.f, -1.f), float3(0.f, 0.f, -1.f),
-			float3(1.f, 0.f, -1.f), float3(-1.f, 0.f, 0.f), float3(1.f, 0.f, 0.f),
-			float3(-1.f, 0.f, 1.f), float3(0.f, 0.f, 1.f), float3(1.f, 0.f, 1.f) };
+			open.push_back(currentNode);
+			while (!open.empty() && counter++ < MAX_STEPS) {
+				quickSort(open, 0, (int)open.size() - 1);
+				closed.push_back(open.back());
+				open.pop_back();
+
+				// Check to see if we're inside a certain radius of endCopy location
+				shared_ptr<AI::Node> currentNode = closed.back();
+
+				if ((currentNode->position - endCopy).LengthSquared() < ARRIVAL_RADIUS ||
+					counter == MAX_STEPS - 1) {
+					m_mutex.lock();
+					m_availablePath.clear(); // Reset path
+
+					// Add path steps
+					while (currentNode->parent != nullptr) {
+						m_availablePath.push_back(currentNode->position);
+						currentNode = currentNode->parent;
+					}
 
 
-		open.push_back(currentNode);
-		while (!open.empty() && counter++ < MAX_STEPS) {
-			quickSort(open, 0, (int)open.size() - 1);
-			closed.push_back(open.back());
-			open.pop_back();
+					if (m_availablePath.size() > 2) {
+						m_availablePath.pop_back(); // remove first position because it is the same
+													// as startCopy.
+					}
+					m_mutex.unlock();
 
-			// Check to see if we're inside a certain radius of endCopy location
-			shared_ptr<AI::Node> currentNode = closed.back();
-
-			if ((currentNode->position - endCopy).LengthSquared() < ARRIVAL_RADIUS ||
-				counter == MAX_STEPS - 1) {
-				m_availablePath.clear(); // Reset path
-
-				// Add path steps
-				while (currentNode->parent != nullptr) {
-					m_availablePath.push_back(currentNode->position);
-					currentNode = currentNode->parent;
+					m_isBusy = false;
+					// ErrorLogger::log(
+					//	"thread successfully closed. Path found. Steps: " + to_string(counter));
+					return;
 				}
 
+				for (auto childOffset : childPositionOffsets) {
 
-				if (m_availablePath.size() > 2) {
-					m_availablePath
-						.pop_back(); // remove first position because it is the same as startCopy.
+					// Create child AI::Node
+					float3 childPosition = currentNode->position + STEP_SCALE * childOffset;
+					childPosition.y = tm->getHeightFromPosition(childPosition);
+
+					shared_ptr<AI::Node> child =
+						make_shared<AI::Node>(currentNode, childPosition, startCopy, endCopy);
+
+
+					// Check if node is in open or closed.
+					if (!beingUsed(child, open, closed)) {
+						continue;
+					}
+
+					if (!isValid(child->position, currentNode->position, collidables)) {
+						continue;
+					}
+
+					// Add child to open
+					open.push_back(child);
 				}
-
-				m_lookingForPath = false;
-				//ErrorLogger::log(
-				//	"thread successfully closed. Path found. Steps: " + to_string(counter));
-				return;
 			}
-
-			for (auto childOffset : childPositionOffsets) {
-
-				// Create child AI::Node
-				float3 childPosition = currentNode->position + STEP_SCALE * childOffset;
-				childPosition.y = tm->getHeightFromPosition(childPosition);
-
-				shared_ptr<AI::Node> child =
-					make_shared<AI::Node>(currentNode, childPosition, startCopy, endCopy);
-
-
-				// Check if node is in open or closed.
-				if (!beingUsed(child, open, closed)) {
-					continue;
-				}
-
-				if (!isValid(child->position, currentNode->position, collidables)) {
-					continue;
-				}
-
-				// Add child to open
-				open.push_back(child);
+			m_mutex.lock();
+			while (currentNode->parent != nullptr) {
+				m_availablePath.push_back(currentNode->position);
+				currentNode = currentNode->parent;
 			}
-		}
-		while (currentNode->parent != nullptr) {
-			m_availablePath.push_back(currentNode->position);
-			currentNode = currentNode->parent;
-		}
-	});
-	t.detach();
+			m_mutex.unlock();
+		});
+		t.detach();
+	}
 }
 
 void AI::changeState(State newState) {
