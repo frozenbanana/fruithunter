@@ -17,7 +17,7 @@ void PlayState::handleEvent() { return; }
 
 void PlayState::pause() {
 	ErrorLogger::log(m_name + " pause() called.");
-	AudioHandler::pauseAmbient();
+	AudioHandler::getInstance()->pauseAllMusic();
 }
 
 void PlayState::draw() {
@@ -26,14 +26,12 @@ void PlayState::draw() {
 	// Text
 	float t = m_timer.getTimePassed();
 	Vector4 col = Vector4(.5f, abs(cos(t)), abs(sin(t)), 1.f);
-	m_textRenderer.draw("Time: " + std::to_string(t), Vector2(400., 75.), col);
 }
 
 void PlayState::drawShadow() { m_levelHandler.drawShadow(); }
 
 void PlayState::play() {
 	Input::getInstance()->setMouseModeRelative();
-	AudioHandler::startPlayAmbient();
 	ErrorLogger::log(m_name + " play() called.");
 	m_levelHandler.loadLevel(0);
 }

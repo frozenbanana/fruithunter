@@ -1,8 +1,10 @@
 Debug/
 Release/
+assets/FileSyncs/*
 x64/
 .vs/
 fruithunter/Debug/
 fruithunter/Release/
 fruithunter/x64/
 fruithunter/*.cso
+fruithunter/assets/FileSyncs/*

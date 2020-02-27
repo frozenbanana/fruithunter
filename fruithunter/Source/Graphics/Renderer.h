@@ -20,8 +20,14 @@ public:
 	void clearDepth();
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthDSV;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthDSS;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthSRV;
+
 
 	void bindEverything();
+	void bindDepthSRV(int slot);
+	void bindConstantBuffer_ScreenSize(int slot);
+
+	void copyDepthToSRV();
 
 	void setPlayerPos(float3);
 	float3 getPlayerPos();
@@ -33,6 +39,7 @@ private:
 	void createRenderTarget();
 	void createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd);
 	void createDepthState();
+	void createConstantBuffers();
 	static Renderer m_this;
 	bool m_isLoaded = false;
 
@@ -50,4 +57,6 @@ private:
 	//Shadow stuff
 	unique_ptr<ShadowMapper> m_shadowMap;
 	float3 m_playerPos;
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_screenSizeBuffer;
 };

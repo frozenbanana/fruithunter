@@ -10,9 +10,9 @@ void Entity::updateMatrix() {
 	m_matrixBufferData.matWorld = matWorld;
 	m_matrixBufferData.matInvTraWorld = matWorld.Invert().Transpose();
 
-	m_collisionData.rotateObbAxis(m_matRotation);
 	m_collisionData.setCollisionPosition(m_position);
 	m_collisionData.setCollisionScale(m_scale);
+	m_collisionData.rotateObbAxis(m_matRotation);
 	// reset matricies
 	// m_matRotation = XMMatrixIdentity();
 }
@@ -297,6 +297,10 @@ float3 Entity::getBoundingBoxPos() const {
 }
 
 int Entity::getCollisionType() const { return m_collisionData.getCollisionType(); }
+
+float3 Entity::getPointOnOBB(float3 point) const {
+	return m_collisionData.getClosestPointOnBox(point);
+}
 
 Entity::Entity(string filename, float3 position, float3 scale) {
 	load(filename);

@@ -1,9 +1,7 @@
 #include "Mesh.h"
 
-std::vector<Vertex> Mesh::m_boxVertices;
 ShaderSet Mesh::m_shaderObject;
 ShaderSet Mesh::m_shaderObject_onlyMesh;
-Microsoft::WRL::ComPtr<ID3D11Buffer> Mesh::m_vertexBuffer_BoundingBox;
 Microsoft::WRL::ComPtr<ID3D11Buffer> Mesh::m_colorBuffer;
 
 float Mesh::triangleTest(float3 rayDir, float3 rayOrigin, float3 tri0, float3 tri1, float3 tri2) {

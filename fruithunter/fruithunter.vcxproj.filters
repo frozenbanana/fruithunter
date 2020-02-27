@@ -28,6 +28,12 @@
     <FxCompile Include="Source\Graphics\Shaders\VertexShader_model_onlyMesh.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\VertexShader_seaEffect.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_seaEffect.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp">
@@ -127,6 +133,15 @@
       <Filter>Source\Level\levelHandler</Filter>
     </ClCompile>
     <ClCompile Include="Source\Drawable\EntityRepository.cpp">
+      <Filter>Source\Drawable</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\VariableSyncer\VariableSyncer.cpp">
+      <Filter>Source\Utility\VariableSyncer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Drawable\SeaEffect.cpp">
+      <Filter>Source\Drawable</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Drawable\HUD.cpp">
       <Filter>Source\Drawable</Filter>
     </ClCompile>
     <ClCompile Include="Source\Graphics\ShadowMapping\ShadowMapping.cpp">
@@ -236,6 +251,15 @@
     <ClInclude Include="Source\Drawable\EntityRepository.h">
       <Filter>Source\Drawable</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Utility\VariableSyncer\VariableSyncer.h">
+      <Filter>Source\Utility\VariableSyncer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\SeaEffect.h">
+      <Filter>Source\Drawable</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\HUD.h">
+      <Filter>Source\Drawable</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Graphics\ShadowMapping\ShadowMapping.h">
       <Filter>Source\Graphics\ShadowMapping</Filter>
     </ClInclude>
@@ -313,6 +337,9 @@
     </Filter>
     <Filter Include="Source\Utility\Repositories">
       <UniqueIdentifier>{0351c8e4-cfeb-4492-97c6-2514408dac40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Utility\VariableSyncer">
+      <UniqueIdentifier>{174b364d-8cc6-418f-b867-558c9903128a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Graphics\ShadowMapping">
       <UniqueIdentifier>{d6645390-c2fd-4363-96bb-d57d2ac12609}</UniqueIdentifier>
