@@ -70,7 +70,7 @@ void Melon::behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> col
 	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
 		m_directionalVelocity = playerPosition - m_position; // run to player
 		m_directionalVelocity.Normalize();
-		m_speed = 6.f;
+		m_speed *= 16.f;
 	}
 	lookTo(playerPosition);
 }

@@ -65,6 +65,7 @@ void Apple::behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> col
 		m_directionalVelocity.Normalize();
 		m_directionalVelocity *= 6.0f;
 	}
+	lookTo(playerPosition);
 }
 
 void Apple::updateAnimated(float dt) {
