@@ -199,6 +199,7 @@ void Entity::draw_boundingBox() {
 
 void Entity::draw_animate() {
 	bindModelMatrixBuffer();
+	setMaterial(m_currentMaterial);
 	m_meshAnim.draw();
 }
 
@@ -226,6 +227,16 @@ bool Entity::load(string filename) {
 
 bool Entity::loadAnimated(string filename, int nrOfFrames) {
 	return m_meshAnim.load(filename, nrOfFrames);
+}
+
+void Entity::setMaterial(int index) {
+	// Asumes normal mesh won't change materials
+	m_meshAnim.setMaterials(index);
+}
+
+void Entity::loadMaterials(std::vector<string> fileNames, int nrOfMaterials) {
+	// Asumes normal mesh won't change materials
+	m_meshAnim.loadMaterials(fileNames, nrOfMaterials);
 }
 
 bool Entity::checkCollision(Entity& other) {
@@ -307,6 +318,7 @@ Entity::Entity(string filename, float3 position, float3 scale) {
 	m_position = position;
 	m_scale = scale;
 	createBuffers();
+	m_currentMaterial = 0;
 }
 
 Entity::~Entity() {}

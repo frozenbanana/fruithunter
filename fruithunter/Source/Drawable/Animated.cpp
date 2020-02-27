@@ -163,6 +163,18 @@ bool Animated::load(std::string filename, int nrOfFrames, bool combineParts) {
 	return allClear;
 }
 
+void Animated::setMaterials(int index) {
+	for (size_t i = 0; i < m_nrOfMeshes; ++i) {
+		m_meshes[i]->setMaterialIndex(index);
+	}
+}
+
+void Animated::loadMaterials(std::vector<string> fileNames, int nrOfMaterials) {
+	for (size_t i = 0; i < m_nrOfMeshes; ++i) {
+		m_meshes[i]->loadOtherMaterials(fileNames, nrOfMaterials);
+	}
+}
+
 float3 Animated::getBoundingBoxHalfSizes() const { return m_meshes[0]->getBoundingBoxHalfSizes(); }
 
 float3 Animated::getBoundingBoxPos() const { return m_meshes[0]->getBoundingBoxPos(); }
