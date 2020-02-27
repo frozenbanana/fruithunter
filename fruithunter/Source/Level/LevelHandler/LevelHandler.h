@@ -48,6 +48,8 @@ private:
 	TerrainManager* m_terrainManager;
 	EntityRepository m_terrainProps;
 	SeaEffect waterEffect, lavaEffect;
+	vector<FrustumPlane> m_planes;
+	Entity m_sphere;
 	Entity m_entity;
 	SkyBox m_skyBox;
 	size_t m_inventory[NR_OF_FRUITS]; // APPLE 0, BANANA 1, MELON 2

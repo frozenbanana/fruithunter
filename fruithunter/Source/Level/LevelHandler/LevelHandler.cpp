@@ -33,15 +33,15 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_heightMapPos.push_back(float3(0.f, 0.f, 100.f));
 	level0.m_heightMapPos.push_back(float3(100.f, 0.f, 0.f));
 
-	level0.m_heightMapSubSize.push_back(XMINT2(250, 250));
-	level0.m_heightMapSubSize.push_back(XMINT2(250, 250));
-	level0.m_heightMapSubSize.push_back(XMINT2(250, 250));
-	level0.m_heightMapSubSize.push_back(XMINT2(250, 250));
+	level0.m_heightMapSubSize.push_back(XMINT2(25, 25));
+	level0.m_heightMapSubSize.push_back(XMINT2(25, 25));
+	level0.m_heightMapSubSize.push_back(XMINT2(25, 25));
+	level0.m_heightMapSubSize.push_back(XMINT2(25, 25));
 
-	level0.m_heightMapDivision.push_back(XMINT2(1, 1));
-	level0.m_heightMapDivision.push_back(XMINT2(1, 1));
-	level0.m_heightMapDivision.push_back(XMINT2(1, 1));
-	level0.m_heightMapDivision.push_back(XMINT2(1, 1));
+	level0.m_heightMapDivision.push_back(XMINT2(10,10));
+	level0.m_heightMapDivision.push_back(XMINT2(10,10));
+	level0.m_heightMapDivision.push_back(XMINT2(10,10));
+	level0.m_heightMapDivision.push_back(XMINT2(10,10));
 
 	level0.m_heightMapScales.push_back(float3(1.f, 0.20f, 1.f) * 100);
 	level0.m_heightMapScales.push_back(float3(1.f, 0.15f, 1.f) * 100);
@@ -140,10 +140,13 @@ void LevelHandler::initialise() {
 
 	initialiseLevel0();
 
-	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(400, 400), XMINT2(1, 1),
+	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(25, 25), XMINT2(16, 16),
 		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
-	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(100, 100), XMINT2(1, 1),
+	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(25, 25), XMINT2(4, 4),
 		float3(100.f, 2.f, 100.f), float3(100.f, 2.f, 100.f));
+
+	m_sphere.load("Sphere");
+	m_sphere.setScale(float3(1.f, 1, 1) * 0.025f);
 }
 
 void LevelHandler::loadLevel(int levelNr) {
@@ -219,7 +222,6 @@ void LevelHandler::draw() {
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->draw_animate();
 	}
-	m_terrainManager->draw();
 
 	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
 		m_collidableEntities[i]->draw();
@@ -228,11 +230,32 @@ void LevelHandler::draw() {
 	m_terrainProps.draw();
 	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 
+	for (size_t i = 0; i < m_planes.size(); i++) {
+		m_sphere.setPosition(m_planes[i].m_position);
+		m_sphere.setScale(float3(1, 1, 1) * 0.05);
+		m_sphere.draw_onlyMesh(float3(1, 0, 0));
+		m_sphere.setPosition(m_planes[i].m_position + m_planes[i].m_normal * 0.25);
+		m_sphere.setScale(float3(1, 1, 1) * 0.02);
+		m_sphere.draw_onlyMesh(float3(1, 0, 0));
+	}
 
-	// water/lava effect
-	Renderer::getInstance()->copyDepthToSRV();
-	waterEffect.draw();
-	lavaEffect.draw();
+	vector<FrustumPlane> frustum = m_player.getFrustumPlanes();
+	if (Input::getInstance()->keyDown(Keyboard::F)) {
+		//terrain
+		m_terrainManager->draw_frustumCulling(frustum);
+		// water/lava effect
+		Renderer::getInstance()->copyDepthToSRV();
+		waterEffect.draw_frustumCulling(frustum);
+		lavaEffect.draw_frustumCulling(frustum);
+	}
+	else {
+		//terrain
+		m_terrainManager->draw();
+		// water/lava effect
+		Renderer::getInstance()->copyDepthToSRV();
+		waterEffect.draw();
+		lavaEffect.draw();
+	}
 
 	m_player.draw(); // draw after water/lava effect, bow will affect the depth buffer
 
@@ -316,6 +339,10 @@ void LevelHandler::update(float dt) {
 	//		m_entity.setPosition(m_player.getCameraPosition() + t * m_player.getForward() * 0.9);
 	//	}
 	//}
+
+	if (Input::getInstance()->keyPressed(Keyboard::L)) {
+		m_planes = m_player.getFrustumPlanes();
+	}
 
 	m_hud.update(dt);
 	waterEffect.update(dt);

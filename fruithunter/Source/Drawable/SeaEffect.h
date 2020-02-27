@@ -76,12 +76,15 @@ private:
 	void createBuffers();
 
 	void updateMatrix();
+
 	void bindConstantBuffers();
 	void bindWorldMatrix();
 
 	std::wstring s2ws(const std::string& s);
 	bool createResourceBuffer(string filename, ID3D11ShaderResourceView** buffer);
 	XMINT2 getResourceSize(ID3D11ShaderResourceView* view);
+
+	bool boxInsideFrustum(float3 boxPos, float3 boxSize, float4x4 worldMatrix, const vector<FrustumPlane>& planes);
 
 public:
 	enum SeaEffectTypes { water, lava };
@@ -94,6 +97,7 @@ public:
 
 	void update(float dt);
 	void draw();
+	void draw_frustumCulling(const vector<FrustumPlane>& planes);
 
 	void initilize(SeaEffectTypes type, XMINT2 tiles, XMINT2 gridSize = XMINT2(1,1), float3 position = float3(0,0,0), float3 scale = float3(1,1,1), float3 rotation = float3(0,0,0));
 

@@ -29,10 +29,10 @@ private:
 	float3 m_position = float3(0,0,0);
 	float3 m_rotation = float3(0,0,0);
 	float3 m_scale = float3(1, 0.25, 1) * 100;
-	bool m_modelMatrixChanged = true;
+	bool m_worldMatrixPropertiesChanged = true;
 	struct ModelBuffer {
 		float4x4 mWorld, mWorldInvTra;
-	};
+	} m_worldMatrix;
 
 	// heightmap
 	D3D11_TEXTURE2D_DESC m_heightmapDescription;
@@ -77,6 +77,7 @@ private:
 	void createBuffers();
 
 	// model matrix
+	void updateModelMatrix();
 	float4x4 getModelMatrix();
 	void bindModelMatrix();
 
@@ -100,7 +101,7 @@ private:
 		return (val < min ? min : val > max ? max : val);
 	}
 
-	bool pointInfrontOrBehindPlane(float3 point, float3 planePoint, float3 planeNormal);
+	bool boxInsideFrustum(float3 boxPos, float3 boxSize, const vector<FrustumPlane>& planes);
 
 public:
 	// Spawn point
@@ -125,7 +126,7 @@ public:
 	float castRay(float3 point, float3 direction);
 
 	void draw();
-	void draw_frustumCulling(float3 point, vector<float3> planes);
+	bool draw_frustumCulling(const vector<FrustumPlane>& planes);
 
 	Terrain(string filename = "", vector<string> textures = vector<string>(), XMINT2 subsize = XMINT2(0, 0),
 		XMINT2 splits = XMINT2(1, 1));

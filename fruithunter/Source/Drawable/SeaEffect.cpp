@@ -182,7 +182,56 @@ XMINT2 SeaEffect::getResourceSize(ID3D11ShaderResourceView* view) {
 	return XMINT2(desc.Width,desc.Height);
 }
 
+bool SeaEffect::boxInsideFrustum(
+	float3 boxPos, float3 boxSize, float4x4 worldMatrix, const vector<FrustumPlane>& planes) {
+	
+	float4x4 mWorld = worldMatrix;
+	// normalized box points
+	float3 boxPoints[8] = { float3(0, 0, 0), float3(1, 0, 0), float3(1, 0, 1), float3(0, 0, 1),
+		float3(0, 1, 0), float3(1, 1, 0), float3(1, 1, 1), float3(0, 1, 1) };
+	// transform points to world space
+	for (size_t i = 0; i < 8; i++) {
+		boxPoints[i] =
+			float3::Transform(boxPos + float3(boxPoints[i].x * boxSize.x,
+										   boxPoints[i].y * boxSize.y, boxPoints[i].z * boxSize.z),
+				mWorld);
+	}
+	// for each plane
+	for (size_t plane_i = 0; plane_i < planes.size(); plane_i++) {
+		// find diagonal points
+		float3 boxDiagonalPoint1, boxDiagonalPoint2;
+		float largestDot = -1;
+		for (size_t j = 0; j < 4; j++) {
+			float3 p1 = boxPoints[j];
+			float3 p2 = boxPoints[4 + (j + 2) % 4];
+			float3 pn = p1 - p2;
+			pn.Normalize();
+			float dot = abs(pn.Dot(planes[plane_i].m_normal));
+			if (dot > largestDot) {
+				largestDot = dot;
+				boxDiagonalPoint1 = p1;
+				boxDiagonalPoint2 = p2;
+			}
+		}
+		// compare points
+		float min = (boxDiagonalPoint1 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
+		float max = (boxDiagonalPoint2 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
+		if (min > max) {
+			// switch
+			float temp = max;
+			max = min;
+			min = temp;
+		}
+		if (min > 0) {
+			// outside
+			return false;
+		}
+	}
+	return true;
+}
+
 float4x4 SeaEffect::getModelMatrix() { 
+	updateMatrix();
 	return m_worldMatrix.mWorld;
 }
 
@@ -234,6 +283,48 @@ void SeaEffect::draw() {
 			m_grids[xx][yy].bind();
 			//draw
 			Renderer::getDeviceContext()->Draw((UINT)m_grids[xx][yy].getVerticeCount(), 0);
+		}
+	}
+}
+
+void SeaEffect::draw_frustumCulling(const vector<FrustumPlane>& planes) {
+	float4x4 matrix = getModelMatrix();
+	if (boxInsideFrustum(float3(0, 0, 0), float3(1.f, 1.f, 1.f), matrix, planes)) {
+
+		ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+
+		// bind shaders
+		m_shader.bindShadersAndLayout();
+
+		// bind world matrix
+		bindWorldMatrix();
+
+		// bind depth buffer
+		// Renderer::getInstance()->copyDepthToSRV(); // dont do this here if multiple waterEffects
+		// are drawn
+		Renderer::getInstance()->bindDepthSRV(7);
+
+		// bind screen size
+		Renderer::getInstance()->bindConstantBuffer_ScreenSize(5);
+
+		// bind constant buffers
+		bindConstantBuffers();
+
+		// bind maps
+		Renderer::getDeviceContext()->VSSetShaderResources(0, 1, m_waterHeightMap.GetAddressOf());
+		Renderer::getDeviceContext()->VSSetShaderResources(1, 1, m_dudvMap.GetAddressOf());
+		Renderer::getDeviceContext()->PSSetShaderResources(1, 1, m_dudvMap.GetAddressOf());
+
+		float3 size(1.f / (float)m_grids.size(), 1.f, 1.f / (float)m_grids[0].size());
+		for (size_t xx = 0; xx < m_grids.size(); xx++) {
+			for (size_t yy = 0; yy < m_grids[xx].size(); yy++) {
+				if (boxInsideFrustum(float3(size.x * (float)xx, size.y, size.z * (float)yy), size, matrix, planes)) {
+					// bind vertex buffer
+					m_grids[xx][yy].bind();
+					// draw
+					Renderer::getDeviceContext()->Draw((UINT)m_grids[xx][yy].getVerticeCount(), 0);
+				}
+			}
 		}
 	}
 }

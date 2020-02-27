@@ -48,25 +48,32 @@ void Terrain::createBuffers() {
 	}
 }
 
+void Terrain::updateModelMatrix() {
+	if (m_worldMatrixPropertiesChanged) {
+		m_worldMatrixPropertiesChanged = false;
+		float4x4 transform = float4x4::CreateTranslation(m_position);
+		float4x4 rotation = float4x4::CreateRotationY(m_rotation.y);
+		float4x4 scale = float4x4::CreateScale(m_scale);
+		m_worldMatrix.mWorld = scale * rotation * transform;
+		m_worldMatrix.mWorldInvTra = m_worldMatrix.mWorld.Invert().Transpose();
+	}
+}
+
 float4x4 Terrain::getModelMatrix() {
-	float4x4 transform = float4x4::CreateTranslation(m_position);
-	float4x4 rotation = float4x4::CreateRotationY(m_rotation.y);
-	float4x4 scale = float4x4::CreateScale(m_scale);
-	return scale * rotation * transform;
+	updateModelMatrix();
+	return m_worldMatrix.mWorld;
 }
 
 void Terrain::bindModelMatrix() {
-	auto device = Renderer::getDevice();
-	auto deviceContext = Renderer::getDeviceContext();
-
-	float4x4 mWorld = getModelMatrix();
-	ModelBuffer matrix;
-	matrix.mWorld = mWorld.Transpose();
-	matrix.mWorldInvTra =
-		mWorld.Invert(); // double transposes does nothing, so the transposes are removed!
-	deviceContext->UpdateSubresource(m_matrixBuffer.Get(), 0, 0, &matrix, 0, 0);
-
-	deviceContext->VSSetConstantBuffers(MATRIX_BUFFER_SLOT, 1, m_matrixBuffer.GetAddressOf());
+	//update resource
+	updateModelMatrix();
+	ModelBuffer matrix = m_worldMatrix;
+	matrix.mWorld = matrix.mWorld.Transpose();
+	matrix.mWorldInvTra = matrix.mWorldInvTra.Transpose();
+	Renderer::getDeviceContext()->UpdateSubresource(m_matrixBuffer.Get(), 0, 0, &matrix, 0, 0);
+	//bind
+	Renderer::getDeviceContext()->VSSetConstantBuffers(
+		MATRIX_BUFFER_SLOT, 1, m_matrixBuffer.GetAddressOf());
 }
 
 bool Terrain::loadHeightmap(string filePath) {
@@ -344,8 +351,50 @@ void Terrain::tileRayIntersectionTest(
 	}
 }
 
-bool Terrain::pointInfrontOrBehindPlane(float3 point, float3 planePoint, float3 planeNormal) {
-	return (point - planePoint).Dot(planeNormal) > 0 ? true : false;
+bool Terrain::boxInsideFrustum(float3 boxPos, float3 boxSize, const vector<FrustumPlane>& planes) {
+	float4x4 mWorld = getModelMatrix();
+	// normalized box points
+	float3 boxPoints[8] = { float3(0, 0, 0), float3(1, 0, 0), float3(1, 0, 1), float3(0, 0, 1),
+		float3(0, 1, 0), float3(1, 1, 0), float3(1, 1, 1), float3(0, 1, 1) };
+	// transform points to world space
+	for (size_t i = 0; i < 8; i++) {
+		boxPoints[i] =
+			float3::Transform(boxPos + float3(boxPoints[i].x * boxSize.x,
+										   boxPoints[i].y * boxSize.y, boxPoints[i].z * boxSize.z),
+				mWorld);
+	}
+	// for each plane
+	for (size_t plane_i = 0; plane_i < planes.size(); plane_i++) {
+		// find diagonal points
+		float3 boxDiagonalPoint1, boxDiagonalPoint2;
+		float largestDot = -1;
+		for (size_t j = 0; j < 4; j++) {
+			float3 p1 = boxPoints[j];
+			float3 p2 = boxPoints[4 + (j + 2) % 4];
+			float3 pn = p1 - p2;
+			pn.Normalize();
+			float dot = abs(pn.Dot(planes[plane_i].m_normal));
+			if (dot > largestDot) {
+				largestDot = dot;
+				boxDiagonalPoint1 = p1;
+				boxDiagonalPoint2 = p2;
+			}
+		}
+		// compare points
+		float min = (boxDiagonalPoint1 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
+		float max = (boxDiagonalPoint2 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
+		if (min > max) {
+			// switch
+			float temp = max;
+			max = min;
+			min = temp;
+		}
+		if (min > 0) {
+			// outside
+			return false;
+		}
+	}
+	return true;
 }
 
 float3 Terrain::getRandomSpawnPoint() {
@@ -444,7 +493,7 @@ void Terrain::initilize(string filename, vector<string> textures, XMINT2 subsize
 }
 
 void Terrain::rotateY(float radian) {
-	m_modelMatrixChanged = true;
+	m_worldMatrixPropertiesChanged = true;
 	m_rotation.y += radian;
 }
 
@@ -658,46 +707,80 @@ void Terrain::draw() {
 	}
 }
 
-void Terrain::draw_frustumCulling(float3 point, vector<float3> planes) {
-	// CULL ENTIRE TERRAIN
-	float4x4 mWorld = getModelMatrix();
-	// normalized box points
-	float3 boxPoints[8] = { float3(0, 0, 0), float3(1, 0, 0), float3(1, 0, 1), float3(0, 0, 1),
+bool Terrain::draw_frustumCulling(const vector<FrustumPlane>& planes) {
+	if (m_mapsInitilized) {
+		if (boxInsideFrustum(float3(0, 0, 0), float3(1.f, 1.f, 1.f), planes)) {
 
-		float3(0, 1, 0), float3(1, 1, 0), float3(1, 1, 1), float3(0, 1, 1) };
-	// transform points to world space
-	float3 boxPoints_all[8];
-	for (size_t i = 0; i < 8; i++) {
-		boxPoints_all[i] = float3::Transform(boxPoints[i], mWorld);
-	}
-	for (size_t i = 0; i < 4; i++) {
+			ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
-		//find diagonal points
-		float3 boxDiagonalPoint1, boxDiagonalPoint2;
-		float largestDot = 0;
-		for (size_t j = 0; j < 4; j++) {
-			float3 p1 = boxPoints_all[j];
-			float3 p2 = boxPoints_all[4 + (j + 2) % 4];
-			float dot = abs((p1 - p2).Dot(planes[i]));
-			if (dot > largestDot) {
-				largestDot = dot;
-				boxDiagonalPoint1 = p1;
-				boxDiagonalPoint2 = p2;
-			}
-		}
+			// bind shaders
+			m_shader.bindShadersAndLayout();
 
-		for (size_t j = 0; j < 8; j++) {
-			bool stateP1 = pointInfrontOrBehindPlane(boxDiagonalPoint1, point, planes[i]);
-			bool stateP2 = pointInfrontOrBehindPlane(boxDiagonalPoint2, point, planes[i]);
-			if (stateP1 && stateP2) {
-				//outside
+			// bind samplerstate
+			deviceContext->PSSetSamplers(SAMPLERSTATE_SLOT, 1, m_sampler.GetAddressOf());
+
+			// bind texture resources
+			for (int i = 0; i < m_mapCount; i++) {
+				deviceContext->PSSetShaderResources(i, 1, m_maps[i].GetAddressOf());
 			}
-			else {
-				//inside
-				draw();
+
+			// bind world matrix
+			bindModelMatrix();
+
+			// draw grids
+			for (int xx = 0; xx < m_gridSize.x; xx++) {
+				for (int yy = 0; yy < m_gridSize.y; yy++) {
+					if (boxInsideFrustum(
+							float3((float)xx / m_gridSize.x, 0, (float)yy / m_gridSize.y),
+							float3(1.f / m_gridSize.x, 1.f, 1.f / m_gridSize.y), planes)) {
+						m_subMeshes[xx][yy].bind();
+						deviceContext->Draw(m_subMeshes[xx][yy].getVerticeCount(), 0);
+					}
+				}
 			}
+
+			return true;
 		}
 	}
+	return false;
+
+	// for (size_t plane_i = 0; plane_i < 1; plane_i++) {
+
+	//	// find diagonal points
+	//	// float3 boxDiagonalPoint1, boxDiagonalPoint2;
+	//	// float largestDot = 0;
+	//	// for (size_t j = 0; j < 4; j++) {
+	//	//	float3 p1 = boxPoints[j];
+	//	//	float3 p2 = boxPoints[4 + (j + 2) % 4];
+	//	//	float dot = abs((p1 - p2).Dot(planes[i].m_normal));
+	//	//	if (dot > largestDot) {
+	//	//		largestDot = dot;
+	//	//		boxDiagonalPoint1 = p1;
+	//	//		boxDiagonalPoint2 = p2;
+	//	//	}
+	//	//}
+	//	for (size_t j = 0; j < 8; j++) {
+
+	//		if (!pointInfrontOrBehindPlane(
+	//				boxPoints[j], planes[plane_i].m_position, planes[plane_i].m_normal)) {
+	//			ErrorLogger::log(to_string(plane_i));
+	//			return ret;
+	//		}
+
+	//		// bool stateP1 = pointInfrontOrBehindPlane(
+	//		//	boxDiagonalPoint1, planes[plane_i].m_position, planes[plane_i].m_normal);
+	//		// bool stateP2 = pointInfrontOrBehindPlane(
+	//		//	boxDiagonalPoint2, planes[plane_i].m_position, planes[plane_i].m_normal);
+	//		// if (stateP1 && stateP2) {
+	//		//	// outside
+	//		//	ErrorLogger::log("OUTSIDE");
+	//		//}
+	//		// else {
+	//		//	// inside
+	//		//	draw();
+	//		//}
+	//	}
+	//}
 
 	// CULL EACH GRID
 

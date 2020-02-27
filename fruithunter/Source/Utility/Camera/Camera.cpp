@@ -118,3 +118,38 @@ float4x4 Camera::getViewMatrix() const { return m_viewMatrix; }
 float4x4 Camera::getViewProjMatrix() const { return m_vpMatrix; }
 
 float3 Camera::getPosition() const { return m_camEye; }
+
+vector<FrustumPlane> Camera::getFrustumPlanes() const {
+	vector<FrustumPlane> planes;
+	planes.resize(6);
+	float3 center = m_camEye;
+	float height = tan(m_fov/2.f);
+	float aspectRatio = (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT;
+	float width = height * aspectRatio;
+
+	float3 camForward = m_camTarget - m_camEye;
+	camForward.Normalize();
+	float3 camLeft = m_camUp.Cross(camForward);
+	camLeft.Normalize();
+	float3 camUp = camForward.Cross(camLeft);
+	camUp.Normalize();
+
+	float depth = 1.f;//NEAR_PLANE
+	float3 topLeft = 
+		center + (camForward + camLeft * width * 1.f + camUp * height * 1.f) * depth;
+	float3 topRight = 
+		center + (camForward + camLeft * width * 1.f + camUp * height * -1.f) * depth;
+	float3 bottomLeft =
+		center + (camForward + camLeft * width * -1.f + camUp * height * 1.f) * depth;
+	float3 bottomRight =
+		center + (camForward + camLeft * width * -1.f + camUp * height * -1.f) * depth;
+
+	planes.push_back(FrustumPlane(topLeft, (bottomLeft-center).Cross(topLeft-center)));
+	planes.push_back(FrustumPlane(bottomRight, (topRight - center).Cross(bottomRight - center)));
+	planes.push_back(FrustumPlane(topRight, (topLeft-center).Cross(topRight-center)));
+	planes.push_back(FrustumPlane(bottomLeft, (bottomRight-center).Cross(bottomLeft-center)));
+	planes.push_back(FrustumPlane(center+camForward*NEAR_PLANE, -camForward));
+	planes.push_back(FrustumPlane(center+camForward*FAR_PLANE, camForward));
+
+	return planes;
+}

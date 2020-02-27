@@ -3,6 +3,9 @@
 
 #define MATRIX_SLOT 1
 
+#define NEAR_PLANE 0.1f
+#define FAR_PLANE 100.f
+
 class Camera {
 public:
 	Camera();
@@ -21,6 +24,8 @@ public:
 	float4x4 getViewMatrix() const;
 	float4x4 getViewProjMatrix() const;
 	float3 getPosition() const;
+
+	vector<FrustumPlane> getFrustumPlanes() const;
 
 private:
 	const float DEFAULT_FOV = XM_PI / 2.5f;
