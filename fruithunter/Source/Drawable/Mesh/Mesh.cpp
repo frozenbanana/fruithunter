@@ -230,18 +230,7 @@ void Mesh::drawShadow() {
 
 	bindMesh();
 
-	for (size_t i = 0; i < m_parts.size(); i++) {
-		for (size_t j = 0; j < m_parts[i].materialUsage.size(); j++) {
-			int materialIndex = m_parts[i].materialUsage[j].materialIndex;
-			// int materialIndex = findMaterial(parts[i].materialUsage[j].name);
-			if (materialIndex != -1) {
-				m_materials[materialIndex].bind(MATERIAL_BUFFER_SLOT);
-				int count = m_parts[i].materialUsage[j].count;
-				int index = m_parts[i].materialUsage[j].index;
-				deviceContext->Draw(count, index);
-			}
-		}
-	}
+	deviceContext->Draw((UINT)m_meshVertices.size(), 0);
 }
 
 void Mesh::draw_noMaterial(float3 color) {
