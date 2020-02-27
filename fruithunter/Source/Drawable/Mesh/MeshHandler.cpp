@@ -37,7 +37,7 @@ bool MeshHandler::loadOBJ(std::string fileName, std::vector<Part>& parts) {
 	if (preCheckOBJ(fileName, posCount, uvCount, normalCount, triangleCount)) {
 
 		std::fstream objFile;
-		objFile.open(m_objPath + fileName + ".obj", std::ios::in);
+		objFile.open(PATH_OBJ + fileName + ".obj", std::ios::in);
 		if (objFile.is_open()) {
 			// reset
 			m_vertices_position.reserve(posCount);
@@ -214,7 +214,7 @@ std::vector<Vertex> MeshHandler::createMesh() const {
 bool MeshHandler::preCheckOBJ(
 	std::string filename, int& positions, int& uvs, int& normals, int& triangles) {
 	std::fstream objFile;
-	objFile.open(m_objPath + filename + ".obj", std::ios::in);
+	objFile.open(PATH_OBJ + filename + ".obj", std::ios::in);
 	if (objFile.is_open()) {
 		Part* part = nullptr;
 
@@ -273,7 +273,7 @@ bool MeshHandler::preCheckOBJ(
 
 bool MeshHandler::loadMTL(std::string filename, std::vector<Material>& materials) {
 	std::fstream mtlFile;
-	mtlFile.open(m_mtlPath + filename);
+	mtlFile.open(PATH_MTL + filename);
 	if (mtlFile.is_open()) {
 		// temp variables
 		std::string text = "";
@@ -338,7 +338,7 @@ bool MeshHandler::loadMTL(std::string filename, std::vector<Material>& materials
 bool MeshHandler::loadRaw(std::string filename, std::vector<Vertex>& mesh) {
 	mesh.clear();
 	std::fstream file;
-	file.open(m_rawPath + filename + ".rw", std::ios::in | std::ios::binary);
+	file.open(PATH_RAW + filename + ".rw", std::ios::in | std::ios::binary);
 	if (file.is_open()) {
 		int length = 0;
 		file.read((char*)&length, sizeof(int)); // read vertex count
@@ -355,7 +355,7 @@ bool MeshHandler::loadRaw(std::string filename, std::vector<Vertex>& mesh) {
 
 bool MeshHandler::loadRawDesc(std::string filename, std::vector<Part>& parts) {
 	std::fstream file;
-	file.open(m_rawPath + filename + ".rwd", std::ios::in | std::ios::binary);
+	file.open(PATH_RAW + filename + ".rwd", std::ios::in | std::ios::binary);
 	if (file.is_open()) {
 		file >> m_materialFileName;
 		size_t partCount = 0;
@@ -382,7 +382,7 @@ bool MeshHandler::loadRawDesc(std::string filename, std::vector<Part>& parts) {
 }
 
 void MeshHandler::saveToRaw(std::vector<Vertex>& mesh) const {
-	std::string path = m_rawPath + m_loadedObjName + ".rw";
+	std::string path = PATH_RAW + m_loadedObjName + ".rw";
 	// check if file exists
 	std::fstream fileTest;
 	fileTest.open(path, std::ios::in | std::ios::binary);
@@ -405,7 +405,7 @@ void MeshHandler::saveToRaw(std::vector<Vertex>& mesh) const {
 }
 
 void MeshHandler::saveRawDesc(std::vector<Part>& parts) const {
-	std::string path = m_rawPath + m_loadedObjName + ".rwd";
+	std::string path = PATH_RAW + m_loadedObjName + ".rwd";
 	// check if file exists
 	std::fstream fileTest;
 	fileTest.open(path, std::ios::in | std::ios::binary);

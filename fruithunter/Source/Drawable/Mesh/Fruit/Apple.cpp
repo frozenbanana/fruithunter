@@ -2,7 +2,10 @@
 #include "Input.h"
 
 Apple::Apple(float3 pos) : Fruit(pos) {
-	loadAnimated("Bouncing_apple", 3);
+	loadAnimated("Apple", 3);
+	vector<string> names{ "Apple.mtl", "Apple2.mtl", "Apple3.mtl" };
+	loadMaterials(names, 3);
+
 	m_nrOfFramePhases = 6;
 	setScale(0.5);
 	changeState(AI::State::PASSIVE);
@@ -106,8 +109,16 @@ void Apple::updateAnimated(float dt) {
 
 	// Update mesh specificly with our frametime
 	m_meshAnim.updateSpecific(m_frameTime);
-}
 
+
+
+	if (Input::getInstance()->keyPressed(Keyboard::O)) {
+		m_currentMaterial = 0;
+	}
+	if (Input::getInstance()->keyPressed(Keyboard::P)) {
+		m_currentMaterial = 1;
+	}
+}
 
 void Apple::flee(float3 playerPos, vector<shared_ptr<Entity>> collidables) {
 	// Update fleeing path if ther is none

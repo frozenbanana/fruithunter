@@ -1,6 +1,10 @@
 #pragma once
 #include "Material.h"
 
+#define PATH_MTL "assets/Meshes/MTL/"
+#define PATH_OBJ "assets/Meshes/OBJ/"
+#define PATH_RAW "assets/Meshes/RAW/"
+
 struct Vertex {
 	float3 position;
 	float2 uv;
@@ -56,10 +60,6 @@ private:
 	};
 	std::string m_loadedObjName = "";
 
-	const std::string m_mtlPath = "assets/Meshes/MTL/";
-	const std::string m_objPath = "assets/Meshes/OBJ/";
-	const std::string m_rawPath = "assets/Meshes/RAW/";
-
 	std::vector<float3> m_vertices_position;
 	std::vector<float2> m_vertices_uv;
 	std::vector<float3> m_vertices_normal;
@@ -76,8 +76,6 @@ private:
 	bool preCheckOBJ(std::string filename, int& positions, int& uvs, int& normals, int& triangles);
 	/*loads arrays with position, uvs, normals. creates parts. fetches material filename*/
 	bool loadOBJ(std::string fileName, std::vector<Part>& parts);
-	/*loads materials*/
-	bool loadMTL(std::string fileName, std::vector<Material>& materials);
 	/*loads an array of vertices*/
 	bool loadRaw(std::string filename, std::vector<Vertex>& mesh);
 	/*loads the object decription. also retreives material filename*/
@@ -120,6 +118,9 @@ public:
 	 *	Used if materials are not desired
 	 */
 	bool load(std::string filename, std::vector<Vertex>& mesh);
+
+	/*loads materials*/
+	static bool loadMTL(std::string fileName, std::vector<Material>& materials);
 
 	MeshHandler();
 	~MeshHandler();

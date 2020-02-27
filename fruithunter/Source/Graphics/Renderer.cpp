@@ -60,6 +60,16 @@ void Renderer::bindEverything() { bindBackAndDepthBuffer(); }
 void Renderer::bindDepthSRV(int slot) {
 	m_deviceContext->PSSetShaderResources(slot, 1, m_depthSRV.GetAddressOf());
 }
+void Renderer::enableAlphaBlending() {
+	float blendFactor[4] = { 0 };
+	m_deviceContext->OMSetBlendState(m_blendStateAlphaBlending.Get(), blendFactor, 0xffffffff);
+}
+
+void Renderer::disableAlphaBlending() {
+	float blendFactor[4] = { 0 };
+	m_deviceContext->OMSetBlendState(
+		m_blendStateWithoutAlphaBlending.Get(), blendFactor, 0xffffffff);
+}
 
 void Renderer::bindConstantBuffer_ScreenSize(int slot) { 
 	XMINT4 data = XMINT4(STANDARD_WIDTH, STANDARD_HEIGHT, 0, 0);
@@ -73,6 +83,9 @@ void Renderer::copyDepthToSRV() {
 	m_depthDSV.Get()->GetResource(&src);
 	m_deviceContext->CopyResource(dst, src);
 }
+
+
+
 
 
 Renderer::Renderer(int width, int height) {
@@ -166,6 +179,7 @@ void Renderer::createDevice(HWND window) {
 	}
 	createDepthState();
 	createDepthBuffer(swapChainDesc);
+	createBlendState();
 }
 
 void Renderer::createRenderTarget() {
@@ -283,4 +297,34 @@ void Renderer::createConstantBuffers() {
 		if (FAILED(res))
 			ErrorLogger::logError(res, "Failed creating screen size buffer in Renderer class!\n");
 	}
+}
+
+void Renderer::createBlendState() {
+	D3D11_BLEND_DESC blendStateDesc;
+	ZeroMemory(&blendStateDesc, sizeof(D3D11_BLEND_DESC));
+	blendStateDesc.RenderTarget->BlendEnable = false;
+	blendStateDesc.AlphaToCoverageEnable = false;
+	blendStateDesc.IndependentBlendEnable = false;
+
+	HRESULT hr = m_device->CreateBlendState(NULL, m_blendStateWithoutAlphaBlending.GetAddressOf());
+	// HRESULT hr = m_device->CreateBlendState(&blendStateDesc,
+	// m_blendStateWithoutAlphaBlending.GetAddressOf());
+
+	// create a blend state with alpha blending
+	ZeroMemory(&blendStateDesc, sizeof(D3D11_BLEND_DESC));
+	blendStateDesc.RenderTarget->BlendEnable = true;
+	blendStateDesc.AlphaToCoverageEnable = true;
+	blendStateDesc.IndependentBlendEnable = false;
+
+	blendStateDesc.RenderTarget[0].BlendEnable = true;
+	blendStateDesc.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+	blendStateDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendStateDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendStateDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	blendStateDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	blendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendStateDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	HRESULT hr2 =
+		m_device->CreateBlendState(&blendStateDesc, m_blendStateAlphaBlending.GetAddressOf());
+	disableAlphaBlending();
 }
