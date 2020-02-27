@@ -24,8 +24,14 @@ public:
 
 private:
 	const float DEFAULT_FOV = XM_PI / 2.5f;
+	struct ViewPerspectiveBuffer {
+		float4x4 mView;
+		float4x4 mPerspective;
+	};
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBufferViewNPerspective;
+
 
 	bool m_viewChanged = false;
 	bool m_projChanged = false;

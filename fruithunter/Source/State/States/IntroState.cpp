@@ -1,6 +1,7 @@
 #include "IntroState.h"
 #include "ErrorLogger.h"
 #include "AudioHandler.h"
+#include "ParticleSystem.h"
 #include "Input.h"
 
 IntroState::IntroState() { initialize(); }
@@ -14,6 +15,7 @@ void IntroState::initialize() {
 
 	// m_entity.loadAnimated("Bow", 3);
 	// m_entity.load("Melon_000000");
+	m_particleSystem = ParticleSystem(50);
 	m_camera.setView(float3(0.f, 0.f, -10.f), float3(0.f, 0.f, 0.f), float3(0.f, 1.f, 0.f));
 }
 
@@ -68,6 +70,11 @@ void IntroState::draw() {
 	m_textRenderer.draw("See Highscore", float2(400., 275.), menuColor);
 	m_textRenderer.draw("Settings", float2(400., 350.), menuColor);
 	m_textRenderer.draw("Quit", float2(400., 425.), menuColor);
+
+	if (Input::getInstance()->keyDown(Keyboard::Space)) {
+		ErrorLogger::log("Particle should draw.");
+		m_particleSystem.draw();
+	}
 }
 
 void IntroState::play() {

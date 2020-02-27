@@ -27,8 +27,8 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 
 	MSG msg = { 0 };
 	stateHandler->initialize();
-	//Hardcoded statechange here. (TESTING)
-	stateHandler->changeState(StateHandler::PLAY);
+	// Hardcoded statechange here. (TESTING)
+	// stateHandler->changeState(StateHandler::PLAY);
 	while (StateHandler::getInstance()->isRunning()) {
 		VariableSyncer::getInstance()->sync();
 		input->update();

@@ -15,18 +15,36 @@ Camera::Camera() {
 	m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 
 	// Create constant buffer
-	auto device = Renderer::getInstance()->getDevice();
-	D3D11_BUFFER_DESC bufferDesc;
-	memset(&bufferDesc, 0, sizeof(bufferDesc));
-	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.ByteWidth = sizeof(m_vpMatrix);
-	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = &m_vpMatrix;
-	HRESULT res = device->CreateBuffer(&bufferDesc, &data, m_matrixBuffer.GetAddressOf());
+	{
+		auto device = Renderer::getInstance()->getDevice();
+		D3D11_BUFFER_DESC bufferDesc;
+		memset(&bufferDesc, 0, sizeof(bufferDesc));
+		bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		bufferDesc.ByteWidth = sizeof(m_vpMatrix);
+		D3D11_SUBRESOURCE_DATA data;
+		data.pSysMem = &m_vpMatrix;
+		HRESULT res = device->CreateBuffer(&bufferDesc, &data, m_matrixBuffer.GetAddressOf());
 
-	if (FAILED(res)) {
-		ErrorLogger::messageBox(res, "Camera failed to create buffer.");
+		if (FAILED(res)) {
+			ErrorLogger::messageBox(res, "Camera failed to create buffer.");
+		}
+	}
+
+	{
+		// Create constant buffer for struct
+		auto device = Renderer::getInstance()->getDevice();
+		D3D11_BUFFER_DESC bufferDesc;
+		memset(&bufferDesc, 0, sizeof(bufferDesc));
+		bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		bufferDesc.ByteWidth = sizeof(ViewPerspectiveBuffer);
+		HRESULT res = device->CreateBuffer(
+			&bufferDesc, nullptr, m_matrixBufferViewNPerspective.GetAddressOf());
+
+		if (FAILED(res)) {
+			ErrorLogger::messageBox(res, "Camera failed to create buffer struct.");
+		}
 	}
 }
 
@@ -102,6 +120,15 @@ void Camera::updateBuffer() {
 		auto deviceContext = Renderer::getDeviceContext();
 		Matrix vpMatrixTransposed = m_vpMatrix.Transpose();
 		deviceContext->UpdateSubresource(m_matrixBuffer.Get(), 0, NULL, &vpMatrixTransposed, 0, 0);
+
+		// Changes to make particle system work
+		ViewPerspectiveBuffer viewNPerspective;
+		viewNPerspective.mView = m_viewMatrix.Transpose();
+		viewNPerspective.mPerspective = m_projMatrix.Transpose();
+
+		deviceContext->UpdateSubresource(
+			m_matrixBufferViewNPerspective.Get(), 0, NULL, &viewNPerspective, 0, 0);
+
 		m_projChanged = false;
 		m_viewChanged = false;
 	}
@@ -111,6 +138,10 @@ void Camera::bindMatrix() {
 	updateBuffer();
 	auto deviceContext = Renderer::getDeviceContext();
 	deviceContext->VSSetConstantBuffers(MATRIX_SLOT, 1, m_matrixBuffer.GetAddressOf());
+	deviceContext->VSSetConstantBuffers(5, 1, m_matrixBufferViewNPerspective.GetAddressOf());
+
+	deviceContext->GSSetConstantBuffers(MATRIX_SLOT, 1, m_matrixBuffer.GetAddressOf());
+	deviceContext->VSSetConstantBuffers(5, 1, m_matrixBufferViewNPerspective.GetAddressOf());
 }
 
 float4x4 Camera::getViewMatrix() const { return m_viewMatrix; }
