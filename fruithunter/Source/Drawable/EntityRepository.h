@@ -78,6 +78,7 @@ public:
 
 	void update(float dt, float3 point, float3 direction);
 	void draw();
+	void drawShadow();
 
 	EntityRepository(string filename = "");
 	~EntityRepository();

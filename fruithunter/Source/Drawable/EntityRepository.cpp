@@ -308,6 +308,15 @@ void EntityRepository::draw() {
 	}
 }
 
+void EntityRepository::drawShadow() {
+	for (size_t i = 0; i < m_entities.size(); i++) {
+		m_entities[i]->drawShadow();
+	}
+	if (m_placing) {
+		m_placeable[m_activePlaceableIndex]->drawShadow();
+	}
+}
+
 EntityRepository::EntityRepository(string filename) { load(filename); }
 
 EntityRepository::~EntityRepository() {}

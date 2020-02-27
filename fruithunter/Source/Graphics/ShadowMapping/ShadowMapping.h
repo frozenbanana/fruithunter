@@ -21,7 +21,7 @@ private:
 	Matrix m_VPT;
 
 	//Functions
-	void createBuffer();
+	void createCameraBuffer();
 	void createVPTBuffer();
 	void createVPTMatrix();
 	
@@ -32,9 +32,10 @@ public:
 	~ShadowMapper();
 	//void initiate(UINT width, UINT height);
 	void initiate();
-	void bindMatrix(); //Camera
+	void bindCameraMatrix(); // Camera
 	void bindVPTMatrix(); //Matrix that moves from localSpace to NDC
 	void bindShadowMap();
+	void update(float3);
 
 	// Shadow functions
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> getDepthMapSRV();

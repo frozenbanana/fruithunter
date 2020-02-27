@@ -189,6 +189,7 @@ void LevelHandler::drawShadow() {
 	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
 		m_collidableEntities[i]->drawShadow();
 	}
+	m_terrainProps.drawShadow();
 }
 
 void LevelHandler::update(float dt) {
@@ -249,6 +250,8 @@ void LevelHandler::update(float dt) {
 	//		m_entity.setPosition(m_player.getCameraPosition() + t * m_player.getForward() * 0.9);
 	//	}
 	//}
+
+	Renderer::getInstance()->setPlayerPos(playerPos);
 }
 
 void LevelHandler::pickUpFruit(int fruitType) { m_inventory[fruitType]++; }

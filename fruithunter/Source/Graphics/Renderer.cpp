@@ -57,6 +57,10 @@ void Renderer::clearDepth() {
 
 void Renderer::bindEverything() { bindBackAndDepthBuffer(); }
 
+void Renderer::setPlayerPos(float3 newPos) { m_playerPos = newPos; }
+
+float3 Renderer::getPlayerPos() { return m_playerPos; }
+
 
 Renderer::Renderer(int width, int height) {
 	// Define window style
@@ -92,8 +96,9 @@ HWND Renderer::getHandle() { return m_handle; }
 void Renderer::initalize(HWND window) {}
 
 void Renderer::beginShadowFrame() { 
+	m_shadowMap.get()->update(getPlayerPos());
 	m_shadowMap.get()->bindDSVAndSetNullRenderTarget(); 
-	m_shadowMap.get()->bindMatrix();
+	m_shadowMap.get()->bindCameraMatrix();
 }
 
 void Renderer::beginFrame() {

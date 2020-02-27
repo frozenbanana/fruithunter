@@ -16,16 +16,16 @@ Texture2D texture_aboveTilt : register(t2);
 Texture2D texture_betweenTiltAndFlat : register(t3);
 Texture2D texture_shadowMap : register(t4);
 
-SamplerComparisonState samShadow {
-	Filter = COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-	AddressU = BORDER;
-	AddressV = BORDER;
-	AddressW = BORDER;
-	BorderColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
-	ComparionFunc = LESS_EQUAL;
-};
+//SamplerComparisonState samShadow {
+//	Filter = COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+//	AddressU = BORDER;
+//	AddressV = BORDER;
+//	AddressW = BORDER;
+//	BorderColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
+//	ComparionFunc = LESS_EQUAL;
+//};
 
-float3 lighting(float3 pos, float3 normal, float3 color) {
+float3 lighting(float3 pos, float3 normal, float3 color, float shade) {
 	// LIGHTING
 	// light
 	float3 lightPos = float3(-5, 2, -3);
@@ -37,35 +37,46 @@ float3 lighting(float3 pos, float3 normal, float3 color) {
 	// float reflectTint =
 	//	pow(max(dot(normalize(reflect(-toLight, normal)), normalize(-pos)), 0.0), 20.0);
 	// return color * (0.2 + shadowTint + reflectTint);
-	return color * (0.2 + shadowTint);
+	return color * (0.2 + shadowTint * shade);
 }
 
 float specialLerp(float v, float min, float max) {
 	return (v > max ? 1.f : (v < min ? 0.f : (v - min) / (max - min)));
 }
 
-static const float SMAP_SIZE = 2048.0f;
-static const float SMAP_DX = 1.0f / SMAP_SIZE;
+static const float SMAP_WIDTH = 2048.0f;
+static const float SMAP_HEIGHT = 2048.0f;
+static const float SMAP_DX = 1.0f / SMAP_WIDTH;
+static const float SMAP_DY = 1.0f / SMAP_HEIGHT;
 
-float calcShadowFactor(SamplerComparisonState samShadow, Texture2D shadowMap, float4 shadowPosH) {
+float calcShadowFactor(Texture2D shadowMap, float4 shadowPosH) {
+	if (shadowPosH.x < SMAP_DX*3.f || shadowPosH.x >= 1.0f - SMAP_DX*3.f) { 
+		//not a U coordinate
+		return 1.0f;
+	}
+	if (shadowPosH.y <= 0.0f || shadowPosH.y >= 1.0f) {
+		// not a U coordinate
+		return 1.0f;
+	}
 	// Divide to get coordinates in texture projection
-	/*shadowPosH.xyz /= shadowPosH.w;*/ //Not needed for orthographic
+	//shadowPosH.xyz /= shadowPosH.w; //Not needed for orthographic
 
 	// Depth in NDC
-	float depth = shadowPosH.z + 0.0f;
+	float depth = shadowPosH.z - 0.005f;
 
 	// Texel size
 	const float dx = SMAP_DX;
 	float percentLit = 0.0f;
 	const float2 offsets[9] = { 
-		float2(-dx, -dx),	float2(0.0f, -dx),	float2(dx, -dx),
-		float2(-dx, 0.0f),	float2(0.0f, 0.0f),	float2(dx, 0.0f),
-		float2(-dx, +dx),	float2(0.0f, +dx),	float2(dx, +dx) };
+		float2(-SMAP_DX, -SMAP_DY),	float2(0.0f, -SMAP_DY),	float2(SMAP_DX, -SMAP_DY),
+		float2(-SMAP_DX, 0.0f),		float2(0.0f, 0.0f),		float2(SMAP_DX, 0.0f), 
+		float2(-SMAP_DX, +SMAP_DY),	float2(0.0f, +SMAP_DY), float2(SMAP_DX, +SMAP_DY) };
 	// 3x3 box filter pattern. Each sample does a 4-tap PCF.
 	for (int i = 0; i < 9; i++) {
-		percentLit += shadowMap.SampleCmpLevelZero(samShadow, shadowPosH.xy + offsets[i], depth).r;
+		percentLit += shadowMap.Sample(samplerAni, shadowPosH.xy + offsets[i]).r < depth;
 	}
-	return percentLit /= 9.0f;
+	percentLit /= 9.0f;
+	return (1.0f - percentLit);
 }
 
 float4 main(PS_IN ip) : SV_TARGET {
@@ -80,21 +91,13 @@ float4 main(PS_IN ip) : SV_TARGET {
 	float dotN = dot(float3(0, 1, 0), ip.Normal);
 	float tilt = specialLerp(dotN, 0.60f, 0.70f);
 
-	float shade = calcShadowFactor(samShadow, texture_shadowMap, ip.ShadowPosH);
+	float shade = calcShadowFactor(texture_shadowMap, ip.ShadowPosH);
 	float3 flatColor = lerp(beneathFlat, aboveFlat, height);
 	float3 baseTiltColor =
 		lerp(aboveTilt, betweenTiltAndFlat, float3(1, 1, 1) * specialLerp(dotN, 0.45f, 0.55f));
 	float3 baseColor =
-		lerp(baseTiltColor, flatColor, float3(1, 1, 1) * specialLerp(dotN, 0.65f, 0.75f)) * shade;
+		lerp(baseTiltColor, flatColor, float3(1, 1, 1) * specialLerp(dotN, 0.65f, 0.75f));
 
-	//ip.ShadowPosH.xyz /= ip.ShadowPosH.w;
-	//return float4(texture_shadowMap.Sample(samplerAni, ip.ShadowPosH.xy).rgb, 1);
-
-	//ip.PosH.xyz /= ip.PosH.w;
-	//return float4(shade, 0, 0, 1);
-	//return float4(ip.ShadowPosH.x, ip.ShadowPosH.y, 0, 1);
-	//return float4(ip.ShadowPosH.xyz, 1);
-	//return float4(ip.PosH);
-	return float4(lighting(ip.PosW, ip.Normal, baseColor), 1.0);
+	return float4(lighting(ip.PosW, ip.Normal, baseColor, shade), 1.0);
 	return float4(abs(ip.Normal), 1.0);
 }

@@ -70,6 +70,5 @@ public:
 	void pickUpFruit(int fruitType);
 	void dropFruit();
 
-
 	std::vector<Fruit> fruitsInLevel;
 };

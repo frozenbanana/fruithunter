@@ -23,6 +23,9 @@ public:
 
 	void bindEverything();
 
+	void setPlayerPos(float3);
+	float3 getPlayerPos();
+
 private:
 	Renderer(int width, int height);
 	~Renderer();
@@ -46,4 +49,5 @@ private:
 
 	//Shadow stuff
 	unique_ptr<ShadowMapper> m_shadowMap;
+	float3 m_playerPos;
 };
