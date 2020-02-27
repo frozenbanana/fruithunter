@@ -26,6 +26,8 @@ public:
 	void bindEverything();
 	void bindDepthSRV(int slot);
 	void bindConstantBuffer_ScreenSize(int slot);
+	void enableAlphaBlending();
+	void disableAlphaBlending();
 
 	void copyDepthToSRV();
 
@@ -40,6 +42,7 @@ private:
 	void createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd);
 	void createDepthState();
 	void createConstantBuffers();
+	void createBlendState();
 	static Renderer m_this;
 	bool m_isLoaded = false;
 
@@ -52,6 +55,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;
 
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
+	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendStateAlphaBlending;
+	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendStateWithoutAlphaBlending;
 	D3D11_TEXTURE2D_DESC m_backBufferDesc;
 
 	//Shadow stuff

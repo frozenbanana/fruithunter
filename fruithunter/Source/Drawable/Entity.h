@@ -32,7 +32,7 @@ private:
 protected:
 	float3 m_position;
 	Animated m_meshAnim;
-
+	int m_currentMaterial;
 	bool atOrUnder(float terrainHeight) const;
 
 
@@ -73,6 +73,8 @@ public:
 	void setFrameTargets(int first, int second);
 	bool load(string filename);
 	bool loadAnimated(string filename, int nrOfFrames);
+	void setMaterial(int materialIndex);
+	void loadMaterials(std::vector<string> fileNames, int nrOfMaterials);
 
 	float castRay(float3 point, float3 direction);
 

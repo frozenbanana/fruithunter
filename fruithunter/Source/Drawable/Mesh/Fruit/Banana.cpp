@@ -4,6 +4,8 @@
 Banana::Banana(float3 pos) : Fruit(pos) {
 	m_fruitType = BANANA;
 	loadAnimated("Banana", 3);
+	vector<string> names{ "Banana.mtl", "Banana2.mtl", "Banana3.mtl" };
+	loadMaterials(names, 3);
 	m_nrOfFramePhases = 5;
 	m_maxBounciness = 3;
 	m_bounciness = 0;
