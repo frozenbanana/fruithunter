@@ -84,4 +84,6 @@ public:
 	void dropFruit();
 
 	std::vector<Fruit> fruitsInLevel;
+
+	float3 getPlayerPos();
 };

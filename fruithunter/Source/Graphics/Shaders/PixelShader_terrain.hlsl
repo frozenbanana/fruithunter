@@ -16,15 +16,6 @@ Texture2D texture_aboveTilt : register(t2);
 Texture2D texture_betweenTiltAndFlat : register(t3);
 Texture2D texture_shadowMap : register(t4);
 
-//SamplerComparisonState samShadow {
-//	Filter = COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-//	AddressU = BORDER;
-//	AddressV = BORDER;
-//	AddressW = BORDER;
-//	BorderColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
-//	ComparionFunc = LESS_EQUAL;
-//};
-
 float3 lighting(float3 pos, float3 normal, float3 color, float shade) {
 	// LIGHTING
 	// light

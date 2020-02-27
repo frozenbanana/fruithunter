@@ -34,8 +34,6 @@ void StateHandler::play() { getCurrent()->play(); }
 
 void StateHandler::draw() { getCurrent()->draw(); }
 
-void StateHandler::drawShadow() { getCurrent()->drawShadow(); }
-
 bool StateHandler::isRunning() { return m_running; }
 
 void StateHandler::quit() { m_running = false; }

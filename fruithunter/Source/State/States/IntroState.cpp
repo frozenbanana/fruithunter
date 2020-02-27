@@ -49,6 +49,7 @@ void IntroState::pause() {
 }
 
 void IntroState::draw() {
+	Renderer::getInstance()->beginFrame();
 	m_camera.bindMatrix();
 	// ErrorLogger::log(m_name + " draw() called.");
 	float t = m_timer.getTimePassed();
@@ -69,8 +70,6 @@ void IntroState::draw() {
 	m_textRenderer.draw("Settings", float2(400., 350.), menuColor);
 	m_textRenderer.draw("Quit", float2(400., 425.), menuColor);
 }
-
-void IntroState::drawShadow() {}
 
 void IntroState::play() {
 	Input::getInstance()->setMouseModeAbsolute();

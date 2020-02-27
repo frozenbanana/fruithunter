@@ -60,7 +60,6 @@ void Renderer::bindEverything() { bindBackAndDepthBuffer(); }
 void Renderer::bindDepthSRV(int slot) {
 	m_deviceContext->PSSetShaderResources(slot, 1, m_depthSRV.GetAddressOf());
 }
-void Renderer::setPlayerPos(float3 newPos) { m_playerPos = newPos; }
 
 void Renderer::bindConstantBuffer_ScreenSize(int slot) { 
 	XMINT4 data = XMINT4(STANDARD_WIDTH, STANDARD_HEIGHT, 0, 0);
@@ -74,10 +73,6 @@ void Renderer::copyDepthToSRV() {
 	m_depthDSV.Get()->GetResource(&src);
 	m_deviceContext->CopyResource(dst, src);
 }
-
-
-float3 Renderer::getPlayerPos() { return m_playerPos; }
-
 
 Renderer::Renderer(int width, int height) {
 	// Define window style
@@ -102,7 +97,6 @@ Renderer::Renderer(int width, int height) {
 		r->createConstantBuffers();
 		r->m_isLoaded = true;
 	}
-	m_shadowMap = make_unique<ShadowMapper>();
 }
 
 Renderer::~Renderer() {}
@@ -112,12 +106,6 @@ Renderer* Renderer::getInstance() { return &m_this; }
 HWND Renderer::getHandle() { return m_handle; }
 
 void Renderer::initalize(HWND window) {}
-
-void Renderer::beginShadowFrame() { 
-	m_shadowMap.get()->update(getPlayerPos());
-	m_shadowMap.get()->bindDSVAndSetNullRenderTarget(); 
-	m_shadowMap.get()->bindCameraMatrix();
-}
 
 void Renderer::beginFrame() {
 	m_deviceContext->RSSetState(0);
@@ -141,9 +129,6 @@ void Renderer::beginFrame() {
 	float clearColor[] = { 0.25f, .5f, 1, 1 };
 	m_deviceContext->ClearRenderTargetView(m_renderTargetView.Get(), clearColor);
 	m_deviceContext->ClearDepthStencilView(m_depthDSV.Get(), D3D11_CLEAR_DEPTH, 1, 0);
-
-	m_shadowMap.get()->bindVPTMatrix();
-	m_shadowMap.get()->bindShadowMap();
 }
 
 void Renderer::endFrame() {

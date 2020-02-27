@@ -238,7 +238,6 @@ void LevelHandler::draw() {
 }
 
 void LevelHandler::drawShadow() {
-	m_player.drawShadow();
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->draw_animate_shadow();
 	}
@@ -332,7 +331,7 @@ void LevelHandler::update(float dt) {
 	waterEffect.update(dt);
 	lavaEffect.update(dt);
 
-	Renderer::getInstance()->setPlayerPos(playerPos);
+	//Renderer::getInstance()->setPlayerPos(playerPos);
 }
 
 void LevelHandler::pickUpFruit(int fruitType) {
@@ -373,3 +372,5 @@ void LevelHandler::dropFruit() {
 		}
 	}
 }
+
+float3 LevelHandler::getPlayerPos() { return m_player.getPosition(); }

@@ -5,7 +5,10 @@
 #include <iostream>
 #include <string>
 
-void PlayState::initialize() { m_name = "Play State"; }
+void PlayState::initialize() {
+	m_name = "Play State";
+	m_shadowMap = make_unique<ShadowMapper>();
+}
 
 void PlayState::update() {
 	m_timer.update();
@@ -21,6 +24,21 @@ void PlayState::pause() {
 }
 
 void PlayState::draw() {
+	if (1) {
+		// Set shadow map info
+		m_shadowMap.get()->update(m_levelHandler.getPlayerPos());
+		m_shadowMap.get()->bindDSVAndSetNullRenderTarget();
+		m_shadowMap.get()->bindCameraMatrix();
+		// Draw shadow map
+		m_levelHandler.drawShadow();
+	}
+
+	// Set first person info
+	Renderer::getInstance()->beginFrame();
+	m_shadowMap.get()->bindVPTMatrix();
+	m_shadowMap.get()->bindShadowMap();
+
+	// draw first person
 	m_levelHandler.draw();
 
 	// Text
@@ -29,6 +47,10 @@ void PlayState::draw() {
 }
 
 void PlayState::drawShadow() { m_levelHandler.drawShadow(); }
+
+void PlayState::setPlayerPos(float3 newPos) { m_playerPos = newPos; }
+
+float3 PlayState::getPlayerPos() { return m_playerPos; }
 
 void PlayState::play() {
 	Input::getInstance()->setMouseModeRelative();

@@ -7,7 +7,6 @@ public:
 	~Bow();
 	void update(float dt, float3 playerPos, float3 playerForward, float3 playerRigh);
 	void draw();
-	void drawShadow();
 	void rotate(float pitch, float yaw);
 	void aim();
 	void release();

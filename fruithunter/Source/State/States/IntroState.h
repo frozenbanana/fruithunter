@@ -16,7 +16,6 @@ public:
 	void pause();
 	void play();
 	void draw();
-	void drawShadow();
 
 private:
 	Camera m_camera;
