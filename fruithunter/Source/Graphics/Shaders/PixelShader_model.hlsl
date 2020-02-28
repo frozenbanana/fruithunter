@@ -17,6 +17,11 @@ cbuffer materialbuffer : register(b2) {
 
 Texture2D textures[3] : register(t0); // AmbientMap, DiffuseMap, SpecularMap
 Texture2D texture_shadowMap : register(t4);
+cbuffer lightInfo : register(b5) {
+	float4 ambientColour;
+	float4 diffuseColour;
+	float4 specularColour;
+};
 
 SamplerState samplerAni {
 	Filter = MIN_MAG_MIP_LINEAR;
@@ -100,7 +105,8 @@ float4 main(PS_IN ip) : SV_TARGET {
 	float shade = calcShadowFactor(texture_shadowMap, ip.ShadowPosH);
 
 	// final color
-	float3 col = pixelBaseColor * ((0.2 + diffuseTint * shade) + specular * reflectTint);
+	float3 col = pixelBaseColor * ((0.2 * ambientColour + diffuseTint * shade * diffuseColour) +
+									  specular * reflectTint * specularColour);
 	return float4(col, 1.0);
 	// return float4(ip.Normal,1.0);
 }

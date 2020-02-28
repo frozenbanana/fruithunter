@@ -15,20 +15,26 @@ Texture2D texture_beneathFlat : register(t1);
 Texture2D texture_aboveTilt : register(t2);
 Texture2D texture_betweenTiltAndFlat : register(t3);
 Texture2D texture_shadowMap : register(t4);
+cbuffer lightInfo : register(b5) {
+	float4 ambient;
+	float4 diffuse;
+	float4 specular;
+};
 
 float3 lighting(float3 pos, float3 normal, float3 color, float shade) {
-	// LIGHTING
-	// light
+	// light utility
 	float3 lightPos = float3(-5, 2, -3);
 	float3 toLight = normalize(lightPos - pos);
 	toLight = float3(1, 1, 1);
+
 	// diffuse
 	float shadowTint = max(dot(toLight, normal), 0.0);
+
 	// specular
 	// float reflectTint =
 	//	pow(max(dot(normalize(reflect(-toLight, normal)), normalize(-pos)), 0.0), 20.0);
 	// return color * (0.2 + shadowTint + reflectTint);
-	return color * (0.2 + shadowTint * shade);
+	return color * (0.2 * ambient + shadowTint * shade * diffuse);
 }
 
 float specialLerp(float v, float min, float max) {
@@ -71,6 +77,7 @@ float calcShadowFactor(Texture2D shadowMap, float4 shadowPosH) {
 }
 
 float4 main(PS_IN ip) : SV_TARGET {
+	//Texture sampling
 	float3 aboveFlat = texture_aboveFlat.Sample(samplerAni, (ip.TexCoord * 50.)).rgb;
 	float3 beneathFlat = texture_beneathFlat.Sample(samplerAni, (ip.TexCoord * 50.)).rgb;
 	float3 aboveTilt = texture_aboveTilt.Sample(samplerAni, (ip.TexCoord * 50.f)).rgb;
@@ -78,11 +85,14 @@ float4 main(PS_IN ip) : SV_TARGET {
 		texture_betweenTiltAndFlat.Sample(samplerAni, (ip.TexCoord * 50.)).rgb;
 	// float3 beneathTilt = texture_beneathTilt.Sample(samplerAni, (ip.TexCoord * 50.) % 1.).rgb;
 
+	// Colour interpolation values
 	float height = specialLerp(ip.PosW.y, 0.1f, 1.f);
 	float dotN = dot(float3(0, 1, 0), ip.Normal);
 	float tilt = specialLerp(dotN, 0.60f, 0.70f);
-
+	
+	//Sample and shade from shadowmap
 	float shade = calcShadowFactor(texture_shadowMap, ip.ShadowPosH);
+
 	float3 flatColor = lerp(beneathFlat, aboveFlat, height);
 	float3 baseTiltColor =
 		lerp(aboveTilt, betweenTiltAndFlat, float3(1, 1, 1) * specialLerp(dotN, 0.45f, 0.55f));
