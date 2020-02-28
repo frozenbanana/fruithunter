@@ -13,6 +13,7 @@ public:
 	float castRay(float3 point, float3 direction);
 
 	void draw();
+	void drawShadow();
 
 	float3 getSpawnpoint(int terrainType);
 

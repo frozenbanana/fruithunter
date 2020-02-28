@@ -40,6 +40,8 @@ Camera::Camera(float3 camEye, float3 camTarget, float3 camUp) {
 	m_projMatrix = XMMatrixPerspectiveFovLH(
 		m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, NEAR_PLANE, FAR_PLANE);
 	m_viewMatrix = XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
+	
+
 	m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 
 	// Create constant buffer
@@ -93,9 +95,12 @@ void Camera::updateBuffer() {
 	if (m_viewChanged || m_projChanged) {
 
 		m_viewMatrix = XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
-
+		/*ErrorLogger::logFloat3("CameraPos: ", m_camEye);
+		ErrorLogger::logFloat3("CameraTarget: ", m_camTarget);
+		ErrorLogger::logFloat3("CameraUp: ", m_camUp);*/
+		
 		m_projMatrix = XMMatrixPerspectiveFovLH(
-			m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, NEAR_PLANE, FAR_PLANE);
+			m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, NEAR_PLANE, FAR_PLANE);		
 
 		m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 

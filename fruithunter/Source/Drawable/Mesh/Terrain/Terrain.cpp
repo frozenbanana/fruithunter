@@ -106,19 +106,19 @@ float Terrain::sampleHeightmap(float2 uv) {
 	if (m_heightmapDescription.Format == DXGI_FORMAT_R8_UNORM) {
 		unsigned char r =
 			((unsigned char*)
-					m_heightmapMappedData.pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x];
+				m_heightmapMappedData.pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x];
 		v = (float)r / (pow(2.f, 1.f * 8.f) - 1.f);
 	}
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R8G8B8A8_UNORM) {
 		unsigned char r = ((unsigned char*)m_heightmapMappedData
-							   .pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
+			.pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
 		v = (float)r / (pow(2.f, 1.f * 8.f) - 1.f);
 	}
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R8G8B8A8_UNORM_SRGB) {
 		unsigned char r = ((unsigned char*)m_heightmapMappedData
-							   .pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
+			.pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
 		unsigned char g = ((unsigned char*)m_heightmapMappedData
-							   .pData)[(iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4) + 1];
+			.pData)[(iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4) + 1];
 		if ((float)g > 0.0f)
 			m_spawnPoint.push_back(float2((float)iUV.x, (float)iUV.y));
 		v = (float)r / 255.f;
@@ -126,8 +126,8 @@ float Terrain::sampleHeightmap(float2 uv) {
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R16G16B16A16_UNORM) {
 		unsigned short int r =
 			((unsigned short int*)m_heightmapMappedData
-					.pData)[iUV.y * (m_heightmapMappedData.RowPitch / sizeof(short int)) +
-							iUV.x * 4];
+				.pData)[iUV.y * (m_heightmapMappedData.RowPitch / sizeof(short int)) +
+			iUV.x * 4];
 		v = (float)r / (pow(2.f, sizeof(short int) * 8.f) - 1.f);
 	}
 	return v;
@@ -163,9 +163,9 @@ void Terrain::createGridPointsFromHeightmap() {
 			for (int yy = 1; yy < m_gridPointSize.y - 1; yy++) {
 				float3 current = mapCopy[xx][yy].position;
 				float3 average = (mapCopy[xx][yy].position + mapCopy[xx + 1][yy].position +
-									 mapCopy[xx][yy + 1].position + mapCopy[xx - 1][yy].position +
-									 mapCopy[xx][yy - 1].position) /
-								 5.0f;
+					mapCopy[xx][yy + 1].position + mapCopy[xx - 1][yy].position +
+					mapCopy[xx][yy - 1].position) /
+					5.0f;
 				m_gridPoints[xx][yy].position = average;
 			}
 		}
@@ -644,6 +644,27 @@ void Terrain::draw() {
 		for (int i = 0; i < m_mapCount; i++) {
 			deviceContext->PSSetShaderResources(i, 1, m_maps[i].GetAddressOf());
 		}
+
+		// bind world matrix
+		bindModelMatrix();
+
+		// draw grids
+		for (int xx = 0; xx < m_gridSize.x; xx++) {
+			for (int yy = 0; yy < m_gridSize.y; yy++) {
+				m_subMeshes[xx][yy].bind();
+				deviceContext->Draw(m_subMeshes[xx][yy].getVerticeCount(), 0);
+			}
+		}
+	}
+}
+
+void Terrain::drawShadow() {
+	if (m_mapsInitilized) {
+
+		ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+
+		// bind shaders
+		m_shader.bindShadersAndLayoutForShadowMap();
 
 		// bind world matrix
 		bindModelMatrix();

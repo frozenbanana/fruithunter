@@ -226,6 +226,7 @@ void LevelHandler::loadLevel(int levelNr) {
 }
 
 void LevelHandler::draw() {
+	m_player.draw(); // draw after water/lava effect, bow will affect the depth buffer
 	Renderer::getInstance()->enableAlphaBlending();
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->draw_animate();
@@ -238,17 +239,28 @@ void LevelHandler::draw() {
 	}
 	m_entity.draw();
 	m_terrainProps.draw();
-	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
+
 
 
 	// water/lava effect
 	Renderer::getInstance()->copyDepthToSRV();
 	waterEffect.draw();
 	lavaEffect.draw();
-
-	m_player.draw(); // draw after water/lava effect, bow will affect the depth buffer
+	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 
 	m_hud.draw();
+}
+
+void LevelHandler::drawShadow() {
+	for (int i = 0; i < m_fruits.size(); i++) {
+		m_fruits[i]->draw_animate_shadow();
+	}
+	m_terrainManager->drawShadow();
+
+	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
+		m_collidableEntities[i]->drawShadow();
+	}
+	m_terrainProps.drawShadow();
 }
 
 void LevelHandler::update(float dt) {
@@ -263,7 +275,7 @@ void LevelHandler::update(float dt) {
 
 	dropFruit();
 
-	float3 playerPos = m_player.getPosition();
+	float3 playerPos = m_player.getPosition();	
 
 	// update terrain tag
 	int activeTerrain = m_terrainManager->getTerrainIndexFromPosition(playerPos);
@@ -332,6 +344,8 @@ void LevelHandler::update(float dt) {
 	m_hud.update(dt, m_player.getStamina());
 	waterEffect.update(dt);
 	lavaEffect.update(dt);
+
+	//Renderer::getInstance()->setPlayerPos(playerPos);
 }
 
 void LevelHandler::pickUpFruit(int fruitType) {
@@ -372,3 +386,5 @@ void LevelHandler::dropFruit() {
 		}
 	}
 }
+
+float3 LevelHandler::getPlayerPos() { return m_player.getPosition(); }

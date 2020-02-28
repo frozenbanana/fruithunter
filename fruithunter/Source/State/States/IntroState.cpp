@@ -49,6 +49,7 @@ void IntroState::pause() {
 }
 
 void IntroState::draw() {
+	Renderer::getInstance()->beginFrame();
 	m_camera.bindMatrix();
 	// ErrorLogger::log(m_name + " draw() called.");
 	float t = m_timer.getTimePassed();

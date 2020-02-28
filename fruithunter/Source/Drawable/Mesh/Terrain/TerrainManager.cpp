@@ -69,6 +69,12 @@ void TerrainManager::draw() {
 	}
 }
 
+void TerrainManager::drawShadow() {
+	for (size_t i = 0; i < m_terrains.size(); i++) {
+		m_terrains[i].draw();
+	}
+}
+
 float3 TerrainManager::getSpawnpoint(int terrainType) {
 	return m_terrains[terrainType].getRandomSpawnPoint();
 }
