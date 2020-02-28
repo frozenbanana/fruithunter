@@ -11,7 +11,7 @@ The player selects a level represented by a fruit bowl. The fruit bowl tells you
 The fruits are moving and challenging to meet. Each type of fruit can be found in its own area on the course. Some areas are protected by animals that you have to bribe with other types of fruits to gain access. Other areas require hope to reach. When the player has collected all the fruits required for the fruit bowl, the round is over and time determines one's performance.
 
 # Show case 
-![fruithunter-showcase_2020-02-25](https://www.youtube.com/watch?v=V_Owri8bVNE)
+[![Watch the video](https://img.youtube.com/vi/T-V_Owri8bVNE/maxresdefault.jpg)](https://www.youtube.com/watch?v=V_Owri8bVNE)
 
 # Made by
 This game is made by Master Game Development students at [Blekinge Institute of Technology](https://bth.se/eng). 
