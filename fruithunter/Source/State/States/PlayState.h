@@ -5,6 +5,7 @@
 #include "TextRenderer.h"
 #include "AudioHandler.h"
 #include "LevelHandler.h"
+#include "ShadowMapping.h"
 //#include "Entity.h"
 //#include "TerrainManager.h"
 //#include "Apple.h"
@@ -20,6 +21,7 @@ public:
 	void pause();
 	void play();
 	void draw();
+	void drawShadow();
 
 	PlayState() { initialize(); }
 
@@ -27,4 +29,7 @@ private:
 	Timer m_timer;
 	Quad m_quad;
 	LevelHandler m_levelHandler;
+
+	// Shadow stuff
+	unique_ptr<ShadowMapper> m_shadowMap;
 };

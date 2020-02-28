@@ -218,6 +218,21 @@ void Mesh::draw() {
 		}
 	}
 }
+void Mesh::drawShadow() {
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+
+	if (m_materials.size() > 0)
+		m_shaderObject.bindShadersAndLayoutForShadowMap();
+	else {
+		draw_noMaterial();
+		return;
+	}
+
+	bindMesh();
+
+	deviceContext->Draw((UINT)m_meshVertices.size(), 0);
+}
+
 void Mesh::draw_noMaterial(float3 color) {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
@@ -319,9 +334,9 @@ float Mesh::castRayOnMesh(float3 rayPos, float3 rayDir) {
 		int length = (int)m_meshVertices.size() / 3;
 		for (int i = 0; i < length; i++) {
 			int index = i * 3;
-			float3 v0 = m_meshVertices[index + 0].position;
-			float3 v1 = m_meshVertices[index + 1].position;
-			float3 v2 = m_meshVertices[index + 2].position;
+			float3 v0 = m_meshVertices[(int)index + (int)0].position;
+			float3 v1 = m_meshVertices[(int)index + (int)1].position;
+			float3 v2 = m_meshVertices[(int)index + (int)2].position;
 			float t = triangleTest(rayDir, rayPos, v0, v1, v2);
 			if ((t > 0 && t < closest) || closest < 0)
 				closest = t;

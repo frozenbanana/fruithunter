@@ -76,6 +76,7 @@ public:
 	void initialise();
 	void loadLevel(int levelNr);
 	void draw();
+	void drawShadow();
 	void update(float dt);
 
 	// Fruit stuff
@@ -83,4 +84,6 @@ public:
 	void dropFruit();
 
 	std::vector<Fruit> fruitsInLevel;
+
+	float3 getPlayerPos();
 };

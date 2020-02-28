@@ -654,6 +654,27 @@ void Terrain::draw() {
 	}
 }
 
+void Terrain::drawShadow() {
+	if (m_mapsInitilized) {
+
+		ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+
+		// bind shaders
+		m_shader.bindShadersAndLayoutForShadowMap();
+
+		// bind world matrix
+		bindModelMatrix();
+
+		// draw grids
+		for (int xx = 0; xx < m_gridSize.x; xx++) {
+			for (int yy = 0; yy < m_gridSize.y; yy++) {
+				m_subMeshes[xx][yy].bind();
+				deviceContext->Draw(m_subMeshes[xx][yy].getVerticeCount(), 0);
+			}
+		}
+	}
+}
+
 Terrain::Terrain(string filename, vector<string> textures, XMINT2 subsize, XMINT2 splits) {
 	initilize(filename, textures, subsize, splits);
 	if (!m_shader.isLoaded()) {
