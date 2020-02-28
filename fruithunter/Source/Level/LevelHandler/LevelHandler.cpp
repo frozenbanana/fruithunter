@@ -226,6 +226,7 @@ void LevelHandler::loadLevel(int levelNr) {
 }
 
 void LevelHandler::draw() {
+	m_skyBox.bindLightBuffer();
 	m_player.draw(); // draw after water/lava effect, bow will affect the depth buffer
 	Renderer::getInstance()->enableAlphaBlending();
 	for (int i = 0; i < m_fruits.size(); i++) {
@@ -299,8 +300,11 @@ void LevelHandler::update(float dt) {
 			m_oldTerrain = m_currentTerrain;
 			m_currentTerrain = tag;
 			m_skyBox.resetDelta();
+			m_skyBox.updateNewOldLight(tag);
 		}
 	}
+
+	m_skyBox.updateCurrentLight();
 
 	// update stuff
 	for (int i = 0; i < m_fruits.size(); i++) {
