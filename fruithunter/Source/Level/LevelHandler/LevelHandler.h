@@ -17,8 +17,8 @@
 
 struct PathFindingThread {
 	size_t m_ObjectsToBeUpdated = 0;
-	std::unique_ptr<size_t> m_currentFrame;
-	thread m_thread;
+	std::shared_ptr<size_t> m_currentFrame;
+	thread* m_thread = nullptr;
 	mutex m_mutex;
 	std::vector<shared_ptr<Fruit>> m_batch;
 	std::vector<shared_ptr<Entity>> m_collidables;
@@ -52,12 +52,12 @@ struct PathFindingThread {
 		}
 	}
 
-	PathFindingThread(std::vector<shared_ptr<Fruit>> batch, unique_ptr<size_t> currentFrame,
+	PathFindingThread(std::vector<shared_ptr<Fruit>> batch, shared_ptr<size_t> currentFrame,
 		vector<shared_ptr<Entity>> collidables) {
-		m_thread = thread(&PathFindingThread::run);
 		m_batch = batch;
 		m_currentFrame = currentFrame;
 		m_collidables = collidables;
+		m_thread = new thread([this] { run(); });
 	}
 };
 
@@ -116,7 +116,7 @@ private:
 
 	// thread for pathfinding,
 	unique_ptr<PathFindingThread> m_thread;
-	unique_ptr<size_t> m_frame;
+	shared_ptr<size_t> m_frame;
 
 public:
 	LevelHandler();
