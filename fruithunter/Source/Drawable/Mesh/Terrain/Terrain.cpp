@@ -10,7 +10,7 @@ Microsoft::WRL::ComPtr<ID3D11SamplerState> Terrain::m_sampler;
 void Terrain::createBuffers() {
 	auto gDevice = Renderer::getDevice();
 	auto gDeviceContext = Renderer::getDeviceContext();
-	//sampler
+	// sampler
 	if (m_sampler.Get() == nullptr) {
 		D3D11_SAMPLER_DESC sampDesc;
 		sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
@@ -106,19 +106,19 @@ float Terrain::sampleHeightmap(float2 uv) {
 	if (m_heightmapDescription.Format == DXGI_FORMAT_R8_UNORM) {
 		unsigned char r =
 			((unsigned char*)
-					m_heightmapMappedData.pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x];
+				m_heightmapMappedData.pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x];
 		v = (float)r / (pow(2.f, 1.f * 8.f) - 1.f);
 	}
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R8G8B8A8_UNORM) {
 		unsigned char r = ((unsigned char*)m_heightmapMappedData
-							   .pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
+			.pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
 		v = (float)r / (pow(2.f, 1.f * 8.f) - 1.f);
 	}
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R8G8B8A8_UNORM_SRGB) {
 		unsigned char r = ((unsigned char*)m_heightmapMappedData
-							   .pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
+			.pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
 		unsigned char g = ((unsigned char*)m_heightmapMappedData
-							   .pData)[(iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4)+1];
+			.pData)[(iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4) + 1];
 		if ((float)g > 0.0f)
 			m_spawnPoint.push_back(float2((float)iUV.x, (float)iUV.y));
 		v = (float)r / 255.f;
@@ -126,8 +126,8 @@ float Terrain::sampleHeightmap(float2 uv) {
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R16G16B16A16_UNORM) {
 		unsigned short int r =
 			((unsigned short int*)m_heightmapMappedData
-					.pData)[iUV.y * (m_heightmapMappedData.RowPitch / sizeof(short int)) +
-							iUV.x * 4];
+				.pData)[iUV.y * (m_heightmapMappedData.RowPitch / sizeof(short int)) +
+			iUV.x * 4];
 		v = (float)r / (pow(2.f, sizeof(short int) * 8.f) - 1.f);
 	}
 	return v;
@@ -163,9 +163,9 @@ void Terrain::createGridPointsFromHeightmap() {
 			for (int yy = 1; yy < m_gridPointSize.y - 1; yy++) {
 				float3 current = mapCopy[xx][yy].position;
 				float3 average = (mapCopy[xx][yy].position + mapCopy[xx + 1][yy].position +
-									 mapCopy[xx][yy + 1].position + mapCopy[xx - 1][yy].position +
-									 mapCopy[xx][yy - 1].position) /
-								 5.0f;
+					mapCopy[xx][yy + 1].position + mapCopy[xx - 1][yy].position +
+					mapCopy[xx][yy - 1].position) /
+					5.0f;
 				m_gridPoints[xx][yy].position = average;
 			}
 		}
@@ -344,7 +344,7 @@ void Terrain::tileRayIntersectionTest(
 	}
 }
 
-float3 Terrain::getRandomSpawnPoint() { 
+float3 Terrain::getRandomSpawnPoint() {
 	if (m_spawnPoint.size() > 0) {
 		size_t random = rand() % m_spawnPoint.size();
 		float3 spawnPoint = float3(m_spawnPoint[random].x, 0.0f, m_spawnPoint[random].y);
@@ -415,7 +415,8 @@ float Terrain::triangleTest(
 
 void Terrain::setPosition(float3 position) { m_position = position; }
 
-void Terrain::initilize(string filename, vector<string> textures, XMINT2 subsize, XMINT2 splits) {
+void Terrain::initilize(
+	string filename, vector<string> textures, XMINT2 subsize, XMINT2 splits, float3 wind) {
 	// set texture
 	if (textures.size() == 4) {
 		for (size_t i = 0; i < m_mapCount; i++) {
@@ -429,6 +430,7 @@ void Terrain::initilize(string filename, vector<string> textures, XMINT2 subsize
 	else {
 		m_isInitilized = true;
 		m_tileSize = subsize;
+		m_wind = wind;
 		createGrid(splits); // create space for memory
 		if (loadHeightmap(m_heightmapPath + filename)) {
 			createGridPointsFromHeightmap();
@@ -625,26 +627,28 @@ float Terrain::castRay(float3 point, float3 direction) {
 	return -1;
 }
 
+float3 Terrain::getWind() { return m_wind; }
+
 void Terrain::draw() {
 	if (m_mapsInitilized) {
 
 		ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
-		//bind shaders
+		// bind shaders
 		m_shader.bindShadersAndLayout();
 
-		//bind samplerstate
-		deviceContext->PSSetSamplers(SAMPLERSTATE_SLOT,1,m_sampler.GetAddressOf());
+		// bind samplerstate
+		deviceContext->PSSetSamplers(SAMPLERSTATE_SLOT, 1, m_sampler.GetAddressOf());
 
-		//bind texture resources
+		// bind texture resources
 		for (int i = 0; i < m_mapCount; i++) {
 			deviceContext->PSSetShaderResources(i, 1, m_maps[i].GetAddressOf());
 		}
 
-		//bind world matrix
+		// bind world matrix
 		bindModelMatrix();
 
-		//draw grids
+		// draw grids
 		for (int xx = 0; xx < m_gridSize.x; xx++) {
 			for (int yy = 0; yy < m_gridSize.y; yy++) {
 				m_subMeshes[xx][yy].bind();
@@ -675,8 +679,9 @@ void Terrain::drawShadow() {
 	}
 }
 
-Terrain::Terrain(string filename, vector<string> textures, XMINT2 subsize, XMINT2 splits) {
-	initilize(filename, textures, subsize, splits);
+Terrain::Terrain(
+	string filename, vector<string> textures, XMINT2 subsize, XMINT2 splits, float3 wind) {
+	initilize(filename, textures, subsize, splits, wind);
 	if (!m_shader.isLoaded()) {
 		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = {
 			{

@@ -28,6 +28,9 @@ struct Level {
 	// terrain props
 	string m_terrainPropsFilename;
 
+	// Wind
+	vector<float3> m_wind;
+
 	// Fruits
 	int m_nrOfFruits[NR_OF_FRUITS];
 	vector<int> m_fruitPos[NR_OF_FRUITS];

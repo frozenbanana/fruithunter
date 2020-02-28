@@ -12,6 +12,7 @@ private:
 		Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 
 		void createBuffers();
+
 	public:
 		void initilize();
 		vector<Vertex>* getPtr();
@@ -26,8 +27,8 @@ private:
 
 	bool m_isInitilized = false;
 	static ShaderSet m_shader;
-	float3 m_position = float3(0,0,0);
-	float3 m_rotation = float3(0,0,0);
+	float3 m_position = float3(0, 0, 0);
+	float3 m_rotation = float3(0, 0, 0);
 	float3 m_scale = float3(1, 0.25, 1) * 100;
 	bool m_modelMatrixChanged = true;
 	struct ModelBuffer {
@@ -62,14 +63,16 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_maps[4];
 	bool m_mapsInitilized = false;
 
-	//World Matrix
+	// World Matrix
 	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;
 
-	//Sampler description
+	// Sampler description
 	static Microsoft::WRL::ComPtr<ID3D11SamplerState> m_sampler;
 
-	//Spawn point
+	// Spawn point
 	vector<float2> m_spawnPoint;
+
+	float3 m_wind = float3(0.f, 0.f, 10.f);
 
 	//	--Functions--
 
@@ -104,7 +107,7 @@ public:
 	// Spawn point
 	float3 getRandomSpawnPoint();
 
-	//Other stuff
+	// Other stuff
 
 	static float obbTest(float3 rayOrigin, float3 rayDir, float3 boxPos, float3 boxScale);
 	static float triangleTest(
@@ -112,7 +115,8 @@ public:
 
 	void setPosition(float3 position);
 
-	void initilize(string filename, vector<string> textures, XMINT2 subsize, XMINT2 splits = XMINT2(1, 1));
+	void initilize(string filename, vector<string> textures, XMINT2 subsize,
+		XMINT2 splits = XMINT2(1, 1), float3 wind = float3(0.f, 0.f, 0.f));
 
 	void rotateY(float radian);
 	void setScale(float3 scale);
@@ -122,10 +126,13 @@ public:
 	float3 getNormalFromPosition(float x, float z);
 	float castRay(float3 point, float3 direction);
 
+	float3 getWind();
+
 	void draw();
 	void drawShadow();
 
-	Terrain(string filename = "", vector<string> textures = vector<string>(), XMINT2 subsize = XMINT2(0, 0),
-		XMINT2 splits = XMINT2(1, 1));
+	Terrain(string filename = "", vector<string> textures = vector<string>(),
+		XMINT2 subsize = XMINT2(0, 0), XMINT2 splits = XMINT2(1, 1),
+		float3 wind = float3(0.f, 0.f, 0.f));
 	~Terrain();
 };

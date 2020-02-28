@@ -68,18 +68,27 @@ void LevelHandler::initialiseLevel0() {
 	maps[3] = "texture_rock6.jpg";
 	level0.m_heightmapTextures.push_back(maps);
 
+	level0.m_wind.push_back(float3(0.f, 10.f, 0.f));  // Volcano
+	level0.m_wind.push_back(float3(10.f, 0.f, 10.f)); // Forest
+	level0.m_wind.push_back(float3(20.f, 0.f, 0.f));  // Desert
+	level0.m_wind.push_back(float3(0.f, 0.f, 40.f));  // Plains
+
+
 	level0.m_nrOfFruits[APPLE] = 2;
 	level0.m_nrOfFruits[BANANA] = 1;
 	level0.m_nrOfFruits[MELON] = 5;
 
-	level0.m_playerStartPos = float3(100.f, 1.0f, 100.f);
+	level0.m_winCondition[APPLE] = 1;
+	level0.m_winCondition[BANANA] = 1;
+	level0.m_winCondition[MELON] = 2;
+
+	level0.m_playerStartPos = float3(20.f, 0.0f, 20.f);
 
 	level0.m_timeTargets[GOLD] = 20;
 	level0.m_timeTargets[SILVER] = 35;
 	level0.m_timeTargets[BRONZE] = 80;
 
 	m_levelsArr.push_back(level0);
-	m_hud.setTimeTargets(level0.m_timeTargets);
 }
 
 void LevelHandler::placeBridge(float3 pos, float3 rot, float3 scale) {
@@ -155,7 +164,7 @@ void LevelHandler::loadLevel(int levelNr) {
 			m_terrainManager->add(currentLevel.m_heightMapPos.at(i),
 				currentLevel.m_heightMapScales[i], currentLevel.m_heightMapNames.at(i),
 				currentLevel.m_heightmapTextures[i], currentLevel.m_heightMapSubSize.at(i),
-				currentLevel.m_heightMapDivision.at(i));
+				currentLevel.m_heightMapDivision.at(i), currentLevel.m_wind.at(i));
 		}
 
 		for (int i = 0; i < currentLevel.m_nrOfFruits[APPLE]; i++) {
@@ -199,6 +208,9 @@ void LevelHandler::loadLevel(int levelNr) {
 		m_collidableEntities.push_back(newEntity);
 
 		placeAllBridges();
+
+		m_hud.setTimeTargets(currentLevel.m_timeTargets);
+		m_hud.setWinCondition(currentLevel.m_winCondition);
 
 		if (currentLevel.m_nrOfFruits[APPLE] != 0)
 			m_hud.createFruitSprite("apple");
@@ -329,7 +341,7 @@ void LevelHandler::update(float dt) {
 	//	}
 	//}
 
-	m_hud.update(dt);
+	m_hud.update(dt, m_player.getStamina());
 	waterEffect.update(dt);
 	lavaEffect.update(dt);
 
