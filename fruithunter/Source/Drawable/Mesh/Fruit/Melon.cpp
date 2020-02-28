@@ -52,10 +52,10 @@ void Melon::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> co
 void Melon::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
 	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
 
-		if (m_availablePath.empty()) {
+		/*if (m_availablePath.empty()) {
 			float3 target = circulateAround(playerPosition);
 			pathfinding(m_position, target, collidables);
-		}
+		}*/
 	}
 
 	lookTo(playerPosition);

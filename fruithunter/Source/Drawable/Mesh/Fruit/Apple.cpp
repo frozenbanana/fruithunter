@@ -22,30 +22,30 @@ void Apple::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> co
 		m_speed = 0.0f;
 		changeState(ACTIVE);
 	}
-	else {
-		if (!withinDistanceTo(m_worldHome, ARRIVAL_RADIUS) && atOrUnder(terrainHeight)) {
-			// Check if there is no other path on going
-			if (m_availablePath.empty() && !m_isBusy) {
-				if (m_nrOfTriesGoHome++ < 10) {
-					pathfinding(m_position, m_worldHome, collidables); // go home
-				}
-				else {
-					setWorldHome(m_position + float3(0.001f, 0, 0.001f));
-					m_nrOfTriesGoHome = 0;
-				}
-				m_directionalVelocity =
-					m_worldHome - m_position; // ensures homegoing even if path returns nothing
-				m_directionalVelocity.Normalize();
-				m_speed = 2.0f;
-			}
-		}
-		else { // Just jump when home
-			if (atOrUnder(terrainHeight)) {
+	// else {
+	//	if (!withinDistanceTo(m_worldHome, ARRIVAL_RADIUS) && atOrUnder(terrainHeight)) {
+	//		// Check if there is no other path on going
+	//		if (m_availablePath.empty() && !m_isBusy) {
+	//			if (m_nrOfTriesGoHome++ < 10) {
+	//				pathfinding(m_position, m_worldHome, collidables); // go home
+	//			}
+	//			else {
+	//				setWorldHome(m_position + float3(0.001f, 0, 0.001f));
+	//				m_nrOfTriesGoHome = 0;
+	//			}
+	//			m_directionalVelocity =
+	//				m_worldHome - m_position; // ensures homegoing even if path returns nothing
+	//			m_directionalVelocity.Normalize();
+	//			m_speed = 2.0f;
+	//		}
+	//	}
+	//	else { // Just jump when home
+	//		if (atOrUnder(terrainHeight)) {
 
-				jump(float3(0.0f, 1.0f, 0.0), 2.5f);
-			}
-		}
-	}
+	//			jump(float3(0.0f, 1.0f, 0.0), 2.5f);
+	//		}
+	//	}
+	//}
 }
 
 void Apple::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
@@ -111,12 +111,12 @@ void Apple::updateAnimated(float dt) {
 
 void Apple::flee(float3 playerPos, vector<shared_ptr<Entity>> collidables) {
 	// Update fleeing path if ther is none
-	if (m_availablePath.empty() && !m_isBusy) {
+	/*if (m_availablePath.empty() && !m_isBusy) {
 		float3 runTo = m_position - playerPos;
 		runTo.Normalize();
 		runTo *= m_passiveRadius;
 		runTo += m_position;
 		pathfinding(m_position, runTo, collidables);
-	}
+	}*/
 	// set new velocity from path
 }

@@ -17,20 +17,44 @@
 
 struct PathFindingThread {
 	size_t m_ObjectsToBeUpdated = 0;
-	std::shared_ptr<size_t> m_currentFrame;
+	std::unique_ptr<size_t> m_currentFrame;
 	thread m_thread;
 	mutex m_mutex;
 	std::vector<shared_ptr<Fruit>> m_batch;
 	std::vector<shared_ptr<Entity>> m_collidables;
 
 
-	void update(int frame){ m_batch.at(0)->update()
-
+	bool checkVolitale(bool statement) {
+		bool rtn;
+		m_mutex.lock();
+		rtn = statement;
+		m_mutex.unlock();
 	}
 
-	PathFindingThread(std::vector<shared_ptr<Fruit>> batch, shared_ptr<size_t> currentFrame,
+
+	void run() {
+
+		size_t counter = 0;
+		size_t index = 0;
+		// Thread updateLoop
+		while (1) {
+			/*m_mutex.lock();
+			counter += (*m_currentFrame % 10 == 0) ? 1 : 0;
+			m_mutex.unlock();
+
+			if (checkVolitale(m_batch.at(index)->giveNewPath())) {
+				float3 pathStart = m_batch.at(index)->getPosition();
+				m_batch.at(index)->pathfinding(pathStart, m_collidables, m_mutex);
+			}
+*/
+			ErrorLogger::log("Thread running");
+			index = (index < m_batch.size()) ? index + 1 : 0;
+		}
+	}
+
+	PathFindingThread(std::vector<shared_ptr<Fruit>> batch, unique_ptr<size_t> currentFrame,
 		vector<shared_ptr<Entity>> collidables) {
-		m_thread = thread();
+		m_thread = thread(&PathFindingThread::run);
 		m_batch = batch;
 		m_currentFrame = currentFrame;
 		m_collidables = collidables;
@@ -91,7 +115,8 @@ private:
 
 
 	// thread for pathfinding,
-
+	unique_ptr<PathFindingThread> m_thread;
+	unique_ptr<size_t> m_frame;
 
 public:
 	LevelHandler();

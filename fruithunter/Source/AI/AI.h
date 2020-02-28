@@ -41,15 +41,18 @@ public:
 	};
 	enum State { INACTIVE, PASSIVE, ACTIVE, CAUGHT, RELEASED };
 	void setWorld(std::shared_ptr<Terrain> terrain);
-	void pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collidables);
+	void pathfinding(float3 start, vector<shared_ptr<Entity>> collidables, mutex& mu);
 	void changeState(State newState);
 	State getState() const;
+	bool giveNewPath() const;
 
 protected:
 	float m_passiveRadius, m_activeRadius;
-	mutex m_mutex;
 
-	bool m_isBusy = false;
+	float3 m_destination;
+	// mutex m_mutex;
+
+	bool m_readyForPath = false;
 	State m_currentState;
 	std::shared_ptr<Terrain> m_terrain;
 	std::list<float3> m_availablePath;

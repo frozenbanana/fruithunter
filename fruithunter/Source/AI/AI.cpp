@@ -94,22 +94,23 @@ bool AI::isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entit
 
 void AI::setWorld(std::shared_ptr<Terrain> terrain) { m_terrain = terrain; }
 
-void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collidables) {
+void AI::pathfinding(float3 start, vector<shared_ptr<Entity>> collidables, mutex& mu) {
 	// ErrorLogger::log("thread starting for pathfinding");
-	if (!m_isBusy) {
-		thread t([this, start, end, collidables] {
-			m_mutex.lock();
-			m_isBusy = true;
+	if (!m_readyForPath) {
+		{
+			mu.lock();
+			m_readyForPath = true;
 			m_availablePath.clear();
-			m_mutex.unlock();
 
 			TerrainManager* tm = TerrainManager::getInstance();
-			// enforce start and end to terrain
+			// enforce start and m_destination to terrain
 			float3 startCopy = float3(start.x, tm->getHeightFromPosition(start), start.z);
-			float3 endCopy = float3(end.x, tm->getHeightFromPosition(end), end.z);
+			float3 m_destinationCopy =
+				float3(m_destination.x, tm->getHeightFromPosition(m_destination), m_destination.z);
+			mu.unlock();
 
-			shared_ptr<AI::Node> currentNode =
-				make_shared<AI::Node>(shared_ptr<AI::Node>(), startCopy, startCopy, endCopy);
+			shared_ptr<AI::Node> currentNode = make_shared<AI::Node>(
+				shared_ptr<AI::Node>(), startCopy, startCopy, m_destinationCopy);
 			bool collidedWithSomething = false;
 			size_t counter = 0;
 			std::vector<shared_ptr<AI::Node>> open;
@@ -126,12 +127,12 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 				closed.push_back(open.back());
 				open.pop_back();
 
-				// Check to see if we're inside a certain radius of endCopy location
+				// Check to see if we're inside a certain radius of m_destinationCopy location
 				shared_ptr<AI::Node> currentNode = closed.back();
 
-				if ((currentNode->position - endCopy).LengthSquared() < ARRIVAL_RADIUS ||
+				if ((currentNode->position - m_destinationCopy).LengthSquared() < ARRIVAL_RADIUS ||
 					counter == MAX_STEPS - 1) {
-					m_mutex.lock();
+					mu.lock();
 					m_availablePath.clear(); // Reset path
 
 					// Add path steps
@@ -145,8 +146,8 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 						m_availablePath.pop_back(); // remove first position because it is the same
 													// as startCopy.
 					}
-					m_isBusy = false;
-					m_mutex.unlock();
+					m_readyForPath = false;
+					mu.unlock();
 
 					// ErrorLogger::log(
 					//	"thread successfully closed. Path found. Steps: " + to_string(counter));
@@ -159,8 +160,8 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 					float3 childPosition = currentNode->position + STEP_SCALE * childOffset;
 					childPosition.y = tm->getHeightFromPosition(childPosition);
 
-					shared_ptr<AI::Node> child =
-						make_shared<AI::Node>(currentNode, childPosition, startCopy, endCopy);
+					shared_ptr<AI::Node> child = make_shared<AI::Node>(
+						currentNode, childPosition, startCopy, m_destinationCopy);
 
 
 					// Check if node is in open or closed.
@@ -176,26 +177,22 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 					open.push_back(child);
 				}
 			}
-			m_mutex.lock();
+			mu.lock();
 			while (currentNode->parent != nullptr) {
 				m_availablePath.push_back(currentNode->position);
 				currentNode = currentNode->parent;
 			}
-			m_isBusy = false;
-			m_mutex.unlock();
-		});
-		t.detach();
+			m_readyForPath = false;
+			mu.unlock();
+		}
 	}
 }
 
-void AI::changeState(State newState) {
-	m_mutex.lock();
-	m_availablePath.clear();
-	m_mutex.unlock();
-	m_currentState = newState;
-}
+void AI::changeState(State newState) { m_currentState = newState; }
 
 AI::State AI::getState() const { return m_currentState; }
+
+bool AI::giveNewPath() const { return m_readyForPath; }
 
 void AI::doBehavior(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
 	switch (m_currentState) {
