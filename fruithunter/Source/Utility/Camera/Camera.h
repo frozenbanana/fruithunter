@@ -2,6 +2,7 @@
 #include "GlobalNamespaces.h"
 
 #define MATRIX_SLOT 1
+#define MATRIX_VP_SLOT 5
 
 class Camera {
 public:

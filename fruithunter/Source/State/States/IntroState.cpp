@@ -15,7 +15,7 @@ void IntroState::initialize() {
 
 	// m_entity.loadAnimated("Bow", 3);
 	// m_entity.load("Melon_000000");
-	m_particleSystem = ParticleSystem(50);
+	m_particleSystem = ParticleSystem(90);
 	m_camera.setView(float3(0.f, 0.f, -10.f), float3(0.f, 0.f, 0.f), float3(0.f, 1.f, 0.f));
 }
 
@@ -23,6 +23,8 @@ void IntroState::update() {
 	// AudioHandler::logStats();
 	m_timer.update();
 	float dt = m_timer.getDt();
+
+	m_particleSystem.update(dt);
 
 	m_entity.updateAnimated(dt);
 	/*for (size_t i = 0; i < 16; ++i) {
@@ -71,10 +73,7 @@ void IntroState::draw() {
 	m_textRenderer.draw("Settings", float2(400., 350.), menuColor);
 	m_textRenderer.draw("Quit", float2(400., 425.), menuColor);
 
-	if (Input::getInstance()->keyDown(Keyboard::Space)) {
-		ErrorLogger::log("Particle should draw.");
-		m_particleSystem.draw();
-	}
+	m_particleSystem.draw();
 }
 
 void IntroState::play() {

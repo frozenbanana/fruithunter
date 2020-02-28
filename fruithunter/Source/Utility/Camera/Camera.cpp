@@ -125,7 +125,6 @@ void Camera::updateBuffer() {
 		ViewPerspectiveBuffer viewNPerspective;
 		viewNPerspective.mView = m_viewMatrix.Transpose();
 		viewNPerspective.mPerspective = m_projMatrix.Transpose();
-
 		deviceContext->UpdateSubresource(
 			m_matrixBufferViewNPerspective.Get(), 0, NULL, &viewNPerspective, 0, 0);
 
@@ -138,10 +137,12 @@ void Camera::bindMatrix() {
 	updateBuffer();
 	auto deviceContext = Renderer::getDeviceContext();
 	deviceContext->VSSetConstantBuffers(MATRIX_SLOT, 1, m_matrixBuffer.GetAddressOf());
-	deviceContext->VSSetConstantBuffers(5, 1, m_matrixBufferViewNPerspective.GetAddressOf());
+	deviceContext->VSSetConstantBuffers(
+		MATRIX_VP_SLOT, 1, m_matrixBufferViewNPerspective.GetAddressOf());
 
 	deviceContext->GSSetConstantBuffers(MATRIX_SLOT, 1, m_matrixBuffer.GetAddressOf());
-	deviceContext->VSSetConstantBuffers(5, 1, m_matrixBufferViewNPerspective.GetAddressOf());
+	deviceContext->GSSetConstantBuffers(
+		MATRIX_VP_SLOT, 1, m_matrixBufferViewNPerspective.GetAddressOf());
 }
 
 float4x4 Camera::getViewMatrix() const { return m_viewMatrix; }

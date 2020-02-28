@@ -1,18 +1,29 @@
 #include "ParticleSystem.h"
 #include "Renderer.h"
 #include "ErrorLogger.h"
+#include "time.h"
 
-#define RAND_MAXIMUM 100.f;
-float RandomFloat(float a, float b) {
-	float random = ((float)rand()) / (float)RAND_MAXIMUM;
-	float diff = b - a;
-	float r = random * diff;
-	return a + r;
+float RandomFloat(float low = 0.f, float high = 1.f) {
+	float randomCoefficent = (float)(rand() % (int)100.f) / 100.f; // normalize
+	return low + randomCoefficent * (high - low);
 }
 
-ParticleSystem::ParticleSystem(size_t nrOfParticles) {
+ShaderSet ParticleSystem::m_shaderSet;
 
-	m_particles.resize(nrOfParticles);
+ParticleSystem::ParticleSystem(size_t nrOfParticles) {
+	if (nrOfParticles > MAX_PARTICLES) {
+		ErrorLogger::logWarning(NULL, "Particle System is not allowed " + to_string(nrOfParticles) +
+										  ", limit is " + to_string(MAX_PARTICLES));
+	}
+	m_particles.resize(min(nrOfParticles, MAX_PARTICLES));
+
+	initialize();
+	// random seed
+	srand((unsigned int)time(NULL));
+
+	// Timer
+	m_timePassed = 0.0f;
+	// shader
 	if (!m_shaderSet.isLoaded()) {
 
 		D3D11_INPUT_ELEMENT_DESC inputLayout[] = {
@@ -26,49 +37,47 @@ ParticleSystem::ParticleSystem(size_t nrOfParticles) {
 				0							 // used for INSTANCING (ignore)
 			},
 			{ "Color", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "Size", 0, DXGI_FORMAT_R32_FLOAT, 0, 28, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
 
-		m_shaderSet.createShaders(L"", L"", L"", inputLayout, 2);
+		m_shaderSet.createShaders(L"VertexShader_particleSystem.hlsl",
+			L"GeometryShader_particleSystem.hlsl", L"PixelShader_particleSystem.hlsl", inputLayout,
+			3);
 	}
 }
 
 void ParticleSystem::initialize() {
-	float3 playerPos = float3(20.f, 0.0f, 20.f);
+	// float3 playerPos = float3(20.f, 0.0f, 20.f);
 	float3 randomOffset;
-	for (auto p : m_particles) {
-		randomOffset = float3(RandomFloat(-1.f, 1.0f), 1.0f, RandomFloat(-1.f, 1.0f));
-		p.setPosition(playerPos + randomOffset);
+	float4 randomColor;
+	float randomSize;
+
+	for (size_t i = 0; i < m_particles.size(); i++) {
+		randomOffset = float3(RandomFloat(-4.f, 4.0f), RandomFloat(-4.f, 4.0f), 0.0f);
+		randomColor = float4(RandomFloat(), RandomFloat(), RandomFloat(), 1.f);
+		randomSize = RandomFloat(0.05f, 0.3f);
+		m_particles[i].setPosition(randomOffset);
+		m_particles[i].setColor(randomColor);
+		m_particles[i].setSize(randomSize);
 	}
+
 	createBuffers();
 }
 
 void ParticleSystem::update(float dt) {
-	for (auto p : m_particles) {
-		p.update(dt, float3(1.0f, 0.0f, 0.0f));
+	m_timePassed += dt;
+	for (size_t i = 0; i < m_particles.size(); i++) {
+		m_particles[i].update(
+			dt, float3(sin(m_timePassed + float(i)), cos(m_timePassed + float(i % 4)), 0.0f));
 	}
+
+	Renderer::getDeviceContext()->UpdateSubresource(
+		m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
 }
 
 void ParticleSystem::createBuffers() {
 	auto device = Renderer::getDevice();
 	auto deviceContext = Renderer::getDeviceContext();
-
-	HRESULT check;
-
-	// vertex buffer
-	m_vertexBuffer.Reset();
-	D3D11_BUFFER_DESC bufferDesc;
-	memset(&bufferDesc, 0, sizeof(bufferDesc));
-
-	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	bufferDesc.ByteWidth = (UINT)m_nrOfParticles * sizeof(Particle);
-
-	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = m_particles.data();
-
-	check = device->CreateBuffer(&bufferDesc, &data, m_vertexBuffer.GetAddressOf());
-	if (FAILED(check))
-		ErrorLogger::logError(check, "Failed creating vertex buffer in Particle System class!\n");
 
 	//  Buffer for particle data
 	if (m_vertexBuffer.Get() == nullptr) {
@@ -79,7 +88,10 @@ void ParticleSystem::createBuffers() {
 		buffDesc.Usage = D3D11_USAGE_DEFAULT;
 		buffDesc.ByteWidth = sizeof(Particle) * MAX_PARTICLES;
 
-		check = device->CreateBuffer(&buffDesc, nullptr, m_vertexBuffer.GetAddressOf());
+		D3D11_SUBRESOURCE_DATA data;
+		data.pSysMem = m_particles.data();
+
+		HRESULT check = device->CreateBuffer(&buffDesc, &data, m_vertexBuffer.GetAddressOf());
 		if (FAILED(check))
 			ErrorLogger::logError(check, "Failed creating buffer in ParticleSystem class!\n");
 	}
@@ -97,6 +109,7 @@ void ParticleSystem::bindBuffers() {
 
 void ParticleSystem::draw() {
 	auto deviceContext = Renderer::getDeviceContext();
+	m_shaderSet.bindShadersAndLayout();
 	bindBuffers();
-	deviceContext->Draw(m_particles.size(), 0);
+	deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
 }
