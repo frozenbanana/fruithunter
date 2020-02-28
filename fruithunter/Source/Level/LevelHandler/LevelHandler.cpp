@@ -38,10 +38,10 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_heightMapSubSize.push_back(XMINT2(25, 25));
 	level0.m_heightMapSubSize.push_back(XMINT2(25, 25));
 
-	level0.m_heightMapDivision.push_back(XMINT2(10,10));
-	level0.m_heightMapDivision.push_back(XMINT2(10,10));
-	level0.m_heightMapDivision.push_back(XMINT2(10,10));
-	level0.m_heightMapDivision.push_back(XMINT2(10,10));
+	level0.m_heightMapDivision.push_back(XMINT2(10, 10));
+	level0.m_heightMapDivision.push_back(XMINT2(10, 10));
+	level0.m_heightMapDivision.push_back(XMINT2(10, 10));
+	level0.m_heightMapDivision.push_back(XMINT2(10, 10));
 
 	level0.m_heightMapScales.push_back(float3(1.f, 0.20f, 1.f) * 100);
 	level0.m_heightMapScales.push_back(float3(1.f, 0.15f, 1.f) * 100);
@@ -124,6 +124,13 @@ LevelHandler::LevelHandler() { initialise(); }
 LevelHandler::~LevelHandler() {}
 
 void LevelHandler::initialise() {
+
+	tree = Node<int>(float2(0, 0), float2(1.f, 1.f));
+	tree.add(Node<int>::ElementPart(float2(0, 0), float2(0.1f, 0.1f), nullptr));
+	tree.add(Node<int>::ElementPart(float2(0, 0), float2(0.1f, 0.2f), nullptr));
+	tree.add(Node<int>::ElementPart(float2(0.5f, 0.5f), float2(0.1f, 0.1f), nullptr));
+	tree.add(Node<int>::ElementPart(float2(0.1f, 0.1f), float2(0.2f, 0.2f), nullptr));
+	tree.log();
 
 	m_player.initialize();
 	m_terrainManager = TerrainManager::getInstance();
@@ -230,18 +237,9 @@ void LevelHandler::draw() {
 	m_terrainProps.draw();
 	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 
-	for (size_t i = 0; i < m_planes.size(); i++) {
-		m_sphere.setPosition(m_planes[i].m_position);
-		m_sphere.setScale(float3(1, 1, 1) * 0.05);
-		m_sphere.draw_onlyMesh(float3(1, 0, 0));
-		m_sphere.setPosition(m_planes[i].m_position + m_planes[i].m_normal * 0.25);
-		m_sphere.setScale(float3(1, 1, 1) * 0.02);
-		m_sphere.draw_onlyMesh(float3(1, 0, 0));
-	}
-
 	vector<FrustumPlane> frustum = m_player.getFrustumPlanes();
 	if (Input::getInstance()->keyDown(Keyboard::F)) {
-		//terrain
+		// terrain
 		m_terrainManager->draw_frustumCulling(frustum);
 		// water/lava effect
 		Renderer::getInstance()->copyDepthToSRV();
@@ -249,7 +247,8 @@ void LevelHandler::draw() {
 		lavaEffect.draw_frustumCulling(frustum);
 	}
 	else {
-		//terrain
+		// terrain
+		m_terrainManager->draw();
 		m_terrainManager->draw();
 		// water/lava effect
 		Renderer::getInstance()->copyDepthToSRV();
@@ -339,10 +338,6 @@ void LevelHandler::update(float dt) {
 	//		m_entity.setPosition(m_player.getCameraPosition() + t * m_player.getForward() * 0.9);
 	//	}
 	//}
-
-	if (Input::getInstance()->keyPressed(Keyboard::L)) {
-		m_planes = m_player.getFrustumPlanes();
-	}
 
 	m_hud.update(dt);
 	waterEffect.update(dt);

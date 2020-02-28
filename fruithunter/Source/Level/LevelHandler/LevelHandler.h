@@ -11,6 +11,7 @@
 #include "EntityRepository.h"
 #include "HUD.h"
 #include "SeaEffect.h"
+#include "QuadTree.h"
 
 #define LEVELS = 1;
 
@@ -48,12 +49,13 @@ private:
 	TerrainManager* m_terrainManager;
 	EntityRepository m_terrainProps;
 	SeaEffect waterEffect, lavaEffect;
-	vector<FrustumPlane> m_planes;
 	Entity m_sphere;
 	Entity m_entity;
 	SkyBox m_skyBox;
 	size_t m_inventory[NR_OF_FRUITS]; // APPLE 0, BANANA 1, MELON 2
 	vector<shared_ptr<Entity>> m_collidableEntities;
+
+	Node<int> tree;
 
 	int m_currentLevel = -1;
 	Level::TerrainTags m_currentTerrain = Level::TerrainTags::Forest;
