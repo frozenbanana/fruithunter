@@ -1,7 +1,7 @@
 # Fruithunter
 # Introduction
 This game is developed as the main part of a course [Small Game Project](https://edu.bth.se/utbildning/utb_kurstillfalle.asp?lang=en&KtTermin=20181&KtAnmKod=T0000501&parentPtKod=PAACI15h) at [Blekinge Institute of Technology](https://bth.se/eng).
-Each group has 10 weeks to produce a game using the [Scrum](https://en.wikipedia.org/wiki/Scrum_%28software_development%29) methology. The game engine must be created from scratch using either (OpenGL)[https://en.wikipedia.org/wiki/OpenGL] or [DirectX11](https://en.wikipedia.org/wiki/DirectX)
+Each group has 10 weeks to produce a game using the [Scrum](https://en.wikipedia.org/wiki/Scrum_%28software_development%29) methology. The game engine must be created from scratch using either [OpenGL](https://en.wikipedia.org/wiki/OpenGL) or [DirectX11](https://en.wikipedia.org/wiki/DirectX)
 
 # About
 The game is about catching wild, living fruits with the help of a bow that shoots magic arrows in as short a time as possible. The player has to explore the world according to which fruits need to be caught. However, the areas and fruits are not always easy to access. There are obstacles such as animals blocking fruit areas and uneven terrain that require the player to utilize the avatar's ability to move. The player fills fruit bowl with caught fruit. A complete fruit bowl ends the round.
