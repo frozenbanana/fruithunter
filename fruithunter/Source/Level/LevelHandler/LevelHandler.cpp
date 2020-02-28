@@ -268,8 +268,11 @@ void LevelHandler::update(float dt) {
 
 	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
 	for (size_t i = 0; i < m_Animals.size(); ++i) {
-		m_player.checkAnimal(m_Animals[i]->getPosition(), m_Animals[i]->getPlayerRange(),
-			m_Animals[i]->getThrowStrength());
+		bool getsThrown = m_player.checkAnimal(m_Animals[i]->getPosition(),
+			m_Animals[i]->getPlayerRange(), m_Animals[i]->getThrowStrength());
+		if (getsThrown)
+			m_Animals[i]->pushPlayer(m_player.getPosition());
+		m_Animals[i]->update(dt);
 	}
 
 	dropFruit();
