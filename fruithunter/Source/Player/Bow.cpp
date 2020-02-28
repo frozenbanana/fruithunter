@@ -185,7 +185,6 @@ void Bow::arrowPhysics(float dt, float3 windVector) { // Updates arrow in flight
 void Bow::calcArea(float3 relativeWindVector) {
 	float angle = calcAngle(relativeWindVector, m_arrowVelocity);
 	m_arrowArea = ((1 - sin(angle)) * 0.0001f) + (sin(angle) * 0.005f);
-	ErrorLogger::logFloat3("Rel. wind", relativeWindVector);
 }
 
 float Bow::calcAngle(float3 vec1, float3 vec2) {
