@@ -10,8 +10,8 @@ The game is about catching wild, living fruits with the help of a bow that shoot
 The player selects a level represented by a fruit bowl. The fruit bowl tells you which fruits need to be collected to cope with the level. The player spawns in part of the map while a timer starts. The task is to catch the fruit by shooting the bow on these fruits to enchant them to come to you.
 The fruits are moving and challenging to meet. Each type of fruit can be found in its own area on the course. Some areas are protected by animals that you have to bribe with other types of fruits to gain access. Other areas require hope to reach. When the player has collected all the fruits required for the fruit bowl, the round is over and time determines one's performance.
 
-# Show case 
-[![Watch the video](https://img.youtube.com/vi/T-V_Owri8bVNE/maxresdefault.jpg)](https://www.youtube.com/watch?v=V_Owri8bVNE)
+# Showcase 
+[![Watch the video](https://img.youtube.com/vi/V_Owri8bVNE/hqdefault.jpg)](https://www.youtube.com/watch?v=V_Owri8bVNE)
 
 # Made by
 This game is made by Master Game Development students at [Blekinge Institute of Technology](https://bth.se/eng). 
