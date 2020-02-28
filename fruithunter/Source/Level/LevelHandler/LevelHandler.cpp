@@ -275,7 +275,13 @@ void LevelHandler::update(float dt) {
 			m_skyBox.resetDelta();
 		}
 	}
-
+	// update Pathfinding
+	/*
+	int batch = frameCounter++ * batchsize;
+	for (auto f : m_fruits) {
+		f.pathfinding();
+	}
+	*/
 	// update stuff
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->update(dt, playerPos, m_collidableEntities);

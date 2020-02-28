@@ -69,6 +69,7 @@ void Banana::behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> co
 		float3 toPlayer = playerPosition - m_position;
 		toPlayer.Normalize();
 		toPlayer.y = 1.0f;
+		m_speed = 1.0f;
 		jump(toPlayer, 3.0f);
 	}
 }

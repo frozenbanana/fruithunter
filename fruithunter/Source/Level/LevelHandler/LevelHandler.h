@@ -14,6 +14,30 @@
 
 #define LEVELS = 1;
 
+
+struct PathFindingThread {
+	size_t m_ObjectsToBeUpdated = 0;
+	std::shared_ptr<size_t> m_currentFrame;
+	thread m_thread;
+	mutex m_mutex;
+	std::vector<shared_ptr<Fruit>> m_batch;
+	std::vector<shared_ptr<Entity>> m_collidables;
+
+
+	void update(int frame){ m_batch.at(0)->update()
+
+	}
+
+	PathFindingThread(std::vector<shared_ptr<Fruit>> batch, shared_ptr<size_t> currentFrame,
+		vector<shared_ptr<Entity>> collidables) {
+		m_thread = thread();
+		m_batch = batch;
+		m_currentFrame = currentFrame;
+		m_collidables = collidables;
+	}
+};
+
+
 struct Level {
 	// HeightMap
 	enum TerrainTags { Forest, Desert, Plains, Volcano, Count };
