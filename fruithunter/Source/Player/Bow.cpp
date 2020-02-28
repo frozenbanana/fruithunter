@@ -157,9 +157,16 @@ bool Bow::isShooting() const { return m_shooting; }
 void Bow::arrowPhysics(float dt, float3 windVector) { // Updates arrow in flight
 	// Update acceleration
 
-	float3 relativeVelocity = m_arrowVelocity - windVector;
+	float3 relativeVelocity;
 
-	calcArea(relativeVelocity);
+	if (windVector.Length() < 0.0001f) {
+		relativeVelocity = m_arrowVelocity;
+		m_arrowArea = 0.0001f;
+	}
+	else {
+		relativeVelocity = m_arrowVelocity - windVector;
+		calcArea(relativeVelocity);
+	}
 
 	float totalDragTimesLength = -m_arrowArea * relativeVelocity.Length() / m_arrowMass;
 
@@ -178,6 +185,7 @@ void Bow::arrowPhysics(float dt, float3 windVector) { // Updates arrow in flight
 void Bow::calcArea(float3 relativeWindVector) {
 	float angle = calcAngle(relativeWindVector, m_arrowVelocity);
 	m_arrowArea = ((1 - sin(angle)) * 0.0001f) + (sin(angle) * 0.005f);
+	ErrorLogger::logFloat3("Rel. wind", relativeWindVector);
 }
 
 float Bow::calcAngle(float3 vec1, float3 vec2) {
