@@ -25,9 +25,6 @@ public:
 
 	PlayState() { initialize(); }
 
-	void setPlayerPos(float3);
-	float3 getPlayerPos();
-
 private:
 	Timer m_timer;
 	Quad m_quad;
@@ -35,5 +32,4 @@ private:
 
 	// Shadow stuff
 	unique_ptr<ShadowMapper> m_shadowMap;
-	float3 m_playerPos;
 };

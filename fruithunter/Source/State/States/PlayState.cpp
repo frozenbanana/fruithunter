@@ -48,10 +48,6 @@ void PlayState::draw() {
 
 void PlayState::drawShadow() { m_levelHandler.drawShadow(); }
 
-void PlayState::setPlayerPos(float3 newPos) { m_playerPos = newPos; }
-
-float3 PlayState::getPlayerPos() { return m_playerPos; }
-
 void PlayState::play() {
 	Input::getInstance()->setMouseModeRelative();
 	ErrorLogger::log(m_name + " play() called.");
