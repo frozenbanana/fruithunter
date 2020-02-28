@@ -239,7 +239,7 @@ void Player::draw() {
 }
 
 void Player::collideObject(Entity& obj) {
-	//ErrorLogger::log("Inside player collideObject");
+	// ErrorLogger::log("Inside player collideObject");
 	// Check
 	float radius = 0.2f;
 	float stepHeight = 0.45f; // height able to simply step over
@@ -277,6 +277,21 @@ void Player::collideObject(Entity& obj) {
 			m_velocity *= 0.5;
 		}
 	}
+}
+
+bool Player::checkAnimal(float3 animalPos, float range, float throwStrength) {
+	float3 diff = m_position - animalPos;
+	float rangeSq = range * range;
+	float diffLenSq = diff.LengthSquared();
+	bool inRange = diffLenSq < rangeSq;
+	if (inRange) {
+		float strength = (rangeSq - diffLenSq) / rangeSq;
+		diff.Normalize();
+		float3 throwVec = (diff + float3(0.f, 1.f, 0.f)) * throwStrength;
+		m_velocity = throwVec;
+		return true;
+	}
+	return false;
 }
 
 float3 Player::getPosition() const { return m_position; }
