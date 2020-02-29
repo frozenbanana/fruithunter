@@ -21,7 +21,6 @@ public:
 	void pause();
 	void play();
 	void draw();
-	void drawShadow();
 
 	PlayState() { initialize(); }
 
@@ -32,4 +31,5 @@ private:
 
 	// Shadow stuff
 	unique_ptr<ShadowMapper> m_shadowMap;
+	bool m_staticShadowNotDrawn = true;
 };

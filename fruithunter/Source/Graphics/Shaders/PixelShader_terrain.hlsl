@@ -41,20 +41,20 @@ float specialLerp(float v, float min, float max) {
 	return (v > max ? 1.f : (v < min ? 0.f : (v - min) / (max - min)));
 }
 
-static const float SMAP_WIDTH = 2048.0f;
-static const float SMAP_HEIGHT = 2048.0f;
+static const float SMAP_WIDTH = 3840.0f;
+static const float SMAP_HEIGHT = 2160.0f;
 static const float SMAP_DX = 1.0f / SMAP_WIDTH;
 static const float SMAP_DY = 1.0f / SMAP_HEIGHT;
 
 float calcShadowFactor(Texture2D shadowMap, float4 shadowPosH) {
-	if (shadowPosH.x < SMAP_DX*3.f || shadowPosH.x >= 1.0f - SMAP_DX*3.f) { 
-		//not a U coordinate
-		return 1.0f;
-	}
-	if (shadowPosH.y <= 0.0f || shadowPosH.y >= 1.0f) {
-		// not a U coordinate
-		return 1.0f;
-	}
+	//if (shadowPosH.x < SMAP_DX*3.f || shadowPosH.x >= 1.0f - SMAP_DX*3.f) { 
+	//	//not a U coordinate
+	//	return 1.0f;
+	//}
+	//if (shadowPosH.y <= 0.0f || shadowPosH.y >= 1.0f) {
+	//	// not a U coordinate
+	//	return 1.0f;
+	//}
 	// Divide to get coordinates in texture projection
 	//shadowPosH.xyz /= shadowPosH.w; //Not needed for orthographic
 

@@ -29,20 +29,20 @@ SamplerState samplerAni {
 	AddressV = Linear;
 };
 
-static const float SMAP_WIDTH = 2048.0f;
-static const float SMAP_HEIGHT = 2048.0f;
+static const float SMAP_WIDTH = 3840.0f;
+static const float SMAP_HEIGHT = 2160.0f;
 static const float SMAP_DX = 1.0f / SMAP_WIDTH;
 static const float SMAP_DY = 1.0f / SMAP_HEIGHT;
 
 float calcShadowFactor(Texture2D shadowMap, float4 shadowPosH) {
-	if (shadowPosH.x <= 0.0001f || shadowPosH.x >= 0.9999f) {
-		// not a U coordinate
-		return 1.0f;
-	}
-	if (shadowPosH.y <= 0.0001f || shadowPosH.y >= 0.9999f) {
-		// not a U coordinate
-		return 1.0f;
-	}
+	//if (shadowPosH.x <= 0.0001f || shadowPosH.x >= 0.9999f) {
+	//	// not a U coordinate
+	//	return 1.0f;
+	//}
+	//if (shadowPosH.y <= 0.0001f || shadowPosH.y >= 0.9999f) {
+	//	// not a U coordinate
+	//	return 1.0f;
+	//}
 	// Divide to get coordinates in texture projection
 	// shadowPosH.xyz /= shadowPosH.w; //Not needed for orthographic
 

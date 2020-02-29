@@ -79,7 +79,9 @@ public:
 	void initialise();
 	void loadLevel(int levelNr);
 	void draw();
-	void drawShadow();
+	void drawShadowDynamic();
+	void drawShadowStatic();
+	void drawShadowDynamicEntities();
 	void update(float dt);
 
 	// Fruit stuff
