@@ -144,6 +144,7 @@
     <ClCompile Include="Source\Drawable\HUD.cpp">
       <Filter>Source\Drawable</Filter>
     </ClCompile>
+    <ClCompile Include="Source\AI\PathFindingThread.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -257,6 +258,7 @@
     <ClInclude Include="Source\Drawable\HUD.h">
       <Filter>Source\Drawable</Filter>
     </ClInclude>
+    <ClInclude Include="Source\AI\PathFindingThread.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />

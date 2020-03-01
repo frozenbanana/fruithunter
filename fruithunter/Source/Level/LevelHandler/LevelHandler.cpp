@@ -1,7 +1,7 @@
 #include "LevelHandler.h"
 #include "TerrainManager.h"
 #include "AudioHandler.h"
-
+#include "PathFindingThread.h"
 
 void LevelHandler::initialiseLevel0() {
 	Level level0;
@@ -82,8 +82,9 @@ void LevelHandler::initialiseLevel0() {
 	m_hud.setTimeTargets(level0.m_timeTargets);
 
 	m_frame = make_unique<size_t>();
-	*m_frame = 0;
-	m_thread = make_unique<PathFindingThread>(m_fruits, m_frame, m_collidableEntities);
+	/**m_frame = 0;*/
+	//m_thread = make_unique<PathFindingThread>(m_fruits, m_frame, m_collidableEntities);
+	PathFindingThread::getInstance()->initialize(m_fruits, m_frame, m_collidableEntities);
 }
 
 void LevelHandler::placeBridge(float3 pos, float3 rot, float3 scale) {

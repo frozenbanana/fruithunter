@@ -9,6 +9,7 @@
 #include "IntroState.h"
 #include "Camera.h"
 #include "VariableSyncer.h"
+#include "PathFindingThread.h"
 
 void onLoad(void* ptr) { ErrorLogger::log("Loaded struct!"); }
 
@@ -24,6 +25,8 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	ErrorLogger errorLogger;
 
 	ErrorLogger errorMan;
+
+
 
 	MSG msg = { 0 };
 	stateHandler->initialize();
