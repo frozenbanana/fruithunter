@@ -292,6 +292,10 @@ float3 Player::getVelocity() const { return m_velocity; }
 
 float Player::getStamina() const { return m_stamina; }
 
+vector<FrustumPlane> Player::getFrustumPlanes() const {
+	return m_camera.getFrustumPlanes();
+}
+
 bool Player::isShooting() const { return m_bow.isShooting(); }
 
 void Player::setPosition(float3 position) { m_position = position; }

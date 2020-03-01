@@ -15,6 +15,8 @@ void EntityRepository::fillEntitiesFromRepository() {
 		// clear entities and fill from repository
 		m_entities.clear();
 		m_entities.resize(count);
+		m_quadtree.initilize(float3(0, 0, 0), float3(200.f, 100.f, 200.f), 4);
+		m_quadtree.reserve(count);
 		int instanceIndex = 0;
 		for (size_t m = 0; m < m_repository.size(); m++) {
 			string meshName = m_repository[m].meshName;
@@ -24,9 +26,20 @@ void EntityRepository::fillEntitiesFromRepository() {
 				m_entities[instanceIndex] = make_unique<Entity>();
 				m_entities[instanceIndex]->load(meshName);
 				setEntityByInstance(m_entities[instanceIndex].get(), *instance);
+
+				// fill quadtree
+				m_quadtree.add(m_entities[instanceIndex]->getLocalBoundingBoxPosition(),
+					m_entities[instanceIndex]->getLocalBoundingBoxSize(),
+					m_entities[instanceIndex]->getModelMatrix(), m_entities[instanceIndex].get());
+				//m_quadtree.add(m_entities[instanceIndex]->getPosition() +
+				//				   m_entities[instanceIndex]->getLocalBoundingBoxPosition(),
+				//	m_entities[instanceIndex]->getLocalBoundingBoxSize(),
+				//	m_entities[instanceIndex].get());
+				// increment
 				instanceIndex++;
 			}
 		}
+		m_quadtree.log();
 	}
 }
 
@@ -166,8 +179,9 @@ void EntityRepository::save() {
 				savePlacements(m_repositoryFilenameLoadedFrom);
 			}
 			else {
-				ErrorLogger::log("(EntityRepository) Attempt denied to save entity placements to file: " +
-								 m_repositoryFilenameLoadedFrom + "\nFile already up to date!");
+				ErrorLogger::log(
+					"(EntityRepository) Attempt denied to save entity placements to file: " +
+					m_repositoryFilenameLoadedFrom + "\nFile already up to date!");
 			}
 		}
 		else
@@ -266,7 +280,7 @@ void EntityRepository::update(float dt, float3 point, float3 direction) {
 				m_activePlaceableIndex = (int)m_placeable.size() - 1;
 		}
 		if (ip->keyPressed(m_deleteKey)) {
-			//delete newest entity
+			// delete newest entity
 			if (m_entities.size() > 0)
 				removeEntity(m_entities.back().get());
 		}
@@ -303,7 +317,19 @@ void EntityRepository::draw() {
 	for (size_t i = 0; i < m_entities.size(); i++) {
 		m_entities[i]->draw();
 	}
-	if (m_placing) {
+	if (m_placing && m_placeable.size() > 0) {
+		m_placeable[m_activePlaceableIndex]->draw();
+	}
+}
+
+void EntityRepository::draw_quadtreeFrustumCulling(const vector<FrustumPlane>& planes) {
+	vector<Entity**> elements = m_quadtree.cullElements(planes);
+	if (elements.size() > 0) {
+		for (size_t i = 0; i < elements.size(); i++) {
+			(*elements[i])->draw();
+		}
+	}
+	if (m_placing && m_placeable.size() > 0) {
 		m_placeable[m_activePlaceableIndex]->draw();
 	}
 }

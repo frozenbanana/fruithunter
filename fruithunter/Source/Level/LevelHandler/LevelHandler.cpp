@@ -31,15 +31,15 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_heightMapPos.push_back(float3(0.f, 0.f, 100.f));
 	level0.m_heightMapPos.push_back(float3(100.f, 0.f, 0.f));
 
-	level0.m_heightMapSubSize.push_back(XMINT2(250, 250));
-	level0.m_heightMapSubSize.push_back(XMINT2(250, 250));
-	level0.m_heightMapSubSize.push_back(XMINT2(250, 250));
-	level0.m_heightMapSubSize.push_back(XMINT2(250, 250));
+	level0.m_heightMapSubSize.push_back(XMINT2(25, 25));
+	level0.m_heightMapSubSize.push_back(XMINT2(25, 25));
+	level0.m_heightMapSubSize.push_back(XMINT2(25, 25));
+	level0.m_heightMapSubSize.push_back(XMINT2(25, 25));
 
-	level0.m_heightMapDivision.push_back(XMINT2(1, 1));
-	level0.m_heightMapDivision.push_back(XMINT2(1, 1));
-	level0.m_heightMapDivision.push_back(XMINT2(1, 1));
-	level0.m_heightMapDivision.push_back(XMINT2(1, 1));
+	level0.m_heightMapDivision.push_back(XMINT2(8, 8));
+	level0.m_heightMapDivision.push_back(XMINT2(8, 8));
+	level0.m_heightMapDivision.push_back(XMINT2(8, 8));
+	level0.m_heightMapDivision.push_back(XMINT2(8, 8));
 
 	level0.m_heightMapScales.push_back(float3(1.f, 0.20f, 1.f) * 100);
 	level0.m_heightMapScales.push_back(float3(1.f, 0.15f, 1.f) * 100);
@@ -131,7 +131,6 @@ LevelHandler::LevelHandler() { initialise(); }
 LevelHandler::~LevelHandler() {}
 
 void LevelHandler::initialise() {
-
 	m_player.initialize();
 	m_terrainManager = TerrainManager::getInstance();
 
@@ -147,10 +146,13 @@ void LevelHandler::initialise() {
 
 	initialiseLevel0();
 
-	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(400, 400), XMINT2(1, 1),
+	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(25, 25), XMINT2(16, 16),
 		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
-	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(100, 100), XMINT2(1, 1),
+	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(25, 25), XMINT2(4, 4),
 		float3(100.f, 2.f, 100.f), float3(100.f, 2.f, 100.f));
+
+	m_sphere.load("Sphere");
+	m_sphere.setScale(float3(1.f, 1, 1) * 0.025f);
 }
 
 void LevelHandler::loadLevel(int levelNr) {
@@ -233,21 +235,38 @@ void LevelHandler::draw() {
 		m_fruits[i]->draw_animate();
 	}
 	Renderer::getInstance()->disableAlphaBlending();
-	m_terrainManager->draw();
 
 	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
 		m_collidableEntities[i]->draw();
 	}
 	m_entity.draw();
-	m_terrainProps.draw();
-
-
-
-	// water/lava effect
-	Renderer::getInstance()->copyDepthToSRV();
-	waterEffect.draw();
-	lavaEffect.draw();
 	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
+
+	vector<FrustumPlane> frustum = m_player.getFrustumPlanes();
+	if (Input::getInstance()->keyDown(Keyboard::F)) {
+		// terrain entities
+		m_terrainProps.draw_quadtreeFrustumCulling(frustum);
+		// terrain
+		//m_terrainManager->draw_frustumCulling(frustum);
+		m_terrainManager->draw_quadtreeFrustumCulling(frustum);
+		// water/lava effect
+		Renderer::getInstance()->copyDepthToSRV();
+		/*waterEffect.draw_frustumCulling(frustum);
+		lavaEffect.draw_frustumCulling(frustum);*/
+		waterEffect.draw_quadtreeFrustumCulling(frustum);
+		lavaEffect.draw_quadtreeFrustumCulling(frustum);
+	}
+	else {
+		//terrain entities
+		m_terrainProps.draw();
+		// terrain
+		m_terrainManager->draw();
+		m_terrainManager->draw();
+		// water/lava effect
+		Renderer::getInstance()->copyDepthToSRV();
+		waterEffect.draw();
+		lavaEffect.draw();
+	}
 
 	m_hud.draw();
 }

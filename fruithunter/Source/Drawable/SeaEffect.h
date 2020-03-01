@@ -1,6 +1,7 @@
 #pragma once
 #include "ShaderSet.h"
 #include "MeshHandler.h"
+#include "QuadTree.h"
 
 #define WORLDMATRIX_BUFFER_SLOT 0
 #define CONSTANTBUFFER_TIME_SLOT 2
@@ -14,7 +15,7 @@ private:
 	float3 m_rotation;
 	bool m_matrixPropertiesChanged = true;
 	struct WorldMatrixBuffer {
-		float4x4 mWorld, mInvWorld;
+		float4x4 mWorld, mInvTraWorld;
 	} m_worldMatrix;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_worldMatrixBuffer;
 
@@ -35,6 +36,9 @@ private:
 		~SubWaterGrid();
 	};
 	vector<vector<SubWaterGrid>> m_grids;
+
+	//quadtree
+	QuadTree<XMINT2> m_quadtree;
 
 	// shader variables
 	static ShaderSet m_shader;
@@ -76,12 +80,15 @@ private:
 	void createBuffers();
 
 	void updateMatrix();
+
 	void bindConstantBuffers();
 	void bindWorldMatrix();
 
 	std::wstring s2ws(const std::string& s);
 	bool createResourceBuffer(string filename, ID3D11ShaderResourceView** buffer);
 	XMINT2 getResourceSize(ID3D11ShaderResourceView* view);
+
+	bool boxInsideFrustum(float3 boxPos, float3 boxSize, float4x4 worldMatrix, const vector<FrustumPlane>& planes);
 
 public:
 	enum SeaEffectTypes { water, lava };
@@ -94,6 +101,8 @@ public:
 
 	void update(float dt);
 	void draw();
+	void draw_frustumCulling(const vector<FrustumPlane>& planes);
+	void draw_quadtreeFrustumCulling(vector<FrustumPlane> planes);
 
 	void initilize(SeaEffectTypes type, XMINT2 tiles, XMINT2 gridSize = XMINT2(1,1), float3 position = float3(0,0,0), float3 scale = float3(1,1,1), float3 rotation = float3(0,0,0));
 

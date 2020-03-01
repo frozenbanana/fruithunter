@@ -13,6 +13,8 @@ public:
 	float castRay(float3 point, float3 direction);
 
 	void draw();
+	vector<float3> draw_frustumCulling(const vector<FrustumPlane>& planes);
+	void draw_quadtreeFrustumCulling(const vector<FrustumPlane>& planes);
 	void drawShadow();
 
 	float3 getSpawnpoint(int terrainType);
