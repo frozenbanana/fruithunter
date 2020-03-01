@@ -121,7 +121,7 @@ float3 Camera::getPosition() const { return m_camEye; }
 
 vector<FrustumPlane> Camera::getFrustumPlanes() const {
 	vector<FrustumPlane> planes;
-	planes.resize(6);
+	planes.reserve(6);
 	float3 center = m_camEye;
 	float height = tan(m_fov/2.f);
 	float aspectRatio = (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT;

@@ -65,13 +65,13 @@ float4x4 Terrain::getModelMatrix() {
 }
 
 void Terrain::bindModelMatrix() {
-	//update resource
+	// update resource
 	updateModelMatrix();
 	ModelBuffer matrix = m_worldMatrix;
 	matrix.mWorld = matrix.mWorld.Transpose();
 	matrix.mWorldInvTra = matrix.mWorldInvTra.Transpose();
 	Renderer::getDeviceContext()->UpdateSubresource(m_matrixBuffer.Get(), 0, 0, &matrix, 0, 0);
-	//bind
+	// bind
 	Renderer::getDeviceContext()->VSSetConstantBuffers(
 		MATRIX_BUFFER_SLOT, 1, m_matrixBuffer.GetAddressOf());
 }
@@ -223,11 +223,17 @@ void Terrain::createGrid(XMINT2 size) {
 
 void Terrain::fillSubMeshes() {
 	if (m_gridPointSize.x != 0 && m_gridPointSize.y != 0) {
+		// initilize quadtree
+		size_t layers = (size_t)round(log2(max(m_gridSize.x, m_gridSize.y)));
+		m_quadtree.initilize(float3(0, 0, 0), float3(1.f, 1.f, 1.f), layers);
+		m_quadtree.reserve((size_t)m_gridSize.x * (size_t)m_gridSize.y);
+		// initilize subMeshes
 		XMINT2 order[6] = { // tri1
 			XMINT2(1, 1), XMINT2(0, 0), XMINT2(0, 1),
 			// tri2
 			XMINT2(0, 0), XMINT2(1, 1), XMINT2(1, 0)
 		};
+		float3 quadtree_subScale = float3(1.f / m_gridSize.x, 1.f, 1.f / m_gridSize.y);
 		for (int ixx = 0; ixx < m_gridSize.x; ixx++) {
 			for (int iyy = 0; iyy < m_gridSize.y; iyy++) {
 				vector<Vertex>* vertices = m_subMeshes[ixx][iyy].getPtr();
@@ -280,6 +286,8 @@ void Terrain::fillSubMeshes() {
 				}
 				// create buffers
 				m_subMeshes[ixx][iyy].initilize();
+				float3 position = quadtree_subScale * float3((float)ixx, 0.f, (float)iyy);
+				m_quadtree.add(position, quadtree_subScale, XMINT2(ixx, iyy));
 			}
 		}
 	}
@@ -743,54 +751,48 @@ bool Terrain::draw_frustumCulling(const vector<FrustumPlane>& planes) {
 		}
 	}
 	return false;
+}
 
-	// for (size_t plane_i = 0; plane_i < 1; plane_i++) {
+bool Terrain::draw_quadtreeFrustumCulling(vector<FrustumPlane> planes) {
+	if (m_mapsInitilized) {
+		//transform planes to local space
+		updateModelMatrix();
+		float4x4 invWorldMatrix = m_worldMatrix.mWorld.Invert();
+		float4x4 invWorldInvTraMatrix = m_worldMatrix.mWorldInvTra.Invert();
+		for (size_t i = 0; i < planes.size(); i++) {
+			planes[i].m_position = float3::Transform(planes[i].m_position, invWorldMatrix);
+			planes[i].m_normal = float3::TransformNormal(planes[i].m_normal, invWorldInvTraMatrix);
+			planes[i].m_normal.Normalize();
+		}
+		//cull grids
+		vector<XMINT2*> elements = m_quadtree.cullElements(planes);
+		//draw culled grids
+		if (elements.size() > 0) {
+			ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
-	//	// find diagonal points
-	//	// float3 boxDiagonalPoint1, boxDiagonalPoint2;
-	//	// float largestDot = 0;
-	//	// for (size_t j = 0; j < 4; j++) {
-	//	//	float3 p1 = boxPoints[j];
-	//	//	float3 p2 = boxPoints[4 + (j + 2) % 4];
-	//	//	float dot = abs((p1 - p2).Dot(planes[i].m_normal));
-	//	//	if (dot > largestDot) {
-	//	//		largestDot = dot;
-	//	//		boxDiagonalPoint1 = p1;
-	//	//		boxDiagonalPoint2 = p2;
-	//	//	}
-	//	//}
-	//	for (size_t j = 0; j < 8; j++) {
+			// bind shaders
+			m_shader.bindShadersAndLayout();
 
-	//		if (!pointInfrontOrBehindPlane(
-	//				boxPoints[j], planes[plane_i].m_position, planes[plane_i].m_normal)) {
-	//			ErrorLogger::log(to_string(plane_i));
-	//			return ret;
-	//		}
+			// bind samplerstate
+			deviceContext->PSSetSamplers(SAMPLERSTATE_SLOT, 1, m_sampler.GetAddressOf());
 
-	//		// bool stateP1 = pointInfrontOrBehindPlane(
-	//		//	boxDiagonalPoint1, planes[plane_i].m_position, planes[plane_i].m_normal);
-	//		// bool stateP2 = pointInfrontOrBehindPlane(
-	//		//	boxDiagonalPoint2, planes[plane_i].m_position, planes[plane_i].m_normal);
-	//		// if (stateP1 && stateP2) {
-	//		//	// outside
-	//		//	ErrorLogger::log("OUTSIDE");
-	//		//}
-	//		// else {
-	//		//	// inside
-	//		//	draw();
-	//		//}
-	//	}
-	//}
+			// bind texture resources
+			for (int i = 0; i < m_mapCount; i++) {
+				deviceContext->PSSetShaderResources(i, 1, m_maps[i].GetAddressOf());
+			}
 
-	// CULL EACH GRID
+			// bind world matrix
+			bindModelMatrix();
 
-	// for (size_t xx = 0; xx < m_gridSize.x; xx++) {
-	//	for (size_t yy = 0; yy < m_gridSize.y; yy++) {
-	//
-
-
-	//	}
-	//}
+			for (size_t i = 0; i < elements.size(); i++) {
+				SubGrid* sub = &m_subMeshes[elements[i]->x][elements[i]->y];
+				sub->bind();
+				deviceContext->Draw(sub->getVerticeCount(), 0);
+			}
+			return true;
+		}
+	}
+	return false;
 }
 
 Terrain::Terrain(string filename, vector<string> textures, XMINT2 subsize, XMINT2 splits) {

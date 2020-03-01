@@ -38,10 +38,10 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_heightMapSubSize.push_back(XMINT2(25, 25));
 	level0.m_heightMapSubSize.push_back(XMINT2(25, 25));
 
-	level0.m_heightMapDivision.push_back(XMINT2(10, 10));
-	level0.m_heightMapDivision.push_back(XMINT2(10, 10));
-	level0.m_heightMapDivision.push_back(XMINT2(10, 10));
-	level0.m_heightMapDivision.push_back(XMINT2(10, 10));
+	level0.m_heightMapDivision.push_back(XMINT2(8, 8));
+	level0.m_heightMapDivision.push_back(XMINT2(8, 8));
+	level0.m_heightMapDivision.push_back(XMINT2(8, 8));
+	level0.m_heightMapDivision.push_back(XMINT2(8, 8));
 
 	level0.m_heightMapScales.push_back(float3(1.f, 0.20f, 1.f) * 100);
 	level0.m_heightMapScales.push_back(float3(1.f, 0.15f, 1.f) * 100);
@@ -124,14 +124,6 @@ LevelHandler::LevelHandler() { initialise(); }
 LevelHandler::~LevelHandler() {}
 
 void LevelHandler::initialise() {
-
-	tree = Node<int>(float2(0, 0), float2(1.f, 1.f));
-	tree.add(Node<int>::ElementPart(float2(0, 0), float2(0.1f, 0.1f), nullptr));
-	tree.add(Node<int>::ElementPart(float2(0, 0), float2(0.1f, 0.2f), nullptr));
-	tree.add(Node<int>::ElementPart(float2(0.5f, 0.5f), float2(0.1f, 0.1f), nullptr));
-	tree.add(Node<int>::ElementPart(float2(0.1f, 0.1f), float2(0.2f, 0.2f), nullptr));
-	tree.log();
-
 	m_player.initialize();
 	m_terrainManager = TerrainManager::getInstance();
 
@@ -234,19 +226,25 @@ void LevelHandler::draw() {
 		m_collidableEntities[i]->draw();
 	}
 	m_entity.draw();
-	m_terrainProps.draw();
 	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 
 	vector<FrustumPlane> frustum = m_player.getFrustumPlanes();
 	if (Input::getInstance()->keyDown(Keyboard::F)) {
+		// terrain entities
+		m_terrainProps.draw_quadtreeFrustumCulling(frustum);
 		// terrain
-		m_terrainManager->draw_frustumCulling(frustum);
+		//m_terrainManager->draw_frustumCulling(frustum);
+		m_terrainManager->draw_quadtreeFrustumCulling(frustum);
 		// water/lava effect
 		Renderer::getInstance()->copyDepthToSRV();
-		waterEffect.draw_frustumCulling(frustum);
-		lavaEffect.draw_frustumCulling(frustum);
+		/*waterEffect.draw_frustumCulling(frustum);
+		lavaEffect.draw_frustumCulling(frustum);*/
+		waterEffect.draw_quadtreeFrustumCulling(frustum);
+		lavaEffect.draw_quadtreeFrustumCulling(frustum);
 	}
 	else {
+		//terrain entities
+		m_terrainProps.draw();
 		// terrain
 		m_terrainManager->draw();
 		m_terrainManager->draw();

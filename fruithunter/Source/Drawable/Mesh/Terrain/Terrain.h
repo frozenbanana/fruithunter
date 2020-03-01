@@ -1,6 +1,7 @@
 #pragma once
 #include "ShaderSet.h"
 #include "MeshHandler.h"
+#include "QuadTree.h"
 #define MATRIX_BUFFER_SLOT 0
 #define SAMPLERSTATE_SLOT 0
 
@@ -50,6 +51,9 @@ private:
 	// grid points !! USED FOR COLLISION
 	XMINT2 m_gridPointSize;
 	vector<vector<Vertex>> m_gridPoints;
+
+	//quadtree for culling
+	QuadTree<XMINT2> m_quadtree;
 
 	// vertex buffer
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
@@ -104,30 +108,32 @@ private:
 	bool boxInsideFrustum(float3 boxPos, float3 boxSize, const vector<FrustumPlane>& planes);
 
 public:
-	// Spawn point
+	// convenable functions
 	float3 getRandomSpawnPoint();
 
-	//Other stuff
-
+	// intersection tests
 	static float obbTest(float3 rayOrigin, float3 rayDir, float3 boxPos, float3 boxScale);
 	static float triangleTest(
 		float3 rayOrigin, float3 rayDir, float3 tri0, float3 tri1, float3 tri2);
-
+	
+	//properties modifications
 	void setPosition(float3 position);
-
-	void initilize(string filename, vector<string> textures, XMINT2 subsize, XMINT2 splits = XMINT2(1, 1));
-
-	void rotateY(float radian);
 	void setScale(float3 scale);
+	void rotateY(float radian);
 
+	//terrain scanning
 	bool pointInsideTerrainBoundingBox(float3 point);
 	float getHeightFromPosition(float x, float z);
 	float3 getNormalFromPosition(float x, float z);
 	float castRay(float3 point, float3 direction);
 
+	//drawing
 	void draw();
 	bool draw_frustumCulling(const vector<FrustumPlane>& planes);
+	bool draw_quadtreeFrustumCulling(vector<FrustumPlane> planes);
 
+	//initilizers
+	void initilize(string filename, vector<string> textures, XMINT2 subsize, XMINT2 splits = XMINT2(1, 1));
 	Terrain(string filename = "", vector<string> textures = vector<string>(), XMINT2 subsize = XMINT2(0, 0),
 		XMINT2 splits = XMINT2(1, 1));
 	~Terrain();

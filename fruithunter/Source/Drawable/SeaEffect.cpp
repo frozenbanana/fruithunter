@@ -5,6 +5,9 @@
 ShaderSet SeaEffect::m_shader;
 
 void SeaEffect::createVertices(XMINT2 tiles, XMINT2 gridSize) {
+	size_t layers = (size_t)round(log2(max(gridSize.x, gridSize.y)));
+	m_quadtree.initilize(float3(0, 0, 0), float3(1.f, 1.f, 1.f), layers);
+	m_quadtree.reserve((size_t)gridSize.x * (size_t)gridSize.y);
 	// create water base mesh
 	XMINT2 order[6] = { // tri1
 		XMINT2(1, 1), XMINT2(0, 0), XMINT2(0, 1),
@@ -32,6 +35,9 @@ void SeaEffect::createVertices(XMINT2 tiles, XMINT2 gridSize) {
 				}
 			}
 			sub->initilize();
+
+			m_quadtree.add(float3(uvBase.x, 0.f, uvBase.y), float3(uvLength.x, 1.f, uvLength.y),
+				XMINT2(gx, gy));
 		}
 	}
 
@@ -105,10 +111,10 @@ void SeaEffect::updateMatrix() {
 		float4x4 rotateY = float4x4::CreateRotationY(m_rotation.y);
 		float4x4 rotateZ = float4x4::CreateRotationZ(m_rotation.z);
 		m_worldMatrix.mWorld = scale * (rotateZ * rotateX * rotateY) * translate;
-		m_worldMatrix.mInvWorld = m_worldMatrix.mWorld.Invert();
+		m_worldMatrix.mInvTraWorld = m_worldMatrix.mWorld.Invert().Transpose();
 		// update sub resource
 		WorldMatrixBuffer data = m_worldMatrix;
-		data.mInvWorld = data.mInvWorld.Transpose();
+		data.mInvTraWorld = data.mInvTraWorld.Transpose();
 		data.mWorld = data.mWorld.Transpose();
 		Renderer::getDeviceContext()->UpdateSubresource(
 			m_worldMatrixBuffer.Get(), 0, 0, &data, 0, 0);
@@ -311,9 +317,9 @@ void SeaEffect::draw_frustumCulling(const vector<FrustumPlane>& planes) {
 		bindConstantBuffers();
 
 		// bind maps
-		Renderer::getDeviceContext()->VSSetShaderResources(0, 1, m_waterHeightMap.GetAddressOf());
-		Renderer::getDeviceContext()->VSSetShaderResources(1, 1, m_dudvMap.GetAddressOf());
-		Renderer::getDeviceContext()->PSSetShaderResources(1, 1, m_dudvMap.GetAddressOf());
+		deviceContext->VSSetShaderResources(0, 1, m_waterHeightMap.GetAddressOf());
+		deviceContext->VSSetShaderResources(1, 1, m_dudvMap.GetAddressOf());
+		deviceContext->PSSetShaderResources(1, 1, m_dudvMap.GetAddressOf());
 
 		float3 size(1.f / (float)m_grids.size(), 1.f, 1.f / (float)m_grids[0].size());
 		for (size_t xx = 0; xx < m_grids.size(); xx++) {
@@ -322,9 +328,58 @@ void SeaEffect::draw_frustumCulling(const vector<FrustumPlane>& planes) {
 					// bind vertex buffer
 					m_grids[xx][yy].bind();
 					// draw
-					Renderer::getDeviceContext()->Draw((UINT)m_grids[xx][yy].getVerticeCount(), 0);
+					deviceContext->Draw((UINT)m_grids[xx][yy].getVerticeCount(), 0);
 				}
 			}
+		}
+	}
+}
+
+void SeaEffect::draw_quadtreeFrustumCulling(vector<FrustumPlane> planes) {
+	// transform planes to local space
+	updateMatrix();
+	float4x4 invWorldMatrix = m_worldMatrix.mWorld.Invert();
+	float4x4 invWorldInvTraMatrix = m_worldMatrix.mInvTraWorld.Invert();
+	for (size_t i = 0; i < planes.size(); i++) {
+		planes[i].m_position = float3::Transform(planes[i].m_position, invWorldMatrix);
+		planes[i].m_normal = float3::TransformNormal(planes[i].m_normal, invWorldInvTraMatrix);
+		planes[i].m_normal.Normalize();
+	}
+	// cull grids
+	vector<XMINT2*> elements = m_quadtree.cullElements(planes);
+
+	if (elements.size() > 0) {
+
+		ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+
+		// bind shaders
+		m_shader.bindShadersAndLayout();
+
+		// bind world matrix
+		bindWorldMatrix();
+
+		// bind depth buffer
+		// Renderer::getInstance()->copyDepthToSRV(); // dont do this here if multiple waterEffects
+		// are drawn
+		Renderer::getInstance()->bindDepthSRV(7);
+
+		// bind screen size
+		Renderer::getInstance()->bindConstantBuffer_ScreenSize(5);
+
+		// bind constant buffers
+		bindConstantBuffers();
+
+		// bind maps
+		deviceContext->VSSetShaderResources(0, 1, m_waterHeightMap.GetAddressOf());
+		deviceContext->VSSetShaderResources(1, 1, m_dudvMap.GetAddressOf());
+		deviceContext->PSSetShaderResources(1, 1, m_dudvMap.GetAddressOf());
+
+		for (size_t i = 0; i < elements.size(); i++) {
+			XMINT2 index = *elements[i];
+			// bind vertex buffer
+			m_grids[index.x][index.y].bind();
+			// draw
+			deviceContext->Draw((UINT)m_grids[index.x][index.y].getVerticeCount(), 0);
 		}
 	}
 }
@@ -335,7 +390,7 @@ void SeaEffect::initilize(SeaEffectTypes type,XMINT2 tiles, XMINT2 gridSize, flo
 	WaterShaderProperties properties;
 	switch (type) {
 	case SeaEffect::water:
-		properties.distortionStrength = 0.01f;
+		properties.distortionStrength = 0.001f;
 		properties.whiteDepthDifferenceThreshold = 0.1f;
 		properties.timeSpeed = 0.05f;
 		properties.waterShadingLevels = 10;

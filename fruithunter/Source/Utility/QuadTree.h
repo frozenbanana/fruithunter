@@ -2,118 +2,409 @@
 #include "GlobalNamespaces.h"
 #include "ErrorLogger.h"
 
-#define COUNT_SPLIT 2
+#define COUNT_SPLIT 5
 
-template <typename Element> class Node {
-public:
+enum bbFrustumState { State_Inside, State_Inbetween, State_Outside };
+
+template <typename Element> class QuadTree {
+private:
 	struct ElementPart {
-		float2 position, size;
-		Element* ptr;
-		ElementPart(float2 _position = float2(0, 0), float2 _size = float2(0, 0),
-			Element* _ptr = nullptr) {
+		size_t index;
+		float3 position, size;
+		Element element;
+		ElementPart(float3 _position, float3 _size, const Element& _element ) {
 			position = _position;
 			size = _size;
-			ptr = _ptr;
+			element = _element;
 		}
+		ElementPart() {}
 	};
+	class Node {
+	private:
+		size_t m_layerMax;
+		size_t m_layer;
+		bool expanded = false;
+		shared_ptr<Node> m_children[4];
+		float3 m_position, m_size;
 
-private:
-	size_t m_layerMax;
-	size_t m_layer;
-	bool expanded = false;
-	Node* m_children[4] = { nullptr };
-	float2 m_position, m_size;
+		vector<ElementPart*> m_elements;
 
-	vector<ElementPart> m_elements;
+		//-- Functions --
+		static bool bbIntersection(float3 bPos1, float3 bSize1, float3 bPos2, float3 bSize2);
+		bbFrustumState boxInsideFrustum(
+			float3 boxPos, float3 boxSize, const vector<FrustumPlane>& planes);
 
-	//-- Functions --
-	static bool bbIntersection(float2 bPos1, float2 bSize1, float2 bPos2, float2 bSize2);
+	public:
+		size_t getElementCount() const;
+		void log(int level = 0);
+
+		void split();
+		bool add(ElementPart* elementPart);
+		void remove(const ElementPart* elementPart);
+
+		void cullElements(const vector<FrustumPlane>& planes, vector<Element*>& elements,
+			vector<bool>& partsEnabled);
+		void forEach_cullElements(const vector<FrustumPlane>& planes, vector<bool>& partsEnabled,
+			void (*function_onEach)(Element* ptr));
+
+		Node(float3 position = float3(0, 0, 0), float3 size = float3(0, 0, 0), size_t layerMax = 1,
+			 size_t layer = 0, size_t reserve = 0);
+		~Node();
+	} m_node;
+
+	vector<shared_ptr<ElementPart>> m_elementParts;
 
 public:
-	void log(int stage = 0);
+	void log();
 
-	void split();
-	void add(const ElementPart& element);
-	void remove(Element* ptr);
+	void add(float3 position, float3 size, const Element& element);
+	void add(float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix, const Element& element);
+	void remove(const Element& element);
+	vector<Element*> cullElements(const vector<FrustumPlane> planes);
 
-	Node(float2 position = float2(0, 0), float2 size = float2(0, 0), size_t layer = 0, size_t layerMax = 1);
+	void initilize(float3 position, float3 size, size_t layerMax);
+	void reset();
+	void reserve(size_t size);
+
+	QuadTree(float3 position = float3(0, 0, 0), float3 size = float3(0, 0, 0), size_t layerMax = 1);
+	~QuadTree();
 };
 
 
 template <typename Element>
-inline bool Node<Element>::bbIntersection(
-	float2 bPos1, float2 bSize1, float2 bPos2, float2 bSize2) {
+inline bool QuadTree<Element>::Node::bbIntersection(
+	float3 bPos1, float3 bSize1, float3 bPos2, float3 bSize2) {
 	return (bPos1.x < bPos2.x + bSize2.x && bPos1.y < bPos2.y + bSize2.y &&
-			bPos1.x + bSize1.x > bPos2.x && bPos1.y + bSize1.y > bPos2.y);
+			bPos1.z < bPos2.z + bSize2.z && bPos1.x + bSize1.x > bPos2.x &&
+			bPos1.y + bSize1.y > bPos2.y && bPos1.z + bSize1.z > bPos2.z);
 }
 
-//string v2ToString(float2 v) { return to_string(v.x) + " - " + to_string(v.y); }
+template <typename Element>
+inline bbFrustumState QuadTree<Element>::Node::boxInsideFrustum(
+	float3 boxPos, float3 boxSize, const vector<FrustumPlane>& planes) {
 
-template <typename Element> inline void Node<Element>::log(int stage) {
+	// normalized box points
+	float3 boxPoints[8] = { float3(0, 0, 0), float3(1, 0, 0), float3(1, 0, 1), float3(0, 0, 1),
+		float3(0, 1, 0), float3(1, 1, 0), float3(1, 1, 1), float3(0, 1, 1) };
+	// transform points to world space
+	for (size_t i = 0; i < 8; i++) {
+		boxPoints[i] = boxPos + boxPoints[i] * boxSize;
+	}
+	// for each plane
+	bool inbetween = false;
+	for (size_t plane_i = 0; plane_i < planes.size(); plane_i++) {
+		// find diagonal points
+		float3 boxDiagonalPoint1, boxDiagonalPoint2;
+		float largestDot = -1;
+		for (size_t j = 0; j < 4; j++) {
+			float3 p1 = boxPoints[j];
+			float3 p2 = boxPoints[4 + (j + 2) % 4];
+			float3 pn = p1 - p2;
+			pn.Normalize();
+			float dot = abs(pn.Dot(planes[plane_i].m_normal));
+			if (dot > largestDot) {
+				largestDot = dot;
+				boxDiagonalPoint1 = p1;
+				boxDiagonalPoint2 = p2;
+			}
+		}
+		// compare points
+		float min = (boxDiagonalPoint1 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
+		float max = (boxDiagonalPoint2 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
+		if (min > max) {
+			// switch
+			float temp = max;
+			max = min;
+			min = temp;
+		}
+		if (min > 0) {
+			// outside
+			return State_Outside;
+		}
+		else if (max < 0) {
+			// inside
+		}
+		else {
+			// inbetween
+			inbetween = true;
+		}
+	}
+	if (inbetween)
+		return State_Inbetween;
+	else
+		return State_Inside;
+}
+
+template <typename Element> inline size_t QuadTree<Element>::Node::getElementCount() const {
+	return m_elements.size();
+}
+
+template <typename Element> inline void QuadTree<Element>::Node::log(int level) {
 	string str = "";
-	for (size_t i = 0; i < stage; i++)
+	for (size_t i = 0; i < level; i++)
 		str += "-";
-	str += 
-		"Node: " + (stage == 0 ? "CORE" : to_string(stage)) +
-		", Size: " + to_string(m_elements.size()) +
-		", Expanded: " + (expanded ? "true" : "false"
-	);
+	str += "Node: " + (level == 0 ? "CORE" : to_string(level)) +
+		   ", Size: " + to_string(m_elements.size()) +
+		   ", Expanded: " + (expanded ? "true" : "false");
 	// str += "\n";
 	ErrorLogger::log(str);
 	if (expanded) {
 		for (size_t i = 0; i < 4; i++)
-			m_children[i]->log(stage + 1);
+			m_children[i]->log(level + 1);
 	}
 }
 
-template <typename Element> inline void Node<Element>::split() {
-	float2 halfSize = m_size / 2.f;
-	m_children[0] = new Node(m_position + float2(0.f * halfSize.x, 0.f * halfSize.y), halfSize, m_layerMax);
-	m_children[1] = new Node(m_position + float2(1.f * halfSize.x, 0.f * halfSize.y), halfSize);
-	m_children[2] = new Node(m_position + float2(0.f * halfSize.x, 1.f * halfSize.y), halfSize);
-	m_children[3] = new Node(m_position + float2(1.f * halfSize.x, 1.f * halfSize.y), halfSize);
+template <typename Element> inline void QuadTree<Element>::Node::split() {
+	if (!expanded) {
+		expanded = true;
 
-	expanded = true;
+		float3 halfSize = m_size;
+		halfSize.x /= 2.f;
+		halfSize.z /= 2.f;
+		size_t cap = m_elements.capacity() / 4;
 
-	// add existing elements to children
-	for (size_t i = 0; i < 4; i++) {
-		for (size_t j = 0; j < m_elements.size(); j++)
-			m_children[i]->add(m_elements[j]);
-	}
-}
+		m_children[0] = make_shared<Node>(m_position + halfSize * float3(0.f, 0.f, 0.f), halfSize, m_layerMax, m_layer + 1, cap);
+		m_children[1] = make_shared<Node>(m_position + halfSize * float3(1.f, 0.f, 0.f), halfSize, m_layerMax, m_layer + 1, cap);
+		m_children[2] = make_shared<Node>(m_position + halfSize * float3(0.f, 0.f, 1.f), halfSize, m_layerMax, m_layer + 1, cap);
+		m_children[3] = make_shared<Node>(m_position + halfSize * float3(1.f, 0.f, 1.f), halfSize, m_layerMax, m_layer + 1, cap);
 
-template <typename Element>
-inline void Node<Element>::add(const ElementPart& element) {
-	if (bbIntersection(element.position, element.size, m_position, m_size)) {
-		//split if to big
-		if (m_layer < m_layerMax && m_elements.size() > COUNT_SPLIT-1)
-			split();
-		// add
-		m_elements.push_back(element);
-		// add for all children
-		if (expanded) {
-			for (size_t i = 0; i < 4; i++)
-				m_children[i]->add(element);
+		// add existing elements to children
+		for (size_t i = 0; i < 4; i++) {
+			for (size_t j = 0; j < m_elements.size(); j++)
+				m_children[i]->add(m_elements[j]);
 		}
 	}
 }
-template <typename Element> inline void Node<Element>::remove(Element* ptr) {
+
+template <typename Element> inline bool QuadTree<Element>::Node::add(ElementPart* elementPart) {
+	if (bbIntersection(elementPart->position, elementPart->size, m_position, m_size)) {
+		// split if to big
+		if (!expanded && m_layer < m_layerMax && m_elements.size() > COUNT_SPLIT - 1) 
+			split();
+		// add
+		m_elements.push_back(elementPart);
+		// add for all children
+		if (expanded) {
+			for (size_t i = 0; i < 4; i++)
+				m_children[i]->add(elementPart);
+		}
+		return true;
+	}
+	return false;
+}
+template <typename Element> inline void QuadTree<Element>::Node::remove(const ElementPart* elementPart) {
 	for (size_t i = 0; i < m_elements.size(); i++) {
-		if (m_elements[i].ptr == ptr) {
-			//remove
+		if (m_elements[i] == elementPart) {
+			// remove
 			m_elements.erase(m_elements.begin() + i);
+			// remove from children
 			if (expanded) {
 				for (size_t j = 0; j < 4; j++)
-					m_children[j].remove(ptr);
+					m_children[j]->remove(elementPart);
 			}
 			break;
 		}
 	}
 }
+
 template <typename Element>
-inline Node<Element>::Node(float2 position, float2 size, size_t layer, size_t layerMax) {
+inline void QuadTree<Element>::Node::cullElements(
+	const vector<FrustumPlane>& planes, vector<Element*>& elements, vector<bool>& partsEnabled) {
+
+	bbFrustumState state = boxInsideFrustum(m_position, m_size, planes);
+	switch (state) {
+	case bbFrustumState::State_Inside:
+		// full hit
+		// add all elements to the list
+		for (size_t i = 0; i < m_elements.size(); i++) {
+			size_t index = m_elements[i]->index;
+			if (!partsEnabled[index]) {
+				partsEnabled[index] = true;
+				elements.push_back(&m_elements[i]->element);
+			}
+		}
+		break;
+	case bbFrustumState::State_Outside:
+		// miss
+		// add none
+		break;
+	case bbFrustumState::State_Inbetween:
+		// partial hit
+		if (expanded) {
+			// add children elements
+			for (size_t i = 0; i < 4; i++)
+				m_children[i]->cullElements(planes, elements, partsEnabled);
+		}
+		else {
+			// add all elements to the list
+			for (size_t i = 0; i < m_elements.size(); i++) {
+				size_t index = m_elements[i]->index;
+				if (!partsEnabled[index]) {
+					partsEnabled[index] = true;
+					elements.push_back(&m_elements[i]->element);
+				}
+			}
+		}
+		break;
+	}
+}
+
+template <typename Element>
+inline void QuadTree<Element>::Node::forEach_cullElements(const vector<FrustumPlane>& planes,
+	vector<bool>& partsEnabled, void (*function_onEach)(Element* ptr)) {
+
+	bbFrustumState state = boxInsideFrustum(m_position, m_size, planes);
+	switch (state) {
+	case bbFrustumState::State_Inside:
+		// full hit
+		// add all elements to the list
+		for (size_t i = 0; i < m_elements.size(); i++) {
+			size_t index = m_elements[i]->index;
+			if (!partsEnabled[index]) {
+				partsEnabled[index] = true;
+				function_onEach(m_elements[i]->ptr);
+			}
+		}
+		break;
+	case bbFrustumState::State_Outside:
+		// miss
+		// add none
+		break;
+	case bbFrustumState::State_Inbetween:
+		// partial hit
+		if (expanded) {
+			// add children elements
+			for (size_t i = 0; i < 4; i++)
+				m_children[i]->forEach_cullElements(planes, partsEnabled, function_onEach);
+		}
+		else {
+			// add all elements to the list
+			for (size_t i = 0; i < m_elements.size(); i++) {
+				size_t index = m_elements[i]->index;
+				if (!partsEnabled[index]) {
+					partsEnabled[index] = true;
+					function_onEach(m_elements[i]->ptr);
+				}
+			}
+		}
+		break;
+	}
+}
+
+template <typename Element>
+inline QuadTree<Element>::Node::Node(
+	float3 position, float3 size, size_t layerMax, size_t layer, size_t reserve) {
 	m_position = position;
 	m_size = size;
 	m_layer = layer;
 	m_layerMax = layerMax;
+	m_elements.reserve(reserve);
 }
+
+template <typename Element> inline QuadTree<Element>::Node::~Node() {}
+
+template <typename Element> inline void QuadTree<Element>::log() {
+	m_node.log(0);
+	ErrorLogger::log("");
+}
+
+template <typename Element>
+inline void QuadTree<Element>::add(float3 position, float3 size, const Element& element) {
+	// add the array
+	shared_ptr<ElementPart> part = make_shared<ElementPart>(position, size, element);
+	part->index = m_elementParts.size();
+	m_elementParts.push_back(part);
+	// insert into tree
+	bool anyHit = m_node.add(m_elementParts.back().get());
+	// remove if missed tree
+	if (!anyHit) {
+		m_elementParts.pop_back();
+	}
+}
+
+template <typename Element>
+inline void QuadTree<Element>::add(
+	float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix, const Element& element) {
+	
+	// define standard box around center
+	float3 points[8] = { 
+		float3(-1.f, -1.f, -1.f), 
+		float3(1.f, -1.f, -1.f),
+		float3(-1.f, -1.f, 1.f), 
+		float3(1.f, -1.f, 1.f), 
+
+		float3(-1.f, 1.f, -1.f),
+		float3(1.f, 1.f, -1.f),
+		float3(-1.f, 1.f, 1.f),
+		float3(1.f, 1.f, 1.f)
+	};
+	//tranform points to world space and find bounding box
+	float2 MM[3] = { float2(-1, -1), float2(-1, -1), float2(-1, -1) };//.x = min, .y = max, -1 = unset
+	float coords[3];
+	for (size_t i = 0; i < 8; i++) {
+		float3 wp = float3::Transform(lCenterPosition + points[i] * lHalfSize, worldMatrix);
+		coords[0] = wp.x, coords[1] = wp.y, coords[2] = wp.z;
+		for (size_t j = 0; j < 3; j++) {
+			//min
+			if (MM[j].x == -1 || coords[j] < MM[j].x)
+				MM[j].x = coords[j];
+			//max
+			if (MM[j].y == -1 || coords[j] > MM[j].y)
+				MM[j].y = coords[j];
+		}
+	}
+	//calculate parameters
+	float3 position(MM[0].x, MM[1].x, MM[2].x);//edge location
+	float3 size(MM[0].y - MM[0].x, MM[1].y - MM[1].x, MM[2].y - MM[2].x);//calc differences
+
+	// Add
+	add(position, size, element);
+}
+
+template <typename Element> inline void QuadTree<Element>::remove(const Element& element) {
+	for (size_t i = 0; i < m_elementParts.size(); i++) {
+		if (m_elementParts[i]->element == element) {
+			m_node.remove(element);								  // remove from children
+			m_elementParts.erase(m_elementParts.begin() + i); // remove
+			// fix indices on elementParts
+			for (size_t j = i; j < m_elementParts.size(); j++) {
+				m_elementParts[j]->index--;
+			}
+			break;
+		}
+	}
+}
+
+template <typename Element>
+inline vector<Element*> QuadTree<Element>::cullElements(const vector<FrustumPlane> planes) {
+	vector<Element*> elements;
+	elements.reserve(m_elementParts.size());
+	vector<bool> partsEnabled;
+	partsEnabled.resize(m_elementParts.size());
+	for (size_t i = 0; i < partsEnabled.size(); i++)
+		partsEnabled[i] = false;
+	m_node.cullElements(planes, elements, partsEnabled);
+	return elements;
+}
+
+template <typename Element>
+inline void QuadTree<Element>::initilize(float3 position, float3 size, size_t layerMax) {
+	reset();
+	m_node = Node(position, size, layerMax, 0, m_elementParts.capacity());
+}
+
+template <typename Element> inline void QuadTree<Element>::reset() { 
+	m_elementParts.clear(); 
+	m_node = Node();
+}
+
+template <typename Element> inline void QuadTree<Element>::reserve(size_t size) {
+	m_elementParts.reserve(size);
+}
+
+template <typename Element>
+inline QuadTree<Element>::QuadTree(float3 position, float3 size, size_t layerMax) {
+	initilize(position, size, layerMax);
+}
+
+template <typename Element> inline QuadTree<Element>::~QuadTree() {}

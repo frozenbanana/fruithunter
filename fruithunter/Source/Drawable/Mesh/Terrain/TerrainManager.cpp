@@ -4,10 +4,11 @@ TerrainManager* TerrainManager::getInstance() { return &m_this; }
 TerrainManager::TerrainManager() {}
 void TerrainManager::add(float3 position, float3 scale, string heightmapFilename,
 	vector<string> textures, XMINT2 subSize, XMINT2 division) {
-	Terrain terrain(heightmapFilename, textures, subSize, division);
-	terrain.setPosition(position);
-	terrain.setScale(scale);
-	m_terrains.push_back(terrain);
+
+	m_terrains.push_back(Terrain());
+	m_terrains.back().initilize(heightmapFilename, textures, subSize, division);
+	m_terrains.back().setPosition(position);
+	m_terrains.back().setScale(scale);
 }
 
 
@@ -77,6 +78,12 @@ vector<float3> TerrainManager::draw_frustumCulling(const vector<FrustumPlane>& p
 		}
 	}
 	return vector<float3>();
+}
+
+void TerrainManager::draw_quadtreeFrustumCulling(const vector<FrustumPlane>& planes) {
+	for (size_t i = 0; i < m_terrains.size(); i++) {
+		m_terrains[i].draw_quadtreeFrustumCulling(planes);
+	}
 }
 
 float3 TerrainManager::getSpawnpoint(int terrainType) {
