@@ -26,6 +26,8 @@ void Player::update(float dt, Terrain* terrain) {
 	// player rotation
 	rotatePlayer(dt);
 
+
+
 	if (!m_godMode) {
 		// modify velocity vector to match terrain
 		if (terrain != nullptr) {
@@ -129,6 +131,9 @@ void Player::update(float dt, Terrain* terrain) {
 
 		// update camera properties
 		updateCamera();
+
+		// Update bow
+		updateBow(dt, terrain->getWind());
 	}
 	else {
 		float speedFactor = 20.0f;
@@ -139,16 +144,14 @@ void Player::update(float dt, Terrain* terrain) {
 					  speedFactor;
 
 		updateCameraGod();
+		updateBow(dt, float3(0.f, 0.f, 0.f));
 	}
 
 	if (ip->keyPressed(Keyboard::Keys::G))
 		m_godMode = !m_godMode;
-
-	// Update bow
-	updateBow(dt);
 }
 
-void Player::updateBow(float dt) {
+void Player::updateBow(float dt, float3 wind) {
 	Input* input = Input::getInstance();
 
 	if (input->mouseDown(Input::MouseButton::RIGHT)) {
@@ -178,7 +181,7 @@ void Player::updateBow(float dt) {
 	}
 
 	m_bow.rotate(m_cameraPitch, m_cameraYaw);
-	m_bow.update(dt, getCameraPosition(), m_playerForward, m_playerRight);
+	m_bow.update(dt, getCameraPosition(), m_playerForward, m_playerRight, wind);
 }
 
 void Player::updateCamera() {
@@ -203,7 +206,7 @@ void Player::rotatePlayer(float dt) {
 		deltaY = (float)ip->mouseY();
 	}
 
-	float rotationSpeed = 0.6f * dt;
+	float rotationSpeed = m_aimZoom * 0.6f * dt;
 
 	if (deltaX != 0.0f) {
 		m_cameraYaw += deltaX * rotationSpeed;
@@ -301,6 +304,8 @@ float3 Player::getCameraPosition() const { return m_camera.getPosition(); }
 float3 Player::getForward() const { return m_playerForward; }
 
 float3 Player::getVelocity() const { return m_velocity; }
+
+float Player::getStamina() const { return m_stamina; }
 
 bool Player::isShooting() const { return m_bow.isShooting(); }
 

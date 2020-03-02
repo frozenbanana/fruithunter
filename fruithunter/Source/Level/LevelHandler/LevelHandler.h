@@ -29,6 +29,9 @@ struct Level {
 	// terrain props
 	string m_terrainPropsFilename;
 
+	// Wind
+	vector<float3> m_wind;
+
 	// Fruits
 	int m_nrOfFruits[NR_OF_FRUITS];
 	vector<int> m_fruitPos[NR_OF_FRUITS];
@@ -78,6 +81,7 @@ public:
 	void initialise();
 	void loadLevel(int levelNr);
 	void draw();
+	void drawShadow();
 	void update(float dt);
 
 	// Fruit stuff
@@ -85,4 +89,6 @@ public:
 	void dropFruit();
 
 	std::vector<Fruit> fruitsInLevel;
+
+	float3 getPlayerPos();
 };

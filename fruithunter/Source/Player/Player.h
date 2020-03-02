@@ -10,7 +10,7 @@ public:
 	~Player();
 	void initialize();
 	void update(float dt, Terrain* terrain);
-	void updateBow(float dt);
+	void updateBow(float dt, float3 wind);
 	void updateCamera();
 	void updateCameraGod();
 	void rotatePlayer(float dt);
@@ -23,6 +23,7 @@ public:
 	float3 getForward() const;
 	float3 getVelocity() const;
 	Entity& getArrow() { return m_bow.getArrow(); };
+	float getStamina() const;
 	bool isShooting() const;
 	void setPosition(float3 position);
 	void standsOnObject();

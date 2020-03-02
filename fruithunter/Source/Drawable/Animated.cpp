@@ -131,6 +131,18 @@ void Animated::draw() {
 	m_meshes[0]->draw_withoutBinding();
 }
 
+void Animated::drawShadow() {
+	if (Input::getInstance()->keyDown(Keyboard::B)) {
+		m_meshes[0]->draw_BoundingBox();
+	}
+
+	bindMeshes();
+	bindConstantBuffer();
+	m_shaderObject_animation.bindShadersAndLayoutForShadowMap();
+
+	m_meshes[0]->draw_withoutBinding();
+}
+
 bool Animated::load(std::string filename, int nrOfFrames, bool combineParts) {
 	bool allClear = true;
 	m_nrOfMeshes = nrOfFrames;

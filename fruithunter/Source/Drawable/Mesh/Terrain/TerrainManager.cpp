@@ -2,9 +2,9 @@
 TerrainManager TerrainManager::m_this;
 TerrainManager* TerrainManager::getInstance() { return &m_this; }
 TerrainManager::TerrainManager() {}
-void TerrainManager::add(float3 position, float3 scale, string heightmapFilename, vector<string> textures,
-	XMINT2 subSize, XMINT2 division) {
-	Terrain terrain(heightmapFilename, textures, subSize, division);
+void TerrainManager::add(float3 position, float3 scale, string heightmapFilename,
+	vector<string> textures, XMINT2 subSize, XMINT2 division, float3 wind) {
+	Terrain terrain(heightmapFilename, textures, subSize, division, wind);
 	terrain.setPosition(position);
 	terrain.setScale(scale);
 	m_terrains.push_back(terrain);
@@ -64,6 +64,12 @@ float TerrainManager::castRay(float3 point, float3 direction) {
 }
 
 void TerrainManager::draw() {
+	for (size_t i = 0; i < m_terrains.size(); i++) {
+		m_terrains[i].draw();
+	}
+}
+
+void TerrainManager::drawShadow() {
 	for (size_t i = 0; i < m_terrains.size(); i++) {
 		m_terrains[i].draw();
 	}

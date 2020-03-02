@@ -60,6 +60,7 @@ void Renderer::bindEverything() { bindBackAndDepthBuffer(); }
 void Renderer::bindDepthSRV(int slot) {
 	m_deviceContext->PSSetShaderResources(slot, 1, m_depthSRV.GetAddressOf());
 }
+
 void Renderer::enableAlphaBlending() {
 	float blendFactor[4] = { 0 };
 	m_deviceContext->OMSetBlendState(m_blendStateAlphaBlending.Get(), blendFactor, 0xffffffff);
@@ -83,10 +84,6 @@ void Renderer::copyDepthToSRV() {
 	m_depthDSV.Get()->GetResource(&src);
 	m_deviceContext->CopyResource(dst, src);
 }
-
-
-
-
 
 Renderer::Renderer(int width, int height) {
 	// Define window style
@@ -122,6 +119,7 @@ HWND Renderer::getHandle() { return m_handle; }
 void Renderer::initalize(HWND window) {}
 
 void Renderer::beginFrame() {
+	m_deviceContext->RSSetState(0);
 	// Bind rendertarget
 	m_deviceContext.Get()->OMSetRenderTargets(
 		1, m_renderTargetView.GetAddressOf(), m_depthDSV.Get());
@@ -147,6 +145,7 @@ void Renderer::beginFrame() {
 void Renderer::endFrame() {
 	// Swap the buffer
 	m_swapChain->Present(1, 0);
+
 }
 
 ID3D11Device* Renderer::getDevice() {
