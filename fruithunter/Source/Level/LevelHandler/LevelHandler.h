@@ -11,6 +11,7 @@
 #include "EntityRepository.h"
 #include "HUD.h"
 #include "SeaEffect.h"
+#include "Animal.h"
 
 #define LEVELS = 1;
 
@@ -55,6 +56,7 @@ private:
 	SkyBox m_skyBox;
 	size_t m_inventory[NR_OF_FRUITS]; // APPLE 0, BANANA 1, MELON 2
 	vector<shared_ptr<Entity>> m_collidableEntities;
+	vector<shared_ptr<Animal>> m_Animals;
 
 	int m_currentLevel = -1;
 	Level::TerrainTags m_currentTerrain = Level::TerrainTags::Forest;
@@ -67,7 +69,7 @@ private:
 	void initialiseLevel0();
 	void placeBridge(float3 pos, float3 rot, float3 scale);
 	void placeAllBridges();
-
+	void placeAllAnimals();
 
 	// thread for pathfinding,
 
@@ -79,7 +81,9 @@ public:
 	void initialise();
 	void loadLevel(int levelNr);
 	void draw();
-	void drawShadow();
+	void drawShadowDynamic();
+	void drawShadowStatic();
+	void drawShadowDynamicEntities();
 	void update(float dt);
 
 	// Fruit stuff

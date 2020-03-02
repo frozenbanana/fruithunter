@@ -150,6 +150,9 @@
     <ClCompile Include="Source\Utility\PerformanceTimer\PerformanceTimer.cpp">
       <Filter>Source\Utility\PerformanceTimer</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Drawable\Mesh\Animal.cpp">
+      <Filter>Source\Drawable\Mesh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -268,6 +271,9 @@
     </ClInclude>
     <ClInclude Include="Source\Utility\PerformanceTimer\PerformanceTimer.h">
       <Filter>Source\Utility\PerformanceTimer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\Mesh\Animal.h">
+      <Filter>Source\Drawable\Mesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
