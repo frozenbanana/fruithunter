@@ -128,14 +128,14 @@ void LevelHandler::placeAllBridges() {
 
 void LevelHandler::placeAllAnimals() {
 	shared_ptr<Animal> animal = make_shared<Animal>(
-		"Gorilla", 10.f, 4.f, BANANA, 10.f, float3(98.2f, 3.1f, 39.f), XM_PI * 0.5f);
+		"Gorilla", 10.f, 4.f, BANANA, 1, 10.f, float3(98.2f, 3.1f, 39.f), XM_PI * 0.5f);
 	m_Animals.push_back(animal);
 
-	animal = make_shared<Animal>("Bear", 10.f, 2.5f, APPLE, 10.f, float3(37.f, 3.2f, 93.f), 0.f);
+	animal = make_shared<Animal>("Bear", 10.f, 2.5f, APPLE, 1, 10.f, float3(37.f, 3.2f, 93.f), 0.f);
 	m_Animals.push_back(animal);
 
-	animal =
-		make_shared<Animal>("Bear", 5.f, 2.5f, APPLE, 5.f, float3(90.f, 8.2f, 152.f), XM_PI * 0.5f);
+	animal = make_shared<Animal>(
+		"Bear", 5.f, 2.5f, APPLE, 1, 5.f, float3(90.f, 8.2f, 152.f), XM_PI * 0.5f);
 	m_Animals.push_back(animal);
 }
 
@@ -308,11 +308,13 @@ void LevelHandler::update(float dt) {
 		m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
 
 	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
+
+	// for all animals
 	for (size_t i = 0; i < m_Animals.size(); ++i) {
 		bool getsThrown = m_player.checkAnimal(m_Animals[i]->getPosition(),
 			m_Animals[i]->getPlayerRange(), m_Animals[i]->getThrowStrength());
 		if (getsThrown)
-			m_Animals[i]->pushPlayer(m_player.getPosition());
+			m_Animals[i]->beginWalk(m_player.getPosition());
 		m_Animals[i]->update(dt);
 	}
 
@@ -391,7 +393,7 @@ void LevelHandler::update(float dt) {
 	waterEffect.update(dt);
 	lavaEffect.update(dt);
 
-	//Renderer::getInstance()->setPlayerPos(playerPos);
+	// Renderer::getInstance()->setPlayerPos(playerPos);
 }
 
 void LevelHandler::pickUpFruit(int fruitType) {
