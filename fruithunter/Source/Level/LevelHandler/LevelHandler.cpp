@@ -247,12 +247,9 @@ void LevelHandler::draw() {
 		// terrain entities
 		m_terrainProps.draw_quadtreeFrustumCulling(frustum);
 		// terrain
-		//m_terrainManager->draw_frustumCulling(frustum);
 		m_terrainManager->draw_quadtreeFrustumCulling(frustum);
 		// water/lava effect
 		Renderer::getInstance()->copyDepthToSRV();
-		/*waterEffect.draw_frustumCulling(frustum);
-		lavaEffect.draw_frustumCulling(frustum);*/
 		waterEffect.draw_quadtreeFrustumCulling(frustum);
 		lavaEffect.draw_quadtreeFrustumCulling(frustum);
 	}

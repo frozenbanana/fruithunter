@@ -31,15 +31,10 @@ void EntityRepository::fillEntitiesFromRepository() {
 				m_quadtree.add(m_entities[instanceIndex]->getLocalBoundingBoxPosition(),
 					m_entities[instanceIndex]->getLocalBoundingBoxSize(),
 					m_entities[instanceIndex]->getModelMatrix(), m_entities[instanceIndex].get());
-				//m_quadtree.add(m_entities[instanceIndex]->getPosition() +
-				//				   m_entities[instanceIndex]->getLocalBoundingBoxPosition(),
-				//	m_entities[instanceIndex]->getLocalBoundingBoxSize(),
-				//	m_entities[instanceIndex].get());
 				// increment
 				instanceIndex++;
 			}
 		}
-		m_quadtree.log();
 	}
 }
 
