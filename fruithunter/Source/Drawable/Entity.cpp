@@ -1,6 +1,7 @@
 #include "Entity.h"
 #include "Errorlogger.h"
 #include "Input.h"
+#include "Renderer.h"
 
 void Entity::updateMatrix() {
 	m_transformPropertiesChanged = false;
