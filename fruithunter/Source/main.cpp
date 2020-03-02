@@ -10,7 +10,6 @@
 #include "Camera.h"
 #include "VariableSyncer.h"
 #include "PathFindingThread.h"
-
 void onLoad(void* ptr) { ErrorLogger::log("Loaded struct!"); }
 
 int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
@@ -25,12 +24,11 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	ErrorLogger errorLogger;
 
 	ErrorLogger errorMan;
-
-
+	PathFindingThread* extraThread = PathFindingThread::getInstance();
 
 	MSG msg = { 0 };
 	stateHandler->initialize();
-	//Hardcoded statechange here. (TESTING)
+	// Hardcoded statechange here. (TESTING)
 	stateHandler->changeState(StateHandler::PLAY);
 	while (StateHandler::getInstance()->isRunning()) {
 		VariableSyncer::getInstance()->sync();
@@ -67,6 +65,6 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 		}
 		MSG msg = { 0 };
 	}
-
+	extraThread->exitThread();
 	return 0;
 }

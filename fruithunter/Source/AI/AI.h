@@ -41,7 +41,7 @@ public:
 	};
 	enum State { INACTIVE, PASSIVE, ACTIVE, CAUGHT, RELEASED };
 	void setWorld(std::shared_ptr<Terrain> terrain);
-	void pathfinding(float3 start, vector<shared_ptr<Entity>> collidables, mutex& mu);
+	void pathfinding(float3 start);
 	void changeState(State newState);
 	State getState() const;
 	bool giveNewPath() const;
