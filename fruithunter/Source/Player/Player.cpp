@@ -10,6 +10,7 @@ Player::~Player() {}
 
 void Player::initialize() {
 	m_position = float3(1.0f, 2.0f, 3.0f);
+	m_lastSafePosition = m_position;
 	m_velocity = float3(0.0f, 0.0f, 0.0f);
 	m_playerForward = DEFAULTFORWARD;
 	VariableSyncer::getInstance()->create("Player.txt", nullptr);
@@ -47,9 +48,10 @@ void Player::update(float dt, Terrain* terrain) {
 		// Move player;
 		m_position += m_velocity * dt;
 
-		// Update velocity for next frame
 		checkSprint(dt);
 		checkDash(dt);
+
+		// Update velocity for next frame
 		if (onGround(terrain)) {
 			if (getSteepness(terrain) < STEEPNESS_BORDER) {
 				// Steep ground
@@ -69,6 +71,16 @@ void Player::update(float dt, Terrain* terrain) {
 		// Outside of terrain, falling
 		m_position += m_velocity * dt;
 		updateVelocity_inAir(force, dt);
+	}
+
+	// Reset player if below sea level
+	if (m_position.y < m_seaHeight && !m_godMode) {
+		m_velocity = float3(0.f);
+		m_resetTimer += dt;
+		if (m_resetTimer > m_resetDelay) {
+			m_position = m_lastSafePosition;
+			m_resetTimer = 0.f;
+		}
 	}
 
 	restoreStamina(dt);
@@ -152,7 +164,10 @@ float Player::getStamina() const { return m_stamina; }
 
 bool Player::isShooting() const { return m_bow.isShooting(); }
 
-void Player::setPosition(float3 position) { m_position = position; }
+void Player::setPosition(float3 position) {
+	m_position = position;
+	m_lastSafePosition = position;
+}
 
 void Player::standsOnObject() { m_onEntity = true; }
 
@@ -308,11 +323,12 @@ void Player::calculateTerrainCollision(Terrain* terrain, float dt) {
 
 void Player::checkSprint(float dt) {
 	if (Input::getInstance()->keyPressed(KEY_SPRINT) && m_stamina > STAMINA_SPRINT_THRESHOLD &&
-		!m_chargingDash) {
+		!m_chargingDash && m_onGround) {
 		// activate sprint
 		m_sprinting = true;
 	}
-	if (Input::getInstance()->keyDown(KEY_SPRINT) && m_sprinting && m_stamina > 0) {
+	if (Input::getInstance()->keyDown(KEY_SPRINT) && m_sprinting && m_stamina > 0 &&
+		m_velocity.Length() > 0.01f) {
 		// consume stamina
 		consumeStamina(STAMINA_SPRINT_CONSUMPTION * dt);
 	}
@@ -323,7 +339,7 @@ void Player::checkSprint(float dt) {
 
 void Player::checkDash(float dt) {
 	if (Input::getInstance()->keyPressed(KEY_DASH) && m_stamina >= STAMINA_DASH_COST &&
-		!m_sprinting) {
+		!m_sprinting && m_onGround) {
 		m_chargingDash = true;
 	}
 
@@ -428,6 +444,8 @@ void Player::updateVelocity_onFlatGround(float3 playerForce, float dt) {
 
 	// add player forces
 	m_velocity += playerForce * getPlayerMovementSpeed() * dt;
+
+	m_lastSafePosition = m_position;
 }
 
 void Player::updateVelocity_onSteepGround(float dt) {
