@@ -185,8 +185,7 @@ float4 main(PS_IN ip) : SV_TARGET {
 	//float depth = ip.shadowPosH.z - 0.001f;
 	
 	// WORKING BLEND SHADING
-	//float shade = texSample(texture_shadowMap, float2(3840.f, 2160.f), ip.ShadowPosH.xy, ip.ShadowPosH.z).r;
-	float shade = texSample9v9(texture_shadowMap, float2(3840.f, 2160.f), ip.ShadowPosH.xy, ip.ShadowPosH.z).r;
+	float shade = texSample(texture_shadowMap, float2(3840.f, 2160.f), ip.ShadowPosH.xy, ip.ShadowPosH.z).r;
 	//ALMOST WORKING GREASE SHADING
 	//float shade = texSampleGrease(texture_shadowMap, float2(3840.f, 2160.f), ip.ShadowPosH.xy, ip.ShadowPosH.z, ip.PosW.xyz).r;
 	
