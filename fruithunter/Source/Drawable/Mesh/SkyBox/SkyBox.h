@@ -22,8 +22,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightBuffer;
 	lightInfo m_lightInfo[4];
 	lightInfo m_currentLightInfo;
-	int m_oldLight = 0.0f;
-	int m_newLight = 0.0f;
+	int m_oldLight = 0;
+	int m_newLight = 0;
 
 	bool createResourceBuffer(string path, ID3D11ShaderResourceView** buffer);
 	bool createConstantBuffer();

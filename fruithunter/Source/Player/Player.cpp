@@ -131,9 +131,6 @@ void Player::update(float dt, Terrain* terrain) {
 
 		// update camera properties
 		updateCamera();
-
-		// Update bow
-		updateBow(dt, terrain->getWind());
 	}
 	else {
 		float speedFactor = 20.0f;
@@ -144,8 +141,13 @@ void Player::update(float dt, Terrain* terrain) {
 					  speedFactor;
 
 		updateCameraGod();
-		updateBow(dt, float3(0.f, 0.f, 0.f));
 	}
+
+	// Update bow
+	if (terrain != nullptr)
+		updateBow(dt, terrain->getWind());
+	else
+		updateBow(dt, float3(0.f, 0.f, 0.f));
 
 	if (ip->keyPressed(Keyboard::Keys::G))
 		m_godMode = !m_godMode;
@@ -280,6 +282,21 @@ void Player::collideObject(Entity& obj) {
 			m_velocity *= 0.5;
 		}
 	}
+}
+
+bool Player::checkAnimal(float3 animalPos, float range, float throwStrength) {
+	float3 diff = m_position - animalPos;
+	float rangeSq = range * range;
+	float diffLenSq = diff.LengthSquared();
+	bool inRange = diffLenSq < rangeSq;
+	if (inRange) {
+		float strength = (rangeSq - diffLenSq) / rangeSq;
+		diff.Normalize();
+		float3 throwVec = (diff + float3(0.f, 1.f, 0.f)) * throwStrength;
+		m_velocity = throwVec;
+		return true;
+	}
+	return false;
 }
 
 float3 Player::getPosition() const { return m_position; }

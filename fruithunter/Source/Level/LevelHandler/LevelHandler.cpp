@@ -126,6 +126,19 @@ void LevelHandler::placeAllBridges() {
 	placeBridge(float3(98.f, 8.2f, 152.f), float3(0.f, -0.1f, -0.13f), float3(1.8f, 1.f, 1.4f));
 }
 
+void LevelHandler::placeAllAnimals() {
+	shared_ptr<Animal> animal = make_shared<Animal>(
+		"Gorilla", 10.f, 4.f, BANANA, 10.f, float3(98.2f, 3.1f, 39.f), XM_PI * 0.5f);
+	m_Animals.push_back(animal);
+
+	animal = make_shared<Animal>("Bear", 10.f, 2.5f, APPLE, 10.f, float3(37.f, 3.2f, 93.f), 0.f);
+	m_Animals.push_back(animal);
+
+	animal =
+		make_shared<Animal>("Bear", 5.f, 2.5f, APPLE, 5.f, float3(90.f, 8.2f, 152.f), XM_PI * 0.5f);
+	m_Animals.push_back(animal);
+}
+
 LevelHandler::LevelHandler() { initialise(); }
 
 LevelHandler::~LevelHandler() {}
@@ -210,9 +223,11 @@ void LevelHandler::loadLevel(int levelNr) {
 		m_collidableEntities.push_back(newEntity);
 
 		placeAllBridges();
+		placeAllAnimals();
 
 		m_hud.setTimeTargets(currentLevel.m_timeTargets);
 		m_hud.setWinCondition(currentLevel.m_winCondition);
+
 
 		if (currentLevel.m_nrOfFruits[APPLE] != 0)
 			m_hud.createFruitSprite("apple");
@@ -235,6 +250,10 @@ void LevelHandler::draw() {
 		m_fruits[i]->draw_animate();
 	}
 	Renderer::getInstance()->disableAlphaBlending();
+
+	for (size_t i = 0; i < m_Animals.size(); ++i) {
+		m_Animals[i]->draw();
+	}
 
 	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
 		m_collidableEntities[i]->draw();
@@ -268,7 +287,7 @@ void LevelHandler::draw() {
 	m_hud.draw();
 }
 
-void LevelHandler::drawShadow() {
+void LevelHandler::drawShadowDynamic() {
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->draw_animate_shadow();
 	}
@@ -280,6 +299,22 @@ void LevelHandler::drawShadow() {
 	m_terrainProps.drawShadow();
 }
 
+void LevelHandler::drawShadowStatic() {
+	m_terrainManager->drawShadow();
+
+	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
+		m_collidableEntities[i]->drawShadow();
+	}
+
+	m_terrainProps.drawShadow();
+}
+
+void LevelHandler::drawShadowDynamicEntities() {
+	for (int i = 0; i < m_fruits.size(); i++) {
+		m_fruits[i]->draw_animate_shadow();
+	}
+}
+
 void LevelHandler::update(float dt) {
 	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
@@ -289,10 +324,17 @@ void LevelHandler::update(float dt) {
 		m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
 
 	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
+	for (size_t i = 0; i < m_Animals.size(); ++i) {
+		bool getsThrown = m_player.checkAnimal(m_Animals[i]->getPosition(),
+			m_Animals[i]->getPlayerRange(), m_Animals[i]->getThrowStrength());
+		if (getsThrown)
+			m_Animals[i]->pushPlayer(m_player.getPosition());
+		m_Animals[i]->update(dt);
+	}
 
 	dropFruit();
 
-	float3 playerPos = m_player.getPosition();	
+	float3 playerPos = m_player.getPosition();
 
 	// update terrain tag
 	int activeTerrain = m_terrainManager->getTerrainIndexFromPosition(playerPos);
