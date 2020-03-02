@@ -40,14 +40,14 @@ private:
 		Description(ParticleSystem::PARTICLE_TYPE type = NONE) {
 			switch (type) {
 			case FOREST_BUBBLE:
-				m_nrOfParticles = 999;
-				m_emitRate = 35.0f; // particles per sec
+				m_nrOfParticles = 799;
+				m_emitRate = 25.0f; // particles per sec
 				m_acceleration = float3(0.1f, 0.5f, -0.1f);
 				m_spawnRadius = 50.f;
 				m_radiusInterval = float2(-45.2f, 0.2f);
 				m_velocity = float3(0.f, 0.f, 0.f);
 				m_velocityOffsetInterval = float2(-3.8f, 3.8f); // for x, y and z
-				m_sizeInterval = float2(0.15f, 0.25f);
+				m_sizeInterval = float2(0.10f, 0.20f);
 				m_timeAliveInterval = float2(3.f, 5.f);
 				m_color[0] = float3(0.0f, 0.75f, 0.1f);
 				m_color[1] = float3(0.0f, 0.75f, 0.4f);
