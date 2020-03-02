@@ -18,6 +18,8 @@ void IntroState::initialize() {
 }
 
 void IntroState::update() {
+	PerformanceTimer::start("IntroState_Update", PerformanceTimer::TimeState::state_average);
+
 	// AudioHandler::logStats();
 	m_timer.update();
 	float dt = m_timer.getDt();
@@ -33,6 +35,8 @@ void IntroState::update() {
 		m_apples[i].setNextDestination(appleDestination);
 	}*/
 	Input::getInstance()->setMouseModeAbsolute();
+
+	PerformanceTimer::stop();
 }
 
 void IntroState::handleEvent() {
@@ -49,6 +53,8 @@ void IntroState::pause() {
 }
 
 void IntroState::draw() {
+	PerformanceTimer::start("IntroState_Draw", PerformanceTimer::TimeState::state_average);
+
 	Renderer::getInstance()->beginFrame();
 	m_camera.bindMatrix();
 	// ErrorLogger::log(m_name + " draw() called.");
@@ -69,6 +75,8 @@ void IntroState::draw() {
 	m_textRenderer.draw("See Highscore", float2(400., 275.), menuColor);
 	m_textRenderer.draw("Settings", float2(400., 350.), menuColor);
 	m_textRenderer.draw("Quit", float2(400., 425.), menuColor);
+
+	PerformanceTimer::stop();
 }
 
 void IntroState::play() {

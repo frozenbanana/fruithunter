@@ -17,6 +17,8 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	_In_ int cmdCount) {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
+	PerformanceTimer::start("Initilize");
+
 	Input::initilize(Renderer::getInstance()->getHandle());
 
 	StateHandler* stateHandler = StateHandler::getInstance();
@@ -28,6 +30,10 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 
 	MSG msg = { 0 };
 	stateHandler->initialize();
+
+	PerformanceTimer::stop();
+	PerformanceTimer::start("AllFrames");
+
 	// Hardcoded statechange here. (TESTING)
 	stateHandler->changeState(StateHandler::PLAY);
 	while (StateHandler::getInstance()->isRunning()) {
@@ -66,6 +72,6 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 		}
 		MSG msg = { 0 };
 	}
-
+	PerformanceTimer::stop();
 	return 0;
 }
