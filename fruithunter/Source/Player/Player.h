@@ -95,7 +95,6 @@ private:
 	void updateBow(float dt, Terrain* terrain);
 	void updateCamera();
 	void rotatePlayer(float dt);
-
 	void updateGodMode(float dt);
 
 	float3 getMovementForce();

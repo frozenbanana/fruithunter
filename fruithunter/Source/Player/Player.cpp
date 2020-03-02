@@ -322,14 +322,18 @@ void Player::checkSprint(float dt) {
 }
 
 void Player::checkDash(float dt) {
-	if (m_stamina >= STAMINA_DASH_COST && !m_sprinting && m_onGround) {
-		if (Input::getInstance()->keyDown(KEY_DASH)) {
-			m_dashCharge = clamp(m_dashCharge + dt, DASHMAXCHARGE, 0);
-		}
-		else if (Input::getInstance()->keyReleased(KEY_DASH)) {
-			m_velocity += m_playerForward * m_dashForce * ((float)m_dashCharge / DASHMAXCHARGE);
-			consumeStamina(STAMINA_DASH_COST);
-		}
+	if (Input::getInstance()->keyPressed(KEY_DASH) && m_stamina >= STAMINA_DASH_COST &&
+		!m_sprinting) {
+		m_chargingDash = true;
+	}
+
+	if (Input::getInstance()->keyDown(KEY_DASH) && m_chargingDash) {
+		m_dashCharge = clamp(m_dashCharge + dt, DASHMAXCHARGE, 0);
+		consumeStamina(STAMINA_DASH_COST * dt);
+	}
+	else if (Input::getInstance()->keyReleased(KEY_DASH)) {
+		m_chargingDash = false;
+		m_velocity += m_playerForward * m_dashForce * ((float)m_dashCharge / DASHMAXCHARGE);
 	}
 	else {
 		// return to original state
@@ -399,9 +403,10 @@ void Player::consumeStamina(float amount) {
 }
 
 void Player::restoreStamina(float amount) {
-	if (!m_staminaConsumed)
+	if (!m_staminaConsumed) {
 		m_stamina =
 			clamp(m_stamina + amount, STAMINA_MAX, 0); // restore stamina if no stamina was consumed
+	}
 	m_staminaConsumed = false; // set to false because this function should be called only once per
 							   // frame, fixing the statement to next frame.
 }
