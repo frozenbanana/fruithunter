@@ -127,15 +127,16 @@ void LevelHandler::placeAllBridges() {
 }
 
 void LevelHandler::placeAllAnimals() {
-	shared_ptr<Animal> animal = make_shared<Animal>(
-		"Gorilla", 10.f, 4.f, BANANA, 1, 10.f, float3(98.2f, 3.1f, 39.f), XM_PI * 0.5f);
+	shared_ptr<Animal> animal = make_shared<Animal>("Gorilla", 10.f, 7.f, BANANA, 1, 10.f,
+		float3(98.2f, 3.1f, 39.f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
 	m_Animals.push_back(animal);
 
-	animal = make_shared<Animal>("Bear", 10.f, 2.5f, APPLE, 1, 10.f, float3(37.f, 3.2f, 93.f), 0.f);
+	animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 3, 10.f, float3(37.f, 3.2f, 93.f),
+		float3(20.f, 3.7f, 88.f), 0.f);
 	m_Animals.push_back(animal);
 
-	animal = make_shared<Animal>(
-		"Bear", 5.f, 2.5f, APPLE, 1, 5.f, float3(90.f, 8.2f, 152.f), XM_PI * 0.5f);
+	animal = make_shared<Animal>("Bear", 5.f, 3.5f, APPLE, 1, 5.f, float3(90.f, 8.2f, 152.f),
+		float3(87.f, 8.8f, 156.f), XM_PI * 0.5f);
 	m_Animals.push_back(animal);
 }
 
@@ -311,10 +312,24 @@ void LevelHandler::update(float dt) {
 
 	// for all animals
 	for (size_t i = 0; i < m_Animals.size(); ++i) {
-		bool getsThrown = m_player.checkAnimal(m_Animals[i]->getPosition(),
-			m_Animals[i]->getPlayerRange(), m_Animals[i]->getThrowStrength());
-		if (getsThrown)
-			m_Animals[i]->beginWalk(m_player.getPosition());
+		if (m_Animals[i]->notBribed()) {
+			bool getsThrown = m_player.checkAnimal(m_Animals[i]->getPosition(),
+				m_Animals[i]->getPlayerRange(), m_Animals[i]->getThrowStrength());
+			if (getsThrown)
+				m_Animals[i]->beginWalk(m_player.getPosition());
+
+
+			for (size_t iFruit = 0; iFruit < m_fruits.size(); ++iFruit) {
+				if (m_fruits[iFruit]->getFruitType() == m_Animals[i]->getfruitType()) {
+					float len =
+						(m_Animals[i]->getPosition() - m_fruits[iFruit]->getPosition()).Length();
+					if (len < m_Animals[i]->getFruitRange()) {
+						m_Animals[i]->grabFruit(m_fruits[iFruit]->getPosition());
+						m_fruits.erase(m_fruits.begin() + iFruit);
+					}
+				}
+			}
+		}
 		m_Animals[i]->update(dt);
 	}
 
