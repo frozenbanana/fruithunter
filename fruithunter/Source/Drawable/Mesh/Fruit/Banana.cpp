@@ -16,6 +16,7 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 
 	m_activeRadius = 5.f;
 	m_passiveRadius = 0.f;
+	m_speed = 1.f;
 }
 
 void Banana::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
@@ -70,7 +71,7 @@ void Banana::behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> co
 		toPlayer.Normalize();
 		toPlayer.y = 1.0f;
 		m_speed = 1.0f;
-		jump(toPlayer, 3.0f);
+		jump(toPlayer, 1.0f);
 	}
 }
 

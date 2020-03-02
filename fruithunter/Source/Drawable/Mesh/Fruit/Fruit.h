@@ -9,7 +9,7 @@ protected:
 	// Phyics based movment
 	float3 m_directionalVelocity;
 	float m_speed = 0.0f;
-	float3 m_acceleration = float3(0.0f, -400.0f, 0.0f);
+	float3 m_gravity = float3(0.0f, -1.0f, 0.0f) * 15.0f; // same as player
 
 	// -------------------
 	int m_nrOfFramePhases; // nr of phases to a movement

@@ -72,7 +72,7 @@ void Fruit::update(float dt, float3 playerPosition, vector<shared_ptr<Entity>> c
 }
 
 void Fruit::move(float dt) {
-	m_directionalVelocity += m_acceleration * dt * dt / 2.f;
+	m_directionalVelocity += m_gravity * dt;
 	m_position += m_directionalVelocity * m_speed * dt;
 	setPosition(m_position);
 }
@@ -104,7 +104,7 @@ void Fruit::setDirection() {
 void Fruit::behaviorReleased() {
 	// TODO: Placeholder for later adding sound effects
 	m_directionalVelocity.Normalize();
-	m_speed = 16;
+	m_speed = 160.f;
 	changeState(PASSIVE);
 }
 

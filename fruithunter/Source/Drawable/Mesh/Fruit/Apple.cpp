@@ -43,7 +43,7 @@ void Apple::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> co
 		else { // Just jump when home
 			if (atOrUnder(terrainHeight)) {
 
-				jump(float3(0.0f, 1.0f, 0.0), 2.5f);
+				jump(float3(0.0f, 1.0f, 0.0), 0.5f);
 			}
 		}
 	}
