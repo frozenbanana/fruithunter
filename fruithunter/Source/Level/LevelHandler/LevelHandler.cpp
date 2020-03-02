@@ -252,7 +252,7 @@ void LevelHandler::draw() {
 	m_hud.draw();
 }
 
-void LevelHandler::drawShadow() {
+void LevelHandler::drawShadowDynamic() {
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->draw_animate_shadow();
 	}
@@ -262,6 +262,22 @@ void LevelHandler::drawShadow() {
 		m_collidableEntities[i]->drawShadow();
 	}
 	m_terrainProps.drawShadow();
+}
+
+void LevelHandler::drawShadowStatic() {
+	m_terrainManager->drawShadow();
+
+	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
+		m_collidableEntities[i]->drawShadow();
+	}
+
+	m_terrainProps.drawShadow();
+}
+
+void LevelHandler::drawShadowDynamicEntities() {
+	for (int i = 0; i < m_fruits.size(); i++) {
+		m_fruits[i]->draw_animate_shadow();
+	}
 }
 
 void LevelHandler::update(float dt) {

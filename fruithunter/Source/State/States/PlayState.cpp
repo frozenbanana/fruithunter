@@ -25,12 +25,23 @@ void PlayState::pause() {
 
 void PlayState::draw() {
 	if (1) {
+		m_shadowMap.get()->update(m_levelHandler.getPlayerPos()); // not needed?
+
+		if (m_staticShadowNotDrawn) {
+			//	Set static shadow map info
+			m_shadowMap.get()->bindDSVAndSetNullRenderTargetStatic();
+			m_shadowMap.get()->bindCameraMatrix();
+
+			// Draw static shadow map
+			m_levelHandler.drawShadowStatic();
+			m_staticShadowNotDrawn = false;
+		}
 		// Set shadow map info
-		m_shadowMap.get()->update(m_levelHandler.getPlayerPos());
 		m_shadowMap.get()->bindDSVAndSetNullRenderTarget();
 		m_shadowMap.get()->bindCameraMatrix();
+
 		// Draw shadow map
-		m_levelHandler.drawShadow();
+		m_levelHandler.drawShadowDynamicEntities();
 	}
 
 	// Set first person info
@@ -44,8 +55,6 @@ void PlayState::draw() {
 	// Text
 	float t = m_timer.getTimePassed();
 }
-
-void PlayState::drawShadow() { m_levelHandler.drawShadow(); }
 
 void PlayState::play() {
 	Input::getInstance()->setMouseModeRelative();
