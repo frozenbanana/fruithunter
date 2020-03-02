@@ -82,7 +82,7 @@ private:
 				m_color[2] = float3(0.81f, 0.58f, 0.0f);
 				break;
 			case ARROW_GLITTER:
-				m_nrOfParticles = 100;
+				m_nrOfParticles = 200;
 				m_emitRate = 12.0f; // particles per sec
 				m_acceleration = float3(0.02f, 0.01f, 0.02f);
 				m_spawnRadius = 0.1f;

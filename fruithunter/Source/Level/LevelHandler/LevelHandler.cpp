@@ -403,11 +403,11 @@ void LevelHandler::update(float dt) {
 		m_particleSystems[i].update(dt);
 	}
 
-	m_hud.update(dt);
+	m_hud.update(dt, m_player.getStamina());
 	waterEffect.update(dt);
 	lavaEffect.update(dt);
 
-	//Renderer::getInstance()->setPlayerPos(playerPos);
+	// Renderer::getInstance()->setPlayerPos(playerPos);
 }
 
 void LevelHandler::pickUpFruit(int fruitType) {
