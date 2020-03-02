@@ -67,6 +67,14 @@ static const float SMAP_HEIGHT = 2160.0f;
 static const float SMAP_DX = 1.0f / SMAP_WIDTH;
 static const float SMAP_DY = 1.0f / SMAP_HEIGHT;
 
+float linearDepth(float depthSample) {
+	const float zNear = 0.025f;
+	const float zFar = 100.f;
+	depthSample = 2.0 * depthSample - 1.0;
+	float zLinear = 2.0 * zNear * zFar / (zFar + zNear - depthSample * (zFar - zNear));
+	return zLinear;
+}
+
 float calcShadowFactor(Texture2D shadowMap, float4 shadowPosH, float3 worldPos) {
 	//if (shadowPosH.x < SMAP_DX*3.f || shadowPosH.x >= 1.0f - SMAP_DX*3.f) { 
 	//	//not a U coordinate
@@ -130,38 +138,32 @@ float4 texSample(Texture2D texMap, uint2 texSize, float2 uv, float depthFromCame
 
 	float depth = depthFromCamera - 0.001f;
 
-	float4 occluded = float4(0.0f, 0.0f, 0.0f, 0.0f);
-	float4 illuminated = float4(1.0, 1.0, 1.0, 1.0);
-	uv = (float2)floorUV / texSize;
-	float4 pixThis = texMap.Sample(samplerAni, uv).r < depth 
-						  ? occluded 
-						  : illuminated;
-	float4 pixLeft = texMap.Sample(samplerAni, uv + float2(SMAP_DX, 0.0f)).r < depth 
-						  ? occluded 
-						  : illuminated;
-	float4 pixRight = texMap.Sample(samplerAni, uv + float2(-SMAP_DX, 0.0f)).r < depth
-						  ? occluded
-						  : illuminated;
-	float4 pixUp = texMap.Sample(samplerAni, uv + float2(0.0f, SMAP_DY)).r < depth
-					   ? occluded
-					   : illuminated;
-	float4 pixDown = texMap.Sample(samplerAni, uv + float2(0.0f, -SMAP_DY)).r < depth
-						 ? occluded
-						 : illuminated;
+	uv = (float2)floorUV / texSize;				// floor uv
+	float2 SMAP_DXY = float2(SMAP_DX, SMAP_DY); // pixel size
+	float texels[2][2]; // texels containing 0 or 1 depending on if occuluded or illuminated
+	for (int xx = 0; xx < 2; xx++)
+		for (int yy = 0; yy < 2; yy++)
+			texels[xx][yy] =
+				texMap.Sample(samplerAni, uv + float2(xx, yy) * SMAP_DXY).r < depth ? 0.f : 1.f;
 
-	float4 pixRightUp =
-		texMap.Sample(samplerAni, uv + float2(SMAP_DX, SMAP_DY)).r < depth ? occluded : illuminated;
-
-	/*float4 horizontal = restUV.x > 0.5 ? (lerp(pixThis, pixLeft, (restUV.x -0.5f)*2.f))
-									   : (lerp(pixRight, pixThis, restUV.x * 2.f));
-	float4 vertical = restUV.y > 0.5 ? (lerp(pixThis, pixUp, (restUV.y - 0.5f)*2.f))
-									 : (lerp(pixDown, pixThis, restUV.y*2.f));*/
-	float4 horizontal1 = lerp(pixThis, pixRight, restUV.x);
-	float4 horizontal2 = lerp(pixUp, pixRightUp, restUV.x);
+	float4 horizontal1 = lerp(texels[0][0], texels[1][0], restUV.x);
+	float4 horizontal2 = lerp(texels[0][1], texels[1][1], restUV.x);
 	float4 vertical = lerp(horizontal1, horizontal2, restUV.y);
 	return vertical;
+}
 
-	//return lerp(horizontal, vertical, 0.5);
+float4 texSampleGrease(Texture2D texMap, uint2 texSize, float2 uv, float depthFromCamera, float3 posW) {
+	float2 mappedUV = uv * (float2)texSize;
+	uint2 floorUV = (uint2)mappedUV;
+	float2 restUV = frac(mappedUV);
+
+	float depth_linear = linearDepth(depthFromCamera - 0.001f);
+
+	uv = (float2)floorUV / texSize;
+	float2 external = (0.75f*float2(random(posW, 1), random(posW, 2)) + restUV.xy) * float2(SMAP_DX, SMAP_DY);
+	float sampledDepth_linear = linearDepth(texMap.Sample(samplerAni, uv + external).r);
+
+	return sampledDepth_linear < depth_linear ? 0.0f : 1.f;
 }
 
 float4 main(PS_IN ip) : SV_TARGET {
@@ -182,7 +184,11 @@ float4 main(PS_IN ip) : SV_TARGET {
 	//float shade = calcShadowFactor(texture_shadowMap, ip.ShadowPosH, ip.PosW);
 	//float depth = ip.shadowPosH.z - 0.001f;
 	
-	float shade = texSample(texture_shadowMap, float2(3840.f, 2160.f), ip.ShadowPosH.xy, ip.ShadowPosH.z).r;
+	// WORKING BLEND SHADING
+	//float shade = texSample(texture_shadowMap, float2(3840.f, 2160.f), ip.ShadowPosH.xy, ip.ShadowPosH.z).r;
+	float shade = texSample9v9(texture_shadowMap, float2(3840.f, 2160.f), ip.ShadowPosH.xy, ip.ShadowPosH.z).r;
+	//ALMOST WORKING GREASE SHADING
+	//float shade = texSampleGrease(texture_shadowMap, float2(3840.f, 2160.f), ip.ShadowPosH.xy, ip.ShadowPosH.z, ip.PosW.xyz).r;
 	
 	//float3 lightToPos = ip.PosW - ;
 
