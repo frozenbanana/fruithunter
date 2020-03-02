@@ -131,9 +131,6 @@ void Player::update(float dt, Terrain* terrain) {
 
 		// update camera properties
 		updateCamera();
-
-		// Update bow
-		updateBow(dt, terrain->getWind());
 	}
 	else {
 		float speedFactor = 20.0f;
@@ -144,8 +141,13 @@ void Player::update(float dt, Terrain* terrain) {
 					  speedFactor;
 
 		updateCameraGod();
-		updateBow(dt, float3(0.f, 0.f, 0.f));
 	}
+
+	// Update bow
+	if (terrain != nullptr)
+		updateBow(dt, terrain->getWind());
+	else
+		updateBow(dt, float3(0.f, 0.f, 0.f));
 
 	if (ip->keyPressed(Keyboard::Keys::G))
 		m_godMode = !m_godMode;
