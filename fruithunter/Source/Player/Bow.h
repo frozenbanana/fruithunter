@@ -1,5 +1,6 @@
 #pragma once
 #include "Entity.h"
+#include "ParticleSystem.h"
 
 class Bow {
 public:
@@ -19,7 +20,7 @@ public:
 private:
 	Entity m_bow;
 	Entity m_arrow;
-
+	ParticleSystem m_trailEffect;
 	float3 m_arrowVelocity;
 
 	bool m_ready = true;

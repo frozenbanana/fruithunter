@@ -15,6 +15,9 @@ float4 main(GSOutput input) : SV_TARGET {
 	if (radius > 0.5f) {
 		outColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	}
+	else {
+		outColor.a = .75f;
+	}
 
 	return outColor;
 }

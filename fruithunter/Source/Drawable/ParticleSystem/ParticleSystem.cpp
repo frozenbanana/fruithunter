@@ -2,27 +2,49 @@
 #include "Renderer.h"
 #include "ErrorLogger.h"
 #include "time.h"
-
-float RandomFloat(float low = 0.f, float high = 1.f) {
-	float randomCoefficent = (float)(rand() % (int)100.f) / 100.f; // normalize
-	return low + randomCoefficent * (high - low);
-}
+#include "VariableSyncer.h"
 
 ShaderSet ParticleSystem::m_shaderSet;
 
-ParticleSystem::ParticleSystem(size_t nrOfParticles) {
-	if (nrOfParticles > MAX_PARTICLES) {
-		ErrorLogger::logWarning(NULL, "Particle System is not allowed " + to_string(nrOfParticles) +
-										  ", limit is " + to_string(MAX_PARTICLES));
-	}
-	m_particles.resize(min(nrOfParticles, MAX_PARTICLES));
+ParticleSystem::ParticleSystem(ParticleSystem::PARTICLE_TYPE type) {
 
-	initialize();
+	m_description = make_shared<Description>(type);
+
+	if (type != NONE) {
+		string sid = "ParticleSystem" + to_string((long)this) + "-" + to_string(type) + ".txt";
+		VariableSyncer::getInstance()->create(sid);
+		VariableSyncer::getInstance()->bind(sid,
+			"ParticleCount:i&emitRate:f&acceleration:v3&spawnRadius:f&radiusInterval:v2&velocity:"
+			"v3&velocityOffsetInterval:v2&sizeInterval:v2&timeAliveInteral:v2&color[0]:v3&color[1]:"
+			"v3&color[2]:v3",
+			m_description.get());
+
+		if (m_description->m_nrOfParticles > MAX_PARTICLES) {
+			ErrorLogger::logWarning(NULL, "Particle System is not allowed " +
+											  to_string(m_description->m_nrOfParticles) +
+											  ", limit is " + to_string(MAX_PARTICLES));
+		}
+		m_particles.resize(min(m_description->m_nrOfParticles, MAX_PARTICLES));
+		m_particleProperties.resize(min(m_description->m_nrOfParticles, MAX_PARTICLES));
+
+		initialize();
+	}
 	// random seed
 	srand((unsigned int)time(NULL));
+}
 
+void ParticleSystem::initialize() {
 	// Timer
 	m_timePassed = 0.0f;
+	m_emitTimer = 0.f;
+	float3 spawnPos = m_spawnPoint;
+	for (size_t i = 0; i < m_particles.size(); i++) {
+		m_particles[i].setIsActive(0.f);
+	}
+
+	// Buffer
+	createBuffers();
+
 	// shader
 	if (!m_shaderSet.isLoaded()) {
 
@@ -38,41 +60,90 @@ ParticleSystem::ParticleSystem(size_t nrOfParticles) {
 			},
 			{ "Color", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "Size", 0, DXGI_FORMAT_R32_FLOAT, 0, 28, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "IsActive", 0, DXGI_FORMAT_R32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
 
 		m_shaderSet.createShaders(L"VertexShader_particleSystem.hlsl",
 			L"GeometryShader_particleSystem.hlsl", L"PixelShader_particleSystem.hlsl", inputLayout,
-			3);
+			4);
 	}
+	setActive();
 }
 
-void ParticleSystem::initialize() {
-	// float3 playerPos = float3(20.f, 0.0f, 20.f);
-	float3 randomOffset;
-	float4 randomColor;
-	float randomSize;
+void ParticleSystem::setParticle(Description desc, size_t index) {
+	Particle* part = &m_particles[index];
+	ParticleProperty* partProp = &m_particleProperties[index];
+	part->setIsActive(1.0f);
+	// Position in world
+	float3 spawnPos = m_spawnPoint;
+	// Positon on half sphere
+	float r = desc.m_spawnRadius + RandomFloat(desc.m_radiusInterval.x, desc.m_radiusInterval.y);
+	float theta = RandomFloat(0.f, 3.1415f);
+	float phi = RandomFloat(0, 3.1415f);
+	float x = r * cos(theta) * sin(phi);
+	float y = r * sin(theta) * sin(phi);
+	float z = r * cos(phi);
+	part->setPosition(spawnPos + float3(x, y, z));
 
+	// Color
+	float3 pickedColor = float3(1.0f, 1.f, 0.0f);
+	int pick = rand() % 3; // 0..1
+	pickedColor = desc.m_color[pick];
+
+	part->setColor(float4(pickedColor.x, pickedColor.y, pickedColor.z, 1.0f));
+
+	// Size
+	float size = RandomFloat(desc.m_sizeInterval.x, desc.m_sizeInterval.y);
+	part->setSize(size);
+
+	// Property (velo and lifetime)
+	ParticleProperty pp;
+	float randVeloX = RandomFloat(desc.m_velocityOffsetInterval.x, desc.m_velocityOffsetInterval.y);
+	float randVeloY = RandomFloat(desc.m_velocityOffsetInterval.x, desc.m_velocityOffsetInterval.y);
+	float randVeloZ = RandomFloat(desc.m_velocityOffsetInterval.x, desc.m_velocityOffsetInterval.y);
+	pp.m_velocity = desc.m_velocity + float3(randVeloX, randVeloY, randVeloZ);
+	pp.m_lifeTime = RandomFloat(desc.m_timeAliveInterval.x, desc.m_timeAliveInterval.y);
+	*partProp = pp;
+}
+
+
+void ParticleSystem::activateParticle() {
 	for (size_t i = 0; i < m_particles.size(); i++) {
-		randomOffset = float3(RandomFloat(-4.f, 4.0f), RandomFloat(-4.f, 4.0f), 0.0f);
-		randomColor = float4(RandomFloat(), RandomFloat(), RandomFloat(), 1.f);
-		randomSize = RandomFloat(0.05f, 0.3f);
-		m_particles[i].setPosition(randomOffset);
-		m_particles[i].setColor(randomColor);
-		m_particles[i].setSize(randomSize);
+		if (m_particles[i].getIsActive() == 0.f) {
+			setParticle(*m_description, i);
+			break;
+		}
 	}
-
-	createBuffers();
 }
 
 void ParticleSystem::update(float dt) {
-	m_timePassed += dt;
-	for (size_t i = 0; i < m_particles.size(); i++) {
-		m_particles[i].update(
-			dt, float3(sin(m_timePassed + float(i)), cos(m_timePassed + float(i % 4)), 0.0f));
-	}
+	if (m_isActive) {
+		m_timePassed += dt;
+		m_emitTimer += dt;
 
-	Renderer::getDeviceContext()->UpdateSubresource(
-		m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
+		float emits = m_emitTimer * m_description->m_emitRate;
+		size_t emitCount = (size_t)emits;
+		if (emits > 1.0f) {
+			for (size_t i = 0; i < emitCount; i++)
+				activateParticle();
+
+			m_emitTimer -= (1.f / m_description->m_emitRate) * emitCount;
+		}
+		for (size_t i = 0; i < m_particles.size(); i++) {
+			if (m_particles[i].getIsActive() == 1.0f) {
+				m_particleProperties[i].m_velocity += m_description->m_acceleration * dt;
+				m_particleProperties[i].m_lifeTime -= dt;
+				m_particles[i].update(dt, m_particleProperties[i].m_velocity);
+				// Inactivate particles when lifetime is over
+				if (m_particleProperties[i].m_lifeTime <= 0.f) {
+					m_particles[i].setIsActive(0.0f);
+				}
+			}
+		}
+
+		Renderer::getDeviceContext()->UpdateSubresource(
+			m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
+	}
 }
 
 void ParticleSystem::createBuffers() {
@@ -108,8 +179,22 @@ void ParticleSystem::bindBuffers() {
 
 
 void ParticleSystem::draw() {
-	auto deviceContext = Renderer::getDeviceContext();
-	m_shaderSet.bindShadersAndLayout();
-	bindBuffers();
-	deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
+	if (m_isActive) {
+		auto deviceContext = Renderer::getDeviceContext();
+		m_shaderSet.bindShadersAndLayout();
+		bindBuffers();
+		Renderer::getInstance()->enableAlphaBlending();
+		deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
+		Renderer::getInstance()->disableAlphaBlending();
+	}
 }
+
+void ParticleSystem::setActive() { m_isActive = true; }
+
+void ParticleSystem::setInActive() { m_isActive = false; }
+
+bool ParticleSystem::getIsActive() { return m_isActive; }
+
+void ParticleSystem::setPosition(float3 position) { m_spawnPoint = position; }
+
+void ParticleSystem::setDesciption(Description newDescription) { *m_description = newDescription; }

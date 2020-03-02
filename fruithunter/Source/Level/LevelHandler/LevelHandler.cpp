@@ -125,7 +125,6 @@ void LevelHandler::initialise() {
 
 	m_player.initialize();
 	m_terrainManager = TerrainManager::getInstance();
-
 	m_terrainProps.addPlaceableEntity("treeMedium1");
 	m_terrainProps.addPlaceableEntity("treeMedium2");
 	m_terrainProps.addPlaceableEntity("treeMedium3");
@@ -137,6 +136,14 @@ void LevelHandler::initialise() {
 	m_terrainProps.addPlaceableEntity("Block");
 
 	initialiseLevel0();
+
+	m_particleSystems.resize(3);
+	m_particleSystems[0] = ParticleSystem(ParticleSystem::VULCANO_BUBBLE);
+	m_particleSystems[0].setPosition(float3(150.f, 10.f, 149.f));
+	m_particleSystems[1] = ParticleSystem(ParticleSystem::GROUND_DUST);
+	m_particleSystems[1].setPosition(float3(45.f, 5.f, 125.f));
+	m_particleSystems[2] = ParticleSystem(ParticleSystem::FOREST_BUBBLE);
+	m_particleSystems[2].setPosition(float3(55.f, 5.f, 40.f));
 
 	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(400, 400), XMINT2(1, 1),
 		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
@@ -228,15 +235,18 @@ void LevelHandler::draw() {
 	m_terrainProps.draw();
 	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 
+	// Particle Systems
+	for (size_t i = 0; i < m_particleSystems.size(); i++) {
+		m_particleSystems[i].draw();
+	}
 
 	// water/lava effect
 	Renderer::getInstance()->copyDepthToSRV();
 	waterEffect.draw();
 	lavaEffect.draw();
 
-	m_player.draw(); // draw after water/lava effect, bow will affect the depth buffer
-
 	m_hud.draw();
+	m_player.draw(); // draw after water/lava effect, bow will affect the depth buffer
 }
 
 void LevelHandler::update(float dt) {
@@ -316,6 +326,13 @@ void LevelHandler::update(float dt) {
 	//		m_entity.setPosition(m_player.getCameraPosition() + t * m_player.getForward() * 0.9);
 	//	}
 	//}
+
+
+	//  ErrorLogger::logFloat3("playerpos", m_player.getPosition());
+
+	for (size_t i = 0; i < m_particleSystems.size(); i++) {
+		m_particleSystems[i].update(dt);
+	}
 
 	m_hud.update(dt);
 	waterEffect.update(dt);

@@ -15,7 +15,7 @@ void IntroState::initialize() {
 
 	// m_entity.loadAnimated("Bow", 3);
 	// m_entity.load("Melon_000000");
-	m_particleSystem = ParticleSystem(90);
+	m_particleSystem = ParticleSystem(ParticleSystem::FOREST_BUBBLE);
 	m_camera.setView(float3(0.f, 0.f, -10.f), float3(0.f, 0.f, 0.f), float3(0.f, 1.f, 0.f));
 }
 

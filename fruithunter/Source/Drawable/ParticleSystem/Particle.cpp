@@ -1,12 +1,15 @@
 #include "Particle.h"
 #include "Renderer.h"
 
-Particle::Particle(float3 position, float4 color, float size) {
+Particle::Particle(float3 position, float4 color, float size, float isActive) {
 	m_position = position;
 	m_color = color;
 	m_size = size;
+	m_isActive = isActive;
 }
 
+void Particle::setIsActive(float isActive) { m_isActive = isActive; }
+float Particle::getIsActive() const { return m_isActive; }
 
 float3 Particle::getPosition() const { return m_position; }
 void Particle::setPosition(float3 position) { m_position = position; }
