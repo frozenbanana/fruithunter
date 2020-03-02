@@ -27,15 +27,21 @@ void PerformanceTimer::stop() {
 	m_this.m_source.place(path, item.getTimeDifference(), item.m_state);
 }
 
-void PerformanceTimer::log() { m_this.m_source.log(0, 100); }
+void PerformanceTimer::log() {
+	string str = "";
+	m_this.m_source.toString(str, 0, 100);
+	ErrorLogger::log(str);
+}
 
 void PerformanceTimer::logToFile(string filename) {
 	if (filename != "") {
 		fstream file;
-		string path = m_this.m_preFilePath + filename + m_this.m_postFileEndings;
+		string path = m_preFilePath + filename + m_postFileEndings;
 		file.open(path, ios::out);
 		if (file.is_open()) {
-			m_this.m_source.logToFile(file, 0, 100);
+			string str = "";
+			m_source.toString(str, 0, 100);
+			file << str;
 			file.close();
 		}
 		else {
@@ -55,7 +61,7 @@ PerformanceTimer::~PerformanceTimer() {
 	logToFile(m_runtimeAnalysisFilename);
 }
 
-double PerformanceTimer::Folder::getTotalTime() const { 
+double PerformanceTimer::Folder::getTotalTime() const {
 	if (m_state == TimeState::state_accumulate)
 		return m_collectedTime;
 	else if (m_state == TimeState::state_average)
@@ -102,7 +108,7 @@ void PerformanceTimer::Folder::increment(double time, TimeState& state) {
 		m_collectedTime = (m_collectedTime * (double)(m_count - 1) + time) / (double)m_count;
 }
 
-void PerformanceTimer::Folder::log(size_t level, float percentage) {
+void PerformanceTimer::Folder::toString(string& retStr, size_t level, float percentage) {
 	string preStr = "";
 	for (size_t i = 0; i < level; i++)
 		preStr += "|  ";
@@ -111,35 +117,13 @@ void PerformanceTimer::Folder::log(size_t level, float percentage) {
 				 "): " + to_string((long unsigned)m_collectedTime) + " ms | " +
 				 to_string(percentage) + "%";
 
-	ErrorLogger::log(str);
+	retStr += str + "\n";
 	for (size_t i = 0; i < m_subFolders.size(); i++) {
-		m_subFolders[i].log(
+		m_subFolders[i].toString(retStr,
 			level + 1, 100.f * (float)(m_subFolders[i].getTotalTime() / getTotalTime()));
 	}
 	if (m_subFolders.size() > 0)
-		ErrorLogger::log(preStr);
-}
-
-void PerformanceTimer::Folder::logToFile(fstream& file, size_t level, float percentage) {
-	if (file.is_open()) {
-		string preStr = "";
-		for (size_t i = 0; i < level; i++)
-			preStr += "|  ";
-
-		string str = preStr + m_title + "(" + stateToString() +
-					 "): " + to_string((long unsigned)m_collectedTime) + " ms | " +
-					 to_string(percentage) + "%";
-
-		str += "\n";
-		file << str;
-
-		for (size_t i = 0; i < m_subFolders.size(); i++) {
-			m_subFolders[i].logToFile(file, level + 1,
-				100.f * (float)(m_subFolders[i].getTotalTime() / getTotalTime()));
-		}
-		if (m_subFolders.size() > 0)
-			file << preStr << "\n";
-	}
+		retStr += preStr + "\n";
 }
 
 PerformanceTimer::Folder::Folder(string title) { m_title = title; }

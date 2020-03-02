@@ -27,8 +27,7 @@ private:
 		string stateToString() const;
 		void place(vector<string>& path, double time, TimeState state);
 		void increment(double time, TimeState& state);
-		void log(size_t level, float percentage);
-		void logToFile(fstream& file, size_t level, float percentage);
+		void toString(string& str, size_t level, float percentage);
 
 		Folder(string title = "");
 	} m_source;
@@ -54,7 +53,11 @@ private:
 	//-- Functions --
 	vector<string> getPathFromQueue() const;
 
+	void logToFile(string filename);
+
 	PerformanceTimer();
+	~PerformanceTimer();
+
 public:
 	static PerformanceTimer* getInstance();
 
@@ -62,7 +65,5 @@ public:
 	static void stop();
 
 	static void log();
-	static void logToFile(string filename);
 
-	~PerformanceTimer();
 };
