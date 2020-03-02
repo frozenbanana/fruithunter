@@ -45,5 +45,7 @@ private:
 	float3 m_camTarget;
 	float3 m_camUp;
 
+
+
 	void updateBuffer();
 };

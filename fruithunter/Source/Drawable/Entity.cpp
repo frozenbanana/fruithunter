@@ -175,6 +175,14 @@ void Entity::draw() {
 	}
 }
 
+void Entity::drawShadow() {
+	if (isMeshInitialized()) {
+		bindModelMatrixBuffer();
+
+		m_mesh.get()->drawShadow();
+	}
+}
+
 void Entity::draw_onlyMesh(float3 color) {
 	if (isMeshInitialized()) {
 		bindModelMatrixBuffer();
@@ -193,6 +201,11 @@ void Entity::draw_animate() {
 	bindModelMatrixBuffer();
 	setMaterial(m_currentMaterial);
 	m_meshAnim.draw();
+}
+
+void Entity::draw_animate_shadow() {
+	bindModelMatrixBuffer();
+	m_meshAnim.drawShadow();
 }
 
 void Entity::updateAnimated(float dt) { m_meshAnim.update(dt); }
@@ -302,8 +315,8 @@ float3 Entity::getPointOnOBB(float3 point) const {
 
 Entity::Entity(string filename, float3 position, float3 scale) {
 	load(filename);
-	m_position = position;
-	m_scale = scale;
+	setPosition(position);
+	setScale(scale);
 	createBuffers();
 	m_currentMaterial = 0;
 }

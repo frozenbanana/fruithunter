@@ -68,9 +68,19 @@ void LevelHandler::initialiseLevel0() {
 	maps[3] = "texture_rock6.jpg";
 	level0.m_heightmapTextures.push_back(maps);
 
+	level0.m_wind.push_back(float3(0.f, 10.f, 0.f));  // Volcano
+	level0.m_wind.push_back(float3(10.f, 0.f, 10.f)); // Forest
+	level0.m_wind.push_back(float3(20.f, 0.f, 0.f));  // Desert
+	level0.m_wind.push_back(float3(0.f, 0.f, 40.f));  // Plains
+
+
 	level0.m_nrOfFruits[APPLE] = 2;
 	level0.m_nrOfFruits[BANANA] = 1;
 	level0.m_nrOfFruits[MELON] = 5;
+
+	level0.m_winCondition[APPLE] = 1;
+	level0.m_winCondition[BANANA] = 1;
+	level0.m_winCondition[MELON] = 2;
 
 	level0.m_playerStartPos = float3(20.f, 0.0f, 20.f);
 
@@ -79,7 +89,6 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_timeTargets[BRONZE] = 80;
 
 	m_levelsArr.push_back(level0);
-	m_hud.setTimeTargets(level0.m_timeTargets);
 }
 
 void LevelHandler::placeBridge(float3 pos, float3 rot, float3 scale) {
@@ -115,6 +124,19 @@ void LevelHandler::placeAllBridges() {
 	placeBridge(float3(103.2f, 3.1f, 39.f), float3(0.f, -0.1f, -0.07f), float3(1.9f, 1.f, 1.4f));
 	placeBridge(float3(35.f, 3.2f, 99.f), float3(0.f, 1.7f, 0.13f), float3(1.6f, 1.f, 1.4f));
 	placeBridge(float3(98.f, 8.2f, 152.f), float3(0.f, -0.1f, -0.13f), float3(1.8f, 1.f, 1.4f));
+}
+
+void LevelHandler::placeAllAnimals() {
+	shared_ptr<Animal> animal = make_shared<Animal>(
+		"Gorilla", 10.f, 4.f, BANANA, 10.f, float3(98.2f, 3.1f, 39.f), XM_PI * 0.5f);
+	m_Animals.push_back(animal);
+
+	animal = make_shared<Animal>("Bear", 10.f, 2.5f, APPLE, 10.f, float3(37.f, 3.2f, 93.f), 0.f);
+	m_Animals.push_back(animal);
+
+	animal =
+		make_shared<Animal>("Bear", 5.f, 2.5f, APPLE, 5.f, float3(90.f, 8.2f, 152.f), XM_PI * 0.5f);
+	m_Animals.push_back(animal);
 }
 
 LevelHandler::LevelHandler() { initialise(); }
@@ -162,7 +184,7 @@ void LevelHandler::loadLevel(int levelNr) {
 			m_terrainManager->add(currentLevel.m_heightMapPos.at(i),
 				currentLevel.m_heightMapScales[i], currentLevel.m_heightMapNames.at(i),
 				currentLevel.m_heightmapTextures[i], currentLevel.m_heightMapSubSize.at(i),
-				currentLevel.m_heightMapDivision.at(i));
+				currentLevel.m_heightMapDivision.at(i), currentLevel.m_wind.at(i));
 		}
 
 		for (int i = 0; i < currentLevel.m_nrOfFruits[APPLE]; i++) {
@@ -206,6 +228,11 @@ void LevelHandler::loadLevel(int levelNr) {
 		m_collidableEntities.push_back(newEntity);
 
 		placeAllBridges();
+		placeAllAnimals();
+
+		m_hud.setTimeTargets(currentLevel.m_timeTargets);
+		m_hud.setWinCondition(currentLevel.m_winCondition);
+
 
 		if (currentLevel.m_nrOfFruits[APPLE] != 0)
 			m_hud.createFruitSprite("apple");
@@ -221,6 +248,8 @@ void LevelHandler::loadLevel(int levelNr) {
 }
 
 void LevelHandler::draw() {
+	m_skyBox.bindLightBuffer();
+	m_player.draw(); // draw after water/lava effect, bow will affect the depth buffer
 	Renderer::getInstance()->enableAlphaBlending();
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->draw_animate();
@@ -228,12 +257,16 @@ void LevelHandler::draw() {
 	Renderer::getInstance()->disableAlphaBlending();
 	m_terrainManager->draw();
 
+	for (size_t i = 0; i < m_Animals.size(); ++i) {
+		m_Animals[i]->draw();
+	}
+
 	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
 		m_collidableEntities[i]->draw();
 	}
 	m_entity.draw();
 	m_terrainProps.draw();
-	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
+
 
 	// Particle Systems
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
@@ -244,9 +277,37 @@ void LevelHandler::draw() {
 	Renderer::getInstance()->copyDepthToSRV();
 	waterEffect.draw();
 	lavaEffect.draw();
+	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 
 	m_hud.draw();
-	m_player.draw(); // draw after water/lava effect, bow will affect the depth buffer
+}
+
+void LevelHandler::drawShadowDynamic() {
+	for (int i = 0; i < m_fruits.size(); i++) {
+		m_fruits[i]->draw_animate_shadow();
+	}
+	m_terrainManager->drawShadow();
+
+	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
+		m_collidableEntities[i]->drawShadow();
+	}
+	m_terrainProps.drawShadow();
+}
+
+void LevelHandler::drawShadowStatic() {
+	m_terrainManager->drawShadow();
+
+	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
+		m_collidableEntities[i]->drawShadow();
+	}
+
+	m_terrainProps.drawShadow();
+}
+
+void LevelHandler::drawShadowDynamicEntities() {
+	for (int i = 0; i < m_fruits.size(); i++) {
+		m_fruits[i]->draw_animate_shadow();
+	}
 }
 
 void LevelHandler::update(float dt) {
@@ -258,6 +319,13 @@ void LevelHandler::update(float dt) {
 		m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
 
 	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
+	for (size_t i = 0; i < m_Animals.size(); ++i) {
+		bool getsThrown = m_player.checkAnimal(m_Animals[i]->getPosition(),
+			m_Animals[i]->getPlayerRange(), m_Animals[i]->getThrowStrength());
+		if (getsThrown)
+			m_Animals[i]->pushPlayer(m_player.getPosition());
+		m_Animals[i]->update(dt);
+	}
 
 	dropFruit();
 
@@ -285,8 +353,11 @@ void LevelHandler::update(float dt) {
 			m_oldTerrain = m_currentTerrain;
 			m_currentTerrain = tag;
 			m_skyBox.resetDelta();
+			m_skyBox.updateNewOldLight(tag);
 		}
 	}
+
+	m_skyBox.updateCurrentLight();
 
 	// update stuff
 	for (int i = 0; i < m_fruits.size(); i++) {
@@ -328,8 +399,6 @@ void LevelHandler::update(float dt) {
 	//}
 
 
-	//  ErrorLogger::logFloat3("playerpos", m_player.getPosition());
-
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
 		m_particleSystems[i].update(dt);
 	}
@@ -337,6 +406,8 @@ void LevelHandler::update(float dt) {
 	m_hud.update(dt);
 	waterEffect.update(dt);
 	lavaEffect.update(dt);
+
+	//Renderer::getInstance()->setPlayerPos(playerPos);
 }
 
 void LevelHandler::pickUpFruit(int fruitType) {
@@ -377,3 +448,5 @@ void LevelHandler::dropFruit() {
 		}
 	}
 }
+
+float3 LevelHandler::getPlayerPos() { return m_player.getPosition(); }

@@ -10,18 +10,20 @@ public:
 	~Player();
 	void initialize();
 	void update(float dt, Terrain* terrain);
-	void updateBow(float dt);
+	void updateBow(float dt, float3 wind);
 	void updateCamera();
 	void updateCameraGod();
 	void rotatePlayer(float dt);
 	void draw();
 	void collideObject(Entity& obj);
+	bool checkAnimal(float3 animalPos, float range, float throwStrength);
 
 	float3 getPosition() const;
 	float3 getCameraPosition() const;
 	float3 getForward() const;
 	float3 getVelocity() const;
 	Entity& getArrow() { return m_bow.getArrow(); };
+	float getStamina() const;
 	bool isShooting() const;
 	void setPosition(float3 position);
 	void standsOnObject();
@@ -48,7 +50,6 @@ private:
 		0.6f; // value of dot product when flat terrain goes to steep terrain
 	const float ONGROUND_THRESHOLD =
 		0.025f; // extra height over terrain until player is not grounded
-	string testmebaby = "Yeeeee";
 
 	float3 m_position;
 	float3 m_velocity;

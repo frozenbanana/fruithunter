@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include "GlobalNamespaces.h"
 
 class StateHandler;
 

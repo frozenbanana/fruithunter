@@ -18,14 +18,15 @@ Bow::Bow() {
 
 Bow::~Bow() {}
 
-void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 playerRight) {
+void Bow::update(
+	float dt, float3 playerPos, float3 playerForward, float3 playerRight, float3 wind) {
 	// m_bow.setRotationByAxis(playerForward, BOW_ANGLE * m_aimMovement);
 
 	// Set bow position based on player position and direction.
 	float3 playerUp = playerForward.Cross(playerRight);
 	m_bow.setPosition(playerPos + playerForward * ARM_LENGTH +
-					  playerRight * OFFSET_RIGHT * m_aimMovement +
-					  playerUp * OFFSET_UP * m_aimMovement);
+		playerRight * OFFSET_RIGHT * m_aimMovement +
+		playerUp * OFFSET_UP * m_aimMovement);
 
 
 	// Update m_arrowReturnTimer
@@ -60,11 +61,8 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 					AudioHandler::HIT_WOOD, m_bow.getPosition(), target);
 			}
 			else {
-				arrowPhysics(
-					dt, float3(10.f, 0.f,
-							0.f)); // Updates arrow in flight, wind is currently hard coded.
+				arrowPhysics(dt, wind); // Updates arrow in flight, wind is no longer hard coded.
 				// update Particle System
-
 				m_trailEffect.setPosition(m_arrow.getPosition());
 				m_trailEffect.update(dt);
 
@@ -74,7 +72,7 @@ void Bow::update(float dt, float3 playerPos, float3 playerForward, float3 player
 		}
 		if (m_arrowReturnTimer < 0.0f ||
 			(m_arrow.getPosition() - playerPos).LengthSquared() >
-				m_maxTravelLengthSquared) { // replace with collision later
+			m_maxTravelLengthSquared) { // replace with collision later
 			m_shooting = false;
 		}
 	}
@@ -139,7 +137,7 @@ void Bow::shoot(
 		float bowMaterialConstant = 0.05f;
 
 		float velocity = pow((bowEfficiencyConstant * m_drawFactor) /
-								 (m_arrowMass + m_bowMass * bowMaterialConstant),
+			(m_arrowMass + m_bowMass * bowMaterialConstant),
 			0.5f);
 
 		direction.Normalize();
@@ -167,9 +165,16 @@ bool Bow::isShooting() const { return m_shooting; }
 void Bow::arrowPhysics(float dt, float3 windVector) { // Updates arrow in flight
 	// Update acceleration
 
-	float3 relativeVelocity = m_arrowVelocity - windVector;
+	float3 relativeVelocity;
 
-	calcArea(relativeVelocity);
+	if (windVector.Length() < 0.0001f) {
+		relativeVelocity = m_arrowVelocity;
+		m_arrowArea = 0.0001f;
+	}
+	else {
+		relativeVelocity = m_arrowVelocity - windVector;
+		calcArea(relativeVelocity);
+	}
 
 	float totalDragTimesLength = -m_arrowArea * relativeVelocity.Length() / m_arrowMass;
 

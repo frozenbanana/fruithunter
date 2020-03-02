@@ -62,10 +62,12 @@ public:
 
 	// Drawing
 	void draw();
+	void drawShadow();
 	void draw_onlyMesh(float3 color);
 	void draw_boundingBox();
 
 	void draw_animate();
+	void draw_animate_shadow();
 	virtual void updateAnimated(float dt);
 	virtual void updateAnimatedSpecific(float frameTime);
 	void setFrameTargets(int first, int second);
