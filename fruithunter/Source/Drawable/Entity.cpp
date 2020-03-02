@@ -315,8 +315,8 @@ float3 Entity::getPointOnOBB(float3 point) const {
 
 Entity::Entity(string filename, float3 position, float3 scale) {
 	load(filename);
-	m_position = position;
-	m_scale = scale;
+	setPosition(position);
+	setScale(scale);
 	createBuffers();
 	m_currentMaterial = 0;
 }

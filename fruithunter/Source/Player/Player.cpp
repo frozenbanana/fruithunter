@@ -284,6 +284,21 @@ void Player::collideObject(Entity& obj) {
 	}
 }
 
+bool Player::checkAnimal(float3 animalPos, float range, float throwStrength) {
+	float3 diff = m_position - animalPos;
+	float rangeSq = range * range;
+	float diffLenSq = diff.LengthSquared();
+	bool inRange = diffLenSq < rangeSq;
+	if (inRange) {
+		float strength = (rangeSq - diffLenSq) / rangeSq;
+		diff.Normalize();
+		float3 throwVec = (diff + float3(0.f, 1.f, 0.f)) * throwStrength;
+		m_velocity = throwVec;
+		return true;
+	}
+	return false;
+}
+
 float3 Player::getPosition() const { return m_position; }
 
 float3 Player::getCameraPosition() const { return m_camera.getPosition(); }
