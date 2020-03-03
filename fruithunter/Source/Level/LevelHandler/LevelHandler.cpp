@@ -277,12 +277,6 @@ void LevelHandler::draw() {
 	m_entity.draw();
 	m_terrainProps.draw();
 
-
-	// Particle Systems
-	for (size_t i = 0; i < m_particleSystems.size(); i++) {
-		m_particleSystems[i].draw();
-	}
-
 	// water/lava effect
 	Renderer::getInstance()->copyDepthToSRV();
 	waterEffect.draw();
@@ -291,6 +285,11 @@ void LevelHandler::draw() {
 
 	if (!Input::getInstance()->keyDown(Keyboard::N))
 		Renderer::getInstance()->draw_darkEdges();
+
+	// Particle Systems
+	for (size_t i = 0; i < m_particleSystems.size(); i++) {
+		m_particleSystems[i].draw();
+	}
 
 	m_hud.draw();
 }
