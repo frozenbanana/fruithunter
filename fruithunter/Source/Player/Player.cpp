@@ -25,11 +25,9 @@ void Player::update(float dt, Terrain* terrain) {
 	// Movement force
 	float3 force = getMovementForce();
 
-	// Jump
-	if (Input::getInstance()->keyPressed(KEY_JUMP) && m_jumpReset) {
-		m_jumpReset = false;
-		m_velocity.y = m_jumpForce;
-	}
+	checkJump();
+	checkSprint(dt);
+	checkDash(dt);
 
 	rotatePlayer(dt);
 
@@ -47,9 +45,6 @@ void Player::update(float dt, Terrain* terrain) {
 
 		// Move player;
 		m_position += m_velocity * dt;
-
-		checkSprint(dt);
-		checkDash(dt);
 
 		// Update velocity for next frame
 		if (onGround(terrain)) {
@@ -74,14 +69,7 @@ void Player::update(float dt, Terrain* terrain) {
 	}
 
 	// Reset player if below sea level
-	if (m_position.y < m_seaHeight && !m_godMode) {
-		m_velocity = float3(0.f);
-		m_resetTimer += dt;
-		if (m_resetTimer > m_resetDelay) {
-			m_position = m_lastSafePosition;
-			m_resetTimer = 0.f;
-		}
-	}
+	checkPlayerReset(dt);
 
 	restoreStamina(dt);
 
@@ -321,6 +309,13 @@ void Player::calculateTerrainCollision(Terrain* terrain, float dt) {
 	};
 }
 
+void Player::checkJump() {
+	if (Input::getInstance()->keyPressed(KEY_JUMP) && m_jumpReset) {
+		m_jumpReset = false;
+		m_velocity.y = m_jumpForce;
+	}
+}
+
 void Player::checkSprint(float dt) {
 	if (Input::getInstance()->keyPressed(KEY_SPRINT) && m_stamina > STAMINA_SPRINT_THRESHOLD &&
 		!m_chargingDash && m_onGround) {
@@ -328,7 +323,7 @@ void Player::checkSprint(float dt) {
 		m_sprinting = true;
 	}
 	if (Input::getInstance()->keyDown(KEY_SPRINT) && m_sprinting && m_stamina > 0 &&
-		m_velocity.Length() > 0.01f) {
+		m_velocity.Length() > 0.1f) {
 		// consume stamina
 		consumeStamina(STAMINA_SPRINT_CONSUMPTION * dt);
 	}
@@ -354,6 +349,17 @@ void Player::checkDash(float dt) {
 	else {
 		// return to original state
 		m_dashCharge = clamp(m_dashCharge - 2 * dt, DASHMAXCHARGE, 0);
+	}
+}
+
+void Player::checkPlayerReset(float dt) {
+	if (m_position.y < m_seaHeight && !m_godMode) {
+		m_velocity = float3(0.f);
+		m_resetTimer += dt;
+		if (m_resetTimer > m_resetDelay) {
+			m_position = m_lastSafePosition;
+			m_resetTimer = 0.f;
+		}
 	}
 }
 
