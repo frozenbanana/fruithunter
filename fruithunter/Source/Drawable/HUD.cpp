@@ -183,7 +183,7 @@ void HUD::draw() {
 	// Draw text background
 	m_spriteBatch->Draw(m_backgroundTexture.Get(), m_backgroundPos);
 	m_spriteBatch->Draw(m_staminaTexture.Get(), m_staminaPos, nullptr, Colors::White, 0.0f,
-		float2(0.0f, 0.0f), float2(m_stamina, 0.8f));
+		float2(0.0f, 0.0f), float2(m_stamina + 0.05f, 0.8f));
 
 	m_spriteBatch->End();
 
