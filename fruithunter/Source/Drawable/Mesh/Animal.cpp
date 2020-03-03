@@ -1,4 +1,6 @@
 #include "Animal.h"
+#include "Renderer.h"
+
 void Animal::walkAndBack(float dt) {
 	if (m_walkTimeTracker < 1) { // on way to position
 		setPosition(XMVectorLerp(m_origin, m_walkToPos, m_walkTimeTracker));
