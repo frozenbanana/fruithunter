@@ -43,39 +43,33 @@ float specialLerp(float v, float min, float max) {
 	return (v > max ? 1.f : (v < min ? 0.f : (v - min) / (max - min)));
 }
 
-static const float SMAP_WIDTH = 3840.0f;
-static const float SMAP_HEIGHT = 2160.0f;
-static const float SMAP_DX = 1.0f / SMAP_WIDTH;
-static const float SMAP_DY = 1.0f / SMAP_HEIGHT;
+float random(float3 seed, int i) {
+	float4 seed4 = float4(seed, i);
+	float dot_product = dot(seed4, float4(12.9898, 78.233, 45.164, 94.673));
+	return frac(sin(dot_product) * 43758.5453);
+}
 
-float calcShadowFactor(Texture2D shadowMap, float4 shadowPosH) {
-	//if (shadowPosH.x < SMAP_DX*3.f || shadowPosH.x >= 1.0f - SMAP_DX*3.f) { 
-	//	//not a U coordinate
-	//	return 1.0f;
-	//}
-	//if (shadowPosH.y <= 0.0f || shadowPosH.y >= 1.0f) {
-	//	// not a U coordinate
-	//	return 1.0f;
-	//}
-	// Divide to get coordinates in texture projection
-	//shadowPosH.xyz /= shadowPosH.w; //Not needed for orthographic
+float linearDepth(float depthSample) {
+	const float zNear = 0.025f;
+	const float zFar = 100.f;
+	depthSample = 2.0 * depthSample - 1.0;
+	float zLinear = 2.0 * zNear * zFar / (zFar + zNear - depthSample * (zFar - zNear));
+	return zLinear;
+}
 
-	// Depth in NDC
-	float depth = shadowPosH.z - 0.001f;
+float4 texSampleGrease(Texture2D texMap, uint2 texSize, float2 uv, float depthFromCamera, float3 posW) {
+	float2 mappedUV = uv * (float2)texSize;
+	uint2 floorUV = (uint2)mappedUV;
+	float2 restUV = frac(mappedUV);
+	float2 mapDelta = float2(1.0f / texSize.x, 1.0f / texSize.y);
 
-	// Texel size
-	const float dx = SMAP_DX;
-	float percentLit = 0.0f;
-	const float2 offsets[9] = { 
-		float2(-SMAP_DX, -SMAP_DY),	float2(0.0f, -SMAP_DY),	float2(SMAP_DX, -SMAP_DY),
-		float2(-SMAP_DX, 0.0f),		float2(0.0f, 0.0f),		float2(SMAP_DX, 0.0f), 
-		float2(-SMAP_DX, +SMAP_DY),	float2(0.0f, +SMAP_DY), float2(SMAP_DX, +SMAP_DY) };
-	// 3x3 box filter pattern. Each sample does a 4-tap PCF.
-	for (int i = 0; i < 9; i++) {
-		percentLit += shadowMap.Sample(samplerAni, shadowPosH.xy + offsets[i]).r < depth;
-	}
-	percentLit /= 9.0f;
-	return (1.0f - percentLit);
+	float depth_linear = linearDepth(depthFromCamera - 0.001f);
+
+	uv = (float2)floorUV / texSize;
+	float2 external = (1.0f*float2(random(posW, 1), random(posW, 2)) + restUV.xy) * mapDelta;
+	float sampledDepth_linear = linearDepth(texMap.Sample(samplerAni, uv + external).r);
+
+	return sampledDepth_linear < depth_linear ? 0.0f : 1.f;
 }
 
 float4 main(PS_IN ip) : SV_TARGET {
@@ -93,11 +87,12 @@ float4 main(PS_IN ip) : SV_TARGET {
 	float tilt = specialLerp(dotN, 0.60f, 0.70f);
 	
 	//Sample and shade from shadowmap
-	float shade = calcShadowFactor(texture_shadowMap, ip.ShadowPosH);
+	float shade = texSampleGrease(texture_shadowMap, float2(3840.f, 2160.f), ip.ShadowPosH.xy, ip.ShadowPosH.z, ip.PosW.xyz).r;
+
 
 	float3 flatColor = lerp(beneathFlat, aboveFlat, height);
 	float3 baseTiltColor =
-		lerp(aboveTilt, betweenTiltAndFlat, float3(1, 1, 1) * specialLerp(dotN, 0.45f, 0.55f));
+		lerp(aboveTilt, betweenTiltAndFlat, float3(1,1,1) * specialLerp(dotN, 0.45f, 0.55f));
 	float3 baseColor =
 		lerp(baseTiltColor, flatColor, float3(1, 1, 1) * specialLerp(dotN, 0.65f, 0.75f));
 
