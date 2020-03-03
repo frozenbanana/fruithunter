@@ -311,16 +311,6 @@ void LevelHandler::drawShadowDynamicEntities() {
 void LevelHandler::update(float dt) {
 	PerformanceTimer::start("LevelHandler_Update", PerformanceTimer::TimeState::state_average);
 
-	entities[0]->setPosition(b1Pos);
-	entities[0]->setRotation(b1Rot);
-	entities[0]->setScale(b1Scale);
-	entities[1]->setPosition(b2Pos);
-	entities[1]->setRotation(b2Rot);
-	entities[1]->setScale(b2Scale);
-	entities[2]->setPosition(b3Pos);
-	entities[2]->setRotation(b3Rot);
-	entities[2]->setScale(b3Scale);
-
 	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
 	m_skyBox.updateDelta(dt);
