@@ -160,7 +160,16 @@ void LevelHandler::initialise() {
 	m_terrainProps.addPlaceableEntity("stone3");
 	m_terrainProps.addPlaceableEntity("bush1");
 	m_terrainProps.addPlaceableEntity("bush2");
-	m_terrainProps.addPlaceableEntity("Block");
+	m_terrainProps.addPlaceableEntity("DeadBush");
+	m_terrainProps.addPlaceableEntity("BurnedTree1");
+	m_terrainProps.addPlaceableEntity("BurnedTree2");
+	m_terrainProps.addPlaceableEntity("BurnedTree3");
+	m_terrainProps.addPlaceableEntity("Cactus_tall");
+	m_terrainProps.addPlaceableEntity("Cactus_small");
+	m_terrainProps.addPlaceableEntity("Grass1");
+	m_terrainProps.addPlaceableEntity("Grass2");
+	m_terrainProps.addPlaceableEntity("Grass3");
+	m_terrainProps.addPlaceableEntity("Grass4");
 
 	initialiseLevel0();
 
