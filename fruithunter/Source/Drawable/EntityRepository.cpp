@@ -148,6 +148,8 @@ void EntityRepository::savePlacements(string filename) const {
 
 void EntityRepository::load(string filename) {
 	if (filename != "") {
+		m_castingSphere.load("Sphere");
+		m_castingSphere.setScale(0.1f);
 		if (fileExists(filename)) {
 			loadPlacements(filename);
 			fillEntitiesFromRepository();
@@ -168,8 +170,9 @@ void EntityRepository::save() {
 				savePlacements(m_repositoryFilenameLoadedFrom);
 			}
 			else {
-				ErrorLogger::log("(EntityRepository) Attempt denied to save entity placements to file: " +
-								 m_repositoryFilenameLoadedFrom + "\nFile already up to date!");
+				ErrorLogger::log(
+					"(EntityRepository) Attempt denied to save entity placements to file: " +
+					m_repositoryFilenameLoadedFrom + "\nFile already up to date!");
 			}
 		}
 		else
@@ -252,10 +255,17 @@ void EntityRepository::update(float dt, float3 point, float3 direction) {
 	Input* ip = Input::getInstance();
 	if (ip->keyPressed(m_stateSwitchKey)) {
 		// switch state
-		if (m_placeable.size() > 0)
-			m_placing = !m_placing; // switch only if there exists placeable entities
+		m_state = (ModeState)((m_state + 1) % ModeState::Length);
+		if (m_state == ModeState::state_placing)
+			ErrorLogger::log("Switched state: placing");
+		else if (m_state == ModeState::state_removing)
+			ErrorLogger::log("Switched state: removing");
+		else if (m_state == ModeState::state_inactive)
+			ErrorLogger::log("Switched state: inactive");
+		//reset variables
+		m_markedIndexToRemove = -1;
 	}
-	if (m_placing) {
+	if (m_state == ModeState::state_placing) {
 		// keys
 		if (ip->keyPressed(m_indexIncreaseKey)) {
 			// increment up
@@ -268,7 +278,7 @@ void EntityRepository::update(float dt, float3 point, float3 direction) {
 				m_activePlaceableIndex = (int)m_placeable.size() - 1;
 		}
 		if (ip->keyPressed(m_deleteKey)) {
-			//delete newest entity
+			// delete newest entity
 			if (m_entities.size() > 0)
 				removeEntity(m_entities.back().get());
 		}
@@ -299,22 +309,42 @@ void EntityRepository::update(float dt, float3 point, float3 direction) {
 			m_placeable[m_activePlaceableIndex]->setPosition(intersection);
 		}
 	}
+	else if (m_state == ModeState::state_removing) {
+		if (ip->mousePressed(m_placeKey)) {
+			float shortestT = -1;
+			for (size_t i = 0; i < m_entities.size(); i++) {
+				float t = m_entities[i]->castRay(point, direction);
+				if ((t > 0 && t < m_placingDistance) && (shortestT == -1 || t < shortestT)) {
+					shortestT = t;
+					m_markedIndexToRemove = i;
+				}
+			}
+		}
+		else if (ip->keyPressed(m_deleteKey)) {
+			if (m_markedIndexToRemove != -1) {
+				removeEntity(m_entities[m_markedIndexToRemove].get());
+				m_markedIndexToRemove = -1;
+			}
+		}
+	}
 }
 
 void EntityRepository::draw() {
 	for (size_t i = 0; i < m_entities.size(); i++) {
-		m_entities[i]->draw();
+		if (m_markedIndexToRemove == i)
+			m_entities[i]->draw_onlyMesh(float3(1.f, 0.f, 0.f));
+		else
+			m_entities[i]->draw();
 	}
-	if (m_placing) {
+	if (m_state == ModeState::state_placing)
 		m_placeable[m_activePlaceableIndex]->draw();
-	}
 }
 
 void EntityRepository::drawShadow() {
 	for (size_t i = 0; i < m_entities.size(); i++) {
 		m_entities[i]->drawShadow();
 	}
-	if (m_placing) {
+	if (m_state == ModeState::state_placing) {
 		m_placeable[m_activePlaceableIndex]->drawShadow();
 	}
 }
