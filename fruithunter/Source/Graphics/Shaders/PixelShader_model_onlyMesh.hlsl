@@ -59,9 +59,11 @@ float calcShadowFactor(Texture2D shadowMap, float4 shadowPosH) {
 
 float3 lighting(float3 pos, float3 normal, float3 color, float shade) {
 	// light utility
-	float3 lightPos = float3(-5, 2, -3);
+	/*float3 lightPos = float3(-5, 2, -3);
 	float3 toLight = normalize(lightPos - pos);
-	toLight = float3(1, 1, 1);
+	toLight = float3(1, 1, 1);*/
+	//float3 lightPos = float3(-0.f, 110.f, 100.f);
+	float3 toLight = normalize(float3(-100.f, 110.f, 0));
 
 	// diffuse
 	float shadowTint = max(dot(toLight, normal), 0.0);

@@ -1,14 +1,31 @@
-PROGRAM(Accumulate): 16731 ms | 100.000000%
-|  Creation of: VolcanoMap.png(Accumulate): 1113 ms | 6.652322%
-|  |  Terrain Heightmap grid creation(Accumulate): 583 ms | 52.380955%
-|  |  Filling of sub meshes(Accumulate): 251 ms | 22.551662%
-|  Creation of: ForestMap.png(Accumulate): 1708 ms | 10.208595%
-|  |  Terrain Heightmap grid creation(Accumulate): 898 ms | 52.576111%
-|  |  Filling of sub meshes(Accumulate): 317 ms | 18.559719%
-|  Creation of: DesertMap.png(Accumulate): 1136 ms | 6.789792%
-|  |  Terrain Heightmap grid creation(Accumulate): 491 ms | 43.221832%
-|  |  Filling of sub meshes(Accumulate): 233 ms | 20.510563%
-|  Creation of: PlainMap.png(Accumulate): 1275 ms | 7.620584%
-|  |  Terrain Heightmap grid creation(Accumulate): 498 ms | 39.058823%
-|  |  Filling of sub meshes(Accumulate): 232 ms | 18.196079%
-|  FrameTime(Average): 26 ms | 28.820753%
+PROGRAM(Accumulate): 0 ms | 100.000000%
+|  Initilize(Accumulate): 5246 ms | inf%
+|  |  LevelHandler_initilize(Accumulate): 1830 ms | 34.883720%
+|  
+|  AllFrames(Accumulate): 114173 ms | inf%
+|  |  LevelHandler_TerrainCreation(Accumulate): 114099 ms | 99.935188%
+|  |  |  Creation of: VolcanoMap.png(Accumulate): 901 ms | 0.789665%
+|  |  |  |  Terrain Heightmap grid creation(Accumulate): 488 ms | 54.162045%
+|  |  |  |  Filling of sub meshes(Accumulate): 222 ms | 24.639290%
+|  |  |  
+|  |  |  Creation of: ForestMap.png(Accumulate): 982 ms | 0.860656%
+|  |  |  |  Terrain Heightmap grid creation(Accumulate): 489 ms | 49.796333%
+|  |  |  |  Filling of sub meshes(Accumulate): 230 ms | 23.421589%
+|  |  |  
+|  |  |  Creation of: DesertMap.png(Accumulate): 1114 ms | 0.976345%
+|  |  |  |  Terrain Heightmap grid creation(Accumulate): 492 ms | 44.165169%
+|  |  |  |  Filling of sub meshes(Accumulate): 221 ms | 19.838419%
+|  |  |  
+|  |  |  Creation of: PlainMap.png(Accumulate): 1235 ms | 1.082393%
+|  |  |  |  Terrain Heightmap grid creation(Accumulate): 492 ms | 39.838058%
+|  |  |  |  Filling of sub meshes(Accumulate): 232 ms | 18.785425%
+|  |  |  
+|  |  |  FrameTime(Average): 22 ms | 93.696701%
+|  |  |  |  PlayState_Update(Average): 1 ms | 6.997671%
+|  |  |  |  |  LevelHandler_Update(Average): 1 ms | 88.624512%
+|  |  |  |  
+|  |  |  |  PlayState_Draw(Average): 12 ms | 57.641689%
+|  |  |  
+|  |  
+|  
+

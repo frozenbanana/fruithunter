@@ -1,4 +1,5 @@
 #include "SkyBox.h"
+#include "VariableSyncer.h"
 #include <WICTextureLoader.h>
 
 bool SkyBox::createResourceBuffer(string path, ID3D11ShaderResourceView** buffer) {
@@ -75,6 +76,8 @@ SkyBox::SkyBox() {
 	createConstantBuffer();
 	createShaders();
 
+	VariableSyncer::getInstance()->create("ColourBuffer.txt", nullptr);
+
 	//Forest - Refactor with variableSyncer?
 	m_lightInfo[0] = { 
 		float4(206.f / 255.f, 255.f / 255.f, 204.f / 255.f, 1.0f),
@@ -102,6 +105,15 @@ SkyBox::SkyBox() {
 		float4(255.f / 255.f, 153.f / 255.f, 132.f / 255.f, 1.0f),
 		float4(255.f / 255.f, 153.f / 255.f, 132.f / 255.f, 1.0f),
 	};
+
+	for (int i = 0; i < 4; i++) {
+		VariableSyncer::getInstance()->bind(
+			"ColourBuffer.txt", "Ambient_" + to_string(i) + ":v4", &m_lightInfo[i].ambient);
+		VariableSyncer::getInstance()->bind(
+			"ColourBuffer.txt", "Diffuse_" + to_string(i) + ":v4", &m_lightInfo[i].diffuse);
+		VariableSyncer::getInstance()->bind(
+			"ColourBuffer.txt", "Specular_" + to_string(i) + ":v4", &m_lightInfo[i].specular);
+	}
 }
 
 SkyBox::~SkyBox() {}

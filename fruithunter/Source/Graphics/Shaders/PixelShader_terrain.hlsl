@@ -23,9 +23,11 @@ cbuffer lightInfo : register(b5) {
 
 float3 lighting(float3 pos, float3 normal, float3 color, float shade) {
 	// light utility
-	float3 lightPos = float3(-5, 2, -3);
+	/*float3 lightPos = float3(-5, 2, -3);
 	float3 toLight = normalize(lightPos - pos);
-	toLight = float3(1, 1, 1);
+	toLight = float3(1, 1, 1);*/
+	//float3 lightPos = float3(-0.f, 110.f, 100.f);
+	float3 toLight = normalize(float3(-100.f, 110.f, 0));
 
 	// diffuse
 	float shadowTint = max(dot(toLight, normal), 0.0);
@@ -100,5 +102,4 @@ float4 main(PS_IN ip) : SV_TARGET {
 		lerp(baseTiltColor, flatColor, float3(1, 1, 1) * specialLerp(dotN, 0.65f, 0.75f));
 
 	return float4(lighting(ip.PosW, ip.Normal, baseColor, shade), 1.0);
-	return float4(abs(ip.Normal), 1.0);
-}
+	return float4(abs(ip.Normal), 1.0);}

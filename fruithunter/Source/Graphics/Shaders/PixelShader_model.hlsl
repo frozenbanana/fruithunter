@@ -74,9 +74,9 @@ float4 main(PS_IN ip) : SV_TARGET {
 	// op.bloom = float4(0, 0, 0, 1);
 
 	// light
-	float3 lightPos = float3(-5, 2, -3);
-	float3 toLight = normalize(lightPos - ip.PosW);
-	toLight = float3(1, 1, 1);
+	//float3 lightPos = float3(-0.f, 110.f, 100.f);
+	/*float3 toLight = normalize(lightPos - ip.PosW);*/
+	float3 toLight = normalize(float3(-100.f, 110.f, 0));
 
 	// ambient base
 	/*float3 ambientBase =

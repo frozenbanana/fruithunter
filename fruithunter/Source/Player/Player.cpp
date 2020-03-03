@@ -24,7 +24,6 @@ void Player::initialize() {
 void Player::update(float dt, Terrain* terrain) {
 	// Movement force
 	float3 force = getMovementForce();
-
 	checkJump();
 	checkSprint(dt);
 	checkDash(dt);
