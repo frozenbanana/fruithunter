@@ -25,8 +25,8 @@ void Bow::update(
 	// Set bow position based on player position and direction.
 	float3 playerUp = playerForward.Cross(playerRight);
 	m_bow.setPosition(playerPos + playerForward * ARM_LENGTH +
-		playerRight * OFFSET_RIGHT * m_aimMovement +
-		playerUp * OFFSET_UP * m_aimMovement);
+					  playerRight * OFFSET_RIGHT * m_aimMovement +
+					  playerUp * OFFSET_UP * m_aimMovement);
 
 
 	// Update m_arrowReturnTimer
@@ -72,7 +72,7 @@ void Bow::update(
 		}
 		if (m_arrowReturnTimer < 0.0f ||
 			(m_arrow.getPosition() - playerPos).LengthSquared() >
-			m_maxTravelLengthSquared) { // replace with collision later
+				m_maxTravelLengthSquared) { // replace with collision later
 			m_shooting = false;
 		}
 	}
@@ -103,7 +103,6 @@ void Bow::update(
 void Bow::draw() {
 	m_bow.draw_animate();
 	m_arrow.draw();
-	m_trailEffect.draw();
 }
 
 void Bow::rotate(float pitch, float yaw) {
@@ -123,6 +122,8 @@ void Bow::charge() { // Draws the arrow back on the bow
 	}
 }
 
+ParticleSystem& Bow::getTrailEffect() { return m_trailEffect; }
+
 void Bow::shoot(
 	float3 direction, float3 startVelocity, float pitch, float yaw) { // Shoots/fires the arrow
 	m_chargeReset = true;
@@ -137,7 +138,7 @@ void Bow::shoot(
 		float bowMaterialConstant = 0.05f;
 
 		float velocity = pow((bowEfficiencyConstant * m_drawFactor) /
-			(m_arrowMass + m_bowMass * bowMaterialConstant),
+								 (m_arrowMass + m_bowMass * bowMaterialConstant),
 			0.5f);
 
 		direction.Normalize();

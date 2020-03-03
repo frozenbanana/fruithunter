@@ -11,7 +11,7 @@ ParticleSystem::ParticleSystem(ParticleSystem::PARTICLE_TYPE type) {
 	m_description = make_shared<Description>(type);
 
 	if (type != NONE) {
-		string sid = "ParticleSystem" + to_string((long)this) + "-" + to_string(type) + ".txt";
+		// string sid = "ParticleSystem" + to_string((long)this) + "-" + to_string(type) + ".txt";
 		/*VariableSyncer::getInstance()->create(sid);
 		VariableSyncer::getInstance()->bind(sid,
 			"ParticleCount:i&emitRate:f&acceleration:v3&spawnRadius:f&radiusInterval:v2&velocity:"
@@ -175,10 +175,7 @@ void ParticleSystem::createBuffers() {
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = m_particles.data();
 
-	HRESULT check = device->CreateBuffer(
-		&buffDesc, 
-		&data, 
-		m_vertexBuffer.GetAddressOf());
+	HRESULT check = device->CreateBuffer(&buffDesc, &data, m_vertexBuffer.GetAddressOf());
 
 	if (FAILED(check))
 		ErrorLogger::logError(check, "Failed creating buffer in ParticleSystem class!\n");

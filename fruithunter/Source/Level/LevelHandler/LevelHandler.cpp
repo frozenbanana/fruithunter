@@ -70,10 +70,10 @@ void LevelHandler::initialiseLevel0() {
 	maps[3] = "texture_rock6.jpg";
 	level0.m_heightmapTextures.push_back(maps);
 
-	level0.m_wind.push_back(float3(0.f, 10.f, 0.f));  // Volcano
-	level0.m_wind.push_back(float3(10.f, 0.f, 10.f)); // Forest
-	level0.m_wind.push_back(float3(20.f, 0.f, 0.f));  // Desert
-	level0.m_wind.push_back(float3(0.f, 0.f, 40.f));  // Plains
+	level0.m_wind.push_back(float3(0.f, 15.f, 0.f)); // Volcano
+	level0.m_wind.push_back(float3(6.f, 0.f, 10.f)); // Forest
+	level0.m_wind.push_back(float3(0.f, 0.f, 6.f));	 // Desert
+	level0.m_wind.push_back(float3(0.f, 0.f, 40.f)); // Plains
 
 
 	level0.m_nrOfFruits[APPLE] = 2;
@@ -286,12 +286,16 @@ void LevelHandler::draw() {
 	if (!Input::getInstance()->keyDown(Keyboard::N))
 		Renderer::getInstance()->draw_darkEdges();
 
+
+	/* --- Things to be drawn without dark edges --- */
+	m_hud.draw();
+
 	// Particle Systems
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
 		m_particleSystems[i].draw();
 	}
 
-	m_hud.draw();
+	m_player.getBow().getTrailEffect().draw();
 }
 
 void LevelHandler::drawShadowDynamic() {

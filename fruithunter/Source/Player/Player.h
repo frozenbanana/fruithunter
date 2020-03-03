@@ -24,6 +24,7 @@ public:
 	bool isShooting() const;
 	void setPosition(float3 position);
 	void standsOnObject();
+	Bow& getBow();
 
 private:
 	// Keys

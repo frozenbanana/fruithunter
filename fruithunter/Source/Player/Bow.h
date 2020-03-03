@@ -13,7 +13,7 @@ public:
 	void release();
 	void charge();
 	void shoot(float3 direction, float3 startVelocity, float pitch, float yaw);
-
+	ParticleSystem& getTrailEffect();
 	Entity& getArrow() { return m_arrow; };
 	bool isShooting() const;
 

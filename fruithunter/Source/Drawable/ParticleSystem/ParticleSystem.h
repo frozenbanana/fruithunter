@@ -74,22 +74,22 @@ private:
 				break;
 			case VULCANO_BUBBLE:
 				m_nrOfParticles = MAX_PARTICLES - 1;
-				m_emitRate = 88.0f; // particles per sec
-				m_acceleration = float3(0.3f, 3.5f, 0.3f);
-				m_accelerationOffsetInterval = float2(-0.05f, 0.05f);
+				m_emitRate = 80.0f; // particles per sec
+				m_acceleration = float3(0.f, 0.35f, 0.f);
+				m_accelerationOffsetInterval = float2(-1.20f, 1.20f);
 				m_spawnRadius = 0.f;
-				m_radiusInterval = float2(-0.1f, 0.1f);
+				m_radiusInterval = float2(-0.25f, 0.25f);
 				m_velocity = float3(0.f, 0.f, 0.f);
-				m_velocityOffsetInterval = float2(-0.75f, 0.75f); // for x, y and z
-				m_sizeInterval = float2(0.43f, 0.8f);
-				m_timeAliveInterval = float2(4.f, 5.f);
+				m_velocityOffsetInterval = float2(-0.5f, 0.5f); // for x, y and z
+				m_sizeInterval = float2(0.48f, 1.8f);
+				m_timeAliveInterval = float2(6.f, 7.f);
 				m_color[0] = float3(1.0f, 0.f, 0.f);
 				m_color[1] = float3(0.31f, 0.35f, 0.31f);
 				m_color[2] = float3(0.81f, 0.58f, 0.0f);
 				break;
 			case LAVA_BUBBLE:
-				m_nrOfParticles = MAX_PARTICLES / 2;
-				m_emitRate = 25.0f; // particles per sec
+				m_nrOfParticles = 2 * MAX_PARTICLES / 3;
+				m_emitRate = 28.0f; // particles per sec
 				m_acceleration = float3(0.3f, 0.3f, 0.3f);
 				m_accelerationOffsetInterval = float2(-0.05f, 0.05f); // for x, y and z
 				m_spawnRadius = 45.f;
@@ -97,7 +97,7 @@ private:
 				m_velocity = float3(0.f, 0.f, 0.f);
 				m_velocityOffsetInterval = float2(-0.75f, 0.75f); // for x, y and z
 				m_sizeInterval = float2(0.11f, 0.22f);
-				m_timeAliveInterval = float2(0.4f, 1.1f);
+				m_timeAliveInterval = float2(0.4f, 1.6f);
 				m_color[0] = float3(0.70f, 0.20f, 0.20f);
 				m_color[1] = float3(0.41f, 0.25f, 0.23f);
 				m_color[2] = float3(0.51f, 0.34f, 0.17f);
