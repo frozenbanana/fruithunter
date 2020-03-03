@@ -1,5 +1,7 @@
 #include "EntityRepository.h"
 #include "TerrainManager.h"
+#include "Renderer.h"
+#include "ErrorLogger.h"
 
 void EntityRepository::clear() {
 	m_repository.clear();

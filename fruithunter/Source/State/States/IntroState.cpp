@@ -2,6 +2,7 @@
 #include "ErrorLogger.h"
 #include "AudioHandler.h"
 #include "Input.h"
+#include "Renderer.h"
 
 IntroState::IntroState() { initialize(); }
 

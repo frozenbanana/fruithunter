@@ -1,6 +1,8 @@
 #include "LevelHandler.h"
 #include "TerrainManager.h"
 #include "AudioHandler.h"
+#include "Renderer.h"
+#include "ErrorLogger.h"
 #include "PerformanceTimer.h"
 
 void LevelHandler::initialiseLevel0() {
@@ -272,6 +274,9 @@ void LevelHandler::draw() {
 	waterEffect.draw();
 	lavaEffect.draw();
 	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
+
+	if (!Input::getInstance()->keyDown(Keyboard::N))
+		Renderer::getInstance()->draw_darkEdges();
 
 	m_hud.draw();
 }

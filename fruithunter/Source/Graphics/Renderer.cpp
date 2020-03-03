@@ -78,11 +78,34 @@ void Renderer::bindConstantBuffer_ScreenSize(int slot) {
 	m_deviceContext->PSSetConstantBuffers(slot, 1, m_screenSizeBuffer.GetAddressOf());
 }
 
+void Renderer::bindQuadVertexBuffer() {
+	auto deviceContext = Renderer::getDeviceContext();
+	UINT strides = sizeof(float3);
+	UINT offset = 0;
+	deviceContext->IASetVertexBuffers(0, 1, m_vertexQuadBuffer.GetAddressOf(), &strides, &offset);
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
 void Renderer::copyDepthToSRV() {
 	ID3D11Resource *dst, *src;
 	m_depthSRV.Get()->GetResource(&dst);
 	m_depthDSV.Get()->GetResource(&src);
 	m_deviceContext->CopyResource(dst, src);
+}
+
+void Renderer::draw_darkEdges() { 
+	copyDepthToSRV();
+	bindDepthSRV(0);
+
+	m_shader_darkEdges.bindShadersAndLayout();
+
+	bindConstantBuffer_ScreenSize(6);
+	
+	bindQuadVertexBuffer();
+
+	enableAlphaBlending();
+	m_deviceContext->Draw(6, 0);
+	disableAlphaBlending();
 }
 
 Renderer::Renderer(int width, int height) {
@@ -106,7 +129,25 @@ Renderer::Renderer(int width, int height) {
 		r->createDevice(m_handle);
 		r->createRenderTarget();
 		r->createConstantBuffers();
+		r->createQuadVertexBuffer();
 		r->m_isLoaded = true;
+	}
+
+	//compile shaders
+	if (!m_shader_darkEdges.isLoaded()) {
+		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = {
+			{
+				"Position",					 // "semantic" name in shader
+				0,							 // "semantic" index (not used)
+				DXGI_FORMAT_R32G32B32_FLOAT, // size of ONE element (3 floats)
+				0,							 // input slot
+				0,							 // offset of first element
+				D3D11_INPUT_PER_VERTEX_DATA, // specify data PER vertex
+				0							 // used for INSTANCING (ignore)
+			}
+		};
+		m_shader_darkEdges.createShaders(
+			L"VertexShader_quadSimplePass.hlsl", nullptr, L"PixelShader_darkEdge.hlsl", inputLayout_onlyMesh, 1);
 	}
 }
 
@@ -295,6 +336,27 @@ void Renderer::createConstantBuffers() {
 			Renderer::getDevice()->CreateBuffer(&desc, nullptr, m_screenSizeBuffer.GetAddressOf());
 		if (FAILED(res))
 			ErrorLogger::logError(res, "Failed creating screen size buffer in Renderer class!\n");
+	}
+}
+
+void Renderer::createQuadVertexBuffer() {
+	if (m_vertexQuadBuffer.Get() == nullptr) {
+		float3 points[4] = { float3(-1, -1, 0), float3(1, -1, 0), float3(-1, 1,0), float3(1, 1,0) };
+		float3 quadData[6] = { points[0], points[3], points[1], points[0], points[2], points[3] };
+		// vertex buffer
+		m_vertexQuadBuffer.Reset();
+		D3D11_BUFFER_DESC bufferDesc;
+		memset(&bufferDesc, 0, sizeof(bufferDesc));
+		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+		bufferDesc.ByteWidth = (UINT)6 * sizeof(float3);
+		D3D11_SUBRESOURCE_DATA data;
+		data.pSysMem = quadData;
+		HRESULT res = Renderer::getDevice()->CreateBuffer(
+			&bufferDesc, &data, m_vertexQuadBuffer.GetAddressOf());
+		if (FAILED(res))
+			ErrorLogger::logError(
+				res, "Failed creating quad vertex buffer in Renderer class!\n");
 	}
 }
 

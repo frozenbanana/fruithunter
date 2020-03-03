@@ -1,4 +1,6 @@
 #include "ShaderSet.h"
+#include "Renderer.h"
+#include "ErrorLogger.h"
 
 ID3DBlob* ShaderSet::createVertexShader(LPCWSTR filename) {
 

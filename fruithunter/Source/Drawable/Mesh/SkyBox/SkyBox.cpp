@@ -1,6 +1,8 @@
 #include "SkyBox.h"
 #include "VariableSyncer.h"
 #include <WICTextureLoader.h>
+#include "Renderer.h"
+#include "ErrorLogger.h"
 
 bool SkyBox::createResourceBuffer(string path, ID3D11ShaderResourceView** buffer) {
 	auto device = Renderer::getDevice();
