@@ -1,5 +1,6 @@
 #include "Banana.h"
-
+#include "Renderer.h"
+#include "ErrorLogger.h"
 
 Banana::Banana(float3 pos) : Fruit(pos) {
 	m_fruitType = BANANA;

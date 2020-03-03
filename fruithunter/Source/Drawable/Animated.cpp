@@ -1,5 +1,7 @@
 #include "Animated.h"
 #include "Input.h"
+#include "Renderer.h"
+#include "ErrorLogger.h"
 
 void Animated::bindMeshes() {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
