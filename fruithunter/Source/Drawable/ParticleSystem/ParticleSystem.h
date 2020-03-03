@@ -2,7 +2,7 @@
 #include "particle.h"
 #include "ShaderSet.h"
 #include "Timer.h"
-#define MAX_PARTICLES 750
+#define MAX_PARTICLES 512
 
 
 class ParticleSystem {
@@ -103,7 +103,7 @@ private:
 				m_color[2] = float3(0.51f, 0.34f, 0.17f);
 				break;
 			case ARROW_GLITTER:
-				m_nrOfParticles = 200;
+				m_nrOfParticles = 30;
 				m_emitRate = 12.0f; // particles per sec
 				m_acceleration = float3(0.02f, 0.01f, 0.02f);
 				m_spawnRadius = 0.1f;

@@ -12,12 +12,12 @@ ParticleSystem::ParticleSystem(ParticleSystem::PARTICLE_TYPE type) {
 
 	if (type != NONE) {
 		string sid = "ParticleSystem" + to_string((long)this) + "-" + to_string(type) + ".txt";
-		VariableSyncer::getInstance()->create(sid);
+		/*VariableSyncer::getInstance()->create(sid);
 		VariableSyncer::getInstance()->bind(sid,
 			"ParticleCount:i&emitRate:f&acceleration:v3&spawnRadius:f&radiusInterval:v2&velocity:"
 			"v3&velocityOffsetInterval:v2&sizeInterval:v2&timeAliveInteral:v2&color[0]:v3&color[1]:"
 			"v3&color[2]:v3",
-			m_description.get());
+			m_description.get());*/
 
 		if (m_description->m_nrOfParticles > MAX_PARTICLES) {
 			ErrorLogger::logWarning(NULL, "Particle System is not allowed " +
