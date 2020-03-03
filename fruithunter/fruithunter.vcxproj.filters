@@ -34,9 +34,6 @@
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_seaEffect.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Graphics\Shaders\GeometryShadertessst.hlsl">
-      <Filter>Source\Graphics\Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\GeometryShader_particleSystem.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>

@@ -2,19 +2,19 @@
 #include "particle.h"
 #include "ShaderSet.h"
 #include "Timer.h"
-#define MAX_PARTICLES 1000
+#define MAX_PARTICLES 750
 
 
 class ParticleSystem {
 public:
 	enum PARTICLE_TYPE {
-		NONE,
-		FOREST_BUBBLE,
-		GROUND_DUST,
-		VULCANO_BUBBLE,
-		LAVA_BUBBLE,
-		ARROW_GLITTER,
-		TYPE_LENGTH,
+		NONE = 0,
+		FOREST_BUBBLE = 1,
+		GROUND_DUST = 2,
+		VULCANO_BUBBLE = 3,
+		LAVA_BUBBLE = 4,
+		ARROW_GLITTER = 5,
+		TYPE_LENGTH = 6,
 	};
 
 	ParticleSystem(ParticleSystem::PARTICLE_TYPE type = NONE);
@@ -43,7 +43,7 @@ private:
 		Description(ParticleSystem::PARTICLE_TYPE type = NONE) {
 			switch (type) {
 			case FOREST_BUBBLE:
-				m_nrOfParticles = 699;
+				m_nrOfParticles = MAX_PARTICLES - 1;
 				m_emitRate = 25.0f; // particles per sec
 				m_acceleration = float3(0.1f, 0.5f, -0.1f);
 				m_accelerationOffsetInterval = float2(-0.05f, 0.05f);
@@ -58,7 +58,7 @@ private:
 				m_color[2] = float3(0.0f, 0.65f, 0.55f);
 				break;
 			case GROUND_DUST:
-				m_nrOfParticles = 599;
+				m_nrOfParticles = MAX_PARTICLES - 1;
 				m_emitRate = 25.0f; // particles per sec
 				m_acceleration = float3(0.9f, 1.5f, -0.6f);
 				m_accelerationOffsetInterval = float2(-0.05f, 0.05f);
@@ -73,7 +73,7 @@ private:
 				m_color[2] = float3(0.81f, 0.58f, 0.39f);
 				break;
 			case VULCANO_BUBBLE:
-				m_nrOfParticles = 999;
+				m_nrOfParticles = MAX_PARTICLES - 1;
 				m_emitRate = 88.0f; // particles per sec
 				m_acceleration = float3(0.3f, 3.5f, 0.3f);
 				m_accelerationOffsetInterval = float2(-0.05f, 0.05f);
@@ -88,8 +88,8 @@ private:
 				m_color[2] = float3(0.81f, 0.58f, 0.0f);
 				break;
 			case LAVA_BUBBLE:
-				m_nrOfParticles = 450;
-				m_emitRate = 30.0f; // particles per sec
+				m_nrOfParticles = MAX_PARTICLES / 2;
+				m_emitRate = 25.0f; // particles per sec
 				m_acceleration = float3(0.3f, 0.3f, 0.3f);
 				m_accelerationOffsetInterval = float2(-0.05f, 0.05f); // for x, y and z
 				m_spawnRadius = 45.f;
@@ -98,7 +98,7 @@ private:
 				m_velocityOffsetInterval = float2(-0.75f, 0.75f); // for x, y and z
 				m_sizeInterval = float2(0.11f, 0.22f);
 				m_timeAliveInterval = float2(0.4f, 1.1f);
-				m_color[0] = float3(.7f, 0.2f, 0.2f);
+				m_color[0] = float3(0.70f, 0.20f, 0.20f);
 				m_color[1] = float3(0.41f, 0.25f, 0.23f);
 				m_color[2] = float3(0.51f, 0.34f, 0.17f);
 				break;

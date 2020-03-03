@@ -170,7 +170,7 @@ void ParticleSystem::createBuffers() {
 
 	buffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	buffDesc.Usage = D3D11_USAGE_DEFAULT;
-	buffDesc.ByteWidth = sizeof(Particle) * MAX_PARTICLES;
+	buffDesc.ByteWidth = (UINT)(sizeof(Particle) * MAX_PARTICLES)	;
 
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = m_particles.data();
