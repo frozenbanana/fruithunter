@@ -251,9 +251,9 @@ float Entity::castRay(float3 rayPos, float3 rayDir) {
 		float4x4 mWorld = getModelMatrix();
 		float4x4 mInvWorld = mWorld.Invert();
 		float4x4 mInvTraWorld = mInvWorld.Transpose();
-		float4x4 mInvTraWorldInv = mInvTraWorld.Invert();
+		float4x4 mInvTraInvWorld = mInvTraWorld.Invert();
 		float3 lrayPos = float3::Transform(rayPos, mInvWorld);
-		float3 lrayDir = float3::TransformNormal(rayDir, mInvTraWorld);
+		float3 lrayDir = float3::TransformNormal(rayDir, mInvTraInvWorld);
 		lrayDir.Normalize();
 
 		float t = m_mesh->castRayOnMesh(lrayPos, lrayDir);
