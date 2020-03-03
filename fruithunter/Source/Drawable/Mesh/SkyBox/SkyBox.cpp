@@ -71,8 +71,37 @@ SkyBox::SkyBox() {
 		createResourceBuffer(fileNamePath, m_textures[i].GetAddressOf());
 	}
 	m_dt = 0;
+	createLightBuffer();
 	createConstantBuffer();
 	createShaders();
+
+	//Forest - Refactor with variableSyncer?
+	m_lightInfo[0] = { 
+		float4(206.f / 255.f, 255.f / 255.f, 204.f / 255.f, 1.0f),
+		float4(206.f / 255.f, 255.f / 255.f, 204.f / 255.f, 1.0f),
+		float4(206.f / 255.f, 255.f / 255.f, 204.f / 255.f, 1.0f)
+	};
+
+	// Desert
+	m_lightInfo[1] = { 
+		float4(255.f / 255.f, 234.f / 255.f, 165.f / 255.f, 1.0f),
+		float4(255.f / 255.f, 234.f / 255.f, 165.f / 255.f, 1.0f),
+		float4(255.f / 255.f, 234.f / 255.f, 165.f / 255.f, 1.0f),
+	};
+
+	// Plains
+	m_lightInfo[2] = {
+		float4(247.f / 255.f, 255.f / 255.f, 219.f / 255.f, 1.0f),
+		float4(247.f / 255.f, 255.f / 255.f, 219.f / 255.f, 1.0f),
+		float4(247.f / 255.f, 255.f / 255.f, 219.f / 255.f, 1.0f),
+	};
+
+	// Volcano
+	m_lightInfo[3] = {
+		float4(255.f / 255.f, 153.f / 255.f, 132.f / 255.f, 1.0f),
+		float4(255.f / 255.f, 153.f / 255.f, 132.f / 255.f, 1.0f),
+		float4(255.f / 255.f, 153.f / 255.f, 132.f / 255.f, 1.0f),
+	};
 }
 
 SkyBox::~SkyBox() {}
@@ -118,3 +147,47 @@ void SkyBox::updateDelta(float dt) {
 }
 
 void SkyBox::resetDelta() { m_dt = 1.0f - m_dt; }
+
+void SkyBox::updateCurrentLight() {
+	//Interpolate values.
+	m_currentLightInfo.ambient = 
+		(m_lightInfo[m_oldLight].ambient * (1 - m_dt)) + (m_lightInfo[m_newLight].ambient * m_dt);
+	m_currentLightInfo.diffuse =
+		(m_lightInfo[m_oldLight].diffuse * (1 - m_dt)) + (m_lightInfo[m_newLight].diffuse * m_dt);
+	m_currentLightInfo.specular =
+		(m_lightInfo[m_oldLight].specular * (1 - m_dt)) + (m_lightInfo[m_newLight].specular * m_dt);
+
+	//Update buffer with new values.
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+	deviceContext->UpdateSubresource(m_lightBuffer.Get(), 0, 0, &m_currentLightInfo, 0, 0);
+}
+
+void SkyBox::updateNewOldLight(int terrainTag) {
+ 	m_oldLight = m_newLight;
+	m_newLight = terrainTag;
+}
+
+bool SkyBox::createLightBuffer() {
+	auto device = Renderer::getDevice();
+	auto deviceContext = Renderer::getDeviceContext();
+
+	D3D11_BUFFER_DESC cbDesc;
+	cbDesc.ByteWidth = sizeof(lightInfo);
+	cbDesc.Usage = D3D11_USAGE_DEFAULT;
+	cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cbDesc.CPUAccessFlags = 0;
+	cbDesc.MiscFlags = 0;
+	cbDesc.StructureByteStride = 0;
+
+	HRESULT hr = device->CreateBuffer(&cbDesc, nullptr, m_lightBuffer.GetAddressOf());
+	if (FAILED(hr)) {
+		ErrorLogger::messageBox(hr, "Failed creating constant buffer for light\n");
+		return false;
+	}
+	return true;
+}
+
+void SkyBox::bindLightBuffer() {
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+	deviceContext->PSSetConstantBuffers(5, 1, m_lightBuffer.GetAddressOf());
+}

@@ -21,6 +21,11 @@ protected:
 	float3 m_destinationAnimationPosition;
 	float3 m_nextDestinationAnimationPosition;
 	// -------------------
+	// Face
+	vector<vector<Material>> m_materials;
+	vector<string> m_materialNames;
+	// -------------------
+
 	float3 m_worldHome;
 	size_t m_nrOfTriesGoHome = 0;
 	int m_fruitType;
@@ -53,7 +58,10 @@ public:
 	float3 getHomePosition() const;
 	void setVelocity(float3 velo);
 
-	void hit() { changeState(CAUGHT); }
+	void hit() {
+		changeState(CAUGHT);
+		m_currentMaterial = 2;
+	}
 
 	int getFruitType();
 };

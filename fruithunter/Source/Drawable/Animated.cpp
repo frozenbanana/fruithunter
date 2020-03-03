@@ -131,6 +131,18 @@ void Animated::draw() {
 	m_meshes[0]->draw_withoutBinding();
 }
 
+void Animated::drawShadow() {
+	if (Input::getInstance()->keyDown(Keyboard::B)) {
+		m_meshes[0]->draw_BoundingBox();
+	}
+
+	bindMeshes();
+	bindConstantBuffer();
+	m_shaderObject_animation.bindShadersAndLayoutForShadowMap();
+
+	m_meshes[0]->draw_withoutBinding();
+}
+
 bool Animated::load(std::string filename, int nrOfFrames, bool combineParts) {
 	bool allClear = true;
 	m_nrOfMeshes = nrOfFrames;
@@ -149,6 +161,18 @@ bool Animated::load(std::string filename, int nrOfFrames, bool combineParts) {
 	}
 	createInputAssembler();
 	return allClear;
+}
+
+void Animated::setMaterials(int index) {
+	for (size_t i = 0; i < m_nrOfMeshes; ++i) {
+		m_meshes[i]->setMaterialIndex(index);
+	}
+}
+
+void Animated::loadMaterials(std::vector<string> fileNames, int nrOfMaterials) {
+	for (size_t i = 0; i < m_nrOfMeshes; ++i) {
+		m_meshes[i]->loadOtherMaterials(fileNames, nrOfMaterials);
+	}
 }
 
 float3 Animated::getBoundingBoxHalfSizes() const { return m_meshes[0]->getBoundingBoxHalfSizes(); }

@@ -185,15 +185,18 @@ void Mesh::createBuffers(bool instancing) {
 			ErrorLogger::logError(res, "Failed creating color buffer in Mesh class!\n");
 	}
 }
-void Mesh::bindMaterial(int index) { m_materials[index].bind(); }
+void Mesh::bindMaterial(int index) { m_materials[m_currentMaterial][index].bind(); }
 int Mesh::getVertexCount() const { return (int)m_meshVertices.size(); }
 const std::vector<Vertex>& Mesh::getVertexPoints() const { return m_meshVertices; }
 const Microsoft::WRL::ComPtr<ID3D11Buffer> Mesh::getVertexBuffer() const { return m_vertexBuffer; }
 std::string Mesh::getName() const { return m_loadedMeshName; }
+
+void Mesh::setMaterialIndex(int material) { m_currentMaterial = material; }
+
 void Mesh::draw() {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
-	if (m_materials.size() > 0)
+	if (m_materials[m_currentMaterial].size() > 0)
 		m_shaderObject.bindShadersAndLayout();
 	else {
 		draw_noMaterial();
@@ -207,7 +210,7 @@ void Mesh::draw() {
 			int materialIndex = m_parts[i].materialUsage[j].materialIndex;
 			// int materialIndex = findMaterial(parts[i].materialUsage[j].name);
 			if (materialIndex != -1) {
-				m_materials[materialIndex].bind(MATERIAL_BUFFER_SLOT);
+				m_materials[m_currentMaterial][materialIndex].bind(MATERIAL_BUFFER_SLOT);
 				int count = m_parts[i].materialUsage[j].count;
 				int index = m_parts[i].materialUsage[j].index;
 				deviceContext->Draw(count, index);
@@ -215,6 +218,21 @@ void Mesh::draw() {
 		}
 	}
 }
+void Mesh::drawShadow() {
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+
+	if (m_materials.size() > 0)
+		m_shaderObject.bindShadersAndLayoutForShadowMap();
+	else {
+		draw_noMaterial();
+		return;
+	}
+
+	bindMesh();
+
+	deviceContext->Draw((UINT)m_meshVertices.size(), 0);
+}
+
 void Mesh::draw_noMaterial(float3 color) {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
@@ -251,7 +269,7 @@ void Mesh::draw_forShadowMap() {
 void Mesh::draw_withoutBinding() {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
-	if (!(m_materials.size() > 0)) {
+	if (!(m_materials[m_currentMaterial].size() > 0)) {
 		draw_noMaterial();
 		return;
 	}
@@ -261,7 +279,7 @@ void Mesh::draw_withoutBinding() {
 			int materialIndex = m_parts[i].materialUsage[j].materialIndex;
 			// int materialIndex = findMaterial(parts[i].materialUsage[j].name);
 			if (materialIndex != -1) {
-				m_materials[materialIndex].bind(MATERIAL_BUFFER_SLOT);
+				m_materials[m_currentMaterial][materialIndex].bind(MATERIAL_BUFFER_SLOT);
 				int count = m_parts[i].materialUsage[j].count;
 				int index = m_parts[i].materialUsage[j].index;
 				deviceContext->Draw(count, index);
@@ -290,7 +308,7 @@ float3 Mesh::getBoundingBoxSize() const {
 		   2.f;
 }
 bool Mesh::load(std::string filename, bool combineParts) {
-	if (m_handler.load(filename, m_meshVertices, m_parts, m_materials, combineParts)) {
+	if (m_handler.load(filename, m_meshVertices, m_parts, m_materials[0], combineParts)) {
 		m_loadedMeshName = filename;
 		findMinMaxValues();
 		createBuffers();
@@ -298,6 +316,12 @@ bool Mesh::load(std::string filename, bool combineParts) {
 	}
 	else
 		return false;
+}
+void Mesh::loadOtherMaterials(std::vector<string> fileNames, int nrOfMaterials) {
+	m_materials.resize(nrOfMaterials); // Maybe not reload the first one and use +1 for index
+	for (size_t i = 0; i < nrOfMaterials; ++i) {
+		MeshHandler::loadMTL(fileNames[i], m_materials[i]);
+	}
 }
 float Mesh::castRayOnMesh(float3 rayPos, float3 rayDir) {
 	// get bounding box in local space
@@ -310,9 +334,9 @@ float Mesh::castRayOnMesh(float3 rayPos, float3 rayDir) {
 		int length = (int)m_meshVertices.size() / 3;
 		for (int i = 0; i < length; i++) {
 			int index = i * 3;
-			float3 v0 = m_meshVertices[index + 0].position;
-			float3 v1 = m_meshVertices[index + 1].position;
-			float3 v2 = m_meshVertices[index + 2].position;
+			float3 v0 = m_meshVertices[(int)index + (int)0].position;
+			float3 v1 = m_meshVertices[(int)index + (int)1].position;
+			float3 v2 = m_meshVertices[(int)index + (int)2].position;
 			float t = triangleTest(rayDir, rayPos, v0, v1, v2);
 			if ((t > 0 && t < closest) || closest < 0)
 				closest = t;
@@ -350,6 +374,8 @@ Mesh::Mesh(std::string OBJFile) {
 		m_shaderObject.createShaders(L"VertexShader_model_onlyMesh.hlsl", nullptr,
 			L"PixelShader_model.hlsl", inputLayout_onlyMesh, 3);
 
+	m_currentMaterial = 0;
+	m_materials.resize(1);
 	if (m_boxVertices.size() == 0) {
 		loadBoundingBox();
 	}

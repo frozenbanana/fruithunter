@@ -20,7 +20,8 @@ private:
 
 	std::vector<Part> m_parts; // describes what parts exists and what material they each use
 	std::vector<Vertex> m_meshVertices; // vertices of mesh, position, uv, normal
-	std::vector<Material> m_materials;
+	std::vector<std::vector<Material>> m_materials;
+	int m_currentMaterial;
 	// bounding box
 	std::vector<Vertex> m_boxVertices;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer_BoundingBox;
@@ -48,8 +49,10 @@ public:
 	const std::vector<Vertex>& getVertexPoints() const;
 	const Microsoft::WRL::ComPtr<ID3D11Buffer> getVertexBuffer() const;
 	std::string getName() const;
+	void setMaterialIndex(int material);
 
 	void draw();
+	void drawShadow();
 	void draw_noMaterial(float3 color = float3(1, 1, 1));
 	void draw_BoundingBox();
 	void draw_forShadowMap();
@@ -60,6 +63,7 @@ public:
 	float3 getBoundingBoxSize() const;
 
 	bool load(std::string filename, bool combineParts = true);
+	void loadOtherMaterials(std::vector<string> fileNames, int nrOfMaterials);
 
 	float castRayOnMesh(float3 rayPos, float3 rayDir);
 

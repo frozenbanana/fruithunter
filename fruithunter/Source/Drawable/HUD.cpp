@@ -85,13 +85,18 @@ HUD::HUD() {
 
 	Microsoft::WRL::ComPtr<ID3D11Resource> resource;
 
+
 	HRESULT t = CreateWICTextureFromFile(Renderer::getDevice(), L"assets/sprites/background.png",
 		resource.GetAddressOf(), m_backgroundTexture.ReleaseAndGetAddressOf());
-
 	if (t)
-		ErrorLogger::logError(t, "Failed to create sprite texture");
-
+		ErrorLogger::logError(t, "Failed to create backgorund sprite texture");
 	m_backgroundPos = float2(15.0f, STANDARD_HEIGHT - 150.0f);
+
+	t = CreateWICTextureFromFile(Renderer::getDevice(), L"assets/sprites/stamina.png",
+		resource.GetAddressOf(), m_staminaTexture.ReleaseAndGetAddressOf());
+	if (t)
+		ErrorLogger::logError(t, "Failed to create stamina sprite texture");
+	m_staminaPos = float2(STANDARD_WIDTH - 250.0f, STANDARD_HEIGHT - 100.0f);
 }
 
 HUD::~HUD() {
@@ -110,7 +115,7 @@ void HUD::createFruitSprite(string fruitName) {
 		resource.GetAddressOf(), sprite.texture.ReleaseAndGetAddressOf());
 
 	if (t)
-		ErrorLogger::logError(t, "Failed to create sprite texture");
+		ErrorLogger::logError(t, "Failed to create fruit sprite texture");
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> tex;
 	resource.As(&tex);
@@ -138,11 +143,33 @@ void HUD::setTimeTargets(int targets[]) {
 	}
 }
 
-void HUD::addFruit(int fruitType) { m_inventory[fruitType]++; }
+void HUD::setWinCondition(int winCons[]) {
+	for (size_t i = 0; i < NR_OF_FRUITS; i++) {
+		m_winCondition[i] = winCons[i];
+	}
+}
+
+void HUD::addFruit(int fruitType) {
+	m_inventory[fruitType]++;
+
+	bool completed = true;
+	for (size_t i = 0; i < NR_OF_FRUITS; i++) {
+		if (m_inventory[i] < m_winCondition[i])
+			completed = false;
+	}
+
+	if (completed)
+		m_victory = true;
+}
 
 void HUD::removeFruit(int fruitType) { m_inventory[fruitType]--; }
 
-void HUD::update(float dt) { m_secondsPassed += dt; }
+void HUD::update(float dt, float playerStamina) {
+	m_stamina = playerStamina;
+
+	if (!m_victory)
+		m_secondsPassed += dt;
+}
 
 void HUD::draw() {
 	m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
@@ -155,6 +182,8 @@ void HUD::draw() {
 
 	// Draw text background
 	m_spriteBatch->Draw(m_backgroundTexture.Get(), m_backgroundPos);
+	m_spriteBatch->Draw(m_staminaTexture.Get(), m_staminaPos, nullptr, Colors::White, 0.0f,
+		float2(0.0f, 0.0f), float2(m_stamina + 0.05f, 0.8f));
 
 	m_spriteBatch->End();
 
@@ -170,7 +199,8 @@ void HUD::draw() {
 
 	// Draw inventory numbers
 	for (size_t i = 0; i < m_sprites.size(); i++) {
-		wText = to_wstring(m_inventory[m_sprites[i].fruitType]);
+		wText = to_wstring(m_inventory[m_sprites[i].fruitType]) + L"/" +
+				to_wstring(m_winCondition[m_sprites[i].fruitType]);
 		m_spriteFont->DrawString(m_spriteBatch.get(), wText.c_str(),
 			m_sprites[i].screenPos + float2(75.0f, 0.0f),
 			m_fruitTextColors[m_sprites[i].fruitType]);

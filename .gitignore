@@ -1,6 +1,7 @@
 Debug/
 Release/
 assets/FileSyncs/*
+assets/PerformanceAnalysis/*
 x64/
 .vs/
 fruithunter/Debug/

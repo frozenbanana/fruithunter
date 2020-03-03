@@ -32,7 +32,7 @@ private:
 protected:
 	float3 m_position;
 	Animated m_meshAnim;
-
+	int m_currentMaterial;
 	bool atOrUnder(float terrainHeight) const;
 
 
@@ -62,15 +62,19 @@ public:
 
 	// Drawing
 	void draw();
+	void drawShadow();
 	void draw_onlyMesh(float3 color);
 	void draw_boundingBox();
 
 	void draw_animate();
+	void draw_animate_shadow();
 	virtual void updateAnimated(float dt);
 	virtual void updateAnimatedSpecific(float frameTime);
 	void setFrameTargets(int first, int second);
 	bool load(string filename);
 	bool loadAnimated(string filename, int nrOfFrames);
+	void setMaterial(int materialIndex);
+	void loadMaterials(std::vector<string> fileNames, int nrOfMaterials);
 
 	float castRay(float3 point, float3 direction);
 
