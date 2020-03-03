@@ -1,7 +1,7 @@
 #include "LevelHandler.h"
 #include "TerrainManager.h"
 #include "AudioHandler.h"
-
+#include "PerformanceTimer.h"
 
 void LevelHandler::initialiseLevel0() {
 	Level level0;
@@ -145,6 +145,7 @@ LevelHandler::LevelHandler() { initialise(); }
 LevelHandler::~LevelHandler() {}
 
 void LevelHandler::initialise() {
+	PerformanceTimer::start("LevelHandler_initilize");
 
 	m_player.initialize();
 	m_terrainManager = TerrainManager::getInstance();
@@ -165,6 +166,8 @@ void LevelHandler::initialise() {
 		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
 	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(100, 100), XMINT2(1, 1),
 		float3(100.f, 2.f, 100.f), float3(100.f, 2.f, 100.f));
+
+	PerformanceTimer::stop();
 }
 
 void LevelHandler::loadLevel(int levelNr) {
@@ -174,6 +177,7 @@ void LevelHandler::loadLevel(int levelNr) {
 
 		m_terrainProps.load(currentLevel.m_terrainPropsFilename);
 
+		PerformanceTimer::start("LevelHandler_TerrainCreation", PerformanceTimer::TimeState::state_accumulate);
 		for (int i = 0; i < m_levelsArr.at(levelNr).m_heightMapNames.size(); i++) {
 			m_terrainManager->add(currentLevel.m_heightMapPos.at(i),
 				currentLevel.m_heightMapScales[i], currentLevel.m_heightMapNames.at(i),
@@ -301,6 +305,8 @@ void LevelHandler::drawShadowDynamicEntities() {
 }
 
 void LevelHandler::update(float dt) {
+	PerformanceTimer::start("LevelHandler_Update", PerformanceTimer::TimeState::state_average);
+
 	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
 	m_skyBox.updateDelta(dt);
@@ -408,7 +414,9 @@ void LevelHandler::update(float dt) {
 	waterEffect.update(dt);
 	lavaEffect.update(dt);
 
-	// Renderer::getInstance()->setPlayerPos(playerPos);
+	//Renderer::getInstance()->setPlayerPos(playerPos);
+	PerformanceTimer::stop();
+
 }
 
 void LevelHandler::pickUpFruit(int fruitType) {

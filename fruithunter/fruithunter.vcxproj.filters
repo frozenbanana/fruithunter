@@ -147,6 +147,9 @@
     <ClCompile Include="Source\Graphics\ShadowMapping\ShadowMapping.cpp">
       <Filter>Source\Graphics\ShadowMapping</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Utility\PerformanceTimer\PerformanceTimer.cpp">
+      <Filter>Source\Utility\PerformanceTimer</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Drawable\Mesh\Animal.cpp">
       <Filter>Source\Drawable\Mesh</Filter>
     </ClCompile>
@@ -266,6 +269,9 @@
     <ClInclude Include="Source\Graphics\ShadowMapping\ShadowMapping.h">
       <Filter>Source\Graphics\ShadowMapping</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Utility\PerformanceTimer\PerformanceTimer.h">
+      <Filter>Source\Utility\PerformanceTimer</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Drawable\Mesh\Animal.h">
       <Filter>Source\Drawable\Mesh</Filter>
     </ClInclude>
@@ -349,6 +355,9 @@
     </Filter>
     <Filter Include="Source\Graphics\ShadowMapping">
       <UniqueIdentifier>{d6645390-c2fd-4363-96bb-d57d2ac12609}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Utility\PerformanceTimer">
+      <UniqueIdentifier>{6c926695-a49b-42d0-b46f-5b51b343cf44}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
