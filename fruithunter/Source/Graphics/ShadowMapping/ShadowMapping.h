@@ -7,7 +7,7 @@ class ShadowMapper {
 private:
 	//Variables
 	XMINT2 m_shadowPortSize =
-		XMINT2(static_cast<int>(3840), static_cast<int>(2160));
+		XMINT2(static_cast<int>(1920), static_cast<int>(1080));
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_shadowDSV;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_staticShadowDSV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowSRV;

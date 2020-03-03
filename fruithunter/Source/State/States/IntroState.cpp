@@ -1,7 +1,9 @@
 #include "IntroState.h"
 #include "ErrorLogger.h"
 #include "AudioHandler.h"
+#include "ParticleSystem.h"
 #include "Input.h"
+#include "Renderer.h"
 
 IntroState::IntroState() { initialize(); }
 
@@ -14,6 +16,7 @@ void IntroState::initialize() {
 
 	// m_entity.loadAnimated("Bow", 3);
 	// m_entity.load("Melon_000000");
+	m_particleSystem = ParticleSystem(ParticleSystem::FOREST_BUBBLE);
 	m_camera.setView(float3(0.f, 0.f, -10.f), float3(0.f, 0.f, 0.f), float3(0.f, 1.f, 0.f));
 }
 
@@ -23,6 +26,8 @@ void IntroState::update() {
 	// AudioHandler::logStats();
 	m_timer.update();
 	float dt = m_timer.getDt();
+
+	m_particleSystem.update(dt);
 
 	m_entity.updateAnimated(dt);
 	/*for (size_t i = 0; i < 16; ++i) {
@@ -75,6 +80,8 @@ void IntroState::draw() {
 	m_textRenderer.draw("See Highscore", float2(400., 275.), menuColor);
 	m_textRenderer.draw("Settings", float2(400., 350.), menuColor);
 	m_textRenderer.draw("Quit", float2(400., 425.), menuColor);
+
+	m_particleSystem.draw();
 
 	PerformanceTimer::stop();
 }

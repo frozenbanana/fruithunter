@@ -1,4 +1,6 @@
 #include "Mesh.h"
+#include "Renderer.h"
+#include "ErrorLogger.h"
 
 ShaderSet Mesh::m_shaderObject;
 ShaderSet Mesh::m_shaderObject_onlyMesh;
