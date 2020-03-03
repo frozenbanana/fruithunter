@@ -56,20 +56,21 @@ protected:
 	State m_currentState;
 	std::shared_ptr<Terrain> m_terrain;
 	std::list<float3> m_availablePath;
-	float3 m_direction;
 	virtual void behaviorInactive(float3 playerPosition){};
-	virtual void behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables){};
-	virtual void behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables){};
-	virtual void behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> collidables){};
+	virtual void behaviorPassive(float3 playerPosition){};
+	virtual void behaviorActive(float3 playerPosition){};
+	virtual void behaviorCaught(float3 playerPosition){};
 	virtual void behaviorReleased(){};
 
-	void doBehavior(float3 playerPosition, vector<shared_ptr<Entity>> collidables);
+	void doBehavior(float3 playerPosition);
 	void quickSort(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, int high);
 	int partition(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, int high);
 
 	void handleAvailablePath(float3 myPosition);
 
 	bool isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entity>> collidables);
+	bool isValid(float3 childPos, float3 currentNodePos);
+	void makeReadyForPath(float3 destination);
 
 private:
 	bool beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>>& openList,

@@ -7,9 +7,11 @@
 class Fruit : public Entity, public AI {
 protected:
 	// Phyics based movment
-	float3 m_directionalVelocity;
+	float3 m_velocity = float3(0.f);
 	float m_speed = 0.0f;
-	float3 m_gravity = float3(0.0f, -1.0f, 0.0f) * 8.0f; // same as player
+	float3 m_gravity = float3(0.0f, -1.0f, 0.0f) * 15.0f; // same as player
+	float3 m_direction;
+	float m_friction = 10.f;
 
 	// -------------------
 	int m_nrOfFramePhases; // nr of phases to a movement
@@ -41,8 +43,10 @@ protected:
 	void setDirection();
 
 
-	bool afterRealease = false;
+	bool m_afterRealease = false;
 
+	void updateVelocity(float dt);
+	void stopMovement();
 
 public:
 	virtual void release(float3 direction);
@@ -56,7 +60,7 @@ public:
 	void setWorldHome(float3 pos);
 	bool withinDistanceTo(float3 target, float treshhold);
 	float3 getHomePosition() const;
-	void setVelocity(float3 velo);
+
 
 	void hit() {
 		changeState(CAUGHT);

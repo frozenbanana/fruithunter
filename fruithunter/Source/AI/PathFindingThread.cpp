@@ -19,7 +19,10 @@ void PathFindingThread::exitThread() {
 }
 
 
-PathFindingThread::~PathFindingThread() { m_thread->join(); }
+PathFindingThread::~PathFindingThread() {
+	m_thread->join();
+	delete m_thread;
+}
 
 PathFindingThread* PathFindingThread::getInstance() { return &m_this; }
 

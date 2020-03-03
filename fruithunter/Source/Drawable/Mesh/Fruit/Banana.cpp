@@ -18,12 +18,12 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 
 	m_activeRadius = 5.f;
 	m_passiveRadius = 0.f;
-	m_speed = 1.f;
+
 
 	setFrameTargets(0, 1);
 }
 
-void Banana::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
+void Banana::behaviorPassive(float3 playerPosition) {
 	TerrainManager* terrainManger = TerrainManager::getInstance();
 	float terrainHeight = terrainManger->getHeightFromPosition(m_position);
 	// Only decide what to do on ground
@@ -48,7 +48,7 @@ void Banana::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> c
 	}
 }
 
-void Banana::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
+void Banana::behaviorActive(float3 playerPosition) {
 	TerrainManager* terrainManger = TerrainManager::getInstance();
 	float terrainHeight = terrainManger->getHeightFromPosition(m_position);
 	// Only decide what to do on ground
@@ -66,7 +66,7 @@ void Banana::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> co
 		}
 	}
 }
-void Banana::behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
+void Banana::behaviorCaught(float3 playerPosition) {
 
 	TerrainManager* terrainManger = TerrainManager::getInstance();
 	float terrainHeight = terrainManger->getHeightFromPosition(m_position);
@@ -102,10 +102,8 @@ void Banana::release(float3 direction) {
 	m_bounciness = m_maxBounciness;
 	m_state = Bounce;
 	changeState(RELEASED);
-	m_directionalVelocity = direction;
-	m_directionalVelocity.Normalize();
-	m_directionalVelocity *= 15.0f;
-	afterRealease = true;
+	m_direction = direction;
+	m_afterRealease = true;
 }
 
 

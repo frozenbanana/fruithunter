@@ -1,8 +1,9 @@
 #include "Fruit.h"
 #include "Input.h"
+#include "PathFindingThread.h"
 
 
-void Fruit::jump(float3 direction, float power) { m_directionalVelocity = power * direction; }
+void Fruit::jump(float3 direction, float power) { m_velocity += power * direction; }
 
 void Fruit::setStartPosition(float3 pos) {
 	setPosition(pos);
@@ -62,9 +63,10 @@ bool Fruit::withinDistanceTo(float3 target, float treshhold) {
 
 void Fruit::update(float dt, float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
 	if (withinDistanceTo(playerPosition, 80.f)) {
-		doBehavior(playerPosition, collidables);
+		doBehavior(playerPosition);
 		setDirection();
 		updateAnimated(dt);
+		updateVelocity(dt);
 		move(dt);
 		enforceOverTerrain();
 		handleAvailablePath(m_position);
@@ -72,14 +74,16 @@ void Fruit::update(float dt, float3 playerPosition, vector<shared_ptr<Entity>> c
 }
 
 void Fruit::move(float dt) {
-	m_directionalVelocity += m_gravity * dt;
-	m_position += m_directionalVelocity * dt;
+	// m_speed.y = 0.0f;
+
+
+	m_position += m_velocity * dt;
 	setPosition(m_position);
 }
 
 float3 Fruit::getHomePosition() const { return m_worldHome; }
 
-void Fruit::setVelocity(float3 velo) { m_directionalVelocity = velo; }
+
 
 Fruit::Fruit(float3 pos) : Entity() {
 	setStartPosition(pos);
@@ -94,11 +98,14 @@ Fruit::Fruit(float3 pos) : Entity() {
 void Fruit::behaviorInactive(float3 playerPosition) { return; }
 
 void Fruit::setDirection() {
+	auto pft = PathFindingThread::getInstance();
+	// pft->m_mutex.lock();
 	if (!m_availablePath.empty() &&
 		atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
-		m_directionalVelocity = m_availablePath.back() - m_position;
-		m_directionalVelocity.Normalize();
+		m_direction = m_availablePath.back() - m_position;
+		m_direction.Normalize();
 	}
+	// pft->m_mutex.unlock();
 }
 
 void Fruit::behaviorReleased() {
@@ -107,14 +114,29 @@ void Fruit::behaviorReleased() {
 
 	if (atOrUnder(height)) {
 		changeState(PASSIVE);
-		afterRealease = false;
+		m_afterRealease = false;
 	}
+}
+
+void Fruit::updateVelocity(float dt) {
+	m_velocity *= pow(m_friction / 60.f, dt);
+	m_direction.Normalize();
+	m_velocity += (m_direction * m_speed + m_gravity) * dt;
+	// m_position += (m_directionalVelocity + m_speed) * dt;
+	// m_velocity += float3(-m_friction, 0.0f, -m_friction) * dt;
+}
+
+void Fruit::stopMovement() {
+	m_velocity = float3(0.f);
+	m_speed = 0.f;
 }
 
 void Fruit::release(float3 direction) {
 	changeState(RELEASED);
-	m_directionalVelocity = direction;
-	m_directionalVelocity.Normalize();
-	m_directionalVelocity *= 15.0f;
-	afterRealease = true;
+	stopMovement();
+	m_direction = direction;
+	m_speed = 20.f;
+	m_velocity = m_direction * m_speed;
+	m_speed = 0.f;
+	m_afterRealease = true;
 }

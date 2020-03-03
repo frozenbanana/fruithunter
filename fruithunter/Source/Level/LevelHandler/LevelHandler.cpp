@@ -75,9 +75,9 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_wind.push_back(float3(0.f, 0.f, 40.f));  // Plains
 
 
-	level0.m_nrOfFruits[APPLE] = 2;
-	level0.m_nrOfFruits[BANANA] = 1;
-	level0.m_nrOfFruits[MELON] = 5;
+	level0.m_nrOfFruits[APPLE] = 0;
+	level0.m_nrOfFruits[BANANA] = 0;
+	level0.m_nrOfFruits[MELON] = 0;
 
 	level0.m_winCondition[APPLE] = 1;
 	level0.m_winCondition[BANANA] = 1;

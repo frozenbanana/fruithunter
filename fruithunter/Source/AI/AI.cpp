@@ -95,6 +95,22 @@ bool AI::isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entit
 	return true;
 }
 
+bool AI::isValid(float3 childPos, float3 currentNodePos) {
+	if (childPos.y - currentNodePos.y > MAX_STEAPNESS) {
+		return false;
+	}
+	if (childPos.y < 1.f) {
+		return false;
+	}
+
+	return true;
+}
+
+void AI::makeReadyForPath(float3 destination) {
+	m_readyForPath = true;
+	m_destination = destination;
+}
+
 
 void AI::setWorld(std::shared_ptr<Terrain> terrain) { m_terrain = terrain; }
 
@@ -202,7 +218,7 @@ AI::State AI::getState() const { return m_currentState; }
 
 bool AI::giveNewPath() const { return m_readyForPath; }
 
-void AI::doBehavior(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
+void AI::doBehavior(float3 playerPosition) {
 	auto pft = PathFindingThread::getInstance();
 
 	// pft->m_mutex.lock();
@@ -211,13 +227,13 @@ void AI::doBehavior(float3 playerPosition, vector<shared_ptr<Entity>> collidable
 		behaviorInactive(playerPosition);
 		break;
 	case PASSIVE:
-		behaviorPassive(playerPosition, collidables);
+		behaviorPassive(playerPosition);
 		break;
 	case ACTIVE:
-		behaviorActive(playerPosition, collidables);
+		behaviorActive(playerPosition);
 		break;
 	case CAUGHT:
-		behaviorCaught(playerPosition, collidables);
+		behaviorCaught(playerPosition);
 		break;
 	case RELEASED:
 		behaviorReleased();
