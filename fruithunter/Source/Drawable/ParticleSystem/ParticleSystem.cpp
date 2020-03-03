@@ -98,11 +98,19 @@ void ParticleSystem::setParticle(Description desc, size_t index) {
 
 	// Property (velo and lifetime)
 	ParticleProperty pp;
+	float randAccX =
+		RandomFloat(desc.m_accelerationOffsetInterval.x, desc.m_accelerationOffsetInterval.y);
+	float randAccY =
+		RandomFloat(desc.m_accelerationOffsetInterval.x, desc.m_accelerationOffsetInterval.y);
+	float randAccZ =
+		RandomFloat(desc.m_accelerationOffsetInterval.x, desc.m_accelerationOffsetInterval.y);
+	pp.m_acceleration = desc.m_acceleration + float3(randAccX, randAccY, randAccZ);
 	float randVeloX = RandomFloat(desc.m_velocityOffsetInterval.x, desc.m_velocityOffsetInterval.y);
 	float randVeloY = RandomFloat(desc.m_velocityOffsetInterval.x, desc.m_velocityOffsetInterval.y);
 	float randVeloZ = RandomFloat(desc.m_velocityOffsetInterval.x, desc.m_velocityOffsetInterval.y);
 	pp.m_velocity = desc.m_velocity + float3(randVeloX, randVeloY, randVeloZ);
 	pp.m_lifeTime = RandomFloat(desc.m_timeAliveInterval.x, desc.m_timeAliveInterval.y);
+	pp.m_timeLeft = pp.m_lifeTime;
 	*partProp = pp;
 }
 
@@ -116,26 +124,30 @@ void ParticleSystem::activateParticle() {
 	}
 }
 
-void ParticleSystem::update(float dt) {
+void ParticleSystem::update(float dt, float3 wind) {
 	if (m_isActive) {
 		m_timePassed += dt;
 		m_emitTimer += dt;
-
-		float emits = m_emitTimer * m_description->m_emitRate;
+		float rate = m_description->m_emitRate;
+		float emits = m_emitTimer * rate;
 		size_t emitCount = (size_t)emits;
 		if (emits > 1.0f) {
 			for (size_t i = 0; i < emitCount; i++)
 				activateParticle();
 
-			m_emitTimer -= (1.f / m_description->m_emitRate) * emitCount;
+			m_emitTimer -= (1.f / rate) * emitCount;
 		}
 		for (size_t i = 0; i < m_particles.size(); i++) {
 			if (m_particles[i].getIsActive() == 1.0f) {
-				m_particleProperties[i].m_velocity += m_description->m_acceleration * dt;
-				m_particleProperties[i].m_lifeTime -= dt;
-				m_particles[i].update(dt, m_particleProperties[i].m_velocity);
+				m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
+				m_particleProperties[i].m_timeLeft -= dt;
+				m_particles[i].update(dt, m_particleProperties[i].m_velocity + wind);
+				// Controlling size
+				// float sizeFactor =
+				//	m_particleProperties[i].m_timeLeft / m_particleProperties[i].m_lifeTime;
+				// m_particles[i].setSize(m_particles[i].getSize() * sizeFactor * sizeFactor);
 				// Inactivate particles when lifetime is over
-				if (m_particleProperties[i].m_lifeTime <= 0.f) {
+				if (m_particleProperties[i].m_timeLeft <= 0.f) {
 					m_particles[i].setIsActive(0.0f);
 				}
 			}
@@ -151,21 +163,21 @@ void ParticleSystem::createBuffers() {
 	auto deviceContext = Renderer::getDeviceContext();
 
 	//  Buffer for particle data
-	if (m_vertexBuffer.Get() == nullptr) {
-		D3D11_BUFFER_DESC buffDesc;
-		memset(&buffDesc, 0, sizeof(buffDesc));
+	m_vertexBuffer.Reset();
 
-		buffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		buffDesc.Usage = D3D11_USAGE_DEFAULT;
-		buffDesc.ByteWidth = sizeof(Particle) * MAX_PARTICLES;
+	D3D11_BUFFER_DESC buffDesc;
+	memset(&buffDesc, 0, sizeof(buffDesc));
 
-		D3D11_SUBRESOURCE_DATA data;
-		data.pSysMem = m_particles.data();
+	buffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	buffDesc.Usage = D3D11_USAGE_DEFAULT;
+	buffDesc.ByteWidth = sizeof(Particle) * MAX_PARTICLES;
 
-		HRESULT check = device->CreateBuffer(&buffDesc, &data, m_vertexBuffer.GetAddressOf());
-		if (FAILED(check))
-			ErrorLogger::logError(check, "Failed creating buffer in ParticleSystem class!\n");
-	}
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = m_particles.data();
+
+	HRESULT check = device->CreateBuffer(&buffDesc, &data, m_vertexBuffer.GetAddressOf());
+	if (FAILED(check))
+		ErrorLogger::logError(check, "Failed creating buffer in ParticleSystem class!\n");
 }
 
 void ParticleSystem::bindBuffers() {
@@ -196,5 +208,7 @@ void ParticleSystem::setInActive() { m_isActive = false; }
 bool ParticleSystem::getIsActive() { return m_isActive; }
 
 void ParticleSystem::setPosition(float3 position) { m_spawnPoint = position; }
+
+float3 ParticleSystem::getPosition() const { return m_spawnPoint; }
 
 void ParticleSystem::setDesciption(Description newDescription) { *m_description = newDescription; }
