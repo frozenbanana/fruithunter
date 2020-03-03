@@ -1,5 +1,6 @@
 #pragma once
 #include "GlobalNamespaces.h"
+#include "ShaderSet.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -24,10 +25,13 @@ public:
 	void bindEverything();
 	void bindDepthSRV(int slot);
 	void bindConstantBuffer_ScreenSize(int slot);
+	void bindQuadVertexBuffer();
 	void enableAlphaBlending();
 	void disableAlphaBlending();
 
 	void copyDepthToSRV();
+
+	void draw_darkEdges();
 
 private:
 	Renderer(int width, int height);
@@ -37,6 +41,7 @@ private:
 	void createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd);
 	void createDepthState();
 	void createConstantBuffers();
+	void createQuadVertexBuffer();
 	void createBlendState();
 	static Renderer m_this;
 	bool m_isLoaded = false;
@@ -55,4 +60,8 @@ private:
 	D3D11_TEXTURE2D_DESC m_backBufferDesc;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_screenSizeBuffer;
+
+	//post process dark edges variables
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexQuadBuffer;
+	ShaderSet m_shader_darkEdges;
 };

@@ -1,4 +1,6 @@
 #include "MeshRepository.h"
+#include "Renderer.h"
+#include "ErrorLogger.h"
 
 MeshRepository MeshRepository::m_this;
 
