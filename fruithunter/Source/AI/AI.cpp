@@ -89,40 +89,13 @@ bool AI::isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entit
 	}
 
 	return true;
-
-
-	// previous check
-	// Check for too big height difference
-	// if (childPosition.y - currentNode->position.y > MAX_STEAPNESS) {
-	//	continue;
-	//}
-
-	//// check if collision with objects
-	// for (size_t i = 0; i < collidables.size(); ++i) {
-	//	float3 obstacle = collidables.at(i)->getPosition();
-	//	obstacle.y = 0.f;
-	//	childPosition.y = 0.f;
-	//	float lengthChildToCollidableSquared = (childPosition - obstacle).LengthSquared();
-	//	float collidableRadiusSquared = collidables.at(i)->getHalfSizes().LengthSquared();
-
-	//	if (lengthChildToCollidableSquared < collidableRadiusSquared) {
-	//		collidedWithSomething = true;
-	//		break;
-	//	}
-	//}
-
-
-	/*if (collidedWithSomething) {
-		collidedWithSomething = false;
-		continue;
-	}*/
 }
 
 
 void AI::setWorld(std::shared_ptr<Terrain> terrain) { m_terrain = terrain; }
 
 void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collidables) {
-	//ErrorLogger::log("thread starting for pathfinding");
+	// ErrorLogger::log("thread starting for pathfinding");
 
 	thread t([this, start, end, collidables] {
 		m_lookingForPath = true;
@@ -170,7 +143,7 @@ void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collid
 				}
 
 				m_lookingForPath = false;
-				//ErrorLogger::log(
+				// ErrorLogger::log(
 				//	"thread successfully closed. Path found. Steps: " + to_string(counter));
 				return;
 			}

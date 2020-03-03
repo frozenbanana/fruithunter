@@ -13,6 +13,7 @@ Bow::Bow() {
 	m_arrow.setScale(float3(0.2f, 0.2f, m_arrowLength));
 	m_arrow.setPosition(float3(-10.f)); // To make sure that arrow doesn't spawn in fruits.
 	m_arrow.setCollisionDataOBB();
+	m_trailEffect = ParticleSystem(ParticleSystem::ARROW_GLITTER);
 }
 
 Bow::~Bow() {}
@@ -24,8 +25,8 @@ void Bow::update(
 	// Set bow position based on player position and direction.
 	float3 playerUp = playerForward.Cross(playerRight);
 	m_bow.setPosition(playerPos + playerForward * ARM_LENGTH +
-					  playerRight * OFFSET_RIGHT * m_aimMovement +
-					  playerUp * OFFSET_UP * m_aimMovement);
+		playerRight * OFFSET_RIGHT * m_aimMovement +
+		playerUp * OFFSET_UP * m_aimMovement);
 
 
 	// Update m_arrowReturnTimer
@@ -46,6 +47,7 @@ void Bow::update(
 
 	// Update arrow.
 	if (m_shooting) {
+		m_trailEffect.setActive();
 		if (!m_arrowHitObject) {
 			float castray =
 				TerrainManager::getInstance()->castRay(m_arrow.getPosition(), m_arrowVelocity * dt);
@@ -60,17 +62,22 @@ void Bow::update(
 			}
 			else {
 				arrowPhysics(dt, wind); // Updates arrow in flight, wind is no longer hard coded.
+				// update Particle System
+				m_trailEffect.setPosition(m_arrow.getPosition());
+				m_trailEffect.update(dt);
+
 				m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
 				m_arrow.setRotation(float3(m_arrowPitch, m_arrowYaw, 0));
 			}
 		}
 		if (m_arrowReturnTimer < 0.0f ||
 			(m_arrow.getPosition() - playerPos).LengthSquared() >
-				m_maxTravelLengthSquared) { // replace with collision later
+			m_maxTravelLengthSquared) { // replace with collision later
 			m_shooting = false;
 		}
 	}
 	else {
+		m_trailEffect.setInActive();
 		if (m_charging) {
 			// Move arrow with bowstring. Hardcoded values determined by experimentation.
 			m_arrow.setPosition(
@@ -96,6 +103,7 @@ void Bow::update(
 void Bow::draw() {
 	m_bow.draw_animate();
 	m_arrow.draw();
+	m_trailEffect.draw();
 }
 
 void Bow::rotate(float pitch, float yaw) {
@@ -129,7 +137,7 @@ void Bow::shoot(
 		float bowMaterialConstant = 0.05f;
 
 		float velocity = pow((bowEfficiencyConstant * m_drawFactor) /
-								 (m_arrowMass + m_bowMass * bowMaterialConstant),
+			(m_arrowMass + m_bowMass * bowMaterialConstant),
 			0.5f);
 
 		direction.Normalize();

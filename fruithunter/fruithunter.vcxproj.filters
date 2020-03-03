@@ -34,6 +34,15 @@
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_seaEffect.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\GeometryShader_particleSystem.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_particleSystem.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\VertexShader_particleSystem.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\VertexShader_quadSimplePass.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
@@ -159,6 +168,12 @@
     <ClCompile Include="Source\Drawable\Mesh\Animal.cpp">
       <Filter>Source\Drawable\Mesh</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Drawable\ParticleSystem\Particle.cpp">
+      <Filter>Source\Drawable\ParticleSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Drawable\ParticleSystem\ParticleSystem.cpp">
+      <Filter>Source\Drawable\ParticleSystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -272,6 +287,12 @@
     <ClInclude Include="Source\Drawable\HUD.h">
       <Filter>Source\Drawable</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Drawable\ParticleSystem\Particle.h">
+      <Filter>Source\Drawable\ParticleSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\ParticleSystem\ParticleSystem.h">
+      <Filter>Source\Drawable\ParticleSystem</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Graphics\ShadowMapping\ShadowMapping.h">
       <Filter>Source\Graphics\ShadowMapping</Filter>
     </ClInclude>
@@ -358,6 +379,9 @@
     </Filter>
     <Filter Include="Source\Utility\VariableSyncer">
       <UniqueIdentifier>{174b364d-8cc6-418f-b867-558c9903128a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Drawable\ParticleSystem">
+      <UniqueIdentifier>{d8ae5d2b-ea97-4ec4-b28b-6e314535910e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Graphics\ShadowMapping">
       <UniqueIdentifier>{d6645390-c2fd-4363-96bb-d57d2ac12609}</UniqueIdentifier>
