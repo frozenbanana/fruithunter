@@ -10,10 +10,7 @@ public:
 	~Player();
 	void initialize();
 	void update(float dt, Terrain* terrain);
-	void updateBow(float dt, float3 wind);
-	void updateCamera();
-	void updateCameraGod();
-	void rotatePlayer(float dt);
+
 	void draw();
 	void collideObject(Entity& obj);
 	bool checkAnimal(float3 animalPos, float range, float throwStrength);
@@ -44,12 +41,11 @@ private:
 
 	const float PLAYER_HEIGHT = 1.5f; // meters above ground
 	const float GROUND_FRICTION =
-		0.9f; // friction on flat terrain, reduces velocity by percentage per seconds
-	const float GROUND_FRICTION_WEAK = 0.99f; // friction on steep terrain, --||--
+		0.5f; // friction on flat terrain, reduces velocity by percentage per seconds, 0-60.
+	const float GROUND_FRICTION_WEAK = 1.0f; // friction on steep terrain, 0-60.
 	const float STEEPNESS_BORDER =
 		0.6f; // value of dot product when flat terrain goes to steep terrain
-	const float ONGROUND_THRESHOLD =
-		0.025f; // extra height over terrain until player is not grounded
+	const float ONGROUND_THRESHOLD = 0.1f; // extra height over terrain until player is not grounded
 
 	float3 m_position;
 	float3 m_velocity;
@@ -62,13 +58,19 @@ private:
 	bool m_onGround;							// if player is grounded
 	bool m_onEntity;							// if player is standing on an object
 	float3 m_gravity = float3(0, -1, 0) * 15.f; // direction * strength
+	float3 m_lastSafePosition;					// Latest position where player was on ground
+	float m_seaHeight = 1.f;					// Height where player falls in sea
+	float m_resetTimer = 0.f;					// Timer for respawn time
+	float m_resetDelay = 0.5f;					// Number of seconds before respawn
 	// movement speed
 	float m_speed = 20.f;				// player movement strength
 	float m_speedSprint = 40.f;			// player movement strength when sprinting
 	float m_speedOnChargingDash = 10.f; // player movement when charging dash
 	float m_speedInAir = 5.f;			// player movement in air
+	float m_godModeSpeed = 20.f;		// player movement in godmode
 	// jump
 	float m_jumpForce = 5.f; // strength of jump force
+	bool m_jumpReset = true;
 	// stamina
 	const float STAMINA_MAX = 1.f;	// max value of sprint
 	float m_stamina = STAMINA_MAX;	// stamina available
@@ -93,10 +95,25 @@ private:
 	bool m_releasing = false;
 
 	//- - - Functions - - -
+	void updateBow(float dt, Terrain* terrain);
+	void updateCamera();
+	void rotatePlayer(float dt);
+	void updateGodMode(float dt);
+
+	float3 getMovementForce();
+	bool onGround(Terrain* terrain);
+	float getSteepness(Terrain* terrain);
+	void calculateTerrainCollision(Terrain* terrain, float dt);
+
+	void checkJump();
+	void checkSprint(float dt);
+	void checkDash(float dt);
+	void checkPlayerReset(float dt); // Resets player if below sea level
+
 	/*
 	 * Modifies m_velocity to have a sliding effect
 	 */
-	void slide(float td, Vector3 normal, float l);
+	void slide(float td, float3 normal, float l);
 	float clamp(float x, float high, float low);
 	float getPlayerMovementSpeed() const;
 

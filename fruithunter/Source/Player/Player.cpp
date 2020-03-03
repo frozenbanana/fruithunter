@@ -10,6 +10,7 @@ Player::~Player() {}
 
 void Player::initialize() {
 	m_position = float3(1.0f, 2.0f, 3.0f);
+	m_lastSafePosition = m_position;
 	m_velocity = float3(0.0f, 0.0f, 0.0f);
 	m_playerForward = DEFAULTFORWARD;
 	VariableSyncer::getInstance()->create("Player.txt", nullptr);
@@ -21,221 +22,61 @@ void Player::initialize() {
 }
 
 void Player::update(float dt, Terrain* terrain) {
-	Input* ip = Input::getInstance();
+	// Movement force
+	float3 force = getMovementForce();
 
-	// player rotation
+	checkJump();
+	checkSprint(dt);
+	checkDash(dt);
+
 	rotatePlayer(dt);
 
-
-
-	if (!m_godMode) {
-		// modify velocity vector to match terrain
-		if (terrain != nullptr) {
-			int loopCount = 100;
-			while (1) {
-				float3 movement = m_velocity * dt;
-				float l = terrain->castRay(m_position, movement);
-				if (l == -1)
-					break; // break of no intersection was found!
-				float3 collisionPoint = m_position + movement * l;
-				float3 collisionNormal =
-					terrain->getNormalFromPosition(collisionPoint.x, collisionPoint.z);
-				slide(dt, collisionNormal, l);
-				loopCount--;
-				if (loopCount <= 0) {
-					ErrorLogger::logWarning(HRESULT(),
-						"WARNING! Player collision with terrain calculated "
-						"ALOT of iterations in the update function!");
-					break;
-				}
-			};
-		}
-
-		// player movement
-		float3 force;
-		float3 playerStraightForward = m_playerRight.Cross(float3(0, 1, 0));
-		force +=
-			playerStraightForward * (float)(ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD));
-		force += m_playerRight * (float)(ip->keyDown(KEY_RIGHT) - ip->keyDown(KEY_LEFT));
-
-		// movement
+	if (m_onEntity) {
+		// On an object, behave like ground
 		m_position += m_velocity * dt;
-		if (m_onEntity) {
-			updateVelocity_onFlatGround(force, dt);
-		}
-		else if (terrain != nullptr) {
-			float3 normal = terrain->getNormalFromPosition(
-				m_position.x, m_position.z); // normal on current position
-			float height = terrain->getHeightFromPosition(
-				m_position.x, m_position.z); // height of terrain on current position
-			float terrainSteepness = abs(float3(0, 1, 0).Dot(
-				normal)); // abs() because sometime the dot product becomes negative
-			m_position.y = clamp(
-				m_position.y, m_position.y, height); // clamp position to never go under terrain!
-			if (abs(m_position.y - height) < ONGROUND_THRESHOLD) {
-				// on ground
-				m_onGround = true;
+		updateVelocity_onFlatGround(force, dt);
 
-				if (terrainSteepness < STEEPNESS_BORDER) {
-					// STEEP terrain
-					updateVelocity_onSteepGround(dt);
-				}
-				else {
-					// FLAT terrian
-					updateVelocity_onFlatGround(force, dt);
-				}
-			}
-			else {
-				// in air
-				updateVelocity_inAir(force, dt);
-			}
-		}
-		else {
-			// FALL OF TERRAIN IF NO TERRAIN
-			// in air
-			updateVelocity_inAir(force, dt);
-		}
 		// reset value
 		m_onEntity = false;
+	}
+	else if (terrain != nullptr) {
+		// In terrain
+		calculateTerrainCollision(terrain, dt);
 
-		// dash
-		if (m_stamina >= STAMINA_DASH_COST && !m_sprinting && m_onGround) {
-			if (ip->keyDown(KEY_DASH)) {
-				m_dashCharge = clamp(m_dashCharge + dt, DASHMAXCHARGE, 0);
+		// Move player;
+		m_position += m_velocity * dt;
+
+		// Update velocity for next frame
+		if (onGround(terrain)) {
+			if (getSteepness(terrain) < STEEPNESS_BORDER) {
+				// Steep ground
+				updateVelocity_onSteepGround(dt);
 			}
-			else if (ip->keyReleased(KEY_DASH)) {
-				m_velocity += m_playerForward * m_dashForce * ((float)m_dashCharge / DASHMAXCHARGE);
-				consumeStamina(STAMINA_DASH_COST);
+			else {
+				// Flat ground
+				updateVelocity_onFlatGround(force, dt);
 			}
 		}
 		else {
-			// return to original state
-			m_dashCharge = clamp(m_dashCharge - 2 * dt, DASHMAXCHARGE, 0);
+			// In air
+			updateVelocity_inAir(force, dt);
 		}
-
-		// sprint
-		if (ip->keyPressed(KEY_SPRINT) && m_stamina > STAMINA_SPRINT_THRESHOLD && !m_chargingDash) {
-			// activate sprint
-			m_sprinting = true;
-		}
-		if (ip->keyDown(KEY_SPRINT) && m_sprinting && m_stamina > 0) {
-			// consume stamina
-			consumeStamina(STAMINA_SPRINT_CONSUMPTION * dt);
-		}
-		else {
-			m_sprinting = false;
-		}
-
-		// restore stamina
-		restoreStamina(dt); // should be called only once!
-
-		// update camera properties
-		updateCamera();
 	}
 	else {
-		float speedFactor = 20.0f;
-		m_position += m_playerForward *
-					  (float)(ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD)) * dt *
-					  speedFactor;
-		m_position += m_playerRight * (float)(ip->keyDown(KEY_RIGHT) - ip->keyDown(KEY_LEFT)) * dt *
-					  speedFactor;
-
-		updateCameraGod();
+		// Outside of terrain, falling
+		m_position += m_velocity * dt;
+		updateVelocity_inAir(force, dt);
 	}
 
-	// Update bow
-	if (terrain != nullptr)
-		updateBow(dt, terrain->getWind());
-	else
-		updateBow(dt, float3(0.f, 0.f, 0.f));
+	// Reset player if below sea level
+	checkPlayerReset(dt);
 
-	if (ip->keyPressed(Keyboard::Keys::G))
-		m_godMode = !m_godMode;
-}
+	restoreStamina(dt);
 
-void Player::updateBow(float dt, float3 wind) {
-	Input* input = Input::getInstance();
+	updateGodMode(dt);
+	updateCamera();
 
-	if (input->mouseDown(Input::MouseButton::RIGHT)) {
-		m_aimZoom = max(0.4f, m_aimZoom - dt * 1.5f);
-		m_camera.setFov(m_camera.getDefaultFov() * m_aimZoom);
-		m_bow.aim();
-	}
-	else if (m_releasing || input->mouseReleased(Input::MouseButton::RIGHT)) {
-		m_releasing = true;
-
-		if (m_aimZoom < 1.0f) {
-			m_aimZoom += dt * 1.5f;
-		}
-		else {
-			m_bow.release();
-			m_aimZoom = 1.0f;
-			m_releasing = false;
-		}
-
-		m_camera.setFov(m_camera.getDefaultFov() * m_aimZoom);
-	}
-	if (input->mouseDown(Input::MouseButton::LEFT)) {
-		m_bow.charge();
-	}
-	else if (input->mouseUp(Input::MouseButton::LEFT)) {
-		m_bow.shoot(m_playerForward, m_velocity, m_cameraPitch, m_cameraYaw);
-	}
-
-	m_bow.rotate(m_cameraPitch, m_cameraYaw);
-	m_bow.update(dt, getCameraPosition(), m_playerForward, m_playerRight, wind);
-}
-
-void Player::updateCamera() {
-	float playerHeight = PLAYER_HEIGHT - 0.5f * (m_dashCharge / DASHMAXCHARGE);
-	m_camera.setUp(m_playerUp);
-	m_camera.setEye(m_position + float3(0, playerHeight, 0));
-	m_camera.setTarget(m_position + float3(0, playerHeight, 0) + m_playerForward);
-}
-
-void Player::updateCameraGod() {
-	m_camera.setView(m_position, m_position + m_playerForward, m_playerUp);
-}
-
-void Player::rotatePlayer(float dt) {
-	Input* ip = Input::getInstance();
-
-	float deltaX = 0.0f;
-	float deltaY = 0.0f;
-
-	if (ip->getMouseMode() == DirectX::Mouse::MODE_RELATIVE) {
-		deltaX = (float)ip->mouseX();
-		deltaY = (float)ip->mouseY();
-	}
-
-	float rotationSpeed = m_aimZoom * 0.6f * dt;
-
-	if (deltaX != 0.0f) {
-		m_cameraYaw += deltaX * rotationSpeed;
-	}
-	if (deltaY != 0.0f) {
-		m_cameraPitch += deltaY * rotationSpeed;
-		m_cameraPitch = min(max(m_cameraPitch, -1.5f), 1.5f);
-	}
-
-	if (ip->keyDown(Keyboard::Keys::Right))
-		m_cameraYaw += 0.01f;
-	if (ip->keyDown(Keyboard::Keys::Left))
-		m_cameraYaw -= 0.01f;
-	if (ip->keyDown(Keyboard::Keys::Up))
-		m_cameraPitch -= 0.01f;
-	if (ip->keyDown(Keyboard::Keys::Down))
-		m_cameraPitch += 0.01f;
-
-	Matrix cameraRotationMatrix = XMMatrixRotationRollPitchYaw(m_cameraPitch, m_cameraYaw, 0.f);
-	float3 cameraTarget = XMVector3TransformCoord(m_playerForward, cameraRotationMatrix);
-	cameraTarget = XMVector3Normalize(cameraTarget);
-
-	Matrix rotateYTempMatrix = XMMatrixRotationY(m_cameraYaw);
-
-	m_playerForward = XMVector3TransformCoord(DEFAULTFORWARD, cameraRotationMatrix);
-	m_playerUp = XMVector3TransformCoord(m_playerUp, rotateYTempMatrix);
-	m_playerRight = XMVector3TransformCoord(DEFAULTRIGHT, cameraRotationMatrix);
+	updateBow(dt, terrain);
 }
 
 void Player::draw() {
@@ -311,9 +152,216 @@ float Player::getStamina() const { return m_stamina; }
 
 bool Player::isShooting() const { return m_bow.isShooting(); }
 
-void Player::setPosition(float3 position) { m_position = position; }
+void Player::setPosition(float3 position) {
+	m_position = position;
+	m_lastSafePosition = position;
+}
 
 void Player::standsOnObject() { m_onEntity = true; }
+
+void Player::updateBow(float dt, Terrain* terrain) {
+	Input* input = Input::getInstance();
+
+	if (input->mouseDown(Input::MouseButton::RIGHT)) {
+		m_aimZoom = max(0.4f, m_aimZoom - dt * 1.5f);
+		m_camera.setFov(m_camera.getDefaultFov() * m_aimZoom);
+		m_bow.aim();
+	}
+	else if (m_releasing || input->mouseReleased(Input::MouseButton::RIGHT)) {
+		m_releasing = true;
+
+		if (m_aimZoom < 1.0f) {
+			m_aimZoom += dt * 1.5f;
+		}
+		else {
+			m_bow.release();
+			m_aimZoom = 1.0f;
+			m_releasing = false;
+		}
+
+		m_camera.setFov(m_camera.getDefaultFov() * m_aimZoom);
+	}
+	if (input->mouseDown(Input::MouseButton::LEFT)) {
+		m_bow.charge();
+	}
+	else if (input->mouseUp(Input::MouseButton::LEFT)) {
+		m_bow.shoot(m_playerForward, m_velocity, m_cameraPitch, m_cameraYaw);
+	}
+
+	float3 wind;
+	terrain != nullptr ? wind = terrain->getWind() : wind = float3(0.f);
+
+	m_bow.rotate(m_cameraPitch, m_cameraYaw);
+	m_bow.update(dt, getCameraPosition(), m_playerForward, m_playerRight, wind);
+}
+
+void Player::updateCamera() {
+	float playerHeight = PLAYER_HEIGHT - 0.5f * (m_dashCharge / DASHMAXCHARGE);
+	m_camera.setUp(m_playerUp);
+	m_camera.setEye(m_position + float3(0, playerHeight, 0));
+	m_camera.setTarget(m_position + float3(0, playerHeight, 0) + m_playerForward);
+}
+
+void Player::rotatePlayer(float dt) {
+	Input* ip = Input::getInstance();
+
+	float deltaX = 0.0f;
+	float deltaY = 0.0f;
+
+	if (ip->getMouseMode() == DirectX::Mouse::MODE_RELATIVE) {
+		deltaX = (float)ip->mouseX();
+		deltaY = (float)ip->mouseY();
+	}
+
+	float rotationSpeed = m_aimZoom * 0.6f * dt;
+
+	if (deltaX != 0.0f) {
+		m_cameraYaw += deltaX * rotationSpeed;
+	}
+	if (deltaY != 0.0f) {
+		m_cameraPitch += deltaY * rotationSpeed;
+		m_cameraPitch = min(max(m_cameraPitch, -1.5f), 1.5f);
+	}
+
+	if (ip->keyDown(Keyboard::Keys::Right))
+		m_cameraYaw += 0.01f;
+	if (ip->keyDown(Keyboard::Keys::Left))
+		m_cameraYaw -= 0.01f;
+	if (ip->keyDown(Keyboard::Keys::Up))
+		m_cameraPitch -= 0.01f;
+	if (ip->keyDown(Keyboard::Keys::Down))
+		m_cameraPitch += 0.01f;
+
+	Matrix cameraRotationMatrix = XMMatrixRotationRollPitchYaw(m_cameraPitch, m_cameraYaw, 0.f);
+	float3 cameraTarget = XMVector3TransformCoord(m_playerForward, cameraRotationMatrix);
+	cameraTarget = XMVector3Normalize(cameraTarget);
+
+	Matrix rotateYTempMatrix = XMMatrixRotationY(m_cameraYaw);
+
+	m_playerForward = XMVector3TransformCoord(DEFAULTFORWARD, cameraRotationMatrix);
+	m_playerUp = XMVector3TransformCoord(m_playerUp, rotateYTempMatrix);
+	m_playerRight = XMVector3TransformCoord(DEFAULTRIGHT, cameraRotationMatrix);
+}
+
+void Player::updateGodMode(float dt) {
+	Input* ip = Input::getInstance();
+
+	if (ip->keyPressed(Keyboard::Keys::G))
+		m_godMode = !m_godMode;
+
+	if (m_godMode) {
+		m_velocity = float3(0.f);
+		m_position += m_playerForward *
+					  (float)(ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD)) *
+					  m_godModeSpeed * dt;
+		m_position += m_playerRight * (float)(ip->keyDown(KEY_RIGHT) - ip->keyDown(KEY_LEFT)) *
+					  m_godModeSpeed * dt;
+	}
+}
+
+float3 Player::getMovementForce() {
+	Input* ip = Input::getInstance();
+	float3 force;
+	float3 playerStraightForward = m_playerRight.Cross(float3(0, 1, 0));
+	force += playerStraightForward * (float)(ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD));
+	force += m_playerRight * (float)(ip->keyDown(KEY_RIGHT) - ip->keyDown(KEY_LEFT));
+
+	return force;
+}
+
+bool Player::onGround(Terrain* terrain) {
+	float terrainHeight = terrain->getHeightFromPosition(
+		m_position.x, m_position.z); // height of terrain on current position
+	m_position.y = clamp(
+		m_position.y, m_position.y, terrainHeight); // clamp position to never go under terrain!
+
+	m_onGround = abs(m_position.y - terrainHeight) < ONGROUND_THRESHOLD;
+
+	return m_onGround;
+}
+
+float Player::getSteepness(Terrain* terrain) {
+	float3 normal =
+		terrain->getNormalFromPosition(m_position.x, m_position.z); // normal on current position
+	float terrainSteepness =
+		abs(float3(0, 1, 0).Dot(normal)); // abs() because sometime the dot product becomes negative
+
+	return terrainSteepness;
+}
+
+void Player::calculateTerrainCollision(Terrain* terrain, float dt) {
+	// modify velocity vector to match terrain
+	int loopCount = 100;
+	while (1) {
+		float3 movement = m_velocity * dt;
+		float l = terrain->castRay(m_position, movement);
+		if (l == -1)
+			break; // break of no intersection was found!
+		float3 collisionPoint = m_position + movement * l;
+		float3 collisionNormal = terrain->getNormalFromPosition(collisionPoint.x, collisionPoint.z);
+		slide(dt, collisionNormal, l);
+		loopCount--;
+		if (loopCount <= 0) {
+			ErrorLogger::logWarning(HRESULT(), "WARNING! Player collision with terrain calculated "
+											   "ALOT of iterations in the update function!");
+			break;
+		}
+	};
+}
+
+void Player::checkJump() {
+	if (Input::getInstance()->keyPressed(KEY_JUMP) && m_jumpReset) {
+		m_jumpReset = false;
+		m_velocity.y = m_jumpForce;
+	}
+}
+
+void Player::checkSprint(float dt) {
+	if (Input::getInstance()->keyPressed(KEY_SPRINT) && m_stamina > STAMINA_SPRINT_THRESHOLD &&
+		!m_chargingDash && m_onGround) {
+		// activate sprint
+		m_sprinting = true;
+	}
+	if (Input::getInstance()->keyDown(KEY_SPRINT) && m_sprinting && m_stamina > 0 &&
+		m_velocity.Length() > 0.1f) {
+		// consume stamina
+		consumeStamina(STAMINA_SPRINT_CONSUMPTION * dt);
+	}
+	else {
+		m_sprinting = false;
+	}
+}
+
+void Player::checkDash(float dt) {
+	if (Input::getInstance()->keyPressed(KEY_DASH) && m_stamina >= STAMINA_DASH_COST &&
+		!m_sprinting && m_onGround) {
+		m_chargingDash = true;
+	}
+
+	if (Input::getInstance()->keyDown(KEY_DASH) && m_chargingDash) {
+		m_dashCharge = clamp(m_dashCharge + dt, DASHMAXCHARGE, 0);
+		consumeStamina(STAMINA_DASH_COST * dt);
+	}
+	else if (Input::getInstance()->keyReleased(KEY_DASH)) {
+		m_chargingDash = false;
+		m_velocity += m_playerForward * m_dashForce * ((float)m_dashCharge / DASHMAXCHARGE);
+	}
+	else {
+		// return to original state
+		m_dashCharge = clamp(m_dashCharge - 2 * dt, DASHMAXCHARGE, 0);
+	}
+}
+
+void Player::checkPlayerReset(float dt) {
+	if (m_position.y < m_seaHeight && !m_godMode) {
+		m_velocity = float3(0.f);
+		m_resetTimer += dt;
+		if (m_resetTimer > m_resetDelay) {
+			m_position = m_lastSafePosition;
+			m_resetTimer = 0.f;
+		}
+	}
+}
 
 void Player::slide(float dt, float3 normal, float l) {
 	if (l != -1) {
@@ -365,7 +413,7 @@ float Player::clamp(float x, float high, float low) {
 float Player::getPlayerMovementSpeed() const {
 	if (m_dashCharge > 0)
 		return m_speedOnChargingDash;
-	if (Input::getInstance()->keyDown(KEY_SPRINT) && m_sprinting && m_stamina > 0)
+	if (m_sprinting)
 		return m_speedSprint;
 	else
 		return m_speed;
@@ -377,9 +425,10 @@ void Player::consumeStamina(float amount) {
 }
 
 void Player::restoreStamina(float amount) {
-	if (!m_staminaConsumed)
+	if (!m_staminaConsumed) {
 		m_stamina =
 			clamp(m_stamina + amount, STAMINA_MAX, 0); // restore stamina if no stamina was consumed
+	}
 	m_staminaConsumed = false; // set to false because this function should be called only once per
 							   // frame, fixing the statement to next frame.
 }
@@ -397,13 +446,12 @@ void Player::updateVelocity_inAir(float3 playerForce, float dt) {
 void Player::updateVelocity_onFlatGround(float3 playerForce, float dt) {
 	m_velocity *= pow(GROUND_FRICTION / 60.f, dt); // ground friction
 
-	// jump
-	if (Input::getInstance()->keyPressed(KEY_JUMP)) {
-		m_velocity.y = m_jumpForce;
-	}
+	m_jumpReset = true;
 
 	// add player forces
 	m_velocity += playerForce * getPlayerMovementSpeed() * dt;
+
+	m_lastSafePosition = m_position;
 }
 
 void Player::updateVelocity_onSteepGround(float dt) {
