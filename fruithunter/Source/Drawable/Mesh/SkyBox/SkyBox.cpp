@@ -80,30 +80,30 @@ SkyBox::SkyBox() {
 
 	//Forest - Refactor with variableSyncer?
 	m_lightInfo[0] = { 
-		float4(206.f / 255.f, 255.f / 255.f, 204.f / 255.f, 1.0f),
-		float4(206.f / 255.f, 255.f / 255.f, 204.f / 255.f, 1.0f),
-		float4(206.f / 255.f, 255.f / 255.f, 204.f / 255.f, 1.0f)
+		float4(0.3f, 0.4f, 0.6f, 1.0f), 
+		float4(0.19f, 0.32f, 1.0f, 1.0f),
+		float4(0.4f, 0.5f, 1.0f, 1.0f)
 	};
 
 	// Desert
 	m_lightInfo[1] = { 
-		float4(255.f / 255.f, 234.f / 255.f, 165.f / 255.f, 1.0f),
-		float4(255.f / 255.f, 234.f / 255.f, 165.f / 255.f, 1.0f),
-		float4(255.f / 255.f, 234.f / 255.f, 165.f / 255.f, 1.0f),
+		float4(0.75f, 0.6f, 0.28f, 1.0f),
+		float4(0.7f, 0.59f, 0.2f, 1.0f),
+		float4(1.0f, 0.9f, 0.65f, 1.0f)
 	};
 
 	// Plains
-	m_lightInfo[2] = {
-		float4(247.f / 255.f, 255.f / 255.f, 219.f / 255.f, 1.0f),
-		float4(247.f / 255.f, 255.f / 255.f, 219.f / 255.f, 1.0f),
-		float4(247.f / 255.f, 255.f / 255.f, 219.f / 255.f, 1.0f),
+	m_lightInfo[2] = { 
+		float4(0.7f, 0.7f, 0.7f, 1.0f), 
+		float4(0.8f, 0.9f, 0.7f, 1.0f),
+		float4(1.0f, 1.0f, 1.0f, 1.0f)
 	};
 
 	// Volcano
-	m_lightInfo[3] = {
-		float4(255.f / 255.f, 153.f / 255.f, 132.f / 255.f, 1.0f),
-		float4(255.f / 255.f, 153.f / 255.f, 132.f / 255.f, 1.0f),
-		float4(255.f / 255.f, 153.f / 255.f, 132.f / 255.f, 1.0f),
+	m_lightInfo[3] = { 
+		float4(0.6f, 0.2f, 0.0f, 1.0f), 
+		float4(0.7f, 0.2f, 0.1f, 1.0f),
+		float4(1.0f, 0.2f, 0.1f, 1.0f)
 	};
 
 	for (int i = 0; i < 4; i++) {

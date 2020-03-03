@@ -36,7 +36,7 @@ float3 lighting(float3 pos, float3 normal, float3 color, float shade) {
 	// float reflectTint =
 	//	pow(max(dot(normalize(reflect(-toLight, normal)), normalize(-pos)), 0.0), 20.0);
 	// return color * (0.2 + shadowTint + reflectTint);
-	return color * (0.2 * ambient + shadowTint * shade * diffuse);
+	return color * (ambient + shadowTint * shade * diffuse);
 }
 
 float specialLerp(float v, float min, float max) {
