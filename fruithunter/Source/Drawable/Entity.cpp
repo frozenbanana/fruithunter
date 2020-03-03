@@ -250,11 +250,10 @@ float Entity::castRay(float3 rayPos, float3 rayDir) {
 	if (m_mesh.get() != nullptr) {
 		float4x4 mWorld = getModelMatrix();
 		float4x4 mInvWorld = mWorld.Invert();
-		// float3 lrayPos = XMVector4Transform(float4(rayPos.x, rayPos.y, rayPos.z, 1), mInvWorld);
+		float4x4 mInvTraWorld = mInvWorld.Transpose();
+		float4x4 mInvTraWorldInv = mInvTraWorld.Invert();
 		float3 lrayPos = float3::Transform(rayPos, mInvWorld);
-		/*float3 lrayDir = XMVector4Transform(
-			float4(rayDir.x, rayDir.y, rayDir.z, 0), mInvWorld.Transpose().Invert());*/
-		float3 lrayDir = float3::Transform(rayDir, mInvWorld.Transpose().Invert());
+		float3 lrayDir = float3::TransformNormal(rayDir, mInvTraWorld);
 		lrayDir.Normalize();
 
 		float t = m_mesh->castRayOnMesh(lrayPos, lrayDir);
