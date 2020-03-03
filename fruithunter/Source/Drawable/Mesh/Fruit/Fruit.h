@@ -9,7 +9,7 @@ protected:
 	// Phyics based movment
 	float3 m_directionalVelocity;
 	float m_speed = 0.0f;
-	float3 m_gravity = float3(0.0f, -1.0f, 0.0f) * 15.0f; // same as player
+	float3 m_gravity = float3(0.0f, -1.0f, 0.0f) * 8.0f; // same as player
 
 	// -------------------
 	int m_nrOfFramePhases; // nr of phases to a movement
@@ -36,8 +36,11 @@ protected:
 	void setDirection();
 
 
+	bool afterRealease = false;
+
+
 public:
-	void release(float3 direction);
+	virtual void release(float3 direction);
 	void move(float dt);
 	void update(float dt, float3 playerPosition, vector<shared_ptr<Entity>> collidables);
 	virtual void updateAnimated(float dt) = 0;

@@ -29,4 +29,5 @@ private:
 public:
 	Banana(float3 pos = float3(0.f, 0.f, 0.f));
 	void updateAnimated(float dt);
+	void release(float3 direction) override;
 };

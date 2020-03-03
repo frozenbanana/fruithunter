@@ -61,7 +61,7 @@ bool Fruit::withinDistanceTo(float3 target, float treshhold) {
 }
 
 void Fruit::update(float dt, float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
-	if (withinDistanceTo(playerPosition, FAR_PLANE / 2.f)) {
+	if (withinDistanceTo(playerPosition, 80.f)) {
 		doBehavior(playerPosition, collidables);
 		setDirection();
 		updateAnimated(dt);
@@ -73,7 +73,7 @@ void Fruit::update(float dt, float3 playerPosition, vector<shared_ptr<Entity>> c
 
 void Fruit::move(float dt) {
 	m_directionalVelocity += m_gravity * dt;
-	m_position += m_directionalVelocity * m_speed * dt;
+	m_position += m_directionalVelocity * dt;
 	setPosition(m_position);
 }
 
@@ -103,14 +103,18 @@ void Fruit::setDirection() {
 
 void Fruit::behaviorReleased() {
 	// TODO: Placeholder for later adding sound effects
-	m_directionalVelocity.Normalize();
-	m_speed = 160.f;
-	changeState(PASSIVE);
+	auto height = TerrainManager::getInstance()->getHeightFromPosition(m_position);
+
+	if (atOrUnder(height)) {
+		changeState(PASSIVE);
+		afterRealease = false;
+	}
 }
 
 void Fruit::release(float3 direction) {
 	changeState(RELEASED);
 	m_directionalVelocity = direction;
 	m_directionalVelocity.Normalize();
-	m_speed = 35.0f;
+	m_directionalVelocity *= 15.0f;
+	afterRealease = true;
 }

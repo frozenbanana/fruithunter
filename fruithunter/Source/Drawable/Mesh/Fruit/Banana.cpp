@@ -17,6 +17,8 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 	m_activeRadius = 5.f;
 	m_passiveRadius = 0.f;
 	m_speed = 1.f;
+
+	setFrameTargets(0, 1);
 }
 
 void Banana::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
@@ -54,7 +56,8 @@ void Banana::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> co
 		terrainNormal.x += 0.1f * (float)(rand() % 1) - 0.5f;
 		terrainNormal.z += 0.1f * (float)(rand() % 1) - 0.5f;
 		terrainNormal.y = 1.0f;
-		jump(terrainNormal, 3.0f);
+		jump(terrainNormal, 1.0f);
+		m_speed = 5.f;
 
 		if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
 			changeState(PASSIVE);
@@ -89,6 +92,18 @@ void Banana::updateAnimated(float dt) {
 	default:
 		ErrorLogger::log("wrong state in banana");
 	}
+}
+
+void Banana::release(float3 direction) {
+	// start bouncing
+	m_nrOfFramePhases = 3;
+	m_bounciness = m_maxBounciness;
+	m_state = Bounce;
+	changeState(RELEASED);
+	m_directionalVelocity = direction;
+	m_directionalVelocity.Normalize();
+	m_directionalVelocity *= 15.0f;
+	afterRealease = true;
 }
 
 

@@ -68,9 +68,9 @@ void LevelHandler::initialiseLevel0() {
 	maps[3] = "texture_rock6.jpg";
 	level0.m_heightmapTextures.push_back(maps);
 
-	level0.m_nrOfFruits[APPLE] = 1;
-	level0.m_nrOfFruits[BANANA] = 10;
-	level0.m_nrOfFruits[MELON] = 10;
+	level0.m_nrOfFruits[APPLE] = 0;
+	level0.m_nrOfFruits[BANANA] = 0;
+	level0.m_nrOfFruits[MELON] = 0;
 
 	level0.m_playerStartPos = float3(20.f, 0.0f, 20.f);
 
@@ -363,7 +363,8 @@ void LevelHandler::dropFruit() {
 	}
 	if (ip->keyPressed(Keyboard::D2)) {
 		if (m_inventory[BANANA] >= 0) {
-			shared_ptr<Banana> banana = make_shared<Banana>(float3(m_player.getPosition()));
+			shared_ptr<Banana> banana =
+				make_shared<Banana>(float3(m_player.getPosition() + float3(0.0f, 1.5f, 0.0f)));
 			banana->release(m_player.getForward());
 			pft->m_mutex.lock();
 			m_fruits.push_back(banana);
