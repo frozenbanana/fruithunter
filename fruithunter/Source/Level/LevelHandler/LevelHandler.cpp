@@ -135,7 +135,7 @@ void LevelHandler::placeAllAnimals() {
 		float3(20.f, 3.7f, 88.f), 0.f);
 	m_Animals.push_back(animal);
 
-	animal = make_shared<Animal>("Bear", 5.f, 3.5f, APPLE, 1, 5.f, float3(90.f, 8.2f, 152.f),
+	animal = make_shared<Animal>("Goat", 5.f, 3.5f, APPLE, 1, 5.f, float3(90.f, 8.2f, 152.f),
 		float3(87.f, 8.8f, 156.f), XM_PI * 0.5f);
 	m_Animals.push_back(animal);
 }
@@ -177,7 +177,8 @@ void LevelHandler::loadLevel(int levelNr) {
 
 		m_terrainProps.load(currentLevel.m_terrainPropsFilename);
 
-		PerformanceTimer::start("LevelHandler_TerrainCreation", PerformanceTimer::TimeState::state_accumulate);
+		PerformanceTimer::start(
+			"LevelHandler_TerrainCreation", PerformanceTimer::TimeState::state_accumulate);
 		for (int i = 0; i < m_levelsArr.at(levelNr).m_heightMapNames.size(); i++) {
 			m_terrainManager->add(currentLevel.m_heightMapPos.at(i),
 				currentLevel.m_heightMapScales[i], currentLevel.m_heightMapNames.at(i),
@@ -414,9 +415,8 @@ void LevelHandler::update(float dt) {
 	waterEffect.update(dt);
 	lavaEffect.update(dt);
 
-	//Renderer::getInstance()->setPlayerPos(playerPos);
+	// Renderer::getInstance()->setPlayerPos(playerPos);
 	PerformanceTimer::stop();
-
 }
 
 void LevelHandler::pickUpFruit(int fruitType) {
