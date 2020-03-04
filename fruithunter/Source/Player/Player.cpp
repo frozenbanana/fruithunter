@@ -24,6 +24,7 @@ void Player::initialize() {
 void Player::update(float dt, Terrain* terrain) {
 	// Movement force
 	float3 force = getMovementForce();
+
 	checkJump();
 	checkSprint(dt);
 	checkDash(dt);
@@ -157,8 +158,6 @@ void Player::setPosition(float3 position) {
 }
 
 void Player::standsOnObject() { m_onEntity = true; }
-
-Bow& Player::getBow() { return m_bow; }
 
 void Player::updateBow(float dt, Terrain* terrain) {
 	Input* input = Input::getInstance();

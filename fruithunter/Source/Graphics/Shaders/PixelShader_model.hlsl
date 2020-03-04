@@ -101,7 +101,7 @@ float4 main(PS_IN ip) : SV_TARGET {
 		texture_shadowMap, float2(3840.f, 2160.f), ip.ShadowPosH.xy, ip.ShadowPosH.z, ip.PosW.xyz).r;
 
 	// final color
-	float3 col = pixelBaseColor * ((ambientColour + diffuseTint * (shade) * diffuseColour) +
-									  specular * reflectTint * specularColour);
+	float3 col = pixelBaseColor * ((ambientColour.xyz + diffuseTint * shade * diffuseColour.xyz) +
+									  specular * reflectTint * specularColour.xyz);
 	return float4(col, 1.0);
 }

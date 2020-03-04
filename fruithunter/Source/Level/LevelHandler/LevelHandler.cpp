@@ -135,7 +135,7 @@ void LevelHandler::placeAllAnimals() {
 	m_Animals.push_back(animal);
 
 	animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 3, 10.f, float3(37.f, 3.2f, 93.f),
-		float3(20.f, 3.7f, 88.f), 0.f);
+		float3(20.f, 3.7f, 90.f), 0.f);
 	m_Animals.push_back(animal);
 
 	animal = make_shared<Animal>("Goat", 5.f, 3.5f, APPLE, 1, 5.f, float3(90.f, 8.2f, 152.f),
@@ -349,6 +349,7 @@ void LevelHandler::update(float dt) {
 		m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
 
 	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
+	m_player.getBow().getTrailEffect().update(dt);
 
 	// for all animals
 	for (size_t i = 0; i < m_Animals.size(); ++i) {
@@ -370,7 +371,7 @@ void LevelHandler::update(float dt) {
 				}
 			}
 		}
-		m_Animals[i]->update(dt);
+		m_Animals[i]->update(dt, m_player.getPosition());
 	}
 
 	dropFruit();

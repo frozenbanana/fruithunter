@@ -33,7 +33,7 @@ protected:
 	Animated m_meshAnim;
 	int m_currentMaterial;
 	bool atOrUnder(float terrainHeight) const;
-
+	void setMaterial(int materialIndex);
 
 public:
 	string getModelName() const;
@@ -58,9 +58,11 @@ public:
 	void setScale(float3 scale);
 	void setScale(float scale);
 	void scaleBoundingBoxHalfSizes(float3 scale);
+	void lookTo(float3 lookAt);
+	void lookToDir(float3 dir);
 
 	// Drawing
-	void draw();
+	virtual void draw();
 	void drawShadow();
 	void draw_onlyMesh(float3 color);
 	void draw_boundingBox();
@@ -72,7 +74,7 @@ public:
 	void setFrameTargets(int first, int second);
 	bool load(string filename);
 	bool loadAnimated(string filename, int nrOfFrames);
-	void setMaterial(int materialIndex);
+	void setCurrentMaterial(int materialIndex);
 	void loadMaterials(std::vector<string> fileNames, int nrOfMaterials);
 
 	float castRay(float3 point, float3 direction);
