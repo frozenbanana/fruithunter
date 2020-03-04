@@ -86,11 +86,11 @@ void ParticleSystem::setParticle(Description desc, size_t index) {
 	part->setPosition(spawnPos + float3(x, y, z));
 
 	// Color
-	float3 pickedColor = float3(1.0f, 1.f, 0.0f);
+	float4 pickedColor = float4(1.0f, 1.f, 0.0f, 1.0f);
 	int pick = rand() % 3; // 0..1
 	pickedColor = desc.m_color[pick];
 
-	part->setColor(float4(pickedColor.x, pickedColor.y, pickedColor.z, 1.0f));
+	part->setColor(pickedColor);
 
 	// Size
 	float size = RandomFloat(desc.m_sizeInterval.x, desc.m_sizeInterval.y);
@@ -143,10 +143,7 @@ void ParticleSystem::update(float dt, float3 wind) {
 			m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
 			m_particleProperties[i].m_timeLeft -= dt;
 			m_particles[i].update(dt, m_particleProperties[i].m_velocity + wind);
-			// Controlling size
-			// float sizeFactor =
-			//	m_particleProperties[i].m_timeLeft / m_particleProperties[i].m_lifeTime;
-			// m_particles[i].setSize(m_particles[i].getSize() * sizeFactor * sizeFactor);
+	
 			// Inactivate particles when lifetime is over
 			if (m_particleProperties[i].m_timeLeft <= 0.f) {
 				m_particles[i].setIsActive(0.0f);

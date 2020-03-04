@@ -37,7 +37,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	PerformanceTimer::start("AllFrames");
 
 	// Hardcoded statechange here. (TESTING)
-	stateHandler->changeState(StateHandler::PLAY);
+	//stateHandler->changeState(StateHandler::PLAY);
 	while (StateHandler::getInstance()->isRunning()) {
 		PerformanceTimer::start("FrameTime", PerformanceTimer::TimeState::state_average);
 		VariableSyncer::getInstance()->sync();

@@ -67,5 +67,6 @@ void PlayState::draw() {
 void PlayState::play() {
 	Input::getInstance()->setMouseModeRelative();
 	ErrorLogger::log(m_name + " play() called.");
+	Renderer::getInstance()->drawLoading();
 	m_levelHandler.loadLevel(0);
 }
