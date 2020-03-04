@@ -3,7 +3,7 @@
 #include "ErrorLogger.h"
 #include "PerformanceTimer.h"
 
-#define COUNT_SPLIT 5
+#define COUNT_SPLIT 4
 
 enum bbFrustumState { State_Inside, State_Inbetween, State_Outside };
 
@@ -12,6 +12,7 @@ private:
 	struct ElementPart {
 		size_t index;
 		float3 position, size;
+		bool fetched = false;
 		Element element;
 		ElementPart(float3 _position, float3 _size, const Element& _element) {
 			position = _position;
@@ -43,8 +44,10 @@ private:
 		bool add(ElementPart* elementPart);
 		void remove(const ElementPart* elementPart);
 
-		void cullElements(const vector<FrustumPlane>& planes, vector<Element*>& elements,
-			vector<bool>& partsEnabled, size_t& count);
+		void cullElements(
+			const vector<FrustumPlane>& planes, vector<Element*>& elements, size_t& count);
+		void cullElements(
+			const CubeBoundingBox& bb, vector<Element*>& elements, size_t& count);
 		void forEach_cullElements(const vector<FrustumPlane>& planes, vector<bool>& partsEnabled,
 			void (*function_onEach)(Element* ptr));
 
@@ -54,6 +57,8 @@ private:
 	} m_node;
 	vector<shared_ptr<ElementPart>> m_elementParts;
 
+	void resetFetchState();
+
 public:
 	void log();
 
@@ -62,6 +67,7 @@ public:
 		float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix, const Element& element);
 	void remove(const Element& element);
 	vector<Element*> cullElements(const vector<FrustumPlane>& planes);
+	vector<Element*> cullElements(const CubeBoundingBox& bb);
 	void foreach_cullElements(const vector<FrustumPlane>& planes, void (*onEach)(Element*));
 
 	void initilize(float3 position, float3 size, size_t layerMax);
@@ -85,27 +91,23 @@ template <typename Element>
 inline bbFrustumState QuadTree<Element>::Node::boxInsideFrustum(
 	float3 boxPos, float3 boxSize, const vector<FrustumPlane>& planes) {
 
-
-
-		// normalized box points
-	float3 boxPoints[8] = { float3(0, 0, 0), float3(1, 0, 0), float3(1, 0, 1),
-		float3(0, 0, 1), float3(0, 1, 0), float3(1, 1, 0), float3(1, 1, 1), float3(0, 1, 1) };
+	// normalized box points
+	 float3 boxPoints[8] = { float3(0, 0, 0), float3(1, 0, 0), float3(1, 0, 1), float3(0, 0, 1),
+		float3(0, 1, 0), float3(1, 1, 0), float3(1, 1, 1), float3(0, 1, 1) };
 	// transform points to world space
-	for (size_t i = 0; i < 8; i++) {
+	 for (size_t i = 0; i < 8; i++) {
 		boxPoints[i] = boxPos + boxPoints[i] * boxSize;
 	}
 	// for each plane
-	bool inbetween = false;
-	float3 boxDiagonalPoint1, boxDiagonalPoint2;
-	float largestDot = -1;
-	float3 p1, p2, pn;
-	float min, max;
-	for (size_t plane_i = 0; plane_i < planes.size(); plane_i++) {
+	 bool inbetween = false;
+	 for (size_t plane_i = 0; plane_i < planes.size(); plane_i++) {
+		float3 boxDiagonalPoint1, boxDiagonalPoint2;
+		float largestDot = -1;
 		// find diagonal points
 		for (size_t j = 0; j < 4; j++) {
-			p1 = boxPoints[j];
-			p2 = boxPoints[4 + (j + 2) % 4];
-			pn = p1 - p2;
+			float3 p1 = boxPoints[j];
+			float3 p2 = boxPoints[4 + (j + 2) % 4];
+			float3 pn = p1 - p2;
 			pn.Normalize();
 			float dot = abs(pn.Dot(planes[plane_i].m_normal));
 			if (dot > largestDot) {
@@ -115,8 +117,8 @@ inline bbFrustumState QuadTree<Element>::Node::boxInsideFrustum(
 			}
 		}
 		// compare points
-		min = (boxDiagonalPoint1 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
-		max = (boxDiagonalPoint2 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
+		float min = (boxDiagonalPoint1 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
+		float max = (boxDiagonalPoint2 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
 		if (min > max) {
 			// switch
 			float temp = max;
@@ -135,64 +137,10 @@ inline bbFrustumState QuadTree<Element>::Node::boxInsideFrustum(
 			inbetween = true;
 		}
 	}
-	if (inbetween)
+	 if (inbetween)
 		return State_Inbetween;
-	else
+	 else
 		return State_Inside;
-
-
-
-
-	//// normalized box points
-	//float3 boxPoints[8] = { float3(0, 0, 0), float3(1, 0, 0), float3(1, 0, 1), float3(0, 0, 1),
-	//	float3(0, 1, 0), float3(1, 1, 0), float3(1, 1, 1), float3(0, 1, 1) };
-	//// transform points to world space
-	//for (size_t i = 0; i < 8; i++) {
-	//	boxPoints[i] = boxPos + boxPoints[i] * boxSize;
-	//}
-	//// for each plane
-	//bool inbetween = false;
-	//for (size_t plane_i = 0; plane_i < planes.size(); plane_i++) {
-	//	float3 boxDiagonalPoint1, boxDiagonalPoint2;
-	//	float largestDot = -1;
-	//	// find diagonal points
-	//	for (size_t j = 0; j < 4; j++) {
-	//		float3 p1 = boxPoints[j];
-	//		float3 p2 = boxPoints[4 + (j + 2) % 4];
-	//		float3 pn = p1 - p2;
-	//		pn.Normalize();
-	//		float dot = abs(pn.Dot(planes[plane_i].m_normal));
-	//		if (dot > largestDot) {
-	//			largestDot = dot;
-	//			boxDiagonalPoint1 = p1;
-	//			boxDiagonalPoint2 = p2;
-	//		}
-	//	}
-	//	// compare points
-	//	float min = (boxDiagonalPoint1 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
-	//	float max = (boxDiagonalPoint2 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
-	//	if (min > max) {
-	//		// switch
-	//		float temp = max;
-	//		max = min;
-	//		min = temp;
-	//	}
-	//	if (min > 0) {
-	//		// outside
-	//		return State_Outside;
-	//	}
-	//	else if (max < 0) {
-	//		// inside
-	//	}
-	//	else {
-	//		// inbetween
-	//		inbetween = true;
-	//	}
-	//}
-	//if (inbetween)
-	//	return State_Inbetween;
-	//else
-	//	return State_Inside;
 }
 
 template <typename Element> inline size_t QuadTree<Element>::Node::getElementCount() const {
@@ -273,49 +221,78 @@ inline void QuadTree<Element>::Node::remove(const ElementPart* elementPart) {
 }
 
 template <typename Element>
-inline void QuadTree<Element>::Node::cullElements(const vector<FrustumPlane>& planes,
-	vector<Element*>& elements, vector<bool>& partsEnabled, size_t& count) {
+inline void QuadTree<Element>::Node::cullElements(
+	const vector<FrustumPlane>& planes, vector<Element*>& elements, size_t& count) {
 
-	//PerformanceTimer::start("QuadTree culling: intersectionTest", PerformanceTimer::TimeState::state_average);
-	bbFrustumState state =
-		bbFrustumState::State_Inbetween; // boxInsideFrustum(m_position, m_size, planes);
-	//PerformanceTimer::stop();
+	bbFrustumState state = boxInsideFrustum(m_position, m_size, planes);
 	count++;
 	switch (state) {
 	case bbFrustumState::State_Inside:
-		// full hit
-		// add all elements to the list
-		//PerformanceTimer::start(
-		//	"QuadTree culling: add to output", PerformanceTimer::TimeState::state_average);
+		// full hit, add all elements to the list
 		for (size_t i = 0; i < m_elements.size(); i++) {
-			size_t index = m_elements[i]->index;
-			if (!partsEnabled[index]) {
-				partsEnabled[index] = true;
+			if (!m_elements[i]->fetched) {
+				m_elements[i]->fetched = true;
 				elements.push_back(&m_elements[i]->element);
 			}
 		}
-		//PerformanceTimer::stop();
+		// PerformanceTimer::stop();
 		break;
 	case bbFrustumState::State_Outside:
-		// miss
-		// add none
+		// miss, add none
 		break;
 	case bbFrustumState::State_Inbetween:
 		// partial hit
 		if (expanded) {
 			// add children elements
 			for (size_t i = 0; i < 4; i++)
-				m_children[i]->cullElements(planes, elements, partsEnabled, count);
+				m_children[i]->cullElements(planes, elements, count);
 		}
 		else {
-			//PerformanceTimer::Record record(
-			//	"QuadTree culling: add to output", PerformanceTimer::TimeState::state_average);
 			// add all elements to the list
-			size_t index;
 			for (size_t i = 0; i < m_elements.size(); i++) {
-				index = m_elements[i]->index;
-				if (!partsEnabled[index]) {
-					partsEnabled[index] = true;
+				if (!m_elements[i]->fetched) {
+					m_elements[i]->fetched = true;
+					elements.push_back(&m_elements[i]->element);
+				}
+			}
+		}
+		break;
+	}
+}
+
+template <typename Element>
+inline void QuadTree<Element>::Node::cullElements(
+	const CubeBoundingBox& bb, vector<Element*>& elements, size_t& count) {
+	bbFrustumState state = bbIntersection(m_position, m_size, bb.m_position, bb.m_size)
+			? bbFrustumState::State_Inbetween
+			: bbFrustumState::State_Outside;
+
+	count++;
+	switch (state) {
+	case bbFrustumState::State_Inside:
+		// full hit, add all elements to the list
+		for (size_t i = 0; i < m_elements.size(); i++) {
+			if (!m_elements[i]->fetched) {
+				m_elements[i]->fetched = true;
+				elements.push_back(&m_elements[i]->element);
+			}
+		}
+		break;
+	case bbFrustumState::State_Outside:
+		// miss, add none
+		break;
+	case bbFrustumState::State_Inbetween:
+		// partial hit
+		if (expanded) {
+			// add children elements
+			for (size_t i = 0; i < 4; i++)
+				m_children[i]->cullElements(bb, elements, count);
+		}
+		else {
+			// add all elements to the list
+			for (size_t i = 0; i < m_elements.size(); i++) {
+				if (!m_elements[i]->fetched) {
+					m_elements[i]->fetched = true;
 					elements.push_back(&m_elements[i]->element);
 				}
 			}
@@ -377,6 +354,12 @@ inline QuadTree<Element>::Node::Node(
 }
 
 template <typename Element> inline QuadTree<Element>::Node::~Node() {}
+
+template <typename Element> inline void QuadTree<Element>::resetFetchState() {
+	for (size_t i = 0; i < m_elementParts.size(); i++) {
+		m_elementParts[i]->fetched = false;
+	}
+}
 
 template <typename Element> inline void QuadTree<Element>::log() {
 	m_node.log(0);
@@ -452,12 +435,23 @@ inline vector<Element*> QuadTree<Element>::cullElements(const vector<FrustumPlan
 
 	vector<Element*> elements;
 	elements.reserve(m_elementParts.size());
-	vector<bool> partsEnabled;
-	partsEnabled.resize(m_elementParts.size());
-	for (size_t i = 0; i < partsEnabled.size(); i++)
-		partsEnabled[i] = false;
 	size_t count = 0;
-	//m_node.cullElements(planes, elements, partsEnabled, count);
+	m_node.cullElements(planes, elements, count);
+	resetFetchState();
+	//ErrorLogger::log(to_string(elements.size()) + " / " + to_string(m_elementParts.size())); 
+	// ErrorLogger::log(to_string(count));
+	return elements;
+}
+
+template <typename Element>
+inline vector<Element*> QuadTree<Element>::cullElements(const CubeBoundingBox& bb) {
+	vector<Element*> elements;
+	elements.reserve(m_elementParts.size());
+	size_t count = 0;
+	m_node.cullElements(bb, elements, count);
+	resetFetchState();
+	//ErrorLogger::log(to_string(elements.size()) + " / " + to_string(m_elementParts.size()));
+	// ErrorLogger::log(to_string(count));
 	return elements;
 }
 
@@ -465,7 +459,8 @@ template <typename Element>
 inline void QuadTree<Element>::foreach_cullElements(
 	const vector<FrustumPlane>& planes, void (*onEach)(Element*)) {
 
-	PerformanceTimer::Record record("QuadTree cullingOnEach", PerformanceTimer::TimeState::state_average);
+	PerformanceTimer::Record record(
+		"QuadTree cullingOnEach", PerformanceTimer::TimeState::state_average);
 
 	vector<bool> partsEnabled;
 	partsEnabled.resize(m_elementParts.size());

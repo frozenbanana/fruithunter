@@ -389,6 +389,53 @@ void SeaEffect::draw_quadtreeFrustumCulling(vector<FrustumPlane> planes) {
 	}
 }
 
+void SeaEffect::draw_quadtreeBBCulling(CubeBoundingBox bb) {
+	// transform planes to local space
+	updateMatrix();
+	float4x4 invWorldMatrix = m_worldMatrix.mWorld.Invert();
+	float4x4 invWorldInvTraMatrix = m_worldMatrix.mInvTraWorld.Invert();
+
+	bb.m_position = float3::Transform(bb.m_position, invWorldMatrix);
+	bb.m_size = float3(bb.m_size.x / m_scale.x, bb.m_size.y / m_scale.y, bb.m_size.z / m_scale.z);
+	// cull grids
+	vector<XMINT2*> elements = m_quadtree.cullElements(bb);
+
+	if (elements.size() > 0) {
+
+		ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+
+		// bind shaders
+		m_shader.bindShadersAndLayout();
+
+		// bind world matrix
+		bindWorldMatrix();
+
+		// bind depth buffer
+		// Renderer::getInstance()->copyDepthToSRV(); // dont do this here if multiple waterEffects
+		// are drawn
+		Renderer::getInstance()->bindDepthSRV(7);
+
+		// bind screen size
+		Renderer::getInstance()->bindConstantBuffer_ScreenSize(5);
+
+		// bind constant buffers
+		bindConstantBuffers();
+
+		// bind maps
+		deviceContext->VSSetShaderResources(0, 1, m_waterHeightMap.GetAddressOf());
+		deviceContext->VSSetShaderResources(1, 1, m_dudvMap.GetAddressOf());
+		deviceContext->PSSetShaderResources(1, 1, m_dudvMap.GetAddressOf());
+
+		for (size_t i = 0; i < elements.size(); i++) {
+			XMINT2 index = *elements[i];
+			// bind vertex buffer
+			m_grids[index.x][index.y].bind();
+			// draw
+			deviceContext->Draw((UINT)m_grids[index.x][index.y].getVerticeCount(), 0);
+		}
+	}
+}
+
 void SeaEffect::initilize(SeaEffectTypes type,XMINT2 tiles, XMINT2 gridSize, float3 position,
 	float3 scale, float3 rotation) {
 

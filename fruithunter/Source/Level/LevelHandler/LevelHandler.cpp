@@ -175,7 +175,7 @@ void LevelHandler::initialise() {
 	m_particleSystems[4] = ParticleSystem(ParticleSystem::LAVA_BUBBLE);
 	m_particleSystems[4].setPosition(float3(150.f, 0.f, 149.f));
 
-	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(25, 25), XMINT2(16, 16),
+	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(50, 50), XMINT2(8, 8),
 		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
 	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(25, 25), XMINT2(4, 4),
 		float3(100.f, 2.f, 100.f), float3(100.f, 2.f, 100.f));
@@ -259,60 +259,75 @@ void LevelHandler::loadLevel(int levelNr) {
 }
 
 void LevelHandler::draw() {
-	m_skyBox.bindLightBuffer();
-	m_player.draw(); // draw after water/lava effect, bow will affect the depth buffer
-	Renderer::getInstance()->enableAlphaBlending();
-	for (int i = 0; i < m_fruits.size(); i++) {
-		m_fruits[i]->draw_animate();
+	if (!Input::getInstance()->keyDown(Keyboard::K)) {
+		m_skyBox.bindLightBuffer();
+		m_player.draw();
+		Renderer::getInstance()->enableAlphaBlending();
+		for (int i = 0; i < m_fruits.size(); i++) {
+			m_fruits[i]->draw_animate();
+		}
+		Renderer::getInstance()->disableAlphaBlending();
+
+		for (size_t i = 0; i < m_Animals.size(); ++i) {
+			m_Animals[i]->draw();
+		}
+
+		for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
+			m_collidableEntities[i]->draw();
+		}
+		m_entity.draw();
+		m_skyBox.draw(m_oldTerrain, m_currentTerrain);
+
+		vector<FrustumPlane> frustum = m_player.getFrustumPlanes();
+		CubeBoundingBox bb = m_player.getCameraBoundingBox();
+		if (Input::getInstance()->keyDown(Keyboard::F)) {
+			// terrain entities
+			m_terrainProps.draw_quadtreeFrustumCulling(frustum);
+
+			// terrain
+			m_terrainManager->draw_quadtreeFrustumCulling(frustum);
+			// water/lava effect
+			Renderer::getInstance()->copyDepthToSRV();
+			waterEffect.draw_quadtreeFrustumCulling(frustum);
+			lavaEffect.draw_quadtreeFrustumCulling(frustum);
+		}
+		else if (Input::getInstance()->keyDown(Keyboard::V)) {
+			// terrain entities
+			m_terrainProps.draw_quadtreeBBCulling(bb);
+
+			// terrain
+			m_terrainManager->draw_quadtreeBBCulling(bb);
+			// water/lava effect
+			Renderer::getInstance()->copyDepthToSRV();
+			waterEffect.draw_quadtreeBBCulling(bb);
+			lavaEffect.draw_quadtreeBBCulling(bb);
+		}
+		else {
+			// terrain entities
+			m_terrainProps.draw();
+			// terrain
+			m_terrainManager->draw();
+			m_terrainManager->draw();
+			// water/lava effect
+			Renderer::getInstance()->copyDepthToSRV();
+			waterEffect.draw();
+			lavaEffect.draw();
+		}
+
+		if (!Input::getInstance()->keyDown(Keyboard::N))
+			Renderer::getInstance()->draw_darkEdges();
+
+
+		/* --- Things to be drawn without dark edges --- */
+		m_hud.draw();
+
+		// Particle Systems
+		for (size_t i = 0; i < m_particleSystems.size(); i++) {
+			m_particleSystems[i].draw();
+		}
+
+		m_player.getBow().getTrailEffect().draw();
 	}
-	Renderer::getInstance()->disableAlphaBlending();
-
-	for (size_t i = 0; i < m_Animals.size(); ++i) {
-		m_Animals[i]->draw();
-	}
-
-	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
-		m_collidableEntities[i]->draw();
-	}
-	m_entity.draw();
-	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
-
-	vector<FrustumPlane> frustum = m_player.getFrustumPlanes();
-	if (!Input::getInstance()->keyDown(Keyboard::F)) {
-		// terrain entities
-		m_terrainProps.draw_quadtreeFrustumCulling(frustum);
-		// terrain
-		//m_terrainManager->draw_quadtreeFrustumCulling(frustum);
-		// water/lava effect
-		//Renderer::getInstance()->copyDepthToSRV();
-		//waterEffect.draw_quadtreeFrustumCulling(frustum);
-		//lavaEffect.draw_quadtreeFrustumCulling(frustum);
-	}
-	else {
-		// terrain entities
-		m_terrainProps.draw();
-		// terrain
-		m_terrainManager->draw();
-		m_terrainManager->draw();
-		// water/lava effect
-		Renderer::getInstance()->copyDepthToSRV();
-		waterEffect.draw();
-		lavaEffect.draw();
-	}
-
-	if (!Input::getInstance()->keyDown(Keyboard::N))
-		Renderer::getInstance()->draw_darkEdges();
-
-
-	/* --- Things to be drawn without dark edges --- */
-	m_hud.draw();
-
-	// Particle Systems
-	for (size_t i = 0; i < m_particleSystems.size(); i++) {
-		m_particleSystems[i].draw();
-	}
-
-	m_player.getBow().getTrailEffect().draw();
 }
 
 void LevelHandler::drawShadowDynamic() {
@@ -344,127 +359,131 @@ void LevelHandler::drawShadowDynamicEntities() {
 }
 
 void LevelHandler::update(float dt) {
-	PerformanceTimer::Record record(
-		"LevelHandler_Update", PerformanceTimer::TimeState::state_average);
+	if (!Input::getInstance()->keyDown(Keyboard::L)) {
+		PerformanceTimer::Record record(
+			"LevelHandler_Update", PerformanceTimer::TimeState::state_average);
 
-	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
+		m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
-	m_skyBox.updateDelta(dt);
+		m_skyBox.updateDelta(dt);
 
-	if (Input::getInstance()->keyPressed(Keyboard::R) && m_currentLevel >= 0)
-		m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
+		if (Input::getInstance()->keyPressed(Keyboard::R) && m_currentLevel >= 0)
+			m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
 
-	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
-	m_player.getBow().getTrailEffect().update(dt);
+		m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
+		m_player.getBow().getTrailEffect().update(dt);
 
-	// for all animals
-	for (size_t i = 0; i < m_Animals.size(); ++i) {
-		if (m_Animals[i]->notBribed()) {
-			bool getsThrown = m_player.checkAnimal(m_Animals[i]->getPosition(),
-				m_Animals[i]->getPlayerRange(), m_Animals[i]->getThrowStrength());
-			if (getsThrown)
-				m_Animals[i]->beginWalk(m_player.getPosition());
+		// for all animals
+		for (size_t i = 0; i < m_Animals.size(); ++i) {
+			if (m_Animals[i]->notBribed()) {
+				bool getsThrown = m_player.checkAnimal(m_Animals[i]->getPosition(),
+					m_Animals[i]->getPlayerRange(), m_Animals[i]->getThrowStrength());
+				if (getsThrown)
+					m_Animals[i]->beginWalk(m_player.getPosition());
 
 
-			for (size_t iFruit = 0; iFruit < m_fruits.size(); ++iFruit) {
-				if (m_fruits[iFruit]->getFruitType() == m_Animals[i]->getfruitType()) {
-					float len =
-						(m_Animals[i]->getPosition() - m_fruits[iFruit]->getPosition()).Length();
-					if (len < m_Animals[i]->getFruitRange()) {
-						m_Animals[i]->grabFruit(m_fruits[iFruit]->getPosition());
-						m_fruits.erase(m_fruits.begin() + iFruit);
+				for (size_t iFruit = 0; iFruit < m_fruits.size(); ++iFruit) {
+					if (m_fruits[iFruit]->getFruitType() == m_Animals[i]->getfruitType()) {
+						float len = (m_Animals[i]->getPosition() - m_fruits[iFruit]->getPosition())
+										.Length();
+						if (len < m_Animals[i]->getFruitRange()) {
+							m_Animals[i]->grabFruit(m_fruits[iFruit]->getPosition());
+							m_fruits.erase(m_fruits.begin() + iFruit);
+						}
 					}
 				}
 			}
+			m_Animals[i]->update(dt, m_player.getPosition());
 		}
-		m_Animals[i]->update(dt, m_player.getPosition());
-	}
 
-	dropFruit();
+		dropFruit();
 
-	float3 playerPos = m_player.getPosition();
+		float3 playerPos = m_player.getPosition();
 
-	// update terrain tag
-	int activeTerrain = m_terrainManager->getTerrainIndexFromPosition(playerPos);
+		// update terrain tag
+		int activeTerrain = m_terrainManager->getTerrainIndexFromPosition(playerPos);
 
-	if (activeTerrain == 2) {
-		AudioHandler::getInstance()->changeMusicTo(AudioHandler::SPANISH_GUITAR, dt);
-	}
-	else if (activeTerrain == 1) {
-		AudioHandler::getInstance()->changeMusicTo(AudioHandler::KETAPOP, dt);
-	}
-	else if (activeTerrain == 0) {
-		AudioHandler::getInstance()->changeMusicTo(AudioHandler::KETAPOP_DARK, dt);
-	}
-	else {
-		AudioHandler::getInstance()->changeMusicTo(AudioHandler::JINGLE_GUITAR, dt);
-	}
-
-	if (activeTerrain != -1 && m_currentLevel != -1) {
-		Level::TerrainTags tag = m_levelsArr[m_currentLevel].m_terrainTags[activeTerrain];
-		if (m_currentTerrain != tag) {
-			m_oldTerrain = m_currentTerrain;
-			m_currentTerrain = tag;
-			m_skyBox.resetDelta();
-			m_skyBox.updateNewOldLight(tag);
+		if (activeTerrain == 2) {
+			AudioHandler::getInstance()->changeMusicTo(AudioHandler::SPANISH_GUITAR, dt);
 		}
-	}
+		else if (activeTerrain == 1) {
+			AudioHandler::getInstance()->changeMusicTo(AudioHandler::KETAPOP, dt);
+		}
+		else if (activeTerrain == 0) {
+			AudioHandler::getInstance()->changeMusicTo(AudioHandler::KETAPOP_DARK, dt);
+		}
+		else {
+			AudioHandler::getInstance()->changeMusicTo(AudioHandler::JINGLE_GUITAR, dt);
+		}
 
-	m_skyBox.updateCurrentLight();
-
-	// update stuff
-	for (int i = 0; i < m_fruits.size(); i++) {
-		m_fruits[i]->update(dt, playerPos, m_collidableEntities);
-		if (m_player.isShooting()) {
-			if (m_player.getArrow().checkCollision(*m_fruits[i])) {
-				m_fruits[i]->hit();
-				AudioHandler::getInstance()->playOnceByDistance(
-					AudioHandler::HIT_FRUIT, m_player.getPosition(), m_fruits[i]->getPosition());
-
-				m_player.getArrow().setPosition(
-					float3(-100.f)); // temporary to disable arrow until returning
-				ErrorLogger::log("Hit a fruit");
+		if (activeTerrain != -1 && m_currentLevel != -1) {
+			Level::TerrainTags tag = m_levelsArr[m_currentLevel].m_terrainTags[activeTerrain];
+			if (m_currentTerrain != tag) {
+				m_oldTerrain = m_currentTerrain;
+				m_currentTerrain = tag;
+				m_skyBox.resetDelta();
+				m_skyBox.updateNewOldLight(tag);
 			}
 		}
-		if (m_fruits[i]->getState() == AI::State::CAUGHT) {
-			if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() <
-				1.0f) { // If the fruit is close to the player get picked up
-				pickUpFruit(m_fruits[i].get()->getFruitType());
-				AudioHandler::getInstance()->playOnce(AudioHandler::COLLECT);
-				m_fruits.erase(m_fruits.begin() + i);
+
+		m_skyBox.updateCurrentLight();
+
+		// update stuff
+		for (int i = 0; i < m_fruits.size(); i++) {
+			m_fruits[i]->update(dt, playerPos, m_collidableEntities);
+			if (m_player.isShooting()) {
+				if (m_player.getArrow().checkCollision(*m_fruits[i])) {
+					m_fruits[i]->hit();
+					AudioHandler::getInstance()->playOnceByDistance(AudioHandler::HIT_FRUIT,
+						m_player.getPosition(), m_fruits[i]->getPosition());
+
+					m_player.getArrow().setPosition(
+						float3(-100.f)); // temporary to disable arrow until returning
+					ErrorLogger::log("Hit a fruit");
+				}
+			}
+			if (m_fruits[i]->getState() == AI::State::CAUGHT) {
+				if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() <
+					1.0f) { // If the fruit is close to the player get picked up
+					pickUpFruit(m_fruits[i].get()->getFruitType());
+					AudioHandler::getInstance()->playOnce(AudioHandler::COLLECT);
+					m_fruits.erase(m_fruits.begin() + i);
+				}
 			}
 		}
-	}
 
-	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
-		m_player.collideObject(*m_collidableEntities[i]);
-	}
-	// m_player.collideObject(*m_collidableEntities[1]);
-
-	// castray sphere	// Debug thing will need later as well please don't delete - Linus
-	// for (int i = 0; i < 3; ++i) {
-	//	float t =
-	//		m_collidableEntities[i]->castRay(m_player.getCameraPosition(), m_player.getForward());
-	//	if (t != -1) {
-	//		float3 tem = m_collidableEntities[i]->getHalfSizes();
-	//		m_entity.setPosition(m_player.getCameraPosition() + t * m_player.getForward() * 0.9);
-	//	}
-	//}
-
-	{
-		PerformanceTimer::Record record("ParticleSystem_Update", PerformanceTimer::TimeState::state_average); 
-		for (size_t i = 0; i < m_particleSystems.size(); i++) {
-			Terrain* currentTerrain =
-				m_terrainManager->getTerrainFromPosition(m_particleSystems[i].getPosition());
-			m_particleSystems[i].update(dt, currentTerrain->getWind());
+		for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
+			m_player.collideObject(*m_collidableEntities[i]);
 		}
+		// m_player.collideObject(*m_collidableEntities[1]);
+
+		// castray sphere	// Debug thing will need later as well please don't delete - Linus
+		// for (int i = 0; i < 3; ++i) {
+		//	float t =
+		//		m_collidableEntities[i]->castRay(m_player.getCameraPosition(),
+		// m_player.getForward()); 	if (t != -1) { 		float3 tem =
+		// m_collidableEntities[i]->getHalfSizes();
+		// m_entity.setPosition(m_player.getCameraPosition()
+		//+ t * m_player.getForward() * 0.9);
+		//	}
+		//}
+
+		{
+			PerformanceTimer::Record record(
+				"ParticleSystem_Update", PerformanceTimer::TimeState::state_average);
+			for (size_t i = 0; i < m_particleSystems.size(); i++) {
+				Terrain* currentTerrain =
+					m_terrainManager->getTerrainFromPosition(m_particleSystems[i].getPosition());
+				m_particleSystems[i].update(dt, currentTerrain->getWind());
+			}
+		}
+
+		m_hud.update(dt, m_player.getStamina());
+		waterEffect.update(dt);
+		lavaEffect.update(dt);
+
+		// Renderer::getInstance()->setPlayerPos(playerPos);
 	}
-
-	m_hud.update(dt, m_player.getStamina());
-	waterEffect.update(dt);
-	lavaEffect.update(dt);
-
-	// Renderer::getInstance()->setPlayerPos(playerPos);
 }
 
 void LevelHandler::pickUpFruit(int fruitType) {

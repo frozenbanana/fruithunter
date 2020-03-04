@@ -24,6 +24,8 @@ public:
 	float3 getPosition() const;
 
 	vector<FrustumPlane> getFrustumPlanes() const;
+	CubeBoundingBox getFrustumBoundingBox() const;
+
 
 private:
 	const float DEFAULT_FOV = XM_PI / 2.5f;

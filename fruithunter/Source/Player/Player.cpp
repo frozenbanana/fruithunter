@@ -335,8 +335,9 @@ void Player::checkSprint(float dt) {
 }
 
 vector<FrustumPlane> Player::getFrustumPlanes() const {
-	return m_camera.getFrustumPlanes();
-}
+	return m_camera.getFrustumPlanes(); }
+
+CubeBoundingBox Player::getCameraBoundingBox() const { return m_camera.getFrustumBoundingBox(); }
 
 void Player::checkDash(float dt) {
 	if (Input::getInstance()->keyPressed(KEY_DASH) && m_stamina >= STAMINA_DASH_COST &&

@@ -141,6 +141,7 @@ public:
 	void drawShadow();
 	bool draw_frustumCulling(const vector<FrustumPlane>& planes);
 	bool draw_quadtreeFrustumCulling(vector<FrustumPlane> planes);
+	bool draw_quadtreeBBCulling(CubeBoundingBox bb);
 
 	Terrain(string filename = "", vector<string> textures = vector<string>(),
 		XMINT2 subsize = XMINT2(0, 0), XMINT2 splits = XMINT2(1, 1),

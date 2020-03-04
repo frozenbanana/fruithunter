@@ -103,6 +103,7 @@ public:
 	void draw();
 	void draw_frustumCulling(const vector<FrustumPlane>& planes);
 	void draw_quadtreeFrustumCulling(vector<FrustumPlane> planes);
+	void draw_quadtreeBBCulling(CubeBoundingBox bb);
 
 	void initilize(SeaEffectTypes type, XMINT2 tiles, XMINT2 gridSize = XMINT2(1,1), float3 position = float3(0,0,0), float3 scale = float3(1,1,1), float3 rotation = float3(0,0,0));
 

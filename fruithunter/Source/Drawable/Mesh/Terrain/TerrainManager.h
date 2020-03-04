@@ -15,6 +15,7 @@ public:
 	void draw();
 	vector<float3> draw_frustumCulling(const vector<FrustumPlane>& planes);
 	void draw_quadtreeFrustumCulling(const vector<FrustumPlane>& planes);
+	void draw_quadtreeBBCulling(const CubeBoundingBox& bb);
 	void drawShadow();
 
 	float3 getSpawnpoint(int terrainType);

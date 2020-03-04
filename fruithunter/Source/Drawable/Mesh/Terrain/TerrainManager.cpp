@@ -91,6 +91,12 @@ void TerrainManager::draw_quadtreeFrustumCulling(const vector<FrustumPlane>& pla
 	}
 }
 
+void TerrainManager::draw_quadtreeBBCulling(const CubeBoundingBox& bb) {
+	for (size_t i = 0; i < m_terrains.size(); i++) {
+		m_terrains[i].draw_quadtreeBBCulling(bb);
+	}
+}
+
 void TerrainManager::drawShadow() {
 	for (size_t i = 0; i < m_terrains.size(); i++) {
 		m_terrains[i].draw();

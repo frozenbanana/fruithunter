@@ -165,7 +165,7 @@ private:
 	static ShaderSet m_shaderSet;
 
 	// Buffers
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
+	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_colorBuffer;
 
 	void createBuffers();

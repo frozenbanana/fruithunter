@@ -814,6 +814,49 @@ bool Terrain::draw_quadtreeFrustumCulling(vector<FrustumPlane> planes) {
 	return false;
 }
 
+bool Terrain::draw_quadtreeBBCulling(CubeBoundingBox bb) { 
+	if (m_mapsInitilized) {
+		PerformanceTimer::Record record(
+			"Terrain Draw Culling", PerformanceTimer::TimeState::state_average);
+		// transform planes to local space
+		updateModelMatrix();
+		float4x4 invWorldMatrix = m_worldMatrix.mWorld.Invert();
+		float4x4 invWorldInvTraMatrix = m_worldMatrix.mWorldInvTra.Invert();
+
+		bb.m_position = float3::Transform(bb.m_position, invWorldMatrix);
+		bb.m_size =
+			float3(bb.m_size.x / m_scale.x, bb.m_size.y / m_scale.y, bb.m_size.z / m_scale.z);
+		// cull grids
+		vector<XMINT2*> elements = m_quadtree.cullElements(bb);
+		// draw culled grids
+		if (elements.size() > 0) {
+			ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+
+			// bind shaders
+			m_shader.bindShadersAndLayout();
+
+			// bind samplerstate
+			deviceContext->PSSetSamplers(SAMPLERSTATE_SLOT, 1, m_sampler.GetAddressOf());
+
+			// bind texture resources
+			for (int i = 0; i < m_mapCount; i++) {
+				deviceContext->PSSetShaderResources(i, 1, m_maps[i].GetAddressOf());
+			}
+
+			// bind world matrix
+			bindModelMatrix();
+
+			for (size_t i = 0; i < elements.size(); i++) {
+				SubGrid* sub = &m_subMeshes[elements[i]->x][elements[i]->y];
+				sub->bind();
+				deviceContext->Draw(sub->getVerticeCount(), 0);
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
 Terrain::Terrain(
 	string filename, vector<string> textures, XMINT2 subsize, XMINT2 splits, float3 wind) {
 	initilize(filename, textures, subsize, splits, wind);

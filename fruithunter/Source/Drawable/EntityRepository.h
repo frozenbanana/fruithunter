@@ -84,6 +84,7 @@ public:
 	void update(float dt, float3 point, float3 direction);
 	void draw();
 	void draw_quadtreeFrustumCulling(const vector<FrustumPlane>& planes);
+	void draw_quadtreeBBCulling(const CubeBoundingBox& bb);
 	void drawShadow();
 
 	EntityRepository(string filename = "");

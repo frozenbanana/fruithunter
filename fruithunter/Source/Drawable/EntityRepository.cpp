@@ -353,24 +353,34 @@ void EntityRepository::draw() {
 		m_placeable[m_activePlaceableIndex]->draw();
 }
 
-void onEach(Entity** e) { (*e)->draw(); }
-
 void EntityRepository::draw_quadtreeFrustumCulling(const vector<FrustumPlane>& planes) {
-	//PerformanceTimer::Record record("EntityRepository DrawCulling", PerformanceTimer::TimeState::state_average);
+	PerformanceTimer::Record record("EntityRepository DrawCulling", PerformanceTimer::TimeState::state_average);
 
-	//vector<Entity**> elements = m_quadtree.cullElements(planes);
-	m_quadtree.foreach_cullElements(planes, onEach);
-	return;
-	//if (elements.size() > 0) {
-	//	for (size_t i = 0; i < elements.size(); i++) {
-	//		if (m_markedIndexToRemove == i)
-	//			(*elements[i])->draw_onlyMesh(float3(1.f, 0.f, 0.f));
-	//		else
-	//			(*elements[i])->draw();
-	//	}
-	//}
-	//if (m_state == ModeState::state_placing && m_placeable.size() > 0)
-	//	m_placeable[m_activePlaceableIndex]->draw();
+	vector<Entity**> elements = m_quadtree.cullElements(planes);
+	if (elements.size() > 0) {
+		for (size_t i = 0; i < elements.size(); i++) {
+			if (m_markedIndexToRemove == i)
+				(*elements[i])->draw_onlyMesh(float3(1.f, 0.f, 0.f));
+			else
+				(*elements[i])->draw();
+		}
+	}
+	if (m_state == ModeState::state_placing && m_placeable.size() > 0)
+		m_placeable[m_activePlaceableIndex]->draw();
+}
+
+void EntityRepository::draw_quadtreeBBCulling(const CubeBoundingBox& bb) {
+	vector<Entity**> elements = m_quadtree.cullElements(bb);
+	if (elements.size() > 0) {
+		for (size_t i = 0; i < elements.size(); i++) {
+			if (m_markedIndexToRemove == i)
+				(*elements[i])->draw_onlyMesh(float3(1.f, 0.f, 0.f));
+			else
+				(*elements[i])->draw();
+		}
+	}
+	if (m_state == ModeState::state_placing && m_placeable.size() > 0)
+		m_placeable[m_activePlaceableIndex]->draw();
 }
 
 void EntityRepository::drawShadow() {
