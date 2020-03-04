@@ -19,6 +19,10 @@ private:
 	float m_returnSpeed;
 	float m_walkTimeTracker;
 
+	// Thought bubble
+	Entity m_thoughtBubble;
+	float3 m_thoughtBubbleOffset;
+
 	void walkAndBack(float dt);
 	void walkToSleep(float dt);
 
@@ -35,7 +39,7 @@ public:
 	bool notBribed() const;
 
 	void grabFruit(float3 pos);
-
-	void update(float dt);
+	void draw();
+	void update(float dt, float3 playerPos);
 	void beginWalk(float3 pos);
 };
