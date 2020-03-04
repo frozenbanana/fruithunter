@@ -11,6 +11,7 @@
 #include "VariableSyncer.h"
 #include "PerformanceTimer.h"
 
+#include "PathFindingThread.h"
 void onLoad(void* ptr) { ErrorLogger::log("Loaded struct!"); }
 
 int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
@@ -26,6 +27,9 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	Renderer* renderer = Renderer::getInstance();
 	ErrorLogger errorLogger;
 
+	ErrorLogger errorMan;
+	PathFindingThread* extraThread = PathFindingThread::getInstance();
+
 	MSG msg = { 0 };
 	stateHandler->initialize();
 
@@ -33,7 +37,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	PerformanceTimer::start("AllFrames");
 
 	// Hardcoded statechange here. (TESTING)
-	stateHandler->changeState(StateHandler::PLAY);
+	//stateHandler->changeState(StateHandler::PLAY);
 	while (StateHandler::getInstance()->isRunning()) {
 		PerformanceTimer::start("FrameTime", PerformanceTimer::TimeState::state_average);
 		VariableSyncer::getInstance()->sync();
@@ -71,5 +75,6 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 		MSG msg = { 0 };
 	}
 	PerformanceTimer::stop();
+	extraThread->exitThread();
 	return 0;
 }

@@ -16,6 +16,8 @@
 
 #define LEVELS = 1;
 
+
+
 struct Level {
 	// HeightMap
 	enum TerrainTags { Forest, Desert, Plains, Volcano, Count };
@@ -73,8 +75,7 @@ private:
 	void placeAllBridges();
 	void placeAllAnimals();
 
-	// thread for pathfinding,
-
+	shared_ptr<size_t> m_frame;
 
 public:
 	LevelHandler();

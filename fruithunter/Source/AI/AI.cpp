@@ -1,6 +1,7 @@
 #include "AI.h"
 #include <algorithm>
 #include "Fruit.h"
+#include "PathFindingThread.h"
 #define STEP_SCALE 1.0f
 #define EPSILON 0.001f
 #define MAX_STEPS 30
@@ -55,9 +56,7 @@ void AI::handleAvailablePath(float3 myPosition) {
 
 bool AI::beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>>& openList,
 	std::vector<shared_ptr<AI::Node>>& closedList) {
-	// return isIn(child, closedList) && isIn(child, openList);
 
-	// Previous check
 	//// Check is child is in closed
 	if (isIn(child, closedList)) {
 		return false;
@@ -71,11 +70,27 @@ bool AI::beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>>
 }
 
 bool AI::isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entity>> collidables) {
+
+	auto pft = PathFindingThread::getInstance();
+
+
 	if (childPos.y - currentNodePos.y > MAX_STEAPNESS) {
 		return false;
 	}
+	if (childPos.y < 1.f) {
+		return false;
+	}
+
+
+	auto normal = TerrainManager::getInstance()->getNormalFromPosition(childPos);
+	normal.Normalize();
+	// Don't you climb no walls
+	if (abs(float3(0.0f, 1.0f, 0.0f).Dot(normal)) < 0.99f)
+		return false;
+
 
 	for (size_t i = 0; i < collidables.size(); ++i) {
+
 		float3 obstacle = collidables.at(i)->getPosition();
 		obstacle.y = 0.f;
 		childPos.y = 0.f;
@@ -88,120 +103,143 @@ bool AI::isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entit
 		}
 	}
 
+
 	return true;
+}
+
+bool AI::isValid(float3 childPos, float3 currentNodePos) {
+	if (childPos.y - currentNodePos.y > MAX_STEAPNESS) {
+		return false;
+	}
+	if (childPos.y < 1.f) {
+		return false;
+	}
+
+	return true;
+}
+
+void AI::makeReadyForPath(float3 destination) {
+	m_readyForPath = true;
+	m_destination = destination;
 }
 
 
 void AI::setWorld(std::shared_ptr<Terrain> terrain) { m_terrain = terrain; }
 
-void AI::pathfinding(float3 start, float3 end, vector<shared_ptr<Entity>> collidables) {
+void AI::pathfinding(float3 start) {
 	// ErrorLogger::log("thread starting for pathfinding");
+	auto pft = PathFindingThread::getInstance();
+	if ((start - m_destination).LengthSquared() < 0.5f)
+		return;
+	if (m_readyForPath) {
+		{
+			m_availablePath.clear();
 
-	thread t([this, start, end, collidables] {
-		m_lookingForPath = true;
-		m_availablePath.clear();
-		TerrainManager* tm = TerrainManager::getInstance();
-		// enforce start and end to terrain
-		float3 startCopy = float3(start.x, tm->getHeightFromPosition(start), start.z);
-		float3 endCopy = float3(end.x, tm->getHeightFromPosition(end), end.z);
+			TerrainManager* tm = TerrainManager::getInstance();
+			// enforce start and m_destination to terrain
+			float3 startCopy = float3(start.x, tm->getHeightFromPosition(start), start.z);
+			float3 m_destinationCopy =
+				float3(m_destination.x, tm->getHeightFromPosition(m_destination), m_destination.z);
+
+			shared_ptr<AI::Node> currentNode = make_shared<AI::Node>(
+				shared_ptr<AI::Node>(), startCopy, startCopy, m_destinationCopy);
+			bool collidedWithSomething = false;
+			size_t counter = 0;
+			std::vector<shared_ptr<AI::Node>> open;
+			std::vector<shared_ptr<AI::Node>> closed;
+			std::list<float3> childPositionOffsets = { float3(-1.f, 0.f, -1.f),
+				float3(0.f, 0.f, -1.f), float3(1.f, 0.f, -1.f), float3(-1.f, 0.f, 0.f),
+				float3(1.f, 0.f, 0.f), float3(-1.f, 0.f, 1.f), float3(0.f, 0.f, 1.f),
+				float3(1.f, 0.f, 1.f) };
 
 
-		shared_ptr<AI::Node> currentNode =
-			make_shared<AI::Node>(shared_ptr<AI::Node>(), startCopy, startCopy, endCopy);
-		bool collidedWithSomething = false;
-		size_t counter = 0;
-		std::vector<shared_ptr<AI::Node>> open;
-		std::vector<shared_ptr<AI::Node>> closed;
-		std::list<float3> childPositionOffsets = { float3(-1.f, 0.f, -1.f), float3(0.f, 0.f, -1.f),
-			float3(1.f, 0.f, -1.f), float3(-1.f, 0.f, 0.f), float3(1.f, 0.f, 0.f),
-			float3(-1.f, 0.f, 1.f), float3(0.f, 0.f, 1.f), float3(1.f, 0.f, 1.f) };
+			open.push_back(currentNode);
+			while (!open.empty() && counter++ < MAX_STEPS) {
+				quickSort(open, 0, (int)open.size() - 1);
+				closed.push_back(open.back());
+				open.pop_back();
+
+				// Check to see if we're inside a certain radius of m_destinationCopy location
+				shared_ptr<AI::Node> currentNode = closed.back();
+
+				if ((currentNode->position - m_destinationCopy).LengthSquared() < ARRIVAL_RADIUS ||
+					counter == MAX_STEPS - 1) {
+					m_availablePath.clear(); // Reset path
+
+					// Add path steps
+					while (currentNode->parent != nullptr) {
+						m_availablePath.push_back(currentNode->position);
+						currentNode = currentNode->parent;
+					}
 
 
-		open.push_back(currentNode);
-		while (!open.empty() && counter++ < MAX_STEPS) {
-			quickSort(open, 0, (int)open.size() - 1);
-			closed.push_back(open.back());
-			open.pop_back();
+					if (m_availablePath.size() > 2) {
+						m_availablePath.pop_back(); // remove first position because it is the same
+													// as startCopy.
+					}
+					m_readyForPath = false;
 
-			// Check to see if we're inside a certain radius of endCopy location
-			shared_ptr<AI::Node> currentNode = closed.back();
-
-			if ((currentNode->position - endCopy).LengthSquared() < ARRIVAL_RADIUS ||
-				counter == MAX_STEPS - 1) {
-				m_availablePath.clear(); // Reset path
-
-				// Add path steps
-				while (currentNode->parent != nullptr) {
-					m_availablePath.push_back(currentNode->position);
-					currentNode = currentNode->parent;
+					return;
 				}
 
+				for (auto childOffset : childPositionOffsets) {
 
-				if (m_availablePath.size() > 2) {
-					m_availablePath
-						.pop_back(); // remove first position because it is the same as startCopy.
+					// Create child AI::Node
+					float3 childPosition = currentNode->position + STEP_SCALE * childOffset;
+					childPosition.y = tm->getHeightFromPosition(childPosition);
+
+					shared_ptr<AI::Node> child = make_shared<AI::Node>(
+						currentNode, childPosition, startCopy, m_destinationCopy);
+
+
+					// Check if node is in open or closed.
+					if (!beingUsed(child, open, closed)) {
+						continue;
+					}
+
+					if (!isValid(child->position, currentNode->position, pft->m_collidables)) {
+						continue;
+					}
+
+					// Add child to open
+					open.push_back(child);
 				}
-
-				m_lookingForPath = false;
-				// ErrorLogger::log(
-				//	"thread successfully closed. Path found. Steps: " + to_string(counter));
-				return;
 			}
-
-			for (auto childOffset : childPositionOffsets) {
-
-				// Create child AI::Node
-				float3 childPosition = currentNode->position + STEP_SCALE * childOffset;
-				childPosition.y = tm->getHeightFromPosition(childPosition);
-
-				shared_ptr<AI::Node> child =
-					make_shared<AI::Node>(currentNode, childPosition, startCopy, endCopy);
-
-
-				// Check if node is in open or closed.
-				if (!beingUsed(child, open, closed)) {
-					continue;
-				}
-
-				if (!isValid(child->position, currentNode->position, collidables)) {
-					continue;
-				}
-
-				// Add child to open
-				open.push_back(child);
+			while (currentNode->parent != nullptr) {
+				m_availablePath.push_back(currentNode->position);
+				currentNode = currentNode->parent;
 			}
+			m_readyForPath = false;
 		}
-		while (currentNode->parent != nullptr) {
-			m_availablePath.push_back(currentNode->position);
-			currentNode = currentNode->parent;
-		}
-	});
-	t.detach();
+	}
 }
 
-void AI::changeState(State newState) {
-	m_availablePath.clear();
-	m_currentState = newState;
-}
+void AI::changeState(State newState) { m_currentState = newState; }
 
 AI::State AI::getState() const { return m_currentState; }
 
-void AI::doBehavior(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
+bool AI::giveNewPath() const { return m_readyForPath; }
+
+void AI::doBehavior(float3 playerPosition) {
+	auto pft = PathFindingThread::getInstance();
+
+	// pft->m_mutex.lock();
 	switch (m_currentState) {
 	case INACTIVE:
 		behaviorInactive(playerPosition);
 		break;
 	case PASSIVE:
-		behaviorPassive(playerPosition, collidables);
+		behaviorPassive(playerPosition);
 		break;
 	case ACTIVE:
-		behaviorActive(playerPosition, collidables);
+		behaviorActive(playerPosition);
 		break;
 	case CAUGHT:
-		behaviorCaught(playerPosition, collidables);
+		behaviorCaught(playerPosition);
 		break;
 	case RELEASED:
 		behaviorReleased();
 		break;
 	}
+	// pft->m_mutex.unlock();
 }
