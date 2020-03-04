@@ -1,7 +1,9 @@
 #include "LevelHandler.h"
 #include "TerrainManager.h"
 #include "AudioHandler.h"
-
+#include "Renderer.h"
+#include "ErrorLogger.h"
+#include "PerformanceTimer.h"
 
 void LevelHandler::initialiseLevel0() {
 	Level level0;
@@ -68,10 +70,10 @@ void LevelHandler::initialiseLevel0() {
 	maps[3] = "texture_rock6.jpg";
 	level0.m_heightmapTextures.push_back(maps);
 
-	level0.m_wind.push_back(float3(0.f, 10.f, 0.f));  // Volcano
-	level0.m_wind.push_back(float3(10.f, 0.f, 10.f)); // Forest
-	level0.m_wind.push_back(float3(20.f, 0.f, 0.f));  // Desert
-	level0.m_wind.push_back(float3(0.f, 0.f, 40.f));  // Plains
+	level0.m_wind.push_back(float3(0.f, 15.f, 0.f)); // Volcano
+	level0.m_wind.push_back(float3(6.f, 0.f, 10.f)); // Forest
+	level0.m_wind.push_back(float3(0.f, 0.f, 6.f));	 // Desert
+	level0.m_wind.push_back(float3(0.f, 0.f, 40.f)); // Plains
 
 
 	level0.m_nrOfFruits[APPLE] = 2;
@@ -127,15 +129,16 @@ void LevelHandler::placeAllBridges() {
 }
 
 void LevelHandler::placeAllAnimals() {
-	shared_ptr<Animal> animal = make_shared<Animal>(
-		"Gorilla", 10.f, 4.f, BANANA, 10.f, float3(98.2f, 3.1f, 39.f), XM_PI * 0.5f);
+	shared_ptr<Animal> animal = make_shared<Animal>("Gorilla", 10.f, 7.f, BANANA, 1, 10.f,
+		float3(98.2f, 3.1f, 39.f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
 	m_Animals.push_back(animal);
 
-	animal = make_shared<Animal>("Bear", 10.f, 2.5f, APPLE, 10.f, float3(37.f, 3.2f, 93.f), 0.f);
+	animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 3, 10.f, float3(37.f, 3.2f, 93.f),
+		float3(20.f, 3.7f, 90.f), 0.f);
 	m_Animals.push_back(animal);
 
-	animal =
-		make_shared<Animal>("Bear", 5.f, 2.5f, APPLE, 5.f, float3(90.f, 8.2f, 152.f), XM_PI * 0.5f);
+	animal = make_shared<Animal>("Goat", 5.f, 3.5f, APPLE, 1, 5.f, float3(90.f, 8.2f, 152.f),
+		float3(87.f, 8.8f, 156.f), XM_PI * 0.5f);
 	m_Animals.push_back(animal);
 }
 
@@ -144,9 +147,10 @@ LevelHandler::LevelHandler() { initialise(); }
 LevelHandler::~LevelHandler() {}
 
 void LevelHandler::initialise() {
+	PerformanceTimer::start("LevelHandler_initilize");
+
 	m_player.initialize();
 	m_terrainManager = TerrainManager::getInstance();
-
 	m_terrainProps.addPlaceableEntity("treeMedium1");
 	m_terrainProps.addPlaceableEntity("treeMedium2");
 	m_terrainProps.addPlaceableEntity("treeMedium3");
@@ -159,13 +163,22 @@ void LevelHandler::initialise() {
 
 	initialiseLevel0();
 
+	m_particleSystems.resize(4);
+	m_particleSystems[0] = ParticleSystem(ParticleSystem::VULCANO_BUBBLE);
+	m_particleSystems[0].setPosition(float3(150.f, 10.f, 149.f));
+	m_particleSystems[1] = ParticleSystem(ParticleSystem::GROUND_DUST);
+	m_particleSystems[1].setPosition(float3(42.f, 4.f, 125.f));
+	m_particleSystems[2] = ParticleSystem(ParticleSystem::FOREST_BUBBLE);
+	m_particleSystems[2].setPosition(float3(50.f, 5.f, 40.f));
+	m_particleSystems[3] = ParticleSystem(ParticleSystem::LAVA_BUBBLE);
+	m_particleSystems[3].setPosition(float3(150.f, 0.f, 149.f));
+
 	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(25, 25), XMINT2(16, 16),
 		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
 	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(25, 25), XMINT2(4, 4),
 		float3(100.f, 2.f, 100.f), float3(100.f, 2.f, 100.f));
 
-	m_sphere.load("Sphere");
-	m_sphere.setScale(float3(1.f, 1, 1) * 0.025f);
+	PerformanceTimer::stop();
 }
 
 void LevelHandler::loadLevel(int levelNr) {
@@ -175,6 +188,8 @@ void LevelHandler::loadLevel(int levelNr) {
 
 		m_terrainProps.load(currentLevel.m_terrainPropsFilename);
 
+		PerformanceTimer::start(
+			"LevelHandler_TerrainCreation", PerformanceTimer::TimeState::state_accumulate);
 		for (int i = 0; i < m_levelsArr.at(levelNr).m_heightMapNames.size(); i++) {
 			m_terrainManager->add(currentLevel.m_heightMapPos.at(i),
 				currentLevel.m_heightMapScales[i], currentLevel.m_heightMapNames.at(i),
@@ -284,7 +299,19 @@ void LevelHandler::draw() {
 		lavaEffect.draw();
 	}
 
+	if (!Input::getInstance()->keyDown(Keyboard::N))
+		Renderer::getInstance()->draw_darkEdges();
+
+
+	/* --- Things to be drawn without dark edges --- */
 	m_hud.draw();
+
+	// Particle Systems
+	for (size_t i = 0; i < m_particleSystems.size(); i++) {
+		m_particleSystems[i].draw();
+	}
+
+	m_player.getBow().getTrailEffect().draw();
 }
 
 void LevelHandler::drawShadowDynamic() {
@@ -316,6 +343,8 @@ void LevelHandler::drawShadowDynamicEntities() {
 }
 
 void LevelHandler::update(float dt) {
+	PerformanceTimer::start("LevelHandler_Update", PerformanceTimer::TimeState::state_average);
+
 	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
 	m_skyBox.updateDelta(dt);
@@ -324,12 +353,29 @@ void LevelHandler::update(float dt) {
 		m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
 
 	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
+	m_player.getBow().getTrailEffect().update(dt);
+
+	// for all animals
 	for (size_t i = 0; i < m_Animals.size(); ++i) {
-		bool getsThrown = m_player.checkAnimal(m_Animals[i]->getPosition(),
-			m_Animals[i]->getPlayerRange(), m_Animals[i]->getThrowStrength());
-		if (getsThrown)
-			m_Animals[i]->pushPlayer(m_player.getPosition());
-		m_Animals[i]->update(dt);
+		if (m_Animals[i]->notBribed()) {
+			bool getsThrown = m_player.checkAnimal(m_Animals[i]->getPosition(),
+				m_Animals[i]->getPlayerRange(), m_Animals[i]->getThrowStrength());
+			if (getsThrown)
+				m_Animals[i]->beginWalk(m_player.getPosition());
+
+
+			for (size_t iFruit = 0; iFruit < m_fruits.size(); ++iFruit) {
+				if (m_fruits[iFruit]->getFruitType() == m_Animals[i]->getfruitType()) {
+					float len =
+						(m_Animals[i]->getPosition() - m_fruits[iFruit]->getPosition()).Length();
+					if (len < m_Animals[i]->getFruitRange()) {
+						m_Animals[i]->grabFruit(m_fruits[iFruit]->getPosition());
+						m_fruits.erase(m_fruits.begin() + iFruit);
+					}
+				}
+			}
+		}
+		m_Animals[i]->update(dt, m_player.getPosition());
 	}
 
 	dropFruit();
@@ -403,11 +449,19 @@ void LevelHandler::update(float dt) {
 	//	}
 	//}
 
+
+	for (size_t i = 0; i < m_particleSystems.size(); i++) {
+		Terrain* currentTerrain =
+			m_terrainManager->getTerrainFromPosition(m_particleSystems[i].getPosition());
+		m_particleSystems[i].update(dt, currentTerrain->getWind());
+	}
+
 	m_hud.update(dt, m_player.getStamina());
 	waterEffect.update(dt);
 	lavaEffect.update(dt);
 
-	//Renderer::getInstance()->setPlayerPos(playerPos);
+	// Renderer::getInstance()->setPlayerPos(playerPos);
+	PerformanceTimer::stop();
 }
 
 void LevelHandler::pickUpFruit(int fruitType) {

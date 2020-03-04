@@ -1,6 +1,8 @@
 #include "SeaEffect.h"
 #include "WICTextureLoader.h"
 #include "VariableSyncer.h"
+#include "Renderer.h"
+#include "ErrorLogger.h"
 
 ShaderSet SeaEffect::m_shader;
 

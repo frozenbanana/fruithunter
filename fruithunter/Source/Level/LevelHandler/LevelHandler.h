@@ -13,6 +13,7 @@
 #include "SeaEffect.h"
 #include "QuadTree.h"
 #include "Animal.h"
+#include "ParticleSystem.h"
 
 #define LEVELS = 1;
 
@@ -58,6 +59,7 @@ private:
 	SkyBox m_skyBox;
 	size_t m_inventory[NR_OF_FRUITS]; // APPLE 0, BANANA 1, MELON 2
 	vector<shared_ptr<Entity>> m_collidableEntities;
+	vector<ParticleSystem> m_particleSystems;
 	vector<shared_ptr<Animal>> m_Animals;
 
 	QuadTree<int> tree;

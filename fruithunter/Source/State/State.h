@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include "GlobalNamespaces.h"
+#include "PerformanceTimer.h"
 
 class StateHandler;
 

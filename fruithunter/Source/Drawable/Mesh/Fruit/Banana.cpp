@@ -1,5 +1,6 @@
 #include "Banana.h"
-
+#include "Renderer.h"
+#include "ErrorLogger.h"
 
 Banana::Banana(float3 pos) : Fruit(pos) {
 	m_fruitType = BANANA;
@@ -113,7 +114,7 @@ void Banana::updateFirstJump(float dt) {
 		if (m_currentFramePhase == m_nrOfFramePhases) {
 			m_currentFramePhase = 0;
 			justChanged = true;
-			setRotation(float3(0.f, findRequiredRotation(m_nextDestinationAnimationPosition), 0.f));
+			lookTo(m_nextDestinationAnimationPosition);
 
 			// start bouncing
 			m_nrOfFramePhases = 3;
@@ -159,7 +160,7 @@ void Banana::updateBounce(float dt) {
 			m_currentFramePhase = 0;
 			justChanged = true;
 			bounce();
-			setRotation(float3(0.f, findRequiredRotation(m_nextDestinationAnimationPosition), 0.f));
+			lookTo(m_nextDestinationAnimationPosition);
 		}
 
 		m_meshAnim.setFrameTargets(frameOrder[m_currentFramePhase],

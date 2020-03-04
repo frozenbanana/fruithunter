@@ -1,6 +1,7 @@
 #include "Entity.h"
 #include "Errorlogger.h"
 #include "Input.h"
+#include "Renderer.h"
 
 void Entity::updateMatrix() {
 	if (m_transformPropertiesChanged) {
@@ -179,13 +180,33 @@ void Entity::setScale(float scale) {
 
 void Entity::scaleBoundingBoxHalfSizes(float3 scale) { m_collisionData.setCollisionScale(scale); }
 
+void Entity::lookTo(float3 lookAt) {
+	float rot = 0.f;
+	float dx = lookAt.x - getPosition().x;
+	float dz = lookAt.z - getPosition().z;
+	if (dx != 0) {
+		rot = -atan(dz / dx);
+	}
+	else {
+		rot = 0;
+	}
+
+	if (dx < 0) {
+		rot = 3.1416f + rot;
+	}
+	float finalAngle = rot + 3.14f * 0.5f;
+	setRotation(float3(0.f, finalAngle, 0.f));
+}
+
+void Entity::lookToDir(float3 dir) { lookTo(getPosition() + dir); }
+
 void Entity::draw() {
 	if (isMeshInitialized()) {
 		bindModelMatrixBuffer();
 
 		if (Input::getInstance()->keyDown(Keyboard::B))
 			m_mesh->draw_BoundingBox();
-
+		setMaterial(m_currentMaterial);
 		m_mesh.get()->draw();
 	}
 }
@@ -244,14 +265,20 @@ bool Entity::loadAnimated(string filename, int nrOfFrames) {
 	return m_meshAnim.load(filename, nrOfFrames);
 }
 
+void Entity::setCurrentMaterial(int materialIndex) { m_currentMaterial = materialIndex; }
+
 void Entity::setMaterial(int index) {
-	// Asumes normal mesh won't change materials
-	m_meshAnim.setMaterials(index);
+	if (m_mesh.get() != nullptr)
+		return m_mesh->setMaterialIndex(index);
+	else
+		m_meshAnim.setMaterials(index);
 }
 
 void Entity::loadMaterials(std::vector<string> fileNames, int nrOfMaterials) {
-	// Asumes normal mesh won't change materials
-	m_meshAnim.loadMaterials(fileNames, nrOfMaterials);
+	if (m_mesh.get() != nullptr)
+		return m_mesh->loadOtherMaterials(fileNames, nrOfMaterials);
+	else
+		m_meshAnim.loadMaterials(fileNames, nrOfMaterials);
 }
 
 bool Entity::checkCollision(Entity& other) {
@@ -262,15 +289,12 @@ bool Entity::checkCollision(EntityCollision& other) { return m_collisionData.col
 
 float Entity::castRay(float3 rayPos, float3 rayDir) {
 	if (m_mesh.get() != nullptr) {
-		updateMatrix();
-		float4x4 mWorld = m_matrixBufferData.matWorld;
-		float4x4 mInvWorld = m_matrixBufferData.matWorld.Invert();
-		float4x4 mInvWorldInvTra = m_matrixBufferData.matInvTraWorld.Invert();
-		// float3 lrayPos = XMVector4Transform(float4(rayPos.x, rayPos.y, rayPos.z, 1), mInvWorld);
+		float4x4 mWorld = getModelMatrix();
+		float4x4 mInvWorld = mWorld.Invert();
+		float4x4 mInvTraWorld = mInvWorld.Transpose();
+		float4x4 mInvTraInvWorld = mInvTraWorld.Invert();
 		float3 lrayPos = float3::Transform(rayPos, mInvWorld);
-		/*float3 lrayDir = XMVector4Transform(
-			float4(rayDir.x, rayDir.y, rayDir.z, 0), mInvWorld.Transpose().Invert());*/
-		float3 lrayDir = float3::TransformNormal(rayDir, mInvWorldInvTra);
+		float3 lrayDir = float3::TransformNormal(rayDir, mInvTraInvWorld);
 		lrayDir.Normalize();
 
 		float t = m_mesh->castRayOnMesh(lrayPos, lrayDir);

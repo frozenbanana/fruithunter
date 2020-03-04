@@ -34,6 +34,21 @@
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_seaEffect.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\GeometryShader_particleSystem.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_particleSystem.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\VertexShader_particleSystem.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\VertexShader_quadSimplePass.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_darkEdge.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp">
@@ -147,8 +162,17 @@
     <ClCompile Include="Source\Graphics\ShadowMapping\ShadowMapping.cpp">
       <Filter>Source\Graphics\ShadowMapping</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Utility\PerformanceTimer\PerformanceTimer.cpp">
+      <Filter>Source\Utility\PerformanceTimer</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Drawable\Mesh\Animal.cpp">
       <Filter>Source\Drawable\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Drawable\ParticleSystem\Particle.cpp">
+      <Filter>Source\Drawable\ParticleSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Drawable\ParticleSystem\ParticleSystem.cpp">
+      <Filter>Source\Drawable\ParticleSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -263,11 +287,20 @@
     <ClInclude Include="Source\Drawable\HUD.h">
       <Filter>Source\Drawable</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Drawable\ParticleSystem\Particle.h">
+      <Filter>Source\Drawable\ParticleSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\ParticleSystem\ParticleSystem.h">
+      <Filter>Source\Drawable\ParticleSystem</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Graphics\ShadowMapping\ShadowMapping.h">
       <Filter>Source\Graphics\ShadowMapping</Filter>
     </ClInclude>
     <ClInclude Include="Source\Utility\QuadTree.h">
       <Filter>Source\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\PerformanceTimer\PerformanceTimer.h">
+      <Filter>Source\Utility\PerformanceTimer</Filter>
     </ClInclude>
     <ClInclude Include="Source\Drawable\Mesh\Animal.h">
       <Filter>Source\Drawable\Mesh</Filter>
@@ -350,8 +383,14 @@
     <Filter Include="Source\Utility\VariableSyncer">
       <UniqueIdentifier>{174b364d-8cc6-418f-b867-558c9903128a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Drawable\ParticleSystem">
+      <UniqueIdentifier>{d8ae5d2b-ea97-4ec4-b28b-6e314535910e}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Graphics\ShadowMapping">
       <UniqueIdentifier>{d6645390-c2fd-4363-96bb-d57d2ac12609}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Utility\PerformanceTimer">
+      <UniqueIdentifier>{6c926695-a49b-42d0-b46f-5b51b343cf44}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

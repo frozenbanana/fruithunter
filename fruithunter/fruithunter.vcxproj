@@ -73,12 +73,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)fruithunter\Source\Utility\Timer;$(SolutionDir)fruithunter\Source\Utility\Input;$(SolutionDir)fruithunter\Source\Utility\Error;$(SolutionDir)fruithunter\Source\Utility\Camera;$(SolutionDir)fruithunter\Source\Utility\Audio;$(SolutionDir)fruithunter\Source\Utility;$(SolutionDir)fruithunter\Source\State\States;$(SolutionDir)fruithunter\Source\State;$(SolutionDir)fruithunter\Source\Player;$(SolutionDir)fruithunter\Source\Header;$(SolutionDir)fruithunter\Source\Graphics\Shaders;$(SolutionDir)fruithunter\Source\Graphics;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Terrain;$(SolutionDir)fruithunter\Source\Drawable\Mesh\SkyBox;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Text;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Fruit;$(SolutionDir)fruithunter\Source\Drawable\Mesh;$(SolutionDir)fruithunter\Source\Drawable;$(SolutionDir)fruithunter\Source\Level\LevelHandler;$(SolutionDir)fruithunter\Source;$(SolutionDir)fruithunter\Source\AI;$(SolutionDir)fruithunter\Source\Utility\Repositories;$(SolutionDir)fruithunter\includes;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)fruithunter\Source\Utility\Timer;$(SolutionDir)fruithunter\Source\Utility\Input;$(SolutionDir)fruithunter\Source\Utility\Error;$(SolutionDir)fruithunter\Source\Utility\Camera;$(SolutionDir)fruithunter\Source\Utility\Audio;$(SolutionDir)fruithunter\Source\Utility;$(SolutionDir)fruithunter\Source\State\States;$(SolutionDir)fruithunter\Source\State;$(SolutionDir)fruithunter\Source\Player;$(SolutionDir)fruithunter\Source\Header;$(SolutionDir)fruithunter\Source\Graphics\Shaders;$(SolutionDir)fruithunter\Source\Graphics;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Terrain;$(SolutionDir)fruithunter\Source\Drawable\Mesh\SkyBox;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Text;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Fruit;$(SolutionDir)fruithunter\Source\Drawable\Mesh;$(SolutionDir)fruithunter\Source\Drawable;$(SolutionDir)fruithunter\Source\Level\LevelHandler;$(SolutionDir)fruithunter\Source;$(SolutionDir)fruithunter\Source\AI;$(SolutionDir)fruithunter\Source\Utility\Repositories;$(SolutionDir)fruithunter\Source\Drawable\ParticleSystem;$(SolutionDir)fruithunter\includes;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)fruithunter\libraries\Win32\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)fruithunter\Source\AI;$(SolutionDir)fruithunter\Source\Utility\Timer;$(SolutionDir)fruithunter\Source\Utility\Input;$(SolutionDir)fruithunter\Source\Utility\Error;$(SolutionDir)fruithunter\Source\Utility\Camera;$(SolutionDir)fruithunter\Source\Utility\Audio;$(SolutionDir)fruithunter\Source\Utility\Repositories;$(SolutionDir)fruithunter\Source\Utility\VariableSyncer;$(SolutionDir)fruithunter\Source\Utility;$(SolutionDir)fruithunter\Source\State\States;$(SolutionDir)fruithunter\Source\State;$(SolutionDir)fruithunter\Source\Player;$(SolutionDir)fruithunter\Source\Header;$(SolutionDir)fruithunter\Source\Graphics\Shaders;$(SolutionDir)fruithunter\Source\Graphics\ShadowMapping;$(SolutionDir)fruithunter\Source\Graphics;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Terrain;$(SolutionDir)fruithunter\Source\Drawable\Mesh\SkyBox;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Text;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Fruit;$(SolutionDir)fruithunter\Source\Drawable\Mesh;$(SolutionDir)fruithunter\Source\Drawable;$(SolutionDir)fruithunter\Source\Level\LevelHandler;$(SolutionDir)fruithunter\Source\Level\Levels;$(SolutionDir)fruithunter\Source\Level;$(SolutionDir)fruithunter\Source;$(SolutionDir)fruithunter\includes;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)fruithunter\Source\AI;$(SolutionDir)fruithunter\Source\Utility\Timer;$(SolutionDir)fruithunter\Source\Utility\Input;$(SolutionDir)fruithunter\Source\Utility\Error;$(SolutionDir)fruithunter\Source\Utility\Camera;$(SolutionDir)fruithunter\Source\Utility\Audio;$(SolutionDir)fruithunter\Source\Utility\Repositories;$(SolutionDir)fruithunter\Source\Utility\PerformanceTimer;$(SolutionDir)fruithunter\Source\Utility\VariableSyncer;$(SolutionDir)fruithunter\Source\Utility;$(SolutionDir)fruithunter\Source\State\States;$(SolutionDir)fruithunter\Source\State;$(SolutionDir)fruithunter\Source\Player;$(SolutionDir)fruithunter\Source\Header;$(SolutionDir)fruithunter\Source\Graphics\Shaders;$(SolutionDir)fruithunter\Source\Drawable\ParticleSystem;$(SolutionDir)fruithunter\Source\Graphics\ShadowMapping;$(SolutionDir)fruithunter\Source\Graphics;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Terrain;$(SolutionDir)fruithunter\Source\Drawable\Mesh\SkyBox;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Text;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Fruit;$(SolutionDir)fruithunter\Source\Drawable\Mesh;$(SolutionDir)fruithunter\Source\Drawable;$(SolutionDir)fruithunter\Source\Level\LevelHandler;$(SolutionDir)fruithunter\Source\Level\Levels;$(SolutionDir)fruithunter\Source\Level;$(SolutionDir)fruithunter\Source;$(SolutionDir)fruithunter\includes;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)fruithunter\libraries\x64\Debug;$(LibraryPath)</LibraryPath>
     <CodeAnalysisRuleSet>CppCoreCheckArithmeticRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -179,6 +179,8 @@
     <ClCompile Include="Source\Drawable\Mesh\Terrain\Terrain.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Terrain\TerrainManager.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Text\TextRenderer.cpp" />
+    <ClCompile Include="Source\Drawable\ParticleSystem\Particle.cpp" />
+    <ClCompile Include="Source\Drawable\ParticleSystem\ParticleSystem.cpp" />
     <ClCompile Include="Source\Drawable\SeaEffect.cpp" />
     <ClCompile Include="Source\Graphics\Renderer.cpp" />
     <ClCompile Include="Source\Graphics\ShaderSet.cpp" />
@@ -195,6 +197,7 @@
     <ClCompile Include="Source\Utility\Camera\Camera.cpp" />
     <ClCompile Include="Source\Utility\Error\ErrorLogger.cpp" />
     <ClCompile Include="Source\Utility\Input\Input.cpp" />
+    <ClCompile Include="Source\Utility\PerformanceTimer\PerformanceTimer.cpp" />
     <ClCompile Include="Source\Utility\Repositories\MeshRepository.cpp" />
     <ClCompile Include="Source\Utility\Timer\Timer.cpp" />
     <ClCompile Include="Source\Utility\VariableSyncer\VariableSyncer.cpp" />
@@ -219,6 +222,8 @@
     <ClInclude Include="Source\Drawable\Mesh\Terrain\Terrain.h" />
     <ClInclude Include="Source\Drawable\Mesh\Terrain\TerrainManager.h" />
     <ClInclude Include="Source\Drawable\Mesh\Text\TextRenderer.h" />
+    <ClInclude Include="Source\Drawable\ParticleSystem\Particle.h" />
+    <ClInclude Include="Source\Drawable\ParticleSystem\ParticleSystem.h" />
     <ClInclude Include="Source\Drawable\SeaEffect.h" />
     <ClInclude Include="Source\Graphics\Renderer.h" />
     <ClInclude Include="Source\Graphics\ShaderSet.h" />
@@ -237,11 +242,16 @@
     <ClInclude Include="Source\Utility\Error\ErrorLogger.h" />
     <ClInclude Include="Source\Utility\Input\Input.h" />
     <ClInclude Include="Source\Utility\QuadTree.h" />
+    <ClInclude Include="Source\Utility\PerformanceTimer\PerformanceTimer.h" />
     <ClInclude Include="Source\Utility\Repositories\MeshRepository.h" />
     <ClInclude Include="Source\Utility\Timer\Timer.h" />
     <ClInclude Include="Source\Utility\VariableSyncer\VariableSyncer.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Source\Graphics\Shaders\GeometryShader_particleSystem.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\PixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
@@ -252,6 +262,13 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_darkEdge.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_model.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
@@ -259,6 +276,10 @@
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_model_onlyMesh.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_particleSystem.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_terrain.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -286,6 +307,17 @@
     <FxCompile Include="Source\Graphics\Shaders\VertexShader_model_onlyMesh.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\VertexShader_quadSimplePass.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\VertexShader_particleSystem.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\VertexShader_seaEffect.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>

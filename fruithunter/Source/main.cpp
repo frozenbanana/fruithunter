@@ -9,12 +9,15 @@
 #include "IntroState.h"
 #include "Camera.h"
 #include "VariableSyncer.h"
+#include "PerformanceTimer.h"
 
 void onLoad(void* ptr) { ErrorLogger::log("Loaded struct!"); }
 
 int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
 	_In_ int cmdCount) {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
+	PerformanceTimer::start("Initilize");
 
 	Input::initilize(Renderer::getInstance()->getHandle());
 
@@ -23,13 +26,16 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	Renderer* renderer = Renderer::getInstance();
 	ErrorLogger errorLogger;
 
-	ErrorLogger errorMan;
-
 	MSG msg = { 0 };
 	stateHandler->initialize();
-	//Hardcoded statechange here. (TESTING)
+
+	PerformanceTimer::stop();
+	PerformanceTimer::start("AllFrames");
+
+	// Hardcoded statechange here. (TESTING)
 	stateHandler->changeState(StateHandler::PLAY);
 	while (StateHandler::getInstance()->isRunning()) {
+		PerformanceTimer::start("FrameTime", PerformanceTimer::TimeState::state_average);
 		VariableSyncer::getInstance()->sync();
 		input->update();
 		if (input->keyPressed(DirectX::Keyboard::F1)) {
@@ -43,11 +49,12 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 		}
 
 		// Main loop
-		stateHandler->handleEvent(); 
-		stateHandler->update();		 
-		stateHandler->draw();		 // calls current states draw()
+		stateHandler->handleEvent();
+		stateHandler->update();
+		stateHandler->draw(); // calls current states draw()
 		renderer->endFrame();
 
+		PerformanceTimer::stop();
 		while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -63,6 +70,6 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 		}
 		MSG msg = { 0 };
 	}
-
+	PerformanceTimer::stop();
 	return 0;
 }

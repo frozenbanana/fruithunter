@@ -1,13 +1,17 @@
 #include "TerrainManager.h"
+#include "PerformanceTimer.h"
 TerrainManager TerrainManager::m_this;
 TerrainManager* TerrainManager::getInstance() { return &m_this; }
 TerrainManager::TerrainManager() {}
 void TerrainManager::add(float3 position, float3 scale, string heightmapFilename,
 	vector<string> textures, XMINT2 subSize, XMINT2 division, float3 wind) {
+
+	PerformanceTimer::getInstance()->start("Creation of: "+heightmapFilename);
 	Terrain terrain(heightmapFilename, textures, subSize, division, wind);
 	terrain.setPosition(position);
 	terrain.setScale(scale);
 	m_terrains.push_back(terrain);
+	PerformanceTimer::getInstance()->stop();
 }
 
 

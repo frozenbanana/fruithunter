@@ -3,6 +3,8 @@
 #include "ErrorLogger.h"
 #include <WICTextureLoader.h>
 #include "Input.h"
+#include "PerformanceTimer.h"
+
 ShaderSet Terrain::m_shader;
 Microsoft::WRL::ComPtr<ID3D11Buffer> Terrain::m_matrixBuffer;
 Microsoft::WRL::ComPtr<ID3D11SamplerState> Terrain::m_sampler;
@@ -22,6 +24,16 @@ void Terrain::createBuffers() {
 		sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 		sampDesc.MinLOD = -3.402823466e+38F;
 		sampDesc.MaxLOD = 3.402823466e+38F;
+		/*D3D11_SAMPLER_DESC sampDesc;
+		sampDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.MipLODBias = 0.0f;
+		sampDesc.MaxAnisotropy = 16;
+		sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		sampDesc.MinLOD = -3.402823466e+38F;
+		sampDesc.MaxLOD = 3.402823466e+38F;*/
 		HRESULT res = gDevice->CreateSamplerState(&sampDesc, m_sampler.GetAddressOf());
 		if (FAILED(res))
 			ErrorLogger::logError(res, "Failed creating sampler state in Terrain class!\n");
@@ -113,19 +125,19 @@ float Terrain::sampleHeightmap(float2 uv) {
 	if (m_heightmapDescription.Format == DXGI_FORMAT_R8_UNORM) {
 		unsigned char r =
 			((unsigned char*)
-				m_heightmapMappedData.pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x];
+					m_heightmapMappedData.pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x];
 		v = (float)r / (pow(2.f, 1.f * 8.f) - 1.f);
 	}
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R8G8B8A8_UNORM) {
 		unsigned char r = ((unsigned char*)m_heightmapMappedData
-			.pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
+							   .pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
 		v = (float)r / (pow(2.f, 1.f * 8.f) - 1.f);
 	}
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R8G8B8A8_UNORM_SRGB) {
 		unsigned char r = ((unsigned char*)m_heightmapMappedData
-			.pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
+							   .pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
 		unsigned char g = ((unsigned char*)m_heightmapMappedData
-			.pData)[(iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4) + 1];
+							   .pData)[(iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4) + 1];
 		if ((float)g > 0.0f)
 			m_spawnPoint.push_back(float2((float)iUV.x, (float)iUV.y));
 		v = (float)r / 255.f;
@@ -133,14 +145,15 @@ float Terrain::sampleHeightmap(float2 uv) {
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R16G16B16A16_UNORM) {
 		unsigned short int r =
 			((unsigned short int*)m_heightmapMappedData
-				.pData)[iUV.y * (m_heightmapMappedData.RowPitch / sizeof(short int)) +
-			iUV.x * 4];
+					.pData)[iUV.y * (m_heightmapMappedData.RowPitch / sizeof(short int)) +
+							iUV.x * 4];
 		v = (float)r / (pow(2.f, sizeof(short int) * 8.f) - 1.f);
 	}
 	return v;
 }
 
 void Terrain::createGridPointsFromHeightmap() {
+	PerformanceTimer::start("Terrain Heightmap grid creation");
 	XMINT2 order[6] = { // tri1
 		XMINT2(1, 1), XMINT2(0, 0), XMINT2(0, 1),
 		// tri2
@@ -170,9 +183,9 @@ void Terrain::createGridPointsFromHeightmap() {
 			for (int yy = 1; yy < m_gridPointSize.y - 1; yy++) {
 				float3 current = mapCopy[xx][yy].position;
 				float3 average = (mapCopy[xx][yy].position + mapCopy[xx + 1][yy].position +
-					mapCopy[xx][yy + 1].position + mapCopy[xx - 1][yy].position +
-					mapCopy[xx][yy - 1].position) /
-					5.0f;
+									 mapCopy[xx][yy + 1].position + mapCopy[xx - 1][yy].position +
+									 mapCopy[xx][yy - 1].position) /
+								 5.0f;
 				m_gridPoints[xx][yy].position = average;
 			}
 		}
@@ -205,6 +218,7 @@ void Terrain::createGridPointsFromHeightmap() {
 			m_gridPoints[xx][yy].normal.Normalize();
 		}
 	}
+	PerformanceTimer::stop();
 }
 
 void Terrain::createGrid(XMINT2 size) {
@@ -223,6 +237,7 @@ void Terrain::createGrid(XMINT2 size) {
 
 void Terrain::fillSubMeshes() {
 	if (m_gridPointSize.x != 0 && m_gridPointSize.y != 0) {
+		PerformanceTimer::start("Filling of sub meshes");
 		// initilize quadtree
 		size_t layers = (size_t)round(log2(max(m_gridSize.x, m_gridSize.y)));
 		m_quadtree.initilize(float3(0, 0, 0), float3(1.f, 1.f, 1.f), layers);
@@ -290,6 +305,7 @@ void Terrain::fillSubMeshes() {
 				m_quadtree.add(position, quadtree_subScale, XMINT2(ixx, iyy));
 			}
 		}
+		PerformanceTimer::stop();
 	}
 	else {
 		// invalid size
