@@ -35,7 +35,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	PerformanceTimer::start("AllFrames");
 
 	// Hardcoded statechange here. (TESTING)
-	stateHandler->changeState(StateHandler::PLAY);
+	// stateHandler->changeState(StateHandler::PLAY);
 	while (StateHandler::getInstance()->isRunning()) {
 		PerformanceTimer::start("FrameTime", PerformanceTimer::TimeState::state_average);
 		VariableSyncer::getInstance()->sync();
@@ -48,6 +48,11 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 		if (input->keyPressed(DirectX::Keyboard::F2)) {
 			ErrorLogger::log("Number 2 was pressed!");
 			stateHandler->changeState(StateHandler::PLAY);
+		}
+
+		if (input->keyPressed(DirectX::Keyboard::Escape)) {
+			ErrorLogger::log("Number 3 was pressed!");
+			stateHandler->changeState(StateHandler::PAUSE);
 		}
 
 		// Main loop
@@ -66,7 +71,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 			}
 		}
 
-		if (Input::getInstance()->keyPressed(DirectX::Keyboard::Escape)) {
+		if (Input::getInstance()->keyPressed(DirectX::Keyboard::F4)) {
 			stateHandler->quit();
 			break;
 		}

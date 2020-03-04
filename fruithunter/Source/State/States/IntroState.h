@@ -6,6 +6,7 @@
 #include "TextRenderer.h"
 #include "Timer.h"
 #include "ParticleSystem.h"
+#include "ShaderSet.h"
 
 
 class IntroState : public State {
@@ -24,7 +25,7 @@ private:
 	Timer m_timer;
 	Entity m_entity;
 	std::vector<Apple> m_apples;
-	ParticleSystem m_particleSystem;
-
+	// ParticleSystem m_particleSystem;
+	ShaderSet m_shaderSet;
 	TextRenderer m_textRenderer;
 };
