@@ -32,7 +32,6 @@ protected:
 	float m_startRotation; // start and end to interpolate between.
 	float m_endRotation;
 	void setAnimationDestination();
-	float findRequiredRotation(float3 lookAt);
 	void enforceOverTerrain();
 	Fruit(float3 pos = float3(0.f, 0.f, 0.f));
 	void behaviorReleased() override;
@@ -49,7 +48,6 @@ public:
 	void jump(float3 direction, float power);
 	void setStartPosition(float3 pos);
 	void setNextDestination(float3 nextDest);
-	void lookTo(float3 lookAt);
 	void setWorldHome(float3 pos);
 	bool withinDistanceTo(float3 target, float treshhold);
 	float3 getHomePosition() const;

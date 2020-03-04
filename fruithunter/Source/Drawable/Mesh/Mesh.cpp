@@ -320,9 +320,12 @@ bool Mesh::load(std::string filename, bool combineParts) {
 		return false;
 }
 void Mesh::loadOtherMaterials(std::vector<string> fileNames, int nrOfMaterials) {
-	m_materials.resize(nrOfMaterials); // Maybe not reload the first one and use +1 for index
-	for (size_t i = 0; i < nrOfMaterials; ++i) {
-		MeshHandler::loadMTL(fileNames[i], m_materials[i]);
+	if (m_materials.size() < 2) {
+		m_materials.resize(nrOfMaterials); // Maybe not reload the first one and use +1 for index
+		for (size_t i = 0; i < nrOfMaterials; ++i) {
+			m_materials[i].clear();
+			MeshHandler::loadMTL(fileNames[i], m_materials[i]);
+		}
 	}
 }
 float Mesh::castRayOnMesh(float3 rayPos, float3 rayDir) {
