@@ -177,7 +177,9 @@
     <ClCompile Include="Source\AI\PathFindingThread.cpp">
       <Filter>Source\AI</Filter>
     </ClCompile>
-    <ClCompile Include="Source\State\States\LevelSelectState.cpp" />
+    <ClCompile Include="Source\State\States\LevelSelectState.cpp">
+      <Filter>Source\State\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">

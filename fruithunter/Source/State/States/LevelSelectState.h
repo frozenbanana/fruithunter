@@ -23,13 +23,14 @@ public:
 	void draw();
 
 	LevelSelectState() { initialize(); }
+	~LevelSelectState();
 
 private:
 	Player m_player;
 	EntityRepository m_terrainProps;
 	SeaEffect m_waterEffect;
 	SkyBox m_skyBox;
-	TerrainManager* m_terrainManager;
+	Terrain* m_terrain;
 
 	// Shadow stuff
 	unique_ptr<ShadowMapper> m_shadowMap;

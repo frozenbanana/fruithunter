@@ -49,7 +49,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 
 		if (input->keyPressed(DirectX::Keyboard::F2)) {
 			ErrorLogger::log("Number 2 was pressed!");
-			stateHandler->changeState(StateHandler::PLAY);
+			stateHandler->changeState(StateHandler::LEVEL_SELECT);
 		}
 
 		// Main loop
