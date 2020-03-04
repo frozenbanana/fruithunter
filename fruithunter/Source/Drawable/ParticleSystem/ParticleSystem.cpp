@@ -192,14 +192,12 @@ void ParticleSystem::bindBuffers() {
 
 
 void ParticleSystem::draw() {
-	if (m_isActive) {
-		auto deviceContext = Renderer::getDeviceContext();
-		m_shaderSet.bindShadersAndLayout();
-		bindBuffers();
-		Renderer::getInstance()->enableAlphaBlending();
-		deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
-		Renderer::getInstance()->disableAlphaBlending();
-	}
+	auto deviceContext = Renderer::getDeviceContext();
+	m_shaderSet.bindShadersAndLayout();
+	bindBuffers();
+	Renderer::getInstance()->enableAlphaBlending();
+	deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
+	Renderer::getInstance()->disableAlphaBlending();
 }
 
 void ParticleSystem::setActive() { m_isActive = true; }
