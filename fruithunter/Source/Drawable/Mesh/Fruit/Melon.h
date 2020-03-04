@@ -6,9 +6,9 @@ class Melon : public Fruit {
 private:
 	float m_rollAnimationSpeed;
 	float3 m_secondWorldHome;
-	void behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) override;
-	void behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) override;
-	void behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> collidables) override;
+	void behaviorPassive(float3 playerPosition) override;
+	void behaviorActive(float3 playerPosition) override;
+	void behaviorCaught(float3 playerPosition) override;
 
 	void roll(float dt);
 	float m_rollSpeed;

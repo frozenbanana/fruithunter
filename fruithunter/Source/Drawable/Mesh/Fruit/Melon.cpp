@@ -17,63 +17,66 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	setWorldHome(m_position);
 	m_secondWorldHome = m_worldHome + float3(3.f, 0.0, 3.0f);
 	m_secondWorldHome.y = TerrainManager::getInstance()->getHeightFromPosition(m_secondWorldHome);
-	m_directionalVelocity = m_position - m_secondWorldHome;
-	m_directionalVelocity.Normalize();
+	m_direction = m_position - m_secondWorldHome;
+
 	m_rollAnimationSpeed = 2.0f;
 	setCollisionDataOBB();
 
 
 	m_passiveRadius = 15.f;
 	m_activeRadius = 15.f;
+
+	m_passive_speed = 8.f;
+	m_active_speed = 15.f;
+	m_caught_speed = 10.f;
 }
 
-void Melon::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
+void Melon::behaviorPassive(float3 playerPosition) {
 	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
 
 		if (withinDistanceTo(m_worldHome, 0.75f)) {
-			m_directionalVelocity = m_secondWorldHome - m_position;
+			m_direction = m_secondWorldHome - m_position;
 			lookTo(m_secondWorldHome);
-			m_directionalVelocity.Normalize();
 		}
 		else if (withinDistanceTo(m_secondWorldHome, 0.75f)) {
-			m_directionalVelocity = m_worldHome - m_position;
+			m_direction = m_worldHome - m_position;
 			lookTo(m_worldHome);
-			m_directionalVelocity.Normalize();
 		}
 		else if (!withinDistanceTo(m_worldHome, 5.f) && !withinDistanceTo(m_secondWorldHome, 5.f)) {
-			m_directionalVelocity = m_worldHome - m_position;
+			m_direction = m_worldHome - m_position;
 			lookTo(m_worldHome);
-			m_directionalVelocity.Normalize();
 		}
 	}
-	m_speed = 2.f;
+	m_speed = m_passive_speed;
 	if (withinDistanceTo(playerPosition, m_activeRadius)) {
 		changeState(ACTIVE);
 	}
 }
 
-void Melon::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
+void Melon::behaviorActive(float3 playerPosition) {
 	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
 
 		if (m_availablePath.empty()) {
 			float3 target = circulateAround(playerPosition);
-			pathfinding(m_position, target, collidables);
+			makeReadyForPath(target);
 		}
 	}
 
-	lookTo(playerPosition);
-	m_speed = 5.f;
+	lookToDir(m_position - playerPosition);
+	m_speed = m_active_speed;
 
 	if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
+		stopMovement();
 		changeState(PASSIVE);
 	}
 }
 
-void Melon::behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
+void Melon::behaviorCaught(float3 playerPosition) {
 	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
-		m_directionalVelocity = playerPosition - m_position; // run to player
-		m_directionalVelocity.Normalize();
-		m_speed *= 16.f;
+		m_direction = playerPosition - m_position; // run to player
+
+		m_speed = m_caught_speed;
+		makeReadyForPath(playerPosition);
 	}
 	lookTo(playerPosition);
 }

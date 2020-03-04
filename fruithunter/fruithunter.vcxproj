@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -161,6 +161,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\AI\AI.cpp" />
+    <ClCompile Include="Source\AI\PathFindingThread.cpp" />
     <ClCompile Include="Source\Drawable\Animated.cpp" />
     <ClCompile Include="Source\Drawable\Entity.cpp" />
     <ClCompile Include="Source\Drawable\EntityCollision.cpp" />
@@ -206,6 +207,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\AI\AI.h" />
+    <ClInclude Include="Source\AI\PathFindingThread.h" />
     <ClInclude Include="Source\Drawable\Animated.h" />
     <ClInclude Include="Source\Drawable\Entity.h" />
     <ClInclude Include="Source\Drawable\EntityCollision.h" />

@@ -180,6 +180,9 @@
     <ClCompile Include="Source\Utility\Input\Button.cpp">
       <Filter>Source\Utility\Input</Filter>
     </ClCompile>
+    <ClCompile Include="Source\AI\PathFindingThread.cpp">
+      <Filter>Source\AI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -307,6 +310,9 @@
     </ClInclude>
     <ClInclude Include="Source\Drawable\Mesh\Animal.h">
       <Filter>Source\Drawable\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AI\PathFindingThread.h">
+      <Filter>Source\AI</Filter>
     </ClInclude>
     <ClInclude Include="Source\State\States\PauseState.h">
       <Filter>Source\State\States</Filter>
