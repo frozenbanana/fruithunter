@@ -23,10 +23,8 @@ cbuffer lightInfo : register(b5) {
 
 float3 lighting(float3 pos, float3 normal, float3 color, float shade) {
 	// light utility
-	/*float3 lightPos = float3(-5, 2, -3);
-	float3 toLight = normalize(lightPos - pos);
-	toLight = float3(1, 1, 1);*/
-	//float3 lightPos = float3(-0.f, 110.f, 100.f);
+	/*float3 lightPos = float3(-0.f, 110.f, 100.f);
+	float3 toLight = normalize(lightPos - pos);*/
 	float3 toLight = normalize(float3(-100.f, 110.f, 0));
 
 	// diffuse
@@ -36,7 +34,7 @@ float3 lighting(float3 pos, float3 normal, float3 color, float shade) {
 	// float reflectTint =
 	//	pow(max(dot(normalize(reflect(-toLight, normal)), normalize(-pos)), 0.0), 20.0);
 	// return color * (0.2 + shadowTint + reflectTint);
-	return color * (ambient + shadowTint * shade * diffuse);
+	return color * (ambient.xyz + shadowTint * shade * diffuse.xyz);
 }
 
 float specialLerp(float v, float min, float max) {
