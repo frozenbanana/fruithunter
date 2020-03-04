@@ -122,6 +122,7 @@ void Fruit::behaviorReleased() {
 void Fruit::updateVelocity(float dt) {
 	m_velocity *= pow(m_friction / 60.f, dt);
 	m_direction.Normalize();
+	float3 dir = m_direction * m_speed;
 	m_velocity += (m_direction * m_speed + m_gravity) * dt;
 	// m_position += (m_directionalVelocity + m_speed) * dt;
 	// m_velocity += float3(-m_friction, 0.0f, -m_friction) * dt;

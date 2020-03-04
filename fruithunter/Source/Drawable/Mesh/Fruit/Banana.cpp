@@ -1,5 +1,10 @@
 #include "Banana.h"
 
+#define PASSIVE_JUMP_POWER 15.f
+#define ACTIVE_JUMP_POWER 35.f
+#define PANIC_JUMP_POWER 40.f
+
+
 
 Banana::Banana(float3 pos) : Fruit(pos) {
 	m_fruitType = BANANA;
@@ -15,10 +20,9 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 	m_currentState = PASSIVE;
 	m_worldHome = m_position;
 	setCollisionDataOBB();
-
+	m_speed = 1.f;
 	m_activeRadius = 5.f;
-	m_passiveRadius = 0.f;
-
+	m_passiveRadius = 3.f;
 
 	setFrameTargets(0, 1);
 }
@@ -40,10 +44,11 @@ void Banana::behaviorPassive(float3 playerPosition) {
 			terrainNormal.Normalize();
 			direction = terrainNormal;
 		}
-		jump(direction, 4.0f);
+		jump(direction, PASSIVE_JUMP_POWER);
 
 		if (withinDistanceTo(playerPosition, m_activeRadius)) {
 			changeState(ACTIVE);
+			stopMovement();
 		}
 	}
 }
@@ -51,19 +56,19 @@ void Banana::behaviorPassive(float3 playerPosition) {
 void Banana::behaviorActive(float3 playerPosition) {
 	TerrainManager* terrainManger = TerrainManager::getInstance();
 	float terrainHeight = terrainManger->getHeightFromPosition(m_position);
+	if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
+		changeState(PASSIVE);
+		// stopMovement();
+	}
 	// Only decide what to do on ground
 	if (atOrUnder(terrainHeight)) {
 		float3 terrainNormal = terrainManger->getNormalFromPosition(m_position);
 		// Go bananas!
-		terrainNormal.x += 0.1f * (float)(rand() % 1) - 0.5f;
-		terrainNormal.z += 0.1f * (float)(rand() % 1) - 0.5f;
+		terrainNormal.x += RandomFloat(-1.f, 1.f);
+		terrainNormal.z += RandomFloat(-1.f, 1.f);
 		terrainNormal.y = 1.0f;
-		jump(terrainNormal, 4.0f);
-		m_speed = 5.f;
-
-		if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
-			changeState(PASSIVE);
-		}
+		jump(terrainNormal, ACTIVE_JUMP_POWER);
+		// m_speed = 5.f;
 	}
 }
 void Banana::behaviorCaught(float3 playerPosition) {
@@ -76,7 +81,7 @@ void Banana::behaviorCaught(float3 playerPosition) {
 		toPlayer.Normalize();
 		toPlayer.y = 1.0f;
 		m_speed = 1.0f;
-		jump(toPlayer, 1.0f);
+		jump(toPlayer, 8.0f);
 	}
 }
 
@@ -103,8 +108,8 @@ void Banana::release(float3 direction) {
 	m_state = Stopped;
 	changeState(RELEASED);
 	m_direction = direction;
-	m_velocity = m_direction;
-	m_speed = 20.f;
+	m_velocity = m_direction * 40.f;
+	// m_speed = 10.f;
 	m_afterRealease = true;
 }
 
