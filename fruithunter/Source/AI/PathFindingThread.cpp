@@ -33,24 +33,29 @@ void PathFindingThread::run() {
 
 	auto pft = PathFindingThread::getInstance();
 	size_t counter = 0;
-	size_t index = 0;
+	int index = 0;
 	ErrorLogger::log("Thread running");
 	while (!checkVolatile(pft->m_ready)) {}
 	// Thread updateLoop
 	while (checkVolatile(pft->m_running)) {
-		pft->m_mutex.lock();
-		bool checkSize = pft->m_batch->size() > 0;
-		pft->m_mutex.unlock();
-		if (checkSize) {
+		/*pft->m_mutex.lock();
+		pft->m_mutex.unlock();*/
+		//if (checkSize) {
+			//bool checkSize = pft->m_batch->size() > 0;
 			pft->m_mutex.lock();
 			index = (index < m_batch->size() - 1) ? index + 1 : 0;
-			auto object = pft->m_batch->at(index);
-			bool isNull = object == nullptr;
-			pft->m_mutex.unlock();
-			if (!isNull)
+			bool isNull = false;
+			if (pft->m_batch->size() > 0) {
+				//pft->m_mutex.lock();
+				auto object = pft->m_batch->at(index);
+				//pft->m_mutex.unlock();
 				object->pathfinding(object->getPosition());
+
+			}
+			pft->m_mutex.unlock();
+			
 			// ErrorLogger::log("Thread running");
-		}
+		//}
 	}
 }
 

@@ -114,6 +114,7 @@ void Fruit::behaviorReleased() {
 
 	if (atOrUnder(height)) {
 		changeState(PASSIVE);
+		stopMovement();
 		m_afterRealease = false;
 	}
 }
@@ -129,13 +130,14 @@ void Fruit::updateVelocity(float dt) {
 void Fruit::stopMovement() {
 	m_velocity = float3(0.f);
 	m_speed = 0.f;
+	m_availablePath.clear();
 }
 
 void Fruit::release(float3 direction) {
 	changeState(RELEASED);
 	stopMovement();
 	m_direction = direction;
-	m_speed = 20.f;
+	m_speed = 40.f;
 	m_velocity = m_direction * m_speed;
 	m_speed = 0.f;
 	m_afterRealease = true;

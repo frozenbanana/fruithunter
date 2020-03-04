@@ -36,7 +36,13 @@ void Apple::behaviorPassive(float3 playerPosition) {
 					m_nrOfTriesGoHome = 0;
 				}
 				// m_destination = m_worldHome; // ensures homegoing even if path returns nothing
-				m_speed = 1.f;
+				m_speed = 5.f;
+			}
+			else {
+				float3 jumpTo = (m_availablePath.back() - m_position);
+				jumpTo.Normalize();
+				jumpTo.y = 1.f;
+				jump(jumpTo, 1.f);
 			}
 		}
 		else { // Just jump when home
@@ -46,7 +52,7 @@ void Apple::behaviorPassive(float3 playerPosition) {
 				m_nrOfJumps++;
 				if (m_nrOfJumps >= MAXNROFJUMPS) {
 					float3 newHome = m_worldHome;
-					newHome += float3(RandomFloat(-100.f, 100.f), 0.f, RandomFloat(-100.f, 100.f));
+					newHome += float3(RandomFloat(-10.f, 10.f), 0.f, RandomFloat(-10.f, 10.f));
 					newHome.y = TerrainManager::getInstance()->getHeightFromPosition(newHome);
 					if (isValid(newHome, m_position)) {
 						m_worldHome = newHome;
@@ -72,8 +78,8 @@ void Apple::behaviorActive(float3 playerPosition) {
 
 void Apple::behaviorCaught(float3 playerPosition) {
 	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
-		m_direction = playerPosition - m_position; // run to player
-
+		//m_direction = playerPosition - m_position; // run to player
+		makeReadyForPath(playerPosition);
 		m_speed = 5.0f;
 	}
 	lookTo(playerPosition);

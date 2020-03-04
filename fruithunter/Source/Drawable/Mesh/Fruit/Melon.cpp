@@ -55,12 +55,12 @@ void Melon::behaviorActive(float3 playerPosition) {
 		if (m_availablePath.empty()) {
 			float3 target = circulateAround(playerPosition);
 			// pathfinding(m_position, target, collidables);
-			m_destination = target;
-			m_readyForPath = true;
+			makeReadyForPath(target);
+			
 		}
 	}
 
-	lookTo(playerPosition);
+	lookTo(m_position -playerPosition);
 	m_speed = 15.f;
 
 	if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
@@ -74,8 +74,9 @@ void Melon::behaviorCaught(float3 playerPosition) {
 		m_direction = playerPosition - m_position; // run to player
 
 		m_speed = 15.f;
+		makeReadyForPath(playerPosition);
 	}
-	lookTo(playerPosition);
+	lookTo(-playerPosition);
 }
 
 void Melon::roll(float dt) { rotateX(dt * m_rollAnimationSpeed); }

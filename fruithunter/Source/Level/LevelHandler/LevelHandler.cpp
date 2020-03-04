@@ -314,6 +314,7 @@ void LevelHandler::drawShadowDynamicEntities() {
 
 void LevelHandler::update(float dt) {
 	PerformanceTimer::start("LevelHandler_Update", PerformanceTimer::TimeState::state_average);
+	auto pft = PathFindingThread::getInstance();
 
 	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
@@ -334,6 +335,7 @@ void LevelHandler::update(float dt) {
 
 
 			for (size_t iFruit = 0; iFruit < m_fruits.size(); ++iFruit) {
+				pft->m_mutex.lock();
 				if (m_fruits[iFruit]->getFruitType() == m_Animals[i]->getfruitType()) {
 					float len =
 						(m_Animals[i]->getPosition() - m_fruits[iFruit]->getPosition()).Length();
@@ -342,6 +344,7 @@ void LevelHandler::update(float dt) {
 						m_fruits.erase(m_fruits.begin() + iFruit);
 					}
 				}
+				pft->m_mutex.unlock();
 			}
 		}
 		m_Animals[i]->update(dt);
@@ -383,7 +386,7 @@ void LevelHandler::update(float dt) {
 		f.pathfinding();
 	}
 	*/
-	auto pft = PathFindingThread::getInstance();
+	
 
 	m_skyBox.updateCurrentLight();
 
@@ -392,6 +395,7 @@ void LevelHandler::update(float dt) {
 		pft->m_mutex.lock();
 		m_fruits[i]->update(dt, playerPos, m_collidableEntities);
 		if (m_player.isShooting()) {
+
 			if (m_player.getArrow().checkCollision(*m_fruits[i])) {
 				m_fruits[i]->hit();
 				AudioHandler::getInstance()->playOnceByDistance(
@@ -402,7 +406,7 @@ void LevelHandler::update(float dt) {
 				ErrorLogger::log("Hit a fruit");
 			}
 		}
-		if (m_fruits[i]->getState() == AI::State::CAUGHT) {
+		//if (m_fruits[i]->getState() == AI::State::CAUGHT) {
 			if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() <
 				1.0f) { // If the fruit is close to the player get picked up
 				// pft->m_mutex.lock();
@@ -411,7 +415,7 @@ void LevelHandler::update(float dt) {
 				m_fruits.erase(m_fruits.begin() + i);
 				// pft->m_mutex.unlock();
 			}
-		}
+		//}
 		pft->m_mutex.unlock();
 	}
 

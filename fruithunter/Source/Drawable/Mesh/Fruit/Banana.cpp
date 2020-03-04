@@ -58,7 +58,7 @@ void Banana::behaviorActive(float3 playerPosition) {
 		terrainNormal.x += 0.1f * (float)(rand() % 1) - 0.5f;
 		terrainNormal.z += 0.1f * (float)(rand() % 1) - 0.5f;
 		terrainNormal.y = 1.0f;
-		jump(terrainNormal, 1.0f);
+		jump(terrainNormal, 4.0f);
 		m_speed = 5.f;
 
 		if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
@@ -100,9 +100,11 @@ void Banana::release(float3 direction) {
 	// start bouncing
 	m_nrOfFramePhases = 3;
 	m_bounciness = m_maxBounciness;
-	m_state = Bounce;
+	m_state = Stopped;
 	changeState(RELEASED);
 	m_direction = direction;
+	m_velocity = m_direction;
+	m_speed = 20.f;
 	m_afterRealease = true;
 }
 
