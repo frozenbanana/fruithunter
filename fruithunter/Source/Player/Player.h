@@ -20,11 +20,11 @@ public:
 	float3 getForward() const;
 	float3 getVelocity() const;
 	Entity& getArrow() { return m_bow.getArrow(); };
+	Bow& getBow() { return m_bow; }
 	float getStamina() const;
 	bool isShooting() const;
 	void setPosition(float3 position);
 	void standsOnObject();
-	Bow& getBow();
 
 private:
 	// Keys

@@ -112,9 +112,9 @@ private:
 				m_velocityOffsetInterval = float2(-0.2f, 0.2f); // for x, y and z
 				m_sizeInterval = float2(0.075f, 0.09f);
 				m_timeAliveInterval = float2(0.5f, 1.0f);
-				m_color[0] = float3(0.0f, 0.2f, 1.0f);
-				m_color[1] = float3(0.0f, 0.6f, 0.79f);
-				m_color[2] = float3(0.0f, 0.58f, 1.0f);
+				m_color[0] = float3(1.0f, 1.0f, 1.0f);
+				m_color[1] = float3(1.0f, 1.0f, 0.99f);
+				m_color[2] = float3(1.0f, 1.0f, 1.0f);
 				break;
 			default:
 				m_nrOfParticles = 0;
