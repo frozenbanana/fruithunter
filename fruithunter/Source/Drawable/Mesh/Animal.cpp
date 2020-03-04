@@ -16,6 +16,7 @@ void Animal::walkAndBack(float dt) {
 		m_walkTimeTracker += dt * m_returnSpeed;
 	}
 }
+
 void Animal::walkToSleep(float dt) {
 	if (m_walkTimeTracker < 0.5f) { // on way to position
 		setPosition(XMVectorLerp(m_origin, m_walkToPos, m_walkTimeTracker * 2.f));
