@@ -6,7 +6,7 @@ TerrainManager::TerrainManager() {}
 void TerrainManager::add(float3 position, float3 scale, string heightmapFilename,
 	vector<string> textures, XMINT2 subSize, XMINT2 division, float3 wind) {
 
-	PerformanceTimer::getInstance()->start("Creation of: "+heightmapFilename);
+	PerformanceTimer::getInstance()->start("Creation of: " + heightmapFilename);
 	Terrain terrain(heightmapFilename, textures, subSize, division, wind);
 	terrain.setPosition(position);
 	terrain.setScale(scale);
@@ -17,7 +17,7 @@ void TerrainManager::add(float3 position, float3 scale, string heightmapFilename
 
 Terrain* TerrainManager::getTerrainFromPosition(float3 position) {
 	for (size_t i = 0; i < m_terrains.size(); i++) {
-		if (m_terrains[i].pointInsideTerrainBoundingBox(position)) {
+		if (m_terrains[i].pointInsideTerrainBoundingBox(float3(position.x, 0.0, position.z))) {
 			return &m_terrains[i];
 		}
 	}
@@ -26,7 +26,7 @@ Terrain* TerrainManager::getTerrainFromPosition(float3 position) {
 
 int TerrainManager::getTerrainIndexFromPosition(float3 position) {
 	for (size_t i = 0; i < m_terrains.size(); i++) {
-		if (m_terrains[i].pointInsideTerrainBoundingBox(position)) {
+		if (m_terrains[i].pointInsideTerrainBoundingBox(float3(position.x, 0.0, position.z))) {
 			return (int)i;
 		}
 	}
