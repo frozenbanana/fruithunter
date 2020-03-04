@@ -4,7 +4,7 @@ PathFindingThread PathFindingThread::m_this;
 
 
 PathFindingThread::PathFindingThread() {
-	PathFindingThread* pft = PathFindingThread::getInstance();
+	auto pft = PathFindingThread::getInstance();
 	pft->m_ready = false;
 	pft->m_running = true;
 	pft->m_thread = new thread([this] { run(); });
@@ -19,8 +19,9 @@ void PathFindingThread::exitThread() {
 
 
 PathFindingThread::~PathFindingThread() {
-	m_thread->join();
-	delete m_thread;
+	auto pft = PathFindingThread::getInstance();
+	pft->m_thread->join();
+	delete pft->m_thread;
 }
 
 PathFindingThread* PathFindingThread::getInstance() { return &m_this; }
@@ -34,26 +35,19 @@ void PathFindingThread::run() {
 	size_t counter = 0;
 	int index = 0;
 
+	// wait until initialized.
 	while (!checkVolatile(pft->m_ready)) {}
 	// Thread updateLoop
 	while (checkVolatile(pft->m_running)) {
-		/*pft->m_mutex.lock();
-		pft->m_mutex.unlock();*/
-		// if (checkSize) {
-		// bool checkSize = pft->m_batch->size() > 0;
+
 		pft->m_mutex.lock();
 		index = (index < m_batch->size() - 1) ? index + 1 : 0;
-		bool isNull = false;
 		if (pft->m_batch->size() > 0) {
-			// pft->m_mutex.lock();
+			// pft->.lock();
 			auto object = pft->m_batch->at(index);
-			// pft->m_mutex.unlock();
 			object->pathfinding(object->getPosition());
 		}
 		pft->m_mutex.unlock();
-
-		// ErrorLogger::log("Thread running");
-		//}
 	}
 }
 

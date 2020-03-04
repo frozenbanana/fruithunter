@@ -11,8 +11,8 @@ class PathFindingThread {
 public:
 	static PathFindingThread* getInstance();
 
-	size_t m_ObjectsToBeUpdated = 0;
 	std::shared_ptr<size_t> m_currentFrame;
+	// rawptr because problem with smartptr
 	thread* m_thread = nullptr;
 	mutex m_mutex;
 	std::vector<shared_ptr<Fruit>>* m_batch;

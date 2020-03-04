@@ -12,8 +12,8 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 
 	m_fruitType = APPLE;
 
-	m_activeRadius = 4.f;
-	m_passiveRadius = 8.f;
+	m_activeRadius = 8.f;
+	m_passiveRadius = 12.f;
 
 	m_passive_speed = 3.f;
 	m_active_speed = 10.f;
@@ -52,7 +52,7 @@ void Apple::behaviorPassive(float3 playerPosition) {
 		else { // Just jump when home
 			if (m_onGround) {
 				m_speed = 0.f;
-				jump(float3(0.0f, 1.0f, 0.0), 20.f);
+				jump(float3(0.0f, 1.0f, 0.0), 7.f);
 				m_nrOfJumps++;
 				if (m_nrOfJumps >= MAXNROFJUMPS) {
 					float3 newHome = m_worldHome;
