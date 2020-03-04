@@ -13,7 +13,6 @@ private:
 	float4x4 m_matRotation;
 	bool m_transformPropertiesChanged = false; // if position, rotation or scale is changed then the
 											   // model matrix is updated when it is fetched
-
 	shared_ptr<Mesh> m_mesh;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_modelMatrixBuffer;

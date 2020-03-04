@@ -26,8 +26,6 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	Renderer* renderer = Renderer::getInstance();
 	ErrorLogger errorLogger;
 
-	ErrorLogger errorMan;
-
 	MSG msg = { 0 };
 	stateHandler->initialize();
 

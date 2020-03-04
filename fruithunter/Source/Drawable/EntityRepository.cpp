@@ -148,8 +148,6 @@ void EntityRepository::savePlacements(string filename) const {
 
 void EntityRepository::load(string filename) {
 	if (filename != "") {
-		m_castingSphere.load("Sphere");
-		m_castingSphere.setScale(0.1f);
 		if (fileExists(filename)) {
 			loadPlacements(filename);
 			fillEntitiesFromRepository();

@@ -38,7 +38,6 @@ private:
 	vector<unique_ptr<Entity>> m_entities;// array used to store placed entities for drawing
 
 	//placeable stuff
-	Entity m_castingSphere;
 	vector<unique_ptr<Entity>> m_placeable;//entities defined to be placeable
 	enum ModeState { state_inactive, state_placing, state_removing, Length 
 	} m_state = state_inactive; // state of mode
