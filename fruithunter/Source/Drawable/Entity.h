@@ -36,7 +36,6 @@ protected:
 
 
 public:
-	float3* getPosPtr();
 	string getModelName() const;
 	float4x4 getModelMatrix();
 	float4x4 getRotationMatrix() const;

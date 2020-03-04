@@ -56,8 +56,6 @@ bool Entity::atOrUnder(float terrainHeight) const {
 	return m_position.y <= (terrainHeight + getHalfSizes().y / 2.f);
 }
 
-float3* Entity::getPosPtr() { return &m_position; }
-
 string Entity::getModelName() const {
 	if (m_mesh != nullptr) {
 		return m_mesh->getName();
