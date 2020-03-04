@@ -13,6 +13,7 @@ Bow::Bow() {
 	m_arrow.setScale(float3(0.2f, 0.2f, m_arrowLength));
 	m_arrow.setPosition(float3(-10.f)); // To make sure that arrow doesn't spawn in fruits.
 	m_arrow.setCollisionDataOBB();
+	m_trailEffect = ParticleSystem(ParticleSystem::ARROW_GLITTER);
 }
 
 Bow::~Bow() {}
@@ -46,6 +47,7 @@ void Bow::update(
 
 	// Update arrow.
 	if (m_shooting) {
+		m_trailEffect.setActive();
 		if (!m_arrowHitObject) {
 			float castray =
 				TerrainManager::getInstance()->castRay(m_arrow.getPosition(), m_arrowVelocity * dt);
@@ -60,6 +62,10 @@ void Bow::update(
 			}
 			else {
 				arrowPhysics(dt, wind); // Updates arrow in flight, wind is no longer hard coded.
+				// update Particle System
+				m_trailEffect.setPosition(m_arrow.getPosition());
+				m_trailEffect.update(dt);
+
 				m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
 				m_arrow.setRotation(float3(m_arrowPitch, m_arrowYaw, 0));
 			}
@@ -71,6 +77,7 @@ void Bow::update(
 		}
 	}
 	else {
+		m_trailEffect.setInActive();
 		if (m_charging) {
 			// Move arrow with bowstring. Hardcoded values determined by experimentation.
 			m_arrow.setPosition(
@@ -114,6 +121,8 @@ void Bow::charge() { // Draws the arrow back on the bow
 		m_charging = true;
 	}
 }
+
+ParticleSystem& Bow::getTrailEffect() { return m_trailEffect; }
 
 void Bow::shoot(
 	float3 direction, float3 startVelocity, float pitch, float yaw) { // Shoots/fires the arrow

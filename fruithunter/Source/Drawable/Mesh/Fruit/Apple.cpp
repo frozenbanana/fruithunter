@@ -110,7 +110,7 @@ void Apple::updateAnimated(float dt) {
 			m_currentFramePhase = 0;
 			setAnimationDestination();
 			justChanged = true;
-			setRotation(float3(0.f, findRequiredRotation(m_nextDestinationAnimationPosition), 0.f));
+			lookTo(m_nextDestinationAnimationPosition);
 		}
 
 		m_meshAnim.setFrameTargets(frameOrder[m_currentFramePhase],

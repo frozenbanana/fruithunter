@@ -1,7 +1,5 @@
 #pragma once
-#include "Renderer.h"
-#include "ErrorLogger.h"
-
+#include "GlobalNamespaces.h"
 class ShaderSet {
 protected:
 	bool m_loaded = false;

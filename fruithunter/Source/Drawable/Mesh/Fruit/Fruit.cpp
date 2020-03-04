@@ -16,27 +16,9 @@ void Fruit::setStartPosition(float3 pos) {
 
 void Fruit::setNextDestination(float3 nextDest) { m_nextDestinationAnimationPosition = nextDest; }
 
-void Fruit::lookTo(float3 lookAt) { setRotation(float3(0.f, findRequiredRotation(lookAt), 0.f)); }
+
 
 int Fruit::getFruitType() { return m_fruitType; }
-
-float Fruit::findRequiredRotation(float3 lookAt) {
-	float rot = 0.f;
-
-	float dx = lookAt.x - getPosition().x;
-	float dz = lookAt.z - getPosition().z;
-	if (dx != 0) {
-		rot = -atan(dz / dx);
-	}
-	else {
-		rot = 0;
-	}
-
-	if (dx < 0) {
-		rot = 3.1416f + rot;
-	}
-	return rot + 3.14f * 0.5f;
-}
 
 void Fruit::enforceOverTerrain() {
 	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
