@@ -2,14 +2,24 @@
 #include "Entity.h"
 #include "AI.h"
 #include "TerrainManager.h"
-#include <thread>
-
+#define THROWVELOCITY 30.f
 class Fruit : public Entity, public AI {
 protected:
 	// Phyics based movment
-	float3 m_directionalVelocity;
+	float3 m_velocity = float3(0.f);
 	float m_speed = 0.0f;
-	float3 m_acceleration = float3(0.0f, -400.0f, 0.0f);
+	float3 m_gravity = float3(0.0f, -1.0f, 0.0f) * 15.0f; // same as player
+	float3 m_direction;
+	float m_groundFriction = 10.f;
+	float m_airFriction = 20.f;
+
+	bool m_onGround = true;
+
+	void checkOnGroundStatus();
+
+	float m_passive_speed;
+	float m_active_speed;
+	float m_caught_speed;
 
 	// -------------------
 	int m_nrOfFramePhases; // nr of phases to a movement
@@ -40,10 +50,15 @@ protected:
 	void setDirection();
 
 
+	bool m_afterRealease = false;
+
+	void updateVelocity(float dt);
+	void stopMovement();
+
 public:
-	void release(float3 direction);
+	virtual void release(float3 direction);
 	void move(float dt);
-	void update(float dt, float3 playerPosition, vector<shared_ptr<Entity>> collidables);
+	void update(float dt, float3 playerPosition);
 	virtual void updateAnimated(float dt) = 0;
 	void jump(float3 direction, float power);
 	void setStartPosition(float3 pos);
@@ -51,7 +66,7 @@ public:
 	void setWorldHome(float3 pos);
 	bool withinDistanceTo(float3 target, float treshhold);
 	float3 getHomePosition() const;
-	void setVelocity(float3 velo);
+
 
 	void hit() {
 		changeState(CAUGHT);
