@@ -1,6 +1,7 @@
 #pragma once
 #include "GlobalNamespaces.h"
 #include "ShaderSet.h"
+#include "Quad.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -32,6 +33,8 @@ public:
 	void copyDepthToSRV();
 
 	void draw_darkEdges();
+	
+	void drawLoading();
 
 private:
 	Renderer(int width, int height);
@@ -64,4 +67,8 @@ private:
 	//post process dark edges variables
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexQuadBuffer;
 	ShaderSet m_shader_darkEdges;
+
+	// Loading screen
+	Quad m_loadingScreen;
+	bool m_loadingScreenInitialised = false;
 };

@@ -93,19 +93,29 @@ void Renderer::copyDepthToSRV() {
 	m_deviceContext->CopyResource(dst, src);
 }
 
-void Renderer::draw_darkEdges() { 
+void Renderer::draw_darkEdges() {
 	copyDepthToSRV();
 	bindDepthSRV(0);
 
 	m_shader_darkEdges.bindShadersAndLayout();
 
 	bindConstantBuffer_ScreenSize(6);
-	
+
 	bindQuadVertexBuffer();
 
 	enableAlphaBlending();
 	m_deviceContext->Draw(6, 0);
 	disableAlphaBlending();
+}
+
+void Renderer::drawLoading() {
+	beginFrame();
+	if (!m_loadingScreenInitialised) {
+		m_loadingScreen.init();
+		m_loadingScreenInitialised = true;
+	}
+	m_loadingScreen.draw();
+	endFrame();
 }
 
 Renderer::Renderer(int width, int height) {
@@ -133,21 +143,19 @@ Renderer::Renderer(int width, int height) {
 		r->m_isLoaded = true;
 	}
 
-	//compile shaders
+	// compile shaders
 	if (!m_shader_darkEdges.isLoaded()) {
-		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = {
-			{
-				"Position",					 // "semantic" name in shader
-				0,							 // "semantic" index (not used)
-				DXGI_FORMAT_R32G32B32_FLOAT, // size of ONE element (3 floats)
-				0,							 // input slot
-				0,							 // offset of first element
-				D3D11_INPUT_PER_VERTEX_DATA, // specify data PER vertex
-				0							 // used for INSTANCING (ignore)
-			}
-		};
-		m_shader_darkEdges.createShaders(
-			L"VertexShader_quadSimplePass.hlsl", nullptr, L"PixelShader_darkEdge.hlsl", inputLayout_onlyMesh, 1);
+		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = { {
+			"Position",					 // "semantic" name in shader
+			0,							 // "semantic" index (not used)
+			DXGI_FORMAT_R32G32B32_FLOAT, // size of ONE element (3 floats)
+			0,							 // input slot
+			0,							 // offset of first element
+			D3D11_INPUT_PER_VERTEX_DATA, // specify data PER vertex
+			0							 // used for INSTANCING (ignore)
+		} };
+		m_shader_darkEdges.createShaders(L"VertexShader_quadSimplePass.hlsl", nullptr,
+			L"PixelShader_darkEdge.hlsl", inputLayout_onlyMesh, 1);
 	}
 }
 
@@ -351,7 +359,8 @@ void Renderer::createConstantBuffers() {
 
 void Renderer::createQuadVertexBuffer() {
 	if (m_vertexQuadBuffer.Get() == nullptr) {
-		float3 points[4] = { float3(-1, -1, 0), float3(1, -1, 0), float3(-1, 1,0), float3(1, 1,0) };
+		float3 points[4] = { float3(-1, -1, 0), float3(1, -1, 0), float3(-1, 1, 0),
+			float3(1, 1, 0) };
 		float3 quadData[6] = { points[0], points[3], points[1], points[0], points[2], points[3] };
 		// vertex buffer
 		m_vertexQuadBuffer.Reset();
@@ -365,8 +374,7 @@ void Renderer::createQuadVertexBuffer() {
 		HRESULT res = Renderer::getDevice()->CreateBuffer(
 			&bufferDesc, &data, m_vertexQuadBuffer.GetAddressOf());
 		if (FAILED(res))
-			ErrorLogger::logError(
-				res, "Failed creating quad vertex buffer in Renderer class!\n");
+			ErrorLogger::logError(res, "Failed creating quad vertex buffer in Renderer class!\n");
 	}
 }
 
