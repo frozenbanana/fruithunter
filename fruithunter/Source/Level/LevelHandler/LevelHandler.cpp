@@ -131,7 +131,7 @@ void LevelHandler::placeAllBridges() {
 
 void LevelHandler::placeAllAnimals() {
 	shared_ptr<Animal> animal = make_shared<Animal>("Gorilla", 10.f, 7.f, BANANA, 1, 10.f,
-		float3(98.2f, 3.1f, 39.f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
+		float3(96.2f, 3.1f, 38.f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
 	m_Animals.push_back(animal);
 
 	animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 3, 10.f, float3(37.f, 3.2f, 93.f),
@@ -175,9 +175,9 @@ void LevelHandler::initialise() {
 
 	m_particleSystems.resize(5);
 	m_particleSystems[0] = ParticleSystem(ParticleSystem::VULCANO_FIRE);
-	m_particleSystems[0].setPosition(float3(150.f, 7.f, 149.f));
+	m_particleSystems[0].setPosition(float3(150.f, 15.f, 150.f));
 	m_particleSystems[1] = ParticleSystem(ParticleSystem::VULCANO_SMOKE);
-	m_particleSystems[1].setPosition(float3(150.f, 27.f, 149.f));
+	m_particleSystems[1].setPosition(float3(150.f, 29.f, 150.f));
 	m_particleSystems[2] = ParticleSystem(ParticleSystem::GROUND_DUST);
 	m_particleSystems[2].setPosition(float3(42.f, 4.f, 125.f));
 	m_particleSystems[3] = ParticleSystem(ParticleSystem::FOREST_BUBBLE);
@@ -188,7 +188,7 @@ void LevelHandler::initialise() {
 	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(400, 400), XMINT2(1, 1),
 		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
 	float3 lavaSize(82.f, 0.f, 82.f);
-	float3 lavaPos(150, 1.5f,150); 
+	float3 lavaPos(150, 1.5f, 150);
 	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(100, 100), XMINT2(1, 1),
 		lavaPos - lavaSize / 2.f, lavaSize + float3(0, 2.f, 0));
 
@@ -416,10 +416,11 @@ void LevelHandler::update(float dt) {
 				m_fruits[i]->hit();
 				AudioHandler::getInstance()->playOnceByDistance(
 					AudioHandler::HIT_FRUIT, m_player.getPosition(), m_fruits[i]->getPosition());
-
+				ErrorLogger::logFloat3("Arrow pos", m_player.getArrow().getPosition());
+				ErrorLogger::logFloat3(
+					"Fruit on index " + to_string(i) + " on pos ", m_fruits[i]->getPosition());
 				m_player.getArrow().setPosition(
 					float3(-100.f)); // temporary to disable arrow until returning
-				ErrorLogger::log("Hit a fruit");
 			}
 		}
 		if (m_fruits[i]->getState() == AI::State::CAUGHT) {

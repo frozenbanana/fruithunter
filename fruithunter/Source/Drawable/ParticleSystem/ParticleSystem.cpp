@@ -5,6 +5,7 @@
 #include "VariableSyncer.h"
 
 ShaderSet ParticleSystem::m_shaderSet;
+Microsoft::WRL::ComPtr<ID3D11Buffer> ParticleSystem::m_vertexBuffer;
 
 ParticleSystem::ParticleSystem(ParticleSystem::PARTICLE_TYPE type) {
 
@@ -143,15 +144,12 @@ void ParticleSystem::update(float dt, float3 wind) {
 			m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
 			m_particleProperties[i].m_timeLeft -= dt;
 			m_particles[i].update(dt, m_particleProperties[i].m_velocity + wind);
-	
+
 			// Inactivate particles when lifetime is over
 			if (m_particleProperties[i].m_timeLeft <= 0.f) {
 				m_particles[i].setIsActive(0.0f);
 			}
 		}
-
-		Renderer::getDeviceContext()->UpdateSubresource(
-			m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
 	}
 }
 
@@ -160,22 +158,22 @@ void ParticleSystem::createBuffers() {
 	auto deviceContext = Renderer::getDeviceContext();
 
 	//  Buffer for particle data
-	m_vertexBuffer.Reset();
+	if (m_vertexBuffer.Get() == nullptr) {
+		D3D11_BUFFER_DESC buffDesc;
+		memset(&buffDesc, 0, sizeof(buffDesc));
 
-	D3D11_BUFFER_DESC buffDesc;
-	memset(&buffDesc, 0, sizeof(buffDesc));
+		buffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		buffDesc.Usage = D3D11_USAGE_DEFAULT;
+		buffDesc.ByteWidth = (UINT)(sizeof(Particle) * MAX_PARTICLES);
 
-	buffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	buffDesc.Usage = D3D11_USAGE_DEFAULT;
-	buffDesc.ByteWidth = (UINT)(sizeof(Particle) * MAX_PARTICLES);
+		D3D11_SUBRESOURCE_DATA data;
+		data.pSysMem = m_particles.data();
 
-	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = m_particles.data();
+		HRESULT check = device->CreateBuffer(&buffDesc, &data, m_vertexBuffer.GetAddressOf());
 
-	HRESULT check = device->CreateBuffer(&buffDesc, &data, m_vertexBuffer.GetAddressOf());
-
-	if (FAILED(check))
-		ErrorLogger::logError(check, "Failed creating buffer in ParticleSystem class!\n");
+		if (FAILED(check))
+			ErrorLogger::logError(check, "Failed creating buffer in ParticleSystem class!\n");
+	}
 }
 
 void ParticleSystem::bindBuffers() {
@@ -190,6 +188,10 @@ void ParticleSystem::bindBuffers() {
 
 void ParticleSystem::draw() {
 	auto deviceContext = Renderer::getDeviceContext();
+	// Since we are using the same vertex buffer for all Particle Systems
+	// the buffer update needs to be next to the draw call.
+	deviceContext->UpdateSubresource(m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
+
 	m_shaderSet.bindShadersAndLayout();
 	bindBuffers();
 	Renderer::getInstance()->enableAlphaBlending();

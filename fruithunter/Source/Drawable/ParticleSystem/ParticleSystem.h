@@ -2,7 +2,7 @@
 #include "particle.h"
 #include "ShaderSet.h"
 #include "Timer.h"
-#define MAX_PARTICLES 512
+#define MAX_PARTICLES 256
 
 
 class ParticleSystem {
@@ -165,8 +165,9 @@ private:
 	static ShaderSet m_shaderSet;
 
 	// Buffers
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
-	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_colorBuffer;
+	// All particle systems share the same buffer since they wil all be the same size
+	// And data will always update before each indivudal draw call
+	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 
 	void createBuffers();
 	void bindBuffers();
