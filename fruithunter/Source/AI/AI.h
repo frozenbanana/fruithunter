@@ -1,7 +1,7 @@
 #pragma once
 #include "GlobalNamespaces.h"
-#include "TerrainManager.h"
-#include "Player.h"
+#include "Terrain.h"
+#include "Entity.h"
 #include <list>
 #define ARRIVAL_RADIUS 3.0f
 #define MAX_STEAPNESS .2f

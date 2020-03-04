@@ -6,12 +6,10 @@ TerrainManager::TerrainManager() {}
 void TerrainManager::add(float3 position, float3 scale, string heightmapFilename,
 	vector<string> textures, XMINT2 subSize, XMINT2 division, float3 wind) {
 
-	PerformanceTimer::getInstance()->start("Creation of: " + heightmapFilename);
 	Terrain terrain(heightmapFilename, textures, subSize, division, wind);
 	terrain.setPosition(position);
 	terrain.setScale(scale);
 	m_terrains.push_back(terrain);
-	PerformanceTimer::getInstance()->stop();
 }
 
 
@@ -68,22 +66,26 @@ float TerrainManager::castRay(float3 point, float3 direction) {
 }
 
 void TerrainManager::draw() {
+	PerformanceTimer::Record record(
+		"TerrainManager Draw", PerformanceTimer::TimeState::state_average);
 	for (size_t i = 0; i < m_terrains.size(); i++) {
 		m_terrains[i].draw();
 	}
 }
 
 vector<float3> TerrainManager::draw_frustumCulling(const vector<FrustumPlane>& planes) {
-	string strs[4] = { "volcano","forest","desert","plains" };
+	string strs[4] = { "volcano", "forest", "desert", "plains" };
 	for (size_t i = 0; i < m_terrains.size(); i++) {
 		if (m_terrains[i].draw_frustumCulling(planes)) {
-			//ErrorLogger::log(strs[i]);
+			// ErrorLogger::log(strs[i]);
 		}
 	}
 	return vector<float3>();
 }
 
 void TerrainManager::draw_quadtreeFrustumCulling(const vector<FrustumPlane>& planes) {
+	PerformanceTimer::Record record("TerrainManager DrawCulling", PerformanceTimer::state_average);
+
 	for (size_t i = 0; i < m_terrains.size(); i++) {
 		m_terrains[i].draw_quadtreeFrustumCulling(planes);
 	}

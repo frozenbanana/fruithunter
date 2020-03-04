@@ -153,7 +153,7 @@ float Terrain::sampleHeightmap(float2 uv) {
 }
 
 void Terrain::createGridPointsFromHeightmap() {
-	PerformanceTimer::start("Terrain Heightmap grid creation");
+	PerformanceTimer::Record record("Terrain Heightmap grid creation");
 	XMINT2 order[6] = { // tri1
 		XMINT2(1, 1), XMINT2(0, 0), XMINT2(0, 1),
 		// tri2
@@ -218,7 +218,6 @@ void Terrain::createGridPointsFromHeightmap() {
 			m_gridPoints[xx][yy].normal.Normalize();
 		}
 	}
-	PerformanceTimer::stop();
 }
 
 void Terrain::createGrid(XMINT2 size) {
@@ -237,7 +236,7 @@ void Terrain::createGrid(XMINT2 size) {
 
 void Terrain::fillSubMeshes() {
 	if (m_gridPointSize.x != 0 && m_gridPointSize.y != 0) {
-		PerformanceTimer::start("Filling of sub meshes");
+		PerformanceTimer::Record record("Filling of sub meshes");
 		// initilize quadtree
 		size_t layers = (size_t)round(log2(max(m_gridSize.x, m_gridSize.y)));
 		m_quadtree.initilize(float3(0, 0, 0), float3(1.f, 1.f, 1.f), layers);
@@ -305,7 +304,6 @@ void Terrain::fillSubMeshes() {
 				m_quadtree.add(position, quadtree_subScale, XMINT2(ixx, iyy));
 			}
 		}
-		PerformanceTimer::stop();
 	}
 	else {
 		// invalid size
@@ -775,6 +773,7 @@ bool Terrain::draw_frustumCulling(const vector<FrustumPlane>& planes) {
 
 bool Terrain::draw_quadtreeFrustumCulling(vector<FrustumPlane> planes) {
 	if (m_mapsInitilized) {
+		PerformanceTimer::Record record("Terrain Draw Culling", PerformanceTimer::TimeState::state_average);
 		//transform planes to local space
 		updateModelMatrix();
 		float4x4 invWorldMatrix = m_worldMatrix.mWorld.Invert();

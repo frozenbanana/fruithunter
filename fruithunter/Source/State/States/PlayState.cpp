@@ -11,13 +11,11 @@ void PlayState::initialize() {
 }
 
 void PlayState::update() {
-	PerformanceTimer::start("PlayState_Update", PerformanceTimer::TimeState::state_average);
+	PerformanceTimer::Record record("PlayState_Update", PerformanceTimer::TimeState::state_average);
 
 	m_timer.update();
 	float dt = m_timer.getDt();
 	m_levelHandler.update(dt);
-
-	PerformanceTimer::stop();
 }
 
 void PlayState::handleEvent() { return; }
@@ -28,7 +26,7 @@ void PlayState::pause() {
 }
 
 void PlayState::draw() {
-	PerformanceTimer::start("PlayState_Draw", PerformanceTimer::TimeState::state_average);
+	PerformanceTimer::Record record("PlayState_Draw", PerformanceTimer::TimeState::state_average);
 
 	if (1) {
 		m_shadowMap.get()->update(m_levelHandler.getPlayerPos()); // not needed?
@@ -60,8 +58,6 @@ void PlayState::draw() {
 
 	// Text
 	float t = m_timer.getTimePassed();
-
-	PerformanceTimer::stop();
 }
 
 void PlayState::play() {

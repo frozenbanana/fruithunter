@@ -147,7 +147,7 @@ LevelHandler::LevelHandler() { initialise(); }
 LevelHandler::~LevelHandler() {}
 
 void LevelHandler::initialise() {
-	PerformanceTimer::start("LevelHandler_initilize");
+	PerformanceTimer::Record record("LevelHandler_initilize");
 
 	m_player.initialize();
 	m_terrainManager = TerrainManager::getInstance();
@@ -179,20 +179,19 @@ void LevelHandler::initialise() {
 		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
 	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(25, 25), XMINT2(4, 4),
 		float3(100.f, 2.f, 100.f), float3(100.f, 2.f, 100.f));
-
-	PerformanceTimer::stop();
 }
 
 void LevelHandler::loadLevel(int levelNr) {
 	if (m_currentLevel != levelNr) {
+		PerformanceTimer::Record record("LevelHandler loadLevel");
+
 		m_currentLevel = levelNr;
 		Level currentLevel = m_levelsArr.at(levelNr);
 
 		m_terrainProps.load(currentLevel.m_terrainPropsFilename);
 
-		PerformanceTimer::start(
-			"LevelHandler_TerrainCreation", PerformanceTimer::TimeState::state_accumulate);
 		for (int i = 0; i < m_levelsArr.at(levelNr).m_heightMapNames.size(); i++) {
+			PerformanceTimer::Record record("TerrainCreation");
 			m_terrainManager->add(currentLevel.m_heightMapPos.at(i),
 				currentLevel.m_heightMapScales[i], currentLevel.m_heightMapNames.at(i),
 				currentLevel.m_heightmapTextures[i], currentLevel.m_heightMapSubSize.at(i),
@@ -279,18 +278,18 @@ void LevelHandler::draw() {
 	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 
 	vector<FrustumPlane> frustum = m_player.getFrustumPlanes();
-	if (Input::getInstance()->keyDown(Keyboard::F)) {
+	if (!Input::getInstance()->keyDown(Keyboard::F)) {
 		// terrain entities
 		m_terrainProps.draw_quadtreeFrustumCulling(frustum);
 		// terrain
-		m_terrainManager->draw_quadtreeFrustumCulling(frustum);
+		//m_terrainManager->draw_quadtreeFrustumCulling(frustum);
 		// water/lava effect
-		Renderer::getInstance()->copyDepthToSRV();
-		waterEffect.draw_quadtreeFrustumCulling(frustum);
-		lavaEffect.draw_quadtreeFrustumCulling(frustum);
+		//Renderer::getInstance()->copyDepthToSRV();
+		//waterEffect.draw_quadtreeFrustumCulling(frustum);
+		//lavaEffect.draw_quadtreeFrustumCulling(frustum);
 	}
 	else {
-		//terrain entities
+		// terrain entities
 		m_terrainProps.draw();
 		// terrain
 		m_terrainManager->draw();
@@ -345,7 +344,8 @@ void LevelHandler::drawShadowDynamicEntities() {
 }
 
 void LevelHandler::update(float dt) {
-	PerformanceTimer::start("LevelHandler_Update", PerformanceTimer::TimeState::state_average);
+	PerformanceTimer::Record record(
+		"LevelHandler_Update", PerformanceTimer::TimeState::state_average);
 
 	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
@@ -451,11 +451,13 @@ void LevelHandler::update(float dt) {
 	//	}
 	//}
 
-
-	for (size_t i = 0; i < m_particleSystems.size(); i++) {
-		Terrain* currentTerrain =
-			m_terrainManager->getTerrainFromPosition(m_particleSystems[i].getPosition());
-		m_particleSystems[i].update(dt, currentTerrain->getWind());
+	{
+		PerformanceTimer::Record record("ParticleSystem_Update", PerformanceTimer::TimeState::state_average); 
+		for (size_t i = 0; i < m_particleSystems.size(); i++) {
+			Terrain* currentTerrain =
+				m_terrainManager->getTerrainFromPosition(m_particleSystems[i].getPosition());
+			m_particleSystems[i].update(dt, currentTerrain->getWind());
+		}
 	}
 
 	m_hud.update(dt, m_player.getStamina());
@@ -463,7 +465,6 @@ void LevelHandler::update(float dt) {
 	lavaEffect.update(dt);
 
 	// Renderer::getInstance()->setPlayerPos(playerPos);
-	PerformanceTimer::stop();
 }
 
 void LevelHandler::pickUpFruit(int fruitType) {

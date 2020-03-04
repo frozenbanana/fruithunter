@@ -1,6 +1,7 @@
 #pragma once
 #include "GlobalNamespaces.h"
 #include "ErrorLogger.h"
+#include "PerformanceTimer.h"
 
 #define COUNT_SPLIT 5
 
@@ -12,7 +13,7 @@ private:
 		size_t index;
 		float3 position, size;
 		Element element;
-		ElementPart(float3 _position, float3 _size, const Element& _element ) {
+		ElementPart(float3 _position, float3 _size, const Element& _element) {
 			position = _position;
 			size = _size;
 			element = _element;
@@ -43,24 +44,25 @@ private:
 		void remove(const ElementPart* elementPart);
 
 		void cullElements(const vector<FrustumPlane>& planes, vector<Element*>& elements,
-			vector<bool>& partsEnabled);
+			vector<bool>& partsEnabled, size_t& count);
 		void forEach_cullElements(const vector<FrustumPlane>& planes, vector<bool>& partsEnabled,
 			void (*function_onEach)(Element* ptr));
 
 		Node(float3 position = float3(0, 0, 0), float3 size = float3(0, 0, 0), size_t layerMax = 1,
-			 size_t layer = 0, size_t reserve = 0);
+			size_t layer = 0, size_t reserve = 0);
 		~Node();
 	} m_node;
-
 	vector<shared_ptr<ElementPart>> m_elementParts;
 
 public:
 	void log();
 
 	void add(float3 position, float3 size, const Element& element);
-	void add(float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix, const Element& element);
+	void add(
+		float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix, const Element& element);
 	void remove(const Element& element);
-	vector<Element*> cullElements(const vector<FrustumPlane> planes);
+	vector<Element*> cullElements(const vector<FrustumPlane>& planes);
+	void foreach_cullElements(const vector<FrustumPlane>& planes, void (*onEach)(Element*));
 
 	void initilize(float3 position, float3 size, size_t layerMax);
 	void reset();
@@ -83,23 +85,27 @@ template <typename Element>
 inline bbFrustumState QuadTree<Element>::Node::boxInsideFrustum(
 	float3 boxPos, float3 boxSize, const vector<FrustumPlane>& planes) {
 
-	// normalized box points
-	float3 boxPoints[8] = { float3(0, 0, 0), float3(1, 0, 0), float3(1, 0, 1), float3(0, 0, 1),
-		float3(0, 1, 0), float3(1, 1, 0), float3(1, 1, 1), float3(0, 1, 1) };
+
+
+		// normalized box points
+	float3 boxPoints[8] = { float3(0, 0, 0), float3(1, 0, 0), float3(1, 0, 1),
+		float3(0, 0, 1), float3(0, 1, 0), float3(1, 1, 0), float3(1, 1, 1), float3(0, 1, 1) };
 	// transform points to world space
 	for (size_t i = 0; i < 8; i++) {
 		boxPoints[i] = boxPos + boxPoints[i] * boxSize;
 	}
 	// for each plane
 	bool inbetween = false;
+	float3 boxDiagonalPoint1, boxDiagonalPoint2;
+	float largestDot = -1;
+	float3 p1, p2, pn;
+	float min, max;
 	for (size_t plane_i = 0; plane_i < planes.size(); plane_i++) {
 		// find diagonal points
-		float3 boxDiagonalPoint1, boxDiagonalPoint2;
-		float largestDot = -1;
 		for (size_t j = 0; j < 4; j++) {
-			float3 p1 = boxPoints[j];
-			float3 p2 = boxPoints[4 + (j + 2) % 4];
-			float3 pn = p1 - p2;
+			p1 = boxPoints[j];
+			p2 = boxPoints[4 + (j + 2) % 4];
+			pn = p1 - p2;
 			pn.Normalize();
 			float dot = abs(pn.Dot(planes[plane_i].m_normal));
 			if (dot > largestDot) {
@@ -109,8 +115,8 @@ inline bbFrustumState QuadTree<Element>::Node::boxInsideFrustum(
 			}
 		}
 		// compare points
-		float min = (boxDiagonalPoint1 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
-		float max = (boxDiagonalPoint2 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
+		min = (boxDiagonalPoint1 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
+		max = (boxDiagonalPoint2 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
 		if (min > max) {
 			// switch
 			float temp = max;
@@ -133,6 +139,60 @@ inline bbFrustumState QuadTree<Element>::Node::boxInsideFrustum(
 		return State_Inbetween;
 	else
 		return State_Inside;
+
+
+
+
+	//// normalized box points
+	//float3 boxPoints[8] = { float3(0, 0, 0), float3(1, 0, 0), float3(1, 0, 1), float3(0, 0, 1),
+	//	float3(0, 1, 0), float3(1, 1, 0), float3(1, 1, 1), float3(0, 1, 1) };
+	//// transform points to world space
+	//for (size_t i = 0; i < 8; i++) {
+	//	boxPoints[i] = boxPos + boxPoints[i] * boxSize;
+	//}
+	//// for each plane
+	//bool inbetween = false;
+	//for (size_t plane_i = 0; plane_i < planes.size(); plane_i++) {
+	//	float3 boxDiagonalPoint1, boxDiagonalPoint2;
+	//	float largestDot = -1;
+	//	// find diagonal points
+	//	for (size_t j = 0; j < 4; j++) {
+	//		float3 p1 = boxPoints[j];
+	//		float3 p2 = boxPoints[4 + (j + 2) % 4];
+	//		float3 pn = p1 - p2;
+	//		pn.Normalize();
+	//		float dot = abs(pn.Dot(planes[plane_i].m_normal));
+	//		if (dot > largestDot) {
+	//			largestDot = dot;
+	//			boxDiagonalPoint1 = p1;
+	//			boxDiagonalPoint2 = p2;
+	//		}
+	//	}
+	//	// compare points
+	//	float min = (boxDiagonalPoint1 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
+	//	float max = (boxDiagonalPoint2 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
+	//	if (min > max) {
+	//		// switch
+	//		float temp = max;
+	//		max = min;
+	//		min = temp;
+	//	}
+	//	if (min > 0) {
+	//		// outside
+	//		return State_Outside;
+	//	}
+	//	else if (max < 0) {
+	//		// inside
+	//	}
+	//	else {
+	//		// inbetween
+	//		inbetween = true;
+	//	}
+	//}
+	//if (inbetween)
+	//	return State_Inbetween;
+	//else
+	//	return State_Inside;
 }
 
 template <typename Element> inline size_t QuadTree<Element>::Node::getElementCount() const {
@@ -163,10 +223,14 @@ template <typename Element> inline void QuadTree<Element>::Node::split() {
 		halfSize.z /= 2.f;
 		size_t cap = m_elements.capacity() / 4;
 
-		m_children[0] = make_shared<Node>(m_position + halfSize * float3(0.f, 0.f, 0.f), halfSize, m_layerMax, m_layer + 1, cap);
-		m_children[1] = make_shared<Node>(m_position + halfSize * float3(1.f, 0.f, 0.f), halfSize, m_layerMax, m_layer + 1, cap);
-		m_children[2] = make_shared<Node>(m_position + halfSize * float3(0.f, 0.f, 1.f), halfSize, m_layerMax, m_layer + 1, cap);
-		m_children[3] = make_shared<Node>(m_position + halfSize * float3(1.f, 0.f, 1.f), halfSize, m_layerMax, m_layer + 1, cap);
+		m_children[0] = make_shared<Node>(
+			m_position + halfSize * float3(0.f, 0.f, 0.f), halfSize, m_layerMax, m_layer + 1, cap);
+		m_children[1] = make_shared<Node>(
+			m_position + halfSize * float3(1.f, 0.f, 0.f), halfSize, m_layerMax, m_layer + 1, cap);
+		m_children[2] = make_shared<Node>(
+			m_position + halfSize * float3(0.f, 0.f, 1.f), halfSize, m_layerMax, m_layer + 1, cap);
+		m_children[3] = make_shared<Node>(
+			m_position + halfSize * float3(1.f, 0.f, 1.f), halfSize, m_layerMax, m_layer + 1, cap);
 
 		// add existing elements to children
 		for (size_t i = 0; i < 4; i++) {
@@ -179,7 +243,7 @@ template <typename Element> inline void QuadTree<Element>::Node::split() {
 template <typename Element> inline bool QuadTree<Element>::Node::add(ElementPart* elementPart) {
 	if (bbIntersection(elementPart->position, elementPart->size, m_position, m_size)) {
 		// split if to big
-		if (!expanded && m_layer < m_layerMax && m_elements.size() > COUNT_SPLIT - 1) 
+		if (!expanded && m_layer < m_layerMax && m_elements.size() > COUNT_SPLIT - 1)
 			split();
 		// add
 		m_elements.push_back(elementPart);
@@ -192,7 +256,8 @@ template <typename Element> inline bool QuadTree<Element>::Node::add(ElementPart
 	}
 	return false;
 }
-template <typename Element> inline void QuadTree<Element>::Node::remove(const ElementPart* elementPart) {
+template <typename Element>
+inline void QuadTree<Element>::Node::remove(const ElementPart* elementPart) {
 	for (size_t i = 0; i < m_elements.size(); i++) {
 		if (m_elements[i] == elementPart) {
 			// remove
@@ -208,14 +273,20 @@ template <typename Element> inline void QuadTree<Element>::Node::remove(const El
 }
 
 template <typename Element>
-inline void QuadTree<Element>::Node::cullElements(
-	const vector<FrustumPlane>& planes, vector<Element*>& elements, vector<bool>& partsEnabled) {
+inline void QuadTree<Element>::Node::cullElements(const vector<FrustumPlane>& planes,
+	vector<Element*>& elements, vector<bool>& partsEnabled, size_t& count) {
 
-	bbFrustumState state = boxInsideFrustum(m_position, m_size, planes);
+	//PerformanceTimer::start("QuadTree culling: intersectionTest", PerformanceTimer::TimeState::state_average);
+	bbFrustumState state =
+		bbFrustumState::State_Inbetween; // boxInsideFrustum(m_position, m_size, planes);
+	//PerformanceTimer::stop();
+	count++;
 	switch (state) {
 	case bbFrustumState::State_Inside:
 		// full hit
 		// add all elements to the list
+		//PerformanceTimer::start(
+		//	"QuadTree culling: add to output", PerformanceTimer::TimeState::state_average);
 		for (size_t i = 0; i < m_elements.size(); i++) {
 			size_t index = m_elements[i]->index;
 			if (!partsEnabled[index]) {
@@ -223,6 +294,7 @@ inline void QuadTree<Element>::Node::cullElements(
 				elements.push_back(&m_elements[i]->element);
 			}
 		}
+		//PerformanceTimer::stop();
 		break;
 	case bbFrustumState::State_Outside:
 		// miss
@@ -233,12 +305,15 @@ inline void QuadTree<Element>::Node::cullElements(
 		if (expanded) {
 			// add children elements
 			for (size_t i = 0; i < 4; i++)
-				m_children[i]->cullElements(planes, elements, partsEnabled);
+				m_children[i]->cullElements(planes, elements, partsEnabled, count);
 		}
 		else {
+			//PerformanceTimer::Record record(
+			//	"QuadTree culling: add to output", PerformanceTimer::TimeState::state_average);
 			// add all elements to the list
+			size_t index;
 			for (size_t i = 0; i < m_elements.size(); i++) {
-				size_t index = m_elements[i]->index;
+				index = m_elements[i]->index;
 				if (!partsEnabled[index]) {
 					partsEnabled[index] = true;
 					elements.push_back(&m_elements[i]->element);
@@ -262,7 +337,7 @@ inline void QuadTree<Element>::Node::forEach_cullElements(const vector<FrustumPl
 			size_t index = m_elements[i]->index;
 			if (!partsEnabled[index]) {
 				partsEnabled[index] = true;
-				function_onEach(m_elements[i]->ptr);
+				function_onEach(&m_elements[i]->element);
 			}
 		}
 		break;
@@ -283,7 +358,7 @@ inline void QuadTree<Element>::Node::forEach_cullElements(const vector<FrustumPl
 				size_t index = m_elements[i]->index;
 				if (!partsEnabled[index]) {
 					partsEnabled[index] = true;
-					function_onEach(m_elements[i]->ptr);
+					function_onEach(&m_elements[i]->element);
 				}
 			}
 		}
@@ -310,6 +385,7 @@ template <typename Element> inline void QuadTree<Element>::log() {
 
 template <typename Element>
 inline void QuadTree<Element>::add(float3 position, float3 size, const Element& element) {
+	PerformanceTimer::Record record("QuadTree creation");
 	// add the array
 	shared_ptr<ElementPart> part = make_shared<ElementPart>(position, size, element);
 	part->index = m_elementParts.size();
@@ -325,37 +401,32 @@ inline void QuadTree<Element>::add(float3 position, float3 size, const Element& 
 template <typename Element>
 inline void QuadTree<Element>::add(
 	float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix, const Element& element) {
-	
+	PerformanceTimer::Record record("QuadTree creation");
 	// define standard box around center
-	float3 points[8] = { 
-		float3(-1.f, -1.f, -1.f), 
-		float3(1.f, -1.f, -1.f),
-		float3(-1.f, -1.f, 1.f), 
-		float3(1.f, -1.f, 1.f), 
+	float3 points[8] = { float3(-1.f, -1.f, -1.f), float3(1.f, -1.f, -1.f), float3(-1.f, -1.f, 1.f),
+		float3(1.f, -1.f, 1.f),
 
-		float3(-1.f, 1.f, -1.f),
-		float3(1.f, 1.f, -1.f),
-		float3(-1.f, 1.f, 1.f),
-		float3(1.f, 1.f, 1.f)
-	};
-	//tranform points to world space and find bounding box
-	float2 MM[3] = { float2(-1, -1), float2(-1, -1), float2(-1, -1) };//.x = min, .y = max, -1 = unset
+		float3(-1.f, 1.f, -1.f), float3(1.f, 1.f, -1.f), float3(-1.f, 1.f, 1.f),
+		float3(1.f, 1.f, 1.f) };
+	// tranform points to world space and find bounding box
+	float2 MM[3] = { float2(-1, -1), float2(-1, -1),
+		float2(-1, -1) }; //.x = min, .y = max, -1 = unset
 	float coords[3];
 	for (size_t i = 0; i < 8; i++) {
 		float3 wp = float3::Transform(lCenterPosition + points[i] * lHalfSize, worldMatrix);
 		coords[0] = wp.x, coords[1] = wp.y, coords[2] = wp.z;
 		for (size_t j = 0; j < 3; j++) {
-			//min
+			// min
 			if (MM[j].x == -1 || coords[j] < MM[j].x)
 				MM[j].x = coords[j];
-			//max
+			// max
 			if (MM[j].y == -1 || coords[j] > MM[j].y)
 				MM[j].y = coords[j];
 		}
 	}
-	//calculate parameters
-	float3 position(MM[0].x, MM[1].x, MM[2].x);//edge location
-	float3 size(MM[0].y - MM[0].x, MM[1].y - MM[1].x, MM[2].y - MM[2].x);//calc differences
+	// calculate parameters
+	float3 position(MM[0].x, MM[1].x, MM[2].x);							  // edge location
+	float3 size(MM[0].y - MM[0].x, MM[1].y - MM[1].x, MM[2].y - MM[2].x); // calc differences
 
 	// Add
 	add(position, size, element);
@@ -364,7 +435,7 @@ inline void QuadTree<Element>::add(
 template <typename Element> inline void QuadTree<Element>::remove(const Element& element) {
 	for (size_t i = 0; i < m_elementParts.size(); i++) {
 		if (m_elementParts[i]->element == element) {
-			m_node.remove(element);								  // remove from children
+			m_node.remove(element);							  // remove from children
 			m_elementParts.erase(m_elementParts.begin() + i); // remove
 			// fix indices on elementParts
 			for (size_t j = i; j < m_elementParts.size(); j++) {
@@ -376,15 +447,31 @@ template <typename Element> inline void QuadTree<Element>::remove(const Element&
 }
 
 template <typename Element>
-inline vector<Element*> QuadTree<Element>::cullElements(const vector<FrustumPlane> planes) {
+inline vector<Element*> QuadTree<Element>::cullElements(const vector<FrustumPlane>& planes) {
+	PerformanceTimer::Record record("QuadTree culling", PerformanceTimer::TimeState::state_average);
+
 	vector<Element*> elements;
 	elements.reserve(m_elementParts.size());
 	vector<bool> partsEnabled;
 	partsEnabled.resize(m_elementParts.size());
 	for (size_t i = 0; i < partsEnabled.size(); i++)
 		partsEnabled[i] = false;
-	m_node.cullElements(planes, elements, partsEnabled);
+	size_t count = 0;
+	//m_node.cullElements(planes, elements, partsEnabled, count);
 	return elements;
+}
+
+template <typename Element>
+inline void QuadTree<Element>::foreach_cullElements(
+	const vector<FrustumPlane>& planes, void (*onEach)(Element*)) {
+
+	PerformanceTimer::Record record("QuadTree cullingOnEach", PerformanceTimer::TimeState::state_average);
+
+	vector<bool> partsEnabled;
+	partsEnabled.resize(m_elementParts.size());
+	for (size_t i = 0; i < partsEnabled.size(); i++)
+		partsEnabled[i] = false;
+	m_node.forEach_cullElements(planes, partsEnabled, onEach);
 }
 
 template <typename Element>
@@ -393,8 +480,8 @@ inline void QuadTree<Element>::initilize(float3 position, float3 size, size_t la
 	m_node = Node(position, size, layerMax, 0, m_elementParts.capacity());
 }
 
-template <typename Element> inline void QuadTree<Element>::reset() { 
-	m_elementParts.clear(); 
+template <typename Element> inline void QuadTree<Element>::reset() {
+	m_elementParts.clear();
 	m_node = Node();
 }
 

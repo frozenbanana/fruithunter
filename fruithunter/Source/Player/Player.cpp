@@ -22,6 +22,8 @@ void Player::initialize() {
 }
 
 void Player::update(float dt, Terrain* terrain) {
+	PerformanceTimer::Record record(
+		"Player_Update", PerformanceTimer::TimeState::state_average);
 	// Movement force
 	float3 force = getMovementForce();
 
