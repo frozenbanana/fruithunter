@@ -358,7 +358,7 @@ void EntityRepository::draw_quadtreeFrustumCulling(const vector<FrustumPlane>& p
 				(*elements[i])->draw();
 		}
 	}
-	if (m_placing && m_placeable.size() > 0) {
+	if (m_state == ModeState::state_placing && m_placeable.size() > 0)
 		m_placeable[m_activePlaceableIndex]->draw();
 }
 

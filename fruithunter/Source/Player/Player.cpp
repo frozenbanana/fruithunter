@@ -332,21 +332,10 @@ void Player::checkSprint(float dt) {
 	}
 }
 
-float3 Player::getPosition() const { return m_position; }
-
-float3 Player::getCameraPosition() const { return m_camera.getPosition(); }
-
-float3 Player::getForward() const { return m_playerForward; }
-
-float3 Player::getVelocity() const { return m_velocity; }
-
-float Player::getStamina() const { return m_stamina; }
-
 vector<FrustumPlane> Player::getFrustumPlanes() const {
 	return m_camera.getFrustumPlanes();
 }
 
-bool Player::isShooting() const { return m_bow.isShooting(); }
 void Player::checkDash(float dt) {
 	if (Input::getInstance()->keyPressed(KEY_DASH) && m_stamina >= STAMINA_DASH_COST &&
 		!m_sprinting && m_onGround) {
