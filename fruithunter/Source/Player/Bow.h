@@ -15,7 +15,9 @@ public:
 	void shoot(float3 direction, float3 startVelocity, float pitch, float yaw);
 	ParticleSystem& getTrailEffect();
 	Entity& getArrow() { return m_arrow; };
+	float3 getArrowVelocity() const;
 	bool isShooting() const;
+	void arrowHitObject(float3 targetPosition);
 
 private:
 	Entity m_bow;

@@ -100,19 +100,25 @@ void Player::collideObject(Entity& obj) {
 			m_onEntity = true;
 			if (obj.getCollisionType() == EntityCollision::ctOBB)
 				m_position.y = obj.getPointOnOBB(m_position).y;
-
-
-			// If we fix castray
-			// float cast =
-			//	obj.castRay(m_position + float3(0.f, stepHeight, 0.f), float3(0.01, -1, 0.01));
-			// if (cast != -1) {
-			//	m_position.y += (stepHeight - cast) * 0.1;
-			//}
+			else {
+				// If we fix castray
+				float cast =
+					obj.castRay(m_position + float3(0.f, stepHeight, 0.f), float3(0.01, -1, 0.01));
+				if (cast != -1) {
+					m_position.y += (stepHeight - cast) * 0.1;
+				}
+			}
 		}
 	}
 	else if (obj.checkCollision(hip)) { // bump into
-		float3 pointOnOBBClosestToPlayer = obj.getPointOnOBB(m_position);
-		float3 objToPlayer = m_position - pointOnOBBClosestToPlayer;
+		float3 objToPlayer;
+		if (obj.getCollisionType() == EntityCollision::ctOBB) {
+			float3 pointOnOBBClosestToPlayer = obj.getPointOnOBB(m_position);
+			objToPlayer = m_position - pointOnOBBClosestToPlayer;
+		}
+		else {
+			objToPlayer = m_position - obj.getBoundingBoxPos() + obj.getPosition();
+		}
 		if (objToPlayer.Dot(m_velocity) < 0) {
 			objToPlayer.Normalize();
 			float3 tangentObj = float3::Up.Cross(objToPlayer);

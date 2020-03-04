@@ -87,6 +87,9 @@ public:
 	void setCollisionData(float3 point, float3 posOffset, float3 scale, float3 halfSizes);
 	void setCollisionDataOBB();
 	void setCollisionDataSphere(); // Sets with radius as boundingbox size Y
+	void setCollisionDataTree();
+	void setCollidable(bool collidable = false);
+
 	float3 getHalfSizes() const;
 	float3 getBoundingBoxPos() const;
 	int getCollisionType() const;

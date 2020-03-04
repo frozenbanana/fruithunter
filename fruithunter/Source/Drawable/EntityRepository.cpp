@@ -25,6 +25,7 @@ void EntityRepository::fillEntitiesFromRepository() {
 				// fill entity
 				m_entities[instanceIndex] = make_unique<Entity>();
 				m_entities[instanceIndex]->load(meshName);
+
 				setEntityByInstance(m_entities[instanceIndex].get(), *instance);
 				instanceIndex++;
 			}
@@ -146,6 +147,8 @@ void EntityRepository::savePlacements(string filename) const {
 	}
 }
 
+vector<unique_ptr<Entity>>* EntityRepository::getEntities() { return &m_entities; }
+
 void EntityRepository::load(string filename) {
 	if (filename != "") {
 		m_castingSphere.load("Sphere");
@@ -249,6 +252,37 @@ void EntityRepository::setEntityByInstance(Entity* entity, EntityInstance instan
 	entity->setPosition(instance.position);
 	entity->setScale(instance.scale);
 	entity->setRotationMatrix(instance.matRotation);
+
+	assignCollisionData(entity);
+}
+
+bool EntityRepository::tryTreeCollisionData(Entity* entity) {
+	for (size_t i = 0; i < m_treeNames.size(); ++i) {
+		if (entity->getModelName() == m_treeNames[i]) {
+			entity->setCollisionDataTree();
+			return true;
+		}
+	}
+	return false;
+}
+
+bool EntityRepository::tryNonCollidable(Entity* entity) {
+	for (size_t i = 0; i < m_nonCollidables.size(); ++i) {
+		if (entity->getModelName() == m_nonCollidables[i]) {
+			entity->setCollidable(false);
+			return true;
+		}
+	}
+	return false;
+}
+
+void EntityRepository::assignCollisionData(Entity* entity) {
+	if (tryTreeCollisionData(entity)) {}
+	else if (tryNonCollidable(entity)) {
+	}
+	else {
+		entity->setCollisionDataSphere();
+	}
 }
 
 void EntityRepository::update(float dt, float3 point, float3 direction) {
@@ -262,7 +296,7 @@ void EntityRepository::update(float dt, float3 point, float3 direction) {
 			ErrorLogger::log("Switched state: removing");
 		else if (m_state == ModeState::state_inactive)
 			ErrorLogger::log("Switched state: inactive");
-		//reset variables
+		// reset variables
 		m_markedIndexToRemove = -1;
 	}
 	if (m_state == ModeState::state_placing) {
