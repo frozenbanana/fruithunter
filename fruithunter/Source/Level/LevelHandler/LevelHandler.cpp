@@ -341,6 +341,7 @@ void LevelHandler::update(float dt) {
 		m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
 
 	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
+	m_player.getBow().getTrailEffect().update(dt);
 
 	// for all animals
 	for (size_t i = 0; i < m_Animals.size(); ++i) {

@@ -1,6 +1,7 @@
 #include "Bow.h"
 #include "TerrainManager.h"
 #include "AudioHandler.h"
+#include "ErrorLogger.h"
 #define ARM_LENGTH 0.55f
 #define OFFSET_RIGHT 0.37f
 #define OFFSET_UP -0.1f
@@ -45,9 +46,15 @@ void Bow::update(
 		m_bow.setFrameTargets(0, 1);
 	}
 
+	// m_trailEffect.update(dt);
+
 	// Update arrow.
+	ErrorLogger::log("---");
+
 	if (m_shooting) {
 		m_trailEffect.setActive();
+		ErrorLogger::log("Setting ACTIVE ParticleSystem.");
+
 		if (!m_arrowHitObject) {
 			float castray =
 				TerrainManager::getInstance()->castRay(m_arrow.getPosition(), m_arrowVelocity * dt);
@@ -64,7 +71,6 @@ void Bow::update(
 				arrowPhysics(dt, wind); // Updates arrow in flight, wind is no longer hard coded.
 				// update Particle System
 				m_trailEffect.setPosition(m_arrow.getPosition());
-				m_trailEffect.update(dt);
 
 				m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
 				m_arrow.setRotation(float3(m_arrowPitch, m_arrowYaw, 0));
@@ -77,6 +83,7 @@ void Bow::update(
 		}
 	}
 	else {
+		ErrorLogger::log("Setting Inactive ParticleSystem.");
 		m_trailEffect.setInActive();
 		if (m_charging) {
 			// Move arrow with bowstring. Hardcoded values determined by experimentation.

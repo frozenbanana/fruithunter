@@ -137,19 +137,19 @@ void ParticleSystem::update(float dt, float3 wind) {
 
 			m_emitTimer -= (1.f / rate) * emitCount;
 		}
-		for (size_t i = 0; i < m_particles.size(); i++) {
-			if (m_particles[i].getIsActive() == 1.0f) {
-				m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
-				m_particleProperties[i].m_timeLeft -= dt;
-				m_particles[i].update(dt, m_particleProperties[i].m_velocity + wind);
-				// Controlling size
-				// float sizeFactor =
-				//	m_particleProperties[i].m_timeLeft / m_particleProperties[i].m_lifeTime;
-				// m_particles[i].setSize(m_particles[i].getSize() * sizeFactor * sizeFactor);
-				// Inactivate particles when lifetime is over
-				if (m_particleProperties[i].m_timeLeft <= 0.f) {
-					m_particles[i].setIsActive(0.0f);
-				}
+	}
+	for (size_t i = 0; i < m_particles.size(); i++) {
+		if (m_particles[i].getIsActive() == 1.0f) {
+			m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
+			m_particleProperties[i].m_timeLeft -= dt;
+			m_particles[i].update(dt, m_particleProperties[i].m_velocity + wind);
+			// Controlling size
+			// float sizeFactor =
+			//	m_particleProperties[i].m_timeLeft / m_particleProperties[i].m_lifeTime;
+			// m_particles[i].setSize(m_particles[i].getSize() * sizeFactor * sizeFactor);
+			// Inactivate particles when lifetime is over
+			if (m_particleProperties[i].m_timeLeft <= 0.f) {
+				m_particles[i].setIsActive(0.0f);
 			}
 		}
 
@@ -192,14 +192,12 @@ void ParticleSystem::bindBuffers() {
 
 
 void ParticleSystem::draw() {
-	if (m_isActive) {
-		auto deviceContext = Renderer::getDeviceContext();
-		m_shaderSet.bindShadersAndLayout();
-		bindBuffers();
-		Renderer::getInstance()->enableAlphaBlending();
-		deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
-		Renderer::getInstance()->disableAlphaBlending();
-	}
+	auto deviceContext = Renderer::getDeviceContext();
+	m_shaderSet.bindShadersAndLayout();
+	bindBuffers();
+	Renderer::getInstance()->enableAlphaBlending();
+	deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
+	Renderer::getInstance()->disableAlphaBlending();
 }
 
 void ParticleSystem::setActive() { m_isActive = true; }

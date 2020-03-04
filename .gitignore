@@ -1,7 +1,7 @@
 Debug/
 Release/
 assets/FileSyncs/*
-fruithunter/assets/PerformanceAnalysis/*
+fruithunter/assets/PerformanceAnalysis/RuntimeAnalysis.txt
 x64/
 .vs/
 fruithunter/Debug/
