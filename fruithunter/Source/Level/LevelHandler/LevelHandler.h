@@ -75,6 +75,7 @@ private:
 	void placeAllBridges();
 	void placeAllAnimals();
 
+	shared_ptr<size_t> m_frame;
 
 public:
 	LevelHandler();
