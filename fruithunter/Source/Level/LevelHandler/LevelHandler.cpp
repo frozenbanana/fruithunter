@@ -35,10 +35,10 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_heightMapPos.push_back(float3(0.f, 0.f, 100.f));
 	level0.m_heightMapPos.push_back(float3(100.f, 0.f, 0.f));
 
-	level0.m_heightMapSubSize.push_back(XMINT2(250, 250));
-	level0.m_heightMapSubSize.push_back(XMINT2(250, 250));
-	level0.m_heightMapSubSize.push_back(XMINT2(250, 250));
-	level0.m_heightMapSubSize.push_back(XMINT2(250, 250));
+	level0.m_heightMapSubSize.push_back(XMINT2(100, 100));
+	level0.m_heightMapSubSize.push_back(XMINT2(100, 100));
+	level0.m_heightMapSubSize.push_back(XMINT2(100, 100));
+	level0.m_heightMapSubSize.push_back(XMINT2(100, 100));
 
 	level0.m_heightMapDivision.push_back(XMINT2(1, 1));
 	level0.m_heightMapDivision.push_back(XMINT2(1, 1));
