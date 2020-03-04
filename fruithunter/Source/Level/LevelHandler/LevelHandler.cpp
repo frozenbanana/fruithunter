@@ -4,6 +4,7 @@
 #include "Renderer.h"
 #include "ErrorLogger.h"
 #include "PerformanceTimer.h"
+#include "VariableSyncer.h"
 
 void LevelHandler::initialiseLevel0() {
 	Level level0;
@@ -43,9 +44,9 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_heightMapDivision.push_back(XMINT2(1, 1));
 	level0.m_heightMapDivision.push_back(XMINT2(1, 1));
 
-	level0.m_heightMapScales.push_back(float3(1.f, 0.20f, 1.f) * 100);
+	level0.m_heightMapScales.push_back(float3(1.f, 0.40f, 1.f) * 100);
 	level0.m_heightMapScales.push_back(float3(1.f, 0.15f, 1.f) * 100);
-	level0.m_heightMapScales.push_back(float3(1.f, 0.20f, 1.f) * 100);
+	level0.m_heightMapScales.push_back(float3(1.f, 0.25f, 1.f) * 100);
 	level0.m_heightMapScales.push_back(float3(1.f, 0.10f, 1.f) * 100);
 
 	vector<string> maps(4);
@@ -124,8 +125,8 @@ void LevelHandler::placeBridge(float3 pos, float3 rot, float3 scale) {
 
 void LevelHandler::placeAllBridges() {
 	placeBridge(float3(103.2f, 3.1f, 39.f), float3(0.f, -0.1f, -0.07f), float3(1.9f, 1.f, 1.4f));
-	placeBridge(float3(35.f, 3.2f, 99.f), float3(0.f, 1.7f, 0.13f), float3(1.6f, 1.f, 1.4f));
-	placeBridge(float3(98.f, 8.2f, 152.f), float3(0.f, -0.1f, -0.13f), float3(1.8f, 1.f, 1.4f));
+	placeBridge(float3(35.f, 3.5f, 98.5f), float3(0.f, 1.7f, 0.02f), float3(1.6f, 1.f, 1.4f));
+	placeBridge(float3(99.2f, 7.9f, 155.f), float3(0.f, 0.f, -0.09f), float3(1.3f, 1.f, 1.4f));
 }
 
 void LevelHandler::placeAllAnimals() {
@@ -159,7 +160,16 @@ void LevelHandler::initialise() {
 	m_terrainProps.addPlaceableEntity("stone3");
 	m_terrainProps.addPlaceableEntity("bush1");
 	m_terrainProps.addPlaceableEntity("bush2");
-	m_terrainProps.addPlaceableEntity("Block");
+	m_terrainProps.addPlaceableEntity("DeadBush");
+	m_terrainProps.addPlaceableEntity("BurnedTree1");
+	m_terrainProps.addPlaceableEntity("BurnedTree2");
+	m_terrainProps.addPlaceableEntity("BurnedTree3");
+	m_terrainProps.addPlaceableEntity("Cactus_tall");
+	m_terrainProps.addPlaceableEntity("Cactus_small");
+	m_terrainProps.addPlaceableEntity("Grass1");
+	m_terrainProps.addPlaceableEntity("Grass2");
+	m_terrainProps.addPlaceableEntity("Grass3");
+	m_terrainProps.addPlaceableEntity("Grass4");
 
 	initialiseLevel0();
 
@@ -177,8 +187,10 @@ void LevelHandler::initialise() {
 
 	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(400, 400), XMINT2(1, 1),
 		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
+	float3 lavaSize(82.f, 0.f, 82.f);
+	float3 lavaPos(150, 1.5f,150); 
 	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(100, 100), XMINT2(1, 1),
-		float3(100.f, 2.f, 100.f), float3(100.f, 2.f, 100.f));
+		lavaPos - lavaSize / 2.f, lavaSize + float3(0, 2.f, 0));
 
 	PerformanceTimer::stop();
 }
