@@ -163,15 +163,17 @@ void LevelHandler::initialise() {
 
 	initialiseLevel0();
 
-	m_particleSystems.resize(4);
-	m_particleSystems[0] = ParticleSystem(ParticleSystem::VULCANO_BUBBLE);
-	m_particleSystems[0].setPosition(float3(150.f, 10.f, 149.f));
-	m_particleSystems[1] = ParticleSystem(ParticleSystem::GROUND_DUST);
-	m_particleSystems[1].setPosition(float3(42.f, 4.f, 125.f));
-	m_particleSystems[2] = ParticleSystem(ParticleSystem::FOREST_BUBBLE);
-	m_particleSystems[2].setPosition(float3(50.f, 5.f, 40.f));
-	m_particleSystems[3] = ParticleSystem(ParticleSystem::LAVA_BUBBLE);
-	m_particleSystems[3].setPosition(float3(150.f, 0.f, 149.f));
+	m_particleSystems.resize(5);
+	m_particleSystems[0] = ParticleSystem(ParticleSystem::VULCANO_FIRE);
+	m_particleSystems[0].setPosition(float3(150.f, 7.f, 149.f));
+	m_particleSystems[1] = ParticleSystem(ParticleSystem::VULCANO_SMOKE);
+	m_particleSystems[1].setPosition(float3(150.f, 27.f, 149.f));
+	m_particleSystems[2] = ParticleSystem(ParticleSystem::GROUND_DUST);
+	m_particleSystems[2].setPosition(float3(42.f, 4.f, 125.f));
+	m_particleSystems[3] = ParticleSystem(ParticleSystem::FOREST_BUBBLE);
+	m_particleSystems[3].setPosition(float3(50.f, 5.f, 40.f));
+	m_particleSystems[4] = ParticleSystem(ParticleSystem::LAVA_BUBBLE);
+	m_particleSystems[4].setPosition(float3(150.f, 0.f, 149.f));
 
 	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(400, 400), XMINT2(1, 1),
 		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
