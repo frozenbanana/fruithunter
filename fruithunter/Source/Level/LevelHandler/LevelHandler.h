@@ -75,9 +75,6 @@ private:
 	void placeAllBridges();
 	void placeAllAnimals();
 
-	// thread for pathfinding,
-	//unique_ptr<PathFindingThread> m_thread;
-	shared_ptr<size_t> m_frame;
 
 public:
 	LevelHandler();

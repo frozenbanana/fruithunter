@@ -25,6 +25,10 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 
 	m_passiveRadius = 15.f;
 	m_activeRadius = 15.f;
+
+	m_passive_speed = 8.f;
+	m_active_speed = 15.f;
+	m_caught_speed = 10.f;
 }
 
 void Melon::behaviorPassive(float3 playerPosition) {
@@ -43,7 +47,7 @@ void Melon::behaviorPassive(float3 playerPosition) {
 			lookTo(m_worldHome);
 		}
 	}
-	m_speed = 8.f;
+	m_speed = m_passive_speed;
 	if (withinDistanceTo(playerPosition, m_activeRadius)) {
 		changeState(ACTIVE);
 	}
@@ -54,14 +58,12 @@ void Melon::behaviorActive(float3 playerPosition) {
 
 		if (m_availablePath.empty()) {
 			float3 target = circulateAround(playerPosition);
-			// pathfinding(m_position, target, collidables);
 			makeReadyForPath(target);
-			
 		}
 	}
 
-	lookTo(m_position -playerPosition);
-	m_speed = 15.f;
+	lookToDir(m_position - playerPosition);
+	m_speed = m_active_speed;
 
 	if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
 		stopMovement();
@@ -73,10 +75,10 @@ void Melon::behaviorCaught(float3 playerPosition) {
 	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
 		m_direction = playerPosition - m_position; // run to player
 
-		m_speed = 15.f;
+		m_speed = m_caught_speed;
 		makeReadyForPath(playerPosition);
 	}
-	lookTo(-playerPosition);
+	lookTo(playerPosition);
 }
 
 void Melon::roll(float dt) { rotateX(dt * m_rollAnimationSpeed); }

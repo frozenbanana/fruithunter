@@ -3,6 +3,7 @@
 #include "PathFindingThread.h"
 
 
+
 void Fruit::jump(float3 direction, float power) { m_velocity += power * direction; }
 
 void Fruit::setStartPosition(float3 pos) {
@@ -27,8 +28,12 @@ void Fruit::enforceOverTerrain() {
 	}
 }
 
+void Fruit::checkOnGroundStatus() {
+	m_onGround = atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position));
+}
+
 void Fruit::setAnimationDestination() {
-	/*m_destinationAnimationPosition = m_nextDestinationAnimationPosition;*/
+	m_destinationAnimationPosition = m_nextDestinationAnimationPosition;
 	m_startAnimationPosition = getPosition();
 	m_heightAnimationPosition =
 		XMVectorLerp(m_startAnimationPosition, m_destinationAnimationPosition, 0.5f);
@@ -43,8 +48,9 @@ bool Fruit::withinDistanceTo(float3 target, float treshhold) {
 	return (m_position - target).Length() < treshhold;
 }
 
-void Fruit::update(float dt, float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
+void Fruit::update(float dt, float3 playerPosition) {
 	if (withinDistanceTo(playerPosition, 80.f)) {
+		checkOnGroundStatus();
 		doBehavior(playerPosition);
 		setDirection();
 		updateAnimated(dt);
@@ -102,12 +108,13 @@ void Fruit::behaviorReleased() {
 }
 
 void Fruit::updateVelocity(float dt) {
-	m_velocity *= pow(m_friction / 60.f, dt);
+
+	float friction = m_onGround ? m_groundFriction : m_airFriction;
+	// friction = m_groundFriction;
+	m_velocity *= pow(friction / 60.f, dt);
 	m_direction.Normalize();
 	float3 dir = m_direction * m_speed;
 	m_velocity += (m_direction * m_speed + m_gravity) * dt;
-	// m_position += (m_directionalVelocity + m_speed) * dt;
-	// m_velocity += float3(-m_friction, 0.0f, -m_friction) * dt;
 }
 
 void Fruit::stopMovement() {
@@ -120,8 +127,8 @@ void Fruit::release(float3 direction) {
 	changeState(RELEASED);
 	stopMovement();
 	m_direction = direction;
-	m_speed = 40.f;
-	m_velocity = m_direction * m_speed;
+	// m_speed = 40.f;
+	m_velocity = m_direction * THROWVELOCITY;
 	m_speed = 0.f;
 	m_afterRealease = true;
 }

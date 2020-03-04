@@ -1,30 +1,30 @@
 PROGRAM(Accumulate): 0 ms | 100.000000%
-|  Initilize(Accumulate): 5647 ms | inf%
-|  |  LevelHandler_initilize(Accumulate): 3825 ms | 67.735085%
+|  Initilize(Accumulate): 4243 ms | inf%
+|  |  LevelHandler_initilize(Accumulate): 2873 ms | 67.711525%
 |  
-|  AllFrames(Accumulate): 66867 ms | inf%
-|  |  LevelHandler_TerrainCreation(Accumulate): 66741 ms | 99.811569%
-|  |  |  Creation of: VolcanoMap.png(Accumulate): 1783 ms | 2.671521%
-|  |  |  |  Terrain Heightmap grid creation(Accumulate): 971 ms | 54.458778%
-|  |  |  |  Filling of sub meshes(Accumulate): 472 ms | 26.472239%
+|  AllFrames(Accumulate): 62470 ms | inf%
+|  |  LevelHandler_TerrainCreation(Accumulate): 62367 ms | 99.835121%
+|  |  |  Creation of: VolcanoMap.png(Accumulate): 1179 ms | 1.890423%
+|  |  |  |  Terrain Heightmap grid creation(Accumulate): 640 ms | 54.283291%
+|  |  |  |  Filling of sub meshes(Accumulate): 278 ms | 23.579304%
 |  |  |  
-|  |  |  Creation of: ForestMap.png(Accumulate): 1484 ms | 2.223521%
-|  |  |  |  Terrain Heightmap grid creation(Accumulate): 803 ms | 54.110508%
-|  |  |  |  Filling of sub meshes(Accumulate): 301 ms | 20.283020%
+|  |  |  Creation of: ForestMap.png(Accumulate): 1253 ms | 2.009075%
+|  |  |  |  Terrain Heightmap grid creation(Accumulate): 597 ms | 47.645649%
+|  |  |  |  Filling of sub meshes(Accumulate): 298 ms | 23.782921%
 |  |  |  
-|  |  |  Creation of: DesertMap.png(Accumulate): 1494 ms | 2.238504%
-|  |  |  |  Terrain Heightmap grid creation(Accumulate): 644 ms | 43.105759%
-|  |  |  |  Filling of sub meshes(Accumulate): 301 ms | 20.147255%
+|  |  |  Creation of: DesertMap.png(Accumulate): 1400 ms | 2.244777%
+|  |  |  |  Terrain Heightmap grid creation(Accumulate): 632 ms | 45.142857%
+|  |  |  |  Filling of sub meshes(Accumulate): 272 ms | 19.428572%
 |  |  |  
-|  |  |  Creation of: PlainMap.png(Accumulate): 1707 ms | 2.557648%
-|  |  |  |  Terrain Heightmap grid creation(Accumulate): 673 ms | 39.425896%
-|  |  |  |  Filling of sub meshes(Accumulate): 311 ms | 18.219099%
+|  |  |  Creation of: PlainMap.png(Accumulate): 1669 ms | 2.676095%
+|  |  |  |  Terrain Heightmap grid creation(Accumulate): 652 ms | 39.065308%
+|  |  |  |  Filling of sub meshes(Accumulate): 309 ms | 18.514080%
 |  |  |  
-|  |  |  FrameTime(Average): 21 ms | 87.911484%
-|  |  |  |  PlayState_Update(Average): 6 ms | 31.043240%
-|  |  |  |  |  LevelHandler_Update(Average): 6 ms | 97.276817%
+|  |  |  FrameTime(Average): 20 ms | 87.773987%
+|  |  |  |  PlayState_Update(Average): 6 ms | 32.812099%
+|  |  |  |  |  LevelHandler_Update(Average): 6 ms | 97.684006%
 |  |  |  |  
-|  |  |  |  PlayState_Draw(Average): 11 ms | 55.483784%
+|  |  |  |  PlayState_Draw(Average): 11 ms | 55.211723%
 |  |  |  
 |  |  
 |  

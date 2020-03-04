@@ -77,9 +77,9 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_wind.push_back(float3(0.f, 0.f, 40.f)); // Plains
 
 
-	level0.m_nrOfFruits[APPLE] = 0;
-	level0.m_nrOfFruits[BANANA] = 0;
-	level0.m_nrOfFruits[MELON] = 0;
+	level0.m_nrOfFruits[APPLE] = 2;
+	level0.m_nrOfFruits[BANANA] = 1;
+	level0.m_nrOfFruits[MELON] = 5;
 
 	level0.m_winCondition[APPLE] = 1;
 	level0.m_winCondition[BANANA] = 1;
@@ -93,10 +93,6 @@ void LevelHandler::initialiseLevel0() {
 
 	m_levelsArr.push_back(level0);
 	m_hud.setTimeTargets(level0.m_timeTargets);
-
-	m_frame = make_unique<size_t>();
-	/**m_frame = 0;*/
-	// m_thread = make_unique<PathFindingThread>(m_fruits, m_frame, m_collidableEntities);
 }
 
 void LevelHandler::placeBridge(float3 pos, float3 rot, float3 scale) {
@@ -400,21 +396,13 @@ void LevelHandler::update(float dt) {
 			m_skyBox.updateNewOldLight(tag);
 		}
 	}
-	// update Pathfinding
-	/*
-	int batch = frameCounter++ * batchsize;
-	for (auto f : m_fruits) {
-		f.pathfinding();
-	}
-	*/
-	
 
 	m_skyBox.updateCurrentLight();
 
 	// update stuff
 	for (int i = 0; i < m_fruits.size(); i++) {
 		pft->m_mutex.lock();
-		m_fruits[i]->update(dt, playerPos, m_collidableEntities);
+		m_fruits[i]->update(dt, playerPos);
 		if (m_player.isShooting()) {
 
 			if (m_player.getArrow().checkCollision(*m_fruits[i])) {
@@ -427,16 +415,12 @@ void LevelHandler::update(float dt) {
 				ErrorLogger::log("Hit a fruit");
 			}
 		}
-		//if (m_fruits[i]->getState() == AI::State::CAUGHT) {
-			if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() <
-				1.0f) { // If the fruit is close to the player get picked up
-				// pft->m_mutex.lock();
-				pickUpFruit(m_fruits[i].get()->getFruitType());
-				AudioHandler::getInstance()->playOnce(AudioHandler::COLLECT);
-				m_fruits.erase(m_fruits.begin() + i);
-				// pft->m_mutex.unlock();
-			}
-		//}
+		if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() <
+			1.5f) { // If the fruit is close to the player get picked up
+			pickUpFruit(m_fruits[i].get()->getFruitType());
+			AudioHandler::getInstance()->playOnce(AudioHandler::COLLECT);
+			m_fruits.erase(m_fruits.begin() + i);
+		}
 		pft->m_mutex.unlock();
 	}
 

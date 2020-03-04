@@ -56,9 +56,7 @@ void AI::handleAvailablePath(float3 myPosition) {
 
 bool AI::beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>>& openList,
 	std::vector<shared_ptr<AI::Node>>& closedList) {
-	// return isIn(child, closedList) && isIn(child, openList);
 
-	// Previous check
 	//// Check is child is in closed
 	if (isIn(child, closedList)) {
 		return false;
@@ -87,7 +85,7 @@ bool AI::isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entit
 	auto normal = TerrainManager::getInstance()->getNormalFromPosition(childPos);
 	normal.Normalize();
 	// Don't you climb no walls
-	if (abs(float3(0.0f, 1.0f, 0.0f).Dot(normal)) < 0.9)
+	if (abs(float3(0.0f, 1.0f, 0.0f).Dot(normal)) < 0.99f)
 		return false;
 
 
@@ -135,7 +133,6 @@ void AI::pathfinding(float3 start) {
 		return;
 	if (m_readyForPath) {
 		{
-			// pft->m_mutex.lock();
 			m_availablePath.clear();
 
 			TerrainManager* tm = TerrainManager::getInstance();
@@ -143,7 +140,6 @@ void AI::pathfinding(float3 start) {
 			float3 startCopy = float3(start.x, tm->getHeightFromPosition(start), start.z);
 			float3 m_destinationCopy =
 				float3(m_destination.x, tm->getHeightFromPosition(m_destination), m_destination.z);
-			// pft->m_mutex.unlock();
 
 			shared_ptr<AI::Node> currentNode = make_shared<AI::Node>(
 				shared_ptr<AI::Node>(), startCopy, startCopy, m_destinationCopy);
@@ -168,7 +164,6 @@ void AI::pathfinding(float3 start) {
 
 				if ((currentNode->position - m_destinationCopy).LengthSquared() < ARRIVAL_RADIUS ||
 					counter == MAX_STEPS - 1) {
-					// pft->m_mutex.lock();
 					m_availablePath.clear(); // Reset path
 
 					// Add path steps
@@ -183,10 +178,7 @@ void AI::pathfinding(float3 start) {
 													// as startCopy.
 					}
 					m_readyForPath = false;
-					// pft->m_mutex.unlock();
 
-					// ErrorLogger::log(
-					//	"thread successfully closed. Path found. Steps: " + to_string(counter));
 					return;
 				}
 
@@ -205,23 +197,19 @@ void AI::pathfinding(float3 start) {
 						continue;
 					}
 
-					// pft->m_mutex.lock();
 					if (!isValid(child->position, currentNode->position, pft->m_collidables)) {
 						continue;
 					}
-					// pft->m_mutex.unlock();
 
 					// Add child to open
 					open.push_back(child);
 				}
 			}
-			// pft->m_mutex.lock();
 			while (currentNode->parent != nullptr) {
 				m_availablePath.push_back(currentNode->position);
 				currentNode = currentNode->parent;
 			}
 			m_readyForPath = false;
-			// pft->m_mutex.unlock();
 		}
 	}
 }
