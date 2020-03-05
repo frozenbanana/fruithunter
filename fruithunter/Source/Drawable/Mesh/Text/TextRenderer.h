@@ -14,6 +14,8 @@ public:
 
 	void setColor(XMVECTORF32 color);
 
+	float2 getSize(string text);
+
 private:
 	XMVECTORF32 m_color = Colors::White;
 	std::unique_ptr<SpriteBatch> m_spriteBatch;

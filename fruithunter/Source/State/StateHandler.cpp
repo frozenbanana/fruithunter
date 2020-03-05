@@ -1,6 +1,7 @@
 #include "StateHandler.h"
 #include "IntroState.h"
 #include "PlayState.h"
+#include "PauseState.h"
 #include "ErrorLogger.h"
 
 StateHandler StateHandler::m_this;
@@ -21,6 +22,7 @@ void StateHandler::initialize() {
 	m_states.resize(LENGTH);
 	m_states[INTRO] = make_unique<IntroState>();
 	m_states[PLAY] = make_unique<PlayState>();
+	m_states[PAUSE] = make_unique<PauseState>();
 	play();
 }
 

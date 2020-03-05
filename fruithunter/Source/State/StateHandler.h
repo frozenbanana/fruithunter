@@ -6,7 +6,7 @@
 
 class StateHandler {
 public:
-	enum States { INTRO, PLAY, LENGTH };
+	enum States { INTRO, PLAY, PAUSE, LENGTH };
 	void initialize();
 	void changeState(States state);
 	void handleEvent();
