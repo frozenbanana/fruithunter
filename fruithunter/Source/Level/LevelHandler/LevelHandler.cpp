@@ -134,7 +134,7 @@ void LevelHandler::placeAllAnimals() {
 		float3(96.2f, 3.45f, 38.f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
 	m_Animals.push_back(animal);
 
-	animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 3, 10.f, float3(37.f, 3.2f, 93.f),
+	animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 2, 10.f, float3(37.f, 3.2f, 93.f),
 		float3(20.f, 3.7f, 90.f), 0.f);
 	m_Animals.push_back(animal);
 
