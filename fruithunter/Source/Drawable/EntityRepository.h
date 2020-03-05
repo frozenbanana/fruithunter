@@ -12,7 +12,7 @@ private:
 	// modifiers for collision
 	const vector<string> m_treeNames = { "treeMedium1", "treeMedium2", "treeMedium3", "BurnedTree1",
 		"BurnedTree2", "BurnedTree3" };
-	const vector<string> m_nonCollidables = { "DeadBush" };
+	const vector<string> m_nonCollidables = { "DeadBush", "Grass1", "Grass2", "Grass3", "Grass4" };
 
 	struct EntityInstance {
 		float3 position, scale;
