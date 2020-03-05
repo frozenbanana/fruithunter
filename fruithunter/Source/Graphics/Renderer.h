@@ -29,8 +29,8 @@ public:
 	void bindQuadVertexBuffer();
 	void enableAlphaBlending();
 	void disableAlphaBlending();
-	void toggleVsync();
-	void toggleDarkEdges();
+	void setVsync(bool value);
+	void setDarkEdges(bool value);
 
 	void copyDepthToSRV();
 

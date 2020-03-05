@@ -13,9 +13,9 @@ void PauseState::initialize() {
 
 	m_resumeButton.initialize("Resume", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 50));
 	m_mainMenuButton.initialize("Main menu", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2));
-	m_vsyncButton.initialize("Toggle V-Sync", float2(300, STANDARD_HEIGHT - 100));
+	m_vsyncButton.initialize("V-Sync", float2(300, STANDARD_HEIGHT - 100), true);
 	m_darkEdgesButton.initialize(
-		"Toggle dark edges", float2(STANDARD_WIDTH - 300, STANDARD_HEIGHT - 100));
+		"Dark edges", float2(STANDARD_WIDTH - 300, STANDARD_HEIGHT - 100), true);
 	m_exitButton.initialize("Exit", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 50));
 
 	// Just ignore this. It fixes things.
@@ -32,10 +32,10 @@ void PauseState::update() {
 		StateHandler::getInstance()->changeState(StateHandler::INTRO);
 	}
 	if (m_vsyncButton.update()) {
-		Renderer::getInstance()->toggleVsync();
+		Renderer::getInstance()->setVsync(m_vsyncButton.getOnOff());
 	}
 	if (m_darkEdgesButton.update()) {
-		Renderer::getInstance()->toggleDarkEdges();
+		Renderer::getInstance()->setDarkEdges(m_darkEdgesButton.getOnOff());
 	}
 	if (m_exitButton.update()) {
 		StateHandler::getInstance()->quit();

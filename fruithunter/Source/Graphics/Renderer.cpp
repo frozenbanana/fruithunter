@@ -72,9 +72,9 @@ void Renderer::disableAlphaBlending() {
 		m_blendStateWithoutAlphaBlending.Get(), blendFactor, 0xffffffff);
 }
 
-void Renderer::toggleVsync() { m_vsync = !m_vsync; }
+void Renderer::setVsync(bool value) { m_vsync = value; }
 
-void Renderer::toggleDarkEdges() { m_darkEdges = !m_darkEdges; }
+void Renderer::setDarkEdges(bool value) { m_darkEdges = value; }
 
 void Renderer::bindConstantBuffer_ScreenSize(int slot) {
 	XMINT4 data = XMINT4(STANDARD_WIDTH, STANDARD_HEIGHT, 0, 0);
