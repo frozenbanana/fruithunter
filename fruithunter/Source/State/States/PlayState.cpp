@@ -2,6 +2,8 @@
 #include "ErrorLogger.h"
 #include "Renderer.h"
 #include "Quad.h"
+#include "Input.h"
+#include "StateHandler.h"
 #include <iostream>
 #include <string>
 
@@ -12,6 +14,10 @@ void PlayState::initialize() {
 
 void PlayState::update() {
 	PerformanceTimer::Record record("PlayState_Update", PerformanceTimer::TimeState::state_average);
+
+	if (Input::getInstance()->keyPressed(Keyboard::Keys::Escape)) {
+		StateHandler::getInstance()->changeState(StateHandler::PAUSE);
+	}
 
 	m_timer.update();
 	float dt = m_timer.getDt();
@@ -63,5 +69,6 @@ void PlayState::draw() {
 void PlayState::play() {
 	Input::getInstance()->setMouseModeRelative();
 	ErrorLogger::log(m_name + " play() called.");
+	Renderer::getInstance()->drawLoading();
 	m_levelHandler.loadLevel(0);
 }

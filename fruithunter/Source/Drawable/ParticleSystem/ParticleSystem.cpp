@@ -144,7 +144,7 @@ void ParticleSystem::update(float dt, float3 wind) {
 			m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
 			m_particleProperties[i].m_timeLeft -= dt;
 			m_particles[i].update(dt, m_particleProperties[i].m_velocity + wind);
-	
+
 			// Inactivate particles when lifetime is over
 			if (m_particleProperties[i].m_timeLeft <= 0.f) {
 				m_particles[i].setIsActive(0.0f);
@@ -188,6 +188,10 @@ void ParticleSystem::bindBuffers() {
 
 void ParticleSystem::draw() {
 	auto deviceContext = Renderer::getDeviceContext();
+	// Since we are using the same vertex buffer for all Particle Systems
+	// the buffer update needs to be next to the draw call.
+	deviceContext->UpdateSubresource(m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
+
 	m_shaderSet.bindShadersAndLayout();
 	Renderer::getDeviceContext()->UpdateSubresource(
 		m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);

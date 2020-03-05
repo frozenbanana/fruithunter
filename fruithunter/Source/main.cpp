@@ -10,6 +10,7 @@
 #include "Camera.h"
 #include "VariableSyncer.h"
 #include "PerformanceTimer.h"
+#include "PathFindingThread.h"
 
 int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
 	_In_ int cmdCount) {
@@ -24,19 +25,19 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	Renderer* renderer = Renderer::getInstance();
 	ErrorLogger errorLogger;
 
+	PathFindingThread* extraThread = PathFindingThread::getInstance();
+
 	MSG msg = { 0 };
 	stateHandler->initialize();
 
 	// Hardcoded statechange here. (TESTING)
-	stateHandler->changeState(StateHandler::PLAY);
-	PerformanceTimer::stop();
-	PerformanceTimer::Record record("AllFrames");
+	// stateHandler->changeState(StateHandler::PLAY);
 	while (StateHandler::getInstance()->isRunning()) {
 		PerformanceTimer::Record record("FrameTime", PerformanceTimer::TimeState::state_average);
 
 		VariableSyncer::getInstance()->sync();
 		input->update();
-		if (input->keyPressed(DirectX::Keyboard::F1)) {
+		/*if (input->keyPressed(DirectX::Keyboard::F1)) {
 			ErrorLogger::log("Number 1 was pressed!");
 			stateHandler->changeState(StateHandler::INTRO);
 		}
@@ -45,6 +46,11 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 			ErrorLogger::log("Number 2 was pressed!");
 			stateHandler->changeState(StateHandler::PLAY);
 		}
+
+		if (input->keyPressed(DirectX::Keyboard::Escape)) {
+			ErrorLogger::log("Number 3 was pressed!");
+			stateHandler->changeState(StateHandler::PAUSE);
+		}*/
 
 		// Main loop
 		stateHandler->handleEvent();
@@ -61,11 +67,12 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 			}
 		}
 
-		if (Input::getInstance()->keyPressed(DirectX::Keyboard::Escape)) {
+		/*if (Input::getInstance()->keyPressed(DirectX::Keyboard::F4)) {
 			stateHandler->quit();
 			break;
-		}
+		}*/
 		MSG msg = { 0 };
 	}
+	extraThread->exitThread();
 	return 0;
 }

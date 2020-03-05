@@ -4,6 +4,8 @@
 #include "Renderer.h"
 #include "ErrorLogger.h"
 #include "PerformanceTimer.h"
+#include "VariableSyncer.h"
+#include "PathFindingThread.h"
 
 void LevelHandler::initialiseLevel0() {
 	Level level0;
@@ -43,9 +45,9 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_heightMapDivision.push_back(XMINT2(8, 8));
 	level0.m_heightMapDivision.push_back(XMINT2(8, 8));
 
-	level0.m_heightMapScales.push_back(float3(1.f, 0.20f, 1.f) * 100);
+	level0.m_heightMapScales.push_back(float3(1.f, 0.40f, 1.f) * 100);
 	level0.m_heightMapScales.push_back(float3(1.f, 0.15f, 1.f) * 100);
-	level0.m_heightMapScales.push_back(float3(1.f, 0.20f, 1.f) * 100);
+	level0.m_heightMapScales.push_back(float3(1.f, 0.25f, 1.f) * 100);
 	level0.m_heightMapScales.push_back(float3(1.f, 0.10f, 1.f) * 100);
 
 	vector<string> maps(4);
@@ -91,6 +93,7 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_timeTargets[BRONZE] = 80;
 
 	m_levelsArr.push_back(level0);
+	m_hud.setTimeTargets(level0.m_timeTargets);
 }
 
 void LevelHandler::placeBridge(float3 pos, float3 rot, float3 scale) {
@@ -124,13 +127,13 @@ void LevelHandler::placeBridge(float3 pos, float3 rot, float3 scale) {
 
 void LevelHandler::placeAllBridges() {
 	placeBridge(float3(103.2f, 3.1f, 39.f), float3(0.f, -0.1f, -0.07f), float3(1.9f, 1.f, 1.4f));
-	placeBridge(float3(35.f, 3.2f, 99.f), float3(0.f, 1.7f, 0.13f), float3(1.6f, 1.f, 1.4f));
-	placeBridge(float3(98.f, 8.2f, 152.f), float3(0.f, -0.1f, -0.13f), float3(1.8f, 1.f, 1.4f));
+	placeBridge(float3(35.f, 3.5f, 98.5f), float3(0.f, 1.7f, 0.02f), float3(1.6f, 1.f, 1.4f));
+	placeBridge(float3(99.2f, 7.9f, 155.f), float3(0.f, 0.f, -0.09f), float3(1.3f, 1.f, 1.4f));
 }
 
 void LevelHandler::placeAllAnimals() {
 	shared_ptr<Animal> animal = make_shared<Animal>("Gorilla", 10.f, 7.f, BANANA, 1, 10.f,
-		float3(98.2f, 3.1f, 39.f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
+		float3(96.2f, 3.1f, 38.f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
 	m_Animals.push_back(animal);
 
 	animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 3, 10.f, float3(37.f, 3.2f, 93.f),
@@ -159,15 +162,24 @@ void LevelHandler::initialise() {
 	m_terrainProps.addPlaceableEntity("stone3");
 	m_terrainProps.addPlaceableEntity("bush1");
 	m_terrainProps.addPlaceableEntity("bush2");
-	m_terrainProps.addPlaceableEntity("Block");
+	m_terrainProps.addPlaceableEntity("DeadBush");
+	m_terrainProps.addPlaceableEntity("BurnedTree1");
+	m_terrainProps.addPlaceableEntity("BurnedTree2");
+	m_terrainProps.addPlaceableEntity("BurnedTree3");
+	m_terrainProps.addPlaceableEntity("Cactus_tall");
+	m_terrainProps.addPlaceableEntity("Cactus_small");
+	m_terrainProps.addPlaceableEntity("Grass1");
+	m_terrainProps.addPlaceableEntity("Grass2");
+	m_terrainProps.addPlaceableEntity("Grass3");
+	m_terrainProps.addPlaceableEntity("Grass4");
 
 	initialiseLevel0();
 
 	m_particleSystems.resize(5);
 	m_particleSystems[0] = ParticleSystem(ParticleSystem::VULCANO_FIRE);
-	m_particleSystems[0].setPosition(float3(150.f, 7.f, 149.f));
+	m_particleSystems[0].setPosition(float3(150.f, 15.f, 150.f));
 	m_particleSystems[1] = ParticleSystem(ParticleSystem::VULCANO_SMOKE);
-	m_particleSystems[1].setPosition(float3(150.f, 27.f, 149.f));
+	m_particleSystems[1].setPosition(float3(150.f, 29.f, 150.f));
 	m_particleSystems[2] = ParticleSystem(ParticleSystem::GROUND_DUST);
 	m_particleSystems[2].setPosition(float3(42.f, 4.f, 125.f));
 	m_particleSystems[3] = ParticleSystem(ParticleSystem::FOREST_BUBBLE);
@@ -177,8 +189,11 @@ void LevelHandler::initialise() {
 
 	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(50, 50), XMINT2(8, 8),
 		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
+	float3 lavaSize(82.f, 0.f, 82.f);
+	float3 lavaPos(150, 1.5f, 150);
 	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(25, 25), XMINT2(4, 4),
-		float3(100.f, 2.f, 100.f), float3(100.f, 2.f, 100.f));
+		lavaPos - lavaSize / 2.f, lavaSize + float3(0, 2.f, 0));
+
 }
 
 void LevelHandler::loadLevel(int levelNr) {
@@ -256,6 +271,7 @@ void LevelHandler::loadLevel(int levelNr) {
 		// m_entity.setScale(0.1f);
 		// m_entity.setPosition(float3(-2.f));
 	}
+	PathFindingThread::getInstance()->initialize(m_fruits, m_frame, m_collidableEntities);
 }
 
 void LevelHandler::draw() {
@@ -348,9 +364,9 @@ void LevelHandler::drawShadowDynamicEntities() {
 }
 
 void LevelHandler::update(float dt) {
-	if (!Input::getInstance()->keyDown(Keyboard::L)) {
 		PerformanceTimer::Record record(
 			"LevelHandler_Update", PerformanceTimer::TimeState::state_average);
+		auto pft = PathFindingThread::getInstance();
 
 		m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
@@ -371,19 +387,21 @@ void LevelHandler::update(float dt) {
 					m_Animals[i]->beginWalk(m_player.getPosition());
 
 
-				for (size_t iFruit = 0; iFruit < m_fruits.size(); ++iFruit) {
-					if (m_fruits[iFruit]->getFruitType() == m_Animals[i]->getfruitType()) {
-						float len = (m_Animals[i]->getPosition() - m_fruits[iFruit]->getPosition())
-										.Length();
-						if (len < m_Animals[i]->getFruitRange()) {
-							m_Animals[i]->grabFruit(m_fruits[iFruit]->getPosition());
-							m_fruits.erase(m_fruits.begin() + iFruit);
-						}
+			for (size_t iFruit = 0; iFruit < m_fruits.size(); ++iFruit) {
+				pft->m_mutex.lock();
+				if (m_fruits[iFruit]->getFruitType() == m_Animals[i]->getfruitType()) {
+					float len =
+						(m_Animals[i]->getPosition() - m_fruits[iFruit]->getPosition()).Length();
+					if (len < m_Animals[i]->getFruitRange()) {
+						m_Animals[i]->grabFruit(m_fruits[iFruit]->getPosition());
+						m_fruits.erase(m_fruits.begin() + iFruit);
 					}
 				}
+				pft->m_mutex.unlock();
 			}
-			m_Animals[i]->update(dt, m_player.getPosition());
 		}
+		m_Animals[i]->update(dt, m_player.getPosition());
+	}
 
 		dropFruit();
 
@@ -417,34 +435,38 @@ void LevelHandler::update(float dt) {
 
 		m_skyBox.updateCurrentLight();
 
-		// update stuff
-		for (int i = 0; i < m_fruits.size(); i++) {
-			m_fruits[i]->update(dt, playerPos, m_collidableEntities);
-			if (m_player.isShooting()) {
-				if (m_player.getArrow().checkCollision(*m_fruits[i])) {
-					m_fruits[i]->hit();
-					AudioHandler::getInstance()->playOnceByDistance(AudioHandler::HIT_FRUIT,
-						m_player.getPosition(), m_fruits[i]->getPosition());
+	// update stuff
+	for (int i = 0; i < m_fruits.size(); i++) {
+		pft->m_mutex.lock();
+		m_fruits[i]->update(dt, playerPos);
+		if (m_player.isShooting()) {
 
-					m_player.getArrow().setPosition(
-						float3(-100.f)); // temporary to disable arrow until returning
-					ErrorLogger::log("Hit a fruit");
-				}
-			}
-			if (m_fruits[i]->getState() == AI::State::CAUGHT) {
-				if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() <
-					1.0f) { // If the fruit is close to the player get picked up
-					pickUpFruit(m_fruits[i].get()->getFruitType());
-					AudioHandler::getInstance()->playOnce(AudioHandler::COLLECT);
-					m_fruits.erase(m_fruits.begin() + i);
-				}
+			if (m_player.getArrow().checkCollision(*m_fruits[i])) {
+				m_fruits[i]->hit();
+				AudioHandler::getInstance()->playOnceByDistance(
+					AudioHandler::HIT_FRUIT, m_player.getPosition(), m_fruits[i]->getPosition());
+				ErrorLogger::logFloat3("Arrow pos", m_player.getArrow().getPosition());
+				ErrorLogger::logFloat3(
+					"Fruit on index " + to_string(i) + " on pos ", m_fruits[i]->getPosition());
+				m_player.getArrow().setPosition(
+					float3(-100.f)); // temporary to disable arrow until returning
 			}
 		}
-
-		for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
-			m_player.collideObject(*m_collidableEntities[i]);
+		if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() <
+			1.5f) { // If the fruit is close to the player get picked up
+			pickUpFruit(m_fruits[i].get()->getFruitType());
+			AudioHandler::getInstance()->playOnce(AudioHandler::COLLECT);
+			m_fruits.erase(m_fruits.begin() + i);
 		}
-		// m_player.collideObject(*m_collidableEntities[1]);
+		pft->m_mutex.unlock();
+	}
+
+	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
+		pft->m_mutex.lock();
+		m_player.collideObject(*m_collidableEntities[i]);
+		pft->m_mutex.unlock();
+	}
+	// m_player.collideObject(*m_collidableEntities[1]);
 
 		// castray sphere	// Debug thing will need later as well please don't delete - Linus
 		// for (int i = 0; i < 3; ++i) {
@@ -457,15 +479,12 @@ void LevelHandler::update(float dt) {
 		//	}
 		//}
 
-		{
-			PerformanceTimer::Record record(
-				"ParticleSystem_Update", PerformanceTimer::TimeState::state_average);
-			for (size_t i = 0; i < m_particleSystems.size(); i++) {
-				Terrain* currentTerrain =
-					m_terrainManager->getTerrainFromPosition(m_particleSystems[i].getPosition());
-				m_particleSystems[i].update(dt, currentTerrain->getWind());
-			}
-		}
+
+	for (size_t i = 0; i < m_particleSystems.size(); i++) {
+		Terrain* currentTerrain =
+			m_terrainManager->getTerrainFromPosition(m_particleSystems[i].getPosition());
+		m_particleSystems[i].update(dt, currentTerrain->getWind());
+	}
 
 		m_hud.update(dt, m_player.getStamina());
 		waterEffect.update(dt);
@@ -482,21 +501,29 @@ void LevelHandler::pickUpFruit(int fruitType) {
 
 void LevelHandler::dropFruit() {
 	Input* ip = Input::getInstance();
+	auto pft = PathFindingThread::getInstance();
 
 	if (ip->keyPressed(Keyboard::D1)) {
 		if (m_inventory[APPLE] >= 0) {
-			shared_ptr<Apple> apple = make_shared<Apple>(m_player.getPosition());
+			shared_ptr<Apple> apple =
+				make_shared<Apple>(m_player.getPosition() + float3(0.0f, 1.5f, 0.0f));
 			apple->release(m_player.getForward());
+			pft->m_mutex.lock();
 			m_fruits.push_back(apple);
+			pft->m_mutex.unlock();
+
 			// m_inventory[APPLE]--;
 			m_hud.removeFruit(APPLE);
 		}
 	}
 	if (ip->keyPressed(Keyboard::D2)) {
 		if (m_inventory[BANANA] >= 0) {
-			shared_ptr<Banana> banana = make_shared<Banana>(float3(m_player.getPosition()));
+			shared_ptr<Banana> banana =
+				make_shared<Banana>(float3(m_player.getPosition() + float3(0.0f, 1.5f, 0.0f)));
 			banana->release(m_player.getForward());
+			pft->m_mutex.lock();
 			m_fruits.push_back(banana);
+			pft->m_mutex.unlock();
 			// m_inventory[BANANA]--;
 			m_hud.removeFruit(BANANA);
 		}
@@ -504,10 +531,11 @@ void LevelHandler::dropFruit() {
 	if (ip->keyPressed(Keyboard::D3)) {
 		if (m_inventory[MELON] >= 0) {
 			shared_ptr<Melon> melon =
-				make_shared<Melon>(float3(m_player.getPosition() + m_player.getForward() * 3.0f));
+				make_shared<Melon>((m_player.getPosition() + float3(0.0f, 1.5f, 0.0f)));
 			melon->release(m_player.getForward());
-
+			pft->m_mutex.lock();
 			m_fruits.push_back(melon);
+			pft->m_mutex.unlock();
 			// m_inventory[MELON]--;
 			m_hud.removeFruit(MELON);
 		}

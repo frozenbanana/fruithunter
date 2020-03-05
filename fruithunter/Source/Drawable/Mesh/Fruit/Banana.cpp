@@ -2,6 +2,12 @@
 #include "Renderer.h"
 #include "ErrorLogger.h"
 
+#define PASSIVE_JUMP_POWER 15.f
+#define ACTIVE_JUMP_POWER 35.f
+#define PANIC_JUMP_POWER 40.f
+
+
+
 Banana::Banana(float3 pos) : Fruit(pos) {
 	m_fruitType = BANANA;
 	loadAnimated("Banana", 3);
@@ -16,16 +22,17 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 	m_currentState = PASSIVE;
 	m_worldHome = m_position;
 	setCollisionDataOBB();
-
+	m_speed = 1.f;
 	m_activeRadius = 5.f;
-	m_passiveRadius = 0.f;
+	m_passiveRadius = 3.f;
+
+	setFrameTargets(0, 1);
 }
 
-void Banana::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
+void Banana::behaviorPassive(float3 playerPosition) {
 	TerrainManager* terrainManger = TerrainManager::getInstance();
-	float terrainHeight = terrainManger->getHeightFromPosition(m_position);
 	// Only decide what to do on ground
-	if (atOrUnder(terrainHeight)) {
+	if (m_onGround) {
 		float3 direction = float3(0.f);
 		if (!withinDistanceTo(m_worldHome, ARRIVAL_RADIUS)) {
 			float3 toHome = m_worldHome - m_position;
@@ -38,41 +45,37 @@ void Banana::behaviorPassive(float3 playerPosition, vector<shared_ptr<Entity>> c
 			terrainNormal.Normalize();
 			direction = terrainNormal;
 		}
-		jump(direction, 4.0f);
+		jump(direction, PASSIVE_JUMP_POWER);
 
 		if (withinDistanceTo(playerPosition, m_activeRadius)) {
 			changeState(ACTIVE);
+			stopMovement();
 		}
 	}
 }
 
-void Banana::behaviorActive(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
+void Banana::behaviorActive(float3 playerPosition) {
+
+	if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
+		changeState(PASSIVE);
+	}
 	TerrainManager* terrainManger = TerrainManager::getInstance();
-	float terrainHeight = terrainManger->getHeightFromPosition(m_position);
 	// Only decide what to do on ground
-	if (atOrUnder(terrainHeight)) {
+	if (m_onGround) {
 		float3 terrainNormal = terrainManger->getNormalFromPosition(m_position);
 		// Go bananas!
-		terrainNormal.x += 0.1f * (float)(rand() % 1) - 0.5f;
-		terrainNormal.z += 0.1f * (float)(rand() % 1) - 0.5f;
+		terrainNormal.x += RandomFloat(-1.f, 1.f);
+		terrainNormal.z += RandomFloat(-1.f, 1.f);
 		terrainNormal.y = 1.0f;
-		jump(terrainNormal, 3.0f);
-
-		if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
-			changeState(PASSIVE);
-		}
+		jump(terrainNormal, ACTIVE_JUMP_POWER);
 	}
 }
-void Banana::behaviorCaught(float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
-
-	TerrainManager* terrainManger = TerrainManager::getInstance();
-	float terrainHeight = terrainManger->getHeightFromPosition(m_position);
-
-	if (atOrUnder(terrainHeight)) {
+void Banana::behaviorCaught(float3 playerPosition) {
+	if (m_onGround) {
 		float3 toPlayer = playerPosition - m_position;
 		toPlayer.Normalize();
 		toPlayer.y = 1.0f;
-		jump(toPlayer, 3.0f);
+		jump(toPlayer, 8.0f);
 	}
 }
 
@@ -90,6 +93,17 @@ void Banana::updateAnimated(float dt) {
 	default:
 		ErrorLogger::log("wrong state in banana");
 	}
+}
+
+void Banana::release(float3 direction) {
+	// start bouncing
+	m_nrOfFramePhases = 3;
+	m_bounciness = m_maxBounciness;
+	m_state = Bounce;
+	changeState(RELEASED);
+	m_direction = direction;
+	m_velocity = m_direction * THROWVELOCITY;
+	m_afterRealease = true;
 }
 
 
@@ -170,12 +184,9 @@ void Banana::updateBounce(float dt) {
 		posOrder[0] = getPosition();
 		posOrder[1] = getPosition();
 	}
-	// Set position
-	/*float3 pos = XMVectorLerp(posOrder[m_currentFramePhase],
-		posOrder[(m_currentFramePhase + 1) % (m_nrOfFramePhases)], m_frameTime);
-	setPosition(pos);*/
+
 	rotate(m_rotation * dt);
-	// Update mesh specificly with our frametime
+
 	m_meshAnim.updateSpecific(m_frameTime);
 }
 

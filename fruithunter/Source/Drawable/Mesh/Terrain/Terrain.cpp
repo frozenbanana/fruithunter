@@ -24,16 +24,7 @@ void Terrain::createBuffers() {
 		sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 		sampDesc.MinLOD = -3.402823466e+38F;
 		sampDesc.MaxLOD = 3.402823466e+38F;
-		/*D3D11_SAMPLER_DESC sampDesc;
-		sampDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		sampDesc.MipLODBias = 0.0f;
-		sampDesc.MaxAnisotropy = 16;
-		sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-		sampDesc.MinLOD = -3.402823466e+38F;
-		sampDesc.MaxLOD = 3.402823466e+38F;*/
+
 		HRESULT res = gDevice->CreateSamplerState(&sampDesc, m_sampler.GetAddressOf());
 		if (FAILED(res))
 			ErrorLogger::logError(res, "Failed creating sampler state in Terrain class!\n");
