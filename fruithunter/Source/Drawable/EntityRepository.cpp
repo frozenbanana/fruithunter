@@ -252,7 +252,7 @@ void EntityRepository::removeEntity(Entity* entity) {
 		}
 		m_repositoryChangedSinceLoad = true;
 
-		//remove from quadtree
+		// remove from quadtree
 		m_quadtree.remove(entity);
 	}
 }

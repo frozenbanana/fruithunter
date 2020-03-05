@@ -146,9 +146,10 @@ void LevelHandler::placeAllAnimals() {
 
 LevelHandler::LevelHandler() { initialise(); }
 
-LevelHandler::~LevelHandler() {}
+LevelHandler::~LevelHandler() { PathFindingThread::getInstance()->exitThread(); }
 
 void LevelHandler::initialise() {
+
 	m_player.initialize();
 	m_terrainManager = TerrainManager::getInstance();
 	m_terrainProps.addPlaceableEntity("treeMedium1");

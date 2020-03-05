@@ -1,7 +1,9 @@
 #include "TerrainManager.h"
 
 TerrainManager TerrainManager::m_this;
+
 TerrainManager* TerrainManager::getInstance() { return &m_this; }
+
 TerrainManager::TerrainManager() {}
 void TerrainManager::add(float3 position, float3 scale, string heightmapFilename,
 	vector<string> textures, XMINT2 subSize, XMINT2 division, float3 wind) {

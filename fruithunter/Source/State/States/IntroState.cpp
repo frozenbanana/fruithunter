@@ -21,6 +21,8 @@ void IntroState::initialize() {
 }
 
 void IntroState::update() {
+
+
 	if (m_startButton.update()) {
 		StateHandler::getInstance()->changeState(StateHandler::LEVEL_SELECT);
 	}

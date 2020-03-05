@@ -4,10 +4,8 @@ PathFindingThread PathFindingThread::m_this;
 
 
 PathFindingThread::PathFindingThread() {
-	auto pft = PathFindingThread::getInstance();
-	pft->m_ready = false;
-	pft->m_running = true;
-	pft->m_thread = new thread([this] { run(); });
+	// auto pft = PathFindingThread::getInstance();
+
 }
 
 void PathFindingThread::exitThread() {
@@ -65,7 +63,9 @@ bool PathFindingThread::checkVolatile(bool& statement) {
 void PathFindingThread::initialize(std::vector<shared_ptr<Fruit>>& batch,
 	shared_ptr<size_t> currentFrame, vector<shared_ptr<Entity>> collidables) {
 	auto pft = PathFindingThread::getInstance();
-
+	pft->m_ready = false;
+	pft->m_running = true;
+	pft->m_thread = new thread([this] { run(); });
 	pft->m_mutex.lock();
 	pft->m_batch = &batch;
 	pft->m_currentFrame = currentFrame;

@@ -39,7 +39,7 @@ void SeaEffect::createVertices(XMINT2 tiles, XMINT2 gridSize) {
 			sub->initilize();
 
 			m_quadtree.add(float3(uvBase.x, 0.f, uvBase.y), float3(uvLength.x, 1.f, uvLength.y),
-				XMINT2((int32_t)gx, (int32_t)gy));
+				XMINT2((int)gx, (int)gy));
 		}
 	}
 }
@@ -259,6 +259,7 @@ void SeaEffect::setRotation(float3 rotation) {
 void SeaEffect::update(float dt) { m_time.x += dt; }
 
 void SeaEffect::draw() {
+
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
 	// bind shaders
@@ -337,6 +338,7 @@ void SeaEffect::draw_frustumCulling(const vector<FrustumPlane>& planes) {
 }
 
 void SeaEffect::draw_quadtreeFrustumCulling(vector<FrustumPlane> planes) {
+
 	// transform planes to local space
 	updateMatrix();
 	float4x4 invWorldMatrix = m_worldMatrix.mWorld.Invert();

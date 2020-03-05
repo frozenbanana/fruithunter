@@ -45,8 +45,7 @@ private:
 
 		void cullElements(
 			const vector<FrustumPlane>& planes, vector<Element*>& elements, size_t& count);
-		void cullElements(
-			const CubeBoundingBox& bb, vector<Element*>& elements, size_t& count);
+		void cullElements(const CubeBoundingBox& bb, vector<Element*>& elements, size_t& count);
 		void forEach_cullElements(const vector<FrustumPlane>& planes, vector<bool>& partsEnabled,
 			void (*function_onEach)(Element* ptr));
 
@@ -264,8 +263,8 @@ template <typename Element>
 inline void QuadTree<Element>::Node::cullElements(
 	const CubeBoundingBox& bb, vector<Element*>& elements, size_t& count) {
 	bbFrustumState state = bbIntersection(m_position, m_size, bb.m_position, bb.m_size)
-			? bbFrustumState::State_Inbetween
-			: bbFrustumState::State_Outside;
+							   ? bbFrustumState::State_Inbetween
+							   : bbFrustumState::State_Outside;
 
 	count++;
 	switch (state) {
@@ -416,7 +415,7 @@ inline void QuadTree<Element>::add(
 template <typename Element> inline void QuadTree<Element>::remove(Element& element) {
 	for (size_t i = 0; i < m_elementParts.size(); i++) {
 		if (m_elementParts[i]->element == element) {
-			m_node.remove(m_elementParts[i].get());				  // remove from children
+			m_node.remove(m_elementParts[i].get());			  // remove from children
 			m_elementParts.erase(m_elementParts.begin() + i); // remove
 			// fix indices on elementParts
 			for (size_t j = i; j < m_elementParts.size(); j++) {
@@ -429,6 +428,7 @@ template <typename Element> inline void QuadTree<Element>::remove(Element& eleme
 
 template <typename Element>
 inline vector<Element*> QuadTree<Element>::cullElements(const vector<FrustumPlane>& planes) {
+
 	vector<Element*> elements;
 	elements.reserve(m_elementParts.size());
 	size_t count = 0;

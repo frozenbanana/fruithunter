@@ -247,7 +247,7 @@ void Terrain::fillSubMeshes() {
 				// ground platform
 				for (size_t i = 0; i < 6; i++) {
 					Vertex goundVertex = m_gridPoints[order[i].x ? indexStop.x : indexStart.x]
-										   [order[i].y ? indexStop.y : indexStart.y];
+													 [order[i].y ? indexStop.y : indexStart.y];
 					goundVertex.position.y = 0;
 					vertices->push_back(goundVertex);
 				}
@@ -779,7 +779,7 @@ bool Terrain::draw_frustumCulling(const vector<FrustumPlane>& planes) {
 
 bool Terrain::draw_quadtreeFrustumCulling(vector<FrustumPlane> planes) {
 	if (m_mapsInitilized) {
-		//transform planes to local space
+		// transform planes to local space
 		updateModelMatrix();
 		float4x4 invWorldMatrix = m_worldMatrix.mWorld.Invert();
 		float4x4 invWorldInvTraMatrix = m_worldMatrix.mWorldInvTra.Invert();
@@ -788,9 +788,9 @@ bool Terrain::draw_quadtreeFrustumCulling(vector<FrustumPlane> planes) {
 			planes[i].m_normal = float3::TransformNormal(planes[i].m_normal, invWorldInvTraMatrix);
 			planes[i].m_normal.Normalize();
 		}
-		//cull grids
+		// cull grids
 		vector<XMINT2*> elements = m_quadtree.cullElements(planes);
-		//draw culled grids
+		// draw culled grids
 		if (elements.size() > 0) {
 			ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
@@ -819,7 +819,7 @@ bool Terrain::draw_quadtreeFrustumCulling(vector<FrustumPlane> planes) {
 	return false;
 }
 
-bool Terrain::draw_quadtreeBBCulling(CubeBoundingBox bb) { 
+bool Terrain::draw_quadtreeBBCulling(CubeBoundingBox bb) {
 	if (m_mapsInitilized) {
 		// transform planes to local space
 		updateModelMatrix();

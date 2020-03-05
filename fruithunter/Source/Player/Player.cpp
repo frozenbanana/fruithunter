@@ -339,8 +339,7 @@ void Player::checkSprint(float dt) {
 	}
 }
 
-vector<FrustumPlane> Player::getFrustumPlanes() const {
-	return m_camera.getFrustumPlanes(); }
+vector<FrustumPlane> Player::getFrustumPlanes() const { return m_camera.getFrustumPlanes(); }
 
 CubeBoundingBox Player::getCameraBoundingBox() const { return m_camera.getFrustumBoundingBox(); }
 
@@ -357,13 +356,12 @@ void Player::checkDash(float dt) {
 	else if (Input::getInstance()->keyReleased(KEY_DASH)) {
 		m_chargingDash = false;
 
-		float interpolateScale = 0.75f;//0 = dash forward, 1 = dash up,
+		float interpolateScale = 0.75f; // 0 = dash forward, 1 = dash up,
 		float3 dir =
 			float3(0, 1, 0).Cross(m_playerForward.Cross(float3(0, 1, 0))) * (1 - interpolateScale) +
-					 float3(0, 1, 0) * interpolateScale;
+			float3(0, 1, 0) * interpolateScale;
 		dir.Normalize();
-		m_velocity +=
-			dir * m_dashForce * ((float)m_dashCharge / DASHMAXCHARGE);
+		m_velocity += dir * m_dashForce * ((float)m_dashCharge / DASHMAXCHARGE);
 	}
 	else {
 		// return to original state
