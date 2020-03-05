@@ -193,7 +193,6 @@ void LevelHandler::initialise() {
 	float3 lavaPos(150, 1.5f, 150);
 	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(20, 20), XMINT2(4, 4),
 		lavaPos - lavaSize / 2.f, lavaSize + float3(0, 2.f, 0));
-
 }
 
 void LevelHandler::loadLevel(int levelNr) {
@@ -293,7 +292,7 @@ void LevelHandler::draw() {
 	m_entity.draw();
 	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 
-	//frustum data for culling
+	// frustum data for culling
 	vector<FrustumPlane> frustum = m_player.getFrustumPlanes();
 	// terrain entities
 	m_terrainProps.draw_quadtreeFrustumCulling(frustum);
@@ -304,6 +303,8 @@ void LevelHandler::draw() {
 	Renderer::getInstance()->copyDepthToSRV();
 	waterEffect.draw_quadtreeFrustumCulling(frustum);
 	lavaEffect.draw_quadtreeFrustumCulling(frustum);
+
+	Renderer::getInstance()->draw_darkEdges();
 
 	/* --- Things to be drawn without dark edges --- */
 	m_hud.draw();
