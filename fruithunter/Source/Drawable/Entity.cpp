@@ -329,10 +329,10 @@ void Entity::setCollisionDataOBB() {
 void Entity::setCollisionDataSphere() {
 	if (m_mesh.get() != nullptr)
 		setCollisionData(getPosition(), m_mesh->getBoundingBoxPos(), m_scale,
-			m_mesh->getBoundingBoxHalfSizes().y);
+			m_mesh->getBoundingBoxHalfSizes().Length());
 	else
 		setCollisionData(getPosition(), m_meshAnim.getBoundingBoxPos(), m_scale,
-			m_meshAnim.getBoundingBoxHalfSizes().y);
+			m_meshAnim.getBoundingBoxHalfSizes().Length());
 }
 
 float3 Entity::getHalfSizes() const {

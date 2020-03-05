@@ -251,8 +251,6 @@ float3 EntityCollision::ObbData::closestPtPointOBB(float3 point) const {
 }
 
 float3 EntityCollision::getClosestPointOnBox(float3 point) const {
-
-
 	if (m_collisionType == ctOBB) {
 		return ((ObbData*)m_collisionData.get())->closestPtPointOBB(point);
 	}

@@ -281,7 +281,7 @@ void EntityRepository::assignCollisionData(Entity* entity) {
 	else if (tryNonCollidable(entity)) {
 	}
 	else {
-		entity->setCollisionDataSphere();
+		entity->setCollisionDataOBB();
 	}
 }
 
