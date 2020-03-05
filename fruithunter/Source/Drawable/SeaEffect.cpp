@@ -39,7 +39,7 @@ void SeaEffect::createVertices(XMINT2 tiles, XMINT2 gridSize) {
 			sub->initilize();
 
 			m_quadtree.add(float3(uvBase.x, 0.f, uvBase.y), float3(uvLength.x, 1.f, uvLength.y),
-				XMINT2(gx, gy));
+				XMINT2((int32_t)gx, (int32_t)gy));
 		}
 	}
 

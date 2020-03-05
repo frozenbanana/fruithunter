@@ -92,7 +92,8 @@ void LevelSelectState::draw() {
 			m_shadowMap.get()->bindCameraMatrix();
 
 			// Draw static shadow map
-			m_terrain->drawShadow();
+			//m_terrain->drawShadow();
+			m_terrain->draw();
 			/*Draw collidables*/
 			/*Draw terrainprops*/
 			m_staticShadowNotDrawn = false;
@@ -136,6 +137,5 @@ void LevelSelectState::setLevel(int newLevel) {
 	StateHandler::getInstance()->changeState(StateHandler::PLAY);
 	State* tempPointer = StateHandler::getInstance()->getCurrent();
 	dynamic_cast<PlayState*>(tempPointer)->setLevel(newLevel);
-	delete tempPointer;
 	StateHandler::getInstance()->changeState(StateHandler::LEVEL_SELECT);
 }
