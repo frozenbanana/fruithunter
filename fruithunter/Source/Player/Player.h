@@ -19,6 +19,8 @@ public:
 	float3 getCameraPosition() const;
 	float3 getForward() const;
 	float3 getVelocity() const;
+	vector<FrustumPlane> getFrustumPlanes() const;
+	CubeBoundingBox getCameraBoundingBox() const;
 	Entity& getArrow() { return m_bow.getArrow(); };
 	Bow& getBow() { return m_bow; }
 	float getStamina() const;
@@ -81,7 +83,7 @@ private:
 	const float STAMINA_SPRINT_CONSUMPTION = 0.2f; // stamina consumed per seconds
 	bool m_sprinting = false;					   // is the player sprinting
 	// dash
-	float m_dashForce = 10.f;
+	float m_dashForce = 11.f;
 	const float STAMINA_DASH_COST = 0.9f; // stamina cost of full charged dash
 	const float DASHMAXCHARGE = 1.f;	  // Max charge of dash charge in seconds
 	float m_dashCharge = 0.f;			  // charge of dash in seconds

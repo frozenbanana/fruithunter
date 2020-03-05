@@ -1,6 +1,7 @@
 #pragma once
 #include "Entity.h"
 #include "Input.h"
+#include "QuadTree.h"
 
 class EntityRepository {
 
@@ -36,6 +37,7 @@ private:
 	string m_repositoryFilenameLoadedFrom = "";// loaded repository, writes to this filename at saving
 
 	vector<unique_ptr<Entity>> m_entities;// array used to store placed entities for drawing
+	QuadTree<Entity*> m_quadtree;
 
 	//placeable stuff
 	vector<unique_ptr<Entity>> m_placeable;//entities defined to be placeable
@@ -80,6 +82,8 @@ public:
 
 	void update(float dt, float3 point, float3 direction);
 	void draw();
+	void draw_quadtreeFrustumCulling(const vector<FrustumPlane>& planes);
+	void draw_quadtreeBBCulling(const CubeBoundingBox& bb);
 	void drawShadow();
 
 	EntityRepository(string filename = "");
