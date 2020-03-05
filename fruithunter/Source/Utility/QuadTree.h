@@ -6,7 +6,6 @@
 #define COUNT_SPLIT 4
 
 enum bbFrustumState { State_Inside, State_Inbetween, State_Outside };
-
 template <typename Element> class QuadTree {
 private:
 	struct ElementPart {
@@ -37,6 +36,7 @@ private:
 			float3 boxPos, float3 boxSize, const vector<FrustumPlane>& planes);
 
 	public:
+		static int test;
 		size_t getElementCount() const;
 		void log(int level = 0);
 
@@ -78,7 +78,6 @@ public:
 	~QuadTree();
 };
 
-
 template <typename Element>
 inline bool QuadTree<Element>::Node::bbIntersection(
 	float3 bPos1, float3 bSize1, float3 bPos2, float3 bSize2) {
@@ -92,24 +91,27 @@ inline bbFrustumState QuadTree<Element>::Node::boxInsideFrustum(
 	float3 boxPos, float3 boxSize, const vector<FrustumPlane>& planes) {
 
 	// normalized box points
-	 float3 boxPoints[8] = { float3(0, 0, 0), float3(1, 0, 0), float3(1, 0, 1), float3(0, 0, 1),
+	float3 boxPoints[8] = { float3(0, 0, 0), float3(1, 0, 0), float3(1, 0, 1), float3(0, 0, 1),
 		float3(0, 1, 0), float3(1, 1, 0), float3(1, 1, 1), float3(0, 1, 1) };
 	// transform points to world space
-	 for (size_t i = 0; i < 8; i++) {
+	for (size_t i = 0; i < 8; i++) {
 		boxPoints[i] = boxPos + boxPoints[i] * boxSize;
 	}
 	// for each plane
-	 bool inbetween = false;
-	 for (size_t plane_i = 0; plane_i < planes.size(); plane_i++) {
+	bool inbetween = false;
+	float largestDot;
+	for (size_t plane_i = 0; plane_i < planes.size(); plane_i++) {
 		float3 boxDiagonalPoint1, boxDiagonalPoint2;
-		float largestDot = -1;
+		largestDot = -1;
+		float3 p1, p2, pn;
+		float dot, min, max, temp;
 		// find diagonal points
 		for (size_t j = 0; j < 4; j++) {
-			float3 p1 = boxPoints[j];
-			float3 p2 = boxPoints[4 + (j + 2) % 4];
-			float3 pn = p1 - p2;
+			p1 = boxPoints[j];
+			p2 = boxPoints[4 + (j + 2) % 4];
+			pn = p1 - p2;
 			pn.Normalize();
-			float dot = abs(pn.Dot(planes[plane_i].m_normal));
+			dot = abs(pn.Dot(planes[plane_i].m_normal));
 			if (dot > largestDot) {
 				largestDot = dot;
 				boxDiagonalPoint1 = p1;
@@ -117,11 +119,11 @@ inline bbFrustumState QuadTree<Element>::Node::boxInsideFrustum(
 			}
 		}
 		// compare points
-		float min = (boxDiagonalPoint1 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
-		float max = (boxDiagonalPoint2 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
+		min = (boxDiagonalPoint1 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
+		max = (boxDiagonalPoint2 - planes[plane_i].m_position).Dot(planes[plane_i].m_normal);
 		if (min > max) {
 			// switch
-			float temp = max;
+			temp = max;
 			max = min;
 			min = temp;
 		}
@@ -137,9 +139,9 @@ inline bbFrustumState QuadTree<Element>::Node::boxInsideFrustum(
 			inbetween = true;
 		}
 	}
-	 if (inbetween)
+	if (inbetween)
 		return State_Inbetween;
-	 else
+	else
 		return State_Inside;
 }
 
