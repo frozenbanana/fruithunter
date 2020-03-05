@@ -19,9 +19,12 @@ private:
 
 
 	TextRenderer m_textRenderer;
-	Button m_exitButton;
+
 	Button m_resumeButton;
+	Button m_vsyncButton;
+	Button m_darkEdgesButton;
 	Button m_mainMenuButton;
+	Button m_exitButton;
 
 	Entity m_entity;
 };

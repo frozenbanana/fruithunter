@@ -8,12 +8,16 @@ private:
 	float2 m_position;
 	float2 m_size;
 	float4 m_colour;
+	bool m_on = true;
+	bool m_isToggle = false;
 
 public:
-	void setLabel(string label);
 	Button();
 	~Button();
+	void setLabel(string label);
 	void initialize(string label, float2 position);
+	void initialize(string label, float2 position, bool on);
+	bool getOnOff();
 	bool update();
 	void draw();
 };
