@@ -3,7 +3,6 @@
 #include "AudioHandler.h"
 #include "Renderer.h"
 #include "ErrorLogger.h"
-#include "PerformanceTimer.h"
 #include "VariableSyncer.h"
 #include "PathFindingThread.h"
 
@@ -150,8 +149,6 @@ LevelHandler::LevelHandler() { initialise(); }
 LevelHandler::~LevelHandler() {}
 
 void LevelHandler::initialise() {
-	PerformanceTimer::Record record("LevelHandler_initilize");
-
 	m_player.initialize();
 	m_terrainManager = TerrainManager::getInstance();
 	m_terrainProps.addPlaceableEntity("treeMedium1");
@@ -197,15 +194,12 @@ void LevelHandler::initialise() {
 
 void LevelHandler::loadLevel(int levelNr) {
 	if (m_currentLevel != levelNr) {
-		PerformanceTimer::Record record("LevelHandler loadLevel");
-
 		m_currentLevel = levelNr;
 		Level currentLevel = m_levelsArr.at(levelNr);
 
 		m_terrainProps.load(currentLevel.m_terrainPropsFilename);
 
 		for (int i = 0; i < m_levelsArr.at(levelNr).m_heightMapNames.size(); i++) {
-			PerformanceTimer::Record record("TerrainCreation");
 			m_terrainManager->add(currentLevel.m_heightMapPos.at(i),
 				currentLevel.m_heightMapScales[i], currentLevel.m_heightMapNames.at(i),
 				currentLevel.m_heightmapTextures[i], currentLevel.m_heightMapSubSize.at(i),
@@ -342,8 +336,6 @@ void LevelHandler::drawShadowDynamicEntities() {
 }
 
 void LevelHandler::update(float dt) {
-	PerformanceTimer::Record record(
-		"LevelHandler_Update", PerformanceTimer::TimeState::state_average);
 	auto pft = PathFindingThread::getInstance();
 
 	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());

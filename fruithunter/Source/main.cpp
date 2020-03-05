@@ -9,14 +9,11 @@
 #include "IntroState.h"
 #include "Camera.h"
 #include "VariableSyncer.h"
-#include "PerformanceTimer.h"
 #include "PathFindingThread.h"
 
 int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
 	_In_ int cmdCount) {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
-	PerformanceTimer::start("Initilize");
 
 	Input::initilize(Renderer::getInstance()->getHandle());
 
@@ -32,10 +29,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 
 	// Hardcoded statechange here. (TESTING)
 	// stateHandler->changeState(StateHandler::PLAY);
-	PerformanceTimer::stop();
 	while (StateHandler::getInstance()->isRunning()) {
-		PerformanceTimer::Record record("FrameTime", PerformanceTimer::TimeState::state_average);
-
 		VariableSyncer::getInstance()->sync();
 		input->update();
 		/*if (input->keyPressed(DirectX::Keyboard::F1)) {

@@ -3,7 +3,6 @@
 #include "ErrorLogger.h"
 #include <WICTextureLoader.h>
 #include "Input.h"
-#include "PerformanceTimer.h"
 
 ShaderSet Terrain::m_shader;
 Microsoft::WRL::ComPtr<ID3D11Buffer> Terrain::m_matrixBuffer;
@@ -144,7 +143,6 @@ float Terrain::sampleHeightmap(float2 uv) {
 }
 
 void Terrain::createGridPointsFromHeightmap() {
-	PerformanceTimer::Record record("Terrain Heightmap grid creation");
 	XMINT2 order[6] = { // tri1
 		XMINT2(1, 1), XMINT2(0, 0), XMINT2(0, 1),
 		// tri2
@@ -227,7 +225,6 @@ void Terrain::createGrid(XMINT2 size) {
 
 void Terrain::fillSubMeshes() {
 	if (m_gridPointSize.x != 0 && m_gridPointSize.y != 0) {
-		PerformanceTimer::Record record("Filling of sub meshes");
 		// initilize quadtree
 		size_t layers = (size_t)round(log2(max(m_gridSize.x, m_gridSize.y)));
 		m_quadtree.initilize(float3(0, 0, 0), float3(1.f, 1.f, 1.f), layers);
@@ -782,7 +779,6 @@ bool Terrain::draw_frustumCulling(const vector<FrustumPlane>& planes) {
 
 bool Terrain::draw_quadtreeFrustumCulling(vector<FrustumPlane> planes) {
 	if (m_mapsInitilized) {
-		PerformanceTimer::Record record("Terrain Draw Culling", PerformanceTimer::TimeState::state_average);
 		//transform planes to local space
 		updateModelMatrix();
 		float4x4 invWorldMatrix = m_worldMatrix.mWorld.Invert();
@@ -825,8 +821,6 @@ bool Terrain::draw_quadtreeFrustumCulling(vector<FrustumPlane> planes) {
 
 bool Terrain::draw_quadtreeBBCulling(CubeBoundingBox bb) { 
 	if (m_mapsInitilized) {
-		PerformanceTimer::Record record(
-			"Terrain Draw Culling", PerformanceTimer::TimeState::state_average);
 		// transform planes to local space
 		updateModelMatrix();
 		float4x4 invWorldMatrix = m_worldMatrix.mWorld.Invert();

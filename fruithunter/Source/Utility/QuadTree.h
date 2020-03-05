@@ -1,7 +1,6 @@
 #pragma once
 #include "GlobalNamespaces.h"
 #include "ErrorLogger.h"
-#include "PerformanceTimer.h"
 
 #define COUNT_SPLIT 4
 
@@ -237,7 +236,6 @@ inline void QuadTree<Element>::Node::cullElements(
 				elements.push_back(&m_elements[i]->element);
 			}
 		}
-		// PerformanceTimer::stop();
 		break;
 	case bbFrustumState::State_Outside:
 		// miss, add none
@@ -370,7 +368,6 @@ template <typename Element> inline void QuadTree<Element>::log() {
 
 template <typename Element>
 inline void QuadTree<Element>::add(float3 position, float3 size, const Element& element) {
-	PerformanceTimer::Record record("QuadTree creation");
 	// add the array
 	shared_ptr<ElementPart> part = make_shared<ElementPart>(position, size, element);
 	part->index = m_elementParts.size();
@@ -386,7 +383,6 @@ inline void QuadTree<Element>::add(float3 position, float3 size, const Element& 
 template <typename Element>
 inline void QuadTree<Element>::add(
 	float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix, const Element& element) {
-	PerformanceTimer::Record record("QuadTree creation");
 	// define standard box around center
 	float3 points[8] = { float3(-1.f, -1.f, -1.f), float3(1.f, -1.f, -1.f), float3(-1.f, -1.f, 1.f),
 		float3(1.f, -1.f, 1.f),
@@ -433,8 +429,6 @@ template <typename Element> inline void QuadTree<Element>::remove(Element& eleme
 
 template <typename Element>
 inline vector<Element*> QuadTree<Element>::cullElements(const vector<FrustumPlane>& planes) {
-	PerformanceTimer::Record record("QuadTree culling", PerformanceTimer::TimeState::state_average);
-
 	vector<Element*> elements;
 	elements.reserve(m_elementParts.size());
 	size_t count = 0;
@@ -456,9 +450,6 @@ inline vector<Element*> QuadTree<Element>::cullElements(const CubeBoundingBox& b
 template <typename Element>
 inline void QuadTree<Element>::foreach_cullElements(
 	const vector<FrustumPlane>& planes, void (*onEach)(Element*)) {
-
-	PerformanceTimer::Record record(
-		"QuadTree cullingOnEach", PerformanceTimer::TimeState::state_average);
 
 	vector<bool> partsEnabled;
 	partsEnabled.resize(m_elementParts.size());
