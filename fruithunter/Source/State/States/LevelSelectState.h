@@ -1,8 +1,8 @@
 #pragma once
 #include "State.h"
-#include "Quad.h"
-#include "Timer.h"
-#include "TextRenderer.h"
+//#include "Quad.h"
+//#include "Timer.h"
+//#include "TextRenderer.h"
 #include "AudioHandler.h"
 #include "LevelHandler.h"
 #include "ShadowMapping.h"
@@ -12,24 +12,31 @@
 //#include "SkyBox.h"
 //#include "Banana.h"
 //#include "Melon.h"
+#include "Entity.h"
 
-class PlayState : public State {
+#define NR_OF_LEVELS 1
+
+class LevelSelectState : public State {
 public:
-	void update();
 	void initialize();
+	void update();
 	void handleEvent();
 	void pause();
 	void play();
 	void draw();
-	void setLevel(int);
 
-	PlayState() { initialize(); }
+	LevelSelectState() { initialize(); }
+	~LevelSelectState();
 
 private:
-	Timer m_timer;
-	Quad m_quad;
-	LevelHandler m_levelHandler;
-	int m_currentLevel;
+	Player m_player;
+	EntityRepository m_terrainProps;
+	SeaEffect m_waterEffect;
+	SkyBox m_skyBox;
+	Terrain* m_terrain;
+	Entity* m_bowls[NR_OF_LEVELS];
+
+	void setLevel(int);
 
 	// Shadow stuff
 	unique_ptr<ShadowMapper> m_shadowMap;

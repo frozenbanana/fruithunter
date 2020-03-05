@@ -14,6 +14,7 @@ void PathFindingThread::exitThread() {
 	auto pft = PathFindingThread::getInstance();
 	pft->m_mutex.lock();
 	pft->m_running = false;
+	pft->m_ready = true;
 	pft->m_mutex.unlock();
 }
 
