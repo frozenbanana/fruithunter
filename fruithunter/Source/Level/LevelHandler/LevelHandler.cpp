@@ -305,6 +305,8 @@ void LevelHandler::draw() {
 	waterEffect.draw_quadtreeFrustumCulling(frustum);
 	lavaEffect.draw_quadtreeFrustumCulling(frustum);
 
+	Renderer::getInstance()->draw_darkEdges();
+
 	/* --- Things to be drawn without dark edges --- */
 	m_hud.draw();
 

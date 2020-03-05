@@ -217,10 +217,15 @@ void EntityRepository::addEntity(string meshFilename, EntityInstance instance) {
 			m_repository.back().instances.push_back(instance);
 		}
 		m_repositoryChangedSinceLoad = true;
+
+		// add to quadtree
+		Entity* entity = m_entities.back().get();
+		m_quadtree.add(entity->getLocalBoundingBoxPosition(), entity->getLocalBoundingBoxSize(),
+			entity->getModelMatrix(), entity);
 	}
 }
 
-void EntityRepository::removeEntity(const Entity* entity) {
+void EntityRepository::removeEntity(Entity* entity) {
 	if (m_repositoryLoaded && entity != nullptr) {
 		string meshName = entity->getModelName();
 		EntityInstance instance = getEntityInstance(entity);
@@ -244,6 +249,9 @@ void EntityRepository::removeEntity(const Entity* entity) {
 			}
 		}
 		m_repositoryChangedSinceLoad = true;
+
+		//remove from quadtree
+		m_quadtree.remove(entity);
 	}
 }
 
@@ -269,7 +277,7 @@ void EntityRepository::update(float dt, float3 point, float3 direction) {
 		else if (m_state == ModeState::state_inactive)
 			ErrorLogger::log("Switched state: inactive");
 		// reset variables
-		m_markedIndexToRemove = -1;
+		m_markedEntityToRemove = nullptr;
 	}
 	if (m_state == ModeState::state_placing) {
 		// keys
@@ -322,14 +330,14 @@ void EntityRepository::update(float dt, float3 point, float3 direction) {
 				float t = m_entities[i]->castRay(point, direction);
 				if ((t > 0 && t < m_placingDistance) && (shortestT == -1 || t < shortestT)) {
 					shortestT = t;
-					m_markedIndexToRemove = i;
+					m_markedEntityToRemove = m_entities[i].get();
 				}
 			}
 		}
 		else if (ip->keyPressed(m_deleteKey)) {
-			if (m_markedIndexToRemove != -1) {
-				removeEntity(m_entities[m_markedIndexToRemove].get());
-				m_markedIndexToRemove = -1;
+			if (m_markedEntityToRemove != nullptr) {
+				removeEntity(m_markedEntityToRemove);
+				m_markedEntityToRemove = nullptr;
 			}
 		}
 	}
@@ -340,7 +348,7 @@ void EntityRepository::draw() {
 		"EntityRepository Draw", PerformanceTimer::TimeState::state_average);
 
 	for (size_t i = 0; i < m_entities.size(); i++) {
-		if (m_markedIndexToRemove == i)
+		if (m_markedEntityToRemove == m_entities[i].get())
 			m_entities[i]->draw_onlyMesh(float3(1.f, 0.f, 0.f));
 		else
 			m_entities[i]->draw();
@@ -355,7 +363,7 @@ void EntityRepository::draw_quadtreeFrustumCulling(const vector<FrustumPlane>& p
 	vector<Entity**> elements = m_quadtree.cullElements(planes);
 	if (elements.size() > 0) {
 		for (size_t i = 0; i < elements.size(); i++) {
-			if (m_markedIndexToRemove == i)
+			if (m_markedEntityToRemove == (*elements[i]))
 				(*elements[i])->draw_onlyMesh(float3(1.f, 0.f, 0.f));
 			else
 				(*elements[i])->draw();
@@ -369,7 +377,7 @@ void EntityRepository::draw_quadtreeBBCulling(const CubeBoundingBox& bb) {
 	vector<Entity**> elements = m_quadtree.cullElements(bb);
 	if (elements.size() > 0) {
 		for (size_t i = 0; i < elements.size(); i++) {
-			if (m_markedIndexToRemove == i)
+			if (m_markedEntityToRemove == (*elements[i]))
 				(*elements[i])->draw_onlyMesh(float3(1.f, 0.f, 0.f));
 			else
 				(*elements[i])->draw();
