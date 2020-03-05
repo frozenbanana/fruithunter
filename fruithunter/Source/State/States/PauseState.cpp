@@ -12,7 +12,7 @@ void PauseState::initialize() {
 	m_name = "Pause State";
 
 	m_resumeButton.initialize("Resume", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 50));
-	m_mainMenuButton.initialize("Main menu", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2));
+	m_mainMenuButton.initialize("Main Menu", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2));
 	m_vsyncButton.initialize("V-Sync", float2(300, STANDARD_HEIGHT - 100), true);
 	m_darkEdgesButton.initialize(
 		"Dark edges", float2(STANDARD_WIDTH - 300, STANDARD_HEIGHT - 100), true);
