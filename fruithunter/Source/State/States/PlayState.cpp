@@ -14,7 +14,6 @@ void PlayState::initialize() {
 }
 
 void PlayState::update() {
-	PerformanceTimer::Record record("PlayState_Update", PerformanceTimer::TimeState::state_average);
 
 	if (Input::getInstance()->keyPressed(Keyboard::Keys::Escape)) {
 		StateHandler::getInstance()->changeState(StateHandler::PAUSE);
@@ -76,7 +75,6 @@ void PlayState::pause() {
 }
 
 void PlayState::draw() {
-	PerformanceTimer::Record record("PlayState_Draw", PerformanceTimer::TimeState::state_average);
 
 	if (1) {
 		m_shadowMap.get()->update(m_levelHandler->getPlayerPos()); // not needed?
@@ -110,10 +108,9 @@ void PlayState::draw() {
 	float t = m_timer.getTimePassed();
 }
 
-void PlayState::setLevel(int newLevel) { 
-	m_currentLevel = newLevel; }
+void PlayState::setLevel(int newLevel) { m_currentLevel = newLevel; }
 
-void PlayState::destroyLevel() { 
+void PlayState::destroyLevel() {
 	int blob = 0;
 	m_levelHandler.reset();
 }

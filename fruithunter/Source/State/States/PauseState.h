@@ -16,8 +16,6 @@ public:
 	void draw();
 
 private:
-
-
 	TextRenderer m_textRenderer;
 
 	Button m_resumeButton;
