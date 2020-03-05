@@ -21,9 +21,8 @@ void IntroState::initialize() {
 }
 
 void IntroState::update() {
-	PerformanceTimer::Record record(
-		"IntroState_Update", PerformanceTimer::TimeState::state_average);
-	
+
+
 	if (m_startButton.update()) {
 		StateHandler::getInstance()->changeState(StateHandler::LEVEL_SELECT);
 	}
