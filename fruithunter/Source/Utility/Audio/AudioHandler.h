@@ -24,13 +24,7 @@ public:
 		SLEEPING,
 		SOUNDS_LENGTH
 	};
-	enum Music {
-		JINGLE_GUITAR = 0,
-		SPANISH_GUITAR = 1,
-		KETAPOP = 2,
-		KETAPOP_DARK = 3,
-		MUSIC_LENGTH = 4
-	};
+	enum Music { JINGLE_GUITAR, SPANISH_GUITAR, KETAPOP, KETAPOP_DARK, ELEVATOR, MUSIC_LENGTH };
 	bool isPlaying(AudioHandler::Sounds sound);
 	void initalize();
 	void playMusic(Music music);

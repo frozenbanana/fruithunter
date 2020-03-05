@@ -64,22 +64,25 @@ void AudioHandler::initalize() {
 	// Ambient sounds
 	m_this.m_music[JINGLE_GUITAR] = std::make_unique<DirectX::SoundEffect>(
 		m_audioEngine.get(), L"assets/sounds/jingle-guitar.wav");
-
 	m_this.m_music[SPANISH_GUITAR] = std::make_unique<DirectX::SoundEffect>(
 		m_audioEngine.get(), L"assets/sounds/spanish-guitar.wav");
 	m_this.m_music[KETAPOP] = std::make_unique<DirectX::SoundEffect>(
 		m_audioEngine.get(), L"assets/sounds/ketapop-nudia-short.wav");
 	m_this.m_music[KETAPOP_DARK] = std::make_unique<DirectX::SoundEffect>(
 		m_audioEngine.get(), L"assets/sounds/ketapop-dark-short.wav");
+	m_this.m_music[ELEVATOR] = std::make_unique<DirectX::SoundEffect>(
+		m_audioEngine.get(), L"assets/sounds/elevator-music.wav");
 
 	m_this.m_musicInstances[JINGLE_GUITAR] = m_this.m_music[JINGLE_GUITAR]->CreateInstance();
 	m_this.m_musicInstances[SPANISH_GUITAR] = m_this.m_music[SPANISH_GUITAR]->CreateInstance();
 	m_this.m_musicInstances[KETAPOP] = m_this.m_music[KETAPOP]->CreateInstance();
 	m_this.m_musicInstances[KETAPOP_DARK] = m_this.m_music[KETAPOP_DARK]->CreateInstance();
+	m_this.m_musicInstances[ELEVATOR] = m_this.m_music[ELEVATOR]->CreateInstance();
 	m_this.m_musicInstances[JINGLE_GUITAR]->SetVolume(0.7f);
 	m_this.m_musicInstances[SPANISH_GUITAR]->SetVolume(0.7f);
 	m_this.m_musicInstances[KETAPOP]->SetVolume(0.7f);
 	m_this.m_musicInstances[KETAPOP_DARK]->SetVolume(0.7f);
+	m_this.m_musicInstances[ELEVATOR]->SetVolume(0.7f);
 
 	m_oldMusic = Music::MUSIC_LENGTH;
 }
