@@ -2,6 +2,8 @@
 #include "Input.h"
 #include "ErrorLogger.h"
 
+void Button::setLabel(string label) { m_label = label; }
+
 Button::Button() {}
 
 Button::~Button() {}
