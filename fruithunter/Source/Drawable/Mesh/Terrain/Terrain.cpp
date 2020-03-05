@@ -243,15 +243,33 @@ void Terrain::fillSubMeshes() {
 			for (int iyy = 0; iyy < m_gridSize.y; iyy++) {
 				vector<Vertex>* vertices = m_subMeshes[ixx][iyy].getPtr();
 				vertices->clear();
-				vertices->reserve((m_tileSize.x) * (m_tileSize.y) * 6);
+				vertices->reserve((m_tileSize.x) * (m_tileSize.y) * 6 + 6);
 
 				XMINT2 indexStart(ixx * m_tileSize.x, iyy * m_tileSize.y);
 				XMINT2 indexStop(indexStart.x + m_tileSize.x, indexStart.y + m_tileSize.y);
+				// ground platform
+				for (size_t i = 0; i < 6; i++) {
+					Vertex goundVertex = m_gridPoints[order[i].x ? indexStop.x : indexStart.x]
+										   [order[i].y ? indexStop.y : indexStart.y];
+					goundVertex.position.y = 0;
+					vertices->push_back(goundVertex);
+				}
+				// terrain triangles
+				Vertex v[6];
 				for (int xx = indexStart.x; xx < indexStop.x; xx++) {
 					for (int yy = indexStart.y; yy < indexStop.y; yy++) {
 						for (int i = 0; i < 6; i++) {
 							XMINT2 index(xx + order[i].x, yy + order[i].y);
-							vertices->push_back(m_gridPoints[index.x][index.y]);
+							v[i] = m_gridPoints[index.x][index.y];
+						}
+						for (size_t i = 0; i < 2; i++) {
+							size_t ii = i * 3;
+							if (!(v[ii + 0].position.y == 0 && v[ii + 1].position.y == 0 &&
+									v[ii + 2].position.y == 0)) {
+								vertices->push_back(v[ii + 0]);
+								vertices->push_back(v[ii + 1]);
+								vertices->push_back(v[ii + 2]);
+							}
 						}
 					}
 				}
