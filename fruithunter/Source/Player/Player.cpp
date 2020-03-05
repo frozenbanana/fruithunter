@@ -344,7 +344,12 @@ void Player::checkDash(float dt) {
 	}
 	else if (Input::getInstance()->keyReleased(KEY_DASH)) {
 		m_chargingDash = false;
-		m_velocity += m_playerForward * m_dashForce * ((float)m_dashCharge / DASHMAXCHARGE);
+		// m_velocity += m_playerForward * m_dashForce * ((float)m_dashCharge / DASHMAXCHARGE);
+		float3 dir = float3(0, 1, 0).Cross(m_playerForward.Cross(float3(0, 1, 0))) * 0.25f +
+					 float3(0, 1, 0) * 0.75f;
+		dir.Normalize();
+		m_velocity +=
+			dir * m_dashForce * ((float)m_dashCharge / DASHMAXCHARGE);
 	}
 	else {
 		// return to original state
