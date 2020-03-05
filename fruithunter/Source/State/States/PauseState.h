@@ -1,8 +1,6 @@
 #pragma once
 #include "State.h"
-#include "Camera.h"
 #include "TextRenderer.h"
-#include "HUD.h"
 #include "Entity.h"
 #include "Button.h"
 
@@ -18,10 +16,10 @@ public:
 	void draw();
 
 private:
-	Entity m_entity;
+	TextRenderer m_textRenderer;
 	Button m_exitButton;
 	Button m_resumeButton;
-	// Camera m_camera;
-	HUD m_hud;
-	TextRenderer m_textRenderer;
+	Button m_mainMenuButton;
+
+	Entity m_entity;
 };

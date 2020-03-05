@@ -1,8 +1,8 @@
 #include "PauseState.h"
-#include "Input.h"
 #include "ErrorLogger.h"
 #include "Renderer.h"
 #include "StateHandler.h"
+#include "Input.h"
 
 PauseState::PauseState() { initialize(); }
 
@@ -11,8 +11,9 @@ PauseState::~PauseState() {}
 void PauseState::initialize() {
 	m_name = "Pause State";
 
-	m_exitButton.initialize("Exit", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2));
 	m_resumeButton.initialize("Resume", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 50));
+	m_mainMenuButton.initialize("Main menu", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2));
+	m_exitButton.initialize("Exit", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 50));
 
 	// Just ignore this. It fixes things.
 	m_entity.load("Melon_000000");
@@ -20,13 +21,15 @@ void PauseState::initialize() {
 }
 
 void PauseState::update() {
-	if (m_exitButton.update()) {
-		ErrorLogger::log("Exit");
-		StateHandler::getInstance()->quit();
-	}
+
 	if (m_resumeButton.update()) {
-		ErrorLogger::log("Resume");
 		StateHandler::getInstance()->changeState(StateHandler::PLAY);
+	}
+	if (m_mainMenuButton.update()) {
+		StateHandler::getInstance()->changeState(StateHandler::INTRO);
+	}
+	if (m_exitButton.update()) {
+		StateHandler::getInstance()->quit();
 	}
 }
 
@@ -42,8 +45,10 @@ void PauseState::play() {
 void PauseState::draw() {
 	Renderer::getInstance()->beginFrame();
 
-	m_exitButton.draw();
 	m_resumeButton.draw();
+	m_mainMenuButton.draw();
+	m_exitButton.draw();
+
 
 	// Just ignore this. It fixes things
 	m_entity.draw();

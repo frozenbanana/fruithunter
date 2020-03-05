@@ -17,8 +17,8 @@ bool Button::update() {
 	Input* ip = Input::getInstance();
 	bool clicked = false;
 
-	int x = abs(ip->mouseX() - m_position.x);
-	int y = abs(ip->mouseY() - m_position.y);
+	int x = abs(ip->mouseX() - (int)m_position.x);
+	int y = abs(ip->mouseY() - (int)m_position.y);
 
 	if (x < m_size.x / 2.f && y < m_size.y / 2.f) {
 		if (ip->mousePressed(Input::MouseButton::LEFT)) {

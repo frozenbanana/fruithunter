@@ -1,12 +1,8 @@
 #pragma once
 #include "State.h"
-#include "Entity.h"
-#include "Apple.h"
-#include "Camera.h"
 #include "TextRenderer.h"
-#include "Timer.h"
-#include "ParticleSystem.h"
-#include "ShaderSet.h"
+#include "Entity.h"
+#include "Button.h"
 
 
 class IntroState : public State {
@@ -21,11 +17,9 @@ public:
 	void draw();
 
 private:
-	Camera m_camera;
-	Timer m_timer;
-	Entity m_entity;
-	std::vector<Apple> m_apples;
-	// ParticleSystem m_particleSystem;
-	ShaderSet m_shaderSet;
 	TextRenderer m_textRenderer;
+	Button m_startButton;
+	Button m_exitButton;
+
+	Entity m_entity;
 };
