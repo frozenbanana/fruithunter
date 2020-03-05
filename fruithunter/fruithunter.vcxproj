@@ -194,6 +194,7 @@
     <ClCompile Include="Source\State\StateHandler.cpp" />
     <ClCompile Include="Source\State\States\EndRoundState.cpp" />
     <ClCompile Include="Source\State\States\IntroState.cpp" />
+    <ClCompile Include="Source\State\States\LevelSelectState.cpp" />
     <ClCompile Include="Source\State\States\PauseState.cpp" />
     <ClCompile Include="Source\State\States\PlayState.cpp" />
     <ClCompile Include="Source\Utility\Audio\AudioHandler.cpp" />
@@ -242,6 +243,7 @@
     <ClInclude Include="Source\State\StateHandler.h" />
     <ClInclude Include="Source\State\States\EndRoundState.h" />
     <ClInclude Include="Source\State\States\IntroState.h" />
+    <ClInclude Include="Source\State\States\LevelSelectState.h" />
     <ClInclude Include="Source\State\States\PauseState.h" />
     <ClInclude Include="Source\State\States\PlayState.h" />
     <ClInclude Include="Source\Utility\Audio\AudioHandler.h" />
