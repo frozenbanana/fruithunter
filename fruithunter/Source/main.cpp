@@ -15,8 +15,6 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	_In_ int cmdCount) {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	PerformanceTimer::start("Initilize");
-
 	Input::initilize(Renderer::getInstance()->getHandle());
 
 	StateHandler* stateHandler = StateHandler::getInstance();
@@ -29,11 +27,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	MSG msg = { 0 };
 	stateHandler->initialize();
 
-	// Hardcoded statechange here.
-	PerformanceTimer::stop();
 	while (StateHandler::getInstance()->isRunning()) {
-		PerformanceTimer::Record record("FrameTime", PerformanceTimer::TimeState::state_average);
-
 		VariableSyncer::getInstance()->sync();
 		input->update();
 		/*if (input->keyPressed(DirectX::Keyboard::F1)) {
@@ -54,7 +48,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 		// Main loop
 		stateHandler->handleEvent();
 		stateHandler->update();
-		stateHandler->draw(); // calls current states draw()
+		stateHandler->draw();
 		renderer->endFrame();
 
 		while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {

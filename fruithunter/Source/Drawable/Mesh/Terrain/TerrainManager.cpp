@@ -1,7 +1,9 @@
 #include "TerrainManager.h"
-#include "PerformanceTimer.h"
+
 TerrainManager TerrainManager::m_this;
+
 TerrainManager* TerrainManager::getInstance() { return &m_this; }
+
 TerrainManager::TerrainManager() {}
 void TerrainManager::add(float3 position, float3 scale, string heightmapFilename,
 	vector<string> textures, XMINT2 subSize, XMINT2 division, float3 wind) {
@@ -66,8 +68,6 @@ float TerrainManager::castRay(float3 point, float3 direction) {
 }
 
 void TerrainManager::draw() {
-	PerformanceTimer::Record record(
-		"TerrainManager Draw", PerformanceTimer::TimeState::state_average);
 	for (size_t i = 0; i < m_terrains.size(); i++) {
 		m_terrains[i].draw();
 	}
@@ -84,8 +84,6 @@ vector<float3> TerrainManager::draw_frustumCulling(const vector<FrustumPlane>& p
 }
 
 void TerrainManager::draw_quadtreeFrustumCulling(const vector<FrustumPlane>& planes) {
-	PerformanceTimer::Record record("TerrainManager DrawCulling", PerformanceTimer::state_average);
-
 	for (size_t i = 0; i < m_terrains.size(); i++) {
 		m_terrains[i].draw_quadtreeFrustumCulling(planes);
 	}
