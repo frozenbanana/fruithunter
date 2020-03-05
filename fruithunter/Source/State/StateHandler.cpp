@@ -21,6 +21,8 @@ void StateHandler::changeState(States state) {
 	getCurrent()->play();
 }
 
+State* StateHandler::peekState(States state) { return m_states[state].get(); }
+
 void StateHandler::resumeState() {
 	ErrorLogger::log("Current state: " + (int)m_previous);
 	getCurrent()->pause();

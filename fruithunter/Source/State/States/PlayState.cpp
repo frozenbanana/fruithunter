@@ -110,7 +110,9 @@ void PlayState::draw() {
 	float t = m_timer.getTimePassed();
 }
 
-void PlayState::setLevel(int newLevel) { m_currentLevel = newLevel; }
+void PlayState::setLevel(int newLevel) { 
+	m_currentLevel = newLevel;
+}
 
 void PlayState::play() {
 	Input::getInstance()->setMouseModeRelative();

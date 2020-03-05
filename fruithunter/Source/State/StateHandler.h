@@ -8,6 +8,7 @@ public:
 	enum States { INTRO, PLAY, PAUSE, LEVEL_SELECT, ENDROUND, LENGTH };
 	void initialize();
 	void changeState(States state);
+	State* peekState(States state);
 	void resumeState();
 	void handleEvent();
 	void pause();
@@ -18,8 +19,6 @@ public:
 	void quit();
 
 	static StateHandler* getInstance();
-	State* getCurrent();
-
 	State* getCurrent();
 
 private:

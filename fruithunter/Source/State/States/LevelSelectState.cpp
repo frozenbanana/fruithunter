@@ -134,8 +134,6 @@ LevelSelectState::~LevelSelectState() {
 
 void LevelSelectState::setLevel(int newLevel) {
 
-	StateHandler::getInstance()->changeState(StateHandler::PLAY);
-	State* tempPointer = StateHandler::getInstance()->getCurrent();
+	State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
 	dynamic_cast<PlayState*>(tempPointer)->setLevel(newLevel);
-	StateHandler::getInstance()->changeState(StateHandler::LEVEL_SELECT);
 }
