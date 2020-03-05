@@ -203,9 +203,6 @@ void Entity::lookToDir(float3 dir) { lookTo(getPosition() + dir); }
 void Entity::draw() {
 	if (isMeshInitialized()) {
 		bindModelMatrixBuffer();
-
-		if (Input::getInstance()->keyDown(Keyboard::B))
-			m_mesh->draw_BoundingBox();
 		setMaterial(m_currentMaterial);
 		m_mesh.get()->draw();
 	}

@@ -275,63 +275,45 @@ void LevelHandler::loadLevel(int levelNr) {
 }
 
 void LevelHandler::draw() {
-	if (!Input::getInstance()->keyDown(Keyboard::K)) {
-		m_skyBox.bindLightBuffer();
-		m_player.draw();
-		Renderer::getInstance()->enableAlphaBlending();
-		for (int i = 0; i < m_fruits.size(); i++) {
-			m_fruits[i]->draw_animate();
-		}
-		Renderer::getInstance()->disableAlphaBlending();
-
-		for (size_t i = 0; i < m_Animals.size(); ++i) {
-			m_Animals[i]->draw();
-		}
-
-		for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
-			m_collidableEntities[i]->draw();
-		}
-		m_entity.draw();
-		m_skyBox.draw(m_oldTerrain, m_currentTerrain);
-
-		vector<FrustumPlane> frustum = m_player.getFrustumPlanes();
-		if (!Input::getInstance()->keyDown(Keyboard::F)) {
-			// terrain entities
-			m_terrainProps.draw_quadtreeFrustumCulling(frustum);
-
-			// terrain
-			m_terrainManager->draw_quadtreeFrustumCulling(frustum);
-			// water/lava effect
-			Renderer::getInstance()->copyDepthToSRV();
-			waterEffect.draw_quadtreeFrustumCulling(frustum);
-			lavaEffect.draw_quadtreeFrustumCulling(frustum);
-		}
-		else {
-			// terrain entities
-			m_terrainProps.draw();
-			// terrain
-			m_terrainManager->draw();
-			m_terrainManager->draw();
-			// water/lava effect
-			Renderer::getInstance()->copyDepthToSRV();
-			waterEffect.draw();
-			lavaEffect.draw();
-		}
-
-		if (!Input::getInstance()->keyDown(Keyboard::N))
-			Renderer::getInstance()->draw_darkEdges();
-
-
-		/* --- Things to be drawn without dark edges --- */
-		m_hud.draw();
-
-		// Particle Systems
-		for (size_t i = 0; i < m_particleSystems.size(); i++) {
-			m_particleSystems[i].draw();
-		}
-
-		m_player.getBow().getTrailEffect().draw();
+	m_skyBox.bindLightBuffer();
+	m_player.draw();
+	Renderer::getInstance()->enableAlphaBlending();
+	for (int i = 0; i < m_fruits.size(); i++) {
+		m_fruits[i]->draw_animate();
 	}
+	Renderer::getInstance()->disableAlphaBlending();
+
+	for (size_t i = 0; i < m_Animals.size(); ++i) {
+		m_Animals[i]->draw();
+	}
+
+	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
+		m_collidableEntities[i]->draw();
+	}
+	m_entity.draw();
+	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
+
+	//frustum data for culling
+	vector<FrustumPlane> frustum = m_player.getFrustumPlanes();
+	// terrain entities
+	m_terrainProps.draw_quadtreeFrustumCulling(frustum);
+
+	// terrain
+	m_terrainManager->draw_quadtreeFrustumCulling(frustum);
+	// water/lava effect
+	Renderer::getInstance()->copyDepthToSRV();
+	waterEffect.draw_quadtreeFrustumCulling(frustum);
+	lavaEffect.draw_quadtreeFrustumCulling(frustum);
+
+	/* --- Things to be drawn without dark edges --- */
+	m_hud.draw();
+
+	// Particle Systems
+	for (size_t i = 0; i < m_particleSystems.size(); i++) {
+		m_particleSystems[i].draw();
+	}
+
+	m_player.getBow().getTrailEffect().draw();
 }
 
 void LevelHandler::drawShadowDynamic() {

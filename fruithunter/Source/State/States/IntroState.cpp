@@ -35,9 +35,6 @@ void IntroState::update() {
 void IntroState::handleEvent() {
 	Input* input = Input::getInstance();
 	AudioHandler* audioHandler = AudioHandler::getInstance();
-	if (input->keyDown(DirectX::Keyboard::B)) {
-		audioHandler->playOnce(AudioHandler::Sounds::HEAVY_ARROW);
-	}
 }
 
 void IntroState::pause() {
