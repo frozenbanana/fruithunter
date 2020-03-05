@@ -11,7 +11,7 @@ EndRoundState::~EndRoundState() {}
 void EndRoundState::initialize() {
 	m_name = "End Round State";
 	m_victoryText = "Nothing";
-	m_mainMenuButton.initialize("Main menu", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 50));
+	m_mainMenuButton.initialize("Main Menu", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 50));
 	m_exitButton.initialize("Exit", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 100));
 	m_particleSystem = ParticleSystem(ParticleSystem::CONFETTI);
 	ErrorLogger::log(

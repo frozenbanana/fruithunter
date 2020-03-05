@@ -22,13 +22,14 @@ public:
 	void play();
 	void draw();
 	void setLevel(int);
+	void destroyLevel();
 
 	PlayState() { initialize(); }
 
 private:
 	Timer m_timer;
 	Quad m_quad;
-	LevelHandler m_levelHandler;
+	unique_ptr <LevelHandler> m_levelHandler;
 	int m_currentLevel;
 
 	// Shadow stuff

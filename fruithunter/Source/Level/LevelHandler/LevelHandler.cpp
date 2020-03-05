@@ -145,9 +145,9 @@ void LevelHandler::placeAllAnimals() {
 	m_Animals.push_back(animal);
 }
 
-LevelHandler::LevelHandler() { initialise(); }
+LevelHandler::LevelHandler() { initialise();}
 
-LevelHandler::~LevelHandler() {}
+LevelHandler::~LevelHandler() { PathFindingThread::getInstance()->exitThread(); }
 
 void LevelHandler::initialise() {
 	PerformanceTimer::Record record("LevelHandler_initilize");

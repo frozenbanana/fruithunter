@@ -80,6 +80,8 @@ void LevelSelectState::play() {
 	Input::getInstance()->setMouseModeRelative();
 	ErrorLogger::log(m_name + " play() called.");
 	Renderer::getInstance()->drawLoading();
+	State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
+	dynamic_cast<PlayState*>(tempPointer)->destroyLevel();
 }
 
 void LevelSelectState::draw() {
