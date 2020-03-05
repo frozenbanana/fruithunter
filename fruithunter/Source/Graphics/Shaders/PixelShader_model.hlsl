@@ -1,7 +1,7 @@
 
 struct PS_IN {
 	float3 PosW : POSITION0;
-	float3 PosV : POSITION1;
+	// float3 PosV : POSITION1;
 	float4 PosH : SV_POSITION;
 	float2 TexCoord : TEXCOORD;
 	float3 Normal : NORMAL;
@@ -69,7 +69,7 @@ float4 main(PS_IN ip) : SV_TARGET {
 	// op.bloom = float4(0, 0, 0, 1);
 
 	// light
-	//float3 lightPos = float3(-0.f, 110.f, 100.f);
+	// float3 lightPos = float3(-0.f, 110.f, 100.f);
 	/*float3 toLight = normalize(lightPos - ip.PosW);*/
 	float3 toLight = normalize(float3(-100.f, 110.f, 0));
 
@@ -93,12 +93,13 @@ float4 main(PS_IN ip) : SV_TARGET {
 		specular = mapUsages.z ? (textures[2].Sample(samplerAni, ip.TexCoord)).rgb
 							   : (specular3_shininess.rgb);
 		reflectTint =
-			pow(max(dot(normalize(reflect(-toLight, ip.Normal)), normalize(-ip.PosV)), 0.0),
+			pow(max(dot(normalize(reflect(-toLight, ip.Normal)), normalize(-ip.PosW)), 0.0),
 				specular3_shininess.w * 50);
 	}
 
 	float shade = texSampleGrease(
-		texture_shadowMap, float2(3840.f, 2160.f), ip.ShadowPosH.xy, ip.ShadowPosH.z, ip.PosW.xyz).r;
+		texture_shadowMap, float2(3840.f, 2160.f), ip.ShadowPosH.xy, ip.ShadowPosH.z, ip.PosW.xyz)
+					  .r;
 
 	// final color
 	float3 col = pixelBaseColor * ((ambientColour.xyz + diffuseTint * shade * diffuseColour.xyz) +
