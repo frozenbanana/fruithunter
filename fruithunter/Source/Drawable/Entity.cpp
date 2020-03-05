@@ -305,6 +305,22 @@ float Entity::castRay(float3 rayPos, float3 rayDir) {
 	return -1;
 }
 
+void Entity::setCollisionDataTree() {
+	// Scales the OBB down to only encompass the trunk
+	if (m_mesh.get() != nullptr) {
+		float3 treeScale(0.14f, 1.f, 0.14f);
+		setCollisionData(getPosition(), m_mesh->getBoundingBoxPos(), m_scale * treeScale,
+			m_mesh->getBoundingBoxHalfSizes() * treeScale);
+	}
+	else {
+		float3 treeScale(0.14f, 1.f, 0.14f);
+		setCollisionData(getPosition(), m_meshAnim.getBoundingBoxPos(), m_scale * treeScale,
+			m_meshAnim.getBoundingBoxHalfSizes() * treeScale);
+	}
+}
+
+void Entity::setCollidable(bool collidable) { m_collisionData.setCollidable(collidable); }
+
 void Entity::setCollisionData(float3 point, float3 posOffset, float3 scale, float radius) {
 	m_collisionData.setCollisionData(point, posOffset, scale, radius);
 }
@@ -325,10 +341,10 @@ void Entity::setCollisionDataOBB() {
 void Entity::setCollisionDataSphere() {
 	if (m_mesh.get() != nullptr)
 		setCollisionData(getPosition(), m_mesh->getBoundingBoxPos(), m_scale,
-			m_mesh->getBoundingBoxHalfSizes().y);
+			m_mesh->getBoundingBoxHalfSizes().Length());
 	else
 		setCollisionData(getPosition(), m_meshAnim.getBoundingBoxPos(), m_scale,
-			m_meshAnim.getBoundingBoxHalfSizes().y);
+			m_meshAnim.getBoundingBoxHalfSizes().Length());
 }
 
 float3 Entity::getHalfSizes() const {

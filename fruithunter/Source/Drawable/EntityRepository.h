@@ -7,7 +7,12 @@ class EntityRepository {
 
 private:
 	const string m_entityPlacementFilePath = "assets/EntityPlacements/";
-	const string m_fileEndings = ".teps"; //tep = Terrain Entity Placements
+	const string m_fileEndings = ".teps"; // tep = Terrain Entity Placements
+
+	// modifiers for collision
+	const vector<string> m_treeNames = { "treeMedium1", "treeMedium2", "treeMedium3", "BurnedTree1",
+		"BurnedTree2", "BurnedTree3" };
+	const vector<string> m_nonCollidables = { "DeadBush" };
 
 	struct EntityInstance {
 		float3 position, scale;
@@ -25,16 +30,17 @@ private:
 	};
 	struct EntityInstances {
 		string meshName;
-		
+
 		vector<EntityInstance> instances;
 		EntityInstances(string name = "") { meshName = name; }
 	};
 
-	//repository stuff
+	// repository stuff
 	vector<EntityInstances> m_repository;
-	bool m_repositoryLoaded = false;//true if loadPlacement() was called and succesful
-	bool m_repositoryChangedSinceLoad = false;// true if addEntity/removeEntity was called
-	string m_repositoryFilenameLoadedFrom = "";// loaded repository, writes to this filename at saving
+	bool m_repositoryLoaded = false;		   // true if loadPlacement() was called and succesful
+	bool m_repositoryChangedSinceLoad = false; // true if addEntity/removeEntity was called
+	string m_repositoryFilenameLoadedFrom =
+		""; // loaded repository, writes to this filename at saving
 
 	vector<unique_ptr<Entity>> m_entities;// array used to store placed entities for drawing
 	QuadTree<Entity*> m_quadtree;
@@ -73,7 +79,12 @@ private:
 	EntityInstance getEntityInstance(const Entity* entity) const;
 	void setEntityByInstance(Entity* entity, EntityInstance instance);
 
+	bool tryTreeCollisionData(Entity* entity);
+	bool tryNonCollidable(Entity* entity);
+	void assignCollisionData(Entity* entity);
+
 public:
+	vector<unique_ptr<Entity>>* getEntities();
 
 	void load(string filename);
 	void save();
@@ -88,5 +99,4 @@ public:
 
 	EntityRepository(string filename = "");
 	~EntityRepository();
-
 };

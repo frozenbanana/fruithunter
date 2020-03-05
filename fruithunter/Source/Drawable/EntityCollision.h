@@ -42,6 +42,8 @@ private:
 
 	CollisionType m_collisionType;
 	unique_ptr<CollisionData> m_collisionData;
+	bool m_collidable;
+
 	bool collisionSphereSphere(SphereData* sphere1, SphereData* sphere2);
 	bool collisionOBBOBB(ObbData& obb1, ObbData& obb2);
 	bool collisionSphereOBB(SphereData& sphere, ObbData& obb);
@@ -58,6 +60,7 @@ public:
 	bool collide(EntityCollision& other);
 	void setCollisionPosition(float3 pos);
 	void setCollisionScale(float3 scale);
+	void setCollidable(bool collidable = false);
 
 	int getCollisionType() const;
 	float3 getClosestPointOnBox(float3 point) const;
