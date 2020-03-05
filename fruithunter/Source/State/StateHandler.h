@@ -6,7 +6,7 @@
 
 class StateHandler {
 public:
-	enum States { INTRO, PLAY, PAUSE, LENGTH };
+	enum States { INTRO, PLAY, PAUSE, ENDROUND, LENGTH };
 	void initialize();
 	void changeState(States state);
 	void handleEvent();
@@ -18,11 +18,11 @@ public:
 	void quit();
 
 	static StateHandler* getInstance();
+	State* getCurrent();
 
 private:
 	bool m_running = true;
 	static StateHandler m_this;
-	State* getCurrent();
 
 	int m_current = INTRO;
 	std::vector<std::unique_ptr<State>> m_states;

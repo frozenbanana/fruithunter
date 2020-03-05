@@ -211,4 +211,6 @@ void ParticleSystem::setPosition(float3 position) { m_spawnPoint = position; }
 
 float3 ParticleSystem::getPosition() const { return m_spawnPoint; }
 
+void ParticleSystem::setEmitRate(float emitRate) { m_description->m_emitRate = emitRate; }
+
 void ParticleSystem::setDesciption(Description newDescription) { *m_description = newDescription; }
