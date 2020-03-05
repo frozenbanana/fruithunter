@@ -72,24 +72,23 @@ void LevelHandler::initialiseLevel0() {
 	maps[3] = "texture_rock6.jpg";
 	level0.m_heightmapTextures.push_back(maps);
 
-	level0.m_wind.push_back(float3(0.f, 15.f, 0.f)); // Volcano
-	level0.m_wind.push_back(float3(6.f, 0.f, 10.f)); // Forest
-	level0.m_wind.push_back(float3(0.f, 0.f, 6.f));	 // Desert
-	level0.m_wind.push_back(float3(0.f, 0.f, 40.f)); // Plains
+	level0.m_wind.push_back(float3(0.f, 8.f, 0.f)); // Volcano
+	level0.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
+	level0.m_wind.push_back(float3(1.f, 0.f, 2.f)); // Desert
+	level0.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
 
+	level0.m_nrOfFruits[APPLE] = 9;
+	level0.m_nrOfFruits[BANANA] = 9;
+	level0.m_nrOfFruits[MELON] = 9;
 
-	level0.m_nrOfFruits[APPLE] = 2;
-	level0.m_nrOfFruits[BANANA] = 1;
-	level0.m_nrOfFruits[MELON] = 5;
-
-	level0.m_winCondition[APPLE] = 1;
-	level0.m_winCondition[BANANA] = 0;
-	level0.m_winCondition[MELON] = 0;
+	level0.m_winCondition[APPLE] = 2;
+	level0.m_winCondition[BANANA] = 2;
+	level0.m_winCondition[MELON] = 2;
 
 	level0.m_playerStartPos = float3(20.f, 0.0f, 20.f);
 
-	level0.m_timeTargets[GOLD] = 20;
-	level0.m_timeTargets[SILVER] = 35;
+	level0.m_timeTargets[GOLD] = 40;
+	level0.m_timeTargets[SILVER] = 55;
 	level0.m_timeTargets[BRONZE] = 80;
 
 	m_levelsArr.push_back(level0);
@@ -361,8 +360,13 @@ void LevelHandler::update(float dt) {
 		if (m_Animals[i]->notBribed()) {
 			bool getsThrown = m_player.checkAnimal(m_Animals[i]->getPosition(),
 				m_Animals[i]->getPlayerRange(), m_Animals[i]->getThrowStrength());
-			if (getsThrown)
+			if (getsThrown) {
+				m_Animals[i]->makeAngrySound();
 				m_Animals[i]->beginWalk(m_player.getPosition());
+			}
+			else {
+				m_Animals[i]->setAttacked(false);
+			}
 
 
 			for (size_t iFruit = 0; iFruit < m_fruits.size(); ++iFruit) {

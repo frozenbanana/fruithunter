@@ -7,7 +7,8 @@ private:
 	int m_nrRequiredFruits;
 	int m_nrFruitsTaken;
 	float m_fruitRange;
-
+	bool m_hasAttacked;
+	bool m_isSatisfied;
 	float m_playerRange;
 	float m_throwStrength;
 
@@ -25,8 +26,12 @@ private:
 
 	void walkAndBack(float dt);
 	void walkToSleep(float dt);
+	void makeHappySound();
+	void makeEatingSound();
 
 public:
+	void setAttacked(bool attacked);
+	void makeAngrySound(); // is called in levelhandler
 	Animal(string modelName, float playerRange, float fruitRange, int fruitType,
 		int nrRequiredFruits, float throwStrength, float3 position, float3 sleepPos,
 		float rotation);

@@ -9,7 +9,6 @@
 #include "IntroState.h"
 #include "Camera.h"
 #include "VariableSyncer.h"
-#include "PerformanceTimer.h"
 #include "PathFindingThread.h"
 
 int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
@@ -30,8 +29,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	MSG msg = { 0 };
 	stateHandler->initialize();
 
-	// Hardcoded statechange here. (TESTING)
-	// stateHandler->changeState(StateHandler::PLAY);
+	// Hardcoded statechange here.
 	PerformanceTimer::stop();
 	while (StateHandler::getInstance()->isRunning()) {
 		PerformanceTimer::Record record("FrameTime", PerformanceTimer::TimeState::state_average);
