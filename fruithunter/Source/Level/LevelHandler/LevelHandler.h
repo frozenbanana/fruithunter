@@ -92,7 +92,8 @@ public:
 	void drawShadowStatic();
 	void drawShadowDynamicEntities();
 	void update(float dt);
-
+	// To see if we have reached goal
+	HUD& getHUD();
 	// Fruit stuff
 	void pickUpFruit(int fruitType);
 	void dropFruit();

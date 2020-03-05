@@ -83,8 +83,8 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_nrOfFruits[MELON] = 5;
 
 	level0.m_winCondition[APPLE] = 1;
-	level0.m_winCondition[BANANA] = 1;
-	level0.m_winCondition[MELON] = 2;
+	level0.m_winCondition[BANANA] = 0;
+	level0.m_winCondition[MELON] = 0;
 
 	level0.m_playerStartPos = float3(20.f, 0.0f, 20.f);
 
@@ -307,7 +307,7 @@ void LevelHandler::draw() {
 	Renderer::getInstance()->draw_darkEdges();
 
 	/* --- Things to be drawn without dark edges --- */
-	m_hud.draw();
+	m_hud.draw(); // TODO: Find out why hud is not drawn if particleSystems are before
 
 	// Particle Systems
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
@@ -474,6 +474,8 @@ void LevelHandler::update(float dt) {
 
 	// Renderer::getInstance()->setPlayerPos(playerPos);
 }
+
+HUD& LevelHandler::getHUD() { return m_hud; }
 
 void LevelHandler::pickUpFruit(int fruitType) {
 	m_inventory[fruitType]++;
