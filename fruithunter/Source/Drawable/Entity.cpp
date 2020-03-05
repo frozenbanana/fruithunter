@@ -76,7 +76,7 @@ float3 Entity::getPosition() const { return m_position; }
 
 float3 Entity::getScale() const { return m_scale; }
 
-float3 Entity::getLocalBoundingBoxPosition() const { 
+float3 Entity::getLocalBoundingBoxPosition() const {
 	if (m_mesh.get() != nullptr)
 		return m_mesh->getBoundingBoxPos();
 	else

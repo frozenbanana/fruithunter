@@ -37,7 +37,26 @@ void AudioHandler::initalize() {
 		m_audioEngine.get(), L"assets/sounds/fruit-impact-wet.wav");
 	m_this.m_soundEffects[COLLECT] = std::make_unique<DirectX::SoundEffect>(
 		m_audioEngine.get(), L"assets/sounds/collected-item.wav");
-
+	m_this.m_soundEffects[BEAR_EATING] = std::make_unique<DirectX::SoundEffect>(
+		m_audioEngine.get(), L"assets/sounds/bear-eating.wav");
+	m_this.m_soundEffects[BEAR_HAPPY] = std::make_unique<DirectX::SoundEffect>(
+		m_audioEngine.get(), L"assets/sounds/bear-happy.wav");
+	m_this.m_soundEffects[BEAR_PUSH] =
+		std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), L"assets/sounds/bear-push.wav");
+	m_this.m_soundEffects[GOAT_EATING] = std::make_unique<DirectX::SoundEffect>(
+		m_audioEngine.get(), L"assets/sounds/goat-eating.wav");
+	m_this.m_soundEffects[GOAT_HAPPY] = std::make_unique<DirectX::SoundEffect>(
+		m_audioEngine.get(), L"assets/sounds/goat-happy.wav");
+	m_this.m_soundEffects[GOAT_PUSH] =
+		std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), L"assets/sounds/goat-push.wav");
+	m_this.m_soundEffects[GORILLA_EATING] = std::make_unique<DirectX::SoundEffect>(
+		m_audioEngine.get(), L"assets/sounds/gorilla-eating.wav");
+	m_this.m_soundEffects[GORILLA_HAPPY] = std::make_unique<DirectX::SoundEffect>(
+		m_audioEngine.get(), L"assets/sounds/gorilla-happy.wav");
+	m_this.m_soundEffects[GORILLA_PUSH] = std::make_unique<DirectX::SoundEffect>(
+		m_audioEngine.get(), L"assets/sounds/gorilla-push.wav");
+	m_this.m_soundEffects[SLEEPING] =
+		std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), L"assets/sounds/snooring.wav");
 	// Some effect require instances for more control
 	m_this.m_soundEffectsInstance[STRETCH_BOW] =
 		m_this.m_soundEffects[STRETCH_BOW]->CreateInstance();
@@ -57,6 +76,10 @@ void AudioHandler::initalize() {
 	m_this.m_musicInstances[SPANISH_GUITAR] = m_this.m_music[SPANISH_GUITAR]->CreateInstance();
 	m_this.m_musicInstances[KETAPOP] = m_this.m_music[KETAPOP]->CreateInstance();
 	m_this.m_musicInstances[KETAPOP_DARK] = m_this.m_music[KETAPOP_DARK]->CreateInstance();
+	m_this.m_musicInstances[JINGLE_GUITAR]->SetVolume(0.7f);
+	m_this.m_musicInstances[SPANISH_GUITAR]->SetVolume(0.7f);
+	m_this.m_musicInstances[KETAPOP]->SetVolume(0.7f);
+	m_this.m_musicInstances[KETAPOP_DARK]->SetVolume(0.7f);
 
 	m_oldMusic = Music::MUSIC_LENGTH;
 }
@@ -80,8 +103,8 @@ void AudioHandler::doTransition(AudioHandler::Music newMusic) {
 	float timeLimit = 3.0f;
 	while (m_timer.getTimePassed() < timeLimit) {
 		m_timer.update();
-		coefficient = m_timer.getTimePassed() / timeLimit;
-		m_this.m_musicInstances[m_currentMusic]->SetVolume(1.f - coefficient);
+		coefficient = max(m_timer.getTimePassed() / timeLimit, 0.7f);
+		m_this.m_musicInstances[m_currentMusic]->SetVolume(0.7f - coefficient);
 		m_this.m_musicInstances[newMusic]->SetVolume(coefficient);
 	}
 	m_this.m_musicInstances[m_currentMusic]->Pause();
