@@ -35,15 +35,15 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_heightMapPos.push_back(float3(0.f, 0.f, 100.f));
 	level0.m_heightMapPos.push_back(float3(100.f, 0.f, 0.f));
 
-	level0.m_heightMapSubSize.push_back(XMINT2(25, 25));
-	level0.m_heightMapSubSize.push_back(XMINT2(25, 25));
-	level0.m_heightMapSubSize.push_back(XMINT2(25, 25));
-	level0.m_heightMapSubSize.push_back(XMINT2(25, 25));
+	level0.m_heightMapSubSize.push_back(XMINT2(15, 15));
+	level0.m_heightMapSubSize.push_back(XMINT2(15, 15));
+	level0.m_heightMapSubSize.push_back(XMINT2(15, 15));
+	level0.m_heightMapSubSize.push_back(XMINT2(15, 15));
 
-	level0.m_heightMapDivision.push_back(XMINT2(8, 8));
-	level0.m_heightMapDivision.push_back(XMINT2(8, 8));
-	level0.m_heightMapDivision.push_back(XMINT2(8, 8));
-	level0.m_heightMapDivision.push_back(XMINT2(8, 8));
+	level0.m_heightMapDivision.push_back(XMINT2(16, 16));
+	level0.m_heightMapDivision.push_back(XMINT2(16, 16));
+	level0.m_heightMapDivision.push_back(XMINT2(16, 16));
+	level0.m_heightMapDivision.push_back(XMINT2(16, 16));
 
 	level0.m_heightMapScales.push_back(float3(1.f, 0.40f, 1.f) * 100);
 	level0.m_heightMapScales.push_back(float3(1.f, 0.15f, 1.f) * 100);
@@ -191,7 +191,7 @@ void LevelHandler::initialise() {
 		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
 	float3 lavaSize(82.f, 0.f, 82.f);
 	float3 lavaPos(150, 1.5f, 150);
-	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(25, 25), XMINT2(4, 4),
+	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(20, 20), XMINT2(4, 4),
 		lavaPos - lavaSize / 2.f, lavaSize + float3(0, 2.f, 0));
 
 }
