@@ -249,6 +249,7 @@
     <ClInclude Include="Source\Utility\Error\ErrorLogger.h" />
     <ClInclude Include="Source\Utility\Input\Button.h" />
     <ClInclude Include="Source\Utility\Input\Input.h" />
+    <ClInclude Include="Source\Utility\QuadTree.h" />
     <ClInclude Include="Source\Utility\PerformanceTimer\PerformanceTimer.h" />
     <ClInclude Include="Source\Utility\Repositories\MeshRepository.h" />
     <ClInclude Include="Source\Utility\Timer\Timer.h" />

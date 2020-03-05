@@ -122,10 +122,6 @@ void Animated::updateSpecific(float frameTime) {
 }
 
 void Animated::draw() {
-	if (Input::getInstance()->keyDown(Keyboard::B)) {
-		m_meshes[0]->draw_BoundingBox();
-	}
-
 	bindMeshes();
 	bindConstantBuffer();
 	m_shaderObject_animation.bindShadersAndLayout();
@@ -134,10 +130,6 @@ void Animated::draw() {
 }
 
 void Animated::drawShadow() {
-	if (Input::getInstance()->keyDown(Keyboard::B)) {
-		m_meshes[0]->draw_BoundingBox();
-	}
-
 	bindMeshes();
 	bindConstantBuffer();
 	m_shaderObject_animation.bindShadersAndLayoutForShadowMap();

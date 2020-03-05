@@ -308,6 +308,9 @@
     <ClInclude Include="Source\Graphics\ShadowMapping\ShadowMapping.h">
       <Filter>Source\Graphics\ShadowMapping</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Utility\QuadTree.h">
+      <Filter>Source\Utility</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Utility\PerformanceTimer\PerformanceTimer.h">
       <Filter>Source\Utility\PerformanceTimer</Filter>
     </ClInclude>

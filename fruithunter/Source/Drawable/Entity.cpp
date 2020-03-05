@@ -4,18 +4,20 @@
 #include "Renderer.h"
 
 void Entity::updateMatrix() {
-	m_transformPropertiesChanged = false;
-	float4x4 matTranslation = float4x4::CreateTranslation(m_position);
-	float4x4 matScale = float4x4::CreateScale(m_scale);
-	float4x4 matWorld = matScale * m_matRotation * matTranslation;
-	m_matrixBufferData.matWorld = matWorld;
-	m_matrixBufferData.matInvTraWorld = matWorld.Invert().Transpose();
+	if (m_transformPropertiesChanged) {
+		m_transformPropertiesChanged = false;
+		float4x4 matTranslation = float4x4::CreateTranslation(m_position);
+		float4x4 matScale = float4x4::CreateScale(m_scale);
+		float4x4 matWorld = matScale * m_matRotation * matTranslation;
+		m_matrixBufferData.matWorld = matWorld;
+		m_matrixBufferData.matInvTraWorld = matWorld.Invert().Transpose();
 
-	m_collisionData.setCollisionPosition(m_position);
-	m_collisionData.setCollisionScale(m_scale);
-	m_collisionData.rotateObbAxis(m_matRotation);
-	// reset matricies
-	// m_matRotation = XMMatrixIdentity();
+		m_collisionData.setCollisionPosition(m_position);
+		m_collisionData.setCollisionScale(m_scale);
+		m_collisionData.rotateObbAxis(m_matRotation);
+		// reset matricies
+		// m_matRotation = XMMatrixIdentity();
+	}
 }
 
 void Entity::bindModelMatrixBuffer() {
@@ -64,8 +66,7 @@ string Entity::getModelName() const {
 }
 
 float4x4 Entity::getModelMatrix() {
-	if (m_transformPropertiesChanged)
-		updateMatrix();
+	updateMatrix();
 	return m_matrixBufferData.matWorld;
 }
 
@@ -74,6 +75,20 @@ float4x4 Entity::getRotationMatrix() const { return m_matRotation; }
 float3 Entity::getPosition() const { return m_position; }
 
 float3 Entity::getScale() const { return m_scale; }
+
+float3 Entity::getLocalBoundingBoxPosition() const { 
+	if (m_mesh.get() != nullptr)
+		return m_mesh->getBoundingBoxPos();
+	else
+		return float3(0, 0, 0);
+}
+
+float3 Entity::getLocalBoundingBoxSize() const {
+	if (m_mesh.get() != nullptr)
+		return m_mesh->getBoundingBoxSize();
+	else
+		return float3(0, 0, 0);
+}
 
 void Entity::setPosition(float3 position) {
 	m_position = position;
@@ -188,9 +203,6 @@ void Entity::lookToDir(float3 dir) { lookTo(getPosition() + dir); }
 void Entity::draw() {
 	if (isMeshInitialized()) {
 		bindModelMatrixBuffer();
-
-		if (Input::getInstance()->keyDown(Keyboard::B))
-			m_mesh->draw_BoundingBox();
 		setMaterial(m_currentMaterial);
 		m_mesh.get()->draw();
 	}
@@ -285,7 +297,7 @@ float Entity::castRay(float3 rayPos, float3 rayDir) {
 		float t = m_mesh->castRayOnMesh(lrayPos, lrayDir);
 		if (t > 0) {
 			float3 target = XMVector3Transform(lrayPos + lrayDir * t, mWorld);
-			return (target.x - rayPos.x) / rayDir.x;
+			return (target - rayPos).Length() / rayDir.Length();
 		}
 		else
 			return -1;

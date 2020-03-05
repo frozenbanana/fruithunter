@@ -23,6 +23,10 @@ public:
 	float4x4 getViewProjMatrix() const;
 	float3 getPosition() const;
 
+	vector<FrustumPlane> getFrustumPlanes() const;
+	CubeBoundingBox getFrustumBoundingBox() const;
+
+
 private:
 	const float DEFAULT_FOV = XM_PI / 2.5f;
 	struct ViewPerspectiveBuffer {

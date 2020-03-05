@@ -1,6 +1,7 @@
 #pragma once
 #include "Entity.h"
 #include "Input.h"
+#include "QuadTree.h"
 
 class EntityRepository {
 
@@ -36,13 +37,14 @@ private:
 	string m_repositoryFilenameLoadedFrom = "";// loaded repository, writes to this filename at saving
 
 	vector<unique_ptr<Entity>> m_entities;// array used to store placed entities for drawing
+	QuadTree<Entity*> m_quadtree;
 
 	//placeable stuff
 	vector<unique_ptr<Entity>> m_placeable;//entities defined to be placeable
 	enum ModeState { state_inactive, state_placing, state_removing, Length 
 	} m_state = state_inactive; // state of mode
 	float m_placingDistance = 25.f; // distance of ray tracing on terrain
-	size_t m_markedIndexToRemove = -1; // index in m_entities that is marked for deletion
+	Entity* m_markedEntityToRemove = nullptr;// entity pointer in m_entities that is marked for deletion
 	int m_activePlaceableIndex = 0;//index in m_placeable currently selected
 	Keyboard::Keys m_stateSwitchKey = Keyboard::Tab;//switch placing mode
 	Keyboard::Keys m_indexIncreaseKey = Keyboard::NumPad2;//increase index
@@ -66,7 +68,7 @@ private:
 	void randomizeProperties(Entity* entity) const;
 
 	void addEntity(string meshFilename, EntityInstance instance);
-	void removeEntity(const Entity* entity);
+	void removeEntity(Entity* entity);
 
 	EntityInstance getEntityInstance(const Entity* entity) const;
 	void setEntityByInstance(Entity* entity, EntityInstance instance);
@@ -80,6 +82,8 @@ public:
 
 	void update(float dt, float3 point, float3 direction);
 	void draw();
+	void draw_quadtreeFrustumCulling(const vector<FrustumPlane>& planes);
+	void draw_quadtreeBBCulling(const CubeBoundingBox& bb);
 	void drawShadow();
 
 	EntityRepository(string filename = "");
