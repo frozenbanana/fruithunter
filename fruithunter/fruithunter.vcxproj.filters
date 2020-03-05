@@ -183,6 +183,9 @@
     <ClCompile Include="Source\AI\PathFindingThread.cpp">
       <Filter>Source\AI</Filter>
     </ClCompile>
+    <ClCompile Include="Source\State\States\EndRoundState.cpp">
+      <Filter>Source\State\States</Filter>
+    </ClCompile>
     <ClCompile Include="Source\State\States\LevelSelectState.cpp">
       <Filter>Source\State\States</Filter>
     </ClCompile>
@@ -325,6 +328,9 @@
     </ClInclude>
     <ClInclude Include="Source\Utility\Input\Button.h">
       <Filter>Source\Utility\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\State\States\EndRoundState.h">
+      <Filter>Source\State\States</Filter>
     </ClInclude>
     <ClInclude Include="Source\State\States\LevelSelectState.h">
       <Filter>Source\State\States</Filter>

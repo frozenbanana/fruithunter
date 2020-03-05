@@ -3,6 +3,7 @@
 #include "PlayState.h"
 #include "LevelSelectState.h"
 #include "PauseState.h"
+#include "EndRoundState.h"
 #include "ErrorLogger.h"
 
 StateHandler StateHandler::m_this;
@@ -35,6 +36,7 @@ void StateHandler::initialize() {
 	m_states[PLAY] = make_unique<PlayState>();
 	m_states[PAUSE] = make_unique<PauseState>();
 	m_states[LEVEL_SELECT] = make_unique<LevelSelectState>();
+	m_states[ENDROUND] = make_unique<EndRoundState>();
 	play();
 }
 

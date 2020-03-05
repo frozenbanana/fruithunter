@@ -5,7 +5,7 @@
 
 class StateHandler {
 public:
-	enum States { INTRO, PLAY, PAUSE, LEVEL_SELECT, LENGTH };
+	enum States { INTRO, PLAY, PAUSE, LEVEL_SELECT, ENDROUND, LENGTH };
 	void initialize();
 	void changeState(States state);
 	void resumeState();
@@ -18,6 +18,7 @@ public:
 	void quit();
 
 	static StateHandler* getInstance();
+	State* getCurrent();
 
 	State* getCurrent();
 

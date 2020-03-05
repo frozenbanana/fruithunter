@@ -297,7 +297,7 @@ float Entity::castRay(float3 rayPos, float3 rayDir) {
 		float t = m_mesh->castRayOnMesh(lrayPos, lrayDir);
 		if (t > 0) {
 			float3 target = XMVector3Transform(lrayPos + lrayDir * t, mWorld);
-			return (target.x - rayPos.x) / rayDir.x;
+			return (target - rayPos).Length() / rayDir.Length();
 		}
 		else
 			return -1;

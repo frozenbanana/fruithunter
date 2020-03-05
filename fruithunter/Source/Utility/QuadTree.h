@@ -65,7 +65,7 @@ public:
 	void add(float3 position, float3 size, const Element& element);
 	void add(
 		float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix, const Element& element);
-	void remove(const Element& element);
+	void remove(Element& element);
 	vector<Element*> cullElements(const vector<FrustumPlane>& planes);
 	vector<Element*> cullElements(const CubeBoundingBox& bb);
 	void foreach_cullElements(const vector<FrustumPlane>& planes, void (*onEach)(Element*));
@@ -417,10 +417,10 @@ inline void QuadTree<Element>::add(
 	add(position, size, element);
 }
 
-template <typename Element> inline void QuadTree<Element>::remove(const Element& element) {
+template <typename Element> inline void QuadTree<Element>::remove(Element& element) {
 	for (size_t i = 0; i < m_elementParts.size(); i++) {
 		if (m_elementParts[i]->element == element) {
-			m_node.remove(element);							  // remove from children
+			m_node.remove(m_elementParts[i].get());				  // remove from children
 			m_elementParts.erase(m_elementParts.begin() + i); // remove
 			// fix indices on elementParts
 			for (size_t j = i; j < m_elementParts.size(); j++) {
@@ -440,8 +440,6 @@ inline vector<Element*> QuadTree<Element>::cullElements(const vector<FrustumPlan
 	size_t count = 0;
 	m_node.cullElements(planes, elements, count);
 	resetFetchState();
-	//ErrorLogger::log(to_string(elements.size()) + " / " + to_string(m_elementParts.size())); 
-	// ErrorLogger::log(to_string(count));
 	return elements;
 }
 
@@ -452,8 +450,6 @@ inline vector<Element*> QuadTree<Element>::cullElements(const CubeBoundingBox& b
 	size_t count = 0;
 	m_node.cullElements(bb, elements, count);
 	resetFetchState();
-	//ErrorLogger::log(to_string(elements.size()) + " / " + to_string(m_elementParts.size()));
-	// ErrorLogger::log(to_string(count));
 	return elements;
 }
 
