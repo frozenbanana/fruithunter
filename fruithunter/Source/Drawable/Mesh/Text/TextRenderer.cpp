@@ -21,6 +21,11 @@ TextRenderer::~TextRenderer() { m_spriteBatch.reset(); }
 
 void TextRenderer::setColor(DirectX::XMVECTORF32 color) { m_color = color; }
 
+float2 TextRenderer::getSize(string text) {
+	wstring wText = std::wstring(text.begin(), text.end());
+	return float2(m_spriteFont->MeasureString(wText.c_str()));
+}
+
 void TextRenderer::setDepthStateToNull() {
 	/*
 		spritebatch använder sin egen eller förändrar på något vis dpthstencilstate, vi har ingen

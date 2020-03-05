@@ -10,8 +10,7 @@
 #include "Camera.h"
 #include "VariableSyncer.h"
 #include "PerformanceTimer.h"
-
-void onLoad(void* ptr) { ErrorLogger::log("Loaded struct!"); }
+#include "PathFindingThread.h"
 
 int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
 	_In_ int cmdCount) {
@@ -26,21 +25,20 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	Renderer* renderer = Renderer::getInstance();
 	ErrorLogger errorLogger;
 
-	ErrorLogger errorMan;
+	PathFindingThread* extraThread = PathFindingThread::getInstance();
 
 	MSG msg = { 0 };
 	stateHandler->initialize();
 
-	PerformanceTimer::stop();
-	PerformanceTimer::start("AllFrames");
-
 	// Hardcoded statechange here. (TESTING)
-	stateHandler->changeState(StateHandler::PLAY);
+	// stateHandler->changeState(StateHandler::PLAY);
+	PerformanceTimer::stop();
 	while (StateHandler::getInstance()->isRunning()) {
-		PerformanceTimer::start("FrameTime", PerformanceTimer::TimeState::state_average);
+		PerformanceTimer::Record record("FrameTime", PerformanceTimer::TimeState::state_average);
+
 		VariableSyncer::getInstance()->sync();
 		input->update();
-		if (input->keyPressed(DirectX::Keyboard::F1)) {
+		/*if (input->keyPressed(DirectX::Keyboard::F1)) {
 			ErrorLogger::log("Number 1 was pressed!");
 			stateHandler->changeState(StateHandler::INTRO);
 		}
@@ -50,13 +48,17 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 			stateHandler->changeState(StateHandler::PLAY);
 		}
 
+		if (input->keyPressed(DirectX::Keyboard::Escape)) {
+			ErrorLogger::log("Number 3 was pressed!");
+			stateHandler->changeState(StateHandler::PAUSE);
+		}*/
+
 		// Main loop
 		stateHandler->handleEvent();
 		stateHandler->update();
 		stateHandler->draw(); // calls current states draw()
 		renderer->endFrame();
 
-		PerformanceTimer::stop();
 		while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -66,12 +68,12 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 			}
 		}
 
-		if (Input::getInstance()->keyPressed(DirectX::Keyboard::Escape)) {
+		/*if (Input::getInstance()->keyPressed(DirectX::Keyboard::F4)) {
 			stateHandler->quit();
 			break;
-		}
+		}*/
 		MSG msg = { 0 };
 	}
-	PerformanceTimer::stop();
+	extraThread->exitThread();
 	return 0;
 }

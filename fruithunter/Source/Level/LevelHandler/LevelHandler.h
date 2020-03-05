@@ -11,10 +11,13 @@
 #include "EntityRepository.h"
 #include "HUD.h"
 #include "SeaEffect.h"
+#include "QuadTree.h"
 #include "Animal.h"
 #include "ParticleSystem.h"
 
 #define LEVELS = 1;
+
+
 
 struct Level {
 	// HeightMap
@@ -53,12 +56,15 @@ private:
 	TerrainManager* m_terrainManager;
 	EntityRepository m_terrainProps;
 	SeaEffect waterEffect, lavaEffect;
+	Entity m_sphere;
 	Entity m_entity;
 	SkyBox m_skyBox;
 	size_t m_inventory[NR_OF_FRUITS]; // APPLE 0, BANANA 1, MELON 2
 	vector<shared_ptr<Entity>> m_collidableEntities;
 	vector<ParticleSystem> m_particleSystems;
 	vector<shared_ptr<Animal>> m_Animals;
+
+	QuadTree<int> tree;
 
 	int m_currentLevel = -1;
 	Level::TerrainTags m_currentTerrain = Level::TerrainTags::Forest;
@@ -73,8 +79,7 @@ private:
 	void placeAllBridges();
 	void placeAllAnimals();
 
-	// thread for pathfinding,
-
+	shared_ptr<size_t> m_frame;
 
 public:
 	LevelHandler();
@@ -87,7 +92,8 @@ public:
 	void drawShadowStatic();
 	void drawShadowDynamicEntities();
 	void update(float dt);
-
+	// To see if we have reached goal
+	HUD& getHUD();
 	// Fruit stuff
 	void pickUpFruit(int fruitType);
 	void dropFruit();

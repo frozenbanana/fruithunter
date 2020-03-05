@@ -4,13 +4,12 @@
 #include "Entity.h"
 #include "Button.h"
 
-
-class IntroState : public State {
+class PauseState : public State {
 public:
-	IntroState();
-	~IntroState();
-	void update();
+	PauseState();
+	~PauseState();
 	void initialize();
+	void update();
 	void handleEvent();
 	void pause();
 	void play();
@@ -18,8 +17,9 @@ public:
 
 private:
 	TextRenderer m_textRenderer;
-	Button m_startButton;
 	Button m_exitButton;
+	Button m_resumeButton;
+	Button m_mainMenuButton;
 
 	Entity m_entity;
 };

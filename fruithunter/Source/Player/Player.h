@@ -19,12 +19,14 @@ public:
 	float3 getCameraPosition() const;
 	float3 getForward() const;
 	float3 getVelocity() const;
+	vector<FrustumPlane> getFrustumPlanes() const;
+	CubeBoundingBox getCameraBoundingBox() const;
 	Entity& getArrow() { return m_bow.getArrow(); };
+	Bow& getBow() { return m_bow; }
 	float getStamina() const;
 	bool isShooting() const;
 	void setPosition(float3 position);
 	void standsOnObject();
-	Bow& getBow();
 
 private:
 	// Keys
@@ -46,7 +48,7 @@ private:
 	const float GROUND_FRICTION_WEAK = 1.0f; // friction on steep terrain, 0-60.
 	const float STEEPNESS_BORDER =
 		0.6f; // value of dot product when flat terrain goes to steep terrain
-	const float ONGROUND_THRESHOLD = 0.1f; // extra height over terrain until player is not grounded
+	const float ONGROUND_THRESHOLD = 0.03f; // extra height over terrain until player is not grounded
 
 	float3 m_position;
 	float3 m_velocity;
@@ -67,7 +69,7 @@ private:
 	float m_speed = 20.f;				// player movement strength
 	float m_speedSprint = 40.f;			// player movement strength when sprinting
 	float m_speedOnChargingDash = 10.f; // player movement when charging dash
-	float m_speedInAir = 5.f;			// player movement in air
+	float m_speedInAir = 2.5f;			// player movement in air
 	float m_godModeSpeed = 20.f;		// player movement in godmode
 	// jump
 	float m_jumpForce = 5.f; // strength of jump force
@@ -81,7 +83,7 @@ private:
 	const float STAMINA_SPRINT_CONSUMPTION = 0.2f; // stamina consumed per seconds
 	bool m_sprinting = false;					   // is the player sprinting
 	// dash
-	float m_dashForce = 10.f;
+	float m_dashForce = 11.f;
 	const float STAMINA_DASH_COST = 0.9f; // stamina cost of full charged dash
 	const float DASHMAXCHARGE = 1.f;	  // Max charge of dash charge in seconds
 	float m_dashCharge = 0.f;			  // charge of dash in seconds

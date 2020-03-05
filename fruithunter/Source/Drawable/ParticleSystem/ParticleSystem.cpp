@@ -5,6 +5,7 @@
 #include "VariableSyncer.h"
 
 ShaderSet ParticleSystem::m_shaderSet;
+Microsoft::WRL::ComPtr<ID3D11Buffer> ParticleSystem::m_vertexBuffer;
 
 ParticleSystem::ParticleSystem(ParticleSystem::PARTICLE_TYPE type) {
 
@@ -86,11 +87,11 @@ void ParticleSystem::setParticle(Description desc, size_t index) {
 	part->setPosition(spawnPos + float3(x, y, z));
 
 	// Color
-	float3 pickedColor = float3(1.0f, 1.f, 0.0f);
+	float4 pickedColor = float4(1.0f, 1.f, 0.0f, 1.0f);
 	int pick = rand() % 3; // 0..1
 	pickedColor = desc.m_color[pick];
 
-	part->setColor(float4(pickedColor.x, pickedColor.y, pickedColor.z, 1.0f));
+	part->setColor(pickedColor);
 
 	// Size
 	float size = RandomFloat(desc.m_sizeInterval.x, desc.m_sizeInterval.y);
@@ -137,24 +138,18 @@ void ParticleSystem::update(float dt, float3 wind) {
 
 			m_emitTimer -= (1.f / rate) * emitCount;
 		}
-		for (size_t i = 0; i < m_particles.size(); i++) {
-			if (m_particles[i].getIsActive() == 1.0f) {
-				m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
-				m_particleProperties[i].m_timeLeft -= dt;
-				m_particles[i].update(dt, m_particleProperties[i].m_velocity + wind);
-				// Controlling size
-				// float sizeFactor =
-				//	m_particleProperties[i].m_timeLeft / m_particleProperties[i].m_lifeTime;
-				// m_particles[i].setSize(m_particles[i].getSize() * sizeFactor * sizeFactor);
-				// Inactivate particles when lifetime is over
-				if (m_particleProperties[i].m_timeLeft <= 0.f) {
-					m_particles[i].setIsActive(0.0f);
-				}
+	}
+	for (size_t i = 0; i < m_particles.size(); i++) {
+		if (m_particles[i].getIsActive() == 1.0f) {
+			m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
+			m_particleProperties[i].m_timeLeft -= dt;
+			m_particles[i].update(dt, m_particleProperties[i].m_velocity + wind);
+
+			// Inactivate particles when lifetime is over
+			if (m_particleProperties[i].m_timeLeft <= 0.f) {
+				m_particles[i].setIsActive(0.0f);
 			}
 		}
-
-		Renderer::getDeviceContext()->UpdateSubresource(
-			m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
 	}
 }
 
@@ -163,22 +158,22 @@ void ParticleSystem::createBuffers() {
 	auto deviceContext = Renderer::getDeviceContext();
 
 	//  Buffer for particle data
-	m_vertexBuffer.Reset();
+	if (m_vertexBuffer.Get() == nullptr) {
+		D3D11_BUFFER_DESC buffDesc;
+		memset(&buffDesc, 0, sizeof(buffDesc));
 
-	D3D11_BUFFER_DESC buffDesc;
-	memset(&buffDesc, 0, sizeof(buffDesc));
+		buffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		buffDesc.Usage = D3D11_USAGE_DEFAULT;
+		buffDesc.ByteWidth = (UINT)(sizeof(Particle) * MAX_PARTICLES);
 
-	buffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	buffDesc.Usage = D3D11_USAGE_DEFAULT;
-	buffDesc.ByteWidth = (UINT)(sizeof(Particle) * MAX_PARTICLES);
+		D3D11_SUBRESOURCE_DATA data;
+		data.pSysMem = m_particles.data();
 
-	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = m_particles.data();
+		HRESULT check = device->CreateBuffer(&buffDesc, &data, m_vertexBuffer.GetAddressOf());
 
-	HRESULT check = device->CreateBuffer(&buffDesc, &data, m_vertexBuffer.GetAddressOf());
-
-	if (FAILED(check))
-		ErrorLogger::logError(check, "Failed creating buffer in ParticleSystem class!\n");
+		if (FAILED(check))
+			ErrorLogger::logError(check, "Failed creating buffer in ParticleSystem class!\n");
+	}
 }
 
 void ParticleSystem::bindBuffers() {
@@ -192,14 +187,18 @@ void ParticleSystem::bindBuffers() {
 
 
 void ParticleSystem::draw() {
-	if (m_isActive) {
-		auto deviceContext = Renderer::getDeviceContext();
-		m_shaderSet.bindShadersAndLayout();
-		bindBuffers();
-		Renderer::getInstance()->enableAlphaBlending();
-		deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
-		Renderer::getInstance()->disableAlphaBlending();
-	}
+	auto deviceContext = Renderer::getDeviceContext();
+	// Since we are using the same vertex buffer for all Particle Systems
+	// the buffer update needs to be next to the draw call.
+	deviceContext->UpdateSubresource(m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
+
+	m_shaderSet.bindShadersAndLayout();
+	Renderer::getDeviceContext()->UpdateSubresource(
+		m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
+	bindBuffers();
+	Renderer::getInstance()->enableAlphaBlending();
+	deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
+	Renderer::getInstance()->disableAlphaBlending();
 }
 
 void ParticleSystem::setActive() { m_isActive = true; }
@@ -211,5 +210,7 @@ bool ParticleSystem::getIsActive() { return m_isActive; }
 void ParticleSystem::setPosition(float3 position) { m_spawnPoint = position; }
 
 float3 ParticleSystem::getPosition() const { return m_spawnPoint; }
+
+void ParticleSystem::setEmitRate(float emitRate) { m_description->m_emitRate = emitRate; }
 
 void ParticleSystem::setDesciption(Description newDescription) { *m_description = newDescription; }

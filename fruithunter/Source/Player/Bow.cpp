@@ -46,6 +46,8 @@ void Bow::update(
 		m_bow.setFrameTargets(0, 1);
 	}
 
+	// m_trailEffect.update(dt);
+
 	// Update arrow.
 	if (m_shooting) {
 		m_trailEffect.setActive();
@@ -61,7 +63,6 @@ void Bow::update(
 				arrowPhysics(dt, wind); // Updates arrow in flight, wind is no longer hard coded.
 				// update Particle System
 				m_trailEffect.setPosition(m_arrow.getPosition());
-				m_trailEffect.update(dt);
 
 				m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
 				m_arrow.setRotation(float3(m_arrowPitch, m_arrowYaw, 0));

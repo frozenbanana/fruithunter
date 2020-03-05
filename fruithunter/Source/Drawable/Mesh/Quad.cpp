@@ -51,9 +51,9 @@ void Quad::createMesh() {
 	auto device = Renderer::getDevice();
 
 	// Vertices
-	Vertex vertices[] = { { -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f },
-		{ 1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f },
-		{ -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f } };
+	Vertex vertices[] = { { -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f },
+		{ 1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f },
+		{ -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f } };
 
 	// Create our vertex buffer
 	auto vertexBufferDesc = CD3D11_BUFFER_DESC(sizeof(vertices), D3D11_BIND_VERTEX_BUFFER);
@@ -85,11 +85,12 @@ void Quad::createMesh() {
 	}
 
 	// Texture
-	HRESULT tfFlag = DirectX::CreateWICTextureFromFile(
-		device, L"assets\\goat.jpg", m_texture.GetAddressOf(), m_shaderResourceView.GetAddressOf());
+	HRESULT tfFlag =
+		DirectX::CreateWICTextureFromFile(device, L"assets/Meshes/Textures/loadingScreen.jpg",
+			m_texture.GetAddressOf(), m_shaderResourceView.GetAddressOf());
 
 	if (FAILED(tfFlag)) {
-		ErrorLogger::messageBox("Failed to initalize texture from file.");
+		ErrorLogger::messageBox(tfFlag, "Failed to initalize texture from file.");
 		return;
 	}
 

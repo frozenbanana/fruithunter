@@ -6,6 +6,9 @@
 #include <iomanip>
 #include <sstream>
 
+string HUD::getTimePassed() { return getMinutes() + ":" + getSeconds(); }
+
+
 string HUD::getMinutes() {
 	if (m_secondsPassed > 60.0f) {
 		m_secondsPassed -= 60.0f;
@@ -24,6 +27,8 @@ string HUD::getSeconds() {
 	return (m_secondsPassed < 10.0f ? "0" : "") + seconds;
 }
 
+TimeTargets HUD::getPrize() const { return m_price; }
+
 void HUD::drawTargetTime() {
 	// Get time passed in seconds
 	float timePassed = m_minutesPassed * 60.0f + m_secondsPassed;
@@ -39,21 +44,25 @@ void HUD::drawTargetTime() {
 		timeString = "Target: 0" + to_string(goldTarget / 60) + ":" +
 					 (goldTarget % 60 < 10 ? "0" : "") + to_string(goldTarget % 60) + ".00";
 		color = float4(1.0f, 0.85f, 0.0f, 1.0f);
+		m_price = GOLD;
 	}
 	else if (timePassed < silverTarget) {
 		timeString = "Target: 0" + to_string(silverTarget / 60) + ":" +
 					 (silverTarget % 60 < 10 ? "0" : "") + to_string(silverTarget % 60) + ".00";
 		color = float4(0.8f, 0.8f, 0.8f, 1.0f);
+		m_price = SILVER;
 	}
 	else if (timePassed < bronzeTarget) {
 		timeString = "Target: 0" + to_string(bronzeTarget / 60) + ":" +
 					 (bronzeTarget % 60 < 10 ? "0" : "") + to_string(bronzeTarget % 60) + ".00";
 		color = float4(0.85f, 0.55f, 0.25f, 1.0f);
+		m_price = BRONZE;
 	}
 	else {
 		timeString = "Target: 0" + to_string(bronzeTarget / 60) + ":" +
 					 (bronzeTarget % 60 < 10 ? "0" : "") + to_string(bronzeTarget % 60) + ".00";
 		color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+		m_price = NR_OF_TIME_TARGETS;
 	}
 
 	wstring wText = std::wstring(timeString.begin(), timeString.end());
@@ -103,6 +112,8 @@ HUD::~HUD() {
 	m_spriteBatch.reset();
 	m_states.reset();
 }
+
+bool HUD::hasWon() { return m_victory; }
 
 void HUD::createFruitSprite(string fruitName) {
 	Sprite sprite;

@@ -22,8 +22,11 @@ void Player::initialize() {
 }
 
 void Player::update(float dt, Terrain* terrain) {
+	PerformanceTimer::Record record(
+		"Player_Update", PerformanceTimer::TimeState::state_average);
 	// Movement force
 	float3 force = getMovementForce();
+
 	checkJump();
 	checkSprint(dt);
 	checkDash(dt);
@@ -164,8 +167,6 @@ void Player::setPosition(float3 position) {
 }
 
 void Player::standsOnObject() { m_onEntity = true; }
-
-Bow& Player::getBow() { return m_bow; }
 
 void Player::updateBow(float dt, Terrain* terrain) {
 	Input* input = Input::getInstance();
@@ -340,6 +341,11 @@ void Player::checkSprint(float dt) {
 	}
 }
 
+vector<FrustumPlane> Player::getFrustumPlanes() const {
+	return m_camera.getFrustumPlanes(); }
+
+CubeBoundingBox Player::getCameraBoundingBox() const { return m_camera.getFrustumBoundingBox(); }
+
 void Player::checkDash(float dt) {
 	if (Input::getInstance()->keyPressed(KEY_DASH) && m_stamina >= STAMINA_DASH_COST &&
 		!m_sprinting && m_onGround) {
@@ -352,7 +358,14 @@ void Player::checkDash(float dt) {
 	}
 	else if (Input::getInstance()->keyReleased(KEY_DASH)) {
 		m_chargingDash = false;
-		m_velocity += m_playerForward * m_dashForce * ((float)m_dashCharge / DASHMAXCHARGE);
+
+		float interpolateScale = 0.75f;//0 = dash forward, 1 = dash up,
+		float3 dir =
+			float3(0, 1, 0).Cross(m_playerForward.Cross(float3(0, 1, 0))) * (1 - interpolateScale) +
+					 float3(0, 1, 0) * interpolateScale;
+		dir.Normalize();
+		m_velocity +=
+			dir * m_dashForce * ((float)m_dashCharge / DASHMAXCHARGE);
 	}
 	else {
 		// return to original state

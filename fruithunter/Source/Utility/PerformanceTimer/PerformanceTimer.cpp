@@ -21,10 +21,15 @@ void PerformanceTimer::start(string title, TimeState state) {
 }
 
 void PerformanceTimer::stop() {
-	vector<string> path = m_this.getPathFromQueue();
-	QueueItem item = m_this.m_queue.back();
-	m_this.m_queue.pop_back();
-	m_this.m_source.place(path, item.getTimeDifference(), item.m_state);
+	if (m_this.m_queue.size() > 0) {
+		vector<string> path = m_this.getPathFromQueue();
+		QueueItem item = m_this.m_queue.back();
+		m_this.m_queue.pop_back();
+		m_this.m_source.place(path, item.getTimeDifference(), item.m_state);
+	}
+	else {
+		ErrorLogger::logWarning(HRESULT(),"(PerformanceTimer) Called stop() but queue is empty!!, mismatch of start() and stop() calls!");
+	}
 }
 
 void PerformanceTimer::log() {
@@ -40,6 +45,7 @@ void PerformanceTimer::logToFile(string filename) {
 		file.open(path, ios::out);
 		if (file.is_open()) {
 			string str = "";
+			str += "Queue Size: " + to_string(m_queue.size()) + "\n";
 			m_source.toString(str, 0, 100);
 			file << str;
 			file.close();

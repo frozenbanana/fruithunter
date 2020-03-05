@@ -17,7 +17,7 @@ The fruits are moving and challenging to meet. Each type of fruit can be found i
 This game is made by Master Game Development students at [Blekinge Institute of Technology](https://bth.se/eng). 
 + Simon Andreasson
 + Henry Bergström
-+ Jan-Olog Blime Strömberg
++ Jan-Olof Blime Strömberg
 + Nathanael Remstedt 
 + Filip Unger 
 + Linus Östergaard

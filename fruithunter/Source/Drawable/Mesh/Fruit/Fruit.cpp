@@ -1,8 +1,10 @@
 #include "Fruit.h"
 #include "Input.h"
+#include "PathFindingThread.h"
 
 
-void Fruit::jump(float3 direction, float power) { m_directionalVelocity = power * direction; }
+
+void Fruit::jump(float3 direction, float power) { m_velocity += power * direction; }
 
 void Fruit::setStartPosition(float3 pos) {
 	setPosition(pos);
@@ -26,8 +28,12 @@ void Fruit::enforceOverTerrain() {
 	}
 }
 
+void Fruit::checkOnGroundStatus() {
+	m_onGround = atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position));
+}
+
 void Fruit::setAnimationDestination() {
-	/*m_destinationAnimationPosition = m_nextDestinationAnimationPosition;*/
+	m_destinationAnimationPosition = m_nextDestinationAnimationPosition;
 	m_startAnimationPosition = getPosition();
 	m_heightAnimationPosition =
 		XMVectorLerp(m_startAnimationPosition, m_destinationAnimationPosition, 0.5f);
@@ -42,11 +48,13 @@ bool Fruit::withinDistanceTo(float3 target, float treshhold) {
 	return (m_position - target).Length() < treshhold;
 }
 
-void Fruit::update(float dt, float3 playerPosition, vector<shared_ptr<Entity>> collidables) {
-	if (withinDistanceTo(playerPosition, FAR_PLANE / 2.f)) {
-		doBehavior(playerPosition, collidables);
+void Fruit::update(float dt, float3 playerPosition) {
+	if (withinDistanceTo(playerPosition, 80.f)) {
+		checkOnGroundStatus();
+		doBehavior(playerPosition);
 		setDirection();
 		updateAnimated(dt);
+		updateVelocity(dt);
 		move(dt);
 		enforceOverTerrain();
 		handleAvailablePath(m_position);
@@ -54,14 +62,16 @@ void Fruit::update(float dt, float3 playerPosition, vector<shared_ptr<Entity>> c
 }
 
 void Fruit::move(float dt) {
-	m_directionalVelocity += m_acceleration * dt * dt / 2.f;
-	m_position += m_directionalVelocity * dt;
+	// m_speed.y = 0.0f;
+
+
+	m_position += m_velocity * dt;
 	setPosition(m_position);
 }
 
 float3 Fruit::getHomePosition() const { return m_worldHome; }
 
-void Fruit::setVelocity(float3 velo) { m_directionalVelocity = velo; }
+
 
 Fruit::Fruit(float3 pos) : Entity() {
 	setStartPosition(pos);
@@ -76,21 +86,49 @@ Fruit::Fruit(float3 pos) : Entity() {
 void Fruit::behaviorInactive(float3 playerPosition) { return; }
 
 void Fruit::setDirection() {
-
+	auto pft = PathFindingThread::getInstance();
+	// pft->m_mutex.lock();
 	if (!m_availablePath.empty() &&
 		atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
-		m_directionalVelocity = m_availablePath.back() - m_position;
-		m_directionalVelocity.Normalize();
-		m_directionalVelocity *= m_speed;
+		m_direction = m_availablePath.back() - m_position;
+		m_direction.Normalize();
 	}
+	// pft->m_mutex.unlock();
 }
 
 void Fruit::behaviorReleased() {
 	// TODO: Placeholder for later adding sound effects
-	changeState(PASSIVE);
+	auto height = TerrainManager::getInstance()->getHeightFromPosition(m_position);
+
+	if (atOrUnder(height)) {
+		changeState(PASSIVE);
+		stopMovement();
+		m_afterRealease = false;
+	}
+}
+
+void Fruit::updateVelocity(float dt) {
+
+	float friction = m_onGround ? m_groundFriction : m_airFriction;
+	// friction = m_groundFriction;
+	m_velocity *= pow(friction / 60.f, dt);
+	m_direction.Normalize();
+	float3 dir = m_direction * m_speed;
+	m_velocity += (m_direction * m_speed + m_gravity) * dt;
+}
+
+void Fruit::stopMovement() {
+	m_velocity = float3(0.f);
+	m_speed = 0.f;
+	m_availablePath.clear();
 }
 
 void Fruit::release(float3 direction) {
 	changeState(RELEASED);
-	m_directionalVelocity = direction * 10.f;
+	stopMovement();
+	m_direction = direction;
+	// m_speed = 40.f;
+	m_velocity = m_direction * THROWVELOCITY;
+	m_speed = 0.f;
+	m_afterRealease = true;
 }
