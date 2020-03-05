@@ -136,7 +136,6 @@ void Animal::makeEatingSound() {
 
 
 void Animal::grabFruit(float3 pos) {
-	makeEatingSound();
 	m_walkToPos = pos;
 	m_walkTimeTracker = 0;
 	m_nrFruitsTaken++;
@@ -145,9 +144,10 @@ void Animal::grabFruit(float3 pos) {
 	if (!notBribed()) {
 		m_thoughtBubble.setCurrentMaterial(9);
 		m_thoughtBubbleOffset.y = 0.5;
+		makeHappySound();
 	}
 	else {
-		makeHappySound();
+		makeEatingSound();
 	}
 }
 

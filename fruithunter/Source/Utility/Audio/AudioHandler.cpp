@@ -78,7 +78,7 @@ void AudioHandler::initalize() {
 	m_this.m_musicInstances[KETAPOP_DARK] = m_this.m_music[KETAPOP_DARK]->CreateInstance();
 	m_this.m_musicInstances[JINGLE_GUITAR]->SetVolume(0.7f);
 	m_this.m_musicInstances[SPANISH_GUITAR]->SetVolume(0.7f);
-	m_this.m_musicInstances[KETAPOP]->SetVolume(0.7);
+	m_this.m_musicInstances[KETAPOP]->SetVolume(0.7f);
 	m_this.m_musicInstances[KETAPOP_DARK]->SetVolume(0.7f);
 
 	m_oldMusic = Music::MUSIC_LENGTH;
