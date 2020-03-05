@@ -144,7 +144,7 @@ private:
 				m_velocity = float3(0.f, 0.0f, 0.f);
 				m_velocityOffsetInterval = float2(-0.2f, 0.2f); // for x, y and z
 				m_sizeInterval = float2(0.035f, 0.09f);
-				m_timeAliveInterval = float2(0.5f, 2.0f);
+				m_timeAliveInterval = float2(1.5f, 3.0f);
 				m_color[0] = float4(1.00f, 0.00f, 0.00f, 1.0f);
 				m_color[1] = float4(0.00f, 1.00f, 0.00f, 1.0f);
 				m_color[2] = float4(0.00f, 0.00f, 1.00f, 1.0f);

@@ -36,7 +36,7 @@ void EndRoundState::update() {
 	if (m_exitButton.update()) {
 		StateHandler::getInstance()->quit();
 	}
-	m_particleSystem.update(dt, float3(0.f, 0.2f, 0.0f));
+	m_particleSystem.update(dt, float3(0.f, 0.4f, 0.0f));
 }
 
 void EndRoundState::handleEvent() {}
@@ -50,14 +50,15 @@ void EndRoundState::play() {
 
 void EndRoundState::draw() {
 	Renderer::getInstance()->beginFrame();
-	m_camera.bindMatrix();
-	m_particleSystem.draw();
+
 	m_textRenderer.draw(m_timeText, float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 125),
 		float4(1., 1.f, 1.f, 1.0f));
 	m_textRenderer.draw(
 		m_victoryText, float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 50), m_victoryColor);
 	m_mainMenuButton.draw();
 	m_exitButton.draw();
+	m_camera.bindMatrix();
+	m_particleSystem.draw();
 	// Just ignore this. It fixes things
 	m_entity.draw();
 }
