@@ -10,8 +10,9 @@
 Bow::Bow() {
 	m_bow.loadAnimated("Bow", 3);
 	m_bow.setScale(0.2f);
-	m_arrow.load("Arrow");
-	m_arrow.setScale(float3(0.2f, 0.2f, m_arrowLength));
+	m_arrow.load("arrowV2");
+	//m_arrow.setScale(float3(0.2f, 0.2f, m_arrowLength));
+	m_arrow.setScale(float3(0.5f, 0.5f, m_arrowLength));
 	m_arrow.setPosition(float3(-10.f)); // To make sure that arrow doesn't spawn in fruits.
 	m_arrow.setCollisionDataOBB();
 	m_trailEffect = ParticleSystem(ParticleSystem::ARROW_GLITTER);
