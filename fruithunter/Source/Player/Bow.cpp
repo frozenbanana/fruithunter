@@ -1,6 +1,7 @@
 #include "Bow.h"
 #include "TerrainManager.h"
 #include "AudioHandler.h"
+#include "ErrorLogger.h"
 #define ARM_LENGTH 0.55f
 #define OFFSET_RIGHT 0.37f
 #define OFFSET_UP -0.1f
@@ -9,8 +10,9 @@
 Bow::Bow() {
 	m_bow.loadAnimated("Bow", 3);
 	m_bow.setScale(0.2f);
-	m_arrow.load("Arrow");
-	m_arrow.setScale(float3(0.2f, 0.2f, m_arrowLength));
+	m_arrow.load("arrowV2");
+	//m_arrow.setScale(float3(0.2f, 0.2f, m_arrowLength));
+	m_arrow.setScale(float3(0.5f, 0.5f, m_arrowLength));
 	m_arrow.setPosition(float3(-10.f)); // To make sure that arrow doesn't spawn in fruits.
 	m_arrow.setCollisionDataOBB();
 	m_trailEffect = ParticleSystem(ParticleSystem::ARROW_GLITTER);
@@ -55,12 +57,8 @@ void Bow::update(
 				TerrainManager::getInstance()->castRay(m_arrow.getPosition(), m_arrowVelocity * dt);
 			if (castray != -1) {
 				// Arrow is hitting terrain
-				m_arrowReturnTimer = 0.5f;
-				m_arrowHitObject = true;
 				float3 target = m_arrow.getPosition() + m_arrowVelocity * castray * dt;
-				m_arrow.setPosition(target);
-				AudioHandler::getInstance()->playOnceByDistance(
-					AudioHandler::HIT_WOOD, m_bow.getPosition(), target);
+				arrowHitObject(target);
 			}
 			else {
 				arrowPhysics(dt, wind); // Updates arrow in flight, wind is no longer hard coded.
@@ -162,7 +160,18 @@ void Bow::shoot(
 	}
 }
 
+float3 Bow::getArrowVelocity() const { return m_arrowVelocity; }
+
 bool Bow::isShooting() const { return m_shooting; }
+
+void Bow::arrowHitObject(float3 target) {
+	m_arrowReturnTimer = 0.5f;
+	m_arrowHitObject = true;
+	// float3 target = m_arrow.getPosition() + m_arrowVelocity * castray * dt;
+	m_arrow.setPosition(target);
+	AudioHandler::getInstance()->playOnceByDistance(
+		AudioHandler::HIT_WOOD, m_bow.getPosition(), target);
+}
 
 void Bow::arrowPhysics(float dt, float3 windVector) { // Updates arrow in flight
 	// Update acceleration
@@ -203,6 +212,7 @@ float Bow::calcAngle(float3 vec1, float3 vec2) {
 
 	float3 normalisedVec2 = vec2;
 	normalisedVec2.Normalize();
-
-	return acos(normalisedVec1.Dot(normalisedVec2));
+	float soonAngle = normalisedVec1.Dot(normalisedVec2);
+	soonAngle = min(1.f, max(-1.f, soonAngle)); // clamped to avoid NaN in cos
+	return acos(soonAngle);
 }

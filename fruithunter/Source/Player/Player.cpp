@@ -85,42 +85,49 @@ void Player::draw() {
 }
 
 void Player::collideObject(Entity& obj) {
-	// ErrorLogger::log("Inside player collideObject");
 	// Check
 	float radius = 0.2f;
-	float stepHeight = 0.45f; // height able to simply step over
+	float stepHeight = 0.65f; // height able to simply step over
 	EntityCollision feet(
 		m_position + float3(0.f, radius, 0.f), float3(0.f), float3(1.f), float(radius));
-	EntityCollision hip(m_position + float3(0.f, stepHeight + radius * 3, 0.f), float3(0.f),
-		float3(1.f), float(radius * 3.f));
-
+	EntityCollision hip(m_position + float3(0.f, stepHeight + radius * 2, 0.f), float3(0.f),
+		float3(1.f), float(radius * 2.f));
 	if (obj.checkCollision(feet)) { // walk on/to
-		if (m_velocity.y <= 0) {
-			m_velocity.y = 0;
+		if (m_velocity.y <= 0.f) {
+			m_velocity.y = 0.f;
 			m_onGround = true;
 			m_onEntity = true;
 			if (obj.getCollisionType() == EntityCollision::ctOBB)
-				m_position.y = obj.getPointOnOBB(m_position).y;
-
-
-			// If we fix castray
-			// float cast =
-			//	obj.castRay(m_position + float3(0.f, stepHeight, 0.f), float3(0.01, -1, 0.01));
-			// if (cast != -1) {
-			//	m_position.y += (stepHeight - cast) * 0.1;
-			//}
+				m_position.y +=
+					(obj.getPointOnOBB(m_position + float3(0.f, 2.f, 0.f)).y - m_position.y) * 0.2f;
+			else {
+				// Doesn't work great. Made all objects obbs
+				float3 down(0.01f, -1.f, 0.01f);
+				down.Normalize();
+				float cast = obj.castRay(m_position + float3(0.f, stepHeight, 0.f), down);
+				if (cast != -1.f && cast < stepHeight) {
+					m_position.y = m_position.y + stepHeight - cast;
+					// m_position.y += (stepHeight - cast) * 1.f;
+				}
+			}
 		}
 	}
 	else if (obj.checkCollision(hip)) { // bump into
-		float3 pointOnOBBClosestToPlayer = obj.getPointOnOBB(m_position);
-		float3 objToPlayer = m_position - pointOnOBBClosestToPlayer;
-		if (objToPlayer.Dot(m_velocity) < 0) {
+		float3 objToPlayer;
+		if (obj.getCollisionType() == EntityCollision::ctOBB) {
+			float3 pointOnOBBClosestToPlayer = obj.getPointOnOBB(m_position);
+			objToPlayer = m_position - pointOnOBBClosestToPlayer;
+		}
+		else {
+			objToPlayer = m_position - (obj.getBoundingBoxPos() + obj.getPosition());
+		}
+		if (objToPlayer.Dot(m_velocity) < 0.f) {
 			objToPlayer.Normalize();
 			float3 tangentObj = float3::Up.Cross(objToPlayer);
 			float3 reflection = float3::Reflect(m_velocity, objToPlayer);
 			reflection.y = m_velocity.y;
 			m_velocity += reflection;
-			m_velocity *= 0.5;
+			m_velocity *= 0.5f;
 		}
 	}
 }

@@ -260,10 +260,6 @@ void LevelHandler::loadLevel(int levelNr) {
 			m_hud.createFruitSprite("banana");
 		if (currentLevel.m_nrOfFruits[MELON] != 0)
 			m_hud.createFruitSprite("melon");
-
-		// m_entity.load("Sphere"); // castray debug don't delete
-		// m_entity.setScale(0.1f);
-		// m_entity.setPosition(float3(-2.f));
 	}
 	PathFindingThread::getInstance()->initialize(m_fruits, m_frame, m_collidableEntities);
 }
@@ -420,9 +416,7 @@ void LevelHandler::update(float dt) {
 				m_fruits[i]->hit();
 				AudioHandler::getInstance()->playOnceByDistance(
 					AudioHandler::HIT_FRUIT, m_player.getPosition(), m_fruits[i]->getPosition());
-				ErrorLogger::logFloat3("Arrow pos", m_player.getArrow().getPosition());
-				ErrorLogger::logFloat3(
-					"Fruit on index " + to_string(i) + " on pos ", m_fruits[i]->getPosition());
+
 				m_player.getArrow().setPosition(
 					float3(-100.f)); // temporary to disable arrow until returning
 			}
@@ -437,23 +431,25 @@ void LevelHandler::update(float dt) {
 	}
 
 	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
-		pft->m_mutex.lock();
 		m_player.collideObject(*m_collidableEntities[i]);
-		pft->m_mutex.unlock();
 	}
-	// m_player.collideObject(*m_collidableEntities[1]);
 
-	// castray sphere	// Debug thing will need later as well please don't delete - Linus
-	// for (int i = 0; i < 3; ++i) {
-	//	float t =
-	//		m_collidableEntities[i]->castRay(m_player.getCameraPosition(),
-	// m_player.getForward()); 	if (t != -1) { 		float3 tem =
-	// m_collidableEntities[i]->getHalfSizes();
-	// m_entity.setPosition(m_player.getCameraPosition()
-	//+ t * m_player.getForward() * 0.9);
-	//	}
-	//}
+	// Check entity collisions
+	vector<unique_ptr<Entity>>* entities = m_terrainProps.getEntities();
+	for (size_t iObj = 0; iObj < entities->size(); ++iObj) {
+		// player - entity
+		m_player.collideObject(*entities->at(iObj));
 
+		// arrow - entity
+		float3 arrowPosision = m_player.getArrow().getPosition();
+		float3 arrowVelocity = m_player.getBow().getArrowVelocity();
+		// float castray = entities->at(iObj)->castRay(arrowPosision, arrowVelocity);
+		// if (castray != -1.f) {
+		//	// Arrow is hitting object
+		//	float3 target = arrowPosision + arrowVelocity * castray * dt;
+		//	m_player.getBow().arrowHitObject(target);
+		//}
+	}
 
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
 		Terrain* currentTerrain =

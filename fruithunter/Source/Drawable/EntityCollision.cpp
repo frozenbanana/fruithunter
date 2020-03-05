@@ -136,10 +136,12 @@ bool EntityCollision::collisionSphereOBB(SphereData& sphere, ObbData& obb) {
 
 EntityCollision::EntityCollision(float3 point, float3 posOffset, float3 scale, float radius) {
 	setCollisionData(point, posOffset, scale, radius);
+	m_collidable = true;
 }
 
 EntityCollision::EntityCollision(float3 point, float3 posOffset, float3 scale, float3 halfSizes) {
 	setCollisionData(point, posOffset, scale, halfSizes);
+	m_collidable = true;
 }
 
 EntityCollision::~EntityCollision() {}
@@ -171,6 +173,9 @@ void EntityCollision::rotateObbAxis(float4x4 matRotation) {
 }
 
 bool EntityCollision::collide(EntityCollision& other) {
+	if (!m_collidable || !other.m_collidable)
+		return false;
+
 	bool collides = false;
 	switch (m_collisionType) {
 	case ctSphere:
@@ -219,6 +224,8 @@ void EntityCollision::setCollisionScale(float3 scale) {
 	}
 }
 
+void EntityCollision::setCollidable(bool collidable) { m_collidable = collidable; }
+
 int EntityCollision::getCollisionType() const { return m_collisionType; }
 
 // Returns point on OBB that is closest to a point
@@ -244,8 +251,6 @@ float3 EntityCollision::ObbData::closestPtPointOBB(float3 point) const {
 }
 
 float3 EntityCollision::getClosestPointOnBox(float3 point) const {
-
-
 	if (m_collisionType == ctOBB) {
 		return ((ObbData*)m_collisionData.get())->closestPtPointOBB(point);
 	}
