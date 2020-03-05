@@ -41,6 +41,8 @@ public:
 	float4x4 getRotationMatrix() const;
 	float3 getPosition() const;
 	float3 getScale() const;
+	float3 getLocalBoundingBoxPosition() const;
+	float3 getLocalBoundingBoxSize() const;
 
 	// Transformations
 	void setPosition(float3 position);

@@ -35,15 +35,15 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_heightMapPos.push_back(float3(0.f, 0.f, 100.f));
 	level0.m_heightMapPos.push_back(float3(100.f, 0.f, 0.f));
 
-	level0.m_heightMapSubSize.push_back(XMINT2(250, 250));
-	level0.m_heightMapSubSize.push_back(XMINT2(250, 250));
-	level0.m_heightMapSubSize.push_back(XMINT2(250, 250));
-	level0.m_heightMapSubSize.push_back(XMINT2(250, 250));
+	level0.m_heightMapSubSize.push_back(XMINT2(15, 15));
+	level0.m_heightMapSubSize.push_back(XMINT2(15, 15));
+	level0.m_heightMapSubSize.push_back(XMINT2(15, 15));
+	level0.m_heightMapSubSize.push_back(XMINT2(15, 15));
 
-	level0.m_heightMapDivision.push_back(XMINT2(1, 1));
-	level0.m_heightMapDivision.push_back(XMINT2(1, 1));
-	level0.m_heightMapDivision.push_back(XMINT2(1, 1));
-	level0.m_heightMapDivision.push_back(XMINT2(1, 1));
+	level0.m_heightMapDivision.push_back(XMINT2(16, 16));
+	level0.m_heightMapDivision.push_back(XMINT2(16, 16));
+	level0.m_heightMapDivision.push_back(XMINT2(16, 16));
+	level0.m_heightMapDivision.push_back(XMINT2(16, 16));
 
 	level0.m_heightMapScales.push_back(float3(1.f, 0.40f, 1.f) * 100);
 	level0.m_heightMapScales.push_back(float3(1.f, 0.15f, 1.f) * 100);
@@ -150,7 +150,7 @@ LevelHandler::LevelHandler() { initialise(); }
 LevelHandler::~LevelHandler() {}
 
 void LevelHandler::initialise() {
-	PerformanceTimer::start("LevelHandler_initilize");
+	PerformanceTimer::Record record("LevelHandler_initilize");
 
 	m_player.initialize();
 	m_terrainManager = TerrainManager::getInstance();
@@ -187,26 +187,26 @@ void LevelHandler::initialise() {
 	m_particleSystems[4] = ParticleSystem(ParticleSystem::LAVA_BUBBLE);
 	m_particleSystems[4].setPosition(float3(150.f, 0.f, 149.f));
 
-	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(400, 400), XMINT2(1, 1),
+	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(50, 50), XMINT2(8, 8),
 		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
 	float3 lavaSize(82.f, 0.f, 82.f);
 	float3 lavaPos(150, 1.5f, 150);
-	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(100, 100), XMINT2(1, 1),
+	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(20, 20), XMINT2(4, 4),
 		lavaPos - lavaSize / 2.f, lavaSize + float3(0, 2.f, 0));
 
-	PerformanceTimer::stop();
 }
 
 void LevelHandler::loadLevel(int levelNr) {
 	if (m_currentLevel != levelNr) {
+		PerformanceTimer::Record record("LevelHandler loadLevel");
+
 		m_currentLevel = levelNr;
 		Level currentLevel = m_levelsArr.at(levelNr);
 
 		m_terrainProps.load(currentLevel.m_terrainPropsFilename);
 
-		PerformanceTimer::start(
-			"LevelHandler_TerrainCreation", PerformanceTimer::TimeState::state_accumulate);
 		for (int i = 0; i < m_levelsArr.at(levelNr).m_heightMapNames.size(); i++) {
+			PerformanceTimer::Record record("TerrainCreation");
 			m_terrainManager->add(currentLevel.m_heightMapPos.at(i),
 				currentLevel.m_heightMapScales[i], currentLevel.m_heightMapNames.at(i),
 				currentLevel.m_heightmapTextures[i], currentLevel.m_heightMapSubSize.at(i),
@@ -275,44 +275,63 @@ void LevelHandler::loadLevel(int levelNr) {
 }
 
 void LevelHandler::draw() {
-	m_skyBox.bindLightBuffer();
-	m_player.draw(); // draw after water/lava effect, bow will affect the depth buffer
-	Renderer::getInstance()->enableAlphaBlending();
-	for (int i = 0; i < m_fruits.size(); i++) {
-		m_fruits[i]->draw_animate();
+	if (!Input::getInstance()->keyDown(Keyboard::K)) {
+		m_skyBox.bindLightBuffer();
+		m_player.draw();
+		Renderer::getInstance()->enableAlphaBlending();
+		for (int i = 0; i < m_fruits.size(); i++) {
+			m_fruits[i]->draw_animate();
+		}
+		Renderer::getInstance()->disableAlphaBlending();
+
+		for (size_t i = 0; i < m_Animals.size(); ++i) {
+			m_Animals[i]->draw();
+		}
+
+		for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
+			m_collidableEntities[i]->draw();
+		}
+		m_entity.draw();
+		m_skyBox.draw(m_oldTerrain, m_currentTerrain);
+
+		vector<FrustumPlane> frustum = m_player.getFrustumPlanes();
+		if (!Input::getInstance()->keyDown(Keyboard::F)) {
+			// terrain entities
+			m_terrainProps.draw_quadtreeFrustumCulling(frustum);
+
+			// terrain
+			m_terrainManager->draw_quadtreeFrustumCulling(frustum);
+			// water/lava effect
+			Renderer::getInstance()->copyDepthToSRV();
+			waterEffect.draw_quadtreeFrustumCulling(frustum);
+			lavaEffect.draw_quadtreeFrustumCulling(frustum);
+		}
+		else {
+			// terrain entities
+			m_terrainProps.draw();
+			// terrain
+			m_terrainManager->draw();
+			m_terrainManager->draw();
+			// water/lava effect
+			Renderer::getInstance()->copyDepthToSRV();
+			waterEffect.draw();
+			lavaEffect.draw();
+		}
+
+		if (!Input::getInstance()->keyDown(Keyboard::N))
+			Renderer::getInstance()->draw_darkEdges();
+
+
+		/* --- Things to be drawn without dark edges --- */
+		m_hud.draw();
+
+		// Particle Systems
+		for (size_t i = 0; i < m_particleSystems.size(); i++) {
+			m_particleSystems[i].draw();
+		}
+
+		m_player.getBow().getTrailEffect().draw();
 	}
-	Renderer::getInstance()->disableAlphaBlending();
-	m_terrainManager->draw();
-
-	for (size_t i = 0; i < m_Animals.size(); ++i) {
-		m_Animals[i]->draw();
-	}
-
-	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
-		m_collidableEntities[i]->draw();
-	}
-	m_entity.draw();
-	m_terrainProps.draw();
-
-	// water/lava effect
-	Renderer::getInstance()->copyDepthToSRV();
-	waterEffect.draw();
-	lavaEffect.draw();
-	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
-
-	if (!Input::getInstance()->keyDown(Keyboard::N))
-		Renderer::getInstance()->draw_darkEdges();
-
-
-	/* --- Things to be drawn without dark edges --- */
-	m_hud.draw();
-
-	// Particle Systems
-	for (size_t i = 0; i < m_particleSystems.size(); i++) {
-		m_particleSystems[i].draw();
-	}
-
-	m_player.getBow().getTrailEffect().draw();
 }
 
 void LevelHandler::drawShadowDynamic() {
@@ -344,7 +363,8 @@ void LevelHandler::drawShadowDynamicEntities() {
 }
 
 void LevelHandler::update(float dt) {
-	PerformanceTimer::start("LevelHandler_Update", PerformanceTimer::TimeState::state_average);
+	PerformanceTimer::Record record(
+		"LevelHandler_Update", PerformanceTimer::TimeState::state_average);
 	auto pft = PathFindingThread::getInstance();
 
 	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
@@ -450,10 +470,11 @@ void LevelHandler::update(float dt) {
 	// castray sphere	// Debug thing will need later as well please don't delete - Linus
 	// for (int i = 0; i < 3; ++i) {
 	//	float t =
-	//		m_collidableEntities[i]->castRay(m_player.getCameraPosition(), m_player.getForward());
-	//	if (t != -1) {
-	//		float3 tem = m_collidableEntities[i]->getHalfSizes();
-	//		m_entity.setPosition(m_player.getCameraPosition() + t * m_player.getForward() * 0.9);
+	//		m_collidableEntities[i]->castRay(m_player.getCameraPosition(),
+	// m_player.getForward()); 	if (t != -1) { 		float3 tem =
+	// m_collidableEntities[i]->getHalfSizes();
+	// m_entity.setPosition(m_player.getCameraPosition()
+	//+ t * m_player.getForward() * 0.9);
 	//	}
 	//}
 
@@ -469,7 +490,6 @@ void LevelHandler::update(float dt) {
 	lavaEffect.update(dt);
 
 	// Renderer::getInstance()->setPlayerPos(playerPos);
-	PerformanceTimer::stop();
 }
 
 void LevelHandler::pickUpFruit(int fruitType) {

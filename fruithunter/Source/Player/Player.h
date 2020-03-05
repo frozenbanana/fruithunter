@@ -19,6 +19,8 @@ public:
 	float3 getCameraPosition() const;
 	float3 getForward() const;
 	float3 getVelocity() const;
+	vector<FrustumPlane> getFrustumPlanes() const;
+	CubeBoundingBox getCameraBoundingBox() const;
 	Entity& getArrow() { return m_bow.getArrow(); };
 	Bow& getBow() { return m_bow; }
 	float getStamina() const;

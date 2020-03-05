@@ -22,6 +22,8 @@ void Player::initialize() {
 }
 
 void Player::update(float dt, Terrain* terrain) {
+	PerformanceTimer::Record record(
+		"Player_Update", PerformanceTimer::TimeState::state_average);
 	// Movement force
 	float3 force = getMovementForce();
 
@@ -331,6 +333,11 @@ void Player::checkSprint(float dt) {
 		m_sprinting = false;
 	}
 }
+
+vector<FrustumPlane> Player::getFrustumPlanes() const {
+	return m_camera.getFrustumPlanes(); }
+
+CubeBoundingBox Player::getCameraBoundingBox() const { return m_camera.getFrustumBoundingBox(); }
 
 void Player::checkDash(float dt) {
 	if (Input::getInstance()->keyPressed(KEY_DASH) && m_stamina >= STAMINA_DASH_COST &&

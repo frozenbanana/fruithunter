@@ -21,17 +21,15 @@ void IntroState::initialize() {
 }
 
 void IntroState::update() {
-	PerformanceTimer::start("IntroState_Update", PerformanceTimer::TimeState::state_average);
-
+	PerformanceTimer::Record record(
+		"IntroState_Update", PerformanceTimer::TimeState::state_average);
+	
 	if (m_startButton.update()) {
 		StateHandler::getInstance()->changeState(StateHandler::PLAY);
 	}
 	if (m_exitButton.update()) {
 		StateHandler::getInstance()->quit();
 	}
-
-
-	PerformanceTimer::stop();
 }
 
 void IntroState::handleEvent() {
@@ -48,8 +46,6 @@ void IntroState::pause() {
 }
 
 void IntroState::draw() {
-	PerformanceTimer::start("IntroState_Draw", PerformanceTimer::TimeState::state_average);
-
 	Renderer::getInstance()->beginFrame();
 
 	m_startButton.draw();
@@ -57,8 +53,6 @@ void IntroState::draw() {
 
 	// Just ignore this. It fixes things
 	m_entity.draw();
-
-	PerformanceTimer::stop();
 }
 
 void IntroState::play() {

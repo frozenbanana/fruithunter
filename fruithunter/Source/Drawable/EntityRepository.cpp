@@ -2,6 +2,7 @@
 #include "TerrainManager.h"
 #include "Renderer.h"
 #include "ErrorLogger.h"
+#include "PerformanceTimer.h"
 
 void EntityRepository::clear() {
 	m_repository.clear();
@@ -17,6 +18,7 @@ void EntityRepository::fillEntitiesFromRepository() {
 		// clear entities and fill from repository
 		m_entities.clear();
 		m_entities.resize(count);
+		m_quadtree.initilize(float3(0, 0, 0), float3(200.f, 100.f, 200.f), 4);
 		int instanceIndex = 0;
 		for (size_t m = 0; m < m_repository.size(); m++) {
 			string meshName = m_repository[m].meshName;
@@ -26,6 +28,12 @@ void EntityRepository::fillEntitiesFromRepository() {
 				m_entities[instanceIndex] = make_unique<Entity>();
 				m_entities[instanceIndex]->load(meshName);
 				setEntityByInstance(m_entities[instanceIndex].get(), *instance);
+
+				// fill quadtree
+				m_quadtree.add(m_entities[instanceIndex]->getLocalBoundingBoxPosition(),
+					m_entities[instanceIndex]->getLocalBoundingBoxSize(),
+					m_entities[instanceIndex]->getModelMatrix(), m_entities[instanceIndex].get());
+				// increment
 				instanceIndex++;
 			}
 		}
@@ -260,7 +268,7 @@ void EntityRepository::update(float dt, float3 point, float3 direction) {
 			ErrorLogger::log("Switched state: removing");
 		else if (m_state == ModeState::state_inactive)
 			ErrorLogger::log("Switched state: inactive");
-		//reset variables
+		// reset variables
 		m_markedIndexToRemove = -1;
 	}
 	if (m_state == ModeState::state_placing) {
@@ -328,13 +336,46 @@ void EntityRepository::update(float dt, float3 point, float3 direction) {
 }
 
 void EntityRepository::draw() {
+	PerformanceTimer::Record record(
+		"EntityRepository Draw", PerformanceTimer::TimeState::state_average);
+
 	for (size_t i = 0; i < m_entities.size(); i++) {
 		if (m_markedIndexToRemove == i)
 			m_entities[i]->draw_onlyMesh(float3(1.f, 0.f, 0.f));
 		else
 			m_entities[i]->draw();
 	}
-	if (m_state == ModeState::state_placing)
+	if (m_state == ModeState::state_placing && m_placeable.size() > 0)
+		m_placeable[m_activePlaceableIndex]->draw();
+}
+
+void EntityRepository::draw_quadtreeFrustumCulling(const vector<FrustumPlane>& planes) {
+	PerformanceTimer::Record record("EntityRepository DrawCulling", PerformanceTimer::TimeState::state_average);
+
+	vector<Entity**> elements = m_quadtree.cullElements(planes);
+	if (elements.size() > 0) {
+		for (size_t i = 0; i < elements.size(); i++) {
+			if (m_markedIndexToRemove == i)
+				(*elements[i])->draw_onlyMesh(float3(1.f, 0.f, 0.f));
+			else
+				(*elements[i])->draw();
+		}
+	}
+	if (m_state == ModeState::state_placing && m_placeable.size() > 0)
+		m_placeable[m_activePlaceableIndex]->draw();
+}
+
+void EntityRepository::draw_quadtreeBBCulling(const CubeBoundingBox& bb) {
+	vector<Entity**> elements = m_quadtree.cullElements(bb);
+	if (elements.size() > 0) {
+		for (size_t i = 0; i < elements.size(); i++) {
+			if (m_markedIndexToRemove == i)
+				(*elements[i])->draw_onlyMesh(float3(1.f, 0.f, 0.f));
+			else
+				(*elements[i])->draw();
+		}
+	}
+	if (m_state == ModeState::state_placing && m_placeable.size() > 0)
 		m_placeable[m_activePlaceableIndex]->draw();
 }
 
