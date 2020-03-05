@@ -295,8 +295,7 @@ void LevelHandler::draw() {
 		m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 
 		vector<FrustumPlane> frustum = m_player.getFrustumPlanes();
-		CubeBoundingBox bb = m_player.getCameraBoundingBox();
-		if (Input::getInstance()->keyDown(Keyboard::F)) {
+		if (!Input::getInstance()->keyDown(Keyboard::F)) {
 			// terrain entities
 			m_terrainProps.draw_quadtreeFrustumCulling(frustum);
 
@@ -364,27 +363,27 @@ void LevelHandler::drawShadowDynamicEntities() {
 }
 
 void LevelHandler::update(float dt) {
-		PerformanceTimer::Record record(
-			"LevelHandler_Update", PerformanceTimer::TimeState::state_average);
-		auto pft = PathFindingThread::getInstance();
+	PerformanceTimer::Record record(
+		"LevelHandler_Update", PerformanceTimer::TimeState::state_average);
+	auto pft = PathFindingThread::getInstance();
 
-		m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
+	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
-		m_skyBox.updateDelta(dt);
+	m_skyBox.updateDelta(dt);
 
-		if (Input::getInstance()->keyPressed(Keyboard::R) && m_currentLevel >= 0)
-			m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
+	if (Input::getInstance()->keyPressed(Keyboard::R) && m_currentLevel >= 0)
+		m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
 
-		m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
-		m_player.getBow().getTrailEffect().update(dt);
+	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
+	m_player.getBow().getTrailEffect().update(dt);
 
-		// for all animals
-		for (size_t i = 0; i < m_Animals.size(); ++i) {
-			if (m_Animals[i]->notBribed()) {
-				bool getsThrown = m_player.checkAnimal(m_Animals[i]->getPosition(),
-					m_Animals[i]->getPlayerRange(), m_Animals[i]->getThrowStrength());
-				if (getsThrown)
-					m_Animals[i]->beginWalk(m_player.getPosition());
+	// for all animals
+	for (size_t i = 0; i < m_Animals.size(); ++i) {
+		if (m_Animals[i]->notBribed()) {
+			bool getsThrown = m_player.checkAnimal(m_Animals[i]->getPosition(),
+				m_Animals[i]->getPlayerRange(), m_Animals[i]->getThrowStrength());
+			if (getsThrown)
+				m_Animals[i]->beginWalk(m_player.getPosition());
 
 
 			for (size_t iFruit = 0; iFruit < m_fruits.size(); ++iFruit) {
@@ -403,37 +402,37 @@ void LevelHandler::update(float dt) {
 		m_Animals[i]->update(dt, m_player.getPosition());
 	}
 
-		dropFruit();
+	dropFruit();
 
-		float3 playerPos = m_player.getPosition();
+	float3 playerPos = m_player.getPosition();
 
-		// update terrain tag
-		int activeTerrain = m_terrainManager->getTerrainIndexFromPosition(playerPos);
+	// update terrain tag
+	int activeTerrain = m_terrainManager->getTerrainIndexFromPosition(playerPos);
 
-		if (activeTerrain == 2) {
-			AudioHandler::getInstance()->changeMusicTo(AudioHandler::SPANISH_GUITAR, dt);
-		}
-		else if (activeTerrain == 1) {
-			AudioHandler::getInstance()->changeMusicTo(AudioHandler::KETAPOP, dt);
-		}
-		else if (activeTerrain == 0) {
-			AudioHandler::getInstance()->changeMusicTo(AudioHandler::KETAPOP_DARK, dt);
-		}
-		else {
-			AudioHandler::getInstance()->changeMusicTo(AudioHandler::JINGLE_GUITAR, dt);
-		}
+	if (activeTerrain == 2) {
+		AudioHandler::getInstance()->changeMusicTo(AudioHandler::SPANISH_GUITAR, dt);
+	}
+	else if (activeTerrain == 1) {
+		AudioHandler::getInstance()->changeMusicTo(AudioHandler::KETAPOP, dt);
+	}
+	else if (activeTerrain == 0) {
+		AudioHandler::getInstance()->changeMusicTo(AudioHandler::KETAPOP_DARK, dt);
+	}
+	else {
+		AudioHandler::getInstance()->changeMusicTo(AudioHandler::JINGLE_GUITAR, dt);
+	}
 
-		if (activeTerrain != -1 && m_currentLevel != -1) {
-			Level::TerrainTags tag = m_levelsArr[m_currentLevel].m_terrainTags[activeTerrain];
-			if (m_currentTerrain != tag) {
-				m_oldTerrain = m_currentTerrain;
-				m_currentTerrain = tag;
-				m_skyBox.resetDelta();
-				m_skyBox.updateNewOldLight(tag);
-			}
+	if (activeTerrain != -1 && m_currentLevel != -1) {
+		Level::TerrainTags tag = m_levelsArr[m_currentLevel].m_terrainTags[activeTerrain];
+		if (m_currentTerrain != tag) {
+			m_oldTerrain = m_currentTerrain;
+			m_currentTerrain = tag;
+			m_skyBox.resetDelta();
+			m_skyBox.updateNewOldLight(tag);
 		}
+	}
 
-		m_skyBox.updateCurrentLight();
+	m_skyBox.updateCurrentLight();
 
 	// update stuff
 	for (int i = 0; i < m_fruits.size(); i++) {
@@ -468,16 +467,16 @@ void LevelHandler::update(float dt) {
 	}
 	// m_player.collideObject(*m_collidableEntities[1]);
 
-		// castray sphere	// Debug thing will need later as well please don't delete - Linus
-		// for (int i = 0; i < 3; ++i) {
-		//	float t =
-		//		m_collidableEntities[i]->castRay(m_player.getCameraPosition(),
-		// m_player.getForward()); 	if (t != -1) { 		float3 tem =
-		// m_collidableEntities[i]->getHalfSizes();
-		// m_entity.setPosition(m_player.getCameraPosition()
-		//+ t * m_player.getForward() * 0.9);
-		//	}
-		//}
+	// castray sphere	// Debug thing will need later as well please don't delete - Linus
+	// for (int i = 0; i < 3; ++i) {
+	//	float t =
+	//		m_collidableEntities[i]->castRay(m_player.getCameraPosition(),
+	// m_player.getForward()); 	if (t != -1) { 		float3 tem =
+	// m_collidableEntities[i]->getHalfSizes();
+	// m_entity.setPosition(m_player.getCameraPosition()
+	//+ t * m_player.getForward() * 0.9);
+	//	}
+	//}
 
 
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
@@ -486,12 +485,11 @@ void LevelHandler::update(float dt) {
 		m_particleSystems[i].update(dt, currentTerrain->getWind());
 	}
 
-		m_hud.update(dt, m_player.getStamina());
-		waterEffect.update(dt);
-		lavaEffect.update(dt);
+	m_hud.update(dt, m_player.getStamina());
+	waterEffect.update(dt);
+	lavaEffect.update(dt);
 
-		// Renderer::getInstance()->setPlayerPos(playerPos);
-	}
+	// Renderer::getInstance()->setPlayerPos(playerPos);
 }
 
 void LevelHandler::pickUpFruit(int fruitType) {
