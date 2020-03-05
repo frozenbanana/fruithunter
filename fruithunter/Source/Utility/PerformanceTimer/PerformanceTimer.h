@@ -13,6 +13,13 @@ public:
 		state_accumulate,
 		state_average
 	};
+	class Record {
+	public:
+		Record(string title, TimeState state = TimeState::state_accumulate) {
+			PerformanceTimer::start(title, state);
+		}
+		~Record() { PerformanceTimer::stop(); }
+	};
 
 private:
 	static PerformanceTimer m_this;

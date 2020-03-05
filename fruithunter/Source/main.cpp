@@ -10,9 +10,7 @@
 #include "Camera.h"
 #include "VariableSyncer.h"
 #include "PerformanceTimer.h"
-
 #include "PathFindingThread.h"
-void onLoad(void* ptr) { ErrorLogger::log("Loaded struct!"); }
 
 int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
 	_In_ int cmdCount) {
@@ -32,13 +30,12 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	MSG msg = { 0 };
 	stateHandler->initialize();
 
-	PerformanceTimer::stop();
-	PerformanceTimer::start("AllFrames");
-
 	// Hardcoded statechange here. (TESTING)
 	// stateHandler->changeState(StateHandler::PLAY);
+	PerformanceTimer::stop();
 	while (StateHandler::getInstance()->isRunning()) {
-		PerformanceTimer::start("FrameTime", PerformanceTimer::TimeState::state_average);
+		PerformanceTimer::Record record("FrameTime", PerformanceTimer::TimeState::state_average);
+
 		VariableSyncer::getInstance()->sync();
 		input->update();
 		/*if (input->keyPressed(DirectX::Keyboard::F1)) {
@@ -62,7 +59,6 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 		stateHandler->draw(); // calls current states draw()
 		renderer->endFrame();
 
-		PerformanceTimer::stop();
 		while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -78,7 +74,6 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 		}*/
 		MSG msg = { 0 };
 	}
-	PerformanceTimer::stop();
 	extraThread->exitThread();
 	return 0;
 }
