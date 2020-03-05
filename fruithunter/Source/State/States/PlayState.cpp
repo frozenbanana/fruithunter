@@ -70,9 +70,11 @@ void PlayState::draw() {
 	PerformanceTimer::stop();
 }
 
+void PlayState::setLevel(int newLevel) { m_currentLevel = newLevel; }
+
 void PlayState::play() {
 	Input::getInstance()->setMouseModeRelative();
 	ErrorLogger::log(m_name + " play() called.");
 	Renderer::getInstance()->drawLoading();
-	m_levelHandler.loadLevel(0);
+	m_levelHandler.loadLevel(m_currentLevel);
 }

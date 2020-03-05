@@ -3,12 +3,12 @@
 #include <memory>
 #include "State.h"
 
-
 class StateHandler {
 public:
 	enum States { INTRO, PLAY, PAUSE, LEVEL_SELECT, LENGTH };
 	void initialize();
 	void changeState(States state);
+	void resumeState();
 	void handleEvent();
 	void pause();
 	void update();
@@ -19,12 +19,14 @@ public:
 
 	static StateHandler* getInstance();
 
+	State* getCurrent();
+
 private:
 	bool m_running = true;
 	static StateHandler m_this;
-	State* getCurrent();
 
 	int m_current = INTRO;
+	int m_previous = INTRO;
 	std::vector<std::unique_ptr<State>> m_states;
 
 	StateHandler();

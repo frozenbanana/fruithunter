@@ -21,6 +21,7 @@ public:
 	void pause();
 	void play();
 	void draw();
+	void setLevel(int);
 
 	PlayState() { initialize(); }
 
@@ -28,6 +29,7 @@ private:
 	Timer m_timer;
 	Quad m_quad;
 	LevelHandler m_levelHandler;
+	int m_currentLevel;
 
 	// Shadow stuff
 	unique_ptr<ShadowMapper> m_shadowMap;

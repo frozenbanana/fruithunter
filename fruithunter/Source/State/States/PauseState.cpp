@@ -23,7 +23,7 @@ void PauseState::initialize() {
 void PauseState::update() {
 
 	if (m_resumeButton.update()) {
-		StateHandler::getInstance()->changeState(StateHandler::PLAY);
+		StateHandler::getInstance()->resumeState();
 	}
 	if (m_mainMenuButton.update()) {
 		StateHandler::getInstance()->changeState(StateHandler::INTRO);

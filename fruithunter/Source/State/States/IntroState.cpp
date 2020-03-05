@@ -24,7 +24,7 @@ void IntroState::update() {
 	PerformanceTimer::start("IntroState_Update", PerformanceTimer::TimeState::state_average);
 
 	if (m_startButton.update()) {
-		StateHandler::getInstance()->changeState(StateHandler::PLAY);
+		StateHandler::getInstance()->changeState(StateHandler::LEVEL_SELECT);
 	}
 	if (m_exitButton.update()) {
 		StateHandler::getInstance()->quit();

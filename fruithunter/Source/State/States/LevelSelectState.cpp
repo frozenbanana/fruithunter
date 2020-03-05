@@ -1,13 +1,15 @@
 #include "LevelSelectState.h"
 #include "ErrorLogger.h"
 #include "Renderer.h"
+#include "Statehandler.h"
+#include "PlayState.h"
 
 void LevelSelectState::initialize() {
 	m_name = "Level select state";
 
 	//Initiate player
 	m_player.initialize();
-	m_player.setPosition(float3(100.f, 0.f, 100.f));
+	m_player.setPosition(float3(52.f, 0.f, 40.f));
 
 	//Initiate terrain
 	vector<string> maps(4);
@@ -28,12 +30,19 @@ void LevelSelectState::initialize() {
 	
 
 	//Initiate fruit bowls
+	for (int i = 0; i < NR_OF_LEVELS; i++) {
+		m_bowls[i] = new Entity("bowl", float3(49.5f + (float(i) * 1.5f), 25.5f, 50.f));
+	}
 
 	//Initate shadowmap
 	m_shadowMap = make_unique<ShadowMapper>();
 }
 
 void LevelSelectState::update() {
+	if (Input::getInstance()->keyPressed(Keyboard::Keys::Escape)) {
+		StateHandler::getInstance()->changeState(StateHandler::PAUSE);
+	}
+
 	float delta = 0.016f;
 
 	//update player
@@ -46,6 +55,18 @@ void LevelSelectState::update() {
 
 	//update water
 	m_waterEffect.update(delta);
+
+	//Update bowls
+	for (int i = 0; i < NR_OF_LEVELS; i++) {
+		m_bowls[i]->updateAnimated(delta);
+		//Check collision
+		if (m_player.getArrow().checkCollision(*m_bowls[i])) {
+			m_player.getArrow().setPosition(float3(-1000.f));
+			m_player.setPosition(float3(52.f, 0.f, 40.f));
+			setLevel(i);
+			StateHandler::getInstance()->changeState(StateHandler::PLAY);
+		}
+	}
 }
 
 void LevelSelectState::handleEvent() { return; }
@@ -81,7 +102,9 @@ void LevelSelectState::draw() {
 		m_shadowMap.get()->bindCameraMatrix();
 
 		// Draw shadow map
-		/*Draw fruits? Fruitbowls?*/
+		for (int i = 0; i < NR_OF_LEVELS; i++) {
+			m_bowls[i]->drawShadow();
+		}
 	}
 
 	// Set first person info
@@ -92,10 +115,27 @@ void LevelSelectState::draw() {
 	// draw first person
 	m_skyBox.bindLightBuffer();
 	m_player.draw();
+	for (int i = 0; i < NR_OF_LEVELS; i++) {
+		m_bowls[i]->draw();
+	}
 	m_terrain->draw();
 	Renderer::getInstance()->copyDepthToSRV();
 	m_waterEffect.draw();
 	m_skyBox.draw(2,2);
 }
 
-LevelSelectState::~LevelSelectState() { delete m_terrain; }
+LevelSelectState::~LevelSelectState() { 
+	delete m_terrain;
+	for (int i = 0; i < NR_OF_LEVELS; i++) {
+		delete m_bowls[i];
+	}
+}
+
+void LevelSelectState::setLevel(int newLevel) {
+
+	StateHandler::getInstance()->changeState(StateHandler::PLAY);
+	State* tempPointer = StateHandler::getInstance()->getCurrent();
+	dynamic_cast<PlayState*>(tempPointer)->setLevel(newLevel);
+	delete tempPointer;
+	StateHandler::getInstance()->changeState(StateHandler::LEVEL_SELECT);
+}

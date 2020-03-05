@@ -15,7 +15,17 @@ State* StateHandler::getCurrent() { return m_states[m_current].get(); }
 void StateHandler::changeState(States state) {
 	ErrorLogger::log("Current state: " + (int)state);
 	getCurrent()->pause();
+	m_previous = m_current;
 	m_current = state; // update current
+	getCurrent()->play();
+}
+
+void StateHandler::resumeState() {
+	ErrorLogger::log("Current state: " + (int)m_previous);
+	getCurrent()->pause();
+	int temp = m_current;
+	m_current = m_previous;
+	m_previous = temp; // update current
 	getCurrent()->play();
 }
 
