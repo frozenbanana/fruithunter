@@ -2,6 +2,8 @@
 #include "ErrorLogger.h"
 #include "Renderer.h"
 #include "Quad.h"
+#include "Input.h"
+#include "StateHandler.h"
 #include <iostream>
 #include <string>
 
@@ -12,6 +14,10 @@ void PlayState::initialize() {
 
 void PlayState::update() {
 	PerformanceTimer::start("PlayState_Update", PerformanceTimer::TimeState::state_average);
+
+	if (Input::getInstance()->keyPressed(Keyboard::Keys::Escape)) {
+		StateHandler::getInstance()->changeState(StateHandler::PAUSE);
+	}
 
 	m_timer.update();
 	float dt = m_timer.getDt();

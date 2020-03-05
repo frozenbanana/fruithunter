@@ -193,11 +193,13 @@
     <ClCompile Include="Source\State\State.cpp" />
     <ClCompile Include="Source\State\StateHandler.cpp" />
     <ClCompile Include="Source\State\States\IntroState.cpp" />
+    <ClCompile Include="Source\State\States\PauseState.cpp" />
     <ClCompile Include="Source\State\States\LevelSelectState.cpp" />
     <ClCompile Include="Source\State\States\PlayState.cpp" />
     <ClCompile Include="Source\Utility\Audio\AudioHandler.cpp" />
     <ClCompile Include="Source\Utility\Camera\Camera.cpp" />
     <ClCompile Include="Source\Utility\Error\ErrorLogger.cpp" />
+    <ClCompile Include="Source\Utility\Input\Button.cpp" />
     <ClCompile Include="Source\Utility\Input\Input.cpp" />
     <ClCompile Include="Source\Utility\PerformanceTimer\PerformanceTimer.cpp" />
     <ClCompile Include="Source\Utility\Repositories\MeshRepository.cpp" />
@@ -239,11 +241,13 @@
     <ClInclude Include="Source\State\State.h" />
     <ClInclude Include="Source\State\StateHandler.h" />
     <ClInclude Include="Source\State\States\IntroState.h" />
+    <ClInclude Include="Source\State\States\PauseState.h" />
     <ClInclude Include="Source\State\States\LevelSelectState.h" />
     <ClInclude Include="Source\State\States\PlayState.h" />
     <ClInclude Include="Source\Utility\Audio\AudioHandler.h" />
     <ClInclude Include="Source\Utility\Camera\Camera.h" />
     <ClInclude Include="Source\Utility\Error\ErrorLogger.h" />
+    <ClInclude Include="Source\Utility\Input\Button.h" />
     <ClInclude Include="Source\Utility\Input\Input.h" />
     <ClInclude Include="Source\Utility\PerformanceTimer\PerformanceTimer.h" />
     <ClInclude Include="Source\Utility\Repositories\MeshRepository.h" />
