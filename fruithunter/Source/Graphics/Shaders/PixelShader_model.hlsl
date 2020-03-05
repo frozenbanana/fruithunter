@@ -1,7 +1,7 @@
 
 struct PS_IN {
 	float3 PosW : POSITION0;
-	// float3 PosV : POSITION1;
+	float3 PosV : POSITION1;
 	float4 PosH : SV_POSITION;
 	float2 TexCoord : TEXCOORD;
 	float3 Normal : NORMAL;
@@ -93,7 +93,7 @@ float4 main(PS_IN ip) : SV_TARGET {
 		specular = mapUsages.z ? (textures[2].Sample(samplerAni, ip.TexCoord)).rgb
 							   : (specular3_shininess.rgb);
 		reflectTint =
-			pow(max(dot(normalize(reflect(-toLight, ip.Normal)), normalize(-ip.PosW)), 0.0),
+			pow(max(dot(normalize(reflect(-toLight, ip.Normal)), normalize(-ip.PosV)), 0.0),
 				specular3_shininess.w * 50);
 	}
 
