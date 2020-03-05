@@ -29,11 +29,13 @@ public:
 	void bindQuadVertexBuffer();
 	void enableAlphaBlending();
 	void disableAlphaBlending();
+	void toggleVsync();
+	void toggleDarkEdges();
 
 	void copyDepthToSRV();
 
 	void draw_darkEdges();
-	
+
 	void drawLoading();
 
 private:
@@ -64,11 +66,15 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_screenSizeBuffer;
 
-	//post process dark edges variables
+	// post process dark edges variables
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexQuadBuffer;
 	ShaderSet m_shader_darkEdges;
 
 	// Loading screen
 	Quad m_loadingScreen;
 	bool m_loadingScreenInitialised = false;
+
+	// Settings
+	bool m_vsync = true;
+	bool m_darkEdges = true;
 };
