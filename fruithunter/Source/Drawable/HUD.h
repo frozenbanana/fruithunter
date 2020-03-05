@@ -37,7 +37,7 @@ private:
 	int m_inventory[NR_OF_FRUITS];
 	int m_winCondition[NR_OF_FRUITS];
 
-
+	TimeTargets m_price = NR_OF_TIME_TARGETS;
 	string getMinutes();
 	string getSeconds();
 	void drawTargetTime();
@@ -46,7 +46,9 @@ private:
 public:
 	HUD();
 	~HUD();
-
+	TimeTargets getPrize() const;
+	string getTimePassed();
+	bool hasWon();
 	void createFruitSprite(string fruitName);
 	void setTimeTargets(int targets[]);
 	void setWinCondition(int winCons[]);
