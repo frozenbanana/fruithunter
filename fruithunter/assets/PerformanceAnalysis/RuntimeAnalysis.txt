@@ -1,30 +1,40 @@
-PROGRAM(Accumulate): 0 ms | 100.000000%
-|  Initilize(Accumulate): 4798 ms | inf%
-|  |  LevelHandler_initilize(Accumulate): 3463 ms | 72.175911%
+Queue Size: 0
+PROGRAM(Accumulate): 121017 ms | 100.000000%
+|  Initilize(Accumulate): 1580 ms | 1.305602%
+|  |  LevelHandler_initilize(Accumulate): 238 ms | 15.063292%
+|  |  |  QuadTree creation(Accumulate): 1 ms | 0.420168%
+|  |  
 |  
-|  AllFrames(Accumulate): 168558 ms | inf%
-|  |  LevelHandler_TerrainCreation(Accumulate): 168428 ms | 99.922874%
-|  |  |  Creation of: VolcanoMap.png(Accumulate): 1309 ms | 0.777187%
-|  |  |  |  Terrain Heightmap grid creation(Accumulate): 712 ms | 54.392666%
-|  |  |  |  Filling of sub meshes(Accumulate): 355 ms | 27.119938%
-|  |  |  
-|  |  |  Creation of: ForestMap.png(Accumulate): 1164 ms | 0.691096%
-|  |  |  |  Terrain Heightmap grid creation(Accumulate): 561 ms | 48.195877%
-|  |  |  |  Filling of sub meshes(Accumulate): 252 ms | 21.649485%
-|  |  |  
-|  |  |  Creation of: DesertMap.png(Accumulate): 1280 ms | 0.759969%
-|  |  |  |  Terrain Heightmap grid creation(Accumulate): 559 ms | 43.671875%
-|  |  |  |  Filling of sub meshes(Accumulate): 264 ms | 20.625000%
-|  |  |  
-|  |  |  Creation of: PlainMap.png(Accumulate): 1440 ms | 0.854965%
-|  |  |  |  Terrain Heightmap grid creation(Accumulate): 562 ms | 39.027779%
-|  |  |  |  Filling of sub meshes(Accumulate): 255 ms | 17.708332%
-|  |  |  
-|  |  |  FrameTime(Average): 25 ms | 94.738403%
-|  |  |  |  PlayState_Update(Average): 11 ms | 45.722145%
-|  |  |  |  |  LevelHandler_Update(Average): 11 ms | 98.826706%
+|  FrameTime(Average): 7 ms | 98.590279%
+|  |  IntroState_Update(Average): 1 ms | 2.284785%
+|  |  |  LevelHandler loadLevel(Accumulate): 2577 ms | 94.534119%
+|  |  |  |  QuadTree creation(Accumulate): 4 ms | 0.155219%
+|  |  |  |  |  QuadTree creation(Accumulate): 3 ms | 75.000000%
 |  |  |  |  
-|  |  |  |  PlayState_Draw(Average): 10 ms | 42.838074%
+|  |  |  |  TerrainCreation(Accumulate): 873 ms | 33.876602%
+|  |  |  |  |  Terrain Heightmap grid creation(Accumulate): 51 ms | 5.841924%
+|  |  |  |  |  Filling of sub meshes(Accumulate): 217 ms | 24.856815%
+|  |  |  |  |  |  QuadTree creation(Accumulate): 7 ms | 3.225806%
+|  |  |  |  |  
+|  |  |  |  
+|  |  |  
+|  |  
+|  |  PlayState_Draw(Average): 7 ms | 51.237522%
+|  |  |  EntityRepository DrawCulling(Average): 4 ms | 59.072174%
+|  |  |  |  QuadTree culling(Average): 0 ms | 5.870625%
+|  |  |  
+|  |  |  TerrainManager DrawCulling(Average): 0 ms | 11.995355%
+|  |  |  |  Terrain Draw Culling(Average): 0 ms | 95.936180%
+|  |  |  |  |  QuadTree culling(Average): 0 ms | 29.850746%
+|  |  |  |  
+|  |  |  
+|  |  |  SeaEffect Draw Culling(Average): 0 ms | 2.846300%
+|  |  |  |  QuadTree culling(Average): 0 ms | 19.655172%
+|  |  |  
+|  |  
+|  |  PlayState_Update(Average): 4 ms | 30.599022%
+|  |  |  LevelHandler_Update(Average): 4 ms | 99.824699%
+|  |  |  |  Player_Update(Average): 0 ms | 1.015256%
 |  |  |  
 |  |  
 |  

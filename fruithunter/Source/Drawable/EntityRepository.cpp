@@ -157,6 +157,10 @@ void EntityRepository::savePlacements(string filename) const {
 
 vector<unique_ptr<Entity>>* EntityRepository::getEntities() { return &m_entities; }
 
+vector<Entity**> EntityRepository::getCulledEntitiesByPosition(float3 position) {
+	return m_quadtree.getElementsByPosition(position);
+}
+
 void EntityRepository::load(string filename) {
 	if (filename != "") {
 		if (fileExists(filename)) {
@@ -253,7 +257,7 @@ void EntityRepository::removeEntity(Entity* entity) {
 		}
 		m_repositoryChangedSinceLoad = true;
 
-		//remove from quadtree
+		// remove from quadtree
 		m_quadtree.remove(entity);
 	}
 }
@@ -392,7 +396,8 @@ void EntityRepository::draw() {
 }
 
 void EntityRepository::draw_quadtreeFrustumCulling(const vector<FrustumPlane>& planes) {
-	PerformanceTimer::Record record("EntityRepository DrawCulling", PerformanceTimer::TimeState::state_average);
+	PerformanceTimer::Record record(
+		"EntityRepository DrawCulling", PerformanceTimer::TimeState::state_average);
 
 	vector<Entity**> elements = m_quadtree.cullElements(planes);
 	if (elements.size() > 0) {

@@ -193,7 +193,6 @@ void LevelHandler::initialise() {
 	float3 lavaPos(150, 1.5f, 150);
 	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(20, 20), XMINT2(4, 4),
 		lavaPos - lavaSize / 2.f, lavaSize + float3(0, 2.f, 0));
-
 }
 
 void LevelHandler::loadLevel(int levelNr) {
@@ -289,7 +288,7 @@ void LevelHandler::draw() {
 	m_entity.draw();
 	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 
-	//frustum data for culling
+	// frustum data for culling
 	vector<FrustumPlane> frustum = m_player.getFrustumPlanes();
 	// terrain entities
 	m_terrainProps.draw_quadtreeFrustumCulling(frustum);
@@ -354,8 +353,7 @@ void LevelHandler::update(float dt) {
 	if (Input::getInstance()->keyPressed(Keyboard::R) && m_currentLevel >= 0)
 		m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
 
-	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
-	m_player.getBow().getTrailEffect().update(dt);
+
 
 	// for all animals
 	for (size_t i = 0; i < m_Animals.size(); ++i) {
@@ -447,17 +445,31 @@ void LevelHandler::update(float dt) {
 	for (size_t iObj = 0; iObj < entities->size(); ++iObj) {
 		// player - entity
 		m_player.collideObject(*entities->at(iObj));
+	}
 
-		// arrow - entity
-		float3 arrowPosision = m_player.getArrow().getPosition();
-		float3 arrowVelocity = m_player.getBow().getArrowVelocity();
-		// float castray = entities->at(iObj)->castRay(arrowPosision, arrowVelocity);
-		// if (castray != -1.f) {
-		//	// Arrow is hitting object
-		//	float3 target = arrowPosision + arrowVelocity * castray * dt;
-		//	m_player.getBow().arrowHitObject(target);
+
+
+	// Check entity - arrow
+	float3 arrowPosision = m_player.getArrow().getPosition();
+	float3 arrowVelocity = m_player.getBow().getArrowVelocity();
+	/*vector<Entity**> entitiesAroundArrow =
+		m_terrainProps.getCulledEntitiesByPosition(arrowPosision);*/
+	if (m_player.isShooting() && !m_player.getBow().getArrowHitObject()) {
+		// if (m_player.getArrow().checkCollision(*entities->at(iObj))) {
+		for (size_t i = 0; i < entities->size(); i++) {
+			float castray = entities->at(i)->castRay(arrowPosision, arrowVelocity * dt);
+			if (castray != -1.f && castray < arrowVelocity.Length() * dt) {
+				ErrorLogger::log("castray arrow: " + to_string(castray));
+				// Arrow is hitting object
+				float3 target = arrowPosision + arrowVelocity * castray * dt;
+				m_player.getBow().arrowHitObject(target);
+			}
+		}
 		//}
 	}
+
+	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
+	m_player.getBow().getTrailEffect().update(dt);
 
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
 		Terrain* currentTerrain =

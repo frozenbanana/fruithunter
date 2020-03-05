@@ -76,7 +76,7 @@ float3 Entity::getPosition() const { return m_position; }
 
 float3 Entity::getScale() const { return m_scale; }
 
-float3 Entity::getLocalBoundingBoxPosition() const { 
+float3 Entity::getLocalBoundingBoxPosition() const {
 	if (m_mesh.get() != nullptr)
 		return m_mesh->getBoundingBoxPos();
 	else
@@ -309,12 +309,12 @@ void Entity::setCollisionDataTree() {
 	// Scales the OBB down to only encompass the trunk
 	if (m_mesh.get() != nullptr) {
 		float3 treeScale(0.14f, 1.f, 0.14f);
-		setCollisionData(getPosition(), m_mesh->getBoundingBoxPos(), m_scale * treeScale,
+		setCollisionData(getPosition(), float3(0.f), m_scale * treeScale,
 			m_mesh->getBoundingBoxHalfSizes() * treeScale);
 	}
 	else {
 		float3 treeScale(0.14f, 1.f, 0.14f);
-		setCollisionData(getPosition(), m_meshAnim.getBoundingBoxPos(), m_scale * treeScale,
+		setCollisionData(getPosition(), float3(0.f), m_scale * treeScale,
 			m_meshAnim.getBoundingBoxHalfSizes() * treeScale);
 	}
 }
