@@ -20,12 +20,20 @@ cbuffer lightInfo : register(b5) {
 	float4 diffuse;
 	float4 specular;
 };
+cbuffer lightInfo : register(b6) {
+	float shadowMapRes;
+	float nearplane;
+	float farplane;
+	float3 lightDir;
+	float2 nothing;
+};
 
 float3 lighting(float3 pos, float3 normal, float3 color, float shade) {
 	// light utility
 	/*float3 lightPos = float3(-0.f, 110.f, 100.f);
 	float3 toLight = normalize(lightPos - pos);*/
 	float3 toLight = normalize(float3(-100.f, 110.f, 0));
+	//float3 toLight = normalize(lightDir); //doesnt work for whatever reason
 
 	// diffuse
 	float shadowTint = max(dot(toLight, normal), 0.0);
@@ -86,8 +94,10 @@ float4 main(PS_IN ip) : SV_TARGET {
 	float tilt = specialLerp(dotN, 0.60f, 0.70f);
 
 	// Sample and shade from shadowmap
-	float shade = texSampleGrease(
-		texture_shadowMap, float2(3840.f, 2160.f), ip.ShadowPosH.xy, ip.ShadowPosH.z, ip.PosW.xyz)
+	float shade =
+		texSampleGrease(texture_shadowMap, float2(shadowMapRes, shadowMapRes),
+		ip.ShadowPosH.xy,
+		ip.ShadowPosH.z, ip.PosW.xyz)
 					  .r;
 
 

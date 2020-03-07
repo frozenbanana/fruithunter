@@ -56,6 +56,22 @@ void ShadowMapper::createVPTMatrix() {
 	m_VPT = m_VPT.Transpose();
 }
 
+void ShadowMapper::createInfoBuffer() {
+
+	createShadowInfo();
+
+	auto device = Renderer::getDevice();
+	// Create constant buffer
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(m_shadowInfo);
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = &m_shadowInfo;
+	HRESULT res = device->CreateBuffer(&bufferDesc, &data, m_ShadowInfoBuffer.GetAddressOf());
+}
+
 ShadowMapper::ShadowMapper() { initiate(); }
 
 ShadowMapper::~ShadowMapper() { 
@@ -109,6 +125,7 @@ void ShadowMapper::initiate() {
 
 	createCameraBuffer();
 	createVPTBuffer();
+	createInfoBuffer();
 }
 
 void ShadowMapper::bindCameraMatrix() {
@@ -128,7 +145,7 @@ void ShadowMapper::bindShadowMap() {
 
 void ShadowMapper::update(float3 playerPos) {
 	//Moves the shadowmap camera to above the player with an offset.
-	/*float easyOffset = FAR_PLANE;
+	float easyOffset = FAR_PLANE;
 	float3 offSet = { easyOffset, easyOffset, easyOffset };
 	m_viewMatrix = XMMatrixLookAtLH(
 		float3(playerPos + offSet), float3(playerPos), float3(0.f, 1.f, 0.f));
@@ -136,7 +153,7 @@ void ShadowMapper::update(float3 playerPos) {
 	m_vpMatrix_t = vp_matrix.Transpose();
 
 	m_VPT = m_viewMatrix * m_projMatrix * g_textureMatrix;
-	m_VPT = m_VPT.Transpose();*/
+	m_VPT = m_VPT.Transpose();
 
 	auto deviceContext = Renderer::getDeviceContext();
 	deviceContext->UpdateSubresource(m_matrixBuffer.Get(), 0, NULL, &m_vpMatrix_t, 0, 0);
@@ -149,6 +166,21 @@ void ShadowMapper::copyStaticToDynamic() {
 	deviceContext->CopyResource(m_depthMap.Get(), m_depthMapStatic.Get());
 }
 
+void ShadowMapper::createShadowInfo() { 
+	m_shadowInfo.nearplane = 1.0f;
+	m_shadowInfo.farplane = 500.f;
+	m_shadowInfo.ShadowMapRes = SMAP_SIZE;
+	float3 lightDir = float3(-100.f, 110.f, 0);
+	//lightDir.Normalize();
+	m_shadowInfo.lightDir = lightDir;
+}
+
+void ShadowMapper::bindInfoBuffer() { 
+	auto deviceContext = Renderer::getDeviceContext();
+	
+	deviceContext->PSSetConstantBuffers(6, 1, m_ShadowInfoBuffer.GetAddressOf());
+}
+
 Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ShadowMapper::getDepthMapSRV() {
 	return m_shadowSRV;
 }
@@ -158,6 +190,16 @@ void ShadowMapper::bindDSVAndSetNullRenderTarget() {
 
 	deviceContext->RSSetViewports(1, &m_shadowPort);
 	
+	deviceContext->OMSetRenderTargets(1, m_nullRenderTargets, m_shadowDSV.Get());
+
+	deviceContext->ClearDepthStencilView(m_shadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+}
+
+void ShadowMapper::bindDSVAndSetNullRenderTargetAndCopyStatic() {
+	auto deviceContext = Renderer::getDeviceContext();
+
+	deviceContext->RSSetViewports(1, &m_shadowPort);
+
 	deviceContext->OMSetRenderTargets(1, m_nullRenderTargets, m_shadowDSV.Get());
 
 	deviceContext->ClearDepthStencilView(m_shadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);

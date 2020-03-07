@@ -3,11 +3,17 @@
 
 #define SMAP_SIZE 2048.f
 
+struct shadowInfo {
+	float ShadowMapRes;
+	float nearplane, farplane;
+	float3 lightDir;
+	float2 padding;
+};
+
 class ShadowMapper {
 private:
 	//Variables
-	XMINT2 m_shadowPortSize =
-		XMINT2(static_cast<int>(1920), static_cast<int>(1080));
+	XMINT2 m_shadowPortSize = XMINT2(static_cast<int>(SMAP_SIZE), static_cast<int>(SMAP_SIZE));
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_shadowDSV;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_staticShadowDSV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowSRV;
@@ -22,11 +28,14 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixVPTBuffer;
 	Matrix m_VPT;
+	shadowInfo m_shadowInfo;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_ShadowInfoBuffer;
 
 	//Functions
 	void createCameraBuffer();
 	void createVPTBuffer();
 	void createVPTMatrix();
+	void createInfoBuffer();
 	
 	
 public:
@@ -41,8 +50,12 @@ public:
 	void update(float3);
 	void copyStaticToDynamic();
 
+	void createShadowInfo();
+	void bindInfoBuffer();
+
 	// Shadow functions
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> getDepthMapSRV();
 	void bindDSVAndSetNullRenderTarget();
+	void bindDSVAndSetNullRenderTargetAndCopyStatic();
 	void bindDSVAndSetNullRenderTargetStatic();
 };

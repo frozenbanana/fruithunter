@@ -76,7 +76,7 @@ void PlayState::pause() {
 
 void PlayState::draw() {
 
-	if (1) {
+	if (0) { //Static shadowmap
 		m_shadowMap.get()->update(m_levelHandler->getPlayerPos()); // not needed?
 
 		if (m_staticShadowNotDrawn) {
@@ -89,11 +89,21 @@ void PlayState::draw() {
 			m_staticShadowNotDrawn = false;
 		}
 		// Set shadow map info
-		m_shadowMap.get()->bindDSVAndSetNullRenderTarget();
+		m_shadowMap.get()->bindDSVAndSetNullRenderTargetAndCopyStatic();
 		m_shadowMap.get()->bindCameraMatrix();
 
 		// Draw shadow map
 		m_levelHandler->drawShadowDynamicEntities();
+	}
+
+	if (1) { //Dynamic shadowmap
+		m_shadowMap.get()->update(m_levelHandler->getPlayerPos());
+
+		m_shadowMap.get()->bindDSVAndSetNullRenderTarget();
+		m_shadowMap.get()->bindCameraMatrix();
+		m_shadowMap.get()->bindInfoBuffer();
+
+		m_levelHandler->drawShadowDynamic();
 	}
 
 	// Set first person info
