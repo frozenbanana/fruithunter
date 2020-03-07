@@ -23,6 +23,13 @@ cbuffer lightInfo : register(b5) {
 	float4 specularColour;
 };
 
+cbuffer lightInfo : register(b6) {
+	float2 cb_shadowMapRes;
+	float2 cb_nearFarPlane;
+	float4 cb_toLight;
+};
+
+
 SamplerState samplerAni {
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Linear;
@@ -71,7 +78,7 @@ float4 main(PS_IN ip) : SV_TARGET {
 	// light
 	// float3 lightPos = float3(-0.f, 110.f, 100.f);
 	/*float3 toLight = normalize(lightPos - ip.PosW);*/
-	float3 toLight = normalize(float3(-100.f, 110.f, 0));
+	float3 toLight = normalize(cb_toLight.xyz);
 
 	// ambient base
 	/*float3 ambientBase =

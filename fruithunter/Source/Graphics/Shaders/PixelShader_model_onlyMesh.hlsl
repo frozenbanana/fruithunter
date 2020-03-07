@@ -16,6 +16,12 @@ cbuffer lightInfo : register(b5) {
 	float4 specular;
 };
 
+cbuffer lightInfo : register(b6) {
+	float2 cb_shadowMapRes;
+	float2 cb_nearFarPlane;
+	float4 cb_toLight;
+};
+
 SamplerState samplerAni {
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Linear;
@@ -60,7 +66,7 @@ float3 lighting(float3 pos, float3 normal, float3 color, float shade) {
 	// light utility
 	/*float3 lightPos = float3(-0.f, 110.f, 100.f);
 	float3 toLight = normalize(lightPos - pos);*/
-	float3 toLight = normalize(float3(-100.f, 110.f, 0));
+	float3 toLight = normalize(cb_toLight.xyz);
 
 	// diffuse
 	float shadowTint = max(dot(toLight, normal), 0.0);

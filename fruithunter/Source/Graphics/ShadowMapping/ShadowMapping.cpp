@@ -146,7 +146,7 @@ void ShadowMapper::bindShadowMap() {
 void ShadowMapper::update(float3 playerPos) {
 	//Moves the shadowmap camera to above the player with an offset.
 	float easyOffset = FAR_PLANE;
-	float3 offSet = { easyOffset, easyOffset, easyOffset };
+	float3 offSet = { -easyOffset, easyOffset, -easyOffset }; //Essentially cameraPos
 	m_viewMatrix = XMMatrixLookAtLH(
 		float3(playerPos + offSet), float3(playerPos), float3(0.f, 1.f, 0.f));
 	Matrix vp_matrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
@@ -155,9 +155,12 @@ void ShadowMapper::update(float3 playerPos) {
 	m_VPT = m_viewMatrix * m_projMatrix * g_textureMatrix;
 	m_VPT = m_VPT.Transpose();
 
+	m_shadowInfo.toLight = { offSet.x, offSet.y, offSet.z, 0.f };
+
 	auto deviceContext = Renderer::getDeviceContext();
 	deviceContext->UpdateSubresource(m_matrixBuffer.Get(), 0, NULL, &m_vpMatrix_t, 0, 0);
 	deviceContext->UpdateSubresource(m_matrixVPTBuffer.Get(), 0, NULL, &m_VPT, 0, 0);
+	deviceContext->UpdateSubresource(m_ShadowInfoBuffer.Get(), 0, NULL, &m_shadowInfo, 0, 0);
 
 }
 
@@ -167,12 +170,11 @@ void ShadowMapper::copyStaticToDynamic() {
 }
 
 void ShadowMapper::createShadowInfo() { 
-	m_shadowInfo.nearplane = 1.0f;
-	m_shadowInfo.farplane = 500.f;
-	m_shadowInfo.ShadowMapRes = SMAP_SIZE;
-	float3 lightDir = float3(-100.f, 110.f, 0);
+	m_shadowInfo.nearFarPlane = float2(1.0f, 500.f);
+	m_shadowInfo.ShadowMapRes = float2(SMAP_SIZE, SMAP_SIZE);
+	float4 toLight = float4(-100.f, 110.f, 0, 0);
 	//lightDir.Normalize();
-	m_shadowInfo.lightDir = lightDir;
+	m_shadowInfo.toLight = toLight;
 }
 
 void ShadowMapper::bindInfoBuffer() { 

@@ -4,10 +4,9 @@
 #define SMAP_SIZE 2048.f
 
 struct shadowInfo {
-	float ShadowMapRes;
-	float nearplane, farplane;
-	float3 lightDir;
-	float2 padding;
+	float2 ShadowMapRes;
+	float2 nearFarPlane;
+	float4 toLight;
 };
 
 class ShadowMapper {
