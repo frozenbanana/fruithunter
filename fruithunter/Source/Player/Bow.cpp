@@ -2,10 +2,7 @@
 #include "TerrainManager.h"
 #include "AudioHandler.h"
 #include "ErrorLogger.h"
-#define ARM_LENGTH 0.55f
-#define OFFSET_RIGHT 0.37f
-#define OFFSET_UP -0.1f
-#define BOW_ANGLE XM_PI / 8.0f
+#include "VariableSyncer.h"
 
 Bow::Bow() {
 	m_bow.loadAnimated("Bow", 3);
@@ -16,6 +13,22 @@ Bow::Bow() {
 	m_arrow.setPosition(float3(-10.f)); // To make sure that arrow doesn't spawn in fruits.
 	m_arrow.setCollisionDataOBB();
 	m_trailEffect = ParticleSystem(ParticleSystem::ARROW_GLITTER);
+
+	VariableSyncer::getInstance()->create("Bow.txt");
+	VariableSyncer::getInstance()->bind("Bow.txt", "offset0:v3", &m_bowPositioning_offset0);
+	VariableSyncer::getInstance()->bind("Bow.txt", "angle0:v3", &m_bowPositioning_angle0);
+	VariableSyncer::getInstance()->bind("Bow.txt", "offset1:v3", &m_bowPositioning_offset1);
+	VariableSyncer::getInstance()->bind("Bow.txt", "angle1:v3", &m_bowPositioning_angle1);
+	VariableSyncer::getInstance()->bind("Bow.txt", "drawForward:f", &m_bowPositioning_drawForward);
+	VariableSyncer::getInstance()->bind(
+		"Bow.txt", "externalRotation:f", &m_bowPositioning_externalRotation);
+	VariableSyncer::getInstance()->bind(
+		"Bow.txt", "externalPosition:f", &m_bowPositioning_externalPosition);
+	VariableSyncer::getInstance()->bind("Bow.txt", "drawSpeed:f", &m_bowPositioning_drawSpeed);
+	VariableSyncer::getInstance()->bind(
+		"Bow.txt", "drawSpeed Return:f", &m_bowPositioning_drawSpeed_return);
+	VariableSyncer::getInstance()->bind(
+		"Bow.txt", "stringSpeed Return:f", &m_bowPositioning_stringSpeed_return);
 }
 
 Bow::~Bow() {}
@@ -24,26 +37,46 @@ void Bow::update(
 	float dt, float3 playerPos, float3 playerForward, float3 playerRight, float3 wind) {
 	// m_bow.setRotationByAxis(playerForward, BOW_ANGLE * m_aimMovement);
 
+	//rotate to desired rotation
+	m_rotation =
+		(m_desiredRotation - m_rotation) * m_bowPositioning_externalRotation * dt + m_rotation;
+	m_bow.setRotation(m_rotation);
+
+	float3 forward = getForward();
 	// Set bow position based on player position and direction.
 	float3 playerUp = playerForward.Cross(playerRight);
-	m_bow.setPosition(playerPos + playerForward * ARM_LENGTH +
-					  playerRight * OFFSET_RIGHT * m_aimMovement +
-					  playerUp * OFFSET_UP * m_aimMovement);
+	float3 position_holstered = playerPos + playerForward * m_bowPositioning_offset0.z +
+								playerRight * m_bowPositioning_offset0.x * m_aimMovement +
+								playerUp * m_bowPositioning_offset0.y * m_aimMovement +
+								forward * m_drawFactor * m_bowPositioning_drawForward;
+	float3 position_aiming =
+		playerPos +
+		(playerForward * m_bowPositioning_offset1.z + playerRight * m_bowPositioning_offset1.x +
+			playerUp * m_bowPositioning_offset1.y) +
+		forward * m_drawFactor * m_bowPositioning_drawForward;
 
+	m_desiredPosition = (position_holstered * (1 - m_drawFactor) + position_aiming * m_drawFactor);
+
+	//move to desired position
+	m_bow.setPosition(
+		(m_desiredPosition - m_bow.getPosition()) * m_bowPositioning_externalPosition * dt +
+		m_bow.getPosition());
 
 	// Update m_arrowReturnTimer
 	m_arrowReturnTimer -= dt;
 	// Bow animation.
 	if (m_charging) {
 		AudioHandler::getInstance()->playInstance(AudioHandler::STRETCH_BOW, m_drawFactor);
-		m_drawFactor = min(0.99f, m_drawFactor + dt);
-		m_bow.updateAnimatedSpecific(m_drawFactor);
+		m_drawFactor = min(0.99f, m_drawFactor + m_bowPositioning_drawSpeed * dt);
+		m_stringFactor = m_drawFactor;
+		m_bow.updateAnimatedSpecific(m_stringFactor);
 		m_bow.setFrameTargets(0, 1);
 	}
 	else {
 		AudioHandler::getInstance()->pauseInstance(AudioHandler::STRETCH_BOW);
-		m_drawFactor = max(0.0f, m_drawFactor - 5.0f * dt);
-		m_bow.updateAnimatedSpecific(m_drawFactor);
+		m_drawFactor = max(0.0f, m_drawFactor - m_bowPositioning_drawSpeed_return * dt);
+		m_stringFactor = max(0.0f, m_stringFactor - m_bowPositioning_stringSpeed_return * dt);
+		m_bow.updateAnimatedSpecific(m_stringFactor);
 		m_bow.setFrameTargets(0, 1);
 	}
 
@@ -80,10 +113,10 @@ void Bow::update(
 		if (m_charging) {
 			// Move arrow with bowstring. Hardcoded values determined by experimentation.
 			m_arrow.setPosition(
-				m_bow.getPosition() + playerForward * 0.3f * (1.0f - 1.6f * m_drawFactor));
+				m_bow.getPosition() + forward * 0.3f * (1.0f - 1.6f * m_drawFactor));
 		}
 		else {
-			m_arrow.setPosition(m_bow.getPosition() + playerForward * 0.3f);
+			m_arrow.setPosition(m_bow.getPosition() + forward * 0.3f);
 		}
 		m_arrow.setRotationMatrix(m_bow.getRotationMatrix());
 	}
@@ -105,7 +138,10 @@ void Bow::draw() {
 }
 
 void Bow::rotate(float pitch, float yaw) {
-	m_bow.setRotation(float3(pitch, yaw, -BOW_ANGLE * m_aimMovement));
+	float3 rotation_holstered = float3(pitch, yaw, 0) + m_bowPositioning_angle0;
+	float3 rotation_aiming = float3(pitch, yaw, 0) + m_bowPositioning_angle1;
+	m_desiredRotation = (rotation_holstered * (1 - m_drawFactor) + rotation_aiming * m_drawFactor);
+	//m_bow.setRotation(m_rotation);
 }
 
 void Bow::aim() { m_aiming = true; }
@@ -215,4 +251,11 @@ float Bow::calcAngle(float3 vec1, float3 vec2) {
 	float soonAngle = normalisedVec1.Dot(normalisedVec2);
 	soonAngle = min(1.f, max(-1.f, soonAngle)); // clamped to avoid NaN in cos
 	return acos(soonAngle);
+}
+
+float3 Bow::getForward() const { 
+	float4x4 mRot = float4x4::CreateRotationZ(m_rotation.z) *
+					float4x4::CreateRotationX(m_rotation.x) *
+					float4x4::CreateRotationY(m_rotation.y);
+	return float3::Transform(float3(0, 0, 1), mRot);
 }

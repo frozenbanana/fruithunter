@@ -169,6 +169,15 @@ void Player::standsOnObject() { m_onEntity = true; }
 void Player::updateBow(float dt, Terrain* terrain) {
 	Input* input = Input::getInstance();
 
+	float deltaX = 0.0f;
+	float deltaY = 0.0f;
+	if (input->getMouseMode() == DirectX::Mouse::MODE_RELATIVE) {
+		deltaX = (float)input->mouseX();
+		deltaY = (float)input->mouseY();
+	}
+	float rotationSpeed = m_aimZoom * 0.6f * dt;
+	float2 accRotation = float2(deltaX, deltaY) * rotationSpeed * 2.f;
+
 	if (input->mouseDown(Input::MouseButton::RIGHT)) {
 		m_aimZoom = max(0.4f, m_aimZoom - dt * 1.5f);
 		m_camera.setFov(m_camera.getDefaultFov() * m_aimZoom);
@@ -198,8 +207,9 @@ void Player::updateBow(float dt, Terrain* terrain) {
 	float3 wind;
 	terrain != nullptr ? wind = terrain->getWind() : wind = float3(0.f);
 
-	m_bow.rotate(m_cameraPitch, m_cameraYaw);
-	m_bow.update(dt, getCameraPosition(), m_playerForward, m_playerRight, wind);
+	m_bow.rotate(m_cameraPitch + accRotation.y, m_cameraYaw + accRotation.x);
+	m_bow.update(
+		dt, getCameraPosition(), m_playerForward, m_playerRight, wind);
 }
 
 void Player::updateCamera() {
