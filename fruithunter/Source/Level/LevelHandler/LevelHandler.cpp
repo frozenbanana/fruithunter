@@ -76,9 +76,9 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_wind.push_back(float3(1.f, 0.f, 2.f)); // Desert
 	level0.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
 
-	level0.m_nrOfFruits[APPLE] = 20;
-	level0.m_nrOfFruits[BANANA] = 15;
-	level0.m_nrOfFruits[MELON] = 9;
+	level0.m_nrOfFruits[APPLE] = 5;
+	level0.m_nrOfFruits[BANANA] = 3;
+	level0.m_nrOfFruits[MELON] = 2;
 
 	level0.m_winCondition[APPLE] = 2;
 	level0.m_winCondition[BANANA] = 2;
@@ -269,6 +269,7 @@ void LevelHandler::draw() {
 	Renderer::getInstance()->enableAlphaBlending();
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->draw_animate();
+		m_fruits[i]->getParticleSystem()->draw();
 	}
 	Renderer::getInstance()->disableAlphaBlending();
 
@@ -303,7 +304,6 @@ void LevelHandler::draw() {
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
 		m_particleSystems[i].draw();
 	}
-
 	m_player.getBow().getTrailEffect().draw();
 }
 
@@ -411,7 +411,10 @@ void LevelHandler::update(float dt) {
 	m_skyBox.updateCurrentLight();
 
 	// update stuff
+
 	for (int i = 0; i < m_fruits.size(); i++) {
+
+		m_fruits[i]->getParticleSystem()->update(dt);
 		pft->m_mutex.lock();
 		m_fruits[i]->update(dt, playerPos);
 		if (m_player.isShooting()) {

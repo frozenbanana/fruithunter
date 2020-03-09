@@ -8,15 +8,16 @@
 class ParticleSystem {
 public:
 	enum PARTICLE_TYPE {
-		NONE = 0,
-		FOREST_BUBBLE = 1,
-		GROUND_DUST = 2,
-		VULCANO_FIRE = 3,
-		VULCANO_SMOKE = 4,
-		LAVA_BUBBLE = 5,
-		ARROW_GLITTER = 6,
-		CONFETTI = 7,
-		TYPE_LENGTH = 8,
+		NONE,
+		FOREST_BUBBLE,
+		GROUND_DUST,
+		VULCANO_FIRE,
+		VULCANO_SMOKE,
+		LAVA_BUBBLE,
+		ARROW_GLITTER,
+		CONFETTI,
+		STARS,
+		TYPE_LENGTH,
 	};
 
 	ParticleSystem(ParticleSystem::PARTICLE_TYPE type = NONE);
@@ -30,6 +31,7 @@ public:
 	float3 getPosition() const;
 
 private:
+	PARTICLE_TYPE m_type = NONE;
 	struct Description {
 		int m_nrOfParticles;
 		float m_emitRate; // particles per sec
@@ -148,6 +150,21 @@ private:
 				m_color[0] = float4(1.00f, 0.00f, 0.00f, 1.0f);
 				m_color[1] = float4(0.00f, 1.00f, 0.00f, 1.0f);
 				m_color[2] = float4(0.00f, 0.00f, 1.00f, 1.0f);
+				break;
+			case STARS:
+				m_nrOfParticles = MAX_PARTICLES - 1;
+				m_emitRate = 12.0f; // particles per sec
+				m_acceleration = float3(0.0f, 0.0f, 0.0f);
+				m_accelerationOffsetInterval = float2(0.0f, 0.0f);
+				m_spawnRadius = 0.9f;
+				m_radiusInterval = float2(0.0f, 0.0f);
+				m_velocity = float3(0.f, 0.0f, 0.f);
+				m_velocityOffsetInterval = float2(-0.5f, 0.5f); // for x, y and z
+				m_sizeInterval = float2(0.091f, 0.0932f);
+				m_timeAliveInterval = float2(0.4f, 0.43f);
+				m_color[0] = float4(0.81f, 0.90f, 0.00f, 1.0f);
+				m_color[1] = float4(0.90f, 0.81f, 0.00f, 1.0f);
+				m_color[2] = float4(0.88f, 0.78f, 0.00f, 1.0f);
 				break;
 			default:
 				m_nrOfParticles = 0;

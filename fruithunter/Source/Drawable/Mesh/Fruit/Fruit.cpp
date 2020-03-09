@@ -13,6 +13,10 @@ void Fruit::setStartPosition(float3 pos) {
 	m_heightAnimationPosition = pos;
 	m_destinationAnimationPosition = pos;
 	m_nextDestinationAnimationPosition = pos;
+
+	ErrorLogger::log("/////////////////ABOUT TO START A PARTICLESYSTEM FOR FRUIT");
+	m_particleSystem = make_unique<ParticleSystem>(ParticleSystem::STARS);
+	m_particleSystem->setInActive();
 }
 
 void Fruit::setNextDestination(float3 nextDest) { m_nextDestinationAnimationPosition = nextDest; }
@@ -48,8 +52,11 @@ bool Fruit::withinDistanceTo(float3 target, float treshhold) {
 	return (m_position - target).Length() < treshhold;
 }
 
+ParticleSystem* Fruit::getParticleSystem() { return m_particleSystem.get(); }
+
 void Fruit::update(float dt, float3 playerPosition) {
 	if (withinDistanceTo(playerPosition, 80.f)) {
+		m_particleSystem->setPosition(m_position);
 		checkOnGroundStatus();
 		doBehavior(playerPosition);
 		setDirection();

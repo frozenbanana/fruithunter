@@ -72,6 +72,7 @@ void Melon::behaviorActive(float3 playerPosition) {
 }
 
 void Melon::behaviorCaught(float3 playerPosition) {
+	m_particleSystem->setActive();
 	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
 		m_direction = playerPosition - m_position; // run to player
 

@@ -81,6 +81,7 @@ void Apple::behaviorActive(float3 playerPosition) {
 }
 
 void Apple::behaviorCaught(float3 playerPosition) {
+	m_particleSystem->setActive();
 	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
 		makeReadyForPath(playerPosition);
 		m_speed = m_caught_speed;

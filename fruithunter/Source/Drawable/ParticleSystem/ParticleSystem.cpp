@@ -8,7 +8,9 @@ ShaderSet ParticleSystem::m_shaderSet;
 Microsoft::WRL::ComPtr<ID3D11Buffer> ParticleSystem::m_vertexBuffer;
 
 ParticleSystem::ParticleSystem(ParticleSystem::PARTICLE_TYPE type) {
+	ErrorLogger::log("/////////////////FIRST LINE IN CONSTRUCTOR, " + to_string(m_type));
 
+	m_type = type;
 	m_description = make_shared<Description>(type);
 
 	if (type != NONE) {
@@ -27,8 +29,9 @@ ParticleSystem::ParticleSystem(ParticleSystem::PARTICLE_TYPE type) {
 		}
 		m_particles.resize(min(m_description->m_nrOfParticles, MAX_PARTICLES));
 		m_particleProperties.resize(min(m_description->m_nrOfParticles, MAX_PARTICLES));
-
+		ErrorLogger::log("/////////////////INITALIZE() ABOUT TO BE CALLED, " + to_string(m_type));
 		initialize();
+		ErrorLogger::log("/////////////////INITALIZE() DONE, " + to_string(m_type));
 	}
 	// random seed
 	srand((unsigned int)time(NULL));
@@ -63,10 +66,23 @@ void ParticleSystem::initialize() {
 			{ "Size", 0, DXGI_FORMAT_R32_FLOAT, 0, 28, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "IsActive", 0, DXGI_FORMAT_R32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
+		LPCWSTR pixelShader;
+		ErrorLogger::log("/////////////////SWITCH CASE ABOUT TO BE CALLED, " + to_string(m_type));
+		switch (m_type) {
+			ErrorLogger::log("type: " + to_string(m_type));
+		case STARS:
+			ErrorLogger::log("STARS!");
+			pixelShader = L"PixelShader_particleSystem_star.hlsl";
+			break;
+		default:
+			pixelShader = L"PixelShader_particleSystem_circle.hlsl";
+			break;
+		}
+		ErrorLogger::log("/////////////////SWITCH CASE DONE, " + to_string(m_type));
+
 
 		m_shaderSet.createShaders(L"VertexShader_particleSystem.hlsl",
-			L"GeometryShader_particleSystem.hlsl", L"PixelShader_particleSystem.hlsl", inputLayout,
-			4);
+			L"GeometryShader_particleSystem.hlsl", pixelShader, inputLayout, 4);
 	}
 	setActive();
 }
@@ -85,7 +101,6 @@ void ParticleSystem::setParticle(Description desc, size_t index) {
 	float y = r * sin(theta) * sin(phi);
 	float z = r * cos(phi);
 	part->setPosition(spawnPos + float3(x, y, z));
-
 	// Color
 	float4 pickedColor = float4(1.0f, 1.f, 0.0f, 1.0f);
 	int pick = rand() % 3; // 0..1
