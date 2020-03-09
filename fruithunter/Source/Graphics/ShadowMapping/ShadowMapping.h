@@ -1,18 +1,26 @@
 #pragma once
 #include "GlobalNamespaces.h"
 
-#define SMAP_SIZE 2048.f
+#define MATRIX_VPT_SLOT 4
+#define MATRIX_CAMERA_SLOT 1
+#define MATRIX_SHADOWINFO_SLOT 6
 
-struct shadowInfo {
-	float2 ShadowMapRes;
-	float2 nearFarPlane;
-	float4 toLight;
-};
+#define SMAP_WIDTH 2048.f
+#define SHADOW_NEARPLANE 1.f
+#define SHADOW_FARPLANE 500.f
 
 class ShadowMapper {
 private:
+	//Transformation Variables
+	XMINT2 m_smapSize = XMINT2(SMAP_WIDTH, SMAP_WIDTH);
+	float m_nearPlane = SHADOW_NEARPLANE;
+	float m_farPlane = SHADOW_FARPLANE;
+	float2 m_size = float2(200.f, 180.f);
+	float3 m_position = float3(-0.f, 110.f, 100.f);
+	float3 m_lightDirection;
+	Matrix m_VPT;
+
 	//Variables
-	XMINT2 m_shadowPortSize = XMINT2(static_cast<int>(SMAP_SIZE), static_cast<int>(SMAP_SIZE));
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_shadowDSV;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_staticShadowDSV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowSRV;
@@ -26,25 +34,34 @@ private:
 	Matrix m_projMatrix;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixVPTBuffer;
-	Matrix m_VPT;
-	shadowInfo m_shadowInfo;
+	struct shadowInfo {
+		float2 ShadowMapRes;
+		float2 nearFarPlane;
+		float4 toLight;
+	} m_shadowInfo;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_ShadowInfoBuffer;
 
 	//Functions
 	void createCameraBuffer();
 	void createVPTBuffer();
-	void createVPTMatrix();
 	void createInfoBuffer();
-	
+
+	void updateViewMatrix();
+	void updateProjMatrix();
+
 	
 public:
+	void bindVPTBuffer();//Matrix that moves from localSpace to NDC
+	void bindCameraBuffer(); // camera
+	void bindShadowInfoBuffer();
 	//Utility
 	ShadowMapper();
 	~ShadowMapper();
 	//void initiate(UINT width, UINT height);
+	void setDirection(float3 direction);
+	void mapShadowToFrustum(vector<float3> frustum);
+
 	void initiate();
-	void bindCameraMatrix(); // Camera
-	void bindVPTMatrix(); //Matrix that moves from localSpace to NDC
 	void bindShadowMap();
 	void update(float3);
 	void copyStaticToDynamic();

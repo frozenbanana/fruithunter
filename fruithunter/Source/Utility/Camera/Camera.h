@@ -25,6 +25,7 @@ public:
 
 	vector<FrustumPlane> getFrustumPlanes() const;
 	CubeBoundingBox getFrustumBoundingBox() const;
+	vector<float3> getFrustumPoints(float scaleBetweenNearAndFarPlane = 1.f) const;
 
 
 private:

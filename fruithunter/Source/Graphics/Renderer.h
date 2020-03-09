@@ -2,6 +2,7 @@
 #include "GlobalNamespaces.h"
 #include "ShaderSet.h"
 #include "Quad.h"
+#include "ShadowMapping.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -37,6 +38,11 @@ public:
 	void draw_darkEdges();
 
 	void drawLoading();
+
+	void initilizeNormalDraw();
+	void initilizeShadowDraw();
+	ShadowMapper* getShadowMapper();
+	void draw(size_t vertexCount, size_t vertexOffset);
 
 private:
 	Renderer(int width, int height);
@@ -77,4 +83,11 @@ private:
 	// Settings
 	bool m_vsync = true;
 	bool m_darkEdges = true;
+
+	//shadows
+	ShadowMapper m_shadowMapper;
+	enum DrawingState {
+		state_normal,
+		state_shadow 
+	} m_drawState = state_normal;
 };

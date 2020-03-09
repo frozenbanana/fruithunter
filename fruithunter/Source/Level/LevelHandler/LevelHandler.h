@@ -101,4 +101,6 @@ public:
 	std::vector<Fruit> fruitsInLevel;
 
 	float3 getPlayerPos();
+	CubeBoundingBox getPlayerFrustumBB();
+	vector<float3> getPlayerFrustumPoints(float scaleBetweenNearAndFarPlane);
 };

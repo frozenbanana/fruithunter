@@ -266,6 +266,9 @@ void LevelHandler::loadLevel(int levelNr) {
 void LevelHandler::draw() {
 	m_skyBox.bindLightBuffer();
 	m_player.draw();
+	if (Input::getInstance()->keyDown(Keyboard::Z))
+		Renderer::getInstance()->getShadowMapper()->bindCameraBuffer();
+
 	Renderer::getInstance()->enableAlphaBlending();
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->draw_animate();
@@ -519,3 +522,9 @@ void LevelHandler::dropFruit() {
 }
 
 float3 LevelHandler::getPlayerPos() { return m_player.getPosition(); }
+
+CubeBoundingBox LevelHandler::getPlayerFrustumBB() { return m_player.getCameraBoundingBox(); }
+
+vector<float3> LevelHandler::getPlayerFrustumPoints(float scaleBetweenNearAndFarPlane) {
+	return m_player.getFrustumPoints(scaleBetweenNearAndFarPlane);
+}

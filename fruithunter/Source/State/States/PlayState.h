@@ -31,8 +31,4 @@ private:
 	Quad m_quad;
 	unique_ptr <LevelHandler> m_levelHandler;
 	int m_currentLevel;
-
-	// Shadow stuff
-	unique_ptr<ShadowMapper> m_shadowMap;
-	bool m_staticShadowNotDrawn = true;
 };

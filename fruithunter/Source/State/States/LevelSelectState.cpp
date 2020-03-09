@@ -87,34 +87,34 @@ void LevelSelectState::play() {
 }
 
 void LevelSelectState::draw() {
-	if (1) {
-		m_shadowMap.get()->update(m_player.getPosition()); // not needed?
+	//if (1) {
+	//	m_shadowMap.get()->update(m_player.getPosition()); // not needed?
 
-		if (m_staticShadowNotDrawn) {
-			//	Set static shadow map info
-			m_shadowMap.get()->bindDSVAndSetNullRenderTargetStatic();
-			m_shadowMap.get()->bindCameraMatrix();
+	//	if (m_staticShadowNotDrawn) {
+	//		//	Set static shadow map info
+	//		m_shadowMap.get()->bindDSVAndSetNullRenderTargetStatic();
+	//		m_shadowMap.get()->bindCameraMatrix();
 
-			// Draw static shadow map
-			// m_terrain->drawShadow();
-			m_terrain->draw();
-			/*Draw collidables*/
-			/*Draw terrainprops*/
-			m_staticShadowNotDrawn = false;
-		}
-		// Set shadow map info
-		m_shadowMap.get()->bindDSVAndSetNullRenderTarget();
-		m_shadowMap.get()->bindCameraMatrix();
+	//		// Draw static shadow map
+	//		// m_terrain->drawShadow();
+	//		m_terrain->draw();
+	//		/*Draw collidables*/
+	//		/*Draw terrainprops*/
+	//		m_staticShadowNotDrawn = false;
+	//	}
+	//	// Set shadow map info
+	//	m_shadowMap.get()->bindDSVAndSetNullRenderTarget();
+	//	m_shadowMap.get()->bindCameraMatrix();
 
-		// Draw shadow map
-		for (int i = 0; i < NR_OF_LEVELS; i++) {
-			m_bowls[i]->drawShadow();
-		}
-	}
+	//	// Draw shadow map
+	//	for (int i = 0; i < NR_OF_LEVELS; i++) {
+	//		m_bowls[i]->drawShadow();
+	//	}
+	//}
 
 	// Set first person info
 	Renderer::getInstance()->beginFrame();
-	m_shadowMap.get()->bindVPTMatrix();
+	//m_shadowMap.get()->bindVPTMatrix();
 	m_shadowMap.get()->bindShadowMap();
 
 	// draw first person
