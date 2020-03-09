@@ -26,7 +26,7 @@ void Player::update(float dt, Terrain* terrain) {
 	float delta = dt;
 
 	if (m_hunterMode) {
-		delta *= 0.1;
+		delta *= 0.1f;
 	}
 
 	// Movement force
@@ -396,8 +396,8 @@ void Player::checkPlayerReset(float dt) {
 }
 
 void Player::checkHunterMode() {
-	if (Input::getInstance()->keyPressed(KEY_HM) && m_stamina <= 1.0f) {
-		m_hunterMode = true;
+	if (Input::getInstance()->keyPressed(KEY_HM)) {
+		m_hunterMode = 1 - m_hunterMode;
 	}
 }
 
