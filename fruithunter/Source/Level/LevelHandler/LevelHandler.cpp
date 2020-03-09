@@ -260,7 +260,10 @@ void LevelHandler::loadLevel(int levelNr) {
 		if (currentLevel.m_nrOfFruits[MELON] != 0)
 			m_hud.createFruitSprite("melon");
 	}
-	PathFindingThread::getInstance()->initialize(m_fruits, m_frame, m_collidableEntities);
+
+	if (PathFindingThread::getInstance()->m_thread == nullptr) {
+		PathFindingThread::getInstance()->initialize(m_fruits, m_frame, m_collidableEntities);
+	}
 }
 
 void LevelHandler::draw() {

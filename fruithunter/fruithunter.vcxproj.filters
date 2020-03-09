@@ -186,6 +186,9 @@
     <ClCompile Include="Source\State\States\LevelSelectState.cpp">
       <Filter>Source\State\States</Filter>
     </ClCompile>
+    <ClCompile Include="Source\State\States\SettingsState.cpp">
+      <Filter>Source\State\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -327,6 +330,9 @@
       <Filter>Source\State\States</Filter>
     </ClInclude>
     <ClInclude Include="Source\State\States\LevelSelectState.h">
+      <Filter>Source\State\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\State\States\SettingsState.h">
       <Filter>Source\State\States</Filter>
     </ClInclude>
   </ItemGroup>

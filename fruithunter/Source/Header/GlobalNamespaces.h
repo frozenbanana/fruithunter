@@ -17,8 +17,8 @@ using float3 = DirectX::SimpleMath::Vector3;
 using float4 = DirectX::SimpleMath::Vector4;
 using float4x4 = DirectX::SimpleMath::Matrix;
 
-#define STANDARD_WIDTH 1280
-#define STANDARD_HEIGHT 720
+#define STANDARD_WIDTH 1920
+#define STANDARD_HEIGHT 1080
 #define STANDARD_CORNER_X 0
 #define STANDARD_CORNER_Y 0
 
