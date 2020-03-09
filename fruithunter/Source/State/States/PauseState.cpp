@@ -21,7 +21,7 @@ void PauseState::initialize() {
 	m_entity.setPosition(float3(-1000));
 }
 
-void PauseState::update() {}
+void PauseState::update() { Input::getInstance()->setMouseModeAbsolute(); }
 
 void PauseState::handleEvent() {
 	if (m_resumeButton.update() || Input::getInstance()->keyPressed(Keyboard::Keys::Escape)) {
@@ -40,10 +40,7 @@ void PauseState::handleEvent() {
 
 void PauseState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
-void PauseState::play() {
-	Input::getInstance()->setMouseModeAbsolute();
-	ErrorLogger::log(m_name + " play() called.");
-}
+void PauseState::play() { ErrorLogger::log(m_name + " play() called."); }
 
 void PauseState::draw() {
 	Renderer::getInstance()->beginFrame();

@@ -10,7 +10,6 @@ SettingsState::SettingsState() { initialize(); }
 SettingsState::~SettingsState() {}
 
 void SettingsState::initialize() {
-	ErrorLogger::log("Settings Init");
 	m_name = "Settings State";
 	m_vsyncButton.initialize("V-Sync", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 50), true);
 	m_darkEdgesButton.initialize(
@@ -22,10 +21,10 @@ void SettingsState::initialize() {
 	m_entity.setPosition(float3(-1000));
 }
 
-void SettingsState::update() { ErrorLogger::log("Settings Update"); }
+void SettingsState::update() { Input::getInstance()->setMouseModeAbsolute(); }
 
 void SettingsState::handleEvent() {
-	ErrorLogger::log("Settings Handle Event");
+
 	if (m_vsyncButton.update()) {
 		Renderer::getInstance()->setVsync(m_vsyncButton.getOnOff());
 	}
@@ -37,16 +36,13 @@ void SettingsState::handleEvent() {
 	}
 }
 
-void SettingsState::pause() { ErrorLogger::log("Settings Pause"); }
+void SettingsState::pause() {}
 
-void SettingsState::play() {
-	Input::getInstance()->setMouseModeAbsolute();
-	ErrorLogger::log("Settings Play");
-}
+void SettingsState::play() {}
 
 void SettingsState::draw() {
 	Renderer::getInstance()->beginFrame();
-	ErrorLogger::log("Settings Draw");
+
 	m_darkEdgesButton.draw();
 	m_vsyncButton.draw();
 	m_backButton.draw();

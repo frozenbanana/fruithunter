@@ -21,8 +21,7 @@ void IntroState::initialize() {
 	m_entity.setPosition(float3(-1000));
 }
 
-void IntroState::update() {
-}
+void IntroState::update() { Input::getInstance()->setMouseModeAbsolute(); }
 
 void IntroState::handleEvent() {
 	if (m_startButton.update()) {
@@ -52,7 +51,4 @@ void IntroState::draw() {
 	m_entity.draw();
 }
 
-void IntroState::play() {
-	Input::getInstance()->setMouseModeAbsolute();
-	ErrorLogger::log(m_name + " play() called.");
-}
+void IntroState::play() { ErrorLogger::log(m_name + " play() called."); }
