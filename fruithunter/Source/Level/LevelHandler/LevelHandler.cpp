@@ -347,7 +347,8 @@ void LevelHandler::update(float dt) {
 	if (Input::getInstance()->keyPressed(Keyboard::R) && m_currentLevel >= 0)
 		m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
 
-
+	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
+	m_player.getBow().getTrailEffect().update(dt);
 
 	if (m_player.inHuntermode()) {
 		dt *= 0.1f;
@@ -471,8 +472,7 @@ void LevelHandler::update(float dt) {
 		}
 	}
 
-	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
-	m_player.getBow().getTrailEffect().update(dt);
+	
 
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
 		Terrain* currentTerrain =
