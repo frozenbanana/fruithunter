@@ -441,9 +441,9 @@ void LevelHandler::update(float dt) {
 	}
 
 	// Check entity collisions
+	// player - entity
 	vector<unique_ptr<Entity>>* entities = m_terrainProps.getEntities();
 	for (size_t iObj = 0; iObj < entities->size(); ++iObj) {
-		// player - entity
 		m_player.collideObject(*entities->at(iObj));
 	}
 
@@ -452,20 +452,20 @@ void LevelHandler::update(float dt) {
 	// Check entity - arrow
 	float3 arrowPosision = m_player.getArrow().getPosition();
 	float3 arrowVelocity = m_player.getBow().getArrowVelocity();
-	/*vector<Entity**> entitiesAroundArrow =
-		m_terrainProps.getCulledEntitiesByPosition(arrowPosision);*/
+	vector<Entity**> entitiesAroundArrow =
+		m_terrainProps.getCulledEntitiesByPosition(arrowPosision);
 	if (m_player.isShooting() && !m_player.getBow().getArrowHitObject()) {
-		// if (m_player.getArrow().checkCollision(*entities->at(iObj))) {
-		for (size_t i = 0; i < entities->size(); i++) {
-			float castray = entities->at(i)->castRay(arrowPosision, arrowVelocity * dt);
-			if (castray != -1.f && castray < arrowVelocity.Length() * dt) {
-				ErrorLogger::log("castray arrow: " + to_string(castray));
-				// Arrow is hitting object
-				float3 target = arrowPosision + arrowVelocity * castray * dt;
-				m_player.getBow().arrowHitObject(target);
+		for (size_t i = 0; i < entitiesAroundArrow.size(); i++) {
+			if ((*entitiesAroundArrow[i])->getIsCollidable()) {
+				float castray =
+					(*entitiesAroundArrow[i])->castRay(arrowPosision, arrowVelocity * dt);
+				if (castray != -1.f && castray < 1.f) {
+					// Arrow is hitting object
+					float3 target = arrowPosision + arrowVelocity * dt * castray;
+					m_player.getBow().arrowHitObject(target);
+				}
 			}
 		}
-		//}
 	}
 
 	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
