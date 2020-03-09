@@ -260,7 +260,9 @@ void LevelHandler::loadLevel(int levelNr) {
 		if (currentLevel.m_nrOfFruits[MELON] != 0)
 			m_hud.createFruitSprite("melon");
 	}
-	PathFindingThread::getInstance()->initialize(m_fruits, m_frame, m_collidableEntities);
+	if (PathFindingThread::getInstance()->m_thread == nullptr) {
+		PathFindingThread::getInstance()->initialize(m_fruits, m_frame, m_collidableEntities);
+	}
 }
 
 void LevelHandler::draw() {
@@ -338,7 +340,7 @@ void LevelHandler::drawShadowDynamicEntities() {
 void LevelHandler::update(float dt) {
 	auto pft = PathFindingThread::getInstance();
 
-	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
+	m_terrainProps.update(m_player.getCameraPosition(), m_player.getForward());
 
 	m_skyBox.updateDelta(dt);
 
@@ -346,6 +348,10 @@ void LevelHandler::update(float dt) {
 		m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
 
 
+
+	if (m_player.inHuntermode()) {
+		dt *= 0.1f;
+	}
 
 	// for all animals
 	for (size_t i = 0; i < m_Animals.size(); ++i) {

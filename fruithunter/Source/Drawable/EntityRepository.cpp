@@ -302,7 +302,7 @@ void EntityRepository::assignCollisionData(Entity* entity) {
 	}
 }
 
-void EntityRepository::update(float dt, float3 point, float3 direction) {
+void EntityRepository::update(float3 point, float3 direction) {
 	Input* ip = Input::getInstance();
 	if (ip->keyPressed(m_stateSwitchKey)) {
 		// switch state
