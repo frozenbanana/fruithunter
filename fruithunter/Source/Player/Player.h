@@ -48,7 +48,8 @@ private:
 	const float GROUND_FRICTION_WEAK = 1.0f; // friction on steep terrain, 0-60.
 	const float STEEPNESS_BORDER =
 		0.6f; // value of dot product when flat terrain goes to steep terrain
-	const float ONGROUND_THRESHOLD = 0.03f; // extra height over terrain until player is not grounded
+	const float ONGROUND_THRESHOLD =
+		0.03f; // extra height over terrain until player is not grounded
 
 	float3 m_position;
 	float3 m_velocity;
@@ -58,6 +59,7 @@ private:
 
 	// Player behavior
 	bool m_godMode = false;
+	bool m_chargingBow = false;
 	bool m_onGround;							// if player is grounded
 	bool m_onEntity;							// if player is standing on an object
 	float3 m_gravity = float3(0, -1, 0) * 15.f; // direction * strength
