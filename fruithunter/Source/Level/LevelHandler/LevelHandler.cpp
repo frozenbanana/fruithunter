@@ -194,6 +194,8 @@ void LevelHandler::initialise() {
 
 void LevelHandler::loadLevel(int levelNr) {
 	if (m_currentLevel != levelNr) {
+		Renderer::getInstance()->drawLoading();
+
 		m_currentLevel = levelNr;
 		Level currentLevel = m_levelsArr.at(levelNr);
 

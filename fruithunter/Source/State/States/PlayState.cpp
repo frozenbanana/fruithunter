@@ -118,7 +118,6 @@ void PlayState::destroyLevel() {
 void PlayState::play() {
 	Input::getInstance()->setMouseModeRelative();
 	ErrorLogger::log(m_name + " play() called.");
-	Renderer::getInstance()->drawLoading();
 	if (m_levelHandler == nullptr)
 		m_levelHandler = make_unique<LevelHandler>();
 	m_levelHandler->loadLevel(m_currentLevel);
