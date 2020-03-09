@@ -6,12 +6,16 @@
 #include "AudioHandler.h"
 #include "LevelHandler.h"
 #include "ShadowMapping.h"
+#include "AudioHandler.h"
 //#include "Entity.h"
 //#include "TerrainManager.h"
 //#include "Apple.h"
 //#include "SkyBox.h"
 //#include "Banana.h"
 //#include "Melon.h"
+#include "Entity.h"
+
+#define NR_OF_LEVELS 1
 
 class LevelSelectState : public State {
 public:
@@ -31,6 +35,9 @@ private:
 	SeaEffect m_waterEffect;
 	SkyBox m_skyBox;
 	Terrain* m_terrain;
+	Entity* m_bowls[NR_OF_LEVELS];
+
+	void setLevel(int);
 
 	// Shadow stuff
 	unique_ptr<ShadowMapper> m_shadowMap;

@@ -3,7 +3,6 @@
 #include "AudioHandler.h"
 #include "Renderer.h"
 #include "ErrorLogger.h"
-#include "PerformanceTimer.h"
 #include "VariableSyncer.h"
 #include "PathFindingThread.h"
 
@@ -72,25 +71,24 @@ void LevelHandler::initialiseLevel0() {
 	maps[3] = "texture_rock6.jpg";
 	level0.m_heightmapTextures.push_back(maps);
 
-	level0.m_wind.push_back(float3(0.f, 15.f, 0.f)); // Volcano
-	level0.m_wind.push_back(float3(6.f, 0.f, 10.f)); // Forest
-	level0.m_wind.push_back(float3(0.f, 0.f, 6.f));	 // Desert
-	level0.m_wind.push_back(float3(0.f, 0.f, 40.f)); // Plains
+	level0.m_wind.push_back(float3(0.f, 8.f, 0.f)); // Volcano
+	level0.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
+	level0.m_wind.push_back(float3(1.f, 0.f, 2.f)); // Desert
+	level0.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
 
+	level0.m_nrOfFruits[APPLE] = 20;
+	level0.m_nrOfFruits[BANANA] = 15;
+	level0.m_nrOfFruits[MELON] = 9;
 
-	level0.m_nrOfFruits[APPLE] = 2;
-	level0.m_nrOfFruits[BANANA] = 1;
-	level0.m_nrOfFruits[MELON] = 5;
-
-	level0.m_winCondition[APPLE] = 1;
-	level0.m_winCondition[BANANA] = 0;
-	level0.m_winCondition[MELON] = 0;
+	level0.m_winCondition[APPLE] = 2;
+	level0.m_winCondition[BANANA] = 2;
+	level0.m_winCondition[MELON] = 2;
 
 	level0.m_playerStartPos = float3(20.f, 0.0f, 20.f);
 
-	level0.m_timeTargets[GOLD] = 20;
-	level0.m_timeTargets[SILVER] = 35;
-	level0.m_timeTargets[BRONZE] = 80;
+	level0.m_timeTargets[GOLD] = 120;
+	level0.m_timeTargets[SILVER] = 160;
+	level0.m_timeTargets[BRONZE] = 200;
 
 	m_levelsArr.push_back(level0);
 	m_hud.setTimeTargets(level0.m_timeTargets);
@@ -132,25 +130,24 @@ void LevelHandler::placeAllBridges() {
 }
 
 void LevelHandler::placeAllAnimals() {
-	shared_ptr<Animal> animal = make_shared<Animal>("Gorilla", 10.f, 7.f, BANANA, 1, 10.f,
-		float3(96.2f, 3.1f, 38.f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
+	shared_ptr<Animal> animal = make_shared<Animal>("Gorilla", 10.f, 7.f, BANANA, 2, 10.f,
+		float3(96.2f, 3.45f, 38.f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
 	m_Animals.push_back(animal);
 
-	animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 3, 10.f, float3(37.f, 3.2f, 93.f),
+	animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 2, 10.f, float3(37.f, 3.2f, 93.f),
 		float3(20.f, 3.7f, 90.f), 0.f);
 	m_Animals.push_back(animal);
 
-	animal = make_shared<Animal>("Goat", 5.f, 3.5f, APPLE, 1, 5.f, float3(90.f, 8.2f, 152.f),
+	animal = make_shared<Animal>("Goat", 5.f, 3.5f, APPLE, 2, 5.f, float3(90.f, 8.2f, 152.f),
 		float3(87.f, 8.8f, 156.f), XM_PI * 0.5f);
 	m_Animals.push_back(animal);
 }
 
 LevelHandler::LevelHandler() { initialise(); }
 
-LevelHandler::~LevelHandler() {}
+LevelHandler::~LevelHandler() { PathFindingThread::getInstance()->exitThread(); }
 
 void LevelHandler::initialise() {
-	PerformanceTimer::Record record("LevelHandler_initilize");
 
 	m_player.initialize();
 	m_terrainManager = TerrainManager::getInstance();
@@ -197,15 +194,12 @@ void LevelHandler::initialise() {
 
 void LevelHandler::loadLevel(int levelNr) {
 	if (m_currentLevel != levelNr) {
-		PerformanceTimer::Record record("LevelHandler loadLevel");
-
 		m_currentLevel = levelNr;
 		Level currentLevel = m_levelsArr.at(levelNr);
 
 		m_terrainProps.load(currentLevel.m_terrainPropsFilename);
 
 		for (int i = 0; i < m_levelsArr.at(levelNr).m_heightMapNames.size(); i++) {
-			PerformanceTimer::Record record("TerrainCreation");
 			m_terrainManager->add(currentLevel.m_heightMapPos.at(i),
 				currentLevel.m_heightMapScales[i], currentLevel.m_heightMapNames.at(i),
 				currentLevel.m_heightmapTextures[i], currentLevel.m_heightMapSubSize.at(i),
@@ -342,8 +336,6 @@ void LevelHandler::drawShadowDynamicEntities() {
 }
 
 void LevelHandler::update(float dt) {
-	PerformanceTimer::Record record(
-		"LevelHandler_Update", PerformanceTimer::TimeState::state_average);
 	auto pft = PathFindingThread::getInstance();
 
 	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
@@ -360,8 +352,13 @@ void LevelHandler::update(float dt) {
 		if (m_Animals[i]->notBribed()) {
 			bool getsThrown = m_player.checkAnimal(m_Animals[i]->getPosition(),
 				m_Animals[i]->getPlayerRange(), m_Animals[i]->getThrowStrength());
-			if (getsThrown)
+			if (getsThrown) {
+				m_Animals[i]->makeAngrySound();
 				m_Animals[i]->beginWalk(m_player.getPosition());
+			}
+			else {
+				m_Animals[i]->setAttacked(false);
+			}
 
 
 			for (size_t iFruit = 0; iFruit < m_fruits.size(); ++iFruit) {

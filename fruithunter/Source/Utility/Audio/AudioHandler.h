@@ -6,22 +6,25 @@
 class AudioHandler {
 public:
 	enum Sounds {
-		LIGHT_ARROW = 0,
-		HEAVY_ARROW = 1,
-		STRETCH_BOW = 2,
-		HIT_WOOD = 3,
-		HIT_FRUIT = 4,
-		COLLECT = 5,
-
-		SOUNDS_LENGTH = 6
+		LIGHT_ARROW,
+		HEAVY_ARROW,
+		STRETCH_BOW,
+		HIT_WOOD,
+		HIT_FRUIT,
+		COLLECT,
+		BEAR_PUSH,
+		BEAR_HAPPY,
+		BEAR_EATING,
+		GOAT_PUSH,
+		GOAT_HAPPY,
+		GOAT_EATING,
+		GORILLA_PUSH,
+		GORILLA_HAPPY,
+		GORILLA_EATING,
+		SLEEPING,
+		SOUNDS_LENGTH
 	};
-	enum Music {
-		JINGLE_GUITAR = 0,
-		SPANISH_GUITAR = 1,
-		KETAPOP = 2,
-		KETAPOP_DARK = 3,
-		MUSIC_LENGTH = 4
-	};
+	enum Music { JINGLE_GUITAR, SPANISH_GUITAR, KETAPOP, KETAPOP_DARK, ELEVATOR, MUSIC_LENGTH };
 	bool isPlaying(AudioHandler::Sounds sound);
 	void initalize();
 	void playMusic(Music music);

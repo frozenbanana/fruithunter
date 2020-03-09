@@ -2,7 +2,6 @@
 #include "TerrainManager.h"
 #include "Renderer.h"
 #include "ErrorLogger.h"
-#include "PerformanceTimer.h"
 
 void EntityRepository::clear() {
 	m_repository.clear();
@@ -382,9 +381,6 @@ void EntityRepository::update(float dt, float3 point, float3 direction) {
 }
 
 void EntityRepository::draw() {
-	PerformanceTimer::Record record(
-		"EntityRepository Draw", PerformanceTimer::TimeState::state_average);
-
 	for (size_t i = 0; i < m_entities.size(); i++) {
 		if (m_markedEntityToRemove == m_entities[i].get())
 			m_entities[i]->draw_onlyMesh(float3(1.f, 0.f, 0.f));
@@ -396,9 +392,6 @@ void EntityRepository::draw() {
 }
 
 void EntityRepository::draw_quadtreeFrustumCulling(const vector<FrustumPlane>& planes) {
-	PerformanceTimer::Record record(
-		"EntityRepository DrawCulling", PerformanceTimer::TimeState::state_average);
-
 	vector<Entity**> elements = m_quadtree.cullElements(planes);
 	if (elements.size() > 0) {
 		for (size_t i = 0; i < elements.size(); i++) {

@@ -1,7 +1,7 @@
 
 struct PS_IN {
 	float3 PosW : POSITION0;
-	//float3 PosV : POSITION1;
+	// float3 PosV : POSITION1;
 	float4 PosH : SV_POSITION;
 	float2 TexCoord : TEXCOORD;
 	float3 Normal : NORMAL;
@@ -74,6 +74,7 @@ float3 lighting(float3 pos, float3 normal, float3 color, float shade) {
 
 float4 main(PS_IN ip) : SV_TARGET {
 	float shade = texSampleGrease(
-		texture_shadowMap, float2(3840.f, 2160.f), ip.ShadowPosH.xy, ip.ShadowPosH.z, ip.PosW.xyz).r;
+		texture_shadowMap, float2(3840.f, 2160.f), ip.ShadowPosH.xy, ip.ShadowPosH.z, ip.PosW.xyz)
+					  .r;
 	return float4(lighting(ip.PosW, ip.Normal.xyz, color.xyz, shade), 1.0);
 }

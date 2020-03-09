@@ -14,7 +14,6 @@ void PlayState::initialize() {
 }
 
 void PlayState::update() {
-	PerformanceTimer::Record record("PlayState_Update", PerformanceTimer::TimeState::state_average);
 
 	if (Input::getInstance()->keyPressed(Keyboard::Keys::Escape)) {
 		StateHandler::getInstance()->changeState(StateHandler::PAUSE);
@@ -22,7 +21,7 @@ void PlayState::update() {
 
 	m_timer.update();
 	float dt = m_timer.getDt();
-	m_levelHandler.update(dt);
+	m_levelHandler->update(dt);
 }
 
 void PlayState::handleEvent() {
@@ -30,16 +29,16 @@ void PlayState::handleEvent() {
 		StateHandler::getInstance()->changeState(StateHandler::PAUSE);
 	}
 
-	if (m_levelHandler.getHUD().hasWon()) {
+	if (m_levelHandler->getHUD().hasWon()) {
 		ErrorLogger::log("Changing state to END ROUND!");
 		StateHandler::getInstance()->changeState(StateHandler::ENDROUND);
 		EndRoundState* endRound =
 			dynamic_cast<EndRoundState*>(StateHandler::getInstance()->getCurrent());
-		endRound->setTimeText("Time : " + m_levelHandler.getHUD().getTimePassed());
+		endRound->setTimeText("Time : " + m_levelHandler->getHUD().getTimePassed());
 		string vicText = "";
 		float4 vicColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 		float confettiEmitRate = 6.0f;
-		switch (m_levelHandler.getHUD().getPrize()) {
+		switch (m_levelHandler->getHUD().getPrize()) {
 		case GOLD:
 			vicText += "You earned GOLD";
 			vicColor = float4(1.0f, 0.85f, 0.0f, 1.0f);
@@ -76,10 +75,9 @@ void PlayState::pause() {
 }
 
 void PlayState::draw() {
-	PerformanceTimer::Record record("PlayState_Draw", PerformanceTimer::TimeState::state_average);
 
 	if (1) {
-		m_shadowMap.get()->update(m_levelHandler.getPlayerPos()); // not needed?
+		m_shadowMap.get()->update(m_levelHandler->getPlayerPos()); // not needed?
 
 		if (m_staticShadowNotDrawn) {
 			//	Set static shadow map info
@@ -87,7 +85,7 @@ void PlayState::draw() {
 			m_shadowMap.get()->bindCameraMatrix();
 
 			// Draw static shadow map
-			m_levelHandler.drawShadowStatic();
+			m_levelHandler->drawShadowStatic();
 			m_staticShadowNotDrawn = false;
 		}
 		// Set shadow map info
@@ -95,7 +93,7 @@ void PlayState::draw() {
 		m_shadowMap.get()->bindCameraMatrix();
 
 		// Draw shadow map
-		m_levelHandler.drawShadowDynamicEntities();
+		m_levelHandler->drawShadowDynamicEntities();
 	}
 
 	// Set first person info
@@ -104,15 +102,24 @@ void PlayState::draw() {
 	m_shadowMap.get()->bindShadowMap();
 
 	// draw first person
-	m_levelHandler.draw();
+	m_levelHandler->draw();
 
 	// Text
 	float t = m_timer.getTimePassed();
+}
+
+void PlayState::setLevel(int newLevel) { m_currentLevel = newLevel; }
+
+void PlayState::destroyLevel() {
+	int blob = 0;
+	m_levelHandler.reset();
 }
 
 void PlayState::play() {
 	Input::getInstance()->setMouseModeRelative();
 	ErrorLogger::log(m_name + " play() called.");
 	Renderer::getInstance()->drawLoading();
-	m_levelHandler.loadLevel(0);
+	if (m_levelHandler == nullptr)
+		m_levelHandler = make_unique<LevelHandler>();
+	m_levelHandler->loadLevel(m_currentLevel);
 }

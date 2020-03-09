@@ -30,6 +30,7 @@ cbuffer cb_world : register(b0) { matrix mWorld, mInvTraWorld; };
 cbuffer cb_viewPerspective : register(b1) { matrix mViewPerspective; };
 cbuffer cb_animation : register(b3) { float4 mAnimation; }; // x component is lerp factor
 cbuffer cb_shadowVPT : register(b4) { float4x4 mShadowVPT; };
+// cbuffer cb_viewPerspective : register(b5) { matrix mView, mPerspective; };
 
 VS_OUT main(VS_IN input) {
 	VS_OUT output = (VS_OUT)0;
@@ -38,6 +39,8 @@ VS_OUT main(VS_IN input) {
 	float3 normal = lerp(input.Normal0, input.Normal1, mAnimation.x);
 	output.PosW = mul(float4(pos, 1), mWorld).xyz;
 	output.PosH = mul(float4(output.PosW, 1), mViewPerspective);
+	/*output.PosV = mul(float4(output.PosW, 1), mView).xyz;
+	output.PosH = mul(float4(output.PosV, 1), mPerspective);*/
 	output.TexCoord = input.TexCoord0;
 	output.Normal = normalize(mul(float4(normal, 0), mInvTraWorld).xyz);
 	output.ShadowPosH = mul(float4(pos, 1.0f), mWorld);

@@ -1,5 +1,6 @@
 #include "Animal.h"
 #include "Renderer.h"
+#include "AudioHandler.h"
 
 void Animal::walkAndBack(float dt) {
 	if (m_walkTimeTracker < 1) { // on way to position
@@ -27,7 +28,7 @@ void Animal::walkToSleep(float dt) {
 		m_walkTimeTracker += dt;
 	}
 	else {
-		// // lays down
+		// lays down
 		setRotation(float3(XM_PI * 0.5f * (m_walkTimeTracker - 1.f), m_startRotation, 0.f));
 		m_walkTimeTracker += dt;
 	}
@@ -47,6 +48,8 @@ Animal::Animal(string modelName, float playerRange, float fruitRange, int fruitT
 	m_walkTimeTracker = 3;
 	m_chargeSpeed = 6;
 	m_returnSpeed = 1;
+	m_hasAttacked = false; // for triggering angry sound once when inside attack radius
+	m_isSatisfied = false; // for triggering happy sound once when briebed.
 	rotateY(rotation);
 	m_startRotation = rotation;
 
@@ -80,6 +83,58 @@ int Animal::getfruitType() const { return m_fruitType; }
 
 bool Animal::notBribed() const { return m_nrFruitsTaken < m_nrRequiredFruits; }
 
+void Animal::setAttacked(bool attacked) { m_hasAttacked = attacked; }
+
+void Animal::makeAngrySound() {
+	auto audioHandler = AudioHandler::getInstance();
+	string animal = getModelName();
+	if (!m_hasAttacked) {
+		if (animal == "Bear") {
+			audioHandler->playOnce(AudioHandler::BEAR_PUSH);
+		}
+		if (animal == "Goat") {
+			audioHandler->playOnce(AudioHandler::GOAT_PUSH);
+		}
+		if (animal == "Gorilla") {
+			audioHandler->playOnce(AudioHandler::GORILLA_PUSH);
+		}
+		m_hasAttacked = true;
+	}
+}
+
+void Animal::makeHappySound() {
+	auto audioHandler = AudioHandler::getInstance();
+	string animal = getModelName();
+	if (!m_isSatisfied) {
+		if (animal == "Bear") {
+			audioHandler->playOnce(AudioHandler::BEAR_HAPPY);
+		}
+		if (animal == "Goat") {
+			audioHandler->playOnce(AudioHandler::GOAT_HAPPY);
+		}
+		if (animal == "Gorilla") {
+			audioHandler->playOnce(AudioHandler::GORILLA_HAPPY);
+		}
+		m_isSatisfied = true;
+	}
+}
+
+void Animal::makeEatingSound() {
+	auto audioHandler = AudioHandler::getInstance();
+	string animal = getModelName();
+
+	if (animal == "Bear") {
+		audioHandler->playOnce(AudioHandler::BEAR_EATING);
+	}
+	if (animal == "Goat") {
+		audioHandler->playOnce(AudioHandler::GOAT_EATING);
+	}
+	if (animal == "Gorilla") {
+		audioHandler->playOnce(AudioHandler::GORILLA_EATING);
+	}
+}
+
+
 void Animal::grabFruit(float3 pos) {
 	m_walkToPos = pos;
 	m_walkTimeTracker = 0;
@@ -89,6 +144,10 @@ void Animal::grabFruit(float3 pos) {
 	if (!notBribed()) {
 		m_thoughtBubble.setCurrentMaterial(9);
 		m_thoughtBubbleOffset.y = 0.5;
+		makeHappySound();
+	}
+	else {
+		makeEatingSound();
 	}
 }
 
@@ -104,8 +163,9 @@ void Animal::update(float dt, float3 playerPos) {
 	if (m_walkTimeTracker < 2) {
 		if (notBribed())
 			walkAndBack(dt);
-		else
+		else {
 			walkToSleep(dt);
+		}
 
 		// also update thoughtBubble
 		float3 topPos = getPosition() + getBoundingBoxPos() + m_thoughtBubbleOffset;

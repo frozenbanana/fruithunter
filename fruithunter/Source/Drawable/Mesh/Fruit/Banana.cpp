@@ -109,14 +109,7 @@ void Banana::release(float3 direction) {
 
 void Banana::updateFirstJump(float dt) {
 	int frameOrder[] = { 0, 1, 0, 2, 0, 1 }; // Order of using keyframes
-	float3 posOrder[6] = {
-		m_startAnimationPosition,
-		m_startAnimationPosition,
-		m_startAnimationPosition,
-		m_startAnimationPosition,
-		m_startAnimationPosition,
-		m_startAnimationPosition,
-	};
+
 	bool justChanged = false;
 	float frameSpeedOrder[] = { 4.f, 5.f, 2.0f, 1.9f, 4.f, 2.f };
 	m_frameTime += dt * frameSpeedOrder[m_currentFramePhase];
@@ -140,14 +133,6 @@ void Banana::updateFirstJump(float dt) {
 		m_meshAnim.setFrameTargets(frameOrder[m_currentFramePhase],
 			frameOrder[(m_currentFramePhase + 1) % (m_nrOfFramePhases)]);
 	}
-	if (m_currentFramePhase >= 2 || justChanged) {
-		posOrder[0] = getPosition();
-		posOrder[1] = getPosition();
-	}
-	// Set position
-	float3 pos = XMVectorLerp(posOrder[m_currentFramePhase],
-		posOrder[(m_currentFramePhase + 1) % (m_nrOfFramePhases)], m_frameTime);
-	setPosition(pos);
 
 	// Update mesh specificly with our frametime
 	m_meshAnim.updateSpecific(m_frameTime);

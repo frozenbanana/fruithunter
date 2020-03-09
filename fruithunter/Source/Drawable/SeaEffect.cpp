@@ -259,7 +259,6 @@ void SeaEffect::setRotation(float3 rotation) {
 void SeaEffect::update(float dt) { m_time.x += dt; }
 
 void SeaEffect::draw() {
-	PerformanceTimer::Record record("SeaEffect Draw", PerformanceTimer::TimeState::state_average);
 
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
@@ -339,8 +338,7 @@ void SeaEffect::draw_frustumCulling(const vector<FrustumPlane>& planes) {
 }
 
 void SeaEffect::draw_quadtreeFrustumCulling(vector<FrustumPlane> planes) {
-	PerformanceTimer::Record record(
-		"SeaEffect Draw Culling", PerformanceTimer::TimeState::state_average);
+
 	// transform planes to local space
 	updateMatrix();
 	float4x4 invWorldMatrix = m_worldMatrix.mWorld.Invert();

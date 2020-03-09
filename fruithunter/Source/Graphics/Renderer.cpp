@@ -72,6 +72,10 @@ void Renderer::disableAlphaBlending() {
 		m_blendStateWithoutAlphaBlending.Get(), blendFactor, 0xffffffff);
 }
 
+void Renderer::setVsync(bool value) { m_vsync = value; }
+
+void Renderer::setDarkEdges(bool value) { m_darkEdges = value; }
+
 void Renderer::bindConstantBuffer_ScreenSize(int slot) {
 	XMINT4 data = XMINT4(STANDARD_WIDTH, STANDARD_HEIGHT, 0, 0);
 	m_deviceContext->UpdateSubresource(m_screenSizeBuffer.Get(), 0, 0, &data, 0, 0);
@@ -94,18 +98,20 @@ void Renderer::copyDepthToSRV() {
 }
 
 void Renderer::draw_darkEdges() {
-	copyDepthToSRV();
-	bindDepthSRV(0);
+	if (m_darkEdges) {
+		copyDepthToSRV();
+		bindDepthSRV(0);
 
-	m_shader_darkEdges.bindShadersAndLayout();
+		m_shader_darkEdges.bindShadersAndLayout();
 
-	bindConstantBuffer_ScreenSize(6);
+		bindConstantBuffer_ScreenSize(6);
 
-	bindQuadVertexBuffer();
+		bindQuadVertexBuffer();
 
-	enableAlphaBlending();
-	m_deviceContext->Draw(6, 0);
-	disableAlphaBlending();
+		enableAlphaBlending();
+		m_deviceContext->Draw(6, 0);
+		disableAlphaBlending();
+	}
 }
 
 void Renderer::drawLoading() {
@@ -169,6 +175,7 @@ void Renderer::initalize(HWND window) {}
 
 void Renderer::beginFrame() {
 	m_deviceContext->RSSetState(0);
+
 	// Bind rendertarget
 	m_deviceContext.Get()->OMSetRenderTargets(
 		1, m_renderTargetView.GetAddressOf(), m_depthDSV.Get());
@@ -193,7 +200,7 @@ void Renderer::beginFrame() {
 
 void Renderer::endFrame() {
 	// Swap the buffer
-	m_swapChain->Present(0, 0);
+	m_swapChain->Present(m_vsync, 0);
 }
 
 ID3D11Device* Renderer::getDevice() {
