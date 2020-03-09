@@ -27,6 +27,8 @@ public:
 	bool isShooting() const;
 	void setPosition(float3 position);
 	void standsOnObject();
+	bool inHuntermode() const;
+	void activateHunterMode();
 
 private:
 	// Keys
@@ -37,6 +39,7 @@ private:
 	const Keyboard::Keys KEY_JUMP = Keyboard::Space;
 	const Keyboard::Keys KEY_DASH = Keyboard::LeftControl;
 	const Keyboard::Keys KEY_SPRINT = Keyboard::LeftShift;
+	const Keyboard::Keys KEY_HM = Keyboard::F;
 
 	const float3 DEFAULTFORWARD = float3(0.0f, 0.0f, 1.0f);
 	const float3 DEFAULTRIGHT = float3(1.0f, 0.0f, 0.0f);
@@ -79,15 +82,19 @@ private:
 	float m_stamina = STAMINA_MAX;	// stamina available
 	bool m_staminaConsumed = false; // stamina consumed this frame update
 	// sprint
-	const float STAMINA_SPRINT_THRESHOLD = 0.5f;   // threshold when sprinting is available
-	const float STAMINA_SPRINT_CONSUMPTION = 0.2f; // stamina consumed per seconds
+	const float STAMINA_SPRINT_THRESHOLD = 0.0f;   // threshold when sprinting is available
+	const float STAMINA_SPRINT_CONSUMPTION = 0.0f; // stamina consumed per seconds
 	bool m_sprinting = false;					   // is the player sprinting
 	// dash
 	float m_dashForce = 11.f;
-	const float STAMINA_DASH_COST = 0.9f; // stamina cost of full charged dash
+	const float STAMINA_DASH_COST = 0.0f; // stamina cost of full charged dash
 	const float DASHMAXCHARGE = 1.f;	  // Max charge of dash charge in seconds
 	float m_dashCharge = 0.f;			  // charge of dash in seconds
 	bool m_chargingDash = false;		  // is the player charging
+
+	// hunter mode
+	const float STAMINA_HM_COST = 0.34f;
+	bool m_hunterMode = false;
 
 	// Orientation
 	float3 m_playerForward = DEFAULTFORWARD;
@@ -112,6 +119,7 @@ private:
 	void checkSprint(float dt);
 	void checkDash(float dt);
 	void checkPlayerReset(float dt); // Resets player if below sea level
+	void checkHunterMode();
 
 	/*
 	 * Modifies m_velocity to have a sliding effect
@@ -130,4 +138,7 @@ private:
 	void updateVelocity_inAir(float3 playerForce, float dt);
 	void updateVelocity_onFlatGround(float3 playerForce, float dt);
 	void updateVelocity_onSteepGround(float dt);
+
+	//Ability
+	void updateHunterMode(float);
 };

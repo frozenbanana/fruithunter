@@ -22,58 +22,69 @@ void Player::initialize() {
 }
 
 void Player::update(float dt, Terrain* terrain) {
+
+	float delta = dt;
+
+	if (m_hunterMode) {
+		delta *= 0.1;
+	}
+
 	// Movement force
 	float3 force = getMovementForce();
 
 	checkJump();
-	checkSprint(dt);
-	checkDash(dt);
+	checkSprint(delta);
+	checkDash(delta);
+	checkHunterMode();
 
 	rotatePlayer(dt);
 
 	if (m_onEntity) {
 		// On an object, behave like ground
-		m_position += m_velocity * dt;
-		updateVelocity_onFlatGround(force, dt);
+		m_position += m_velocity * delta;
+		updateVelocity_onFlatGround(force, delta);
 
 		// reset value
 		m_onEntity = false;
 	}
 	else if (terrain != nullptr) {
 		// In terrain
-		calculateTerrainCollision(terrain, dt);
+		calculateTerrainCollision(terrain, delta);
 
 		// Move player;
-		m_position += m_velocity * dt;
+		m_position += m_velocity * delta;
 
 		// Update velocity for next frame
 		if (onGround(terrain)) {
 			if (getSteepness(terrain) < STEEPNESS_BORDER) {
 				// Steep ground
-				updateVelocity_onSteepGround(dt);
+				updateVelocity_onSteepGround(delta);
 			}
 			else {
 				// Flat ground
-				updateVelocity_onFlatGround(force, dt);
+				updateVelocity_onFlatGround(force, delta);
 			}
 		}
 		else {
 			// In air
-			updateVelocity_inAir(force, dt);
+			updateVelocity_inAir(force, delta);
 		}
 	}
 	else {
 		// Outside of terrain, falling
-		m_position += m_velocity * dt;
-		updateVelocity_inAir(force, dt);
+		m_position += m_velocity * delta;
+		updateVelocity_inAir(force, delta);
 	}
 
 	// Reset player if below sea level
-	checkPlayerReset(dt);
+	checkPlayerReset(delta);
 
-	restoreStamina(dt);
+	restoreStamina(delta);
 
-	updateGodMode(dt);
+	// hunter mode
+	updateHunterMode(dt);
+
+	updateGodMode(delta);
 	updateCamera();
 
 	updateBow(dt, terrain);
@@ -165,6 +176,10 @@ void Player::setPosition(float3 position) {
 }
 
 void Player::standsOnObject() { m_onEntity = true; }
+
+bool Player::inHuntermode() const { return m_hunterMode; }
+
+void Player::activateHunterMode() { m_hunterMode = true; }
 
 void Player::updateBow(float dt, Terrain* terrain) {
 	Input* input = Input::getInstance();
@@ -380,6 +395,12 @@ void Player::checkPlayerReset(float dt) {
 	}
 }
 
+void Player::checkHunterMode() {
+	if (Input::getInstance()->keyPressed(KEY_HM) && m_stamina <= 1.0f) {
+		m_hunterMode = true;
+	}
+}
+
 void Player::slide(float dt, float3 normal, float l) {
 	if (l != -1) {
 		/*
@@ -474,4 +495,11 @@ void Player::updateVelocity_onFlatGround(float3 playerForce, float dt) {
 void Player::updateVelocity_onSteepGround(float dt) {
 	m_velocity += m_gravity * dt;						// gravity if steep terrain
 	m_velocity *= pow(GROUND_FRICTION_WEAK / 60.f, dt); // weak ground friction
+}
+
+void Player::updateHunterMode(float dt) {
+	if (m_hunterMode)
+		consumeStamina(STAMINA_HM_COST * dt);
+	if (m_stamina <= 0.f)
+		m_hunterMode = false;
 }
