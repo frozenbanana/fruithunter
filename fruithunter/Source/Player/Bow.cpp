@@ -164,6 +164,8 @@ float3 Bow::getArrowVelocity() const { return m_arrowVelocity; }
 
 bool Bow::isShooting() const { return m_shooting; }
 
+bool Bow::getArrowHitObject() const { return m_arrowHitObject; }
+
 void Bow::arrowHitObject(float3 target) {
 	m_arrowReturnTimer = 0.5f;
 	m_arrowHitObject = true;

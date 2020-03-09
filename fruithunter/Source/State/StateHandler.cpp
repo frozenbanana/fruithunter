@@ -39,6 +39,7 @@ void StateHandler::initialize() {
 	m_states[PAUSE] = make_unique<PauseState>();
 	m_states[LEVEL_SELECT] = make_unique<LevelSelectState>();
 	m_states[ENDROUND] = make_unique<EndRoundState>();
+	m_states[LEVEL_SELECT] = make_unique<LevelSelectState>();
 	play();
 }
 

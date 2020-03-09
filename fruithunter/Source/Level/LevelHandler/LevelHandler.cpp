@@ -345,8 +345,7 @@ void LevelHandler::update(float dt) {
 	if (Input::getInstance()->keyPressed(Keyboard::R) && m_currentLevel >= 0)
 		m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
 
-	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
-	m_player.getBow().getTrailEffect().update(dt);
+
 
 	// for all animals
 	for (size_t i = 0; i < m_Animals.size(); ++i) {
@@ -439,21 +438,35 @@ void LevelHandler::update(float dt) {
 	}
 
 	// Check entity collisions
+	// player - entity
 	vector<unique_ptr<Entity>>* entities = m_terrainProps.getEntities();
 	for (size_t iObj = 0; iObj < entities->size(); ++iObj) {
-		// player - entity
 		m_player.collideObject(*entities->at(iObj));
-
-		// arrow - entity
-		float3 arrowPosision = m_player.getArrow().getPosition();
-		float3 arrowVelocity = m_player.getBow().getArrowVelocity();
-		// float castray = entities->at(iObj)->castRay(arrowPosision, arrowVelocity);
-		// if (castray != -1.f) {
-		//	// Arrow is hitting object
-		//	float3 target = arrowPosision + arrowVelocity * castray * dt;
-		//	m_player.getBow().arrowHitObject(target);
-		//}
 	}
+
+
+
+	// Check entity - arrow
+	float3 arrowPosision = m_player.getArrow().getPosition();
+	float3 arrowVelocity = m_player.getBow().getArrowVelocity();
+	vector<Entity**> entitiesAroundArrow =
+		m_terrainProps.getCulledEntitiesByPosition(arrowPosision);
+	if (m_player.isShooting() && !m_player.getBow().getArrowHitObject()) {
+		for (size_t i = 0; i < entitiesAroundArrow.size(); i++) {
+			if ((*entitiesAroundArrow[i])->getIsCollidable()) {
+				float castray =
+					(*entitiesAroundArrow[i])->castRay(arrowPosision, arrowVelocity * dt);
+				if (castray != -1.f && castray < 1.f) {
+					// Arrow is hitting object
+					float3 target = arrowPosision + arrowVelocity * dt * castray;
+					m_player.getBow().arrowHitObject(target);
+				}
+			}
+		}
+	}
+
+	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
+	m_player.getBow().getTrailEffect().update(dt);
 
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
 		Terrain* currentTerrain =

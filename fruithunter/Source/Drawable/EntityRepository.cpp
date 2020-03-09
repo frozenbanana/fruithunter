@@ -156,6 +156,10 @@ void EntityRepository::savePlacements(string filename) const {
 
 vector<unique_ptr<Entity>>* EntityRepository::getEntities() { return &m_entities; }
 
+vector<Entity**> EntityRepository::getCulledEntitiesByPosition(float3 position) {
+	return m_quadtree.getElementsByPosition(position);
+}
+
 void EntityRepository::load(string filename) {
 	if (filename != "") {
 		if (fileExists(filename)) {
