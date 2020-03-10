@@ -25,8 +25,17 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 void Apple::behaviorPassive(float3 playerPosition) {
 	float terrainHeight = TerrainManager::getInstance()->getHeightFromPosition(m_position);
 	// Check if not at home
+	if (m_position.y <= 1.f) {
+		float3 target = m_worldHome - m_position;
+		target.Normalize();
+		target.y = 1.f;
+		jump(target, 10.f);
+		return;
+	}
+	if (m_onGround) {
+
 	if (withinDistanceTo(playerPosition, m_activeRadius)) {
-		stopMovement();
+		//stopMovement();
 		changeState(ACTIVE);
 	}
 	else {
@@ -65,6 +74,7 @@ void Apple::behaviorPassive(float3 playerPosition) {
 				}
 			}
 		}
+	}
 	}
 }
 

@@ -32,7 +32,17 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 }
 
 void Melon::behaviorPassive(float3 playerPosition) {
-	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
+
+	if (m_position.y <= 1.f) {
+		float3 target = m_worldHome - m_position;
+		target.Normalize();
+		target.y = 1.f;
+		jump(target, 10.f);
+		return;
+	}
+
+
+	if (m_onGround) {
 
 		if (withinDistanceTo(m_worldHome, 0.75f)) {
 			m_direction = m_secondWorldHome - m_position;
@@ -46,21 +56,20 @@ void Melon::behaviorPassive(float3 playerPosition) {
 			m_direction = m_worldHome - m_position;
 			lookTo(m_worldHome);
 		}
-	}
 	m_speed = m_passive_speed;
-	if (withinDistanceTo(playerPosition, m_activeRadius)) {
+		if (withinDistanceTo(playerPosition, m_activeRadius)) {
 		changeState(ACTIVE);
+		}
 	}
 }
 
 void Melon::behaviorActive(float3 playerPosition) {
-	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
+	if (m_onGround) {
 
 		if (m_availablePath.empty()) {
 			float3 target = circulateAround(playerPosition);
 			makeReadyForPath(target);
 		}
-	}
 
 	lookToDir(m_position - playerPosition);
 	m_speed = m_active_speed;
@@ -68,6 +77,7 @@ void Melon::behaviorActive(float3 playerPosition) {
 	if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
 		stopMovement();
 		changeState(PASSIVE);
+	}
 	}
 }
 
