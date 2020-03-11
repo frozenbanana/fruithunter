@@ -56,9 +56,9 @@ void Melon::behaviorPassive(float3 playerPosition) {
 			m_direction = m_worldHome - m_position;
 			lookTo(m_worldHome);
 		}
-	m_speed = m_passive_speed;
+		m_speed = m_passive_speed;
 		if (withinDistanceTo(playerPosition, m_activeRadius)) {
-		changeState(ACTIVE);
+			changeState(ACTIVE);
 		}
 	}
 }
@@ -71,13 +71,13 @@ void Melon::behaviorActive(float3 playerPosition) {
 			makeReadyForPath(target);
 		}
 
-	lookToDir(m_position - playerPosition);
-	m_speed = m_active_speed;
+		lookToDir(m_position - playerPosition);
+		m_speed = m_active_speed;
 
-	if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
-		stopMovement();
-		changeState(PASSIVE);
-	}
+		if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
+			stopMovement();
+			changeState(PASSIVE);
+		}
 	}
 }
 
