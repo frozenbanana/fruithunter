@@ -17,8 +17,7 @@ float shape(float2 st, float ROT, int N) {
 
 float4 main(GSOutput input) : SV_TARGET {
 
-	// float4 outColor = input.Color;
-	float4 outColor = float4(1.0, 0.0, 0.0, 1.0);
+	float4 outColor = input.Color;
 	float2 st = input.UV * 2. - 1.;
 
 	int NR_OF_EDGES = 3;

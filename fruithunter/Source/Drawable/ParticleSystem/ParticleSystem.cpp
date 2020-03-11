@@ -9,7 +9,6 @@ ShaderSet ParticleSystem::m_shaderSetStar;
 Microsoft::WRL::ComPtr<ID3D11Buffer> ParticleSystem::m_vertexBuffer;
 
 ParticleSystem::ParticleSystem(ParticleSystem::PARTICLE_TYPE type) {
-	ErrorLogger::log("/////////////////FIRST LINE IN CONSTRUCTOR, " + to_string(m_type));
 
 	m_type = type;
 	m_description = make_shared<Description>(type);
@@ -30,7 +29,6 @@ ParticleSystem::ParticleSystem(ParticleSystem::PARTICLE_TYPE type) {
 		}
 		m_particles.resize(min(m_description->m_nrOfParticles, MAX_PARTICLES));
 		m_particleProperties.resize(min(m_description->m_nrOfParticles, MAX_PARTICLES));
-		ErrorLogger::log("/////////////////INITALIZE() ABOUT TO BE CALLED, " + to_string(m_type));
 		initialize();
 	}
 	// random seed
@@ -42,9 +40,7 @@ void ParticleSystem::initialize() {
 	m_timePassed = 0.0f;
 	m_emitTimer = 0.f;
 	float3 spawnPos = m_spawnPoint;
-	for (size_t i = 0; i < m_particles.size(); i++) {
-		m_particles[i].setIsActive(0.f);
-	}
+	inactivateAllParticles();
 
 	// Buffer
 	createBuffers();
@@ -90,13 +86,13 @@ void ParticleSystem::initialize() {
 void ParticleSystem::setParticle(Description desc, size_t index) {
 	Particle* part = &m_particles[index];
 	ParticleProperty* partProp = &m_particleProperties[index];
-	part->setIsActive(1.0f);
+	part->setActiveValue(1.0f);
 	// Position in world
 	float3 spawnPos = m_spawnPoint;
 	// Positon on half sphere
 	float r = desc.m_spawnRadius + RandomFloat(desc.m_radiusInterval.x, desc.m_radiusInterval.y);
 	float theta = RandomFloat(0.f, 3.1415f);
-	float phi = RandomFloat(0, 3.1415f);
+	float phi = RandomFloat(0.f, 3.1415f);
 	float x = r * cos(theta) * sin(phi);
 	float y = r * sin(theta) * sin(phi);
 	float z = r * cos(phi);
@@ -112,28 +108,41 @@ void ParticleSystem::setParticle(Description desc, size_t index) {
 	float size = RandomFloat(desc.m_sizeInterval.x, desc.m_sizeInterval.y);
 	part->setSize(size);
 
-	// Property (velo and lifetime)
 	ParticleProperty pp;
-	float randAccX =
-		RandomFloat(desc.m_accelerationOffsetInterval.x, desc.m_accelerationOffsetInterval.y);
-	float randAccY =
-		RandomFloat(desc.m_accelerationOffsetInterval.x, desc.m_accelerationOffsetInterval.y);
-	float randAccZ =
-		RandomFloat(desc.m_accelerationOffsetInterval.x, desc.m_accelerationOffsetInterval.y);
-	pp.m_acceleration = desc.m_acceleration + float3(randAccX, randAccY, randAccZ);
-	float randVeloX = RandomFloat(desc.m_velocityOffsetInterval.x, desc.m_velocityOffsetInterval.y);
-	float randVeloY = RandomFloat(desc.m_velocityOffsetInterval.x, desc.m_velocityOffsetInterval.y);
-	float randVeloZ = RandomFloat(desc.m_velocityOffsetInterval.x, desc.m_velocityOffsetInterval.y);
-	pp.m_velocity = desc.m_velocity + float3(randVeloX, randVeloY, randVeloZ);
+	// Time alive
 	pp.m_lifeTime = RandomFloat(desc.m_timeAliveInterval.x, desc.m_timeAliveInterval.y);
+
+	// Property (velo and lifetime)
+	if (m_type == STARS) {
+		pp.m_acceleration = float3(x, y, z) * -4.f / pp.m_lifeTime;
+		pp.m_velocity = float3(x, y, z) * 4.f;
+	}
+	else {
+		float randAccX =
+			RandomFloat(desc.m_accelerationOffsetInterval.x, desc.m_accelerationOffsetInterval.y);
+		float randAccY =
+			RandomFloat(desc.m_accelerationOffsetInterval.x, desc.m_accelerationOffsetInterval.y);
+		float randAccZ =
+			RandomFloat(desc.m_accelerationOffsetInterval.x, desc.m_accelerationOffsetInterval.y);
+		pp.m_acceleration = desc.m_acceleration + float3(randAccX, randAccY, randAccZ);
+		float randVeloX =
+			RandomFloat(desc.m_velocityOffsetInterval.x, desc.m_velocityOffsetInterval.y);
+		float randVeloY =
+			RandomFloat(desc.m_velocityOffsetInterval.x, desc.m_velocityOffsetInterval.y);
+		float randVeloZ =
+			RandomFloat(desc.m_velocityOffsetInterval.x, desc.m_velocityOffsetInterval.y);
+		pp.m_velocity = desc.m_velocity + float3(randVeloX, randVeloY, randVeloZ);
+	};
+
+
 	pp.m_timeLeft = pp.m_lifeTime;
 	*partProp = pp;
 }
 
 
-void ParticleSystem::activateParticle() {
+void ParticleSystem::activateOneParticle() {
 	for (size_t i = 0; i < m_particles.size(); i++) {
-		if (m_particles[i].getIsActive() == 0.f) {
+		if (m_particles[i].getActiveValue() == 0.f) {
 			setParticle(*m_description, i);
 			break;
 		}
@@ -141,7 +150,7 @@ void ParticleSystem::activateParticle() {
 }
 
 void ParticleSystem::update(float dt, float3 wind) {
-	if (m_isActive) {
+	if (m_isActive  && m_type != STARS) {
 		m_timePassed += dt;
 		m_emitTimer += dt;
 		float rate = m_description->m_emitRate;
@@ -149,20 +158,20 @@ void ParticleSystem::update(float dt, float3 wind) {
 		size_t emitCount = (size_t)emits;
 		if (emits > 1.0f) {
 			for (size_t i = 0; i < emitCount; i++)
-				activateParticle();
+				activateOneParticle();
 
 			m_emitTimer -= (1.f / rate) * emitCount;
 		}
 	}
 	for (size_t i = 0; i < m_particles.size(); i++) {
-		if (m_particles[i].getIsActive() == 1.0f) {
+		if (m_particles[i].getActiveValue() == 1.0f) {
 			m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
 			m_particleProperties[i].m_timeLeft -= dt;
 			m_particles[i].update(dt, m_particleProperties[i].m_velocity + wind);
 
 			// Inactivate particles when lifetime is over
 			if (m_particleProperties[i].m_timeLeft <= 0.f) {
-				m_particles[i].setIsActive(0.0f);
+				m_particles[i].setActiveValue(0.0f);
 			}
 		}
 	}
@@ -213,12 +222,46 @@ void ParticleSystem::draw() {
 	Renderer::getDeviceContext()->UpdateSubresource(
 		m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
 	bindBuffers();
+
 	Renderer::getInstance()->enableAlphaBlending();
 	deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
 	Renderer::getInstance()->disableAlphaBlending();
 }
 
-void ParticleSystem::setActive() { m_isActive = true; }
+void ParticleSystem::drawNoAlpha() {
+	if (m_isActive) {
+		auto deviceContext = Renderer::getDeviceContext();
+		// Since we are using the same vertex buffer for all Particle Systems
+		// the buffer update needs to be next to the draw call.
+		deviceContext->UpdateSubresource(m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
+
+		m_currentShaderSet->bindShadersAndLayout();
+		Renderer::getDeviceContext()->UpdateSubresource(
+			m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
+		bindBuffers();
+		deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
+	}
+}
+
+void ParticleSystem::activateAllParticles() {
+	for (size_t i = 0; i < m_particles.size(); i++) {
+		m_particles[i].setActiveValue(1.0f);
+		setParticle(*m_description, i);
+	}
+}
+
+void ParticleSystem::inactivateAllParticles() {
+	for (size_t i = 0; i < m_particles.size(); i++) {
+		m_particles[i].setActiveValue(0.0f);
+	}
+}
+
+void ParticleSystem::setActive(bool startAll) {
+	if (startAll) {
+		activateAllParticles();
+	}
+	m_isActive = true;
+}
 
 void ParticleSystem::setInActive() { m_isActive = false; }
 

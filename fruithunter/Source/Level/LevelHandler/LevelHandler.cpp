@@ -274,7 +274,7 @@ void LevelHandler::draw() {
 	Renderer::getInstance()->enableAlphaBlending();
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->draw_animate();
-		m_fruits[i]->getParticleSystem()->draw();
+		m_fruits[i]->getParticleSystem()->drawNoAlpha();
 	}
 	Renderer::getInstance()->disableAlphaBlending();
 
@@ -430,6 +430,7 @@ void LevelHandler::update(float dt) {
 
 			if (m_player.getArrow().checkCollision(*m_fruits[i])) {
 				m_fruits[i]->hit();
+				m_fruits[i]->getParticleSystem()->setActive(true);
 				AudioHandler::getInstance()->playOnceByDistance(
 					AudioHandler::HIT_FRUIT, m_player.getPosition(), m_fruits[i]->getPosition());
 

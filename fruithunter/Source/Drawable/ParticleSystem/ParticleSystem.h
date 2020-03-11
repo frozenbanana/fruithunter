@@ -21,10 +21,13 @@ public:
 	};
 
 	ParticleSystem(ParticleSystem::PARTICLE_TYPE type = NONE);
-	void activateParticle();
+	void activateOneParticle();
 	void update(float dt, float3 wind = float3(0, 0, 0));
 	void draw();
-	void setActive();
+	void drawNoAlpha();
+	void activateAllParticles();
+	void inactivateAllParticles();
+	void setActive(bool startAll = false);
 	void setInActive();
 	bool getIsActive();
 	void setPosition(float3 position);
@@ -122,7 +125,7 @@ private:
 				m_color[2] = float4(0.51f, 0.34f, 0.17f, 1.0f);
 				break;
 			case ARROW_GLITTER:
-				m_nrOfParticles = 30;
+				m_nrOfParticles = 32;
 				m_emitRate = 12.0f; // particles per sec
 				m_acceleration = float3(0.02f, 0.01f, 0.02f);
 				m_accelerationOffsetInterval = float2(-0.02f, 0.02f);
@@ -152,16 +155,16 @@ private:
 				m_color[2] = float4(0.00f, 0.00f, 1.00f, 1.0f);
 				break;
 			case STARS:
-				m_nrOfParticles = MAX_PARTICLES - 1;
-				m_emitRate = 12.0f; // particles per sec
+				m_nrOfParticles = 20;
+				m_emitRate = 30.0f; // particles per sec
 				m_acceleration = float3(0.0f, 0.0f, 0.0f);
 				m_accelerationOffsetInterval = float2(0.0f, 0.0f);
 				m_spawnRadius = 0.9f;
 				m_radiusInterval = float2(0.0f, 0.0f);
 				m_velocity = float3(0.f, 0.0f, 0.f);
-				m_velocityOffsetInterval = float2(-0.5f, 0.5f); // for x, y and z
-				m_sizeInterval = float2(0.7f, 1.3f);
-				m_timeAliveInterval = float2(0.4f, 0.43f);
+				m_velocityOffsetInterval = float2(0.0f, 0.0f); // for x, y and z
+				m_sizeInterval = float2(0.2f, .3f);
+				m_timeAliveInterval = float2(0.6f, .65f);
 				m_color[0] = float4(0.81f, 0.90f, 0.00f, 1.0f);
 				m_color[1] = float4(0.90f, 0.81f, 0.00f, 1.0f);
 				m_color[2] = float4(0.88f, 0.78f, 0.00f, 1.0f);

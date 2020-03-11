@@ -14,7 +14,6 @@ void Fruit::setStartPosition(float3 pos) {
 	m_destinationAnimationPosition = pos;
 	m_nextDestinationAnimationPosition = pos;
 
-	ErrorLogger::log("/////////////////ABOUT TO START A PARTICLESYSTEM FOR FRUIT");
 	m_particleSystem = make_unique<ParticleSystem>(ParticleSystem::STARS);
 	m_particleSystem->setInActive();
 }

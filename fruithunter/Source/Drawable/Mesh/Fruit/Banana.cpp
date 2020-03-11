@@ -79,7 +79,6 @@ void Banana::behaviorActive(float3 playerPosition) {
 	}
 }
 void Banana::behaviorCaught(float3 playerPosition) {
-	m_particleSystem->setActive();
 	if (m_onGround) {
 		float3 toPlayer = playerPosition - m_position;
 		toPlayer.Normalize();
