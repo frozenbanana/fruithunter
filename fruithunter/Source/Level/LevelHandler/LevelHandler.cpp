@@ -81,8 +81,8 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_nrOfFruits[MELON] = 9;
 
 	level0.m_winCondition[APPLE] = 2;
-	level0.m_winCondition[BANANA] = 2;
-	level0.m_winCondition[MELON] = 2;
+	level0.m_winCondition[BANANA] = 0;
+	level0.m_winCondition[MELON] = 0;
 
 	level0.m_playerStartPos = float3(20.f, 0.0f, 20.f);
 

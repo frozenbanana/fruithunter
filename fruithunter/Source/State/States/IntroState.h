@@ -4,7 +4,6 @@
 #include "Entity.h"
 #include "Button.h"
 
-
 class IntroState : public State {
 public:
 	IntroState();

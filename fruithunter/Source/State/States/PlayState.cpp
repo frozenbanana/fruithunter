@@ -5,8 +5,6 @@
 #include "Input.h"
 #include "StateHandler.h"
 #include "EndRoundState.h"
-#include <iostream>
-#include <string>
 
 void PlayState::initialize() {
 	m_name = "Play State";
