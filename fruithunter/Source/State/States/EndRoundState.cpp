@@ -3,6 +3,7 @@
 #include "Renderer.h"
 #include "StateHandler.h"
 #include "Input.h"
+#include "AudioHandler.h"
 
 EndRoundState::EndRoundState() { initialize(); }
 
@@ -35,9 +36,11 @@ void EndRoundState::update() {
 
 void EndRoundState::handleEvent() {
 	if (m_mainMenuButton.update()) {
+		AudioHandler::getInstance()->pauseAllMusic();
 		StateHandler::getInstance()->changeState(StateHandler::INTRO);
 	}
 	if (m_exitButton.update()) {
+		AudioHandler::getInstance()->pauseAllMusic();
 		StateHandler::getInstance()->quit();
 	}
 }

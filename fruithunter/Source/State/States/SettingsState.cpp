@@ -25,15 +25,25 @@ void SettingsState::initialize() {
 void SettingsState::update() { Input::getInstance()->setMouseModeAbsolute(); }
 
 void SettingsState::handleEvent() {
+	Settings* settings = Settings::getInstance();
 
 	if (m_vsyncButton.update()) {
-		Settings::getInstance()->setVsync(m_vsyncButton.getOnOff());
+		settings->setVsync(m_vsyncButton.getOnOff());
 	}
 	if (m_darkEdgesButton.update()) {
-		Settings::getInstance()->setDarkEdges(m_darkEdgesButton.getOnOff());
+		settings->setDarkEdges(m_darkEdgesButton.getOnOff());
 	}
 	if (m_backButton.update() || Input::getInstance()->keyDown(Keyboard::Keys::Escape)) {
 		StateHandler::getInstance()->resumeMenuState();
+	}
+
+	if (Input::getInstance()->keyPressed(Keyboard::Keys::I)) {
+		settings->setMasterVolume(min(1.0f, settings->getMasterVolume() + 0.1f));
+		ErrorLogger::log("Master volume: " + to_string(settings->getMasterVolume()));
+	}
+	if (Input::getInstance()->keyPressed(Keyboard::Keys::K)) {
+		settings->setMasterVolume(max(0.0f, settings->getMasterVolume() - 0.1f));
+		ErrorLogger::log("Master volume: " + to_string(settings->getMasterVolume()));
 	}
 }
 
