@@ -359,6 +359,7 @@ void LevelHandler::update(float dt) {
 
 	// for all animals
 	for (size_t i = 0; i < m_Animals.size(); ++i) {
+		m_Animals[i]->checkLookedAt(m_player.getCameraPosition(), m_player.getForward());
 		if (m_Animals[i]->notBribed()) {
 			bool getsThrown = m_player.checkAnimal(m_Animals[i]->getPosition(),
 				m_Animals[i]->getPlayerRange(), m_Animals[i]->getThrowStrength());
