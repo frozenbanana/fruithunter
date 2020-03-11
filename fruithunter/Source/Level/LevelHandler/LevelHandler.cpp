@@ -23,6 +23,7 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_fruitPos[BANANA].push_back(2);
 	level0.m_fruitPos[BANANA].push_back(3);
 	level0.m_fruitPos[MELON].push_back(0);
+	level0.m_fruitPos[DRAGON].push_back(0);
 
 	level0.m_heightMapNames.push_back("VolcanoMap.png");
 	level0.m_heightMapNames.push_back("ForestMap.png");
@@ -226,6 +227,13 @@ void LevelHandler::loadLevel(int levelNr) {
 				m_terrainManager->getSpawnpoint(currentLevel.m_fruitPos[MELON].at(terrainTagNr)));
 			m_fruits.push_back(melon);
 		}
+		for (int i = 0; i < currentLevel.m_nrOfFruits[DRAGON]; i++) {
+			int terrainTagNr = i % currentLevel.m_fruitPos[DRAGON].size();
+			shared_ptr<DragonFruit> dragon = make_shared<DragonFruit>(
+				m_terrainManager->getSpawnpoint(currentLevel.m_fruitPos[DRAGON].at(terrainTagNr)));
+			m_fruits.push_back(dragon);
+		}
+		
 
 		m_player.setPosition(currentLevel.m_playerStartPos);
 

@@ -193,6 +193,7 @@ void ParticleSystem::draw() {
 	// the buffer update needs to be next to the draw call.
 	deviceContext->UpdateSubresource(m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
 
+	
 	m_shaderSet.bindShadersAndLayout();
 	Renderer::getDeviceContext()->UpdateSubresource(
 		m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
