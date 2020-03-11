@@ -124,16 +124,15 @@ void Renderer::drawLoading() {
 	endFrame();
 }
 
-void Renderer::initilizeNormalDraw() { m_drawState = state_normal; }
-
-void Renderer::initilizeShadowDraw() { m_drawState = state_shadow; }
+void Renderer::setDrawState(DrawingState state) { m_drawState = state; }
 
 ShadowMapper* Renderer::getShadowMapper() { return &m_shadowMapper; }
 
 void Renderer::draw(size_t vertexCount, size_t vertexOffset) {
-	if (m_drawState == state_shadow)
-		m_deviceContext->PSSetShader(nullptr, nullptr, 0);//unplug pixelshader
-	m_deviceContext->Draw(vertexCount, vertexOffset); 
+	auto renderer = Renderer::getInstance();
+	if (renderer->m_drawState == state_shadow)
+		renderer->m_deviceContext->PSSetShader(nullptr, nullptr, 0); // unplug pixelshader
+	renderer->m_deviceContext->Draw((UINT)vertexCount, (UINT)vertexOffset);
 }
 
 Renderer::Renderer(int width, int height) {

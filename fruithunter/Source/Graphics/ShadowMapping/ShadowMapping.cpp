@@ -129,24 +129,20 @@ void ShadowMapper::setDirection(float3 direction) {
 
 void ShadowMapper::mapShadowToFrustum(vector<float3> frustum) {
 	// view matrix
-	float3 center;
-	for (size_t i = 0; i < frustum.size(); i++)
-		center += frustum[i];
-	center /= frustum.size();
-	float3 lookAt = center;
-	float3 offset = m_lightDirection;
+	float3 lookAt = frustum[0];
+	float3 offset = -m_lightDirection * 100;
 	m_position = lookAt + offset;
-	//setDirection(-offset);
 	updateViewMatrix();
 
 	// proj matrix
 	for (size_t i = 0; i < frustum.size(); i++)
-		frustum[i] = float3::Transform(frustum[i],m_viewMatrix);
+		frustum[i] = float3::Transform(frustum[i], m_viewMatrix);
 	CubeBoundingBox lightToFrustumBB(frustum);
 
+	m_position = float3::Transform(lightToFrustumBB.getCenter(), m_viewMatrix.Invert()) + offset;
 	m_size = float2(lightToFrustumBB.m_size.x, lightToFrustumBB.m_size.y);
-	m_farPlane = lightToFrustumBB.m_position.z + lightToFrustumBB.m_size.z;
-	ErrorLogger::log(to_string(m_size.x) + " : " + to_string(m_size.y));
+	//m_farPlane = lightToFrustumBB.m_position.z + lightToFrustumBB.m_size.z;
+	updateViewMatrix();
 	updateProjMatrix();
 }
 
@@ -225,10 +221,9 @@ void ShadowMapper::copyStaticToDynamic() {
 
 void ShadowMapper::createShadowInfo() {
 	m_shadowInfo.nearFarPlane = float2(m_nearPlane, m_farPlane);
-	m_shadowInfo.ShadowMapRes = float2(m_smapSize.x, m_smapSize.y);
+	m_shadowInfo.ShadowMapRes = float2((float)m_smapSize.x, (float)m_smapSize.y);
 	m_lightDirection = float3(0, -1.f, 0);
 	m_lightDirection.Normalize();
-	// lightDir.Normalize();
 	m_shadowInfo.toLight = float4(m_lightDirection.x, m_lightDirection.y, m_lightDirection.z, 1.0f);
 }
 
@@ -236,6 +231,38 @@ void ShadowMapper::bindInfoBuffer() {
 	auto deviceContext = Renderer::getDeviceContext();
 	deviceContext->UpdateSubresource(m_ShadowInfoBuffer.Get(), 0, NULL, &m_shadowInfo, 0, 0);
 	deviceContext->PSSetConstantBuffers(6, 1, m_ShadowInfoBuffer.GetAddressOf());
+}
+
+vector<FrustumPlane> ShadowMapper::getFrustumPlanes() const {
+	vector<FrustumPlane> planes;
+	planes.reserve(6);
+
+	float3 forward = m_lightDirection;
+	float3 right = forward.Cross(float3(0, 1.f, 0));
+	float3 up = right.Cross(forward);
+
+	float3 center = m_position;
+	float height = m_size.y / 2.f;
+	float width = m_size.x / 2.f;
+	float nearP = m_nearPlane;
+	float farP = m_farPlane;
+	float betweenP = (nearP + farP) / 2.f;
+
+	float3 p_left = center + forward * betweenP + right * width * -1.f;
+	float3 p_right = center + forward * betweenP + right * width * 1.f;
+	float3 p_up = center + forward * betweenP +  up * height * 1.f;
+	float3 p_down = center + forward * betweenP + up * height * -1.f;
+	float3 p_forward = center + forward * farP;
+	float3 p_backward = center + forward * nearP;
+
+	planes.push_back(FrustumPlane(p_left, -right));
+	planes.push_back(FrustumPlane(p_right, right));
+	planes.push_back(FrustumPlane(p_up, up));
+	planes.push_back(FrustumPlane(p_down, -up));
+	planes.push_back(FrustumPlane(p_forward, forward));
+	planes.push_back(FrustumPlane(p_backward, -forward));
+
+	return planes;
 }
 
 Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ShadowMapper::getDepthMapSRV() {

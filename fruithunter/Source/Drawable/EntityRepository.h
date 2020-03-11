@@ -60,6 +60,10 @@ private:
 	Keyboard::Keys m_randomizeKey = Keyboard::NumPad0;//randomize values of entity
 	Keyboard::Keys m_saveKey = Keyboard::NumPad9;//randomize values of entity
 
+	//culling
+	bool m_useCulling = false;
+	vector<Entity**> m_culledEntities;
+
 	//-- Functions --
 	void clear();
 
@@ -92,10 +96,13 @@ public:
 	void addPlaceableEntity(string meshFilename);
 
 	void update(float dt, float3 point, float3 direction);
+
+	void clearCulling();
+	void quadtreeCull(const vector<FrustumPlane>& planes);
+	void boundingBoxCull(const CubeBoundingBox& bb);
+
 	void draw();
-	void draw_quadtreeFrustumCulling(const vector<FrustumPlane>& planes);
-	void draw_quadtreeBBCulling(const CubeBoundingBox& bb);
-	void drawShadow();
+	void draw_onlyMesh();
 
 	EntityRepository(string filename = "");
 	~EntityRepository();

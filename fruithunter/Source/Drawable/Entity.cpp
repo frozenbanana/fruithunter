@@ -208,14 +208,6 @@ void Entity::draw() {
 	}
 }
 
-void Entity::drawShadow() {
-	if (isMeshInitialized()) {
-		bindModelMatrixBuffer();
-
-		m_mesh.get()->drawShadow();
-	}
-}
-
 void Entity::draw_onlyMesh(float3 color) {
 	if (isMeshInitialized()) {
 		bindModelMatrixBuffer();
@@ -236,9 +228,9 @@ void Entity::draw_animate() {
 	m_meshAnim.draw();
 }
 
-void Entity::draw_animate_shadow() {
+void Entity::draw_animate_onlyMesh(float3 color) {
 	bindModelMatrixBuffer();
-	m_meshAnim.drawShadow();
+	m_meshAnim.draw_onlyMesh(color);
 }
 
 void Entity::updateAnimated(float dt) { m_meshAnim.update(dt); }

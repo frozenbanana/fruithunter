@@ -376,52 +376,66 @@ void EntityRepository::update(float dt, float3 point, float3 direction) {
 	}
 }
 
+void EntityRepository::clearCulling() { 
+	m_useCulling = false;
+	m_culledEntities.clear();
+}
+
+void EntityRepository::quadtreeCull(const vector<FrustumPlane>& planes) { 
+	m_useCulling = true;
+	m_culledEntities = m_quadtree.cullElements(planes);
+}
+
+void EntityRepository::boundingBoxCull(const CubeBoundingBox& bb) {
+	m_useCulling = true;
+	m_culledEntities = m_quadtree.cullElements(bb);
+}
+
 void EntityRepository::draw() {
-	for (size_t i = 0; i < m_entities.size(); i++) {
-		if (m_markedEntityToRemove == m_entities[i].get())
-			m_entities[i]->draw_onlyMesh(float3(1.f, 0.f, 0.f));
-		else
-			m_entities[i]->draw();
-	}
-	if (m_state == ModeState::state_placing && m_placeable.size() > 0)
-		m_placeable[m_activePlaceableIndex]->draw();
-}
 
-void EntityRepository::draw_quadtreeFrustumCulling(const vector<FrustumPlane>& planes) {
-	vector<Entity**> elements = m_quadtree.cullElements(planes);
-	if (elements.size() > 0) {
-		for (size_t i = 0; i < elements.size(); i++) {
-			if (m_markedEntityToRemove == (*elements[i]))
-				(*elements[i])->draw_onlyMesh(float3(1.f, 0.f, 0.f));
+	if (m_useCulling) {
+		for (size_t i = 0; i < m_culledEntities.size(); i++) {
+			if (m_markedEntityToRemove == (*m_culledEntities[i]))
+				(*m_culledEntities[i])->draw_onlyMesh(float3(1.f, 0.f, 0.f));
 			else
-				(*elements[i])->draw();
+				(*m_culledEntities[i])->draw();
 		}
 	}
-	if (m_state == ModeState::state_placing && m_placeable.size() > 0)
-		m_placeable[m_activePlaceableIndex]->draw();
-}
-
-void EntityRepository::draw_quadtreeBBCulling(const CubeBoundingBox& bb) {
-	vector<Entity**> elements = m_quadtree.cullElements(bb);
-	if (elements.size() > 0) {
-		for (size_t i = 0; i < elements.size(); i++) {
-			if (m_markedEntityToRemove == (*elements[i]))
-				(*elements[i])->draw_onlyMesh(float3(1.f, 0.f, 0.f));
+	else {
+		for (size_t i = 0; i < m_entities.size(); i++) {
+			if (m_markedEntityToRemove == m_entities[i].get())
+				m_entities[i]->draw_onlyMesh(float3(1.f, 0.f, 0.f));
 			else
-				(*elements[i])->draw();
+				m_entities[i]->draw();
 		}
 	}
+
 	if (m_state == ModeState::state_placing && m_placeable.size() > 0)
 		m_placeable[m_activePlaceableIndex]->draw();
+	
 }
 
-void EntityRepository::drawShadow() {
-	for (size_t i = 0; i < m_entities.size(); i++) {
-		m_entities[i]->drawShadow();
+void EntityRepository::draw_onlyMesh() {
+	if (m_useCulling) {
+		for (size_t i = 0; i < m_culledEntities.size(); i++) {
+			if (m_markedEntityToRemove == (*m_culledEntities[i]))
+				(*m_culledEntities[i])->draw_onlyMesh(float3(1.f, 0.f, 0.f));
+			else
+				(*m_culledEntities[i])->draw_onlyMesh(float3(0, 0, 0));
+		}
 	}
-	if (m_state == ModeState::state_placing) {
-		m_placeable[m_activePlaceableIndex]->drawShadow();
+	else {
+		for (size_t i = 0; i < m_entities.size(); i++) {
+			if (m_markedEntityToRemove == m_entities[i].get())
+				m_entities[i]->draw_onlyMesh(float3(1.f, 0.f, 0.f));
+			else
+				m_entities[i]->draw_onlyMesh(float3(0, 0, 0));
+		}
 	}
+
+
+	if (m_state == ModeState::state_placing && m_placeable.size() > 0)
+		m_placeable[m_activePlaceableIndex]->draw_onlyMesh(float3(0, 0, 0));
 }
 
 EntityRepository::EntityRepository(string filename) { load(filename); }

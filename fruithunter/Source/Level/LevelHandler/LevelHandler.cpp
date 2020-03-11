@@ -148,7 +148,7 @@ LevelHandler::LevelHandler() { initialise(); }
 LevelHandler::~LevelHandler() { PathFindingThread::getInstance()->exitThread(); }
 
 void LevelHandler::initialise() {
-
+	m_sphere.load("Sphere");
 	m_player.initialize();
 	m_terrainManager = TerrainManager::getInstance();
 	m_terrainProps.addPlaceableEntity("treeMedium1");
@@ -287,15 +287,25 @@ void LevelHandler::draw() {
 
 	// frustum data for culling
 	vector<FrustumPlane> frustum = m_player.getFrustumPlanes();
+	if (Input::getInstance()->keyDown(Keyboard::Z))
+		frustum = Renderer::getInstance()->getShadowMapper()->getFrustumPlanes();
+	for (size_t i = 0; i < frustum.size(); i++) {
+		m_sphere.setPosition(frustum[i].m_position);
+		m_sphere.draw_onlyMesh(float3(1, 0, 0));
+	}
 	// terrain entities
-	m_terrainProps.draw_quadtreeFrustumCulling(frustum);
+	m_terrainProps.quadtreeCull(frustum);
+	m_terrainProps.draw();
 
 	// terrain
-	m_terrainManager->draw_quadtreeFrustumCulling(frustum);
+	m_terrainManager->quadtreeCull(frustum);
+	m_terrainManager->draw();
 	// water/lava effect
 	Renderer::getInstance()->copyDepthToSRV();
-	waterEffect.draw_quadtreeFrustumCulling(frustum);
-	lavaEffect.draw_quadtreeFrustumCulling(frustum);
+	waterEffect.quadtreeCull(frustum);
+	waterEffect.draw();
+	lavaEffect.quadtreeCull(frustum);
+	lavaEffect.draw();
 
 	Renderer::getInstance()->draw_darkEdges();
 
@@ -311,30 +321,38 @@ void LevelHandler::draw() {
 }
 
 void LevelHandler::drawShadowDynamic() {
+	ShadowMapper* shadowMap = Renderer::getInstance()->getShadowMapper();
+	vector<FrustumPlane> planes = shadowMap->getFrustumPlanes();
 	for (int i = 0; i < m_fruits.size(); i++) {
-		m_fruits[i]->draw_animate_shadow();
+		m_fruits[i]->draw_animate_onlyMesh(float3(0, 0, 0));
 	}
-	m_terrainManager->drawShadow();
+
+	//terrain manager
+	m_terrainManager->quadtreeCull(planes);
+	m_terrainManager->draw_onlyMesh();
 
 	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
-		m_collidableEntities[i]->drawShadow();
+		m_collidableEntities[i]->draw_onlyMesh(float3(0, 0, 0));
 	}
-	m_terrainProps.drawShadow();
+
+	//terrain entities
+	m_terrainProps.quadtreeCull(planes);
+	m_terrainProps.draw_onlyMesh();
 }
 
 void LevelHandler::drawShadowStatic() {
-	m_terrainManager->drawShadow();
+	m_terrainManager->draw_onlyMesh();
 
 	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
-		m_collidableEntities[i]->drawShadow();
+		m_collidableEntities[i]->draw_onlyMesh(float3(0, 0, 0));
 	}
 
-	m_terrainProps.drawShadow();
+	m_terrainProps.draw_onlyMesh();
 }
 
 void LevelHandler::drawShadowDynamicEntities() {
 	for (int i = 0; i < m_fruits.size(); i++) {
-		m_fruits[i]->draw_animate_shadow();
+		m_fruits[i]->draw_animate_onlyMesh(float3(0, 0, 0));
 	}
 }
 

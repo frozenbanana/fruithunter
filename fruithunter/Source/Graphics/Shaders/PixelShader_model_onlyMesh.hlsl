@@ -80,7 +80,7 @@ float3 lighting(float3 pos, float3 normal, float3 color, float shade) {
 
 float4 main(PS_IN ip) : SV_TARGET {
 	float shade = texSampleGrease(
-		texture_shadowMap, float2(3840.f, 2160.f), ip.ShadowPosH.xy, ip.ShadowPosH.z, ip.PosW.xyz)
+		texture_shadowMap, cb_shadowMapRes, ip.ShadowPosH.xy, ip.ShadowPosH.z, ip.PosW.xyz)
 					  .r;
 	return float4(lighting(ip.PosW, ip.Normal.xyz, color.xyz, shade), 1.0);
 }

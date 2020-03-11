@@ -8,9 +8,7 @@
 #include <iostream>
 #include <string>
 
-void PlayState::initialize() {
-	m_name = "Play State";
-}
+void PlayState::initialize() { m_name = "Play State"; }
 
 void PlayState::update() {
 
@@ -74,22 +72,25 @@ void PlayState::pause() {
 }
 
 void PlayState::draw() {
+	// SHADOW DRAW
+	Renderer::getInstance()->setDrawState(Renderer::DrawingState::state_shadow);
+
 	ShadowMapper* shadowMap = Renderer::getInstance()->getShadowMapper();
-	if (1) { //Dynamic shadowmap
-		//m_shadowMap.get()->update(m_levelHandler->getPlayerPos());
-		shadowMap->mapShadowToFrustum(m_levelHandler->getPlayerFrustumPoints(0.35f));
+	shadowMap->mapShadowToFrustum(m_levelHandler->getPlayerFrustumPoints(0.4f));
 
-		shadowMap->bindDSVAndSetNullRenderTarget();
-		shadowMap->bindCameraBuffer();
-		shadowMap->bindShadowInfoBuffer();
+	shadowMap->bindDSVAndSetNullRenderTarget();
+	shadowMap->bindCameraBuffer();
+	shadowMap->bindShadowInfoBuffer();
 
-		m_levelHandler->drawShadowDynamic();
-	}
+	m_levelHandler->drawShadowDynamic();
 
 	// Set first person info
 	Renderer::getInstance()->beginFrame();
 	shadowMap->bindVPTBuffer();
 	shadowMap->bindShadowMap();
+
+	// COLOR DRAW
+	Renderer::getInstance()->setDrawState(Renderer::DrawingState::state_normal);
 
 	// draw first person
 	m_levelHandler->draw();

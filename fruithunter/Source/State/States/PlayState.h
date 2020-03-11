@@ -5,13 +5,6 @@
 #include "TextRenderer.h"
 #include "AudioHandler.h"
 #include "LevelHandler.h"
-#include "ShadowMapping.h"
-//#include "Entity.h"
-//#include "TerrainManager.h"
-//#include "Apple.h"
-//#include "SkyBox.h"
-//#include "Banana.h"
-//#include "Melon.h"
 
 class PlayState : public State {
 public:

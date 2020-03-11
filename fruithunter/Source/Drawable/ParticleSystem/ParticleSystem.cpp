@@ -197,7 +197,7 @@ void ParticleSystem::draw() {
 		m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
 	bindBuffers();
 	Renderer::getInstance()->enableAlphaBlending();
-	deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
+	Renderer::draw((UINT)m_particles.size(), (UINT)0);
 	Renderer::getInstance()->disableAlphaBlending();
 }
 

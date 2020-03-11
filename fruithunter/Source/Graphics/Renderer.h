@@ -9,6 +9,7 @@
 
 class Renderer {
 public:
+	enum DrawingState { state_normal, state_shadow };
 	static void initalize(HWND window);
 	void beginFrame();
 	void endFrame();
@@ -39,10 +40,9 @@ public:
 
 	void drawLoading();
 
-	void initilizeNormalDraw();
-	void initilizeShadowDraw();
+	void setDrawState(DrawingState state);
 	ShadowMapper* getShadowMapper();
-	void draw(size_t vertexCount, size_t vertexOffset);
+	static void draw(size_t vertexCount, size_t vertexOffset);
 
 private:
 	Renderer(int width, int height);
@@ -86,8 +86,5 @@ private:
 
 	//shadows
 	ShadowMapper m_shadowMapper;
-	enum DrawingState {
-		state_normal,
-		state_shadow 
-	} m_drawState = state_normal;
+	DrawingState m_drawState = state_normal;
 };

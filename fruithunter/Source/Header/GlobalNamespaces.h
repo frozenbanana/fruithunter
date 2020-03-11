@@ -43,6 +43,7 @@ struct FrustumPlane {
 };
 struct CubeBoundingBox {
 	float3 m_position, m_size;
+	float3 getCenter() const { return m_position + m_size / 2.f;}
 	CubeBoundingBox(float3 position = float3(0, 0, 0), float3 size = float3(0, 0, 0)) {
 		m_position = position;
 		m_size = size;

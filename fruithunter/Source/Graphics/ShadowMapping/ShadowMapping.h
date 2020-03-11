@@ -5,9 +5,9 @@
 #define MATRIX_CAMERA_SLOT 1
 #define MATRIX_SHADOWINFO_SLOT 6
 
-#define SMAP_WIDTH 2048.f
+#define SMAP_WIDTH 2048
 #define SHADOW_NEARPLANE 1.f
-#define SHADOW_FARPLANE 500.f
+#define SHADOW_FARPLANE 300.f
 
 class ShadowMapper {
 private:
@@ -68,6 +68,8 @@ public:
 
 	void createShadowInfo();
 	void bindInfoBuffer();
+
+	vector<FrustumPlane> getFrustumPlanes() const;
 
 	// Shadow functions
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> getDepthMapSRV();
