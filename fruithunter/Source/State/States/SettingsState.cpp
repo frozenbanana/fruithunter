@@ -4,6 +4,7 @@
 #include "Input.h"
 #include "Statehandler.h"
 #include "ErrorLogger.h"
+#include "Settings.h"
 
 SettingsState::SettingsState() { initialize(); }
 
@@ -26,10 +27,10 @@ void SettingsState::update() { Input::getInstance()->setMouseModeAbsolute(); }
 void SettingsState::handleEvent() {
 
 	if (m_vsyncButton.update()) {
-		Renderer::getInstance()->setVsync(m_vsyncButton.getOnOff());
+		Settings::getInstance()->setVsync(m_vsyncButton.getOnOff());
 	}
 	if (m_darkEdgesButton.update()) {
-		Renderer::getInstance()->setDarkEdges(m_darkEdgesButton.getOnOff());
+		Settings::getInstance()->setDarkEdges(m_darkEdgesButton.getOnOff());
 	}
 	if (m_backButton.update() || Input::getInstance()->keyDown(Keyboard::Keys::Escape)) {
 		StateHandler::getInstance()->resumeMenuState();

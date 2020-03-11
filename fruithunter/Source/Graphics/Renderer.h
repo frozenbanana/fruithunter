@@ -29,8 +29,6 @@ public:
 	void bindQuadVertexBuffer();
 	void enableAlphaBlending();
 	void disableAlphaBlending();
-	void setVsync(bool value);
-	void setDarkEdges(bool value);
 
 	void copyDepthToSRV();
 
@@ -73,8 +71,4 @@ private:
 	// Loading screen
 	Quad m_loadingScreen;
 	bool m_loadingScreenInitialised = false;
-
-	// Settings
-	bool m_vsync = true;
-	bool m_darkEdges = true;
 };

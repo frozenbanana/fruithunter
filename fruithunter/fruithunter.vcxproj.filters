@@ -189,6 +189,9 @@
     <ClCompile Include="Source\State\States\LevelSelectState.cpp">
       <Filter>Source\State\States</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Utility\Settings\Settings.cpp">
+      <Filter>Source\Utility\Settings</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -335,6 +338,9 @@
     <ClInclude Include="Source\State\States\LevelSelectState.h">
       <Filter>Source\State\States</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Utility\Settings\Settings.h">
+      <Filter>Source\Utility\Settings</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
@@ -421,6 +427,9 @@
     </Filter>
     <Filter Include="Source\Utility\PerformanceTimer">
       <UniqueIdentifier>{6c926695-a49b-42d0-b46f-5b51b343cf44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Utility\Settings">
+      <UniqueIdentifier>{62af29f3-59ec-4d36-8476-2bd16a3afb21}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
