@@ -12,10 +12,7 @@ void PlayState::initialize() {
 }
 
 void PlayState::update() {
-
-	if (Input::getInstance()->keyPressed(Keyboard::Keys::Escape)) {
-		StateHandler::getInstance()->changeState(StateHandler::PAUSE);
-	}
+	Input::getInstance()->setMouseModeRelative();
 
 	m_timer.update();
 	float dt = m_timer.getDt();
@@ -73,7 +70,6 @@ void PlayState::pause() {
 }
 
 void PlayState::draw() {
-
 	if (1) {
 		m_shadowMap.get()->update(m_levelHandler->getPlayerPos()); // not needed?
 

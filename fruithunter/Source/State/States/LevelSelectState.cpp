@@ -40,6 +40,8 @@ void LevelSelectState::initialize() {
 }
 
 void LevelSelectState::update() {
+	Input::getInstance()->setMouseModeRelative();
+
 	float delta = 0.016f; // lazy, get me a timer instead
 
 	// update player
