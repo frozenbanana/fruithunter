@@ -7,7 +7,7 @@
 #define THROWVELOCITY 30.f
 #define LONGSHOT 17.f
 #define MEDIUMSHOT 10.f
-#define FASTMOVING_VELOCITY 3.f
+#define FASTMOVING_VELOCITY 11.f
 
 class Fruit : public Entity, public AI {
 protected:
@@ -97,6 +97,8 @@ public:
 			}
 		}
 		else if (dist > MEDIUMSHOT) {
+			ErrorLogger::log("Mediumshot, inAir: " + to_string(!m_onGround) +
+							 " , velo:" + to_string(m_velocity.Length()));
 			if (!m_onGround || m_velocity.Length() > FASTMOVING_VELOCITY) {
 				// case 2: Medium shot
 				// in air or fast moving -> gold
@@ -108,6 +110,7 @@ public:
 			}
 			else {
 				// silver
+				ErrorLogger::log("silver");
 				colors[0] = float4(0.75f, 0.75f, 0.75f, 1.0f);
 				colors[1] = float4(0.75f, 0.75f, 0.75f, 1.0f);
 				colors[2] = float4(0.75f, 0.75f, 0.75f, 1.0f);
