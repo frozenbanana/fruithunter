@@ -345,6 +345,7 @@ void LevelHandler::loadLevel(int levelNr) {
 
 		m_currentTerrain = currentLevel.m_terrainTags[m_terrainManager->getTerrainIndexFromPosition(
 			currentLevel.m_playerStartPos)];
+		m_skyBox.updateNewOldLight(m_currentTerrain);
 
 		// temp
 		float height =
@@ -525,8 +526,8 @@ void LevelHandler::update(float dt) {
 		if (m_currentTerrain != tag) {
 			m_oldTerrain = m_currentTerrain;
 			m_currentTerrain = tag;
-			m_skyBox.resetDelta();
 			m_skyBox.updateNewOldLight(tag);
+			m_skyBox.resetDelta();
 		}
 	}
 
