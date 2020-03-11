@@ -60,7 +60,7 @@ void LevelSelectState::update() {
 		// Check collision
 		if (m_player.getArrow().checkCollision(*m_bowls[i])) {
 			m_player.getArrow().setPosition(float3(-1000.f));
-			m_player.setPosition(float3(52.f, 0.f, 40.f));
+			m_player.setPosition(float3(47.3f, 2.5f, 85.4f));
 			setLevel(i);
 			StateHandler::getInstance()->changeState(StateHandler::PLAY);
 		}

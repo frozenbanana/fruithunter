@@ -350,7 +350,7 @@ void LevelHandler::loadLevel(int levelNr) {
 		AudioHandler::getInstance()->changeMusicByTag(m_currentTerrain, 0);
 
 		// temp
-		float height =
+		/*float height =
 			TerrainManager::getInstance()->getHeightFromPosition(currentLevel.m_playerStartPos);
 		shared_ptr<Entity> newEntity = make_shared<Entity>();
 		newEntity->load("bush1");
@@ -363,7 +363,7 @@ void LevelHandler::loadLevel(int levelNr) {
 		newEntity->setScale(1);
 		newEntity->setPosition(currentLevel.m_playerStartPos + float3(1.f, height, 3.f));
 		newEntity->setCollisionDataOBB();
-		m_collidableEntities.push_back(newEntity);
+		m_collidableEntities.push_back(newEntity);*/
 
 		// placeAllBridges();
 		// placeAllAnimals();
