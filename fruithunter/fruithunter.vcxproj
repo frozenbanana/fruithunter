@@ -203,6 +203,7 @@
     <ClCompile Include="Source\Utility\Error\ErrorLogger.cpp" />
     <ClCompile Include="Source\Utility\Input\Button.cpp" />
     <ClCompile Include="Source\Utility\Input\Input.cpp" />
+    <ClCompile Include="Source\Utility\Input\Slider.cpp" />
     <ClCompile Include="Source\Utility\Repositories\MeshRepository.cpp" />
     <ClCompile Include="Source\Utility\Settings\Settings.cpp" />
     <ClCompile Include="Source\Utility\Timer\Timer.cpp" />
@@ -253,6 +254,7 @@
     <ClInclude Include="Source\Utility\Error\ErrorLogger.h" />
     <ClInclude Include="Source\Utility\Input\Button.h" />
     <ClInclude Include="Source\Utility\Input\Input.h" />
+    <ClInclude Include="Source\Utility\Input\Slider.h" />
     <ClInclude Include="Source\Utility\QuadTree.h" />
     <ClInclude Include="Source\Utility\Repositories\MeshRepository.h" />
     <ClInclude Include="Source\Utility\Settings\Settings.h" />

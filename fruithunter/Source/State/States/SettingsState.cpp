@@ -22,7 +22,10 @@ void SettingsState::initialize() {
 	m_entity.setPosition(float3(-1000));
 }
 
-void SettingsState::update() { Input::getInstance()->setMouseModeAbsolute(); }
+void SettingsState::update() {
+	Input::getInstance()->setMouseModeAbsolute();
+	m_slider.update();
+}
 
 void SettingsState::handleEvent() {
 	Settings* settings = Settings::getInstance();
@@ -57,6 +60,8 @@ void SettingsState::draw() {
 	m_darkEdgesButton.draw();
 	m_vsyncButton.draw();
 	m_backButton.draw();
+
+	m_slider.draw();
 
 	// Just ignore this. It fixes things
 	m_entity.draw();

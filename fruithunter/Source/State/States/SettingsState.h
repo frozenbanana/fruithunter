@@ -3,6 +3,7 @@
 #include "TextRenderer.h"
 #include "Entity.h"
 #include "Button.h"
+#include "Slider.h"
 
 class SettingsState : public State {
 public:
@@ -21,6 +22,8 @@ private:
 	Button m_vsyncButton;
 	Button m_darkEdgesButton;
 	Button m_backButton;
+
+	Slider m_slider;
 
 	Entity m_entity;
 };

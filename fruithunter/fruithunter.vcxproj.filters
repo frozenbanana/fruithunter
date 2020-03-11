@@ -192,6 +192,9 @@
     <ClCompile Include="Source\Utility\Settings\Settings.cpp">
       <Filter>Source\Utility\Settings</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Utility\Input\Slider.cpp">
+      <Filter>Source\Utility\Input</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -340,6 +343,9 @@
     </ClInclude>
     <ClInclude Include="Source\Utility\Settings\Settings.h">
       <Filter>Source\Utility\Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\Input\Slider.h">
+      <Filter>Source\Utility\Input</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
