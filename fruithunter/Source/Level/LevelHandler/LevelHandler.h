@@ -75,6 +75,8 @@ private:
 
 	// Creating data for levels.
 	void initialiseLevel0();
+	void initialiseLevel1();
+	void initialiseLevel2();
 	void placeBridge(float3 pos, float3 rot, float3 scale);
 	void placeAllBridges();
 	void placeAllAnimals();

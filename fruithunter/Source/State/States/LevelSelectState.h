@@ -15,7 +15,7 @@
 //#include "Melon.h"
 #include "Entity.h"
 
-#define NR_OF_LEVELS 1
+#define NR_OF_LEVELS 3
 
 class LevelSelectState : public State {
 public:

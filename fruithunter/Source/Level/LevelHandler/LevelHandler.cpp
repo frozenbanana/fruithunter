@@ -7,91 +7,202 @@
 #include "PathFindingThread.h"
 
 void LevelHandler::initialiseLevel0() {
-	Level level0;
+	Level level;
 
-	level0.m_terrainPropsFilename = "level0";
+	level.m_terrainPropsFilename = "level0";
 
-	level0.m_terrainTags.push_back(Level::TerrainTags::Volcano);
-	level0.m_terrainTags.push_back(Level::TerrainTags::Forest);
-	level0.m_terrainTags.push_back(Level::TerrainTags::Desert);
-	level0.m_terrainTags.push_back(Level::TerrainTags::Plains);
+	level.m_terrainTags.push_back(Level::TerrainTags::Plains);
 
-	level0.m_fruitPos[APPLE].push_back(1);
-	level0.m_fruitPos[APPLE].push_back(2);
-	level0.m_fruitPos[APPLE].push_back(3);
-	level0.m_fruitPos[BANANA].push_back(1);
-	level0.m_fruitPos[BANANA].push_back(2);
-	level0.m_fruitPos[BANANA].push_back(3);
-	level0.m_fruitPos[MELON].push_back(0);
+	level.m_fruitPos[APPLE].push_back(0);
 
-	level0.m_heightMapNames.push_back("VolcanoMap.png");
-	level0.m_heightMapNames.push_back("ForestMap.png");
-	level0.m_heightMapNames.push_back("DesertMap.png");
-	level0.m_heightMapNames.push_back("PlainMap.png");
+	level.m_heightMapNames.push_back("PlainMap.png");
 
-	level0.m_heightMapPos.push_back(float3(100.f, 0.f, 100.f));
-	level0.m_heightMapPos.push_back(float3(0.f, 0.f, 0.f));
-	level0.m_heightMapPos.push_back(float3(0.f, 0.f, 100.f));
-	level0.m_heightMapPos.push_back(float3(100.f, 0.f, 0.f));
+	level.m_heightMapPos.push_back(float3(0.f, 0.f, 0.f));
 
-	level0.m_heightMapSubSize.push_back(XMINT2(15, 15));
-	level0.m_heightMapSubSize.push_back(XMINT2(15, 15));
-	level0.m_heightMapSubSize.push_back(XMINT2(15, 15));
-	level0.m_heightMapSubSize.push_back(XMINT2(15, 15));
+	level.m_heightMapSubSize.push_back(XMINT2(15, 15));
 
-	level0.m_heightMapDivision.push_back(XMINT2(16, 16));
-	level0.m_heightMapDivision.push_back(XMINT2(16, 16));
-	level0.m_heightMapDivision.push_back(XMINT2(16, 16));
-	level0.m_heightMapDivision.push_back(XMINT2(16, 16));
+	level.m_heightMapDivision.push_back(XMINT2(16, 16));
 
-	level0.m_heightMapScales.push_back(float3(1.f, 0.40f, 1.f) * 100);
-	level0.m_heightMapScales.push_back(float3(1.f, 0.15f, 1.f) * 100);
-	level0.m_heightMapScales.push_back(float3(1.f, 0.25f, 1.f) * 100);
-	level0.m_heightMapScales.push_back(float3(1.f, 0.10f, 1.f) * 100);
+	level.m_heightMapScales.push_back(float3(1.f, 0.10f, 1.f) * 100);
+
+	vector<string> maps(4);
+	maps[0] = "texture_grass.jpg";
+	maps[1] = "texture_rock4.jpg";
+	maps[2] = "texture_rock6.jpg";
+	maps[3] = "texture_rock6.jpg";
+	level.m_heightmapTextures.push_back(maps);
+
+	// level.m_wind.push_back(float3(0.f, 8.f, 0.f)); // Volcano
+	// level.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
+	// level.m_wind.push_back(float3(1.f, 0.f, 2.f)); // Desert
+	level.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
+
+	level.m_nrOfFruits[APPLE] = 20;
+	level.m_nrOfFruits[BANANA] = 0;
+	level.m_nrOfFruits[MELON] = 0;
+
+	level.m_winCondition[APPLE] = 10;
+	level.m_winCondition[BANANA] = 0;
+	level.m_winCondition[MELON] = 0;
+
+	level.m_playerStartPos = float3(20.f, 0.0f, 20.f);
+
+	level.m_timeTargets[GOLD] = 30;
+	level.m_timeTargets[SILVER] = 40;
+	level.m_timeTargets[BRONZE] = 60;
+
+	m_levelsArr.push_back(level);
+	m_hud.setTimeTargets(level.m_timeTargets);
+}
+
+void LevelHandler::initialiseLevel1() {
+	Level level;
+
+	level.m_terrainPropsFilename = "level1";
+
+	level.m_terrainTags.push_back(Level::TerrainTags::Desert);
+	level.m_terrainTags.push_back(Level::TerrainTags::Plains);
+
+	level.m_fruitPos[APPLE].push_back(1);
+	level.m_fruitPos[MELON].push_back(0);
+
+	level.m_heightMapNames.push_back("DesertMap.png");
+	level.m_heightMapNames.push_back("PlainMap.png");
+
+	level.m_heightMapPos.push_back(float3(0.f, 0.f, 0.f));
+	level.m_heightMapPos.push_back(float3(0.f, 0.f, 100.f));
+
+
+	level.m_heightMapSubSize.push_back(XMINT2(15, 15));
+	level.m_heightMapSubSize.push_back(XMINT2(15, 15));
+
+	level.m_heightMapDivision.push_back(XMINT2(16, 16));
+	level.m_heightMapDivision.push_back(XMINT2(16, 16));
+
+	level.m_heightMapScales.push_back(float3(1.f, 0.25f, 1.f) * 100);
+	level.m_heightMapScales.push_back(float3(1.f, 0.10f, 1.f) * 100);
+
+	vector<string> maps(4);
+	maps[0] = "texture_sand3.jpg";
+	maps[1] = "texture_sand1.jpg";
+	maps[2] = "texture_rock6.jpg";
+	maps[3] = "texture_rock6.jpg";
+	level.m_heightmapTextures.push_back(maps);
+	maps[0] = "texture_grass.jpg";
+	maps[1] = "texture_rock4.jpg";
+	maps[2] = "texture_rock6.jpg";
+	maps[3] = "texture_rock6.jpg";
+	level.m_heightmapTextures.push_back(maps);
+
+	// level.m_wind.push_back(float3(0.f, 8.f, 0.f)); // Volcano
+	// level.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
+	level.m_wind.push_back(float3(1.f, 0.f, 2.f)); // Desert
+	level.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
+
+	level.m_nrOfFruits[APPLE] = 20;
+	level.m_nrOfFruits[BANANA] = 0;
+	level.m_nrOfFruits[MELON] = 20;
+
+	level.m_winCondition[APPLE] = 10;
+	level.m_winCondition[BANANA] = 0;
+	level.m_winCondition[MELON] = 10;
+
+	level.m_playerStartPos = float3(20.f, 0.0f, 20.f);
+
+	level.m_timeTargets[GOLD] = 80;
+	level.m_timeTargets[SILVER] = 100;
+	level.m_timeTargets[BRONZE] = 140;
+
+	m_levelsArr.push_back(level);
+	m_hud.setTimeTargets(level.m_timeTargets);
+}
+
+void LevelHandler::initialiseLevel2() {
+	Level level;
+
+	level.m_terrainPropsFilename = "level2";
+
+	level.m_terrainTags.push_back(Level::TerrainTags::Volcano);
+	level.m_terrainTags.push_back(Level::TerrainTags::Forest);
+	level.m_terrainTags.push_back(Level::TerrainTags::Desert);
+	level.m_terrainTags.push_back(Level::TerrainTags::Plains);
+
+	level.m_fruitPos[APPLE].push_back(1);
+	level.m_fruitPos[APPLE].push_back(2);
+	level.m_fruitPos[APPLE].push_back(3);
+	level.m_fruitPos[BANANA].push_back(1);
+	level.m_fruitPos[BANANA].push_back(2);
+	level.m_fruitPos[BANANA].push_back(3);
+	level.m_fruitPos[MELON].push_back(0);
+
+	level.m_heightMapNames.push_back("VolcanoMap.png");
+	level.m_heightMapNames.push_back("ForestMap.png");
+	level.m_heightMapNames.push_back("DesertMap.png");
+	level.m_heightMapNames.push_back("PlainMap.png");
+
+	level.m_heightMapPos.push_back(float3(100.f, 0.f, 100.f));
+	level.m_heightMapPos.push_back(float3(0.f, 0.f, 0.f));
+	level.m_heightMapPos.push_back(float3(0.f, 0.f, 100.f));
+	level.m_heightMapPos.push_back(float3(100.f, 0.f, 0.f));
+
+	level.m_heightMapSubSize.push_back(XMINT2(15, 15));
+	level.m_heightMapSubSize.push_back(XMINT2(15, 15));
+	level.m_heightMapSubSize.push_back(XMINT2(15, 15));
+	level.m_heightMapSubSize.push_back(XMINT2(15, 15));
+
+	level.m_heightMapDivision.push_back(XMINT2(16, 16));
+	level.m_heightMapDivision.push_back(XMINT2(16, 16));
+	level.m_heightMapDivision.push_back(XMINT2(16, 16));
+	level.m_heightMapDivision.push_back(XMINT2(16, 16));
+
+	level.m_heightMapScales.push_back(float3(1.f, 0.40f, 1.f) * 100);
+	level.m_heightMapScales.push_back(float3(1.f, 0.15f, 1.f) * 100);
+	level.m_heightMapScales.push_back(float3(1.f, 0.25f, 1.f) * 100);
+	level.m_heightMapScales.push_back(float3(1.f, 0.10f, 1.f) * 100);
 
 	vector<string> maps(4);
 	maps[0] = "texture_rock8.jpg"; // flat
 	maps[1] = "texture_lava1.jpg"; // low flat
 	maps[2] = "texture_rock2.jpg"; // tilt
 	maps[3] = "texture_rock2.jpg"; // low tilt
-	level0.m_heightmapTextures.push_back(maps);
+	level.m_heightmapTextures.push_back(maps);
 	maps[0] = "texture_grass3.jpg";
 	maps[1] = "texture_sand1.jpg";
 	maps[2] = "texture_mossyRock.jpg";
 	maps[3] = "texture_mossyRock.jpg";
-	level0.m_heightmapTextures.push_back(maps);
+	level.m_heightmapTextures.push_back(maps);
 	maps[0] = "texture_sand3.jpg";
 	maps[1] = "texture_sand1.jpg";
 	maps[2] = "texture_rock6.jpg";
 	maps[3] = "texture_rock6.jpg";
-	level0.m_heightmapTextures.push_back(maps);
+	level.m_heightmapTextures.push_back(maps);
 	maps[0] = "texture_grass.jpg";
 	maps[1] = "texture_rock4.jpg";
 	maps[2] = "texture_rock6.jpg";
 	maps[3] = "texture_rock6.jpg";
-	level0.m_heightmapTextures.push_back(maps);
+	level.m_heightmapTextures.push_back(maps);
 
-	level0.m_wind.push_back(float3(0.f, 8.f, 0.f)); // Volcano
-	level0.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
-	level0.m_wind.push_back(float3(1.f, 0.f, 2.f)); // Desert
-	level0.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
+	level.m_wind.push_back(float3(0.f, 8.f, 0.f)); // Volcano
+	level.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
+	level.m_wind.push_back(float3(1.f, 0.f, 2.f)); // Desert
+	level.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
 
-	level0.m_nrOfFruits[APPLE] = 20;
-	level0.m_nrOfFruits[BANANA] = 15;
-	level0.m_nrOfFruits[MELON] = 9;
+	level.m_nrOfFruits[APPLE] = 20;
+	level.m_nrOfFruits[BANANA] = 15;
+	level.m_nrOfFruits[MELON] = 9;
 
-	level0.m_winCondition[APPLE] = 2;
-	level0.m_winCondition[BANANA] = 2;
-	level0.m_winCondition[MELON] = 2;
+	level.m_winCondition[APPLE] = 2;
+	level.m_winCondition[BANANA] = 2;
+	level.m_winCondition[MELON] = 2;
 
-	level0.m_playerStartPos = float3(20.f, 0.0f, 20.f);
+	level.m_playerStartPos = float3(20.f, 0.0f, 20.f);
 
-	level0.m_timeTargets[GOLD] = 120;
-	level0.m_timeTargets[SILVER] = 160;
-	level0.m_timeTargets[BRONZE] = 200;
+	level.m_timeTargets[GOLD] = 120;
+	level.m_timeTargets[SILVER] = 160;
+	level.m_timeTargets[BRONZE] = 200;
 
-	m_levelsArr.push_back(level0);
-	m_hud.setTimeTargets(level0.m_timeTargets);
+	m_levelsArr.push_back(level);
+	m_hud.setTimeTargets(level.m_timeTargets);
 }
 
 void LevelHandler::placeBridge(float3 pos, float3 rot, float3 scale) {
@@ -145,7 +256,10 @@ void LevelHandler::placeAllAnimals() {
 
 LevelHandler::LevelHandler() { initialise(); }
 
-LevelHandler::~LevelHandler() { PathFindingThread::getInstance()->exitThread(); }
+LevelHandler::~LevelHandler() {
+	PathFindingThread::getInstance()->exitThread();
+	m_terrainManager->removeAll();
+}
 
 void LevelHandler::initialise() {
 
@@ -171,6 +285,8 @@ void LevelHandler::initialise() {
 	m_terrainProps.addPlaceableEntity("Grass4");
 
 	initialiseLevel0();
+	initialiseLevel1();
+	initialiseLevel2();
 
 	m_particleSystems.resize(5);
 	m_particleSystems[0] = ParticleSystem(ParticleSystem::VULCANO_FIRE);
@@ -472,12 +588,14 @@ void LevelHandler::update(float dt) {
 		}
 	}
 
-	
+
 
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
 		Terrain* currentTerrain =
 			m_terrainManager->getTerrainFromPosition(m_particleSystems[i].getPosition());
-		m_particleSystems[i].update(dt, currentTerrain->getWind());
+		if (currentTerrain != nullptr) {
+			m_particleSystems[i].update(dt, currentTerrain->getWind());
+		}
 	}
 
 	m_hud.update(dt, m_player.getStamina());
