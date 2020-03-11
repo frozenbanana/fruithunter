@@ -46,6 +46,7 @@ private:
 		void cullElements(
 			const vector<FrustumPlane>& planes, vector<Element*>& elements, size_t& count);
 		void cullElements(const CubeBoundingBox& bb, vector<Element*>& elements, size_t& count);
+		void getElementsByPosition(vector<Element*>& elements, float3 position);
 		void forEach_cullElements(const vector<FrustumPlane>& planes, vector<bool>& partsEnabled,
 			void (*function_onEach)(Element* ptr));
 
@@ -66,6 +67,7 @@ public:
 	void remove(Element& element);
 	vector<Element*> cullElements(const vector<FrustumPlane>& planes);
 	vector<Element*> cullElements(const CubeBoundingBox& bb);
+	vector<Element*> getElementsByPosition(float3 pos);
 	void foreach_cullElements(const vector<FrustumPlane>& planes, void (*onEach)(Element*));
 
 	void initilize(float3 position, float3 size, size_t layerMax);
@@ -301,6 +303,23 @@ inline void QuadTree<Element>::Node::cullElements(
 }
 
 template <typename Element>
+inline void QuadTree<Element>::Node::getElementsByPosition(
+	vector<Element*>& elements, float3 position) {
+	if (bbIntersection(position, float3(0.f), m_position, m_size)) {
+		if (expanded) {
+			for (size_t i = 0; i < 4; i++) {
+				m_children[i]->getElementsByPosition(elements, position);
+			}
+		}
+		else {
+			for (size_t i = 0; i < m_elements.size(); i++) {
+				elements.push_back(&(m_elements[i]->element));
+			}
+		}
+	}
+}
+
+template <typename Element>
 inline void QuadTree<Element>::Node::forEach_cullElements(const vector<FrustumPlane>& planes,
 	vector<bool>& partsEnabled, void (*function_onEach)(Element* ptr)) {
 
@@ -445,6 +464,13 @@ inline vector<Element*> QuadTree<Element>::cullElements(const CubeBoundingBox& b
 	m_node.cullElements(bb, elements, count);
 	resetFetchState();
 	return elements;
+}
+
+template <typename Element>
+inline vector<Element*> QuadTree<Element>::getElementsByPosition(float3 pos) {
+	vector<Element*> vec;
+	m_node.getElementsByPosition(vec, pos);
+	return vec;
 }
 
 template <typename Element>

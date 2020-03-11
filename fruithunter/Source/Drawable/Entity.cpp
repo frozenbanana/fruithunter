@@ -367,6 +367,8 @@ float3 Entity::getPointOnOBB(float3 point) const {
 	return m_collisionData.getClosestPointOnBox(point);
 }
 
+bool Entity::getIsCollidable() const { return m_collisionData.getIsCollidable(); }
+
 Entity::Entity(string filename, float3 position, float3 scale) {
 	load(filename);
 	setPosition(position);

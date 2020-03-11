@@ -1,5 +1,4 @@
 #pragma once
-#include "AI.h"
 #include "Fruit.h"
 
 #define MAXNROFJUMPS 2
