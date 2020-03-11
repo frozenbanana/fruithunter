@@ -150,7 +150,7 @@ void ParticleSystem::activateOneParticle() {
 }
 
 void ParticleSystem::update(float dt, float3 wind) {
-	if (m_isActive  && m_type != STARS) {
+	if (m_isActive && m_type != STARS) {
 		m_timePassed += dt;
 		m_emitTimer += dt;
 		float rate = m_description->m_emitRate;
@@ -273,4 +273,15 @@ float3 ParticleSystem::getPosition() const { return m_spawnPoint; }
 
 void ParticleSystem::setEmitRate(float emitRate) { m_description->m_emitRate = emitRate; }
 
+void ParticleSystem::setColors(float4 colors[3]) {
+	m_description->m_color[0] = colors[0];
+	m_description->m_color[1] = colors[1];
+	m_description->m_color[2] = colors[2];
+}
+
+void ParticleSystem::setAmountOfParticles(int nrOf) { m_description->m_nrOfParticles = (int)nrOf; }
+
+
 void ParticleSystem::setDesciption(Description newDescription) { *m_description = newDescription; }
+
+ParticleSystem::Description* ParticleSystem::getDescription() { return m_description.get(); }

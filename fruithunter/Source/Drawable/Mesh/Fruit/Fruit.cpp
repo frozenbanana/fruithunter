@@ -70,7 +70,6 @@ void Fruit::update(float dt, float3 playerPosition) {
 void Fruit::move(float dt) {
 	// m_speed.y = 0.0f;
 
-
 	m_position += m_velocity * dt;
 	setPosition(m_position);
 }

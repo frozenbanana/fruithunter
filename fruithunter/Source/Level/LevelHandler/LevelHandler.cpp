@@ -174,7 +174,7 @@ void LevelHandler::initialise() {
 
 	m_particleSystems.resize(5);
 	m_particleSystems[0] = ParticleSystem(ParticleSystem::VULCANO_FIRE);
-	m_particleSystems[0].setPosition(float3(150.f, 15.f, 150.f));
+	m_particleSystems[0].setPosition(float3(150.f, 20.f, 150.f));
 	m_particleSystems[1] = ParticleSystem(ParticleSystem::VULCANO_SMOKE);
 	m_particleSystems[1].setPosition(float3(150.f, 29.f, 150.f));
 	m_particleSystems[2] = ParticleSystem(ParticleSystem::GROUND_DUST);
@@ -429,13 +429,12 @@ void LevelHandler::update(float dt) {
 		if (m_player.isShooting()) {
 
 			if (m_player.getArrow().checkCollision(*m_fruits[i])) {
-				m_fruits[i]->hit();
-				m_fruits[i]->getParticleSystem()->setActive(true);
+				m_fruits[i]->hit(m_player.getPosition());
 				AudioHandler::getInstance()->playOnceByDistance(
 					AudioHandler::HIT_FRUIT, m_player.getPosition(), m_fruits[i]->getPosition());
 
 				m_player.getArrow().setPosition(
-					float3(-100.f)); // temporary to disable arrow until returning
+					float3(-999.f)); // temporary to disable arrow until returning
 			}
 		}
 		if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() <
