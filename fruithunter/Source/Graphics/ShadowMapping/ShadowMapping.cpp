@@ -149,6 +149,15 @@ void ShadowMapper::copyStaticToDynamic() {
 	deviceContext->CopyResource(m_depthMap.Get(), m_depthMapStatic.Get());
 }
 
+void ShadowMapper::clearAllShadows() { 
+	auto deviceContext = Renderer::getDeviceContext();
+	deviceContext->ClearDepthStencilView(m_shadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	deviceContext->ClearDepthStencilView(m_staticShadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	m_staticShadowDrawn = false;
+}
+
+bool ShadowMapper::IsStaticDrawn() { return m_staticShadowDrawn; }
+
 Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ShadowMapper::getDepthMapSRV() {
 	return m_shadowSRV;
 }
@@ -173,4 +182,6 @@ void ShadowMapper::bindDSVAndSetNullRenderTargetStatic() {
 	deviceContext->OMSetRenderTargets(1, m_nullRenderTargets, m_staticShadowDSV.Get());
 
 	deviceContext->ClearDepthStencilView(m_staticShadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	m_staticShadowDrawn = true;
 }

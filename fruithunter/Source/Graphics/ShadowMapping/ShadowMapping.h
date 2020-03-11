@@ -22,6 +22,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixVPTBuffer;
 	Matrix m_VPT;
+	bool m_staticShadowDrawn = false;
 
 	//Functions
 	void createCameraBuffer();
@@ -40,6 +41,8 @@ public:
 	void bindShadowMap();
 	void update(float3);
 	void copyStaticToDynamic();
+	void clearAllShadows();
+	bool IsStaticDrawn();
 
 	// Shadow functions
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> getDepthMapSRV();

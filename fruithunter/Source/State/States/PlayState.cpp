@@ -79,14 +79,13 @@ void PlayState::draw() {
 	if (1) {
 		m_shadowMap.get()->update(m_levelHandler->getPlayerPos()); // not needed?
 
-		if (m_staticShadowNotDrawn) {
+		if (!m_shadowMap->IsStaticDrawn()) {
 			//	Set static shadow map info
 			m_shadowMap.get()->bindDSVAndSetNullRenderTargetStatic();
 			m_shadowMap.get()->bindCameraMatrix();
 
 			// Draw static shadow map
 			m_levelHandler->drawShadowStatic();
-			m_staticShadowNotDrawn = false;
 		}
 		// Set shadow map info
 		m_shadowMap.get()->bindDSVAndSetNullRenderTarget();
@@ -122,4 +121,5 @@ void PlayState::play() {
 	if (m_levelHandler == nullptr)
 		m_levelHandler = make_unique<LevelHandler>();
 	m_levelHandler->loadLevel(m_currentLevel);
+	m_shadowMap->clearAllShadows();
 }
