@@ -93,7 +93,6 @@ float3 Entity::getLocalBoundingBoxSize() const {
 void Entity::setPosition(float3 position) {
 	m_position = position;
 	m_transformPropertiesChanged = true;
-	m_collisionData.setCollisionPosition(m_position);
 }
 
 void Entity::move(float3 movement) {
