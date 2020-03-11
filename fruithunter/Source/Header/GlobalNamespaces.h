@@ -25,7 +25,7 @@ using float4x4 = DirectX::SimpleMath::Matrix;
 #define NEAR_PLANE 0.1f
 #define FAR_PLANE 100.f
 
-enum FruitType { APPLE, BANANA, MELON, NR_OF_FRUITS };
+enum FruitType { APPLE, BANANA, MELON, DRAGON, NR_OF_FRUITS };
 enum TimeTargets { GOLD, SILVER, BRONZE, NR_OF_TIME_TARGETS };
 
 static float RandomFloat(float low = 0.f, float high = 1.f) {
