@@ -59,10 +59,9 @@ void LevelSelectState::update() {
 	for (int i = 0; i < NR_OF_LEVELS; i++) {
 		// Check collision
 		if (m_player.getArrow().checkCollision(*m_bowls[i])) {
-			ErrorLogger::logFloat3("Arrow", m_player.getArrow().getPosition());
-			ErrorLogger::logFloat3("Bowl", m_bowls[i]->getPosition());
 			m_player.getArrow().setPosition(float3(-1000.f));
 			m_player.setPosition(float3(52.f, 0.f, 40.f));
+			draw(); // Updates hitboxes and prepares state for next time.
 			setLevel(i);
 			StateHandler::getInstance()->changeState(StateHandler::PLAY);
 		}
@@ -79,7 +78,6 @@ void LevelSelectState::handleEvent() {
 
 void LevelSelectState::pause() {
 	ErrorLogger::log(m_name + " pause() called.");
-	m_player.getArrow().setPosition(float3(-1000.f));
 	AudioHandler::getInstance()->pauseAllMusic();
 }
 
