@@ -196,7 +196,9 @@ private:
 
 	vector<Particle> m_particles;
 	size_t m_nrOfParticles;
-	static ShaderSet m_shaderSet;
+	static ShaderSet m_shaderSetCircle;
+	static ShaderSet m_shaderSetStar;
+	ShaderSet* m_currentShaderSet;
 
 	// Buffers
 	// All particle systems share the same buffer since they wil all be the same size

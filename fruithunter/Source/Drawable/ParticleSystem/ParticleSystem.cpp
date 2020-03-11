@@ -4,7 +4,8 @@
 #include "time.h"
 #include "VariableSyncer.h"
 
-ShaderSet ParticleSystem::m_shaderSet;
+ShaderSet ParticleSystem::m_shaderSetCircle;
+ShaderSet ParticleSystem::m_shaderSetStar;
 Microsoft::WRL::ComPtr<ID3D11Buffer> ParticleSystem::m_vertexBuffer;
 
 ParticleSystem::ParticleSystem(ParticleSystem::PARTICLE_TYPE type) {
@@ -31,7 +32,6 @@ ParticleSystem::ParticleSystem(ParticleSystem::PARTICLE_TYPE type) {
 		m_particleProperties.resize(min(m_description->m_nrOfParticles, MAX_PARTICLES));
 		ErrorLogger::log("/////////////////INITALIZE() ABOUT TO BE CALLED, " + to_string(m_type));
 		initialize();
-		ErrorLogger::log("/////////////////INITALIZE() DONE, " + to_string(m_type));
 	}
 	// random seed
 	srand((unsigned int)time(NULL));
@@ -50,7 +50,7 @@ void ParticleSystem::initialize() {
 	createBuffers();
 
 	// shader
-	if (!m_shaderSet.isLoaded()) {
+	if (!m_shaderSetCircle.isLoaded() || !m_shaderSetStar.isLoaded()) {
 
 		D3D11_INPUT_ELEMENT_DESC inputLayout[] = {
 			{
@@ -66,24 +66,24 @@ void ParticleSystem::initialize() {
 			{ "Size", 0, DXGI_FORMAT_R32_FLOAT, 0, 28, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "IsActive", 0, DXGI_FORMAT_R32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
-		LPCWSTR pixelShader;
-		ErrorLogger::log("/////////////////SWITCH CASE ABOUT TO BE CALLED, " + to_string(m_type));
-		switch (m_type) {
-			ErrorLogger::log("type: " + to_string(m_type));
-		case STARS:
-			ErrorLogger::log("STARS!");
-			pixelShader = L"PixelShader_particleSystem_star.hlsl";
-			break;
-		default:
-			pixelShader = L"PixelShader_particleSystem_circle.hlsl";
-			break;
-		}
-		ErrorLogger::log("/////////////////SWITCH CASE DONE, " + to_string(m_type));
 
-
-		m_shaderSet.createShaders(L"VertexShader_particleSystem.hlsl",
-			L"GeometryShader_particleSystem.hlsl", pixelShader, inputLayout, 4);
+		m_shaderSetCircle.createShaders(L"VertexShader_particleSystem.hlsl",
+			L"GeometryShader_particleSystem.hlsl", L"PixelShader_particleSystem_circle.hlsl",
+			inputLayout, 4);
+		m_shaderSetStar.createShaders(L"VertexShader_particleSystem.hlsl",
+			L"GeometryShader_particleSystem.hlsl", L"PixelShader_particleSystem_star.hlsl",
+			inputLayout, 4);
 	}
+
+	switch (m_type) {
+	case PARTICLE_TYPE::FOREST_BUBBLE:
+		m_currentShaderSet = &m_shaderSetStar;
+		break;
+	default:
+		m_currentShaderSet = &m_shaderSetCircle;
+		break;
+	}
+
 	setActive();
 }
 
@@ -207,7 +207,7 @@ void ParticleSystem::draw() {
 	// the buffer update needs to be next to the draw call.
 	deviceContext->UpdateSubresource(m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
 
-	m_shaderSet.bindShadersAndLayout();
+	m_currentShaderSet->bindShadersAndLayout();
 	Renderer::getDeviceContext()->UpdateSubresource(
 		m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
 	bindBuffers();
