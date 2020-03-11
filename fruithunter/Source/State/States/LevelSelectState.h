@@ -1,7 +1,7 @@
 #pragma once
 #include "State.h"
 //#include "Quad.h"
-//#include "Timer.h"
+#include "Timer.h"
 //#include "TextRenderer.h"
 #include "AudioHandler.h"
 #include "LevelHandler.h"
@@ -30,12 +30,18 @@ public:
 	~LevelSelectState();
 
 private:
+	Timer m_timer;
 	Player m_player;
 	EntityRepository m_terrainProps;
 	SeaEffect m_waterEffect;
 	SkyBox m_skyBox;
 	Terrain* m_terrain;
 	Entity* m_bowls[NR_OF_LEVELS];
+	float3 m_bowlPos[NR_OF_LEVELS] = { 
+		float3(11.5f, 6.2f, 40.8f), 
+		float3(41.5f, 2.5f, 19.7f),
+		float3(94.3f, 25.0f, 4.2f)
+	};
 
 	void setLevel(int);
 

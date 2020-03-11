@@ -9,7 +9,7 @@ void LevelSelectState::initialize() {
 
 	// Initiate player
 	m_player.initialize();
-	m_player.setPosition(float3(52.f, 0.f, 40.f));
+	m_player.setPosition(float3(47.3f, 2.5f, 85.4f));
 
 	// Initiate terrain
 	vector<string> maps(4);
@@ -32,7 +32,7 @@ void LevelSelectState::initialize() {
 
 	// Initiate fruit bowls
 	for (int i = 0; i < NR_OF_LEVELS; i++) {
-		m_bowls[i] = new Entity("bowl", float3(49.5f + (float(i) * 1.5f), 25.5f, 50.f));
+		m_bowls[i] = new Entity("bowl", m_bowlPos[i], float3(1));
 	}
 
 	// Initate shadowmap
@@ -40,7 +40,8 @@ void LevelSelectState::initialize() {
 }
 
 void LevelSelectState::update() {
-	float delta = 0.016f; // lazy, get me a timer instead
+	m_timer.update();
+	float delta = m_timer.getDt();
 
 	// update player
 	m_player.update(delta, m_terrain);
@@ -64,6 +65,7 @@ void LevelSelectState::update() {
 			StateHandler::getInstance()->changeState(StateHandler::PLAY);
 		}
 	}
+	ErrorLogger::logFloat3("Current pos", m_player.getPosition());
 }
 
 void LevelSelectState::handleEvent() {

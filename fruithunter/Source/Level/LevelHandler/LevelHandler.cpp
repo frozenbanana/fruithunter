@@ -60,18 +60,18 @@ void LevelHandler::initialiseLevel1() {
 
 	level.m_terrainPropsFilename = "level1";
 
-	level.m_terrainTags.push_back(Level::TerrainTags::Desert);
+	level.m_terrainTags.push_back(Level::TerrainTags::Forest);
 	level.m_terrainTags.push_back(Level::TerrainTags::Plains);
 
-	level.m_fruitPos[APPLE].push_back(1);
-	level.m_fruitPos[MELON].push_back(0);
+	level.m_fruitPos[APPLE].push_back(0);
+	level.m_fruitPos[MELON].push_back(1);
 
-	level.m_heightMapNames.push_back("DesertMap.png");
+
+	level.m_heightMapNames.push_back("ForestMap.png");
 	level.m_heightMapNames.push_back("PlainMap.png");
 
 	level.m_heightMapPos.push_back(float3(0.f, 0.f, 0.f));
-	level.m_heightMapPos.push_back(float3(0.f, 0.f, 100.f));
-
+	level.m_heightMapPos.push_back(float3(100.f, 0.f, 0.f));
 
 	level.m_heightMapSubSize.push_back(XMINT2(15, 15));
 	level.m_heightMapSubSize.push_back(XMINT2(15, 15));
@@ -79,14 +79,14 @@ void LevelHandler::initialiseLevel1() {
 	level.m_heightMapDivision.push_back(XMINT2(16, 16));
 	level.m_heightMapDivision.push_back(XMINT2(16, 16));
 
-	level.m_heightMapScales.push_back(float3(1.f, 0.25f, 1.f) * 100);
+	level.m_heightMapScales.push_back(float3(1.f, 0.15f, 1.f) * 100);
 	level.m_heightMapScales.push_back(float3(1.f, 0.10f, 1.f) * 100);
 
 	vector<string> maps(4);
-	maps[0] = "texture_sand3.jpg";
+	maps[0] = "texture_grass3.jpg";
 	maps[1] = "texture_sand1.jpg";
-	maps[2] = "texture_rock6.jpg";
-	maps[3] = "texture_rock6.jpg";
+	maps[2] = "texture_mossyRock.jpg";
+	maps[3] = "texture_mossyRock.jpg";
 	level.m_heightmapTextures.push_back(maps);
 	maps[0] = "texture_grass.jpg";
 	maps[1] = "texture_rock4.jpg";
@@ -94,9 +94,7 @@ void LevelHandler::initialiseLevel1() {
 	maps[3] = "texture_rock6.jpg";
 	level.m_heightmapTextures.push_back(maps);
 
-	// level.m_wind.push_back(float3(0.f, 8.f, 0.f)); // Volcano
-	// level.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
-	level.m_wind.push_back(float3(1.f, 0.f, 2.f)); // Desert
+	level.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
 	level.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
 
 	level.m_nrOfFruits[APPLE] = 20;
@@ -109,9 +107,9 @@ void LevelHandler::initialiseLevel1() {
 
 	level.m_playerStartPos = float3(20.f, 0.0f, 20.f);
 
-	level.m_timeTargets[GOLD] = 80;
-	level.m_timeTargets[SILVER] = 100;
-	level.m_timeTargets[BRONZE] = 140;
+	level.m_timeTargets[GOLD] = 120;
+	level.m_timeTargets[SILVER] = 160;
+	level.m_timeTargets[BRONZE] = 200;
 
 	m_levelsArr.push_back(level);
 	m_hud.setTimeTargets(level.m_timeTargets);
@@ -283,6 +281,9 @@ void LevelHandler::initialise() {
 	m_terrainProps.addPlaceableEntity("Grass2");
 	m_terrainProps.addPlaceableEntity("Grass3");
 	m_terrainProps.addPlaceableEntity("Grass4");
+	m_terrainProps.addPlaceableEntity("RopeBridgeFloor");
+	m_terrainProps.addPlaceableEntity("RopeBridgeRailing1");
+	m_terrainProps.addPlaceableEntity("RopeBridgeRailing2");
 
 	initialiseLevel0();
 	initialiseLevel1();
@@ -346,6 +347,7 @@ void LevelHandler::loadLevel(int levelNr) {
 		m_currentTerrain = currentLevel.m_terrainTags[m_terrainManager->getTerrainIndexFromPosition(
 			currentLevel.m_playerStartPos)];
 		m_skyBox.updateNewOldLight(m_currentTerrain);
+		AudioHandler::getInstance()->changeMusicByTag(m_currentTerrain, 0);
 
 		// temp
 		float height =
@@ -363,8 +365,8 @@ void LevelHandler::loadLevel(int levelNr) {
 		newEntity->setCollisionDataOBB();
 		m_collidableEntities.push_back(newEntity);
 
-		placeAllBridges();
-		placeAllAnimals();
+		// placeAllBridges();
+		// placeAllAnimals();
 
 		m_hud.setTimeTargets(currentLevel.m_timeTargets);
 		m_hud.setWinCondition(currentLevel.m_winCondition);
@@ -376,9 +378,15 @@ void LevelHandler::loadLevel(int levelNr) {
 			m_hud.createFruitSprite("banana");
 		if (currentLevel.m_nrOfFruits[MELON] != 0)
 			m_hud.createFruitSprite("melon");
+
+		// Put out bridges correctly
 	}
 	if (PathFindingThread::getInstance()->m_thread == nullptr) {
 		PathFindingThread::getInstance()->initialize(m_fruits, m_frame, m_collidableEntities);
+	}
+	else if (PathFindingThread::getInstance()->m_currentFrame == NULL) {
+		PathFindingThread::getInstance()->initialize(
+			m_fruits, m_frame, m_collidableEntities); // Will this cause issues?
 	}
 }
 
@@ -508,19 +516,6 @@ void LevelHandler::update(float dt) {
 	// update terrain tag
 	int activeTerrain = m_terrainManager->getTerrainIndexFromPosition(playerPos);
 
-	if (activeTerrain == 2) {
-		AudioHandler::getInstance()->changeMusicTo(AudioHandler::SPANISH_GUITAR, dt);
-	}
-	else if (activeTerrain == 1) {
-		AudioHandler::getInstance()->changeMusicTo(AudioHandler::KETAPOP, dt);
-	}
-	else if (activeTerrain == 0) {
-		AudioHandler::getInstance()->changeMusicTo(AudioHandler::KETAPOP_DARK, dt);
-	}
-	else {
-		AudioHandler::getInstance()->changeMusicTo(AudioHandler::JINGLE_GUITAR, dt);
-	}
-
 	if (activeTerrain != -1 && m_currentLevel != -1) {
 		Level::TerrainTags tag = m_levelsArr[m_currentLevel].m_terrainTags[activeTerrain];
 		if (m_currentTerrain != tag) {
@@ -528,6 +523,7 @@ void LevelHandler::update(float dt) {
 			m_currentTerrain = tag;
 			m_skyBox.updateNewOldLight(tag);
 			m_skyBox.resetDelta();
+			AudioHandler::getInstance()->changeMusicByTag(tag, dt);
 		}
 	}
 
