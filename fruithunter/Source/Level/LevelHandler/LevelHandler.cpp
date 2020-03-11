@@ -194,6 +194,8 @@ void LevelHandler::initialise() {
 
 void LevelHandler::loadLevel(int levelNr) {
 	if (m_currentLevel != levelNr) {
+		Renderer::getInstance()->drawLoading();
+
 		m_currentLevel = levelNr;
 		Level currentLevel = m_levelsArr.at(levelNr);
 
@@ -260,6 +262,7 @@ void LevelHandler::loadLevel(int levelNr) {
 		if (currentLevel.m_nrOfFruits[MELON] != 0)
 			m_hud.createFruitSprite("melon");
 	}
+
 	if (PathFindingThread::getInstance()->m_thread == nullptr) {
 		PathFindingThread::getInstance()->initialize(m_fruits, m_frame, m_collidableEntities);
 	}
@@ -472,7 +475,7 @@ void LevelHandler::update(float dt) {
 		}
 	}
 
-	
+
 
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
 		Terrain* currentTerrain =
