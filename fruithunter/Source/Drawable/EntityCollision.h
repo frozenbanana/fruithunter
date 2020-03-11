@@ -64,4 +64,5 @@ public:
 
 	int getCollisionType() const;
 	float3 getClosestPointOnBox(float3 point) const;
+	bool getIsCollidable() const;
 };

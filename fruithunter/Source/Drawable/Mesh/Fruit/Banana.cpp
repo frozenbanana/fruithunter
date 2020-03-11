@@ -31,6 +31,14 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 
 void Banana::behaviorPassive(float3 playerPosition) {
 	TerrainManager* terrainManger = TerrainManager::getInstance();
+
+	if (m_position.y <= 1.f) {
+		float3 target = m_worldHome - m_position;
+		target.Normalize();
+		target.y = 1.f;
+		jump(target, 10.f);
+		return;
+	}
 	// Only decide what to do on ground
 	if (m_onGround) {
 		float3 direction = float3(0.f);

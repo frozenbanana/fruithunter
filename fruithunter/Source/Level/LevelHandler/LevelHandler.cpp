@@ -194,6 +194,8 @@ void LevelHandler::initialise() {
 
 void LevelHandler::loadLevel(int levelNr) {
 	if (m_currentLevel != levelNr) {
+		Renderer::getInstance()->drawLoading();
+
 		m_currentLevel = levelNr;
 		Level currentLevel = m_levelsArr.at(levelNr);
 
@@ -260,7 +262,10 @@ void LevelHandler::loadLevel(int levelNr) {
 		if (currentLevel.m_nrOfFruits[MELON] != 0)
 			m_hud.createFruitSprite("melon");
 	}
-	PathFindingThread::getInstance()->initialize(m_fruits, m_frame, m_collidableEntities);
+
+	if (PathFindingThread::getInstance()->m_thread == nullptr) {
+		PathFindingThread::getInstance()->initialize(m_fruits, m_frame, m_collidableEntities);
+	}
 }
 
 void LevelHandler::draw() {
@@ -338,7 +343,7 @@ void LevelHandler::drawShadowDynamicEntities() {
 void LevelHandler::update(float dt) {
 	auto pft = PathFindingThread::getInstance();
 
-	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
+	m_terrainProps.update(m_player.getCameraPosition(), m_player.getForward());
 
 	m_skyBox.updateDelta(dt);
 
@@ -347,6 +352,10 @@ void LevelHandler::update(float dt) {
 
 	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
 	m_player.getBow().getTrailEffect().update(dt);
+
+	if (m_player.inHuntermode()) {
+		dt *= 0.1f;
+	}
 
 	// for all animals
 	for (size_t i = 0; i < m_Animals.size(); ++i) {
@@ -442,21 +451,34 @@ void LevelHandler::update(float dt) {
 	}
 
 	// Check entity collisions
+	// player - entity
 	vector<unique_ptr<Entity>>* entities = m_terrainProps.getEntities();
 	for (size_t iObj = 0; iObj < entities->size(); ++iObj) {
-		// player - entity
 		m_player.collideObject(*entities->at(iObj));
-
-		// arrow - entity
-		float3 arrowPosision = m_player.getArrow().getPosition();
-		float3 arrowVelocity = m_player.getBow().getArrowVelocity();
-		// float castray = entities->at(iObj)->castRay(arrowPosision, arrowVelocity);
-		// if (castray != -1.f) {
-		//	// Arrow is hitting object
-		//	float3 target = arrowPosision + arrowVelocity * castray * dt;
-		//	m_player.getBow().arrowHitObject(target);
-		//}
 	}
+
+
+
+	// Check entity - arrow
+	float3 arrowPosision = m_player.getArrow().getPosition();
+	float3 arrowVelocity = m_player.getBow().getArrowVelocity();
+	vector<Entity**> entitiesAroundArrow =
+		m_terrainProps.getCulledEntitiesByPosition(arrowPosision);
+	if (m_player.isShooting() && !m_player.getBow().getArrowHitObject()) {
+		for (size_t i = 0; i < entitiesAroundArrow.size(); i++) {
+			if ((*entitiesAroundArrow[i])->getIsCollidable()) {
+				float castray =
+					(*entitiesAroundArrow[i])->castRay(arrowPosision, arrowVelocity * dt);
+				if (castray != -1.f && castray < 1.f) {
+					// Arrow is hitting object
+					float3 target = arrowPosision + arrowVelocity * dt * castray;
+					m_player.getBow().arrowHitObject(target);
+				}
+			}
+		}
+	}
+
+
 
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
 		Terrain* currentTerrain =

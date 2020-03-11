@@ -40,6 +40,8 @@ void LevelSelectState::initialize() {
 }
 
 void LevelSelectState::update() {
+	Input::getInstance()->setMouseModeRelative();
+
 	float delta = 0.016f; // lazy, get me a timer instead
 
 	// update player
@@ -55,14 +57,16 @@ void LevelSelectState::update() {
 
 	// Update bowls
 	for (int i = 0; i < NR_OF_LEVELS; i++) {
-		m_bowls[i]->updateAnimated(delta);
 		// Check collision
 		if (m_player.getArrow().checkCollision(*m_bowls[i])) {
 			m_player.getArrow().setPosition(float3(-1000.f));
 			m_player.setPosition(float3(52.f, 0.f, 40.f));
+			draw(); // Updates hitboxes and prepares state for next time.
 			setLevel(i);
 			StateHandler::getInstance()->changeState(StateHandler::PLAY);
 		}
+
+		m_bowls[i]->updateAnimated(delta);
 	}
 }
 
@@ -80,7 +84,6 @@ void LevelSelectState::pause() {
 void LevelSelectState::play() {
 	Input::getInstance()->setMouseModeRelative();
 	ErrorLogger::log(m_name + " play() called.");
-	Renderer::getInstance()->drawLoading();
 	AudioHandler::getInstance()->changeMusicTo(AudioHandler::ELEVATOR, 0.f); // dt not used. Lazy...
 	State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
 	dynamic_cast<PlayState*>(tempPointer)->destroyLevel(); // reset if there is an old level
