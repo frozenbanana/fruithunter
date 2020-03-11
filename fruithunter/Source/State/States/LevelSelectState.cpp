@@ -9,7 +9,7 @@ void LevelSelectState::initialize() {
 
 	// Initiate player
 	m_player.initialize();
-	m_player.setPosition(float3(47.3f, 2.5f, 85.4f));
+	m_player.setPosition(float3(34.0f, 2.5f, 79.9f));
 
 	// Initiate terrain
 	vector<string> maps(4);
@@ -46,6 +46,8 @@ void LevelSelectState::update() {
 	// update player
 	m_player.update(delta, m_terrain);
 
+	//ErrorLogger::logFloat3("playerPos: ", m_player.getPosition());
+
 	// Update Skybox
 	m_skyBox.updateDelta(delta);
 	m_skyBox.updateCurrentLight();
@@ -65,7 +67,6 @@ void LevelSelectState::update() {
 			StateHandler::getInstance()->changeState(StateHandler::PLAY);
 		}
 	}
-	ErrorLogger::logFloat3("Current pos", m_player.getPosition());
 }
 
 void LevelSelectState::handleEvent() {

@@ -45,7 +45,7 @@ void LevelHandler::initialiseLevel0() {
 	level.m_winCondition[BANANA] = 0;
 	level.m_winCondition[MELON] = 0;
 
-	level.m_playerStartPos = float3(20.f, 0.0f, 20.f);
+	level.m_playerStartPos = float3(5.6f, 2.5f, 38.7f);
 
 	level.m_timeTargets[GOLD] = 30;
 	level.m_timeTargets[SILVER] = 40;
@@ -105,7 +105,7 @@ void LevelHandler::initialiseLevel1() {
 	level.m_winCondition[BANANA] = 0;
 	level.m_winCondition[MELON] = 10;
 
-	level.m_playerStartPos = float3(20.f, 0.0f, 20.f);
+	level.m_playerStartPos = float3(5.9f, 3.2f, 74.4f);
 
 	level.m_timeTargets[GOLD] = 120;
 	level.m_timeTargets[SILVER] = 160;
@@ -193,7 +193,7 @@ void LevelHandler::initialiseLevel2() {
 	level.m_winCondition[BANANA] = 2;
 	level.m_winCondition[MELON] = 2;
 
-	level.m_playerStartPos = float3(20.f, 0.0f, 20.f);
+	level.m_playerStartPos = float3(162.5f, 9.5f, 19.f);
 
 	level.m_timeTargets[GOLD] = 120;
 	level.m_timeTargets[SILVER] = 160;
@@ -349,22 +349,6 @@ void LevelHandler::loadLevel(int levelNr) {
 		m_skyBox.updateNewOldLight(m_currentTerrain);
 		AudioHandler::getInstance()->changeMusicByTag(m_currentTerrain, 0);
 
-		// temp
-		/*float height =
-			TerrainManager::getInstance()->getHeightFromPosition(currentLevel.m_playerStartPos);
-		shared_ptr<Entity> newEntity = make_shared<Entity>();
-		newEntity->load("bush1");
-		newEntity->setScale(1);
-		newEntity->setPosition(currentLevel.m_playerStartPos + float3(1.f, height, 1.f));
-		newEntity->setCollisionDataOBB();
-		m_collidableEntities.push_back(newEntity);
-		newEntity = make_shared<Entity>();
-		newEntity->load("Cactus_tall");
-		newEntity->setScale(1);
-		newEntity->setPosition(currentLevel.m_playerStartPos + float3(1.f, height, 3.f));
-		newEntity->setCollisionDataOBB();
-		m_collidableEntities.push_back(newEntity);*/
-
 		// placeAllBridges();
 		// placeAllAnimals();
 
@@ -512,7 +496,6 @@ void LevelHandler::update(float dt) {
 	dropFruit();
 
 	float3 playerPos = m_player.getPosition();
-
 	// update terrain tag
 	int activeTerrain = m_terrainManager->getTerrainIndexFromPosition(playerPos);
 
