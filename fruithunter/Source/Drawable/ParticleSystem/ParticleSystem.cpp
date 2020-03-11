@@ -76,7 +76,7 @@ void ParticleSystem::initialize() {
 	}
 
 	switch (m_type) {
-	case PARTICLE_TYPE::FOREST_BUBBLE:
+	case PARTICLE_TYPE::STARS:
 		m_currentShaderSet = &m_shaderSetStar;
 		break;
 	default:

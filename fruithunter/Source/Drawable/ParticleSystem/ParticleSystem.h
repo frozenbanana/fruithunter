@@ -160,7 +160,7 @@ private:
 				m_radiusInterval = float2(0.0f, 0.0f);
 				m_velocity = float3(0.f, 0.0f, 0.f);
 				m_velocityOffsetInterval = float2(-0.5f, 0.5f); // for x, y and z
-				m_sizeInterval = float2(0.091f, 0.0932f);
+				m_sizeInterval = float2(0.7f, 1.3f);
 				m_timeAliveInterval = float2(0.4f, 0.43f);
 				m_color[0] = float4(0.81f, 0.90f, 0.00f, 1.0f);
 				m_color[1] = float4(0.90f, 0.81f, 0.00f, 1.0f);
