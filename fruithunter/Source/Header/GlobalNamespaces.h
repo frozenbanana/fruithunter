@@ -50,7 +50,7 @@ struct CubeBoundingBox {
 	}
 	CubeBoundingBox(const vector<float3>& points) {
 		bool setMin[3] = { 0, 0, 0 }, setMax[3] = { 0, 0, 0 }; // 0 = unset, 1 = set
-		float min[3], max[3];
+		float min[3] = { 0 }, max[3] = { 0 };
 		for (size_t i = 0; i < points.size(); i++) {
 			float3 p = points[i];
 			float ps[3] = { p.x, p.y, p.z };

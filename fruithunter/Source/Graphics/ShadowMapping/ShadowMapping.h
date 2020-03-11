@@ -5,7 +5,7 @@
 #define MATRIX_CAMERA_SLOT 1
 #define MATRIX_SHADOWINFO_SLOT 6
 
-#define SMAP_WIDTH 2048
+#define SMAP_WIDTH (2048)
 #define SHADOW_NEARPLANE 1.f
 #define SHADOW_FARPLANE 300.f
 
@@ -15,8 +15,8 @@ private:
 	XMINT2 m_smapSize = XMINT2(SMAP_WIDTH, SMAP_WIDTH);
 	float m_nearPlane = SHADOW_NEARPLANE;
 	float m_farPlane = SHADOW_FARPLANE;
-	float2 m_size = float2(200.f, 180.f);
-	float3 m_position = float3(-0.f, 110.f, 100.f);
+	float2 m_size = float2(1.f, 1.f);
+	float3 m_position = float3(0, 0, 0);
 	float3 m_lightDirection;
 	Matrix m_VPT;
 

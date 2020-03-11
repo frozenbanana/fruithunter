@@ -287,12 +287,6 @@ void LevelHandler::draw() {
 
 	// frustum data for culling
 	vector<FrustumPlane> frustum = m_player.getFrustumPlanes();
-	if (Input::getInstance()->keyDown(Keyboard::Z))
-		frustum = Renderer::getInstance()->getShadowMapper()->getFrustumPlanes();
-	for (size_t i = 0; i < frustum.size(); i++) {
-		m_sphere.setPosition(frustum[i].m_position);
-		m_sphere.draw_onlyMesh(float3(1, 0, 0));
-	}
 	// terrain entities
 	m_terrainProps.quadtreeCull(frustum);
 	m_terrainProps.draw();

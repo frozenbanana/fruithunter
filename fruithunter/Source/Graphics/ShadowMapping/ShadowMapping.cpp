@@ -141,7 +141,6 @@ void ShadowMapper::mapShadowToFrustum(vector<float3> frustum) {
 
 	m_position = float3::Transform(lightToFrustumBB.getCenter(), m_viewMatrix.Invert()) + offset;
 	m_size = float2(lightToFrustumBB.m_size.x, lightToFrustumBB.m_size.y);
-	//m_farPlane = lightToFrustumBB.m_position.z + lightToFrustumBB.m_size.z;
 	updateViewMatrix();
 	updateProjMatrix();
 }
@@ -238,8 +237,11 @@ vector<FrustumPlane> ShadowMapper::getFrustumPlanes() const {
 	planes.reserve(6);
 
 	float3 forward = m_lightDirection;
+	forward.Normalize();
 	float3 right = forward.Cross(float3(0, 1.f, 0));
+	right.Normalize();
 	float3 up = right.Cross(forward);
+	up.Normalize();
 
 	float3 center = m_position;
 	float height = m_size.y / 2.f;
@@ -250,7 +252,7 @@ vector<FrustumPlane> ShadowMapper::getFrustumPlanes() const {
 
 	float3 p_left = center + forward * betweenP + right * width * -1.f;
 	float3 p_right = center + forward * betweenP + right * width * 1.f;
-	float3 p_up = center + forward * betweenP +  up * height * 1.f;
+	float3 p_up = center + forward * betweenP + up * height * 1.f;
 	float3 p_down = center + forward * betweenP + up * height * -1.f;
 	float3 p_forward = center + forward * farP;
 	float3 p_backward = center + forward * nearP;
@@ -261,6 +263,10 @@ vector<FrustumPlane> ShadowMapper::getFrustumPlanes() const {
 	planes.push_back(FrustumPlane(p_down, -up));
 	planes.push_back(FrustumPlane(p_forward, forward));
 	planes.push_back(FrustumPlane(p_backward, -forward));
+
+	planes.push_back(FrustumPlane(p_backward + forward, -forward));
+	planes.push_back(FrustumPlane(p_backward + right, -forward));
+	planes.push_back(FrustumPlane(p_backward + up, -forward));
 
 	return planes;
 }
