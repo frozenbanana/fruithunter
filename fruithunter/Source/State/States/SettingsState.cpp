@@ -31,7 +31,7 @@ void SettingsState::handleEvent() {
 	if (m_darkEdgesButton.update()) {
 		Renderer::getInstance()->setDarkEdges(m_darkEdgesButton.getOnOff());
 	}
-	if (m_backButton.update()) {
+	if (m_backButton.update() || Input::getInstance()->keyDown(Keyboard::Keys::Escape)) {
 		StateHandler::getInstance()->resumeMenuState();
 	}
 }
