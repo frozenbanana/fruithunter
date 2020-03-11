@@ -80,7 +80,7 @@ void ParticleSystem::initialize() {
 		break;
 	}
 
-	setActive();
+	run();
 }
 
 void ParticleSystem::setParticle(Description desc, size_t index) {
@@ -150,7 +150,8 @@ void ParticleSystem::activateOneParticle() {
 }
 
 void ParticleSystem::update(float dt, float3 wind) {
-	if (m_isActive && m_type != STARS) {
+	if (m_isRunning && m_type != STARS) {
+
 		m_timePassed += dt;
 		m_emitTimer += dt;
 		float rate = m_description->m_emitRate;
@@ -178,8 +179,8 @@ void ParticleSystem::update(float dt, float3 wind) {
 		}
 	}
 
-	if (nrOfActive == 0) {
-		m_isActive = false;
+	if (nrOfActive == 0 && m_type == STARS) {
+		m_isRunning = false;
 	}
 }
 
@@ -222,7 +223,6 @@ void ParticleSystem::draw() {
 	auto deviceContext = Renderer::getDeviceContext();
 	// Since we are using the same vertex buffer for all Particle Systems
 	// the buffer update needs to be next to the draw call.
-	deviceContext->UpdateSubresource(m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
 
 	m_currentShaderSet->bindShadersAndLayout();
 	Renderer::getDeviceContext()->UpdateSubresource(
@@ -230,12 +230,13 @@ void ParticleSystem::draw() {
 	bindBuffers();
 
 	Renderer::getInstance()->enableAlphaBlending();
+	// ErrorLogger::log("Doing normal draw, size: " + to_string(m_particles.size()));
 	deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
 	Renderer::getInstance()->disableAlphaBlending();
 }
 
 void ParticleSystem::drawNoAlpha() {
-	if (m_isActive) {
+	if (m_isRunning) {
 		auto deviceContext = Renderer::getDeviceContext();
 		// Since we are using the same vertex buffer for all Particle Systems
 		// the buffer update needs to be next to the draw call.
@@ -261,16 +262,16 @@ void ParticleSystem::inactivateAllParticles() {
 	}
 }
 
-void ParticleSystem::setActive(bool startAll) {
+void ParticleSystem::run(bool startAll) {
 	if (startAll) {
 		activateAllParticles();
 	}
-	m_isActive = true;
+	m_isRunning = true;
 }
 
-void ParticleSystem::setInActive() { m_isActive = false; }
+void ParticleSystem::setInActive() { m_isRunning = false; }
 
-bool ParticleSystem::getIsActive() { return m_isActive; }
+bool ParticleSystem::getIsActive() { return m_isRunning; }
 
 void ParticleSystem::setPosition(float3 position) { m_spawnPoint = position; }
 

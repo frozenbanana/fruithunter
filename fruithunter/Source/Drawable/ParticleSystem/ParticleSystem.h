@@ -27,7 +27,7 @@ public:
 	void drawNoAlpha();
 	void activateAllParticles();
 	void inactivateAllParticles();
-	void setActive(bool startAll = false);
+	void run(bool startAll = false);
 	void setInActive();
 	bool getIsActive();
 	void setPosition(float3 position);
@@ -36,7 +36,7 @@ public:
 private:
 	PARTICLE_TYPE m_type = NONE;
 	float3 m_spawnPoint = float3(0, 0, 0);
-	bool m_isActive;
+	bool m_isRunning;
 	struct Description {
 		int m_nrOfParticles;
 		float m_emitRate; // particles per sec

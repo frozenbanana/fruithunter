@@ -126,7 +126,7 @@ public:
 		}
 		m_particleSystem->setColors(colors);
 		m_particleSystem->setAmountOfParticles(nrOf);
-		m_particleSystem->setActive(true);
+		m_particleSystem->run(true);
 		m_currentMaterial = 2;
 	}
 
