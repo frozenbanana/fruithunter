@@ -178,7 +178,7 @@ private:
 	float m_emitTimer;
 
 	vector<Particle> m_particles;
-	size_t m_nrOfParticles;
+	int m_nrOfParticles;
 	static ShaderSet m_shaderSet;
 
 	// Buffers

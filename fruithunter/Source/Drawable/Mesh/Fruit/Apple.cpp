@@ -25,42 +25,52 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 void Apple::behaviorPassive(float3 playerPosition) {
 	float terrainHeight = TerrainManager::getInstance()->getHeightFromPosition(m_position);
 	// Check if not at home
-	if (withinDistanceTo(playerPosition, m_activeRadius)) {
-		stopMovement();
-		changeState(ACTIVE);
+	if (m_position.y <= 1.f) {
+		float3 target = m_worldHome - m_position;
+		target.Normalize();
+		target.y = 1.f;
+		jump(target, 10.f);
+		return;
 	}
-	else {
-		if (!withinDistanceTo(m_worldHome, ARRIVAL_RADIUS) && m_onGround) {
-			// Check if there is no other path on going
-			if (m_availablePath.empty()) {
-				if (m_nrOfTriesGoHome++ < 10) {
-					makeReadyForPath(m_worldHome); // go home
+	if (m_onGround) {
+
+		if (withinDistanceTo(playerPosition, m_activeRadius)) {
+			// stopMovement();
+			changeState(ACTIVE);
+		}
+		else {
+			if (!withinDistanceTo(m_worldHome, ARRIVAL_RADIUS) && m_onGround) {
+				// Check if there is no other path on going
+				if (m_availablePath.empty()) {
+					if (m_nrOfTriesGoHome++ < 10) {
+						makeReadyForPath(m_worldHome); // go home
+					}
+					else {
+						setWorldHome(m_position + float3(0.001f, 0, 0.001f));
+						m_nrOfTriesGoHome = 0;
+					}
+					m_speed = m_passive_speed;
 				}
 				else {
-					setWorldHome(m_position + float3(0.001f, 0, 0.001f));
-					m_nrOfTriesGoHome = 0;
+					float3 jumpTo = (m_availablePath.back() - m_position);
+					jumpTo.Normalize();
+					jumpTo.y = 1.f;
+					jump(jumpTo, 1.f);
 				}
-				m_speed = m_passive_speed;
 			}
-			else {
-				float3 jumpTo = (m_availablePath.back() - m_position);
-				jumpTo.Normalize();
-				jumpTo.y = 1.f;
-				jump(jumpTo, 1.f);
-			}
-		}
-		else { // Just jump when home
-			if (m_onGround) {
-				m_speed = 0.f;
-				jump(float3(0.0f, 1.0f, 0.0), 7.f);
-				m_nrOfJumps++;
-				if (m_nrOfJumps >= MAXNROFJUMPS) {
-					float3 newHome = m_worldHome;
-					newHome += float3(RandomFloat(-10.f, 10.f), 0.f, RandomFloat(-10.f, 10.f));
-					newHome.y = TerrainManager::getInstance()->getHeightFromPosition(newHome);
-					if (isValid(newHome, m_position)) {
-						m_worldHome = newHome;
-						m_nrOfJumps = 0;
+			else { // Just jump when home
+				if (m_onGround) {
+					m_speed = 0.f;
+					jump(float3(0.0f, 1.0f, 0.0), 7.f);
+					m_nrOfJumps++;
+					if (m_nrOfJumps >= MAXNROFJUMPS) {
+						float3 newHome = m_worldHome;
+						newHome += float3(RandomFloat(-10.f, 10.f), 0.f, RandomFloat(-10.f, 10.f));
+						newHome.y = TerrainManager::getInstance()->getHeightFromPosition(newHome);
+						if (isValid(newHome, m_position)) {
+							m_worldHome = newHome;
+							m_nrOfJumps = 0;
+						}
 					}
 				}
 			}
