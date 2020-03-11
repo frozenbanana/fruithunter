@@ -163,8 +163,10 @@ void ParticleSystem::update(float dt, float3 wind) {
 			m_emitTimer -= (1.f / rate) * emitCount;
 		}
 	}
+	size_t nrOfActive = 0;
 	for (size_t i = 0; i < m_particles.size(); i++) {
 		if (m_particles[i].getActiveValue() == 1.0f) {
+			nrOfActive++;
 			m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
 			m_particleProperties[i].m_timeLeft -= dt;
 			m_particles[i].update(dt, m_particleProperties[i].m_velocity + wind);
@@ -174,6 +176,10 @@ void ParticleSystem::update(float dt, float3 wind) {
 				m_particles[i].setActiveValue(0.0f);
 			}
 		}
+	}
+
+	if (nrOfActive == 0) {
+		m_isActive = false;
 	}
 }
 
@@ -233,8 +239,6 @@ void ParticleSystem::drawNoAlpha() {
 		auto deviceContext = Renderer::getDeviceContext();
 		// Since we are using the same vertex buffer for all Particle Systems
 		// the buffer update needs to be next to the draw call.
-		deviceContext->UpdateSubresource(m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
-
 		m_currentShaderSet->bindShadersAndLayout();
 		Renderer::getDeviceContext()->UpdateSubresource(
 			m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
@@ -244,6 +248,7 @@ void ParticleSystem::drawNoAlpha() {
 }
 
 void ParticleSystem::activateAllParticles() {
+	m_particles.resize(m_description->m_nrOfParticles);
 	for (size_t i = 0; i < m_particles.size(); i++) {
 		m_particles[i].setActiveValue(1.0f);
 		setParticle(*m_description, i);

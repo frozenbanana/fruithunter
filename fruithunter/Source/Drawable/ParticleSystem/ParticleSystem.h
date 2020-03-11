@@ -157,7 +157,7 @@ private:
 				m_color[2] = float4(0.00f, 0.00f, 1.00f, 1.0f);
 				break;
 			case STARS:
-				m_nrOfParticles = 20;
+				m_nrOfParticles = MAX_PARTICLES - 1;
 				m_emitRate = 30.0f; // particles per sec
 				m_acceleration = float3(0.0f, 0.0f, 0.0f);
 				m_accelerationOffsetInterval = float2(0.0f, 0.0f);
