@@ -261,3 +261,6 @@ float3 EntityCollision::getClosestPointOnBox(float3 point) const {
 }
 
 bool EntityCollision::getIsCollidable() const { return m_collidable; }
+
+float3 EntityCollision::getOBBHalfsize() { 
+	return m_collisionType == ctOBB ? ((ObbData*)m_collisionData.get())->m_halfSize : float3(0.f); }

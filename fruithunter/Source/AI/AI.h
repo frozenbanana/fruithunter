@@ -1,14 +1,11 @@
 #pragma once
 #include "GlobalNamespaces.h"
 #include "Terrain.h"
-#include "Entity.h"
+#include "EntityRepository.h"
 #include <list>
 #include <mutex>
 #define ARRIVAL_RADIUS 3.0f
 #define MAX_STEAPNESS .2f
-
-// int runningThreads = 0;
-
 
 class AI {
 public:
@@ -68,7 +65,7 @@ protected:
 
 	void handleAvailablePath(float3 myPosition);
 
-	bool isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entity>> collidables);
+	bool isValid(float3 childPos, float3 currentNodePos, EntityRepository &collidables);
 	bool isValid(float3 childPos, float3 currentNodePos);
 	void makeReadyForPath(float3 destination);
 

@@ -69,7 +69,7 @@ bool AI::beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>>
 	return true;
 }
 
-bool AI::isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entity>> collidables) {
+bool AI::isValid(float3 childPos, float3 currentNodePos, EntityRepository &collidables) {
 
 	auto pft = PathFindingThread::getInstance();
 
@@ -88,15 +88,15 @@ bool AI::isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entit
 	if (abs(float3(0.0f, 1.0f, 0.0f).Dot(normal)) < 0.99f)
 		return false;
 
+	vector<Entity**> objects = collidables.getCulledEntitiesByPosition(childPos);
+	for (size_t i = 0; i < objects.size(); ++i) {
 
-	for (size_t i = 0; i < collidables.size(); ++i) {
-
-		float3 obstacle = collidables.at(i)->getPosition();
+		float3 obstacle = (*objects[i])->getPosition();
 		obstacle.y = 0.f;
 		childPos.y = 0.f;
 		float lengthChildToCollidableSquared = (childPos - obstacle).LengthSquared();
-		float collidableRadiusSquared = collidables.at(i)->getHalfSizes().LengthSquared();
-
+		float collidableRadiusSquared = (*objects[i])->getHalfSizes().LengthSquared();
+		
 		if (lengthChildToCollidableSquared < collidableRadiusSquared) {
 
 			return false;
@@ -197,7 +197,7 @@ void AI::pathfinding(float3 start) {
 						continue;
 					}
 
-					if (!isValid(child->position, currentNode->position, pft->m_collidables)) {
+					if (!isValid(child->position, currentNode->position, *pft->m_collidables)) {
 						continue;
 					}
 

@@ -61,7 +61,7 @@ bool PathFindingThread::checkVolatile(bool& statement) {
 }
 
 void PathFindingThread::initialize(std::vector<shared_ptr<Fruit>>& batch,
-	shared_ptr<size_t> currentFrame, vector<shared_ptr<Entity>> collidables) {
+	shared_ptr<size_t> currentFrame, EntityRepository &collidables) {
 	auto pft = PathFindingThread::getInstance();
 	pft->m_ready = false;
 	pft->m_running = true;
@@ -69,7 +69,7 @@ void PathFindingThread::initialize(std::vector<shared_ptr<Fruit>>& batch,
 	pft->m_mutex.lock();
 	pft->m_batch = &batch;
 	pft->m_currentFrame = currentFrame;
-	pft->m_collidables = collidables;
+	pft->m_collidables = &collidables;
 	pft->m_ready = true;
 	pft->m_mutex.unlock();
 }
