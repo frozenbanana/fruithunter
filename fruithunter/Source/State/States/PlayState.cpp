@@ -5,16 +5,11 @@
 #include "Input.h"
 #include "StateHandler.h"
 #include "EndRoundState.h"
-#include <iostream>
-#include <string>
 
 void PlayState::initialize() { m_name = "Play State"; }
 
 void PlayState::update() {
-
-	if (Input::getInstance()->keyPressed(Keyboard::Keys::Escape)) {
-		StateHandler::getInstance()->changeState(StateHandler::PAUSE);
-	}
+	Input::getInstance()->setMouseModeRelative();
 
 	m_timer.update();
 	float dt = m_timer.getDt();
@@ -100,7 +95,6 @@ void PlayState::destroyLevel() {
 void PlayState::play() {
 	Input::getInstance()->setMouseModeRelative();
 	ErrorLogger::log(m_name + " play() called.");
-	Renderer::getInstance()->drawLoading();
 	if (m_levelHandler == nullptr)
 		m_levelHandler = make_unique<LevelHandler>();
 	m_levelHandler->loadLevel(m_currentLevel);

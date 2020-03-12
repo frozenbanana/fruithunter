@@ -17,6 +17,7 @@ public:
 	Entity& getArrow() { return m_arrow; };
 	float3 getArrowVelocity() const;
 	bool isShooting() const;
+	bool getArrowHitObject() const;
 	void arrowHitObject(float3 targetPosition);
 
 private:

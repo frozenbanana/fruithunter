@@ -156,6 +156,10 @@ void EntityRepository::savePlacements(string filename) const {
 
 vector<unique_ptr<Entity>>* EntityRepository::getEntities() { return &m_entities; }
 
+vector<Entity**> EntityRepository::getCulledEntitiesByPosition(float3 position) {
+	return m_quadtree.getElementsByPosition(position);
+}
+
 void EntityRepository::load(string filename) {
 	if (filename != "") {
 		if (fileExists(filename)) {
@@ -298,7 +302,7 @@ void EntityRepository::assignCollisionData(Entity* entity) {
 	}
 }
 
-void EntityRepository::update(float dt, float3 point, float3 direction) {
+void EntityRepository::update(float3 point, float3 direction) {
 	Input* ip = Input::getInstance();
 	if (ip->keyPressed(m_stateSwitchKey)) {
 		// switch state
