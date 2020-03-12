@@ -711,7 +711,7 @@ float Terrain::castRay(float3 point, float3 direction) {
 	return -1;
 }
 
-float3 Terrain::getWind() { return m_wind; }
+float3 Terrain::getWindStatic() { return m_wind; }
 
 float3 Terrain::getWindFromPosition(float3 position) {
 	float groundHeight = getHeightFromPosition(position.x, position.z);
@@ -729,8 +729,10 @@ float3 Terrain::getWindFromPosition(float3 position) {
 	return windOnGround * (1.f - distToGround) + m_wind * distToGround;
 }
 
-void Terrain::draw() {
-	if (m_mapsInitilized) {
+void Terrain::clearCulling() {
+	m_useCulling = false;
+	m_culledGrids.clear();
+}
 
 void Terrain::quadtreeCull(vector<FrustumPlane> planes) {
 	m_useCulling = true;

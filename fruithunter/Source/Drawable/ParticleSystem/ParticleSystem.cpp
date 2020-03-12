@@ -332,6 +332,8 @@ float3 ParticleSystem::getPosition() const { return m_spawnPoint; }
 
 void ParticleSystem::setEmitState(bool state) { m_isEmitting = state; }
 
+ParticleSystem::PARTICLE_TYPE ParticleSystem::getType() const { return m_type; }
+
 void ParticleSystem::setEmitRate(float emitRate) { m_description->m_emitRate = emitRate; }
 
 void ParticleSystem::setColors(float4 colors[3]) {

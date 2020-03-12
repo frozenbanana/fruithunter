@@ -3,7 +3,7 @@
 #include "ShaderSet.h"
 #include "Timer.h"
 #include "Terrain.h"
-#define MAX_PARTICLES 256
+#define MAX_PARTICLES 512
 
 
 class ParticleSystem {
@@ -39,6 +39,7 @@ public:
 	void setPosition(float3 position);
 	float3 getPosition() const;
 	void setEmitState(bool state);
+	PARTICLE_TYPE getType() const;
 
 private:
 	PARTICLE_TYPE m_type = NONE;
@@ -67,7 +68,7 @@ private:
 				m_spawnRadius = 40.f;
 				m_radiusInterval = float2(-35.2f, 0.2f);
 				m_velocity = float3(0.f, 0.f, 0.f);
-				m_velocityOffsetInterval = float2(-0.13f, 0.13f); // for x, y and z
+				m_velocityOffsetInterval = float2(-0.43f, 0.43f); // for x, y and z
 				m_sizeInterval = float2(0.10f, 0.20f);
 				m_timeAliveInterval = float2(4.f, 6.f);
 				m_color[0] = float4(0.0f, 0.65f, 0.05f, 1.0f);
@@ -82,7 +83,7 @@ private:
 				m_spawnRadius = 40.f;
 				m_radiusInterval = float2(-35.2f, 0.2f);
 				m_velocity = float3(0.f, 0.f, 0.f);
-				m_velocityOffsetInterval = float2(-0.13f, 0.13f); // for x, y and z
+				m_velocityOffsetInterval = float2(-0.43f, 0.43f); // for x, y and z
 				m_sizeInterval = float2(0.10f, 0.20f);
 				m_timeAliveInterval = float2(2.5f, 3.5f);
 				m_color[0] = float4(0.77f, 0.35f, 0.51f, 1.0f);
@@ -106,15 +107,15 @@ private:
 				break;
 			case VULCANO_SMOKE:
 				m_nrOfParticles = MAX_PARTICLES - 1;
-				m_emitRate = 80.0f; // particles per sec
+				m_emitRate = 120.0f; // particles per sec
 				m_acceleration = float3(0.f, -0.9f, 0.f);
-				m_accelerationOffsetInterval = float2(-2.20f, 2.20f);
+				m_accelerationOffsetInterval = float2(-1.80f, 1.80f);
 				m_spawnRadius = 0.75f;
 				m_radiusInterval = float2(-0.7f, 0.0f);
 				m_velocity = float3(0.f, 0.f, 0.f);
 				m_velocityOffsetInterval = float2(-1.5f, 1.5f); // for x, y and z
 				m_sizeInterval = float2(0.48f, 2.8f);
-				m_timeAliveInterval = float2(4.f, 5.f);
+				m_timeAliveInterval = float2(2.f, 3.f);
 				m_color[0] = float4(0.50f, 0.40f, 0.40f, 1.0f);
 				m_color[1] = float4(0.30f, 0.30f, 0.30f, 1.0f);
 				m_color[2] = float4(0.60f, 0.60f, 0.60f, 1.0f);
