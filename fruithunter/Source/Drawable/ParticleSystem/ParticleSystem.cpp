@@ -149,6 +149,11 @@ void ParticleSystem::activateOneParticle() {
 	}
 }
 
+void ParticleSystem::emit(size_t count) {
+	for (size_t i = 0; i < count; i++)
+		activateOneParticle();
+}
+
 void ParticleSystem::update(float dt, float3 wind) {
 	if (m_isRunning && m_type != STARS) {
 

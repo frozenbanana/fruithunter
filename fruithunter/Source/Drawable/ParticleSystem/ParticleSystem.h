@@ -22,6 +22,7 @@ public:
 
 	ParticleSystem(ParticleSystem::PARTICLE_TYPE type = NONE);
 	void activateOneParticle();
+	void emit(size_t count);
 	void update(float dt, float3 wind = float3(0, 0, 0));
 	void draw();
 	void drawNoAlpha();
@@ -158,7 +159,7 @@ private:
 				break;
 			case STARS:
 				m_nrOfParticles = MAX_PARTICLES - 1;
-				m_emitRate = 30.0f; // particles per sec
+				m_emitRate = 0.0f; // particles per sec
 				m_acceleration = float3(0.0f, 0.0f, 0.0f);
 				m_accelerationOffsetInterval = float2(0.0f, 0.0f);
 				m_spawnRadius = 0.9f;
