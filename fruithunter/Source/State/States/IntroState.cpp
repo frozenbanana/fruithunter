@@ -41,6 +41,7 @@ void IntroState::pause() {
 }
 
 void IntroState::draw() {
+	// Set first person info
 	Renderer::getInstance()->beginFrame();
 
 	m_startButton.draw();

@@ -44,30 +44,37 @@ private:
 	static float obbTest(float3 rayDir, float3 rayOrigin, float3 boxPos, float3 boxScale);
 
 public:
-	void bindMaterial(int index);
+	// -- GETS --
 	int getVertexCount() const;
 	const std::vector<Vertex>& getVertexPoints() const;
 	const Microsoft::WRL::ComPtr<ID3D11Buffer> getVertexBuffer() const;
 	std::string getName() const;
-	void setMaterialIndex(int material);
-
-	void draw();
-	void drawShadow();
-	void draw_noMaterial(float3 color = float3(1, 1, 1));
-	void draw_BoundingBox();
-	void draw_forShadowMap();
-	void draw_withoutBinding();
-	void bindMesh() const;
-
 	float3 getBoundingBoxPos() const;
 	float3 getBoundingBoxSize() const;
+	float3 getBoundingBoxHalfSizes() const; // for collision detection
 
-	bool load(std::string filename, bool combineParts = true);
-	void loadOtherMaterials(std::vector<string> fileNames, int nrOfMaterials);
+	// -- SETS --
+	void setMaterialIndex(int material);
 
+	// -- BINDS --
+	void bindMaterial(int index);
+	void bindColorBuffer(float3 color);
+	void bindMesh() const;
+
+	// -- DRAW CALLS
+	void drawCall_all();
+	void drawCall_perMaterial();
+
+	void draw();
+	void draw_noMaterial(float3 color = float3(1, 1, 1));
+	void draw_BoundingBox();
+
+	// -- ANALYSE --
 	float castRayOnMesh(float3 rayPos, float3 rayDir);
 
-	float3 getBoundingBoxHalfSizes() const; // for collision detection
+	// -- INITILIZE --
+	bool load(std::string filename, bool combineParts = true);
+	void loadOtherMaterials(std::vector<string> fileNames, int nrOfMaterials);
 
 	Mesh(std::string OBJFile = "");
 	Mesh& operator=(const Mesh& other) = delete;

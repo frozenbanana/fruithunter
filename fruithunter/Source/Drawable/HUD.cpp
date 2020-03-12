@@ -8,7 +8,6 @@
 
 string HUD::getTimePassed() { return getMinutes() + ":" + getSeconds(); }
 
-
 string HUD::getMinutes() {
 	if (m_secondsPassed > 60.0f) {
 		m_secondsPassed -= 60.0f;
@@ -106,6 +105,11 @@ HUD::HUD() {
 	if (t)
 		ErrorLogger::logError(t, "Failed to create stamina sprite texture");
 	m_staminaPos = float2(STANDARD_WIDTH - 250.0f, STANDARD_HEIGHT - 100.0f);
+
+	t = CreateWICTextureFromFile(Renderer::getDevice(), L"assets/sprites/staminaFrame.png",
+		resource.GetAddressOf(), m_staminaFrame.ReleaseAndGetAddressOf());
+	if (t)
+		ErrorLogger::logError(t, "Failed to create stamina frame texture");
 }
 
 HUD::~HUD() {
@@ -195,6 +199,8 @@ void HUD::draw() {
 	m_spriteBatch->Draw(m_backgroundTexture.Get(), m_backgroundPos);
 	m_spriteBatch->Draw(m_staminaTexture.Get(), m_staminaPos, nullptr, Colors::White, 0.0f,
 		float2(0.0f, 0.0f), float2(m_stamina + 0.05f, 0.8f));
+	m_spriteBatch->Draw(m_staminaFrame.Get(), float2(m_staminaPos.x - 27.0f, m_staminaPos.y - 10.0f), nullptr, Colors::White, 0.0f,
+		float2(0.0f, 0.0f), float2(1.05f, 0.8f));
 
 	m_spriteBatch->End();
 

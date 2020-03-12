@@ -124,7 +124,7 @@ void SkyBox::draw() {
 	m_box.bindMaterial(0);
 	m_box.bindMesh();
 	m_shaderSkyBox.bindShadersAndLayout();
-	Renderer::getDeviceContext()->Draw(m_box.getVertexCount(), 0);
+	Renderer::draw(m_box.getVertexCount(), 0);
 	//m_box.draw();
 }
 
@@ -132,7 +132,7 @@ void SkyBox::draw(int oldSkybox, int newSkybox) {
 	bindTextures(oldSkybox, newSkybox);
 	m_box.bindMesh();
 	m_shaderSkyBox.bindShadersAndLayout();
-	Renderer::getDeviceContext()->Draw(m_box.getVertexCount(), 0);
+	Renderer::draw(m_box.getVertexCount(), 0);
 }
 
 

@@ -22,9 +22,6 @@ using float4x4 = DirectX::SimpleMath::Matrix;
 #define STANDARD_CORNER_X 0
 #define STANDARD_CORNER_Y 0
 
-#define NEAR_PLANE 0.1f
-#define FAR_PLANE 100.f
-
 enum FruitType { APPLE, BANANA, MELON, NR_OF_FRUITS };
 enum TimeTargets { GOLD, SILVER, BRONZE, NR_OF_TIME_TARGETS };
 
@@ -52,13 +49,14 @@ struct FrustumPlane {
 };
 struct CubeBoundingBox {
 	float3 m_position, m_size;
+	float3 getCenter() const { return m_position + m_size / 2.f;}
 	CubeBoundingBox(float3 position = float3(0, 0, 0), float3 size = float3(0, 0, 0)) {
 		m_position = position;
 		m_size = size;
 	}
 	CubeBoundingBox(const vector<float3>& points) {
 		bool setMin[3] = { 0, 0, 0 }, setMax[3] = { 0, 0, 0 }; // 0 = unset, 1 = set
-		float min[3], max[3];
+		float min[3] = { 0 }, max[3] = { 0 };
 		for (size_t i = 0; i < points.size(); i++) {
 			float3 p = points[i];
 			float ps[3] = { p.x, p.y, p.z };
