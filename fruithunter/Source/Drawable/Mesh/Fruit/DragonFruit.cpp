@@ -31,10 +31,13 @@ DragonFruit::DragonFruit(float3 pos) : Fruit(pos) {
 
 void DragonFruit::waveFlight(float3 playerPosition, float radius) {
 
-
-	int degrees = 10 % 360;
-	float radians = degrees * XM_PI / 180.f;
-	float flightPattern = sin(radians);
+if (m_position.y < playerPosition.y + 3.f && isFalling()) {
+		float3 target = m_direction;
+		target.Normalize();
+		target.y = 1.f;
+		target += m_direction;
+		jump(target, .8f);
+	}
 }
 
 void DragonFruit::circulateVertical(float3 playerPosition, float radius) {
@@ -59,7 +62,7 @@ void DragonFruit::circulateVertical(float3 playerPosition, float radius) {
 	//target *= 10.f;
 	m_direction = target - m_position;
 	lookToDir(playerPosition - m_position);
-	//m_availablePath.push_back( target);
+	
 }
 
 
@@ -90,13 +93,8 @@ void DragonFruit::behaviorActive(float3 playerPosition) {
 	// circulate player in air.
 	//m_gravity = float3(0.f);
 	circulateVertical(playerPosition, 17.f);
-	if (m_position.y < playerPosition.y + 3.f && isFalling()) {
-		float3 target = m_direction;
-		target.Normalize();
-		target.y = 1.f;
-		target += m_direction;
-		jump(target, .8f);
-	}
+	waveFlight(playerPosition, 3.f);
+	
 	m_speed = 30.f;
 }
 
