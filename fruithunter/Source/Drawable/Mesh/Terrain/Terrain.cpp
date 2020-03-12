@@ -4,6 +4,8 @@
 #include <WICTextureLoader.h>
 #include "Input.h"
 
+#define MAX_HEIGHT 15.f
+
 ShaderSet Terrain::m_shader;
 Microsoft::WRL::ComPtr<ID3D11Buffer> Terrain::m_matrixBuffer;
 Microsoft::WRL::ComPtr<ID3D11SamplerState> Terrain::m_sampler;
@@ -709,6 +711,15 @@ float Terrain::castRay(float3 point, float3 direction) {
 }
 
 float3 Terrain::getWind() { return m_wind; }
+
+float3 Terrain::getWindFromPosition(float3 position) {
+	float groundHeight = getHeightFromPosition(position.x, position.y);
+	float distToGround = position.y - groundHeight;
+	float3 normal = getNormalFromPosition(position.x, position.y);
+	float3 tangent = normal.Cross(m_wind);
+	distToGround = Map(groundHeight, MAX_HEIGHT, 0.f, 1.f, distToGround);
+	return XMVectorLerp(m_wind, tangent, distToGround);
+}
 
 void Terrain::draw() {
 	if (m_mapsInitilized) {

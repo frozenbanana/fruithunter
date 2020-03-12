@@ -53,7 +53,7 @@ private:
 	XMINT2 m_gridPointSize;
 	vector<vector<Vertex>> m_gridPoints;
 
-	//quadtree for culling
+	// quadtree for culling
 	QuadTree<XMINT2> m_quadtree;
 
 	// vertex buffer
@@ -118,8 +118,8 @@ public:
 	static float obbTest(float3 rayOrigin, float3 rayDir, float3 boxPos, float3 boxScale);
 	static float triangleTest(
 		float3 rayOrigin, float3 rayDir, float3 tri0, float3 tri1, float3 tri2);
-	
-	//properties modifications
+
+	// properties modifications
 	void setPosition(float3 position);
 	void setScale(float3 scale);
 
@@ -128,7 +128,7 @@ public:
 
 	void rotateY(float radian);
 
-	//terrain scanning
+	// terrain scanning
 	bool pointInsideTerrainBoundingBox(float3 point);
 	float getHeightFromPosition(float x, float z);
 	float3 getNormalFromPosition(float x, float z);
@@ -136,7 +136,11 @@ public:
 
 	float3 getWind();
 
-	//drawing
+	float3 getWindFromPosition(float3 position);
+
+	void setWind(float3 wind);
+
+	// drawing
 	void draw();
 	void drawShadow();
 	bool draw_frustumCulling(const vector<FrustumPlane>& planes);
