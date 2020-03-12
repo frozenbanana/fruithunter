@@ -84,6 +84,10 @@ void LevelSelectState::update() {
 	m_player.update(
 		delta, TerrainManager::getInstance()->getTerrainFromPosition(m_player.getPosition()));
 
+	for (int i = 0; i < m_terrainProps.getEntities()->size(); i++) {
+		m_player.collideObject(*m_terrainProps.getEntities()->at(i));
+	}
+
 	//ErrorLogger::logFloat3("playerPos: ", m_player.getPosition());
 
 	// Update Skybox
