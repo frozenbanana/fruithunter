@@ -32,9 +32,9 @@ private:
 	Terrain* m_terrain;
 	Entity* m_bowls[NR_OF_LEVELS];
 	float3 m_bowlPos[NR_OF_LEVELS] = { 
-		float3(90.6f, 2.0f, 47.0f), 
-		float3(41.7f, 2.0f, 20.6f),
-		float3(7.3f, 2.0f, 47.4f)
+		float3(90.6f, 3.0f, 47.0f), 
+		float3(41.7f, 3.0f, 20.6f),
+		float3(7.3f, 3.0f, 47.4f)
 	};
 
 	void setLevel(int);
