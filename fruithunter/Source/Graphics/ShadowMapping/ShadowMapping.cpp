@@ -13,26 +13,9 @@ void ShadowMapper::createCameraBuffer() {
 	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	bufferDesc.ByteWidth = sizeof(m_vpMatrix_t);
-	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = &m_vpMatrix_t;
-	HRESULT res = device->CreateBuffer(&bufferDesc, &data, m_matrixBuffer.GetAddressOf());
+	HRESULT res = device->CreateBuffer(&bufferDesc, nullptr, m_matrixBuffer.GetAddressOf());
 	if (FAILED(res))
 		ErrorLogger::logWarning(res, "(ShadowMapping) Failed creating CameraVPT constant buffer!");
-
-	/*m_viewMatrix = XMMatrixLookAtLH(
-		float3(21.43f, 36.567f, 183.6f), float3(22.06f, 36.2f, 182.9f), float3(0.f, 1.f, 0.f));
-	m_projMatrix = XMMatrixOrthographicLH(283.f, 283.f, 100.f, 500.f);*/
-	m_viewMatrix = XMMatrixLookAtLH(
-		float3(-0.f, 110.f, 100.f), float3(100.0f, 0.0f, 100.f), float3(0.f, 1.f, 0.f));
-	m_projMatrix = XMMatrixOrthographicLH(200.f, 180.f, 1.f, 500.f);
-	/*m_projMatrix = XMMatrixPerspectiveFovLH(
-		(XM_PI / 2.f), (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, NEAR_PLANE, FAR_PLANE);*/
-	Matrix vp_matrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
-
-	m_vpMatrix_t = vp_matrix.Transpose();
-
-	// auto deviceContext = Renderer::getDeviceContext();
-	// deviceContext->UpdateSubresource(m_matrixBuffer.Get(), 0, NULL, &m_vpMatrix_t, 0, 0);
 }
 
 void ShadowMapper::createVPTBuffer() {
@@ -145,15 +128,35 @@ void ShadowMapper::mapShadowToFrustum(vector<float3> frustum) {
 	updateProjMatrix();
 }
 
-void ShadowMapper::initiate() {
+void ShadowMapper::initiate(XMINT2 shadowDepthTextureSize) {
+
 	auto device = Renderer::getDevice();
 
 	m_shadowPort.TopLeftX = 0.0f;
 	m_shadowPort.TopLeftY = 0.0f;
-	m_shadowPort.Width = (float)m_smapSize.x;
-	m_shadowPort.Height = (float)m_smapSize.y;
 	m_shadowPort.MinDepth = 0.0f;
 	m_shadowPort.MaxDepth = 1.0f;
+
+	resizeShadowDepthViews(shadowDepthTextureSize);
+
+	createCameraBuffer();
+	createVPTBuffer();
+	createInfoBuffer();
+
+	setDirection(float3(100.f, -100.f, 0));
+}
+
+void ShadowMapper::bindShadowMap() {
+	auto deviceContext = Renderer::getDeviceContext();
+	deviceContext->PSSetShaderResources(4, 1, m_shadowSRV.GetAddressOf());
+}
+
+void ShadowMapper::resizeShadowDepthViews(XMINT2 shadowDepthTextureSize) {
+	auto device = Renderer::getDevice();
+	m_smapSize = shadowDepthTextureSize;
+
+	m_shadowPort.Width = (float)m_smapSize.x;
+	m_shadowPort.Height = (float)m_smapSize.y;
 
 	D3D11_TEXTURE2D_DESC shadowTexDesc;
 	shadowTexDesc.Width = m_smapSize.x;
@@ -168,9 +171,10 @@ void ShadowMapper::initiate() {
 	shadowTexDesc.CPUAccessFlags = 0;
 	shadowTexDesc.MiscFlags = 0;
 
-
+	m_depthMap.Reset();
 	HRESULT hr_0 = device->CreateTexture2D(&shadowTexDesc, 0, m_depthMap.GetAddressOf());
-	HRESULT hr_01 = device->CreateTexture2D(&shadowTexDesc, 0, m_depthMapStatic.GetAddressOf());
+	if (FAILED(hr_0))
+		ErrorLogger::logWarning(hr_0, "(ShadowMapper) Failed creating depth texture!");
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC shadowDSVDesc;
 	shadowDSVDesc.Flags = 0;
@@ -178,9 +182,10 @@ void ShadowMapper::initiate() {
 	shadowDSVDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	shadowDSVDesc.Texture2D.MipSlice = 0;
 
+	m_shadowDSV.Reset();
 	HRESULT hr_1 = device->CreateDepthStencilView(m_depthMap.Get(), &shadowDSVDesc, &m_shadowDSV);
-	HRESULT hr_11 =
-		device->CreateDepthStencilView(m_depthMapStatic.Get(), &shadowDSVDesc, &m_staticShadowDSV);
+	if (FAILED(hr_1))
+		ErrorLogger::logWarning(hr_1, "(ShadowMapper) Failed creating depth stencil view!");
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shadowSRVDesc;
 	shadowSRVDesc.Format = DXGI_FORMAT_R32_FLOAT; // DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
@@ -188,20 +193,10 @@ void ShadowMapper::initiate() {
 	shadowSRVDesc.Texture2D.MipLevels = shadowTexDesc.MipLevels;
 	shadowSRVDesc.Texture2D.MostDetailedMip = 0;
 
+	m_shadowSRV.Reset();
 	HRESULT hr_2 = device->CreateShaderResourceView(m_depthMap.Get(), &shadowSRVDesc, &m_shadowSRV);
-	HRESULT hr_21 = device->CreateShaderResourceView(
-		m_depthMapStatic.Get(), &shadowSRVDesc, &m_staticShadowSRV);
-
-	createCameraBuffer();
-	createVPTBuffer();
-	createInfoBuffer();
-
-	setDirection(float3(100.f, -100.f, 0));
-}
-
-void ShadowMapper::bindShadowMap() {
-	auto deviceContext = Renderer::getDeviceContext();
-	deviceContext->PSSetShaderResources(4, 1, m_shadowSRV.GetAddressOf());
+	if (FAILED(hr_2))
+		ErrorLogger::logWarning(hr_2, "(ShadowMapper) Failed creating depth resource view!");
 }
 
 void ShadowMapper::update(float3 playerPos) {
@@ -224,11 +219,6 @@ void ShadowMapper::setup_shadowsRendering() {
 	Renderer::getInstance()->setDrawState(Renderer::DrawingState::state_normal);
 	bindVPTBuffer();
 	bindShadowMap();
-}
-
-void ShadowMapper::copyStaticToDynamic() {
-	auto deviceContext = Renderer::getDeviceContext();
-	deviceContext->CopyResource(m_depthMap.Get(), m_depthMapStatic.Get());
 }
 
 void ShadowMapper::createShadowInfo() {
@@ -296,26 +286,4 @@ void ShadowMapper::bindDSVAndSetNullRenderTarget() {
 	deviceContext->OMSetRenderTargets(1, m_nullRenderTargets, m_shadowDSV.Get());
 
 	deviceContext->ClearDepthStencilView(m_shadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-}
-
-void ShadowMapper::bindDSVAndSetNullRenderTargetAndCopyStatic() {
-	auto deviceContext = Renderer::getDeviceContext();
-
-	deviceContext->RSSetViewports(1, &m_shadowPort);
-
-	deviceContext->OMSetRenderTargets(1, m_nullRenderTargets, m_shadowDSV.Get());
-
-	deviceContext->ClearDepthStencilView(m_shadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-	copyStaticToDynamic();
-}
-
-void ShadowMapper::bindDSVAndSetNullRenderTargetStatic() {
-	auto deviceContext = Renderer::getDeviceContext();
-
-	deviceContext->RSSetViewports(1, &m_shadowPort);
-
-	deviceContext->OMSetRenderTargets(1, m_nullRenderTargets, m_staticShadowDSV.Get());
-
-	deviceContext->ClearDepthStencilView(m_staticShadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
