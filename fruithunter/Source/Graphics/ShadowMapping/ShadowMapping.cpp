@@ -274,14 +274,14 @@ vector<FrustumPlane> ShadowMapper::getFrustumPlanes() const {
 	return planes;
 }
 
-void ShadowMapper::clearAllShadows() { 
-	auto deviceContext = Renderer::getDeviceContext();
-	deviceContext->ClearDepthStencilView(m_shadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-	deviceContext->ClearDepthStencilView(m_staticShadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-	m_staticShadowDrawn = false;
-}
+//void ShadowMapper::clearAllShadows() { 
+//	auto deviceContext = Renderer::getDeviceContext();
+//	deviceContext->ClearDepthStencilView(m_shadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+//	deviceContext->ClearDepthStencilView(m_staticShadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+//	m_staticShadowDrawn = false;
+//}
 
-bool ShadowMapper::IsStaticDrawn() { return m_staticShadowDrawn; }
+//bool ShadowMapper::IsStaticDrawn() { return m_staticShadowDrawn; }
 
 Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ShadowMapper::getDepthMapSRV() {
 	return m_shadowSRV;

@@ -42,9 +42,6 @@ void LevelSelectState::initialize() {
 		m_bowls[i] = new Entity("bowl", m_bowlPos[i], float3(1));
 	}
 
-	// Initate shadowmap
-	m_shadowMap = make_unique<ShadowMapper>();
-
 	// Initiate entity repos
 	m_terrainProps.addPlaceableEntity("treeMedium1");
 	m_terrainProps.addPlaceableEntity("treeMedium2");
@@ -78,7 +75,7 @@ void LevelSelectState::update() {
 	float delta = m_timer.getDt();
 
 	// Update terrainprops
-	m_terrainProps.update(m_player.getCameraPosition(), m_player.getForward());
+	m_terrainProps.update(delta, m_player.getCameraPosition(), m_player.getForward());
 
 	// update player
 	m_player.update(
@@ -176,7 +173,6 @@ void LevelSelectState::draw() {
 	for (int i = 0; i < NR_OF_LEVELS; i++) {
 		m_bowls[i]->draw_onlyMesh(float3(0, 0, 0));
 	}
-	m_terrain->draw_onlyMesh();
 
 	// Set first person info
 	Renderer::getInstance()->beginFrame();

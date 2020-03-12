@@ -559,7 +559,7 @@ void LevelHandler::update(float dt) {
 	dropFruit();
 
 	float3 playerPos = m_player.getPosition();
-	ErrorLogger::logFloat3("Pos: ", playerPos);
+	// ErrorLogger::logFloat3("Pos: ", playerPos);
 	// update terrain tag
 	int activeTerrain = m_terrainManager->getTerrainIndexFromPosition(playerPos);
 
