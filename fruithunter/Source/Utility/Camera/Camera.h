@@ -7,7 +7,6 @@
 class Camera {
 public:
 	Camera();
-	Camera(float3 camEye, float3 camTarget, float3 camUp);
 	~Camera();
 
 	void setEye(float3 camEye);
@@ -16,6 +15,8 @@ public:
 	void setView(float3 camEye, float3 camTarget, float3 camUp);
 
 	void setFov(float fov);
+	void setNearPlane(float nearPlane);
+	void setFarPlane(float farPlane);
 	float getDefaultFov() const;
 
 	void bindMatrix();
@@ -50,7 +51,8 @@ private:
 	float3 m_camTarget;
 	float3 m_camUp;
 
-
+	float m_nearPlane = 0.1f;
+	float m_farPlane = 150.f;
 
 	void updateBuffer();
 };

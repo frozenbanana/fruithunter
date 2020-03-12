@@ -1,9 +1,6 @@
 #include "Camera.h"
 #include "Renderer.h"
 #include "ErrorLogger.h"
-#include "Settings.h"
-
-#define NEAR_PLANE 0.1f
 
 Camera::Camera() {
 	// Set initial values
@@ -12,8 +9,8 @@ Camera::Camera() {
 	m_camUp = float3(0.0, 1.0, 0.0);
 
 	m_fov = DEFAULT_FOV;
-	m_projMatrix = XMMatrixPerspectiveFovLH(m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT,
-		NEAR_PLANE, Settings::getInstance()->getDrawDistance());
+	m_projMatrix = XMMatrixPerspectiveFovLH(
+		m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, m_nearPlane, m_farPlane);
 	m_viewMatrix = XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
 	m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 	{
@@ -78,6 +75,16 @@ void Camera::setFov(float fov) {
 	m_projChanged = true;
 }
 
+void Camera::setNearPlane(float nearPlane) {
+	m_nearPlane = nearPlane;
+	m_projChanged = true;
+}
+
+void Camera::setFarPlane(float farPlane) {
+	m_farPlane = farPlane;
+	m_projChanged = true;
+}
+
 float Camera::getDefaultFov() const { return DEFAULT_FOV; }
 
 void Camera::updateBuffer() {
@@ -88,9 +95,8 @@ void Camera::updateBuffer() {
 		ErrorLogger::logFloat3("CameraTarget: ", m_camTarget);
 		ErrorLogger::logFloat3("CameraUp: ", m_camUp);*/
 
-		m_projMatrix =
-			XMMatrixPerspectiveFovLH(m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT,
-				NEAR_PLANE, Settings::getInstance()->getDrawDistance());
+		m_projMatrix = XMMatrixPerspectiveFovLH(
+			m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, m_nearPlane, m_farPlane);
 
 		m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 
@@ -155,9 +161,8 @@ vector<FrustumPlane> Camera::getFrustumPlanes() const {
 	planes.push_back(FrustumPlane(bottomRight, (topRight - center).Cross(bottomRight - center)));
 	planes.push_back(FrustumPlane(topRight, (topLeft - center).Cross(topRight - center)));
 	planes.push_back(FrustumPlane(bottomLeft, (bottomRight - center).Cross(bottomLeft - center)));
-	planes.push_back(FrustumPlane(center + camForward * NEAR_PLANE, -camForward));
-	planes.push_back(
-		FrustumPlane(center + camForward * Settings::getInstance()->getDrawDistance(), camForward));
+	planes.push_back(FrustumPlane(center + camForward * m_nearPlane, -camForward));
+	planes.push_back(FrustumPlane(center + camForward * m_farPlane, camForward));
 
 	return planes;
 }
@@ -180,7 +185,7 @@ vector<float3> Camera::getFrustumPoints(float scaleBetweenNearAndFarPlane) const
 	camUp.Normalize();
 
 	float depth =
-		NEAR_PLANE * (1 - scaleBetweenNearAndFarPlane) + Settings::getInstance()->getDrawDistance() * scaleBetweenNearAndFarPlane;
+		m_nearPlane * (1 - scaleBetweenNearAndFarPlane) + m_farPlane * scaleBetweenNearAndFarPlane;
 	float3 topLeft = center + (camForward + camLeft * width * 1.f + camUp * height * 1.f) * depth;
 	float3 topRight = center + (camForward + camLeft * width * -1.f + camUp * height * 1.f) * depth;
 	float3 bottomLeft =
