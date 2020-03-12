@@ -11,10 +11,11 @@ IntroState::~IntroState() {}
 
 void IntroState::initialize() {
 	m_name = "Intro State";
-
-	m_startButton.initialize("Start", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 50));
-	m_settingsButton.initialize("Settings", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2));
-	m_exitButton.initialize("Exit", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 50));
+	float width = SCREEN_WIDTH;
+	float height = SCREEN_HEIGHT;
+	m_startButton.initialize("Start", float2(width / 2, height / 2 - 50));
+	m_settingsButton.initialize("Settings", float2(width / 2, height / 2));
+	m_exitButton.initialize("Exit", float2(width / 2, height / 2 + 50));
 
 	// Just ignore this. It fixes things.
 	m_entity.load("Melon_000000");

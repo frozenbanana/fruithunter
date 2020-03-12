@@ -6,6 +6,9 @@
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 
+#define SCREEN_HEIGHT Renderer::getInstance()->getScreenHeight()
+#define SCREEN_WIDTH Renderer::getInstance()->getScreenWidth()
+
 class Renderer {
 public:
 	static void initalize(HWND window);
@@ -15,6 +18,8 @@ public:
 	static ID3D11DeviceContext* getDeviceContext();
 	static Renderer* getInstance();
 	HWND getHandle();
+	int getScreenWidth() const;
+	int getScreenHeight() const;
 
 	void bindBackAndDepthBuffer();
 	void clearDepth();
@@ -77,4 +82,6 @@ private:
 	// Settings
 	bool m_vsync = true;
 	bool m_darkEdges = true;
+	int m_screenWidth;
+	int m_screenHeight;
 };

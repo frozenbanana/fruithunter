@@ -10,11 +10,12 @@ PauseState::~PauseState() {}
 
 void PauseState::initialize() {
 	m_name = "Pause State";
-
-	m_resumeButton.initialize("Resume", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 50));
-	m_settingsButton.initialize("Settings", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2));
-	m_mainMenuButton.initialize("Main Menu", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 50));
-	m_exitButton.initialize("Exit", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 100));
+	float width = SCREEN_WIDTH;
+	float height = SCREEN_HEIGHT;
+	m_resumeButton.initialize("Resume", float2(width / 2, height / 2 - 50));
+	m_settingsButton.initialize("Settings", float2(width / 2, height / 2));
+	m_mainMenuButton.initialize("Main Menu", float2(width / 2, height / 2 + 50));
+	m_exitButton.initialize("Exit", float2(width / 2, height / 2 + 100));
 
 	// Just ignore this. It fixes things.
 	m_entity.load("Melon_000000");

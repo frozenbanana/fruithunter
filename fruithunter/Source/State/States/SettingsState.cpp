@@ -11,10 +11,11 @@ SettingsState::~SettingsState() {}
 
 void SettingsState::initialize() {
 	m_name = "Settings State";
-	m_vsyncButton.initialize("V-Sync", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 50), true);
-	m_darkEdgesButton.initialize(
-		"Dark Edges", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2), true);
-	m_backButton.initialize("Back", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 50));
+	float width = SCREEN_WIDTH;
+	float height = SCREEN_HEIGHT;
+	m_vsyncButton.initialize("V-Sync", float2(width / 2, height / 2 - 50), true);
+	m_darkEdgesButton.initialize("Dark Edges", float2(width / 2, height / 2), true);
+	m_backButton.initialize("Back", float2(width / 2, height / 2 + 50));
 
 	// Just ignore this. It fixes things.
 	m_entity.load("Melon_000000");
