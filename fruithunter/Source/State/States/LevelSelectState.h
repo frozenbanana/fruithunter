@@ -29,7 +29,6 @@ private:
 	EntityRepository m_terrainProps;
 	SeaEffect m_waterEffect;
 	SkyBox m_skyBox;
-	Terrain* m_terrain;
 	Entity* m_bowls[NR_OF_LEVELS];
 	float3 m_bowlPos[NR_OF_LEVELS] = { 
 		float3(90.6f, 3.0f, 47.0f), 

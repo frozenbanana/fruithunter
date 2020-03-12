@@ -17,9 +17,10 @@ void LevelSelectState::initialize() {
 	maps[1] = "texture_rock4.jpg";
 	maps[2] = "texture_rock6.jpg";
 	maps[3] = "texture_rock6.jpg";
-	m_terrain =
-		new Terrain("tutorial.png", maps, XMINT2(210, 210), XMINT2(1, 1), float3(0.f, 0.f, 0.f));
 
+	TerrainManager::getInstance()->removeAll();
+	TerrainManager::getInstance()->add(float3(0.f), float3(100.f, 25.f, 100.f),"tutorial.png", maps,
+		XMINT2(210, 210), XMINT2(1, 1), float3(0.f, 0.f, 0.f));
 	// Initiate props
 
 
@@ -74,7 +75,7 @@ void LevelSelectState::update() {
 	m_terrainProps.update(m_player.getCameraPosition(), m_player.getForward());
 
 	// update player
-	m_player.update(delta, m_terrain);
+	m_player.update(delta, TerrainManager::getInstance()->getTerrainFromPosition(m_player.getPosition()));
 
 	// ErrorLogger::logFloat3("playerPos: ", m_player.getPosition());
 
@@ -92,6 +93,7 @@ void LevelSelectState::update() {
 		if (m_player.getArrow().checkCollision(*m_bowls[i])) {
 			m_player.getArrow().setPosition(float3(-1000.f));
 			m_player.setPosition(float3(34.0f, 2.5f, 79.9f));
+			TerrainManager::getInstance()->removeAll();
 			draw(); // Updates hitboxes and prepares state for next time.
 			setLevel(i);
 			StateHandler::getInstance()->changeState(StateHandler::PLAY);
@@ -131,7 +133,7 @@ void LevelSelectState::draw() {
 
 			// Draw static shadow map
 			// m_terrain->drawShadow();
-			m_terrain->draw();
+			//m_terrain->draw();
 			/*Draw collidables*/
 			/*Draw terrainprops*/
 			m_staticShadowNotDrawn = false;
@@ -158,7 +160,8 @@ void LevelSelectState::draw() {
 		m_bowls[i]->draw();
 	}
 	m_terrainProps.draw();
-	m_terrain->draw();
+	//m_terrain->draw();
+	TerrainManager::getInstance()->draw();
 	Renderer::getInstance()->copyDepthToSRV();
 	m_waterEffect.draw();
 	m_skyBox.draw(2, 2);
