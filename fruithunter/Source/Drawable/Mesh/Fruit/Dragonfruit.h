@@ -1,4 +1,6 @@
 #pragma once
+#include "Fruit.h"
+
 #include "AI.h"
 #include "Fruit.h"
 
@@ -15,8 +17,9 @@ private:
 	float m_activeTurnSpeed;
 	float m_flapWings; // Y value when dragonfruit should flap wings to gain altitude.
 
-
-	bool inFlight;
+	bool isFalling();
+	bool m_ascend = false;
+	
 
 public:
 	DragonFruit(float3 pos = float3(12.f, 0.f, 6.f));
