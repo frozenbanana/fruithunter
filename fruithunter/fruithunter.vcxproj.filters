@@ -37,9 +37,6 @@
     <FxCompile Include="Source\Graphics\Shaders\GeometryShader_particleSystem.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Source\Graphics\Shaders\PixelShader_particleSystem.hlsl">
-      <Filter>Source\Graphics\Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\VertexShader_particleSystem.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
@@ -47,6 +44,21 @@
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_darkEdge.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_terrain_onlyMesh.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\VertexShader_onlyMesh.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_seaEffect_onlyMesh.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_particleSystem_circle.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_particleSystem_star.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
   </ItemGroup>
@@ -188,6 +200,12 @@
     </ClCompile>
     <ClCompile Include="Source\State\States\LevelSelectState.cpp">
       <Filter>Source\State\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\Settings\Settings.cpp">
+      <Filter>Source\Utility\Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\Input\Slider.cpp">
+      <Filter>Source\Utility\Input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -335,6 +353,12 @@
     <ClInclude Include="Source\State\States\LevelSelectState.h">
       <Filter>Source\State\States</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Utility\Settings\Settings.h">
+      <Filter>Source\Utility\Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\Input\Slider.h">
+      <Filter>Source\Utility\Input</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
@@ -421,6 +445,9 @@
     </Filter>
     <Filter Include="Source\Utility\PerformanceTimer">
       <UniqueIdentifier>{6c926695-a49b-42d0-b46f-5b51b343cf44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Utility\Settings">
+      <UniqueIdentifier>{62af29f3-59ec-4d36-8476-2bd16a3afb21}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

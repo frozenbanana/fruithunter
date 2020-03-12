@@ -8,7 +8,6 @@
 
 string HUD::getTimePassed() { return getMinutes() + ":" + getSeconds(); }
 
-
 string HUD::getMinutes() {
 	if (m_secondsPassed > 60.0f) {
 		m_secondsPassed -= 60.0f;

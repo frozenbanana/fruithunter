@@ -13,11 +13,11 @@ public:
 	float3 getNormalFromPosition(float3 position);
 	float castRay(float3 point, float3 direction);
 
+	void clearCulling();
+	void quadtreeCull(const vector<FrustumPlane>& planes);
+
 	void draw();
-	vector<float3> draw_frustumCulling(const vector<FrustumPlane>& planes);
-	void draw_quadtreeFrustumCulling(const vector<FrustumPlane>& planes);
-	void draw_quadtreeBBCulling(const CubeBoundingBox& bb);
-	void drawShadow();
+	void draw_onlyMesh();
 
 	float3 getSpawnpoint(int terrainType);
 

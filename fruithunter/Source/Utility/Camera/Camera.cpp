@@ -10,12 +10,11 @@ Camera::Camera() {
 
 	m_fov = DEFAULT_FOV;
 	m_projMatrix = XMMatrixPerspectiveFovLH(
-		m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, NEAR_PLANE, FAR_PLANE);
+		m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, m_nearPlane, m_farPlane);
 	m_viewMatrix = XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
 	m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
-
-	// Create constant buffer
 	{
+		// Create constant buffer
 		auto device = Renderer::getInstance()->getDevice();
 		D3D11_BUFFER_DESC bufferDesc;
 		memset(&bufferDesc, 0, sizeof(bufferDesc));
@@ -30,7 +29,6 @@ Camera::Camera() {
 			ErrorLogger::messageBox(res, "Camera failed to create buffer.");
 		}
 	}
-
 	{
 		// Create constant buffer for struct
 		auto device = Renderer::getInstance()->getDevice();
@@ -45,36 +43,6 @@ Camera::Camera() {
 		if (FAILED(res)) {
 			ErrorLogger::messageBox(res, "Camera failed to create buffer struct.");
 		}
-	}
-}
-
-Camera::Camera(float3 camEye, float3 camTarget, float3 camUp) {
-	// Set initial values
-	m_camEye = camEye;
-	m_camTarget = camTarget;
-	m_camUp = camUp;
-
-	m_fov = DEFAULT_FOV;
-	m_projMatrix = XMMatrixPerspectiveFovLH(
-		m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, NEAR_PLANE, FAR_PLANE);
-	m_viewMatrix = XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
-	
-
-	m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
-
-	// Create constant buffer
-	auto device = Renderer::getInstance()->getDevice();
-	D3D11_BUFFER_DESC bufferDesc;
-	memset(&bufferDesc, 0, sizeof(bufferDesc));
-	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.ByteWidth = sizeof(m_vpMatrix);
-	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = &m_vpMatrix;
-	HRESULT res = device->CreateBuffer(&bufferDesc, &data, m_matrixBuffer.GetAddressOf());
-
-	if (FAILED(res)) {
-		ErrorLogger::messageBox(res, "Camera failed to create buffer.");
 	}
 }
 
@@ -107,6 +75,16 @@ void Camera::setFov(float fov) {
 	m_projChanged = true;
 }
 
+void Camera::setNearPlane(float nearPlane) {
+	m_nearPlane = nearPlane;
+	m_projChanged = true;
+}
+
+void Camera::setFarPlane(float farPlane) {
+	m_farPlane = farPlane;
+	m_projChanged = true;
+}
+
 float Camera::getDefaultFov() const { return DEFAULT_FOV; }
 
 void Camera::updateBuffer() {
@@ -116,9 +94,9 @@ void Camera::updateBuffer() {
 		/*ErrorLogger::logFloat3("CameraPos: ", m_camEye);
 		ErrorLogger::logFloat3("CameraTarget: ", m_camTarget);
 		ErrorLogger::logFloat3("CameraUp: ", m_camUp);*/
-		
+
 		m_projMatrix = XMMatrixPerspectiveFovLH(
-			m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, NEAR_PLANE, FAR_PLANE);		
+			m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, m_nearPlane, m_farPlane);
 
 		m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 
@@ -160,7 +138,7 @@ vector<FrustumPlane> Camera::getFrustumPlanes() const {
 	vector<FrustumPlane> planes;
 	planes.reserve(6);
 	float3 center = m_camEye;
-	float height = tan(m_fov/2.f);
+	float height = tan(m_fov / 2.f);
 	float aspectRatio = (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT;
 	float width = height * aspectRatio;
 
@@ -171,27 +149,29 @@ vector<FrustumPlane> Camera::getFrustumPlanes() const {
 	float3 camUp = camForward.Cross(camLeft);
 	camUp.Normalize();
 
-	float depth = 1.f;//NEAR_PLANE
-	float3 topLeft = 
-		center + (camForward + camLeft * width * 1.f + camUp * height * 1.f) * depth;
-	float3 topRight = 
-		center + (camForward + camLeft * width * 1.f + camUp * height * -1.f) * depth;
+	float depth = 1.f; // NEAR_PLANE
+	float3 topLeft = center + (camForward + camLeft * width * 1.f + camUp * height * 1.f) * depth;
+	float3 topRight = center + (camForward + camLeft * width * 1.f + camUp * height * -1.f) * depth;
 	float3 bottomLeft =
 		center + (camForward + camLeft * width * -1.f + camUp * height * 1.f) * depth;
 	float3 bottomRight =
 		center + (camForward + camLeft * width * -1.f + camUp * height * -1.f) * depth;
 
-	planes.push_back(FrustumPlane(center, (bottomLeft-center).Cross(topLeft-center)));
+	planes.push_back(FrustumPlane(center, (bottomLeft - center).Cross(topLeft - center)));
 	planes.push_back(FrustumPlane(bottomRight, (topRight - center).Cross(bottomRight - center)));
-	planes.push_back(FrustumPlane(topRight, (topLeft-center).Cross(topRight-center)));
-	planes.push_back(FrustumPlane(bottomLeft, (bottomRight-center).Cross(bottomLeft-center)));
-	planes.push_back(FrustumPlane(center+camForward*NEAR_PLANE, -camForward));
-	planes.push_back(FrustumPlane(center+camForward*FAR_PLANE, camForward));
+	planes.push_back(FrustumPlane(topRight, (topLeft - center).Cross(topRight - center)));
+	planes.push_back(FrustumPlane(bottomLeft, (bottomRight - center).Cross(bottomLeft - center)));
+	planes.push_back(FrustumPlane(center + camForward * m_nearPlane, -camForward));
+	planes.push_back(FrustumPlane(center + camForward * m_farPlane, camForward));
 
 	return planes;
 }
 
-CubeBoundingBox Camera::getFrustumBoundingBox() const { 
+CubeBoundingBox Camera::getFrustumBoundingBox() const {
+	return CubeBoundingBox(getFrustumPoints());
+}
+
+vector<float3> Camera::getFrustumPoints(float scaleBetweenNearAndFarPlane) const {
 	float3 center = m_camEye;
 	float height = tan(m_fov / 2.f);
 	float aspectRatio = (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT;
@@ -204,7 +184,8 @@ CubeBoundingBox Camera::getFrustumBoundingBox() const {
 	float3 camUp = camForward.Cross(camLeft);
 	camUp.Normalize();
 
-	float depth = FAR_PLANE; // NEAR_PLANE
+	float depth =
+		m_nearPlane * (1 - scaleBetweenNearAndFarPlane) + m_farPlane * scaleBetweenNearAndFarPlane;
 	float3 topLeft = center + (camForward + camLeft * width * 1.f + camUp * height * 1.f) * depth;
 	float3 topRight = center + (camForward + camLeft * width * -1.f + camUp * height * 1.f) * depth;
 	float3 bottomLeft =
@@ -220,5 +201,5 @@ CubeBoundingBox Camera::getFrustumBoundingBox() const {
 	points.push_back(bottomLeft);
 	points.push_back(bottomRight);
 
-	return CubeBoundingBox(points);
+	return points;
 }

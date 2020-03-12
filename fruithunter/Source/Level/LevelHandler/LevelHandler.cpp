@@ -297,7 +297,7 @@ LevelHandler::~LevelHandler() {
 }
 
 void LevelHandler::initialise() {
-
+	m_sphere.load("Sphere");
 	m_player.initialize();
 	m_terrainManager = TerrainManager::getInstance();
 	m_terrainProps.addPlaceableEntity("treeMedium1");
@@ -328,7 +328,7 @@ void LevelHandler::initialise() {
 
 	m_particleSystems.resize(5);
 	m_particleSystems[0] = ParticleSystem(ParticleSystem::VULCANO_FIRE);
-	m_particleSystems[0].setPosition(float3(150.f, 15.f, 150.f));
+	m_particleSystems[0].setPosition(float3(150.f, 20.f, 150.f));
 	m_particleSystems[1] = ParticleSystem(ParticleSystem::VULCANO_SMOKE);
 	m_particleSystems[1].setPosition(float3(150.f, 29.f, 150.f));
 	m_particleSystems[2] = ParticleSystem(ParticleSystem::GROUND_DUST);
@@ -425,9 +425,11 @@ void LevelHandler::loadLevel(int levelNr) {
 void LevelHandler::draw() {
 	m_skyBox.bindLightBuffer();
 	m_player.draw();
+
 	Renderer::getInstance()->enableAlphaBlending();
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->draw_animate();
+		m_fruits[i]->getParticleSystem()->drawNoAlpha();
 	}
 	Renderer::getInstance()->disableAlphaBlending();
 
@@ -443,14 +445,18 @@ void LevelHandler::draw() {
 	// frustum data for culling
 	vector<FrustumPlane> frustum = m_player.getFrustumPlanes();
 	// terrain entities
-	m_terrainProps.draw_quadtreeFrustumCulling(frustum);
+	m_terrainProps.quadtreeCull(frustum);
+	m_terrainProps.draw();
 
 	// terrain
-	m_terrainManager->draw_quadtreeFrustumCulling(frustum);
+	m_terrainManager->quadtreeCull(frustum);
+	m_terrainManager->draw();
 	// water/lava effect
 	Renderer::getInstance()->copyDepthToSRV();
-	waterEffect.draw_quadtreeFrustumCulling(frustum);
-	lavaEffect.draw_quadtreeFrustumCulling(frustum);
+	waterEffect.quadtreeCull(frustum);
+	waterEffect.draw();
+	lavaEffect.quadtreeCull(frustum);
+	lavaEffect.draw();
 
 	Renderer::getInstance()->draw_darkEdges();
 
@@ -467,37 +473,45 @@ void LevelHandler::draw() {
 }
 
 void LevelHandler::drawShadowDynamic() {
+	ShadowMapper* shadowMap = Renderer::getInstance()->getShadowMapper();
+	vector<FrustumPlane> planes = shadowMap->getFrustumPlanes();
 	for (int i = 0; i < m_fruits.size(); i++) {
-		m_fruits[i]->draw_animate_shadow();
+		m_fruits[i]->draw_animate_onlyMesh(float3(0, 0, 0));
 	}
-	m_terrainManager->drawShadow();
+
+	//terrain manager
+	m_terrainManager->quadtreeCull(planes);
+	m_terrainManager->draw_onlyMesh();
 
 	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
-		m_collidableEntities[i]->drawShadow();
+		m_collidableEntities[i]->draw_onlyMesh(float3(0, 0, 0));
 	}
-	m_terrainProps.drawShadow();
+
+	//terrain entities
+	m_terrainProps.quadtreeCull(planes);
+	m_terrainProps.draw_onlyMesh();
 }
 
 void LevelHandler::drawShadowStatic() {
-	m_terrainManager->drawShadow();
+	m_terrainManager->draw_onlyMesh();
 
 	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
-		m_collidableEntities[i]->drawShadow();
+		m_collidableEntities[i]->draw_onlyMesh(float3(0, 0, 0));
 	}
 
-	m_terrainProps.drawShadow();
+	m_terrainProps.draw_onlyMesh();
 }
 
 void LevelHandler::drawShadowDynamicEntities() {
 	for (int i = 0; i < m_fruits.size(); i++) {
-		m_fruits[i]->draw_animate_shadow();
+		m_fruits[i]->draw_animate_onlyMesh(float3(0, 0, 0));
 	}
 }
 
 void LevelHandler::update(float dt) {
 	auto pft = PathFindingThread::getInstance();
 
-	m_terrainProps.update(m_player.getCameraPosition(), m_player.getForward());
+	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
 	m_skyBox.updateDelta(dt);
 
@@ -563,18 +577,21 @@ void LevelHandler::update(float dt) {
 	m_skyBox.updateCurrentLight();
 
 	// update stuff
+
 	for (int i = 0; i < m_fruits.size(); i++) {
+
+		m_fruits[i]->getParticleSystem()->update(dt);
 		pft->m_mutex.lock();
 		m_fruits[i]->update(dt, playerPos);
 		if (m_player.isShooting()) {
 
 			if (m_player.getArrow().checkCollision(*m_fruits[i])) {
-				m_fruits[i]->hit();
+				m_fruits[i]->hit(m_player.getPosition());
 				AudioHandler::getInstance()->playOnceByDistance(
 					AudioHandler::HIT_FRUIT, m_player.getPosition(), m_fruits[i]->getPosition());
 
 				m_player.getArrow().setPosition(
-					float3(-100.f)); // temporary to disable arrow until returning
+					float3(-999.f)); // temporary to disable arrow until returning
 			}
 		}
 		if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() <
@@ -686,3 +703,9 @@ void LevelHandler::dropFruit() {
 }
 
 float3 LevelHandler::getPlayerPos() { return m_player.getPosition(); }
+
+CubeBoundingBox LevelHandler::getPlayerFrustumBB() { return m_player.getCameraBoundingBox(); }
+
+vector<float3> LevelHandler::getPlayerFrustumPoints(float scaleBetweenNearAndFarPlane) {
+	return m_player.getFrustumPoints(scaleBetweenNearAndFarPlane);
+}

@@ -88,6 +88,7 @@ private:
 	//void placeAllAnimals();
 
 	shared_ptr<size_t> m_frame;
+	vector<FrustumPlane> m_planesTest;
 
 public:
 	LevelHandler();
@@ -109,4 +110,6 @@ public:
 	std::vector<Fruit> fruitsInLevel;
 
 	float3 getPlayerPos();
+	CubeBoundingBox getPlayerFrustumBB();
+	vector<float3> getPlayerFrustumPoints(float scaleBetweenNearAndFarPlane);
 };

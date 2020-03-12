@@ -11,7 +11,7 @@ Bow::Bow() {
 	m_bow.loadAnimated("Bow", 3);
 	m_bow.setScale(0.2f);
 	m_arrow.load("arrowV2");
-	//m_arrow.setScale(float3(0.2f, 0.2f, m_arrowLength));
+	// m_arrow.setScale(float3(0.2f, 0.2f, m_arrowLength));
 	m_arrow.setScale(float3(0.5f, 0.5f, m_arrowLength));
 	m_arrow.setPosition(float3(-10.f)); // To make sure that arrow doesn't spawn in fruits.
 	m_arrow.setCollisionDataOBB();
@@ -51,11 +51,12 @@ void Bow::update(
 
 	// Update arrow.
 	if (m_shooting) {
-		m_trailEffect.setActive();
+		m_trailEffect.run();
 		if (!m_arrowHitObject) {
 			float castray =
 				TerrainManager::getInstance()->castRay(m_arrow.getPosition(), m_arrowVelocity * dt);
 			if (castray != -1) {
+				m_trailEffect.setEmitState(false);
 				// Arrow is hitting terrain
 				float3 target = m_arrow.getPosition() + m_arrowVelocity * castray * dt;
 				arrowHitObject(target);
@@ -64,6 +65,7 @@ void Bow::update(
 				arrowPhysics(dt, wind); // Updates arrow in flight, wind is no longer hard coded.
 				// update Particle System
 				m_trailEffect.setPosition(m_arrow.getPosition());
+				m_trailEffect.setEmitState(true);
 
 				m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
 				m_arrow.setRotation(float3(m_arrowPitch, m_arrowYaw, 0));

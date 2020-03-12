@@ -28,6 +28,7 @@ private:
 
 	bool m_isInitilized = false;
 	static ShaderSet m_shader;
+	static ShaderSet m_shader_onlyMesh;
 	float3 m_position = float3(0, 0, 0);
 	float3 m_rotation = float3(0, 0, 0);
 	float3 m_scale = float3(1, 0.25, 1) * 100;
@@ -76,7 +77,12 @@ private:
 	// Spawn point
 	vector<float2> m_spawnPoint;
 
+	//Wind
 	float3 m_wind = float3(0.f, 0.f, 10.f);
+
+	//Culling
+	vector<XMINT2*> m_culledGrids;
+	bool m_useCulling = false;
 
 	//	--Functions--
 
@@ -136,12 +142,14 @@ public:
 
 	float3 getWind();
 
+	//culling
+	void clearCulling();
+	void quadtreeCull(vector<FrustumPlane> planes);
+	void boundingBoxCull(CubeBoundingBox bb);
+
 	//drawing
 	void draw();
-	void drawShadow();
-	bool draw_frustumCulling(const vector<FrustumPlane>& planes);
-	bool draw_quadtreeFrustumCulling(vector<FrustumPlane> planes);
-	bool draw_quadtreeBBCulling(CubeBoundingBox bb);
+	void draw_onlyMesh();
 
 	Terrain(string filename = "", vector<string> textures = vector<string>(),
 		XMINT2 subsize = XMINT2(0, 0), XMINT2 splits = XMINT2(1, 1),

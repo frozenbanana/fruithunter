@@ -37,8 +37,4 @@ private:
 	std::vector<string> m_maps;
 
 	void setLevel(int);
-
-	// Shadow stuff
-	unique_ptr<ShadowMapper> m_shadowMap;
-	bool m_staticShadowNotDrawn = true;
 };

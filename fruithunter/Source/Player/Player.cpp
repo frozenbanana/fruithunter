@@ -3,6 +3,7 @@
 #include "Errorlogger.h"
 #include "VariableSyncer.h"
 #include "AudioHandler.h"
+#include "Settings.h"
 
 Player::Player() {}
 
@@ -223,6 +224,7 @@ void Player::updateBow(float dt, Terrain* terrain) {
 
 void Player::updateCamera() {
 	float playerHeight = PLAYER_HEIGHT - 0.5f * (m_dashCharge / DASHMAXCHARGE);
+	m_camera.setFarPlane(Settings::getInstance()->getDrawDistance());
 	m_camera.setUp(m_playerUp);
 	m_camera.setEye(m_position + float3(0, playerHeight, 0));
 	m_camera.setTarget(m_position + float3(0, playerHeight, 0) + m_playerForward);
@@ -361,6 +363,10 @@ void Player::checkSprint(float dt) {
 vector<FrustumPlane> Player::getFrustumPlanes() const { return m_camera.getFrustumPlanes(); }
 
 CubeBoundingBox Player::getCameraBoundingBox() const { return m_camera.getFrustumBoundingBox(); }
+
+vector<float3> Player::getFrustumPoints(float scaleBetweenNearAndFarPlane) const {
+	return m_camera.getFrustumPoints(scaleBetweenNearAndFarPlane);
+}
 
 void Player::checkDash(float dt) {
 	if (Input::getInstance()->keyPressed(KEY_DASH) && m_stamina >= STAMINA_DASH_COST &&
