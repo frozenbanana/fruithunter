@@ -195,44 +195,40 @@ std::string Mesh::getName() const { return m_loadedMeshName; }
 
 void Mesh::setMaterialIndex(int material) { m_currentMaterial = material; }
 
-void Mesh::draw() {
-	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+void Mesh::bindColorBuffer(float3 color) {
+	auto deviceContext = Renderer::getDeviceContext();
+	// update color buffer
+	float4 data = float4(color.x, color.y, color.z, 1.0);
+	deviceContext->UpdateSubresource(m_colorBuffer.Get(), 0, 0, &data, 0, 0);
+	deviceContext->PSSetConstantBuffers(COLOR_BUFFER_SLOT, 1, m_colorBuffer.GetAddressOf());
+}
 
-	if (m_materials[m_currentMaterial].size() > 0)
-		m_shaderObject.bindShadersAndLayout();
-	else {
-		draw_noMaterial();
-		return;
-	}
+void Mesh::drawCall_all() { Renderer::draw((UINT)m_meshVertices.size(), 0); }
 
-	bindMesh();
-
+void Mesh::drawCall_perMaterial() {
 	for (size_t i = 0; i < m_parts.size(); i++) {
 		for (size_t j = 0; j < m_parts[i].materialUsage.size(); j++) {
 			int materialIndex = m_parts[i].materialUsage[j].materialIndex;
-			// int materialIndex = findMaterial(parts[i].materialUsage[j].name);
 			if (materialIndex != -1) {
 				m_materials[m_currentMaterial][materialIndex].bind(MATERIAL_BUFFER_SLOT);
 				int count = m_parts[i].materialUsage[j].count;
 				int index = m_parts[i].materialUsage[j].index;
-				deviceContext->Draw(count, index);
+				Renderer::draw(count, index);
 			}
 		}
 	}
 }
-void Mesh::drawShadow() {
+
+void Mesh::draw() {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
-	if (m_materials.size() > 0)
-		m_shaderObject.bindShadersAndLayoutForShadowMap();
-	else {
-		draw_noMaterial();
-		return;
+	if (m_materials[m_currentMaterial].size() > 0) {
+		m_shaderObject.bindShadersAndLayout();
+		bindMesh();
+		drawCall_perMaterial();
 	}
-
-	bindMesh();
-
-	deviceContext->Draw((UINT)m_meshVertices.size(), 0);
+	else
+		draw_noMaterial();
 }
 
 void Mesh::draw_noMaterial(float3 color) {
@@ -242,12 +238,9 @@ void Mesh::draw_noMaterial(float3 color) {
 
 	bindMesh();
 
-	// update color buffer
-	float4 data = float4(color.x, color.y, color.z, 1.0);
-	deviceContext->UpdateSubresource(m_colorBuffer.Get(), 0, 0, &data, 0, 0);
-	deviceContext->PSSetConstantBuffers(COLOR_BUFFER_SLOT, 1, m_colorBuffer.GetAddressOf());
+	bindColorBuffer(color);
 
-	deviceContext->Draw((UINT)m_meshVertices.size(), (UINT)0);
+	drawCall_all();
 }
 void Mesh::draw_BoundingBox() {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
@@ -259,35 +252,7 @@ void Mesh::draw_BoundingBox() {
 	UINT offset = 0;
 	deviceContext->IASetVertexBuffers(
 		0, 1, m_vertexBuffer_BoundingBox.GetAddressOf(), &strides, &offset);
-	deviceContext->Draw(36, 0);
-}
-void Mesh::draw_forShadowMap() {
-	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
-
-	bindMesh();
-
-	deviceContext->Draw((UINT)m_meshVertices.size(), (UINT)0);
-}
-void Mesh::draw_withoutBinding() {
-	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
-
-	if (!(m_materials[m_currentMaterial].size() > 0)) {
-		draw_noMaterial();
-		return;
-	}
-
-	for (size_t i = 0; i < m_parts.size(); i++) {
-		for (size_t j = 0; j < m_parts[i].materialUsage.size(); j++) {
-			int materialIndex = m_parts[i].materialUsage[j].materialIndex;
-			// int materialIndex = findMaterial(parts[i].materialUsage[j].name);
-			if (materialIndex != -1) {
-				m_materials[m_currentMaterial][materialIndex].bind(MATERIAL_BUFFER_SLOT);
-				int count = m_parts[i].materialUsage[j].count;
-				int index = m_parts[i].materialUsage[j].index;
-				deviceContext->Draw(count, index);
-			}
-		}
-	}
+	Renderer::draw(36, 0);
 }
 void Mesh::bindMesh() const {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();

@@ -5,19 +5,11 @@
 #include "Input.h"
 #include "StateHandler.h"
 #include "EndRoundState.h"
-#include <iostream>
-#include <string>
 
-void PlayState::initialize() {
-	m_name = "Play State";
-	m_shadowMap = make_unique<ShadowMapper>();
-}
+void PlayState::initialize() { m_name = "Play State"; }
 
 void PlayState::update() {
-
-	if (Input::getInstance()->keyPressed(Keyboard::Keys::Escape)) {
-		StateHandler::getInstance()->changeState(StateHandler::PAUSE);
-	}
+	Input::getInstance()->setMouseModeRelative();
 
 	m_timer.update();
 	float dt = m_timer.getDt();
@@ -75,31 +67,16 @@ void PlayState::pause() {
 }
 
 void PlayState::draw() {
+	ShadowMapper* shadowMap = Renderer::getInstance()->getShadowMapper();
+	shadowMap->mapShadowToFrustum(m_levelHandler->getPlayerFrustumPoints(0.4f));
+	shadowMap->setup_depthRendering();
 
-	if (1) {
-		m_shadowMap.get()->update(m_levelHandler->getPlayerPos()); // not needed?
-
-		if (m_staticShadowNotDrawn) {
-			//	Set static shadow map info
-			m_shadowMap.get()->bindDSVAndSetNullRenderTargetStatic();
-			m_shadowMap.get()->bindCameraMatrix();
-
-			// Draw static shadow map
-			m_levelHandler->drawShadowStatic();
-			m_staticShadowNotDrawn = false;
-		}
-		// Set shadow map info
-		m_shadowMap.get()->bindDSVAndSetNullRenderTarget();
-		m_shadowMap.get()->bindCameraMatrix();
-
-		// Draw shadow map
-		m_levelHandler->drawShadowDynamicEntities();
-	}
+	m_levelHandler->drawShadowDynamic();
 
 	// Set first person info
 	Renderer::getInstance()->beginFrame();
-	m_shadowMap.get()->bindVPTMatrix();
-	m_shadowMap.get()->bindShadowMap();
+
+	shadowMap->setup_shadowsRendering();
 
 	// draw first person
 	m_levelHandler->draw();
@@ -118,7 +95,6 @@ void PlayState::destroyLevel() {
 void PlayState::play() {
 	Input::getInstance()->setMouseModeRelative();
 	ErrorLogger::log(m_name + " play() called.");
-	Renderer::getInstance()->drawLoading();
 	if (m_levelHandler == nullptr)
 		m_levelHandler = make_unique<LevelHandler>();
 	m_levelHandler->loadLevel(m_currentLevel);

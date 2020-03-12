@@ -13,8 +13,8 @@ public:
 	Particle(float3 position = float3(0.0), float4 color = float4(1.0), float size = 1.0f,
 		float isActive = 0.0f);
 
-	void setIsActive(float isActive);
-	float getIsActive() const;
+	void setActiveValue(float isActive);
+	float getActiveValue() const;
 
 	void setPosition(float3 position);
 	float3 getPosition() const;

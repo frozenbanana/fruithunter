@@ -203,10 +203,14 @@ void Player::updateBow(float dt, Terrain* terrain) {
 
 		m_camera.setFov(m_camera.getDefaultFov() * m_aimZoom);
 	}
-	if (input->mouseDown(Input::MouseButton::LEFT)) {
+	if (input->mousePressed(Input::MouseButton::LEFT)) {
+		m_chargingBow = true;
+	}
+	if (input->mouseDown(Input::MouseButton::LEFT) && m_chargingBow) {
 		m_bow.charge();
 	}
 	else if (input->mouseUp(Input::MouseButton::LEFT)) {
+		m_chargingBow = false;
 		m_bow.shoot(m_playerForward, m_velocity, m_cameraPitch, m_cameraYaw);
 	}
 
@@ -357,6 +361,10 @@ void Player::checkSprint(float dt) {
 vector<FrustumPlane> Player::getFrustumPlanes() const { return m_camera.getFrustumPlanes(); }
 
 CubeBoundingBox Player::getCameraBoundingBox() const { return m_camera.getFrustumBoundingBox(); }
+
+vector<float3> Player::getFrustumPoints(float scaleBetweenNearAndFarPlane) const {
+	return m_camera.getFrustumPoints(scaleBetweenNearAndFarPlane);
+}
 
 void Player::checkDash(float dt) {
 	if (Input::getInstance()->keyPressed(KEY_DASH) && m_stamina >= STAMINA_DASH_COST &&

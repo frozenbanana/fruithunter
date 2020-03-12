@@ -34,12 +34,11 @@ void LevelSelectState::initialize() {
 	for (int i = 0; i < NR_OF_LEVELS; i++) {
 		m_bowls[i] = new Entity("bowl", float3(49.5f + (float(i) * 1.5f), 25.5f, 50.f));
 	}
-
-	// Initate shadowmap
-	m_shadowMap = make_unique<ShadowMapper>();
 }
 
 void LevelSelectState::update() {
+	Input::getInstance()->setMouseModeRelative();
+
 	float delta = 0.016f; // lazy, get me a timer instead
 
 	// update player
@@ -55,14 +54,16 @@ void LevelSelectState::update() {
 
 	// Update bowls
 	for (int i = 0; i < NR_OF_LEVELS; i++) {
-		m_bowls[i]->updateAnimated(delta);
 		// Check collision
 		if (m_player.getArrow().checkCollision(*m_bowls[i])) {
 			m_player.getArrow().setPosition(float3(-1000.f));
 			m_player.setPosition(float3(52.f, 0.f, 40.f));
+			draw(); // Updates hitboxes and prepares state for next time.
 			setLevel(i);
 			StateHandler::getInstance()->changeState(StateHandler::PLAY);
 		}
+
+		m_bowls[i]->updateAnimated(delta);
 	}
 }
 
@@ -80,42 +81,24 @@ void LevelSelectState::pause() {
 void LevelSelectState::play() {
 	Input::getInstance()->setMouseModeRelative();
 	ErrorLogger::log(m_name + " play() called.");
-	Renderer::getInstance()->drawLoading();
 	AudioHandler::getInstance()->changeMusicTo(AudioHandler::ELEVATOR, 0.f); // dt not used. Lazy...
 	State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
 	dynamic_cast<PlayState*>(tempPointer)->destroyLevel(); // reset if there is an old level
 }
 
 void LevelSelectState::draw() {
-	if (1) {
-		m_shadowMap.get()->update(m_player.getPosition()); // not needed?
+	ShadowMapper* shadowMap = Renderer::getInstance()->getShadowMapper();
+	shadowMap->mapShadowToFrustum(m_player.getFrustumPoints(0.4f));
+	shadowMap->setup_depthRendering();
 
-		if (m_staticShadowNotDrawn) {
-			//	Set static shadow map info
-			m_shadowMap.get()->bindDSVAndSetNullRenderTargetStatic();
-			m_shadowMap.get()->bindCameraMatrix();
-
-			// Draw static shadow map
-			// m_terrain->drawShadow();
-			m_terrain->draw();
-			/*Draw collidables*/
-			/*Draw terrainprops*/
-			m_staticShadowNotDrawn = false;
-		}
-		// Set shadow map info
-		m_shadowMap.get()->bindDSVAndSetNullRenderTarget();
-		m_shadowMap.get()->bindCameraMatrix();
-
-		// Draw shadow map
-		for (int i = 0; i < NR_OF_LEVELS; i++) {
-			m_bowls[i]->drawShadow();
-		}
+	for (int i = 0; i < NR_OF_LEVELS; i++) {
+		m_bowls[i]->draw_onlyMesh(float3(0, 0, 0));
 	}
+	m_terrain->draw_onlyMesh();
 
 	// Set first person info
 	Renderer::getInstance()->beginFrame();
-	m_shadowMap.get()->bindVPTMatrix();
-	m_shadowMap.get()->bindShadowMap();
+	shadowMap->setup_shadowsRendering();
 
 	// draw first person
 	m_skyBox.bindLightBuffer();
