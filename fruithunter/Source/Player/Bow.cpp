@@ -51,7 +51,6 @@ void Bow::update(
 
 	// Update arrow.
 	if (m_shooting) {
-		m_trailEffect.run();
 		if (!m_arrowHitObject) {
 			float castray =
 				TerrainManager::getInstance()->castRay(m_arrow.getPosition(), m_arrowVelocity * dt);
@@ -78,7 +77,7 @@ void Bow::update(
 		}
 	}
 	else {
-		m_trailEffect.setInActive();
+		m_trailEffect.setEmitState(false);
 		if (m_charging) {
 			// Move arrow with bowstring. Hardcoded values determined by experimentation.
 			m_arrow.setPosition(
