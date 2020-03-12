@@ -203,10 +203,14 @@ void Player::updateBow(float dt, Terrain* terrain) {
 
 		m_camera.setFov(m_camera.getDefaultFov() * m_aimZoom);
 	}
-	if (input->mouseDown(Input::MouseButton::LEFT)) {
+	if (input->mousePressed(Input::MouseButton::LEFT)) {
+		m_chargingBow = true;
+	}
+	if (input->mouseDown(Input::MouseButton::LEFT) && m_chargingBow) {
 		m_bow.charge();
 	}
 	else if (input->mouseUp(Input::MouseButton::LEFT)) {
+		m_chargingBow = false;
 		m_bow.shoot(m_playerForward, m_velocity, m_cameraPitch, m_cameraYaw);
 	}
 

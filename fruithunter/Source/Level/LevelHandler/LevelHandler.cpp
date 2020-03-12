@@ -348,6 +348,8 @@ void LevelHandler::initialise() {
 
 void LevelHandler::loadLevel(int levelNr) {
 	if (m_currentLevel != levelNr) {
+		Renderer::getInstance()->drawLoading();
+
 		m_currentLevel = levelNr;
 		Level currentLevel = m_levelsArr.at(levelNr);
 
@@ -410,6 +412,7 @@ void LevelHandler::loadLevel(int levelNr) {
 			m_Animals.push_back(currentLevel.m_animal[i]);
 		}
 	}
+
 	if (PathFindingThread::getInstance()->m_thread == nullptr) {
 		PathFindingThread::getInstance()->initialize(m_fruits, m_frame, m_collidableEntities);
 	}
@@ -510,6 +513,7 @@ void LevelHandler::update(float dt) {
 
 	// for all animals
 	for (size_t i = 0; i < m_Animals.size(); ++i) {
+		m_Animals[i]->checkLookedAt(m_player.getCameraPosition(), m_player.getForward());
 		if (m_Animals[i]->notBribed()) {
 			bool getsThrown = m_player.checkAnimal(m_Animals[i]->getPosition(),
 				m_Animals[i]->getPlayerRange(), m_Animals[i]->getThrowStrength());

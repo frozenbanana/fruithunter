@@ -4,7 +4,6 @@
 #include "Entity.h"
 #include "Button.h"
 
-
 class IntroState : public State {
 public:
 	IntroState();
@@ -18,7 +17,9 @@ public:
 
 private:
 	TextRenderer m_textRenderer;
+
 	Button m_startButton;
+	Button m_settingsButton;
 	Button m_exitButton;
 
 	Entity m_entity;

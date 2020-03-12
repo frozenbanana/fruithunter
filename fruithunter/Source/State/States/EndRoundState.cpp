@@ -25,28 +25,26 @@ void EndRoundState::initialize() {
 }
 
 void EndRoundState::update() {
+	Input::getInstance()->setMouseModeAbsolute();
+
 	m_timer.update();
 	float dt = m_timer.getDt();
-	if (m_resumeButton.update()) {
-		StateHandler::getInstance()->changeState(StateHandler::PLAY);
-	}
+
+	m_particleSystem.update(dt, float3(0.f, 0.4f, 0.0f));
+}
+
+void EndRoundState::handleEvent() {
 	if (m_mainMenuButton.update()) {
 		StateHandler::getInstance()->changeState(StateHandler::INTRO);
 	}
 	if (m_exitButton.update()) {
 		StateHandler::getInstance()->quit();
 	}
-	m_particleSystem.update(dt, float3(0.f, 0.4f, 0.0f));
 }
-
-void EndRoundState::handleEvent() {}
 
 void EndRoundState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
-void EndRoundState::play() {
-	Input::getInstance()->setMouseModeAbsolute();
-	ErrorLogger::log(m_name + " play() called.");
-}
+void EndRoundState::play() { ErrorLogger::log(m_name + " play() called."); }
 
 void EndRoundState::draw() {
 	Renderer::getInstance()->beginFrame();
