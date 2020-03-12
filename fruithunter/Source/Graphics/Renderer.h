@@ -2,12 +2,14 @@
 #include "GlobalNamespaces.h"
 #include "ShaderSet.h"
 #include "Quad.h"
+#include "ShadowMapping.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 
 class Renderer {
 public:
+	enum DrawingState { state_normal, state_shadow };
 	static void initalize(HWND window);
 	void beginFrame();
 	void endFrame();
@@ -35,6 +37,10 @@ public:
 	void draw_darkEdges();
 
 	void drawLoading();
+
+	void setDrawState(DrawingState state);
+	ShadowMapper* getShadowMapper();
+	static void draw(size_t vertexCount, size_t vertexOffset);
 
 private:
 	Renderer(int width, int height);
@@ -71,4 +77,8 @@ private:
 	// Loading screen
 	Quad m_loadingScreen;
 	bool m_loadingScreenInitialised = false;
+	
+	//shadows
+	ShadowMapper m_shadowMapper;
+	DrawingState m_drawState = state_normal;
 };

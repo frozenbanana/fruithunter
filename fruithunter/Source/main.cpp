@@ -36,6 +36,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 		// Main loop
 		stateHandler->handleEvent();
 		stateHandler->update();
+		renderer->beginFrame();
 		stateHandler->draw();
 		renderer->endFrame();
 

@@ -8,8 +8,8 @@ Particle::Particle(float3 position, float4 color, float size, float isActive) {
 	m_isActive = isActive;
 }
 
-void Particle::setIsActive(float isActive) { m_isActive = isActive; }
-float Particle::getIsActive() const { return m_isActive; }
+void Particle::setActiveValue(float isActive) { m_isActive = isActive; }
+float Particle::getActiveValue() const { return m_isActive; }
 
 float3 Particle::getPosition() const { return m_position; }
 void Particle::setPosition(float3 position) { m_position = position; }

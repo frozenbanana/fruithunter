@@ -6,6 +6,9 @@
 class AudioHandler {
 public:
 	enum Sounds {
+		DING_1,
+		DING_2,
+		DING_3,
 		LIGHT_ARROW,
 		HEAVY_ARROW,
 		STRETCH_BOW,
@@ -24,6 +27,7 @@ public:
 		SLEEPING,
 		SOUNDS_LENGTH
 	};
+
 	enum Music { JINGLE_GUITAR, SPANISH_GUITAR, KETAPOP, KETAPOP_DARK, ELEVATOR, MUSIC_LENGTH };
 	bool isPlaying(AudioHandler::Sounds sound);
 	void initalize();

@@ -121,6 +121,17 @@ void Renderer::drawLoading() {
 	endFrame();
 }
 
+void Renderer::setDrawState(DrawingState state) { m_drawState = state; }
+
+ShadowMapper* Renderer::getShadowMapper() { return &m_shadowMapper; }
+
+void Renderer::draw(size_t vertexCount, size_t vertexOffset) {
+	auto renderer = Renderer::getInstance();
+	if (renderer->m_drawState == state_shadow)
+		renderer->m_deviceContext->PSSetShader(nullptr, nullptr, 0); // unplug pixelshader
+	renderer->m_deviceContext->Draw((UINT)vertexCount, (UINT)vertexOffset);
+}
+
 Renderer::Renderer(int width, int height) {
 	// Define window style
 	WNDCLASS wc = { 0 };
@@ -143,6 +154,7 @@ Renderer::Renderer(int width, int height) {
 		r->createRenderTarget();
 		r->createConstantBuffers();
 		r->createQuadVertexBuffer();
+		m_shadowMapper.initiate();
 		r->m_isLoaded = true;
 	}
 
