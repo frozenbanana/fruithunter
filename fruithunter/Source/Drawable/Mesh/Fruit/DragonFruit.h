@@ -26,4 +26,6 @@ public:
 	void updateAnimated(float dt);
 	void waveFlight(float3 playerDir, float radius);
 	void circulateVertical(float3 playerDir, float radius);
+
+	void pathfinding(float3 start) override;
 };

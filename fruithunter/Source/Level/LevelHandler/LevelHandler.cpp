@@ -545,6 +545,18 @@ void LevelHandler::dropFruit() {
 			m_hud.removeFruit(MELON);
 		}
 	}
+	if (ip->keyPressed(Keyboard::D4)) {
+		if (m_inventory[DRAGON] >= 0) {
+			shared_ptr<DragonFruit> dragonFruit =
+				make_shared<DragonFruit>((m_player.getPosition() + float3(0.0f, 1.5f, 0.0f)));
+			dragonFruit->release(m_player.getForward());
+			pft->m_mutex.lock();
+			m_fruits.push_back(dragonFruit);
+			pft->m_mutex.unlock();
+			// m_inventory[MELON]--;
+			m_hud.removeFruit(DRAGON);
+		}
+	}
 }
 
 float3 LevelHandler::getPlayerPos() { return m_player.getPosition(); }

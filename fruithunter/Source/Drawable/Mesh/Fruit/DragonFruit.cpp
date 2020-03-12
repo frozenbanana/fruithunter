@@ -15,7 +15,7 @@ DragonFruit::DragonFruit(float3 pos) : Fruit(pos) {
 
 	// TEMP TAKEN FROM APPLE
 	m_activeRadius = 18.f;
-	m_passiveRadius = 12.f;
+	m_passiveRadius = 20.f;
 
 	m_passive_speed = 3.f;
 	m_active_speed = 10.f;
@@ -36,7 +36,7 @@ if (m_position.y < playerPosition.y + 3.f && isFalling()) {
 		target.Normalize();
 		target.y = 1.f;
 		target += m_direction;
-		jump(target, .8f);
+		jump(target, 5.8f);
 	}
 }
 
@@ -62,7 +62,23 @@ void DragonFruit::circulateVertical(float3 playerPosition, float radius) {
 	//target *= 10.f;
 	m_direction = target - m_position;
 	lookToDir(playerPosition - m_position);
-	
+}
+
+void DragonFruit::pathfinding(float3 start) { 
+	if (m_readyForPath) {
+
+	float rayResult = castRay(start, m_direction);
+	ErrorLogger::log("in Pathfinding");
+	if (rayResult < -.999f) {
+		m_availablePath.push_back(m_direction);
+		ErrorLogger::log("in got result");
+	}
+	else {
+		jump(float3(1.f), 100.f);
+		ErrorLogger::log("Should avoid");
+	}
+	}
+
 }
 
 
@@ -72,6 +88,9 @@ void DragonFruit::behaviorPassive(float3 playerPosition) {
 	
 	if (withinDistanceTo(playerPosition, m_passiveRadius)) {
 		changeState(ACTIVE);
+		jump(float3(0.f, 1.f, 0.f), 60.f);
+		m_ascend = true;
+		m_gravity.y = -40.f;
 		return;
 	}
 	if (!withinDistanceTo(m_worldHome + float3(0.f,6.f,0.f), 0.f)) {
@@ -89,13 +108,21 @@ void DragonFruit::behaviorPassive(float3 playerPosition) {
 
 void DragonFruit::behaviorActive(float3 playerPosition) {
 	// when player is near, take flight
-
+	if (m_ascend) {
+		if (m_velocity.y < 0.f) {
+			m_ascend = !m_ascend;
+		}
+		else
+			return;
+	}
+	
 	// circulate player in air.
 	//m_gravity = float3(0.f);
 	circulateVertical(playerPosition, 17.f);
 	waveFlight(playerPosition, 3.f);
+	makeReadyForPath(m_direction);
 	
-	m_speed = 30.f;
+	m_speed = 20.f;
 }
 
 void DragonFruit::behaviorCaught(float3 playerPosition) {
