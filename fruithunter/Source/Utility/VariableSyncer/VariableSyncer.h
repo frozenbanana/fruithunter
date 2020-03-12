@@ -72,6 +72,7 @@ public:
 class VariableSyncer {
 private:
 	static VariableSyncer m_this;
+	static string m_prePathForStatic;
 
 	const float m_syncInterval = 0.5f; // time until sync interval occurs, in seconds
 	clock_t m_latestSyncTime;

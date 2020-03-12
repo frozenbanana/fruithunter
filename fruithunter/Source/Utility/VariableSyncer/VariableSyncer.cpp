@@ -2,6 +2,7 @@
 #include "ErrorLogger.h"
 
 VariableSyncer VariableSyncer::m_this;
+string VariableSyncer::m_prePathForStatic = "assets/FileSyncs/";
 
 FileSyncer::FileSyncer(string path, SyncType type, void (*onLoad)(void)) {
 	m_type = type;
@@ -352,7 +353,7 @@ void VariableSyncer::saveAll() {
 
 bool VariableSyncer::writeToFile(string path, void* ptr, size_t byteSize) {
 	fstream file;
-	file.open(path, ios::binary | ios::out);
+	file.open(m_prePathForStatic+path, ios::binary | ios::out);
 	if (file.is_open()) {
 		file.write((char*)ptr, byteSize);
 		file.close();
@@ -365,7 +366,7 @@ bool VariableSyncer::writeToFile(string path, void* ptr, size_t byteSize) {
 
 bool VariableSyncer::readFromFile(string path, void* ptr, size_t byteSize) {
 	fstream file;
-	file.open(path, ios::binary | ios::in);
+	file.open(m_prePathForStatic+path, ios::binary | ios::in);
 	if (file.is_open()) {
 		file.read((char*)ptr, byteSize);
 		file.close();
