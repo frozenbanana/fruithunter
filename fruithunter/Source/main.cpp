@@ -67,6 +67,6 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 		}*/
 		MSG msg = { 0 };
 	}
-	extraThread->exitThread();
+	
 	return 0;
 }
