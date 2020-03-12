@@ -269,26 +269,6 @@ void LevelHandler::placeBridge(float3 pos, float3 rot, float3 scale) {
 	m_collidableEntities.push_back(newEntity);
 }
 
-//void LevelHandler::placeAllBridges() {
-//	placeBridge(float3(103.2f, 3.1f, 39.f), float3(0.f, -0.1f, -0.07f), float3(1.9f, 1.f, 1.4f));
-//	placeBridge(float3(35.f, 3.5f, 98.5f), float3(0.f, 1.7f, 0.02f), float3(1.6f, 1.f, 1.4f));
-//	placeBridge(float3(99.2f, 7.9f, 155.f), float3(0.f, 0.f, -0.09f), float3(1.3f, 1.f, 1.4f));
-//}
-
-//void LevelHandler::placeAllAnimals() {
-//	shared_ptr<Animal> animal = make_shared<Animal>("Gorilla", 10.f, 7.f, BANANA, 2, 10.f,
-//		float3(96.2f, 3.45f, 38.f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
-//	m_Animals.push_back(animal);
-//
-//	animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 2, 10.f, float3(37.f, 3.2f, 93.f),
-//		float3(20.f, 3.7f, 90.f), 0.f);
-//	m_Animals.push_back(animal);
-//
-//	animal = make_shared<Animal>("Goat", 5.f, 3.5f, APPLE, 2, 5.f, float3(90.f, 8.2f, 152.f),
-//		float3(87.f, 8.8f, 156.f), XM_PI * 0.5f);
-//	m_Animals.push_back(animal);
-//}
-
 LevelHandler::LevelHandler() { initialise(); }
 
 LevelHandler::~LevelHandler() {
