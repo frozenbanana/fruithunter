@@ -37,16 +37,44 @@ void LevelSelectState::initialize() {
 
 	// Initate shadowmap
 	m_shadowMap = make_unique<ShadowMapper>();
+
+	// Initiate entity repos
+	m_terrainProps.addPlaceableEntity("treeMedium1");
+	m_terrainProps.addPlaceableEntity("treeMedium2");
+	m_terrainProps.addPlaceableEntity("treeMedium3");
+	m_terrainProps.addPlaceableEntity("stone1");
+	m_terrainProps.addPlaceableEntity("stone2");
+	m_terrainProps.addPlaceableEntity("stone3");
+	m_terrainProps.addPlaceableEntity("bush1");
+	m_terrainProps.addPlaceableEntity("bush2");
+	m_terrainProps.addPlaceableEntity("DeadBush");
+	m_terrainProps.addPlaceableEntity("BurnedTree1");
+	m_terrainProps.addPlaceableEntity("BurnedTree2");
+	m_terrainProps.addPlaceableEntity("BurnedTree3");
+	m_terrainProps.addPlaceableEntity("Cactus_tall");
+	m_terrainProps.addPlaceableEntity("Cactus_small");
+	m_terrainProps.addPlaceableEntity("Grass1");
+	m_terrainProps.addPlaceableEntity("Grass2");
+	m_terrainProps.addPlaceableEntity("Grass3");
+	m_terrainProps.addPlaceableEntity("Grass4");
+	m_terrainProps.addPlaceableEntity("RopeBridgeFloor");
+	m_terrainProps.addPlaceableEntity("RopeBridgeRailing1");
+	m_terrainProps.addPlaceableEntity("RopeBridgeRailing2");
+
+	m_terrainProps.load("levelSelection");
 }
 
 void LevelSelectState::update() {
 	m_timer.update();
 	float delta = m_timer.getDt();
 
+	// Update terrainprops
+	m_terrainProps.update(m_player.getCameraPosition(), m_player.getForward());
+
 	// update player
 	m_player.update(delta, m_terrain);
 
-	//ErrorLogger::logFloat3("playerPos: ", m_player.getPosition());
+	// ErrorLogger::logFloat3("playerPos: ", m_player.getPosition());
 
 	// Update Skybox
 	m_skyBox.updateDelta(delta);
@@ -62,7 +90,7 @@ void LevelSelectState::update() {
 		// Check collision
 		if (m_player.getArrow().checkCollision(*m_bowls[i])) {
 			m_player.getArrow().setPosition(float3(-1000.f));
-			m_player.setPosition(float3(47.3f, 2.5f, 85.4f));
+			m_player.setPosition(float3(34.0f, 2.5f, 79.9f));
 			setLevel(i);
 			StateHandler::getInstance()->changeState(StateHandler::PLAY);
 		}
@@ -126,6 +154,7 @@ void LevelSelectState::draw() {
 	for (int i = 0; i < NR_OF_LEVELS; i++) {
 		m_bowls[i]->draw();
 	}
+	m_terrainProps.draw();
 	m_terrain->draw();
 	Renderer::getInstance()->copyDepthToSRV();
 	m_waterEffect.draw();

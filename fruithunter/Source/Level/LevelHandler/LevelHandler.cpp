@@ -94,6 +94,19 @@ void LevelHandler::initialiseLevel1() {
 	maps[3] = "texture_rock6.jpg";
 	level.m_heightmapTextures.push_back(maps);
 
+	level.m_bridgePosition.push_back(float3(103.2f, 3.1f, 39.f));
+	//level.m_bridgePosition.push_back(float3(35.f, 3.5f, 98.5f));
+
+	level.m_bridgeRotation.push_back(float3(0.f, -0.1f, -0.07f));
+	//level.m_bridgeRotation.push_back(float3(0.f, 1.7f, 0.02f));
+
+	level.m_bridgeScale.push_back(float3(1.9f, 1.f, 1.4f));
+	//level.m_bridgeScale.push_back(float3(1.6f, 1.f, 1.4f));
+
+	shared_ptr<Animal> animal = make_shared<Animal>("Goat", 10.f, 7.f, APPLE, 2, 10.f,
+		float3(96.2f, 3.45f, 38.f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
+	level.m_animal.push_back(animal);
+
 	level.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
 	level.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
 
@@ -180,6 +193,30 @@ void LevelHandler::initialiseLevel2() {
 	maps[3] = "texture_rock6.jpg";
 	level.m_heightmapTextures.push_back(maps);
 
+	level.m_bridgePosition.push_back(float3(103.2f, 3.1f, 39.f));
+	level.m_bridgePosition.push_back(float3(35.f, 3.5f, 98.5f));
+	level.m_bridgePosition.push_back(float3(99.2f, 7.9f, 155.f));
+
+	level.m_bridgeRotation.push_back(float3(0.f, -0.1f, -0.07f));
+	level.m_bridgeRotation.push_back(float3(0.f, 1.7f, 0.02f));
+	level.m_bridgeRotation.push_back(float3(0.f, 0.f, -0.09f));
+
+	level.m_bridgeScale.push_back(float3(1.9f, 1.f, 1.4f));
+	level.m_bridgeScale.push_back(float3(1.6f, 1.f, 1.4f));
+	level.m_bridgeScale.push_back(float3(1.3f, 1.f, 1.4f));
+
+	shared_ptr<Animal> animal = make_shared<Animal>("Gorilla", 10.f, 7.f, BANANA, 2, 10.f,
+		float3(110.115f, 2.46f, 39.79f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
+	level.m_animal.push_back(animal);
+
+	animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 2, 10.f, float3(37.f, 3.2f, 93.f),
+		float3(20.f, 3.7f, 90.f), 0.f);
+	level.m_animal.push_back(animal);
+
+	animal = make_shared<Animal>("Goat", 5.f, 3.5f, APPLE, 2, 5.f, float3(90.f, 8.2f, 152.f),
+		float3(87.f, 8.8f, 156.f), XM_PI * 0.5f);
+	level.m_animal.push_back(animal);
+
 	level.m_wind.push_back(float3(0.f, 8.f, 0.f)); // Volcano
 	level.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
 	level.m_wind.push_back(float3(1.f, 0.f, 2.f)); // Desert
@@ -232,25 +269,25 @@ void LevelHandler::placeBridge(float3 pos, float3 rot, float3 scale) {
 	m_collidableEntities.push_back(newEntity);
 }
 
-void LevelHandler::placeAllBridges() {
-	placeBridge(float3(103.2f, 3.1f, 39.f), float3(0.f, -0.1f, -0.07f), float3(1.9f, 1.f, 1.4f));
-	placeBridge(float3(35.f, 3.5f, 98.5f), float3(0.f, 1.7f, 0.02f), float3(1.6f, 1.f, 1.4f));
-	placeBridge(float3(99.2f, 7.9f, 155.f), float3(0.f, 0.f, -0.09f), float3(1.3f, 1.f, 1.4f));
-}
+//void LevelHandler::placeAllBridges() {
+//	placeBridge(float3(103.2f, 3.1f, 39.f), float3(0.f, -0.1f, -0.07f), float3(1.9f, 1.f, 1.4f));
+//	placeBridge(float3(35.f, 3.5f, 98.5f), float3(0.f, 1.7f, 0.02f), float3(1.6f, 1.f, 1.4f));
+//	placeBridge(float3(99.2f, 7.9f, 155.f), float3(0.f, 0.f, -0.09f), float3(1.3f, 1.f, 1.4f));
+//}
 
-void LevelHandler::placeAllAnimals() {
-	shared_ptr<Animal> animal = make_shared<Animal>("Gorilla", 10.f, 7.f, BANANA, 2, 10.f,
-		float3(96.2f, 3.45f, 38.f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
-	m_Animals.push_back(animal);
-
-	animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 2, 10.f, float3(37.f, 3.2f, 93.f),
-		float3(20.f, 3.7f, 90.f), 0.f);
-	m_Animals.push_back(animal);
-
-	animal = make_shared<Animal>("Goat", 5.f, 3.5f, APPLE, 2, 5.f, float3(90.f, 8.2f, 152.f),
-		float3(87.f, 8.8f, 156.f), XM_PI * 0.5f);
-	m_Animals.push_back(animal);
-}
+//void LevelHandler::placeAllAnimals() {
+//	shared_ptr<Animal> animal = make_shared<Animal>("Gorilla", 10.f, 7.f, BANANA, 2, 10.f,
+//		float3(96.2f, 3.45f, 38.f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
+//	m_Animals.push_back(animal);
+//
+//	animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 2, 10.f, float3(37.f, 3.2f, 93.f),
+//		float3(20.f, 3.7f, 90.f), 0.f);
+//	m_Animals.push_back(animal);
+//
+//	animal = make_shared<Animal>("Goat", 5.f, 3.5f, APPLE, 2, 5.f, float3(90.f, 8.2f, 152.f),
+//		float3(87.f, 8.8f, 156.f), XM_PI * 0.5f);
+//	m_Animals.push_back(animal);
+//}
 
 LevelHandler::LevelHandler() { initialise(); }
 
@@ -364,6 +401,14 @@ void LevelHandler::loadLevel(int levelNr) {
 			m_hud.createFruitSprite("melon");
 
 		// Put out bridges correctly
+		for (int i = 0; i < currentLevel.m_bridgePosition.size(); i++) {
+			placeBridge(currentLevel.m_bridgePosition[i], currentLevel.m_bridgeRotation[i],
+				currentLevel.m_bridgeScale[i]);
+		}
+
+		for (int i = 0; i < currentLevel.m_animal.size(); i++) {
+			m_Animals.push_back(currentLevel.m_animal[i]);
+		}
 	}
 	if (PathFindingThread::getInstance()->m_thread == nullptr) {
 		PathFindingThread::getInstance()->initialize(m_fruits, m_frame, m_collidableEntities);
@@ -496,6 +541,7 @@ void LevelHandler::update(float dt) {
 	dropFruit();
 
 	float3 playerPos = m_player.getPosition();
+	ErrorLogger::logFloat3("Pos: ", playerPos);
 	// update terrain tag
 	int activeTerrain = m_terrainManager->getTerrainIndexFromPosition(playerPos);
 
