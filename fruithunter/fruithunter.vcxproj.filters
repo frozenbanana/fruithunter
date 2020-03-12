@@ -46,6 +46,15 @@
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_darkEdge.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_terrain_onlyMesh.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\VertexShader_onlyMesh.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_seaEffect_onlyMesh.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_particleSystem_circle.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>

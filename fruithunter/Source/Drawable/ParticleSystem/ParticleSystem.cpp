@@ -238,8 +238,7 @@ void ParticleSystem::draw() {
 		bindBuffers();
 
 		Renderer::getInstance()->enableAlphaBlending();
-		// ErrorLogger::log("Doing normal draw, size: " + to_string(m_particles.size()));
-		deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
+		Renderer::draw((UINT)m_particles.size(), (UINT)0);
 		Renderer::getInstance()->disableAlphaBlending();
 	}
 }

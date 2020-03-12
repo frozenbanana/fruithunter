@@ -192,6 +192,10 @@ vector<FrustumPlane> Camera::getFrustumPlanes() const {
 }
 
 CubeBoundingBox Camera::getFrustumBoundingBox() const { 
+	return CubeBoundingBox(getFrustumPoints());
+}
+
+vector<float3> Camera::getFrustumPoints(float scaleBetweenNearAndFarPlane) const {
 	float3 center = m_camEye;
 	float height = tan(m_fov / 2.f);
 	float aspectRatio = (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT;
@@ -204,7 +208,8 @@ CubeBoundingBox Camera::getFrustumBoundingBox() const {
 	float3 camUp = camForward.Cross(camLeft);
 	camUp.Normalize();
 
-	float depth = FAR_PLANE; // NEAR_PLANE
+	float depth =
+		NEAR_PLANE * (1 - scaleBetweenNearAndFarPlane) + FAR_PLANE * scaleBetweenNearAndFarPlane;
 	float3 topLeft = center + (camForward + camLeft * width * 1.f + camUp * height * 1.f) * depth;
 	float3 topRight = center + (camForward + camLeft * width * -1.f + camUp * height * 1.f) * depth;
 	float3 bottomLeft =
@@ -220,5 +225,5 @@ CubeBoundingBox Camera::getFrustumBoundingBox() const {
 	points.push_back(bottomLeft);
 	points.push_back(bottomRight);
 
-	return CubeBoundingBox(points);
+	return points;
 }
