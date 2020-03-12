@@ -14,8 +14,6 @@ void EndRoundState::initialize() {
 	m_mainMenuButton.initialize("Main Menu", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 50));
 	m_exitButton.initialize("Exit", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 100));
 	m_particleSystem = ParticleSystem(ParticleSystem::CONFETTI);
-	ErrorLogger::log(
-		"confetti initalized, confirmed here: " + to_string(m_particleSystem.getIsActive()));
 	m_particleSystem.setPosition(float3(0.0f, -1.f, 0.f));
 	m_timer.reset();
 	m_camera.setView(float3(0.f, 0.f, 1.0f), float3(0.f, 0.f, .0f), float3(0.f, 1.f, .0f));
