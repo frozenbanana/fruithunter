@@ -8,28 +8,35 @@
 class ParticleSystem {
 public:
 	enum PARTICLE_TYPE {
-		NONE = 0,
-		FOREST_BUBBLE = 1,
-		GROUND_DUST = 2,
-		VULCANO_FIRE = 3,
-		VULCANO_SMOKE = 4,
-		LAVA_BUBBLE = 5,
-		ARROW_GLITTER = 6,
-		CONFETTI = 7,
-		TYPE_LENGTH = 8,
+		NONE,
+		FOREST_BUBBLE,
+		GROUND_DUST,
+		VULCANO_FIRE,
+		VULCANO_SMOKE,
+		LAVA_BUBBLE,
+		ARROW_GLITTER,
+		CONFETTI,
+		STARS,
+		TYPE_LENGTH,
 	};
 
 	ParticleSystem(ParticleSystem::PARTICLE_TYPE type = NONE);
-	void activateParticle();
+	void activateOneParticle();
 	void update(float dt, float3 wind = float3(0, 0, 0));
 	void draw();
-	void setActive();
+	void drawNoAlpha();
+	void activateAllParticles();
+	void inactivateAllParticles();
+	void run(bool startAll = false);
 	void setInActive();
 	bool getIsActive();
 	void setPosition(float3 position);
 	float3 getPosition() const;
 
 private:
+	PARTICLE_TYPE m_type = NONE;
+	float3 m_spawnPoint = float3(0, 0, 0);
+	bool m_isRunning;
 	struct Description {
 		int m_nrOfParticles;
 		float m_emitRate; // particles per sec
@@ -120,19 +127,19 @@ private:
 				m_color[2] = float4(0.51f, 0.34f, 0.17f, 1.0f);
 				break;
 			case ARROW_GLITTER:
-				m_nrOfParticles = 30;
-				m_emitRate = 12.0f; // particles per sec
-				m_acceleration = float3(0.02f, 0.01f, 0.02f);
-				m_accelerationOffsetInterval = float2(-0.02f, 0.02f);
-				m_spawnRadius = 0.1f;
-				m_radiusInterval = float2(0.02f, 0.03f);
+				m_nrOfParticles = 64;
+				m_emitRate = 32.0f; // particles per sec
+				m_acceleration = float3(0.0f, 0.0f, 0.0f);
+				m_accelerationOffsetInterval = float2(0.0f, 0.0f);
+				m_spawnRadius = 0.0f;
+				m_radiusInterval = float2(0.002f, 0.003f);
 				m_velocity = float3(0.f, 0.f, 0.f);
-				m_velocityOffsetInterval = float2(-0.2f, 0.2f); // for x, y and z
-				m_sizeInterval = float2(0.075f, 0.09f);
-				m_timeAliveInterval = float2(0.5f, 1.0f);
-				m_color[0] = float4(0.58f, 0.57f, 0.61f, 1.0f);
-				m_color[1] = float4(0.62f, 0.59f, 0.63f, 1.0f);
-				m_color[2] = float4(0.57f, 0.52f, 0.60f, 1.0f);
+				m_velocityOffsetInterval = float2(0.0f, 0.0f); // for x, y and z
+				m_sizeInterval = float2(0.050f, 0.050f);
+				m_timeAliveInterval = float2(0.5f, 0.5f);
+				m_color[0] = float4(0.88f, 0.87f, 0.81f, 1.0f);
+				m_color[1] = float4(0.92f, 0.89f, 0.83f, 1.0f);
+				m_color[2] = float4(0.87f, 0.82f, 0.80f, 1.0f);
 				break;
 			case CONFETTI:
 				m_nrOfParticles = MAX_PARTICLES - 1;
@@ -149,6 +156,21 @@ private:
 				m_color[1] = float4(0.00f, 1.00f, 0.00f, 1.0f);
 				m_color[2] = float4(0.00f, 0.00f, 1.00f, 1.0f);
 				break;
+			case STARS:
+				m_nrOfParticles = MAX_PARTICLES - 1;
+				m_emitRate = 30.0f; // particles per sec
+				m_acceleration = float3(0.0f, 0.0f, 0.0f);
+				m_accelerationOffsetInterval = float2(0.0f, 0.0f);
+				m_spawnRadius = 0.9f;
+				m_radiusInterval = float2(0.0f, 0.0f);
+				m_velocity = float3(0.f, 0.0f, 0.f);
+				m_velocityOffsetInterval = float2(0.0f, 0.0f); // for x, y and z
+				m_sizeInterval = float2(0.2f, .3f);
+				m_timeAliveInterval = float2(0.6f, .65f);
+				m_color[0] = float4(0.81f, 0.90f, 0.00f, 1.0f);
+				m_color[1] = float4(0.90f, 0.81f, 0.00f, 1.0f);
+				m_color[2] = float4(0.88f, 0.78f, 0.00f, 1.0f);
+				break;
 			default:
 				m_nrOfParticles = 0;
 				m_emitRate = 0; // particles per sec
@@ -163,8 +185,6 @@ private:
 			}
 		}
 	};
-	float3 m_spawnPoint = float3(0, 0, 0);
-	bool m_isActive;
 	shared_ptr<Description> m_description;
 	struct ParticleProperty { // not going to the GPU
 		float3 m_acceleration;
@@ -178,8 +198,10 @@ private:
 	float m_emitTimer;
 
 	vector<Particle> m_particles;
-	int m_nrOfParticles;
-	static ShaderSet m_shaderSet;
+	size_t m_nrOfParticles;
+	static ShaderSet m_shaderSetCircle;
+	static ShaderSet m_shaderSetStar;
+	ShaderSet* m_currentShaderSet;
 
 	// Buffers
 	// All particle systems share the same buffer since they wil all be the same size
@@ -194,5 +216,8 @@ private:
 
 public:
 	void setEmitRate(float emitRate);
+	void setColors(float4 colors[3]);
+	void setAmountOfParticles(int nrOf);
 	void setDesciption(Description newDescription);
+	Description* getDescription();
 };

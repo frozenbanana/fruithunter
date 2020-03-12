@@ -76,9 +76,9 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_wind.push_back(float3(1.f, 0.f, 2.f)); // Desert
 	level0.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
 
-	level0.m_nrOfFruits[APPLE] = 20;
-	level0.m_nrOfFruits[BANANA] = 15;
-	level0.m_nrOfFruits[MELON] = 9;
+	level0.m_nrOfFruits[APPLE] = 5;
+	level0.m_nrOfFruits[BANANA] = 3;
+	level0.m_nrOfFruits[MELON] = 2;
 
 	level0.m_winCondition[APPLE] = 2;
 	level0.m_winCondition[BANANA] = 2;
@@ -174,7 +174,7 @@ void LevelHandler::initialise() {
 
 	m_particleSystems.resize(5);
 	m_particleSystems[0] = ParticleSystem(ParticleSystem::VULCANO_FIRE);
-	m_particleSystems[0].setPosition(float3(150.f, 15.f, 150.f));
+	m_particleSystems[0].setPosition(float3(150.f, 20.f, 150.f));
 	m_particleSystems[1] = ParticleSystem(ParticleSystem::VULCANO_SMOKE);
 	m_particleSystems[1].setPosition(float3(150.f, 29.f, 150.f));
 	m_particleSystems[2] = ParticleSystem(ParticleSystem::GROUND_DUST);
@@ -275,6 +275,7 @@ void LevelHandler::draw() {
 	Renderer::getInstance()->enableAlphaBlending();
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->draw_animate();
+		m_fruits[i]->getParticleSystem()->drawNoAlpha();
 	}
 	Renderer::getInstance()->disableAlphaBlending();
 
@@ -313,7 +314,6 @@ void LevelHandler::draw() {
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
 		m_particleSystems[i].draw();
 	}
-
 	m_player.getBow().getTrailEffect().draw();
 }
 
@@ -434,18 +434,21 @@ void LevelHandler::update(float dt) {
 	m_skyBox.updateCurrentLight();
 
 	// update stuff
+
 	for (int i = 0; i < m_fruits.size(); i++) {
+
+		m_fruits[i]->getParticleSystem()->update(dt);
 		pft->m_mutex.lock();
 		m_fruits[i]->update(dt, playerPos);
 		if (m_player.isShooting()) {
 
 			if (m_player.getArrow().checkCollision(*m_fruits[i])) {
-				m_fruits[i]->hit();
+				m_fruits[i]->hit(m_player.getPosition());
 				AudioHandler::getInstance()->playOnceByDistance(
 					AudioHandler::HIT_FRUIT, m_player.getPosition(), m_fruits[i]->getPosition());
 
 				m_player.getArrow().setPosition(
-					float3(-100.f)); // temporary to disable arrow until returning
+					float3(-999.f)); // temporary to disable arrow until returning
 			}
 		}
 		if (float3(m_fruits[i].get()->getPosition() - m_player.getPosition()).Length() <
