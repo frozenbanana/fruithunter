@@ -1,7 +1,7 @@
 
 struct PS_IN {
 	float3 PosW : POSITION0;
-	//float3 PosV : POSITION1;
+	// float3 PosV : POSITION1;
 	float4 PosH : SV_POSITION;
 	float2 TexCoord : TEXCOORD;
 	float3 Normal : NORMAL;
@@ -30,7 +30,7 @@ float3 lighting(float3 pos, float3 normal, float3 color, float shade) {
 	// light utility
 	/*float3 lightPos = float3(-0.f, 110.f, 100.f);
 	float3 toLight = normalize(lightPos - pos);*/
-	//float3 toLight = normalize(float3(-100.f, 110.f, 0));
+	// float3 toLight = normalize(float3(-100.f, 110.f, 0));
 	float3 toLight = normalize(cb_toLight.xyz);
 
 	// diffuse
@@ -62,7 +62,7 @@ float linearDepth(float depthSample) {
 	return zLinear;
 }
 
-float4 texSampleGrease(
+float texSampleGrease(
 	Texture2D texMap, uint2 texSize, float2 uv, float depthFromCamera, float3 posW) {
 	if (uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1) {
 		float2 mappedUV = uv * (float2)texSize;
@@ -97,9 +97,7 @@ float4 main(PS_IN ip) : SV_TARGET {
 
 	// Sample and shade from shadowmap
 	float shade = texSampleGrease(
-		texture_shadowMap, cb_shadowMapRes,
-		ip.ShadowPosH.xy,
-		ip.ShadowPosH.z, ip.PosW.xyz)
+		texture_shadowMap, cb_shadowMapRes, ip.ShadowPosH.xy, ip.ShadowPosH.z, ip.PosW.xyz)
 					  .r;
 
 

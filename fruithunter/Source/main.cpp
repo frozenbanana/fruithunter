@@ -10,12 +10,14 @@
 #include "Camera.h"
 #include "VariableSyncer.h"
 #include "PathFindingThread.h"
+#include "Settings.h"
 
 int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
 	_In_ int cmdCount) {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	Input::initilize(Renderer::getInstance()->getHandle());
+	Settings::initialize();
 
 	StateHandler* stateHandler = StateHandler::getInstance();
 	Input* input = Input::getInstance();
@@ -30,20 +32,6 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	while (StateHandler::getInstance()->isRunning()) {
 		VariableSyncer::getInstance()->sync();
 		input->update();
-		/*if (input->keyPressed(DirectX::Keyboard::F1)) {
-			ErrorLogger::log("Number 1 was pressed!");
-			stateHandler->changeState(StateHandler::INTRO);
-		}
-
-		if (input->keyPressed(DirectX::Keyboard::F2)) {
-			ErrorLogger::log("Number 2 was pressed!");
-			stateHandler->changeState(StateHandler::LEVEL_SELECT);
-		}
-
-		if (input->keyPressed(DirectX::Keyboard::Escape)) {
-			ErrorLogger::log("Number 3 was pressed!");
-			stateHandler->changeState(StateHandler::PAUSE);
-		}*/
 
 		// Main loop
 		stateHandler->handleEvent();
@@ -61,13 +49,8 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 			}
 		}
 
-		/*if (Input::getInstance()->keyPressed(DirectX::Keyboard::F4)) {
-			stateHandler->quit();
-			break;
-		}*/
 		MSG msg = { 0 };
 	}
 	VariableSyncer::getInstance()->saveAll();
-	extraThread->exitThread();
 	return 0;
 }

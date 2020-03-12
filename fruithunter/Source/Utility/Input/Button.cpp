@@ -2,8 +2,6 @@
 #include "Input.h"
 #include "ErrorLogger.h"
 
-
-
 Button::Button() {}
 
 Button::~Button() {}

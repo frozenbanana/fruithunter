@@ -1,5 +1,6 @@
 #include "AudioHandler.h"
 #include "ErrorLogger.h"
+#include "Settings.h"
 //#include <thread> // std::thread
 AudioHandler AudioHandler::m_this;
 
@@ -84,17 +85,17 @@ void AudioHandler::initalize() {
 	m_this.m_musicInstances[KETAPOP] = m_this.m_music[KETAPOP]->CreateInstance();
 	m_this.m_musicInstances[KETAPOP_DARK] = m_this.m_music[KETAPOP_DARK]->CreateInstance();
 	m_this.m_musicInstances[ELEVATOR] = m_this.m_music[ELEVATOR]->CreateInstance();
-	m_this.m_musicInstances[JINGLE_GUITAR]->SetVolume(0.7f);
-	m_this.m_musicInstances[SPANISH_GUITAR]->SetVolume(0.7f);
-	m_this.m_musicInstances[KETAPOP]->SetVolume(0.7f);
-	m_this.m_musicInstances[KETAPOP_DARK]->SetVolume(0.7f);
-	m_this.m_musicInstances[ELEVATOR]->SetVolume(0.7f);
+	m_this.m_musicInstances[JINGLE_GUITAR]->SetVolume(m_musicVolume);
+	m_this.m_musicInstances[SPANISH_GUITAR]->SetVolume(m_musicVolume);
+	m_this.m_musicInstances[KETAPOP]->SetVolume(m_musicVolume);
+	m_this.m_musicInstances[KETAPOP_DARK]->SetVolume(m_musicVolume);
+	m_this.m_musicInstances[ELEVATOR]->SetVolume(m_musicVolume);
 
 	m_oldMusic = Music::MUSIC_LENGTH;
 }
 
 void AudioHandler::playMusic(AudioHandler::Music music) {
-	m_music[music]->Play();
+	m_music[music]->Play(m_musicVolume * m_masterVolume, 0.f, 0.f);
 	m_currentMusic = music;
 }
 
@@ -112,8 +113,8 @@ void AudioHandler::doTransition(AudioHandler::Music newMusic) {
 	float timeLimit = 3.0f;
 	while (m_timer.getTimePassed() < timeLimit) {
 		m_timer.update();
-		coefficient = max(m_timer.getTimePassed() / timeLimit, 0.7f);
-		m_this.m_musicInstances[m_currentMusic]->SetVolume(0.7f - coefficient);
+		coefficient = max(m_timer.getTimePassed() / timeLimit, m_musicVolume);
+		m_this.m_musicInstances[m_currentMusic]->SetVolume(m_musicVolume - coefficient);
 		m_this.m_musicInstances[newMusic]->SetVolume(coefficient);
 	}
 	m_this.m_musicInstances[m_currentMusic]->Pause();
@@ -127,8 +128,29 @@ void AudioHandler::changeMusicTo(AudioHandler::Music newMusic, float dt) {
 
 		// Simple transition
 		m_this.m_musicInstances[m_currentMusic]->Pause();
+		m_this.m_musicInstances[newMusic]->SetVolume(m_musicVolume * m_masterVolume);
 		m_this.m_musicInstances[newMusic]->Play(true);
 		m_currentMusic = newMusic;
+	}
+}
+
+void AudioHandler::changeMusicByTag(int tag, float dt) { 
+	switch (tag) { 
+	case 0:
+		changeMusicTo(AudioHandler::Music::KETAPOP, dt);
+		break;
+	case 1:
+		changeMusicTo(AudioHandler::Music::SPANISH_GUITAR, dt);
+		break;
+	case 2:
+		changeMusicTo(AudioHandler::Music::JINGLE_GUITAR, dt);
+		break;
+	case 3:
+		changeMusicTo(AudioHandler::Music::KETAPOP_DARK, dt);
+		break;
+	default:
+		ErrorLogger::log("No known terrain tag");
+		changeMusicTo(AudioHandler::Music::ELEVATOR, dt);
 	}
 }
 
@@ -137,17 +159,19 @@ void AudioHandler::pauseInstance(AudioHandler::Sounds sound) {
 }
 
 void AudioHandler::playOnce(AudioHandler::Sounds sound) {
-	m_this.m_soundEffects[sound]->Play(); // Play one time
+	m_this.m_soundEffects[sound]->Play(m_effectsVolume * m_masterVolume, 0.f, 0.f); // Play one time
 }
 
 void AudioHandler::playInstance(AudioHandler::Sounds sound) {
 	if (m_this.m_soundEffectsInstance[sound]->GetState() != SoundState::PLAYING) {
+		m_this.m_soundEffectsInstance[sound]->SetVolume(m_effectsVolume * m_masterVolume);
 		m_this.m_soundEffectsInstance[sound]->Play();
 	}
 }
 void AudioHandler::playInstance(AudioHandler::Sounds sound, float coefficient) {
 	if (m_this.m_soundEffectsInstance[sound]->GetState() != SoundState::PLAYING &&
 		coefficient < 0.99f) {
+		m_this.m_soundEffectsInstance[sound]->SetVolume(m_effectsVolume * m_masterVolume);
 		m_this.m_soundEffectsInstance[sound]->Play();
 	}
 }
@@ -158,7 +182,7 @@ void AudioHandler::playOnceByDistance(
 	float volume = 1.f - map(0.f, m_maxHearingDistance, 0.f, 1.f, distance);
 	// Tweak to volume change more realistic
 	volume *= volume;
-	m_this.m_soundEffects[sound]->Play(volume, 0.f, 0.f);
+	m_this.m_soundEffects[sound]->Play(volume * m_effectsVolume * m_masterVolume, 0.f, 0.f);
 }
 
 void AudioHandler::logStats() {
@@ -185,3 +209,15 @@ void AudioHandler::logStats() {
 }
 
 AudioHandler* AudioHandler::getInstance() { return &m_this; }
+
+void AudioHandler::setMasterVolume(float value) {
+	m_masterVolume = value;
+	m_this.m_musicInstances[m_currentMusic]->SetVolume(m_musicVolume * m_masterVolume);
+}
+
+void AudioHandler::setMusicVolume(float value) {
+	m_musicVolume = value;
+	m_this.m_musicInstances[m_currentMusic]->SetVolume(m_musicVolume * m_masterVolume);
+}
+
+void AudioHandler::setEffectsVolume(float value) { m_effectsVolume = value; }

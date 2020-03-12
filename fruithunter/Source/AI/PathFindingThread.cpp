@@ -19,8 +19,11 @@ void PathFindingThread::exitThread() {
 
 PathFindingThread::~PathFindingThread() {
 	auto pft = PathFindingThread::getInstance();
-	pft->m_thread->join();
-	delete pft->m_thread;
+	if (pft->m_thread) {
+
+		pft->m_thread->join();
+		delete pft->m_thread;
+	}
 }
 
 PathFindingThread* PathFindingThread::getInstance() { return &m_this; }
