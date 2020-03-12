@@ -23,14 +23,16 @@ public:
 	ParticleSystem(ParticleSystem::PARTICLE_TYPE type = NONE);
 	void activateOneParticle();
 	void emit(size_t count);
+	void updateEmits(float dt);
+	void updateParticles(float dt, float3 wind);
 	void update(float dt, float3 wind = float3(0, 0, 0));
 	void draw();
 	void drawNoAlpha();
 	void activateAllParticles();
 	void inactivateAllParticles();
 	void run(bool startAll = false);
-	void setInActive();
-	bool getIsActive();
+	void stop();
+	bool isRunning();
 	void setPosition(float3 position);
 	float3 getPosition() const;
 	void setEmitState(bool state);

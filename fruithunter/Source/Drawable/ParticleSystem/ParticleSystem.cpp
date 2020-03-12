@@ -150,44 +150,59 @@ void ParticleSystem::activateOneParticle() {
 }
 
 void ParticleSystem::emit(size_t count) {
+	if (m_type == ARROW_GLITTER)
+		ErrorLogger::log("emit() is running");
 	m_isRunning = true;
+
 	for (size_t i = 0; i < count; i++)
 		activateOneParticle();
 }
 
-void ParticleSystem::update(float dt, float3 wind) {
-	m_timePassed += dt;
-	if (m_isEmitting) {
-		m_emitTimer += dt;
-		float rate = m_description->m_emitRate;
-		if (rate >= 0.f) {
-			float emits = m_emitTimer * rate;
-			size_t emitCount = (size_t)emits;
-			if (emits > 1.0f) {
-				emit(emitCount);
-				m_emitTimer -= (1.f / rate) * emitCount;
-			}
+void ParticleSystem::updateEmits(float dt) {
+	m_emitTimer += dt;
+	float rate = m_description->m_emitRate;
+	if (rate >= 0.f) {
+		float emits = m_emitTimer * rate;
+		size_t emitCount = (size_t)emits;
+		if (emits > 1.0f) {
+			emit(emitCount);
+			m_emitTimer -= (1.f / rate) * emitCount;
 		}
 	}
-	size_t nrOfActive = 0;
-	if (m_isRunning) {
-		for (size_t i = 0; i < m_particles.size(); i++) {
-			if (m_particles[i].getActiveValue() == 1.0f) {
-				nrOfActive++;
-				m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
-				m_particleProperties[i].m_timeLeft -= dt;
-				m_particles[i].update(dt, m_particleProperties[i].m_velocity + wind);
+}
 
-				// Inactivate particles when lifetime is over
-				if (m_particleProperties[i].m_timeLeft <= 0.f) {
-					m_particles[i].setActiveValue(0.0f);
-				}
+void ParticleSystem::updateParticles(float dt, float3 wind) {
+	size_t nrOfActive = 0;
+	for (size_t i = 0; i < m_particles.size(); i++) {
+		if (m_particles[i].getActiveValue() == 1.0f) {
+			nrOfActive++;
+			m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
+			m_particleProperties[i].m_timeLeft -= dt;
+			m_particles[i].update(dt, m_particleProperties[i].m_velocity + wind);
+
+			// Inactivate particles when lifetime is over
+			if (m_particleProperties[i].m_timeLeft <= 0.f) {
+				m_particles[i].setActiveValue(0.0f);
 			}
 		}
 	}
 
 	if (nrOfActive == 0) {
+		if (m_type == ARROW_GLITTER)
+			ErrorLogger::log("updateParticles() is stopping.");
 		m_isRunning = false;
+	}
+}
+
+void ParticleSystem::update(float dt, float3 wind) {
+	m_timePassed += dt;
+
+	if (m_isEmitting) {
+		updateEmits(dt);
+	}
+
+	if (m_isRunning) {
+		updateParticles(dt, wind);
 	}
 }
 
@@ -225,7 +240,6 @@ void ParticleSystem::bindBuffers() {
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 }
 
-
 void ParticleSystem::draw() {
 	if (m_isRunning) {
 		auto deviceContext = Renderer::getDeviceContext();
@@ -257,14 +271,7 @@ void ParticleSystem::drawNoAlpha() {
 	}
 }
 
-void ParticleSystem::activateAllParticles() {
-	emit(m_particles.size());
-	/*m_particles.resize(m_description->m_nrOfParticles);
-	for (size_t i = 0; i < m_particles.size(); i++) {
-		m_particles[i].setActiveValue(1.0f);
-		setParticle(*m_description, i);
-	}*/
-}
+void ParticleSystem::activateAllParticles() { emit(m_particles.size()); }
 
 void ParticleSystem::inactivateAllParticles() {
 	for (size_t i = 0; i < m_particles.size(); i++) {
@@ -276,12 +283,20 @@ void ParticleSystem::run(bool startAll) {
 	if (startAll) {
 		activateAllParticles();
 	}
+	if (m_type == ARROW_GLITTER)
+		ErrorLogger::log("run() is running");
 	m_isRunning = true;
 }
 
-void ParticleSystem::setInActive() { m_isRunning = false; }
+void ParticleSystem::stop() {
+	ErrorLogger::log("stop() is stopping.");
+	if (m_isRunning) {
+		m_isRunning = false;
+	}
+}
 
-bool ParticleSystem::getIsActive() { return m_isRunning; }
+
+bool ParticleSystem::isRunning() { return m_isRunning; }
 
 void ParticleSystem::setPosition(float3 position) { m_spawnPoint = position; }
 
