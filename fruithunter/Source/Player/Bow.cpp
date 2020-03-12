@@ -56,6 +56,7 @@ void Bow::update(
 			float castray =
 				TerrainManager::getInstance()->castRay(m_arrow.getPosition(), m_arrowVelocity * dt);
 			if (castray != -1) {
+				m_trailEffect.setEmitState(false);
 				// Arrow is hitting terrain
 				float3 target = m_arrow.getPosition() + m_arrowVelocity * castray * dt;
 				arrowHitObject(target);
@@ -64,6 +65,7 @@ void Bow::update(
 				arrowPhysics(dt, wind); // Updates arrow in flight, wind is no longer hard coded.
 				// update Particle System
 				m_trailEffect.setPosition(m_arrow.getPosition());
+				m_trailEffect.setEmitState(true);
 
 				m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
 				m_arrow.setRotation(float3(m_arrowPitch, m_arrowYaw, 0));
