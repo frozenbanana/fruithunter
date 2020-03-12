@@ -8,7 +8,6 @@ DragonFruit::DragonFruit(float3 pos) : Fruit(pos) {
 	loadMaterials(names, 3);
 
 	m_nrOfFramePhases = 2;
-	setScale(.5f);
 
 	changeState(AI::State::PASSIVE);
 
@@ -30,14 +29,15 @@ DragonFruit::DragonFruit(float3 pos) : Fruit(pos) {
 
 
 
-void DragonFruit::waveFlight(float3 playerPosition, float radius) {
+void DragonFruit::waveFlight(float3 playerPosition) {
 
-if (m_position.y < playerPosition.y + 3.f && isFalling()) {
+if ( isFalling()) {
 		float3 target = m_direction;
 		target.Normalize();
 		target.y = 1.f;
 		target += m_direction;
-		jump(target, .8f);
+		makeReadyForPath(target);
+		jump(target, 5.f);
 	}
 }
 
@@ -66,6 +66,23 @@ void DragonFruit::circulateVertical(float3 playerPosition, float radius) {
 	
 }
 
+void DragonFruit::pathfinding(float3 start) { 
+	if (m_readyForPath) {
+		if (m_velocity.y < 0.f) {
+			float3 dir = m_velocity;
+			dir.Normalize();
+			dir += start;
+			float distToSurface = castRay(start, dir);
+			if (distToSurface >= 0.f && distToSurface <= 1.f) {
+				jump(m_direction, 100);
+				m_readyForPath = !m_readyForPath;
+			}
+		}
+	}
+
+
+}
+
 
 void DragonFruit::behaviorPassive(float3 playerPosition) {
 	// Perch on ground or on tree?
@@ -73,6 +90,7 @@ void DragonFruit::behaviorPassive(float3 playerPosition) {
 	
 	if (withinDistanceTo(playerPosition, m_passiveRadius)) {
 		changeState(ACTIVE);
+		m_gravity.y = -40.f;
 		return;
 	}
 	if (!withinDistanceTo(m_worldHome + float3(0.f,6.f,0.f), 0.f)) {
@@ -94,9 +112,9 @@ void DragonFruit::behaviorActive(float3 playerPosition) {
 	// circulate player in air.
 	//m_gravity = float3(0.f);
 	circulateVertical(playerPosition, 17.f);
-	waveFlight(playerPosition, 3.f);
+	waveFlight(playerPosition);
 	
-	m_speed = 30.f;
+	m_speed = 20.f;
 }
 
 void DragonFruit::behaviorCaught(float3 playerPosition) {
