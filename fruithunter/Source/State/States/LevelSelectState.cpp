@@ -12,25 +12,21 @@ void LevelSelectState::initialize() {
 	m_player.setPosition(float3(34.0f, 2.5f, 79.9f));
 
 	// Initiate terrain
-	//m_maps = vector<string> maps(4);
+	// m_maps = vector<string> maps(4);
 	m_maps.push_back("texture_grass.jpg");
 	m_maps.push_back("texture_rock6.jpg");
 	m_maps.push_back("texture_rock4.jpg");
 	m_maps.push_back("texture_rock6.jpg");
 
 	TerrainManager::getInstance()->removeAll();
-	TerrainManager::getInstance()->add(float3(0.f), float3(100.f, 25.f, 100.f),"tutorial.png", m_maps,
-		XMINT2(210, 210), XMINT2(1, 1), float3(0.f, 0.f, 0.f));
+	TerrainManager::getInstance()->add(float3(0.f), float3(100.f, 25.f, 100.f), "tutorial.png",
+		m_maps, XMINT2(210, 210), XMINT2(1, 1), float3(0.f, 0.f, 0.f));
 	// Initiate animals
-	shared_ptr<Animal> animal = make_shared<Animal>("Gorilla", 10.f, 7.f, BANANA, 2, 10.f,
-		float3(110.115f, 2.46f, 39.79f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
+	shared_ptr<Animal> animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 2, 10.f,
+		float3(41.369f, 2.746f, 50.425f), float3(20.f, 3.7f, 90.f), 0.f);
 	m_animal.push_back(animal);
 
-	animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 2, 10.f, float3(37.f, 3.2f, 93.f),
-		float3(20.f, 3.7f, 90.f), 0.f);
-	m_animal.push_back(animal);
-
-	animal = make_shared<Animal>("Goat", 5.f, 3.5f, APPLE, 2, 5.f, float3(90.f, 8.2f, 152.f),
+	animal = make_shared<Animal>("Goat", 5.f, 3.5f, APPLE, 2, 5.f, float3(52.956f, 2.752f, 65.128f),
 		float3(87.f, 8.8f, 156.f), XM_PI * 0.5f);
 	m_animal.push_back(animal);
 
@@ -85,9 +81,10 @@ void LevelSelectState::update() {
 	m_terrainProps.update(m_player.getCameraPosition(), m_player.getForward());
 
 	// update player
-	m_player.update(delta, TerrainManager::getInstance()->getTerrainFromPosition(m_player.getPosition()));
+	m_player.update(
+		delta, TerrainManager::getInstance()->getTerrainFromPosition(m_player.getPosition()));
 
-	// ErrorLogger::logFloat3("playerPos: ", m_player.getPosition());
+	//ErrorLogger::logFloat3("playerPos: ", m_player.getPosition());
 
 	// Update Skybox
 	m_skyBox.updateDelta(delta);
@@ -110,6 +107,38 @@ void LevelSelectState::update() {
 		}
 
 		m_bowls[i]->updateAnimated(delta);
+	}
+
+	//Update animals
+	// for all animals
+	for (size_t i = 0; i < m_animal.size(); ++i) {
+		m_animal[i]->checkLookedAt(m_player.getCameraPosition(), m_player.getForward());
+		if (m_animal[i]->notBribed()) {
+			bool getsThrown = m_player.checkAnimal(m_animal[i]->getPosition(),
+				m_animal[i]->getPlayerRange(), m_animal[i]->getThrowStrength());
+			if (getsThrown) {
+				m_animal[i]->makeAngrySound();
+				m_animal[i]->beginWalk(m_player.getPosition());
+			}
+			else {
+				m_animal[i]->setAttacked(false);
+			}
+
+
+			/*for (size_t iFruit = 0; iFruit < m_fruits.size(); ++iFruit) {
+				pft->m_mutex.lock();
+				if (m_fruits[iFruit]->getFruitType() == m_Animals[i]->getfruitType()) {
+					float len =
+						(m_Animals[i]->getPosition() - m_fruits[iFruit]->getPosition()).Length();
+					if (len < m_Animals[i]->getFruitRange()) {
+						m_Animals[i]->grabFruit(m_fruits[iFruit]->getPosition());
+						m_fruits.erase(m_fruits.begin() + iFruit);
+					}
+				}
+				pft->m_mutex.unlock();
+			}*/
+		}
+		m_animal[i]->update(delta, m_player.getPosition());
 	}
 }
 
@@ -146,7 +175,7 @@ void LevelSelectState::draw() {
 
 			// Draw static shadow map
 			// m_terrain->drawShadow();
-			//m_terrain->draw();
+			// m_terrain->draw();
 			/*Draw collidables*/
 			/*Draw terrainprops*/
 			m_staticShadowNotDrawn = false;
@@ -176,10 +205,11 @@ void LevelSelectState::draw() {
 	for (int i = 0; i < m_animal.size(); i++) {
 		m_animal[i]->draw();
 	}
-	//m_terrain->draw();
+	// m_terrain->draw();
 	TerrainManager::getInstance()->draw();
 	Renderer::getInstance()->copyDepthToSRV();
 	m_waterEffect.draw();
+	Renderer::getInstance()->draw_darkEdges();
 	m_skyBox.draw(2, 2);
 }
 

@@ -439,7 +439,6 @@ void LevelHandler::draw() {
 		m_collidableEntities[i]->draw();
 	}
 	m_entity.draw();
-	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 
 	// frustum data for culling
 	vector<FrustumPlane> frustum = m_player.getFrustumPlanes();
@@ -456,14 +455,15 @@ void LevelHandler::draw() {
 	Renderer::getInstance()->draw_darkEdges();
 
 	/* --- Things to be drawn without dark edges --- */
-	m_hud.draw(); // TODO: Find out why hud is not drawn if particleSystems are before
-
 	// Particle Systems
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
 		m_particleSystems[i].draw();
 	}
-
 	m_player.getBow().getTrailEffect().draw();
+
+	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
+	m_hud.draw(); // TODO: Find out why hud is not drawn if particleSystems are before
+
 }
 
 void LevelHandler::drawShadowDynamic() {
