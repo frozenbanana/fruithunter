@@ -9,9 +9,10 @@ private:
 	bool m_darkEdges = true;
 	bool m_particles = true;
 
-	float m_masterVolume = 1.0f;
+	float m_masterVolume = 0.5f;
 	float m_musicVolume = 0.5f;
 	float m_effectsVolume = 0.5f;
+	float m_drawDistance = 0.5f;
 
 public:
 	static void initialize();
@@ -21,6 +22,7 @@ public:
 	void setVsync(bool value);
 	void setDarkEdges(bool value);
 	void setParticles(bool value);
+	void setDrawDistance(float value);
 
 	void setMasterVolume(float value);
 	void setMusicVolume(float value);
@@ -29,6 +31,7 @@ public:
 	bool getVsync();
 	bool getDarkEdges();
 	bool getParticles();
+	float getDrawDistance();
 
 	float getMasterVolume();
 	float getMusicVolume();

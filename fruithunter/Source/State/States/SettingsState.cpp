@@ -47,7 +47,7 @@ void SettingsState::handleEvent() {
 		settings->setEffectsVolume(m_effectsVolume.getValue());
 	}
 	if (m_drawDistance.update()) {
-		settings->setMasterVolume(m_masterVolume.getValue());
+		settings->setDrawDistance(m_drawDistance.getValue());
 	}
 	if (m_vsyncButton.update()) {
 		settings->setVsync(m_vsyncButton.getOnOff());
