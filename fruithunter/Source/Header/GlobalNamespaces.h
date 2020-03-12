@@ -28,9 +28,18 @@ using float4x4 = DirectX::SimpleMath::Matrix;
 enum FruitType { APPLE, BANANA, MELON, NR_OF_FRUITS };
 enum TimeTargets { GOLD, SILVER, BRONZE, NR_OF_TIME_TARGETS };
 
+// Helper Math functions
+/* Generate a random float between low to high */
 static float RandomFloat(float low = 0.f, float high = 1.f) {
 	float randomCoefficent = (float)(rand() % (int)100.f) / 100.f; // normalize
 	return low + randomCoefficent * (high - low);
+}
+
+/* Map value from interval [low, high] to new value corresponding to interval [newLow, newHigh] */
+static float Map(float low, float high, float newLow, float newHigh, float value) {
+	float oldCoefficient = (value / (low + (high - low)));
+	float newRange = (newHigh - newLow) + newLow;
+	return oldCoefficient * newRange;
 }
 
 struct FrustumPlane {
