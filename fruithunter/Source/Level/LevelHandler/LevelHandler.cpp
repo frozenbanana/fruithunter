@@ -341,6 +341,22 @@ void LevelHandler::drawShadowDynamicEntities() {
 }
 
 void LevelHandler::update(float dt) {
+	if (Input::getInstance()->keyPressed(Keyboard::L)) {
+		int width = SCREEN_WIDTH * 1.3;
+		int height = SCREEN_HEIGHT * 1.3;
+
+		Renderer::getInstance()->changeResolution((int)(width), (int)(height));
+		ErrorLogger::log("w: " + to_string(width) + " h: " + to_string(height));
+	}
+	if (Input::getInstance()->keyPressed(Keyboard::K)) {
+		int width = SCREEN_WIDTH * 0.8;
+		int height = SCREEN_HEIGHT * 0.8;
+
+		Renderer::getInstance()->changeResolution((int)(width), (int)(height));
+		ErrorLogger::log("w: " + to_string(width) + " h: " + to_string(height));
+	}
+
+
 	auto pft = PathFindingThread::getInstance();
 
 	m_terrainProps.update(m_player.getCameraPosition(), m_player.getForward());

@@ -76,6 +76,34 @@ void Renderer::setVsync(bool value) { m_vsync = value; }
 
 void Renderer::setDarkEdges(bool value) { m_darkEdges = value; }
 
+void Renderer::changeResolution(int width, int height) {
+	m_screenWidth = width;
+	m_screenHeight = height;
+
+	// 1. clear the existing references to the backbuffer
+	ID3D11RenderTargetView* nullView = nullptr;
+	m_deviceContext->OMSetRenderTargets(1, &nullView, nullptr);
+	m_renderTargetView.Reset();
+	m_depthDSV.Reset();
+	m_deviceContext->Flush(); // not quite sure necessary ?
+
+	// 2. Resize the existing swapchain
+	HRESULT hr =
+		m_swapChain->ResizeBuffers(2, m_screenWidth, m_screenHeight, m_backBufferDesc.Format, NULL);
+	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
+		ErrorLogger::log("In renderer, could not resize buffers");
+
+	// 3. Get the new backbuffer texture to use as a render target
+	createRenderTarget();
+
+	// 4. Create a depth/stencil buffer and create the depth stencil view
+	DXGI_SWAP_CHAIN_DESC swap_desc;
+	m_swapChain->GetDesc(&swap_desc);
+	createDepthBuffer(swap_desc);
+
+	// 5. Make sure other parts in program update with new screen sizes.
+}
+
 
 
 void Renderer::bindConstantBuffer_ScreenSize(int slot) {
@@ -138,9 +166,10 @@ Renderer::Renderer(int width, int height) {
 	RegisterClass(&wc);
 
 	// Create the window
+	bool showTopBorder = true;
 	m_handle = CreateWindow(m_windowTitle, m_windowTitle,
 		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE, STANDARD_CORNER_X, STANDARD_CORNER_Y,
-		m_screenWidth, m_screenHeight, nullptr, nullptr, nullptr, nullptr);
+		m_screenWidth, m_screenHeight + 30 * showTopBorder, nullptr, nullptr, nullptr, nullptr);
 
 	// Create device, deviceContext and swapchain
 	Renderer* r = Renderer::getInstance();
@@ -237,9 +266,10 @@ void Renderer::createDevice(HWND window) {
 	// Define our swap chain
 	DXGI_SWAP_CHAIN_DESC swapChainDesc = { 0 };
 	swapChainDesc.BufferCount = 1;
-	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	/*swapChainDesc.BufferDesc.Width = m_screenWidth;
-	swapChainDesc.BufferDesc.Height = m_screenHeight;*/
+	swapChainDesc.BufferDesc.Format =
+		DXGI_FORMAT_R8G8B8A8_UNORM; // This bufferdesc becomed m_backBufferDesc
+	swapChainDesc.BufferDesc.Width = m_screenWidth;
+	swapChainDesc.BufferDesc.Height = m_screenHeight;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.OutputWindow = window;
 	swapChainDesc.SampleDesc.Count = 1;

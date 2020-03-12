@@ -23,9 +23,9 @@ public:
 
 	void bindBackAndDepthBuffer();
 	void clearDepth();
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthDSV;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthDSS;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthSRV;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthDSV;	 // Depth stencil view
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthDSS;	 // Depth stencil stade
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthSRV; // Depth shader resource view
 
 
 	void bindEverything();
@@ -36,7 +36,7 @@ public:
 	void disableAlphaBlending();
 	void setVsync(bool value);
 	void setDarkEdges(bool value);
-
+	void changeResolution(int width, int height);
 	void copyDepthToSRV();
 
 	void draw_darkEdges();
@@ -53,6 +53,9 @@ private:
 	void createConstantBuffers();
 	void createQuadVertexBuffer();
 	void createBlendState();
+
+
+
 	static Renderer m_this;
 	bool m_isLoaded = false;
 
