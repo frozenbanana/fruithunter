@@ -80,7 +80,7 @@ void LevelHandler::initialiseLevel0() {
 	level0.m_nrOfFruits[APPLE] = 20;
 	level0.m_nrOfFruits[BANANA] = 15;
 	level0.m_nrOfFruits[MELON] = 9;
-	level0.m_nrOfFruits[DRAGON] = 9;
+	level0.m_nrOfFruits[DRAGON] = 0;
 
 	level0.m_winCondition[APPLE] = 2;
 	level0.m_winCondition[BANANA] = 2;
