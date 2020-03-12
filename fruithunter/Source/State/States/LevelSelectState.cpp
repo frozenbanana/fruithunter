@@ -103,8 +103,6 @@ void LevelSelectState::draw() {
 	// draw first person
 	m_skyBox.bindLightBuffer();
 	m_player.draw();
-	if (Input::getInstance()->keyDown(Keyboard::Z))
-		shadowMap->bindCameraBuffer();
 	for (int i = 0; i < NR_OF_LEVELS; i++) {
 		m_bowls[i]->draw();
 	}

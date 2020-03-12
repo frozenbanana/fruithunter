@@ -271,8 +271,6 @@ void LevelHandler::loadLevel(int levelNr) {
 void LevelHandler::draw() {
 	m_skyBox.bindLightBuffer();
 	m_player.draw();
-	if (Input::getInstance()->keyDown(Keyboard::Z))
-		Renderer::getInstance()->getShadowMapper()->bindCameraBuffer();
 
 	Renderer::getInstance()->enableAlphaBlending();
 	for (int i = 0; i < m_fruits.size(); i++) {
@@ -358,7 +356,7 @@ void LevelHandler::drawShadowDynamicEntities() {
 void LevelHandler::update(float dt) {
 	auto pft = PathFindingThread::getInstance();
 
-	m_terrainProps.update(m_player.getCameraPosition(), m_player.getForward());
+	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
 	m_skyBox.updateDelta(dt);
 
