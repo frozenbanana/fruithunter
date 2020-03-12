@@ -142,6 +142,7 @@ Fruit::Fruit(float3 pos) : Entity() {
 	m_nrOfFramePhases = 0;
 	m_currentFramePhase = 0;
 	m_frameTime = 0.0f;
+	m_particleSystem->setAmountOfParticles(22);
 }
 
 // Perhaps a useful function later.
