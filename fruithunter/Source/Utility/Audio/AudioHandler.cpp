@@ -134,6 +134,26 @@ void AudioHandler::changeMusicTo(AudioHandler::Music newMusic, float dt) {
 	}
 }
 
+void AudioHandler::changeMusicByTag(int tag, float dt) { 
+	switch (tag) { 
+	case 0:
+		changeMusicTo(AudioHandler::Music::KETAPOP, dt);
+		break;
+	case 1:
+		changeMusicTo(AudioHandler::Music::SPANISH_GUITAR, dt);
+		break;
+	case 2:
+		changeMusicTo(AudioHandler::Music::JINGLE_GUITAR, dt);
+		break;
+	case 3:
+		changeMusicTo(AudioHandler::Music::KETAPOP_DARK, dt);
+		break;
+	default:
+		ErrorLogger::log("No known terrain tag");
+		changeMusicTo(AudioHandler::Music::ELEVATOR, dt);
+	}
+}
+
 void AudioHandler::pauseInstance(AudioHandler::Sounds sound) {
 	m_this.m_soundEffectsInstance[sound]->Stop(true); // Play one time
 }

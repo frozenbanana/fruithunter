@@ -99,4 +99,5 @@ void PlayState::play() {
 	if (m_levelHandler == nullptr)
 		m_levelHandler = make_unique<LevelHandler>();
 	m_levelHandler->loadLevel(m_currentLevel);
+	//m_shadowMap->clearAllShadows();
 }

@@ -14,6 +14,8 @@ void TerrainManager::add(float3 position, float3 scale, string heightmapFilename
 	m_terrains.push_back(terrain);
 }
 
+void TerrainManager::removeAll() { m_terrains.clear(); }
+
 
 Terrain* TerrainManager::getTerrainFromPosition(float3 position) {
 	for (size_t i = 0; i < m_terrains.size(); i++) {
