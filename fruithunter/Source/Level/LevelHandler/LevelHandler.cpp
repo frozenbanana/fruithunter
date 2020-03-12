@@ -180,7 +180,7 @@ void LevelHandler::initialise() {
 	m_particleSystems[2] = ParticleSystem(ParticleSystem::GROUND_DUST);
 	m_particleSystems[2].setPosition(float3(42.f, 4.f, 125.f));
 	m_particleSystems[3] = ParticleSystem(ParticleSystem::FOREST_BUBBLE);
-	m_particleSystems[3].setPosition(float3(50.f, 5.f, 40.f));
+	m_particleSystems[3].setPosition(float3(50.f, 2.f, 40.f));
 	m_particleSystems[4] = ParticleSystem(ParticleSystem::LAVA_BUBBLE);
 	m_particleSystems[4].setPosition(float3(150.f, 0.f, 149.f));
 
@@ -484,7 +484,14 @@ void LevelHandler::update(float dt) {
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
 		Terrain* currentTerrain =
 			m_terrainManager->getTerrainFromPosition(m_particleSystems[i].getPosition());
-		m_particleSystems[i].update(dt, currentTerrain->getWind());
+		if (Input::getInstance()->keyDown(Keyboard::K)) {
+			ErrorLogger::log("Using improved wind");
+			m_particleSystems[i].update(dt, currentTerrain);
+		}
+		else {
+			ErrorLogger::log("Using wind");
+			m_particleSystems[i].update(dt, currentTerrain->getWind());
+		}
 	}
 
 	m_hud.update(dt, m_player.getStamina());

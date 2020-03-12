@@ -2,6 +2,7 @@
 #include "particle.h"
 #include "ShaderSet.h"
 #include "Timer.h"
+#include "Terrain.h"
 #define MAX_PARTICLES 256
 
 
@@ -25,7 +26,9 @@ public:
 	void emit(size_t count);
 	void updateEmits(float dt);
 	void updateParticles(float dt, float3 wind);
+	void updateParticles(float dt, Terrain* terrain);
 	void update(float dt, float3 wind = float3(0, 0, 0));
+	void update(float dt, Terrain* terrain);
 	void draw();
 	void drawNoAlpha();
 	void activateAllParticles();
@@ -58,15 +61,15 @@ private:
 			switch (type) {
 			case FOREST_BUBBLE:
 				m_nrOfParticles = MAX_PARTICLES - 1;
-				m_emitRate = 25.0f; // particles per sec
-				m_acceleration = float3(0.1f, 0.5f, -0.1f);
-				m_accelerationOffsetInterval = float2(-0.05f, 0.05f);
+				m_emitRate = 45.0f;						   // particles per sec
+				m_acceleration = float3(0.0f, 0.0f, 0.0f); // float3(0.1f, 0.5f, -0.1f);
+				m_accelerationOffsetInterval = float2(-0.02f, 0.02f);
 				m_spawnRadius = 40.f;
 				m_radiusInterval = float2(-35.2f, 0.2f);
 				m_velocity = float3(0.f, 0.f, 0.f);
-				m_velocityOffsetInterval = float2(-3.8f, 3.8f); // for x, y and z
+				m_velocityOffsetInterval = float2(-0.03f, 0.03f); // for x, y and z
 				m_sizeInterval = float2(0.10f, 0.20f);
-				m_timeAliveInterval = float2(3.f, 5.f);
+				m_timeAliveInterval = float2(4.f, 6.f);
 				m_color[0] = float4(0.0f, 0.65f, 0.05f, 1.0f);
 				m_color[1] = float4(0.0f, 0.65f, 0.4f, 1.0f);
 				m_color[2] = float4(0.0f, 0.65f, 0.55f, 1.0f);
@@ -74,12 +77,12 @@ private:
 			case GROUND_DUST:
 				m_nrOfParticles = MAX_PARTICLES - 1;
 				m_emitRate = 25.0f; // particles per sec
-				m_acceleration = float3(0.9f, 1.5f, -0.6f);
+				m_acceleration = float3(0.0f, 0.0f, 0.0f);
 				m_accelerationOffsetInterval = float2(-0.05f, 0.05f);
 				m_spawnRadius = 30.f;
 				m_radiusInterval = float2(-15.2f, 0.2f);
 				m_velocity = float3(0.f, 0.f, 0.f);
-				m_velocityOffsetInterval = float2(-2.8f, 2.8f); // for x, y and z
+				m_velocityOffsetInterval = float2(-0.8f, 0.8f); // for x, y and z
 				m_sizeInterval = float2(0.10f, 0.20f);
 				m_timeAliveInterval = float2(2.5f, 3.5f);
 				m_color[0] = float4(0.77f, 0.35f, 0.51f, 1.0f);

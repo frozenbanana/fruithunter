@@ -169,6 +169,29 @@ void ParticleSystem::updateEmits(float dt) {
 	}
 }
 
+void ParticleSystem::updateParticles(float dt, Terrain* terrain) {
+	size_t nrOfActive = 0;
+	for (size_t i = 0; i < m_particles.size(); i++) {
+		if (m_particles[i].getActiveValue() == 1.0f) {
+			nrOfActive++;
+			m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
+			m_particleProperties[i].m_timeLeft -= dt;
+			m_particles[i].update(
+				dt, m_particleProperties[i].m_velocity +
+						terrain->getWindFromPosition(m_particles[i].getPosition()));
+
+			// Inactivate particles when lifetime is over
+			if (m_particleProperties[i].m_timeLeft <= 0.f) {
+				m_particles[i].setActiveValue(0.0f);
+			}
+		}
+	}
+
+	if (nrOfActive == 0) {
+		m_isRunning = false;
+	}
+}
+
 void ParticleSystem::updateParticles(float dt, float3 wind) {
 	size_t nrOfActive = 0;
 	for (size_t i = 0; i < m_particles.size(); i++) {
@@ -187,6 +210,18 @@ void ParticleSystem::updateParticles(float dt, float3 wind) {
 
 	if (nrOfActive == 0) {
 		m_isRunning = false;
+	}
+}
+
+void ParticleSystem::update(float dt, Terrain* terrain) {
+	m_timePassed += dt;
+
+	if (m_isEmitting) {
+		updateEmits(dt);
+	}
+
+	if (m_isRunning) {
+		updateParticles(dt, terrain);
 	}
 }
 
