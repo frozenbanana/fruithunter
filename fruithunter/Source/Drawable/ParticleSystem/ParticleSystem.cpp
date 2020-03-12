@@ -150,8 +150,6 @@ void ParticleSystem::activateOneParticle() {
 }
 
 void ParticleSystem::emit(size_t count) {
-	if (m_type == ARROW_GLITTER)
-		ErrorLogger::log("emit() is running");
 	m_isRunning = true;
 
 	for (size_t i = 0; i < count; i++)
@@ -188,8 +186,6 @@ void ParticleSystem::updateParticles(float dt, float3 wind) {
 	}
 
 	if (nrOfActive == 0) {
-		if (m_type == ARROW_GLITTER)
-			ErrorLogger::log("updateParticles() is stopping.");
 		m_isRunning = false;
 	}
 }
@@ -252,7 +248,6 @@ void ParticleSystem::draw() {
 		bindBuffers();
 
 		Renderer::getInstance()->enableAlphaBlending();
-		// ErrorLogger::log("Doing normal draw, size: " + to_string(m_particles.size()));
 		deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
 		Renderer::getInstance()->disableAlphaBlending();
 	}
@@ -284,12 +279,10 @@ void ParticleSystem::run(bool startAll) {
 		activateAllParticles();
 	}
 	if (m_type == ARROW_GLITTER)
-		ErrorLogger::log("run() is running");
-	m_isRunning = true;
+		m_isRunning = true;
 }
 
 void ParticleSystem::stop() {
-	ErrorLogger::log("stop() is stopping.");
 	if (m_isRunning) {
 		m_isRunning = false;
 	}
