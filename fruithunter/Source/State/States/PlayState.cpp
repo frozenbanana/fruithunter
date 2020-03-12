@@ -60,17 +60,6 @@ void PlayState::handleEvent() {
 		endRound->setVictoryColor(vicColor);
 		endRound->setConfettiPower(confettiEmitRate);
 	}
-
-
-	Settings* settings = Settings::getInstance();
-	if (Input::getInstance()->keyPressed(Keyboard::Keys::I)) {
-		settings->setMasterVolume(min(1.0f, settings->getMasterVolume() + 0.1f));
-		ErrorLogger::log("Master volume: " + to_string(settings->getMasterVolume()));
-	}
-	if (Input::getInstance()->keyPressed(Keyboard::Keys::K)) {
-		settings->setMasterVolume(max(0.0f, settings->getMasterVolume() - 0.1f));
-		ErrorLogger::log("Master volume: " + to_string(settings->getMasterVolume()));
-	}
 }
 
 void PlayState::pause() {
