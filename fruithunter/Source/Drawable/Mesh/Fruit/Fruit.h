@@ -97,8 +97,6 @@ public:
 			}
 		}
 		else if (dist > MEDIUMSHOT) {
-			ErrorLogger::log("Mediumshot, inAir: " + to_string(!m_onGround) +
-							 " , velo:" + to_string(m_velocity.Length()));
 			if (!m_onGround || m_velocity.Length() > FASTMOVING_VELOCITY) {
 				// case 2: Medium shot
 				// in air or fast moving -> gold
@@ -110,7 +108,6 @@ public:
 			}
 			else {
 				// silver
-				ErrorLogger::log("silver");
 				colors[0] = float4(0.75f, 0.75f, 0.75f, 1.0f);
 				colors[1] = float4(0.75f, 0.75f, 0.75f, 1.0f);
 				colors[2] = float4(0.75f, 0.75f, 0.75f, 1.0f);
