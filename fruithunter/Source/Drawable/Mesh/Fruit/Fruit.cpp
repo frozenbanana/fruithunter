@@ -3,7 +3,6 @@
 #include "PathFindingThread.h"
 #include "AudioHandler.h"
 
-#define THROWVELOCITY 30.f
 #define LONGSHOT 25.f
 #define MEDIUMSHOT 15.f
 #define FASTMOVING_VELOCITY 11.f
@@ -30,7 +29,6 @@ void Fruit::hit(float3 playerPos) {
 	float4 colors[3];
 	int nrOf = 5;
 	if (dist > LONGSHOT) {
-		AudioHandler::getInstance()->playOnce(AudioHandler::DING_3);
 		if (!m_onGround || m_velocity.Length() > FASTMOVING_VELOCITY) {
 			// gold
 			colors[0] = float4(1.00f, 0.95f, 0.00f, 1.0f);
@@ -51,7 +49,6 @@ void Fruit::hit(float3 playerPos) {
 			// case 2: Medium shot
 			// in air or fast moving -> gold
 			// Gold
-			AudioHandler::getInstance()->playOnce(AudioHandler::DING_3);
 			colors[0] = float4(1.00f, 0.95f, 0.00f, 1.0f);
 			colors[1] = float4(0.97f, 0.97f, 0.01f, 1.0f);
 			colors[2] = float4(0.99f, 0.98f, 0.02f, 1.0f);
@@ -59,7 +56,6 @@ void Fruit::hit(float3 playerPos) {
 		}
 		else {
 			// silver
-			AudioHandler::getInstance()->playOnce(AudioHandler::DING_2);
 			colors[0] = float4(0.75f, 0.75f, 0.75f, 1.0f);
 			colors[1] = float4(0.75f, 0.75f, 0.75f, 1.0f);
 			colors[2] = float4(0.75f, 0.75f, 0.75f, 1.0f);
@@ -74,8 +70,7 @@ void Fruit::hit(float3 playerPos) {
 		nrOf = 6;
 	}
 	m_particleSystem->setColors(colors);
-	m_particleSystem->setAmountOfParticles(nrOf);
-	m_particleSystem->run(true);
+	m_particleSystem->emit(nrOf);
 	m_currentMaterial = 2;
 }
 
