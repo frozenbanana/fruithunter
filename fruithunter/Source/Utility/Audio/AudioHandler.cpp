@@ -189,6 +189,9 @@ void AudioHandler::setMasterVolume(float value) {
 	m_this.m_musicInstances[m_currentMusic]->SetVolume(m_musicVolume * m_masterVolume);
 }
 
-void AudioHandler::setMusicVolume(float value) { m_musicVolume = value; }
+void AudioHandler::setMusicVolume(float value) {
+	m_musicVolume = value;
+	m_this.m_musicInstances[m_currentMusic]->SetVolume(m_musicVolume * m_masterVolume);
+}
 
 void AudioHandler::setEffectsVolume(float value) { m_effectsVolume = value; }

@@ -23,7 +23,10 @@ private:
 	Button m_darkEdgesButton;
 	Button m_backButton;
 
-	Slider m_slider;
+	Slider m_drawDistance;
+	Slider m_masterVolume;
+	Slider m_musicVolume;
+	Slider m_effectsVolume;
 
 	Entity m_entity;
 };
