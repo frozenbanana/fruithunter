@@ -3,7 +3,6 @@
 #include "PathFindingThread.h"
 #include "AudioHandler.h"
 
-#define THROWVELOCITY 30.f
 #define LONGSHOT 25.f
 #define MEDIUMSHOT 15.f
 #define FASTMOVING_VELOCITY 11.f

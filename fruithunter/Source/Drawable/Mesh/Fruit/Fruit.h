@@ -5,6 +5,9 @@
 #include "ParticleSystem.h"
 
 
+#define THROWVELOCITY 30.f
+
+
 class Fruit : public Entity, public AI {
 protected:
 	// Phyics based movment
