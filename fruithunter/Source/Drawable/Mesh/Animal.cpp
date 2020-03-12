@@ -1,6 +1,7 @@
 #include "Animal.h"
 #include "Renderer.h"
 #include "AudioHandler.h"
+#define START_ZOOM_LENGTH 1500
 
 void Animal::walkAndBack(float dt) {
 	if (m_walkTimeTracker < 1) { // on way to position
@@ -196,7 +197,7 @@ void Animal::beginWalk(float3 pos) {
 bool Animal::checkLookedAt(float3 playerPos, float3 rayDir) {
 	float3 playerToAnimal = getPosition() + getBoundingBoxPos() - playerPos;
 	bool isLookedAt = false;
-	if (playerToAnimal.LengthSquared() < 2500) {
+	if (playerToAnimal.LengthSquared() < START_ZOOM_LENGTH) {
 		float3 vec = rayDir.Cross(playerToAnimal);
 		vec = vec.Cross(rayDir);
 		vec.Normalize();
