@@ -64,22 +64,23 @@ void DragonFruit::circulateVertical(float3 playerPosition, float radius) {
 	lookToDir(playerPosition - m_position);
 }
 
-void DragonFruit::pathfinding(float3 start) { 
+void DragonFruit::pathfinding(float3 start) {
 	if (m_readyForPath) {
 
-	float rayResult = castRay(start, m_direction);
-	ErrorLogger::log("in Pathfinding");
-	if (rayResult < -.999f) {
-		m_availablePath.push_back(m_direction);
-		ErrorLogger::log("in got result");
-	}
-	else {
-		jump(float3(1.f), 100.f);
-		ErrorLogger::log("Should avoid");
-	}
+		float rayResult = castRay(start, m_direction);
+		ErrorLogger::log("in Pathfinding");
+		if (rayResult < -.999f) {
+			m_availablePath.push_back(m_direction);
+			ErrorLogger::log("in got result");
+		}
+		else {
+			jump(float3(1.f), 100.f);
+			ErrorLogger::log("Should avoid");
+		}
 	}
 
 }
+
 
 
 void DragonFruit::behaviorPassive(float3 playerPosition) {
@@ -115,7 +116,7 @@ void DragonFruit::behaviorActive(float3 playerPosition) {
 		else
 			return;
 	}
-	
+
 	// circulate player in air.
 	//m_gravity = float3(0.f);
 	circulateVertical(playerPosition, 17.f);
