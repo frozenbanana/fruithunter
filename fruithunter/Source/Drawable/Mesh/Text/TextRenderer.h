@@ -7,9 +7,12 @@
 
 class TextRenderer {
 public:
+	enum Alignment { LEFT, CENTER, RIGHT };
+
 	TextRenderer();
 	~TextRenderer();
 	void draw(string text, float2 pos);
+	void draw(string text, float2 pos, Alignment al);
 	void draw(string text, float2 pos, float4 col);
 
 	void setColor(XMVECTORF32 color);

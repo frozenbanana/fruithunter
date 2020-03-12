@@ -5,6 +5,7 @@
 #include "Input.h"
 #include "StateHandler.h"
 #include "EndRoundState.h"
+#include "Settings.h"
 
 void PlayState::initialize() { m_name = "Play State"; }
 
@@ -63,7 +64,7 @@ void PlayState::handleEvent() {
 
 void PlayState::pause() {
 	ErrorLogger::log(m_name + " pause() called.");
-	AudioHandler::getInstance()->pauseAllMusic();
+	// AudioHandler::getInstance()->pauseAllMusic();
 }
 
 void PlayState::draw() {

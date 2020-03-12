@@ -46,10 +46,19 @@ public:
 	AudioHandler() { initalize(); }
 	float m_maxHearingDistance = 80.f;
 
+	void setMasterVolume(float value);
+	void setMusicVolume(float value);
+	void setEffectsVolume(float value);
+
 private:
 	static AudioHandler m_this;
 	Music m_oldMusic;
 	float m_oldVolume;
+
+	float m_masterVolume = 1.0f;
+	float m_musicVolume = 0.5f;
+	float m_effectsVolume = 0.5f;
+
 	Music m_currentMusic;
 	Sounds m_currentSound;
 	Timer m_timer;
