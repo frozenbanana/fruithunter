@@ -150,41 +150,43 @@ void ParticleSystem::activateOneParticle() {
 }
 
 void ParticleSystem::emit(size_t count) {
+	m_isRunning = true;
 	for (size_t i = 0; i < count; i++)
 		activateOneParticle();
 }
 
 void ParticleSystem::update(float dt, float3 wind) {
-	if (m_isRunning && m_type != STARS) {
-
-		m_timePassed += dt;
+	m_timePassed += dt;
+	if (m_isEmitting) {
 		m_emitTimer += dt;
 		float rate = m_description->m_emitRate;
-		float emits = m_emitTimer * rate;
-		size_t emitCount = (size_t)emits;
-		if (emits > 1.0f) {
-			for (size_t i = 0; i < emitCount; i++)
-				activateOneParticle();
-
-			m_emitTimer -= (1.f / rate) * emitCount;
+		if (rate >= 0.f) {
+			float emits = m_emitTimer * rate;
+			size_t emitCount = (size_t)emits;
+			if (emits > 1.0f) {
+				emit(emitCount);
+				m_emitTimer -= (1.f / rate) * emitCount;
+			}
 		}
 	}
 	size_t nrOfActive = 0;
-	for (size_t i = 0; i < m_particles.size(); i++) {
-		if (m_particles[i].getActiveValue() == 1.0f) {
-			nrOfActive++;
-			m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
-			m_particleProperties[i].m_timeLeft -= dt;
-			m_particles[i].update(dt, m_particleProperties[i].m_velocity + wind);
+	if (m_isRunning) {
+		for (size_t i = 0; i < m_particles.size(); i++) {
+			if (m_particles[i].getActiveValue() == 1.0f) {
+				nrOfActive++;
+				m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
+				m_particleProperties[i].m_timeLeft -= dt;
+				m_particles[i].update(dt, m_particleProperties[i].m_velocity + wind);
 
-			// Inactivate particles when lifetime is over
-			if (m_particleProperties[i].m_timeLeft <= 0.f) {
-				m_particles[i].setActiveValue(0.0f);
+				// Inactivate particles when lifetime is over
+				if (m_particleProperties[i].m_timeLeft <= 0.f) {
+					m_particles[i].setActiveValue(0.0f);
+				}
 			}
 		}
 	}
 
-	if (nrOfActive == 0 && m_type == STARS) {
+	if (nrOfActive == 0) {
 		m_isRunning = false;
 	}
 }
@@ -225,19 +227,21 @@ void ParticleSystem::bindBuffers() {
 
 
 void ParticleSystem::draw() {
-	auto deviceContext = Renderer::getDeviceContext();
-	// Since we are using the same vertex buffer for all Particle Systems
-	// the buffer update needs to be next to the draw call.
+	if (m_isRunning) {
+		auto deviceContext = Renderer::getDeviceContext();
+		// Since we are using the same vertex buffer for all Particle Systems
+		// the buffer update needs to be next to the draw call.
 
-	m_currentShaderSet->bindShadersAndLayout();
-	Renderer::getDeviceContext()->UpdateSubresource(
-		m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
-	bindBuffers();
+		m_currentShaderSet->bindShadersAndLayout();
+		Renderer::getDeviceContext()->UpdateSubresource(
+			m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
+		bindBuffers();
 
-	Renderer::getInstance()->enableAlphaBlending();
-	// ErrorLogger::log("Doing normal draw, size: " + to_string(m_particles.size()));
-	deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
-	Renderer::getInstance()->disableAlphaBlending();
+		Renderer::getInstance()->enableAlphaBlending();
+		// ErrorLogger::log("Doing normal draw, size: " + to_string(m_particles.size()));
+		deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
+		Renderer::getInstance()->disableAlphaBlending();
+	}
 }
 
 void ParticleSystem::drawNoAlpha() {
@@ -254,11 +258,12 @@ void ParticleSystem::drawNoAlpha() {
 }
 
 void ParticleSystem::activateAllParticles() {
-	m_particles.resize(m_description->m_nrOfParticles);
+	emit(m_particles.size());
+	/*m_particles.resize(m_description->m_nrOfParticles);
 	for (size_t i = 0; i < m_particles.size(); i++) {
 		m_particles[i].setActiveValue(1.0f);
 		setParticle(*m_description, i);
-	}
+	}*/
 }
 
 void ParticleSystem::inactivateAllParticles() {
@@ -282,6 +287,8 @@ void ParticleSystem::setPosition(float3 position) { m_spawnPoint = position; }
 
 float3 ParticleSystem::getPosition() const { return m_spawnPoint; }
 
+void ParticleSystem::setEmitState(bool state) { m_isEmitting = state; }
+
 void ParticleSystem::setEmitRate(float emitRate) { m_description->m_emitRate = emitRate; }
 
 void ParticleSystem::setColors(float4 colors[3]) {
@@ -290,8 +297,10 @@ void ParticleSystem::setColors(float4 colors[3]) {
 	m_description->m_color[2] = colors[2];
 }
 
-void ParticleSystem::setAmountOfParticles(int nrOf) { m_description->m_nrOfParticles = (int)nrOf; }
-
+void ParticleSystem::setAmountOfParticles(int nrOf) {
+	m_description->m_nrOfParticles = (int)nrOf;
+	m_particles.resize(m_description->m_nrOfParticles);
+}
 
 void ParticleSystem::setDesciption(Description newDescription) { *m_description = newDescription; }
 

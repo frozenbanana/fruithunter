@@ -33,11 +33,13 @@ public:
 	bool getIsActive();
 	void setPosition(float3 position);
 	float3 getPosition() const;
+	void setEmitState(bool state);
 
 private:
 	PARTICLE_TYPE m_type = NONE;
 	float3 m_spawnPoint = float3(0, 0, 0);
 	bool m_isRunning;
+	bool m_isEmitting = true;
 	struct Description {
 		int m_nrOfParticles;
 		float m_emitRate; // particles per sec
@@ -159,7 +161,7 @@ private:
 				break;
 			case STARS:
 				m_nrOfParticles = MAX_PARTICLES - 1;
-				m_emitRate = 0.0f; // particles per sec
+				m_emitRate = -1.0f; // particles per sec
 				m_acceleration = float3(0.0f, 0.0f, 0.0f);
 				m_accelerationOffsetInterval = float2(0.0f, 0.0f);
 				m_spawnRadius = 0.9f;
