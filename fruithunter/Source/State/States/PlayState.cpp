@@ -72,25 +72,16 @@ void PlayState::pause() {
 }
 
 void PlayState::draw() {
-	// SHADOW DRAW
-	Renderer::getInstance()->setDrawState(Renderer::DrawingState::state_shadow);
-
 	ShadowMapper* shadowMap = Renderer::getInstance()->getShadowMapper();
 	shadowMap->mapShadowToFrustum(m_levelHandler->getPlayerFrustumPoints(0.4f));
-
-	shadowMap->bindDSVAndSetNullRenderTarget();
-	shadowMap->bindCameraBuffer();
-	shadowMap->bindShadowInfoBuffer();
+	shadowMap->setup_depthRendering();
 
 	m_levelHandler->drawShadowDynamic();
 
 	// Set first person info
 	Renderer::getInstance()->beginFrame();
-	shadowMap->bindVPTBuffer();
-	shadowMap->bindShadowMap();
 
-	// COLOR DRAW
-	Renderer::getInstance()->setDrawState(Renderer::DrawingState::state_normal);
+	shadowMap->setup_shadowsRendering();
 
 	// draw first person
 	m_levelHandler->draw();

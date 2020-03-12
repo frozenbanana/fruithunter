@@ -49,31 +49,33 @@ private:
 	void updateViewMatrix();
 	void updateProjMatrix();
 
-	
-public:
-	void bindVPTBuffer();//Matrix that moves from localSpace to NDC
-	void bindCameraBuffer(); // camera
-	void bindShadowInfoBuffer();
-	//Utility
-	ShadowMapper();
-	~ShadowMapper();
-	//void initiate(UINT width, UINT height);
-	void setDirection(float3 direction);
-	void mapShadowToFrustum(vector<float3> frustum);
-
-	void initiate();
-	void bindShadowMap();
-	void update(float3);
-	void copyStaticToDynamic();
-
-	void createShadowInfo();
-	void bindInfoBuffer();
-
-	vector<FrustumPlane> getFrustumPlanes() const;
-
 	// Shadow functions
+	void createShadowInfo();
+	void copyStaticToDynamic();
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> getDepthMapSRV();
 	void bindDSVAndSetNullRenderTarget();
 	void bindDSVAndSetNullRenderTargetAndCopyStatic();
 	void bindDSVAndSetNullRenderTargetStatic();
+
+	void bindVPTBuffer();//Matrix that moves from localSpace to NDC
+	void bindShadowInfoBuffer();
+	void bindInfoBuffer();
+	void bindShadowMap();
+	
+public:
+	void bindCameraBuffer(); // camera
+	vector<FrustumPlane> getFrustumPlanes() const;
+
+	void setDirection(float3 direction);
+	void mapShadowToFrustum(vector<float3> frustum);
+
+	void update(float3);
+
+	void setup_depthRendering();
+	void setup_shadowsRendering();
+
+	//Utility
+	void initiate();
+	ShadowMapper();
+	~ShadowMapper();
 };

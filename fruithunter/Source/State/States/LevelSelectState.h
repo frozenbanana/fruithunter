@@ -38,8 +38,4 @@ private:
 	Entity* m_bowls[NR_OF_LEVELS];
 
 	void setLevel(int);
-
-	// Shadow stuff
-	unique_ptr<ShadowMapper> m_shadowMap;
-	bool m_staticShadowNotDrawn = true;
 };

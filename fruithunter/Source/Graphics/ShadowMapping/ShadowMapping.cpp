@@ -213,6 +213,19 @@ void ShadowMapper::update(float3 playerPos) {
 	updateProjMatrix();
 }
 
+void ShadowMapper::setup_depthRendering() {
+	Renderer::getInstance()->setDrawState(Renderer::DrawingState::state_shadow);
+	bindDSVAndSetNullRenderTarget();
+	bindCameraBuffer();
+	bindShadowInfoBuffer();
+}
+
+void ShadowMapper::setup_shadowsRendering() {
+	Renderer::getInstance()->setDrawState(Renderer::DrawingState::state_normal);
+	bindVPTBuffer();
+	bindShadowMap();
+}
+
 void ShadowMapper::copyStaticToDynamic() {
 	auto deviceContext = Renderer::getDeviceContext();
 	deviceContext->CopyResource(m_depthMap.Get(), m_depthMapStatic.Get());

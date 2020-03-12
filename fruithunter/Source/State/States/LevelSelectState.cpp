@@ -34,9 +34,6 @@ void LevelSelectState::initialize() {
 	for (int i = 0; i < NR_OF_LEVELS; i++) {
 		m_bowls[i] = new Entity("bowl", float3(49.5f + (float(i) * 1.5f), 25.5f, 50.f));
 	}
-
-	// Initate shadowmap
-	m_shadowMap = make_unique<ShadowMapper>();
 }
 
 void LevelSelectState::update() {
@@ -87,39 +84,24 @@ void LevelSelectState::play() {
 }
 
 void LevelSelectState::draw() {
-	//if (1) {
-	//	m_shadowMap.get()->update(m_player.getPosition()); // not needed?
+	ShadowMapper* shadowMap = Renderer::getInstance()->getShadowMapper();
+	shadowMap->mapShadowToFrustum(m_player.getFrustumPoints(0.4f));
+	shadowMap->setup_depthRendering();
 
-	//	if (m_staticShadowNotDrawn) {
-	//		//	Set static shadow map info
-	//		m_shadowMap.get()->bindDSVAndSetNullRenderTargetStatic();
-	//		m_shadowMap.get()->bindCameraMatrix();
-
-	//		// Draw static shadow map
-	//		// m_terrain->drawShadow();
-	//		m_terrain->draw();
-	//		/*Draw collidables*/
-	//		/*Draw terrainprops*/
-	//		m_staticShadowNotDrawn = false;
-	//	}
-	//	// Set shadow map info
-	//	m_shadowMap.get()->bindDSVAndSetNullRenderTarget();
-	//	m_shadowMap.get()->bindCameraMatrix();
-
-	//	// Draw shadow map
-	//	for (int i = 0; i < NR_OF_LEVELS; i++) {
-	//		m_bowls[i]->drawShadow();
-	//	}
-	//}
+	for (int i = 0; i < NR_OF_LEVELS; i++) {
+		m_bowls[i]->draw_onlyMesh(float3(0, 0, 0));
+	}
+	m_terrain->draw_onlyMesh();
 
 	// Set first person info
 	Renderer::getInstance()->beginFrame();
-	//m_shadowMap.get()->bindVPTMatrix();
-	m_shadowMap.get()->bindShadowMap();
+	shadowMap->setup_shadowsRendering();
 
 	// draw first person
 	m_skyBox.bindLightBuffer();
 	m_player.draw();
+	if (Input::getInstance()->keyDown(Keyboard::Z))
+		shadowMap->bindCameraBuffer();
 	for (int i = 0; i < NR_OF_LEVELS; i++) {
 		m_bowls[i]->draw();
 	}
