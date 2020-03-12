@@ -71,10 +71,10 @@ void LevelHandler::initialiseLevel0() {
 	maps[3] = "texture_rock6.jpg";
 	level0.m_heightmapTextures.push_back(maps);
 
-	level0.m_wind.push_back(float3(0.f, 8.f, 0.f)); // Volcano
-	level0.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
-	level0.m_wind.push_back(float3(1.f, 0.f, 2.f)); // Desert
-	level0.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
+	level0.m_wind.push_back(float3(0.f, 8.f, 0.f));	 // Volcano
+	level0.m_wind.push_back(float3(3.f, 0.f, 6.f));	 // Forest
+	level0.m_wind.push_back(float3(3.f, 0.f, -2.f)); // Desert
+	level0.m_wind.push_back(float3(0.f, 0.f, 1.f));	 // Plains
 
 	level0.m_nrOfFruits[APPLE] = 5;
 	level0.m_nrOfFruits[BANANA] = 3;
@@ -174,9 +174,9 @@ void LevelHandler::initialise() {
 
 	m_particleSystems.resize(5);
 	m_particleSystems[0] = ParticleSystem(ParticleSystem::VULCANO_FIRE);
-	m_particleSystems[0].setPosition(float3(150.f, 20.f, 150.f));
+	m_particleSystems[0].setPosition(float3(150.f, 25.f, 150.f));
 	m_particleSystems[1] = ParticleSystem(ParticleSystem::VULCANO_SMOKE);
-	m_particleSystems[1].setPosition(float3(150.f, 29.f, 150.f));
+	m_particleSystems[1].setPosition(float3(150.f, 30.f, 150.f));
 	m_particleSystems[2] = ParticleSystem(ParticleSystem::GROUND_DUST);
 	m_particleSystems[2].setPosition(float3(42.f, 4.f, 125.f));
 	m_particleSystems[3] = ParticleSystem(ParticleSystem::FOREST_BUBBLE);
@@ -485,11 +485,9 @@ void LevelHandler::update(float dt) {
 		Terrain* currentTerrain =
 			m_terrainManager->getTerrainFromPosition(m_particleSystems[i].getPosition());
 		if (Input::getInstance()->keyDown(Keyboard::K)) {
-			ErrorLogger::log("Using improved wind");
 			m_particleSystems[i].update(dt, currentTerrain);
 		}
 		else {
-			ErrorLogger::log("Using wind");
 			m_particleSystems[i].update(dt, currentTerrain->getWind());
 		}
 	}
