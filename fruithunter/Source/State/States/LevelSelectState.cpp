@@ -12,17 +12,27 @@ void LevelSelectState::initialize() {
 	m_player.setPosition(float3(34.0f, 2.5f, 79.9f));
 
 	// Initiate terrain
-	vector<string> maps(4);
-	maps[0] = "texture_grass.jpg";
-	maps[1] = "texture_rock4.jpg";
-	maps[2] = "texture_rock6.jpg";
-	maps[3] = "texture_rock6.jpg";
+	//m_maps = vector<string> maps(4);
+	m_maps.push_back("texture_grass.jpg");
+	m_maps.push_back("texture_rock6.jpg");
+	m_maps.push_back("texture_rock4.jpg");
+	m_maps.push_back("texture_rock6.jpg");
 
 	TerrainManager::getInstance()->removeAll();
-	TerrainManager::getInstance()->add(float3(0.f), float3(100.f, 25.f, 100.f),"tutorial.png", maps,
+	TerrainManager::getInstance()->add(float3(0.f), float3(100.f, 25.f, 100.f),"tutorial.png", m_maps,
 		XMINT2(210, 210), XMINT2(1, 1), float3(0.f, 0.f, 0.f));
-	// Initiate props
+	// Initiate animals
+	shared_ptr<Animal> animal = make_shared<Animal>("Gorilla", 10.f, 7.f, BANANA, 2, 10.f,
+		float3(110.115f, 2.46f, 39.79f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
+	m_animal.push_back(animal);
 
+	animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 2, 10.f, float3(37.f, 3.2f, 93.f),
+		float3(20.f, 3.7f, 90.f), 0.f);
+	m_animal.push_back(animal);
+
+	animal = make_shared<Animal>("Goat", 5.f, 3.5f, APPLE, 2, 5.f, float3(90.f, 8.2f, 152.f),
+		float3(87.f, 8.8f, 156.f), XM_PI * 0.5f);
+	m_animal.push_back(animal);
 
 	// Initiate water
 	m_waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(400, 400), XMINT2(1, 1),
@@ -120,6 +130,9 @@ void LevelSelectState::play() {
 	AudioHandler::getInstance()->changeMusicTo(AudioHandler::ELEVATOR, 0.f); // dt not used. Lazy...
 	State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
 	dynamic_cast<PlayState*>(tempPointer)->destroyLevel(); // reset if there is an old level
+	TerrainManager::getInstance()->removeAll();
+	TerrainManager::getInstance()->add(float3(0.f), float3(100.f, 25.f, 100.f), "tutorial.png",
+		m_maps, XMINT2(210, 210), XMINT2(1, 1), float3(0.f, 0.f, 0.f));
 }
 
 void LevelSelectState::draw() {
@@ -160,6 +173,9 @@ void LevelSelectState::draw() {
 		m_bowls[i]->draw();
 	}
 	m_terrainProps.draw();
+	for (int i = 0; i < m_animal.size(); i++) {
+		m_animal[i]->draw();
+	}
 	//m_terrain->draw();
 	TerrainManager::getInstance()->draw();
 	Renderer::getInstance()->copyDepthToSRV();
@@ -168,7 +184,6 @@ void LevelSelectState::draw() {
 }
 
 LevelSelectState::~LevelSelectState() {
-	delete m_terrain;
 	for (int i = 0; i < NR_OF_LEVELS; i++) {
 		delete m_bowls[i];
 	}
