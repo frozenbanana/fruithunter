@@ -16,7 +16,7 @@
 #include "Animal.h"
 #include "ParticleSystem.h"
 
-#define LEVELS = 1;
+#define LEVELS = 3;
 
 struct Level {
 	// HeightMap
@@ -31,6 +31,14 @@ struct Level {
 
 	// terrain props
 	string m_terrainPropsFilename;
+
+	//Bridges
+	std::vector<float3> m_bridgePosition;
+	std::vector<float3> m_bridgeRotation;
+	std::vector<float3> m_bridgeScale;
+
+	//Animals
+	std::vector<shared_ptr<Animal>> m_animal;
 
 	// Wind
 	vector<float3> m_wind;
@@ -74,9 +82,11 @@ private:
 
 	// Creating data for levels.
 	void initialiseLevel0();
+	void initialiseLevel1();
+	void initialiseLevel2();
 	void placeBridge(float3 pos, float3 rot, float3 scale);
-	void placeAllBridges();
-	void placeAllAnimals();
+	//void placeAllBridges();
+	//void placeAllAnimals();
 
 	shared_ptr<size_t> m_frame;
 	vector<FrustumPlane> m_planesTest;

@@ -50,7 +50,7 @@ float linearDepth(float depthSample) {
 	return zLinear;
 }
 
-float4 texSampleGrease(
+float texSampleGrease(
 	Texture2D texMap, uint2 texSize, float2 uv, float depthFromCamera, float3 posW) {
 	if (uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1) {
 		float2 mappedUV = uv * (float2)texSize;
