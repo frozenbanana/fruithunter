@@ -8,7 +8,7 @@ Bow::Bow() {
 	m_bow.loadAnimated("Bow", 3);
 	m_bow.setScale(0.2f);
 	m_arrow.load("arrowV2");
-	//m_arrow.setScale(float3(0.2f, 0.2f, m_arrowLength));
+	// m_arrow.setScale(float3(0.2f, 0.2f, m_arrowLength));
 	m_arrow.setScale(float3(0.5f, 0.5f, m_arrowLength));
 	m_arrow.setPosition(float3(-10.f)); // To make sure that arrow doesn't spawn in fruits.
 	m_arrow.setCollisionDataOBB();
@@ -34,7 +34,7 @@ Bow::Bow() {
 Bow::~Bow() {}
 
 void Bow::update(
-	float dt, float3 playerPos, float3 playerForward, float3 playerRight, float3 wind) {
+	float dt, float3 playerPos, float3 playerForward, float3 playerRight, Terrain* terrain) {
 	// m_bow.setRotationByAxis(playerForward, BOW_ANGLE * m_aimMovement);
 
 	//rotate to desired rotation
@@ -84,19 +84,22 @@ void Bow::update(
 
 	// Update arrow.
 	if (m_shooting) {
-		m_trailEffect.setActive();
 		if (!m_arrowHitObject) {
 			float castray =
 				TerrainManager::getInstance()->castRay(m_arrow.getPosition(), m_arrowVelocity * dt);
 			if (castray != -1) {
+				m_trailEffect.setEmitState(false);
 				// Arrow is hitting terrain
 				float3 target = m_arrow.getPosition() + m_arrowVelocity * castray * dt;
 				arrowHitObject(target);
 			}
 			else {
-				arrowPhysics(dt, wind); // Updates arrow in flight, wind is no longer hard coded.
+				arrowPhysics(dt, terrain->getWindFromPosition(
+									 m_arrow.getPosition())); // Updates arrow in flight, wind is no
+															  // longer hard coded.
 				// update Particle System
 				m_trailEffect.setPosition(m_arrow.getPosition());
+				m_trailEffect.setEmitState(true);
 
 				m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
 				m_arrow.setRotation(float3(m_arrowPitch, m_arrowYaw, 0));
@@ -109,7 +112,7 @@ void Bow::update(
 		}
 	}
 	else {
-		m_trailEffect.setInActive();
+		m_trailEffect.setEmitState(false);
 		if (m_charging) {
 			// Move arrow with bowstring. Hardcoded values determined by experimentation.
 			m_arrow.setPosition(
@@ -199,6 +202,8 @@ void Bow::shoot(
 float3 Bow::getArrowVelocity() const { return m_arrowVelocity; }
 
 bool Bow::isShooting() const { return m_shooting; }
+
+bool Bow::getArrowHitObject() const { return m_arrowHitObject; }
 
 void Bow::arrowHitObject(float3 target) {
 	m_arrowReturnTimer = 0.5f;

@@ -3,6 +3,7 @@
 #include "Errorlogger.h"
 #include "VariableSyncer.h"
 #include "AudioHandler.h"
+#include "Settings.h"
 
 Player::Player() {}
 
@@ -22,58 +23,69 @@ void Player::initialize() {
 }
 
 void Player::update(float dt, Terrain* terrain) {
+
+	float delta = dt;
+
+	if (m_hunterMode) {
+		delta *= 0.1f;
+	}
+
 	// Movement force
 	float3 force = getMovementForce();
 
 	checkJump();
-	checkSprint(dt);
-	checkDash(dt);
+	checkSprint(delta);
+	checkDash(delta);
+	checkHunterMode();
 
 	rotatePlayer(dt);
 
 	if (m_onEntity) {
 		// On an object, behave like ground
-		m_position += m_velocity * dt;
-		updateVelocity_onFlatGround(force, dt);
+		m_position += m_velocity * delta;
+		updateVelocity_onFlatGround(force, delta);
 
 		// reset value
 		m_onEntity = false;
 	}
 	else if (terrain != nullptr) {
 		// In terrain
-		calculateTerrainCollision(terrain, dt);
+		calculateTerrainCollision(terrain, delta);
 
 		// Move player;
-		m_position += m_velocity * dt;
+		m_position += m_velocity * delta;
 
 		// Update velocity for next frame
 		if (onGround(terrain)) {
 			if (getSteepness(terrain) < STEEPNESS_BORDER) {
 				// Steep ground
-				updateVelocity_onSteepGround(dt);
+				updateVelocity_onSteepGround(delta);
 			}
 			else {
 				// Flat ground
-				updateVelocity_onFlatGround(force, dt);
+				updateVelocity_onFlatGround(force, delta);
 			}
 		}
 		else {
 			// In air
-			updateVelocity_inAir(force, dt);
+			updateVelocity_inAir(force, delta);
 		}
 	}
 	else {
 		// Outside of terrain, falling
-		m_position += m_velocity * dt;
-		updateVelocity_inAir(force, dt);
+		m_position += m_velocity * delta;
+		updateVelocity_inAir(force, delta);
 	}
 
 	// Reset player if below sea level
-	checkPlayerReset(dt);
+	checkPlayerReset(delta);
 
-	restoreStamina(dt);
+	restoreStamina(delta);
 
-	updateGodMode(dt);
+	// hunter mode
+	updateHunterMode(dt);
+
+	updateGodMode(delta);
 	updateCamera();
 
 	updateBow(dt, terrain);
@@ -166,6 +178,10 @@ void Player::setPosition(float3 position) {
 
 void Player::standsOnObject() { m_onEntity = true; }
 
+bool Player::inHuntermode() const { return m_hunterMode; }
+
+void Player::activateHunterMode() { m_hunterMode = true; }
+
 void Player::updateBow(float dt, Terrain* terrain) {
 	Input* input = Input::getInstance();
 
@@ -197,23 +213,24 @@ void Player::updateBow(float dt, Terrain* terrain) {
 
 		m_camera.setFov(m_camera.getDefaultFov() * m_aimZoom);
 	}
-	if (input->mouseDown(Input::MouseButton::LEFT)) {
+	if (input->mousePressed(Input::MouseButton::LEFT)) {
+		m_chargingBow = true;
+	}
+	if (input->mouseDown(Input::MouseButton::LEFT) && m_chargingBow) {
 		m_bow.charge();
 	}
 	else if (input->mouseUp(Input::MouseButton::LEFT)) {
+		m_chargingBow = false;
 		m_bow.shoot(m_playerForward, m_velocity, m_cameraPitch, m_cameraYaw);
 	}
 
-	float3 wind;
-	terrain != nullptr ? wind = terrain->getWind() : wind = float3(0.f);
-
-	m_bow.rotate(m_cameraPitch + accRotation.y, m_cameraYaw + accRotation.x);
-	m_bow.update(
-		dt, getCameraPosition(), m_playerForward, m_playerRight, wind);
+	m_bow.rotate(m_cameraPitch, m_cameraYaw);
+	m_bow.update(dt, getCameraPosition(), m_playerForward, m_playerRight, terrain);
 }
 
 void Player::updateCamera() {
 	float playerHeight = PLAYER_HEIGHT - 0.5f * (m_dashCharge / DASHMAXCHARGE);
+	m_camera.setFarPlane(Settings::getInstance()->getDrawDistance());
 	m_camera.setUp(m_playerUp);
 	m_camera.setEye(m_position + float3(0, playerHeight, 0));
 	m_camera.setTarget(m_position + float3(0, playerHeight, 0) + m_playerForward);
@@ -353,6 +370,10 @@ vector<FrustumPlane> Player::getFrustumPlanes() const { return m_camera.getFrust
 
 CubeBoundingBox Player::getCameraBoundingBox() const { return m_camera.getFrustumBoundingBox(); }
 
+vector<float3> Player::getFrustumPoints(float scaleBetweenNearAndFarPlane) const {
+	return m_camera.getFrustumPoints(scaleBetweenNearAndFarPlane);
+}
+
 void Player::checkDash(float dt) {
 	if (Input::getInstance()->keyPressed(KEY_DASH) && m_stamina >= STAMINA_DASH_COST &&
 		!m_sprinting && m_onGround) {
@@ -387,6 +408,12 @@ void Player::checkPlayerReset(float dt) {
 			m_position = m_lastSafePosition;
 			m_resetTimer = 0.f;
 		}
+	}
+}
+
+void Player::checkHunterMode() {
+	if (Input::getInstance()->keyPressed(KEY_HM)) {
+		m_hunterMode = 1 - m_hunterMode;
 	}
 }
 
@@ -484,4 +511,11 @@ void Player::updateVelocity_onFlatGround(float3 playerForce, float dt) {
 void Player::updateVelocity_onSteepGround(float dt) {
 	m_velocity += m_gravity * dt;						// gravity if steep terrain
 	m_velocity *= pow(GROUND_FRICTION_WEAK / 60.f, dt); // weak ground friction
+}
+
+void Player::updateHunterMode(float dt) {
+	if (m_hunterMode)
+		consumeStamina(STAMINA_HM_COST * dt);
+	if (m_stamina <= 0.f)
+		m_hunterMode = false;
 }

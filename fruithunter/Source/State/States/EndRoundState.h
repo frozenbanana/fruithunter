@@ -30,7 +30,6 @@ private:
 	float4 m_victoryColor;
 	string m_timeText;
 	Button m_exitButton;
-	Button m_resumeButton;
 	Button m_mainMenuButton;
 	ParticleSystem m_particleSystem;
 

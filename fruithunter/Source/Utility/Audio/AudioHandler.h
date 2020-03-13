@@ -6,6 +6,9 @@
 class AudioHandler {
 public:
 	enum Sounds {
+		DING_1,
+		DING_2,
+		DING_3,
 		LIGHT_ARROW,
 		HEAVY_ARROW,
 		STRETCH_BOW,
@@ -24,6 +27,7 @@ public:
 		SLEEPING,
 		SOUNDS_LENGTH
 	};
+
 	enum Music { JINGLE_GUITAR, SPANISH_GUITAR, KETAPOP, KETAPOP_DARK, ELEVATOR, MUSIC_LENGTH };
 	bool isPlaying(AudioHandler::Sounds sound);
 	void initalize();
@@ -31,6 +35,7 @@ public:
 	void pauseAllMusic();
 	void doTransition(AudioHandler::Music music);
 	void changeMusicTo(AudioHandler::Music music, float dt);
+	void changeMusicByTag(int, float);
 	void pauseInstance(AudioHandler::Sounds sound);
 	void playOnce(AudioHandler::Sounds sound);
 	void playInstance(AudioHandler::Sounds sound);
@@ -42,10 +47,19 @@ public:
 	AudioHandler() { initalize(); }
 	float m_maxHearingDistance = 80.f;
 
+	void setMasterVolume(float value);
+	void setMusicVolume(float value);
+	void setEffectsVolume(float value);
+
 private:
 	static AudioHandler m_this;
 	Music m_oldMusic;
 	float m_oldVolume;
+
+	float m_masterVolume = 1.0f;
+	float m_musicVolume = 0.5f;
+	float m_effectsVolume = 0.5f;
+
 	Music m_currentMusic;
 	Sounds m_currentSound;
 	Timer m_timer;

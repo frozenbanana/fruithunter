@@ -259,3 +259,5 @@ float3 EntityCollision::getClosestPointOnBox(float3 point) const {
 		return float3(-1.f);
 	}
 }
+
+bool EntityCollision::getIsCollidable() const { return m_collidable; }

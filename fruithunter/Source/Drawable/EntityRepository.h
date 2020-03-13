@@ -42,23 +42,32 @@ private:
 	string m_repositoryFilenameLoadedFrom =
 		""; // loaded repository, writes to this filename at saving
 
-	vector<unique_ptr<Entity>> m_entities;// array used to store placed entities for drawing
+	vector<unique_ptr<Entity>> m_entities; // array used to store placed entities for drawing
 	QuadTree<Entity*> m_quadtree;
 
-	//placeable stuff
-	vector<unique_ptr<Entity>> m_placeable;//entities defined to be placeable
-	enum ModeState { state_inactive, state_placing, state_removing, Length 
-	} m_state = state_inactive; // state of mode
+	// placeable stuff
+	vector<unique_ptr<Entity>> m_placeable; // entities defined to be placeable
+	enum ModeState {
+		state_inactive,
+		state_placing,
+		state_removing,
+		Length
+	} m_state = state_inactive;		// state of mode
 	float m_placingDistance = 25.f; // distance of ray tracing on terrain
-	Entity* m_markedEntityToRemove = nullptr;// entity pointer in m_entities that is marked for deletion
-	int m_activePlaceableIndex = 0;//index in m_placeable currently selected
-	Keyboard::Keys m_stateSwitchKey = Keyboard::Tab;//switch placing mode
-	Keyboard::Keys m_indexIncreaseKey = Keyboard::NumPad2;//increase index
-	Keyboard::Keys m_indexDecreaseKey = Keyboard::NumPad1;//decrease index
-	Input::MouseButton m_placeKey = Input::MouseButton::LEFT;//place entity
-	Keyboard::Keys m_deleteKey = Keyboard::Back;//delete entity
-	Keyboard::Keys m_randomizeKey = Keyboard::NumPad0;//randomize values of entity
-	Keyboard::Keys m_saveKey = Keyboard::NumPad9;//randomize values of entity
+	Entity* m_markedEntityToRemove =
+		nullptr;					// entity pointer in m_entities that is marked for deletion
+	int m_activePlaceableIndex = 0; // index in m_placeable currently selected
+	Keyboard::Keys m_stateSwitchKey = Keyboard::Tab;		  // switch placing mode
+	Keyboard::Keys m_indexIncreaseKey = Keyboard::NumPad2;	  // increase index
+	Keyboard::Keys m_indexDecreaseKey = Keyboard::NumPad1;	  // decrease index
+	Input::MouseButton m_placeKey = Input::MouseButton::LEFT; // place entity
+	Keyboard::Keys m_deleteKey = Keyboard::Back;			  // delete entity
+	Keyboard::Keys m_randomizeKey = Keyboard::NumPad0;		  // randomize values of entity
+	Keyboard::Keys m_saveKey = Keyboard::NumPad9;			  // randomize values of entity
+
+	//culling
+	bool m_useCulling = false;
+	vector<Entity**> m_culledEntities;
 
 	//-- Functions --
 	void clear();
@@ -85,17 +94,20 @@ private:
 
 public:
 	vector<unique_ptr<Entity>>* getEntities();
-
+	vector<Entity**> getCulledEntitiesByPosition(float3 position);
 	void load(string filename);
 	void save();
 
 	void addPlaceableEntity(string meshFilename);
 
 	void update(float dt, float3 point, float3 direction);
+
+	void clearCulling();
+	void quadtreeCull(const vector<FrustumPlane>& planes);
+	void boundingBoxCull(const CubeBoundingBox& bb);
+
 	void draw();
-	void draw_quadtreeFrustumCulling(const vector<FrustumPlane>& planes);
-	void draw_quadtreeBBCulling(const CubeBoundingBox& bb);
-	void drawShadow();
+	void draw_onlyMesh();
 
 	EntityRepository(string filename = "");
 	~EntityRepository();

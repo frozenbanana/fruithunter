@@ -39,9 +39,12 @@ private:
 
 	//quadtree
 	QuadTree<XMINT2> m_quadtree;
+	bool m_useCulling = false;
+	vector<XMINT2*> m_culledGrids;
 
 	// shader variables
 	static ShaderSet m_shader;
+	static ShaderSet m_shader_onlyMesh;
 
 	//constant buffers
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_propertiesBuffer;
@@ -100,7 +103,13 @@ public:
 	void setRotation(float3 rotation);
 
 	void update(float dt);
+
+	void clearCulling();
+	void quadtreeCull(vector<FrustumPlane> planes);
+	void boundingBoxCull(CubeBoundingBox bb);
+
 	void draw();
+	void draw_onlyMesh();
 	void draw_frustumCulling(const vector<FrustumPlane>& planes);
 	void draw_quadtreeFrustumCulling(vector<FrustumPlane> planes);
 	void draw_quadtreeBBCulling(CubeBoundingBox bb);

@@ -3,6 +3,7 @@
 #include "Renderer.h"
 #include "StateHandler.h"
 #include "Input.h"
+#include "AudioHandler.h"
 
 EndRoundState::EndRoundState() { initialize(); }
 
@@ -14,8 +15,6 @@ void EndRoundState::initialize() {
 	m_mainMenuButton.initialize("Main Menu", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 50));
 	m_exitButton.initialize("Exit", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 100));
 	m_particleSystem = ParticleSystem(ParticleSystem::CONFETTI);
-	ErrorLogger::log(
-		"confetti initalized, confirmed here: " + to_string(m_particleSystem.getIsActive()));
 	m_particleSystem.setPosition(float3(0.0f, -1.f, 0.f));
 	m_timer.reset();
 	m_camera.setView(float3(0.f, 0.f, 1.0f), float3(0.f, 0.f, .0f), float3(0.f, 1.f, .0f));
@@ -25,28 +24,28 @@ void EndRoundState::initialize() {
 }
 
 void EndRoundState::update() {
+	Input::getInstance()->setMouseModeAbsolute();
+
 	m_timer.update();
 	float dt = m_timer.getDt();
-	if (m_resumeButton.update()) {
-		StateHandler::getInstance()->changeState(StateHandler::PLAY);
-	}
-	if (m_mainMenuButton.update()) {
-		StateHandler::getInstance()->changeState(StateHandler::INTRO);
-	}
-	if (m_exitButton.update()) {
-		StateHandler::getInstance()->quit();
-	}
+
 	m_particleSystem.update(dt, float3(0.f, 0.4f, 0.0f));
 }
 
-void EndRoundState::handleEvent() {}
+void EndRoundState::handleEvent() {
+	if (m_mainMenuButton.update()) {
+		AudioHandler::getInstance()->pauseAllMusic();
+		StateHandler::getInstance()->changeState(StateHandler::INTRO);
+	}
+	if (m_exitButton.update()) {
+		AudioHandler::getInstance()->pauseAllMusic();
+		StateHandler::getInstance()->quit();
+	}
+}
 
 void EndRoundState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
-void EndRoundState::play() {
-	Input::getInstance()->setMouseModeAbsolute();
-	ErrorLogger::log(m_name + " play() called.");
-}
+void EndRoundState::play() { ErrorLogger::log(m_name + " play() called."); }
 
 void EndRoundState::draw() {
 	Renderer::getInstance()->beginFrame();

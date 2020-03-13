@@ -26,15 +26,18 @@ public:
 	Animated();
 	~Animated();
 
+	void setMaterials(int index);
 	void setFrameTargets(int first, int second);
 	void setFrameTimer(float timer);
 	float getFrameTimer();
+
 	void update(float dt);
 	void updateSpecific(float frameTime); // or deltaFrameTime
+
 	void draw();
-	void drawShadow();
+	void draw_onlyMesh(float3 color);
+
 	bool load(std::string filename, int nrOfFrames = 1, bool combineParts = true);
-	void setMaterials(int index);
 	void loadMaterials(std::vector<string> fileNames, int nrOfMaterials);
 
 	float3 getBoundingBoxHalfSizes() const;

@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include "ErrorLogger.h"
+#include "Settings.h"
 #include <WICTextureLoader.h>
 #include <Keyboard.h>
 #include <Mouse.h>
@@ -72,10 +73,6 @@ void Renderer::disableAlphaBlending() {
 		m_blendStateWithoutAlphaBlending.Get(), blendFactor, 0xffffffff);
 }
 
-void Renderer::setVsync(bool value) { m_vsync = value; }
-
-void Renderer::setDarkEdges(bool value) { m_darkEdges = value; }
-
 void Renderer::bindConstantBuffer_ScreenSize(int slot) {
 	XMINT4 data = XMINT4(STANDARD_WIDTH, STANDARD_HEIGHT, 0, 0);
 	m_deviceContext->UpdateSubresource(m_screenSizeBuffer.Get(), 0, 0, &data, 0, 0);
@@ -98,7 +95,7 @@ void Renderer::copyDepthToSRV() {
 }
 
 void Renderer::draw_darkEdges() {
-	if (m_darkEdges) {
+	if (Settings::getInstance()->getDarkEdges()) {
 		copyDepthToSRV();
 		bindDepthSRV(0);
 
@@ -124,6 +121,17 @@ void Renderer::drawLoading() {
 	endFrame();
 }
 
+void Renderer::setDrawState(DrawingState state) { m_drawState = state; }
+
+ShadowMapper* Renderer::getShadowMapper() { return &m_shadowMapper; }
+
+void Renderer::draw(size_t vertexCount, size_t vertexOffset) {
+	auto renderer = Renderer::getInstance();
+	if (renderer->m_drawState == state_shadow)
+		renderer->m_deviceContext->PSSetShader(nullptr, nullptr, 0); // unplug pixelshader
+	renderer->m_deviceContext->Draw((UINT)vertexCount, (UINT)vertexOffset);
+}
+
 Renderer::Renderer(int width, int height) {
 	// Define window style
 	WNDCLASS wc = { 0 };
@@ -146,6 +154,7 @@ Renderer::Renderer(int width, int height) {
 		r->createRenderTarget();
 		r->createConstantBuffers();
 		r->createQuadVertexBuffer();
+		m_shadowMapper.initiate();
 		r->m_isLoaded = true;
 	}
 
@@ -200,7 +209,7 @@ void Renderer::beginFrame() {
 
 void Renderer::endFrame() {
 	// Swap the buffer
-	m_swapChain->Present(m_vsync, 0);
+	m_swapChain->Present(Settings::getInstance()->getVsync(), 0);
 }
 
 ID3D11Device* Renderer::getDevice() {
