@@ -138,14 +138,14 @@ void LevelHandler::initialiseLevel2() {
 	level.m_terrainTags.push_back(Level::TerrainTags::Desert);
 	level.m_terrainTags.push_back(Level::TerrainTags::Plains);
 
-	level0.m_fruitPos[APPLE].push_back(1);
-	level0.m_fruitPos[APPLE].push_back(2);
-	level0.m_fruitPos[APPLE].push_back(3);
-	level0.m_fruitPos[BANANA].push_back(1);
-	level0.m_fruitPos[BANANA].push_back(2);
-	level0.m_fruitPos[BANANA].push_back(3);
-	level0.m_fruitPos[MELON].push_back(0);
-	level0.m_fruitPos[DRAGON].push_back(0);
+	level.m_fruitPos[APPLE].push_back(1);
+	level.m_fruitPos[APPLE].push_back(2);
+	level.m_fruitPos[APPLE].push_back(3);
+	level.m_fruitPos[BANANA].push_back(1);
+	level.m_fruitPos[BANANA].push_back(2);
+	level.m_fruitPos[BANANA].push_back(3);
+	level.m_fruitPos[MELON].push_back(0);
+	level.m_fruitPos[DRAGON].push_back(0);
 
 	level.m_heightMapNames.push_back("VolcanoMap.png");
 	level.m_heightMapNames.push_back("ForestMap.png");
@@ -230,7 +230,7 @@ void LevelHandler::initialiseLevel2() {
 	level.m_winCondition[APPLE] = 2;
 	level.m_winCondition[BANANA] = 2;
 	level.m_winCondition[MELON] = 2;
-	level0.m_nrOfFruits[DRAGON] = 0;
+	level.m_nrOfFruits[DRAGON] = 0;
 
 	level.m_playerStartPos = float3(162.5f, 9.5f, 19.f);
 

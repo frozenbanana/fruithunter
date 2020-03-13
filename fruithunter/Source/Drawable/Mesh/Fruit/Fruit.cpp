@@ -1,7 +1,7 @@
 #include "Fruit.h"
 #include "Input.h"
-#include "PathFindingThread.h"
 #include "AudioHandler.h"
+#include "PathFindingThread.h"
 
 #define LONGSHOT 25.f
 #define MEDIUMSHOT 15.f
