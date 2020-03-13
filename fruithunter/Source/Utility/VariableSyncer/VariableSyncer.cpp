@@ -2,13 +2,15 @@
 #include "ErrorLogger.h"
 
 VariableSyncer VariableSyncer::m_this;
+string VariableSyncer::m_prePathForStatic = "assets/FileSyncs/";
 
-VariableSyncer::FileSyncer::FileSyncer(string path, void (*onLoad)(void)) {
+FileSyncer::FileSyncer(string path, SyncType type, void (*onLoad)(void)) {
+	m_type = type;
 	m_path = path;
 	function_onLoad = onLoad;
 }
 
-void VariableSyncer::FileSyncer::readFile() {
+void FileSyncer::readFile() {
 	if (valid()) {
 		fstream file;
 		file.open(m_prePath + m_path, ios::in);
@@ -63,8 +65,7 @@ void VariableSyncer::FileSyncer::readFile() {
 			onLoad();
 		}
 		else {
-			/*ErrorLogger::logWarning(
-				HRESULT(), "(VariableSyncer) Failed at opening file: " + m_path);*/
+			writeFile();
 		}
 	}
 	else {
@@ -73,7 +74,7 @@ void VariableSyncer::FileSyncer::readFile() {
 	}
 }
 
-void VariableSyncer::FileSyncer::writeFile() {
+void FileSyncer::writeFile() {
 	if (valid()) {
 		fstream file;
 		file.open(m_prePath + m_path, ios::out);
@@ -98,8 +99,8 @@ void VariableSyncer::FileSyncer::writeFile() {
 	}
 }
 
-bool VariableSyncer::FileSyncer::sync() {
-	if (valid()) {
+bool FileSyncer::sync() {
+	if (valid() && m_type == SyncType::state_liveFile) {
 		// create if not already created
 		if (!m_fileCreated) {
 			m_fileCreated = true;
@@ -117,8 +118,7 @@ bool VariableSyncer::FileSyncer::sync() {
 	return false;
 }
 
-VariableSyncer::FileSyncer::VarTypes VariableSyncer::FileSyncer::getTypeFromString(
-	string str_type) const {
+FileSyncer::VarTypes FileSyncer::getTypeFromString(string str_type) const {
 	for (size_t i = 1; i < Count; i++) {
 		if (str_type == m_typeInterpretations[i])
 			return (VarTypes)i;
@@ -126,30 +126,30 @@ VariableSyncer::FileSyncer::VarTypes VariableSyncer::FileSyncer::getTypeFromStri
 	return type_noone;
 }
 
-size_t VariableSyncer::FileSyncer::getByteSizeFromType(VarTypes type) const {
+size_t FileSyncer::getByteSizeFromType(VarTypes type) const {
 	size_t size = 0;
 	switch (type) {
-	case VariableSyncer::FileSyncer::type_noone:
+	case FileSyncer::type_noone:
 		break;
-	case VariableSyncer::FileSyncer::type_double:
+	case FileSyncer::type_double:
 		size = sizeof(double);
 		break;
-	case VariableSyncer::FileSyncer::type_float:
+	case FileSyncer::type_float:
 		size = sizeof(float);
 		break;
-	case VariableSyncer::FileSyncer::type_vector2:
+	case FileSyncer::type_vector2:
 		size = sizeof(float) * 2;
 		break;
-	case VariableSyncer::FileSyncer::type_vector3:
+	case FileSyncer::type_vector3:
 		size = sizeof(float) * 3;
 		break;
-	case VariableSyncer::FileSyncer::type_vector4:
+	case FileSyncer::type_vector4:
 		size = sizeof(float) * 4;
 		break;
-	case VariableSyncer::FileSyncer::type_int:
+	case FileSyncer::type_int:
 		size = sizeof(int);
 		break;
-	case VariableSyncer::FileSyncer::type_string:
+	case FileSyncer::type_string:
 		size = sizeof(string);
 		break;
 	default:
@@ -158,7 +158,7 @@ size_t VariableSyncer::FileSyncer::getByteSizeFromType(VarTypes type) const {
 	return size;
 }
 
-void VariableSyncer::FileSyncer::bind(string description, void* ptr) {
+void FileSyncer::bind(string description, void* ptr) {
 	if (description != "") {
 		size_t byteOffset = 0;
 		char c;
@@ -187,35 +187,48 @@ void VariableSyncer::FileSyncer::bind(string description, void* ptr) {
 	}
 }
 
-string VariableSyncer::FileSyncer::getPath() const { return m_path; }
+string FileSyncer::getPath() const { return m_path; }
 
-bool VariableSyncer::FileSyncer::valid() { return (m_description.size() > 0 && m_path != ""); }
+FileSyncer::SyncType FileSyncer::getType() const { return m_type; }
 
-void VariableSyncer::FileSyncer::parseToPointer(string str, VarTypes type, void* ptr_data) {
+bool FileSyncer::valid() { return (m_description.size() > 0 && m_path != ""); }
+
+bool FileSyncer::fileCreated() const {
+	fstream file;
+	file.open(m_prePath + m_path, ios::in);
+	if (file.is_open()) {
+		file.close();
+		return true;
+	}
+	else
+		return false;
+}
+
+void FileSyncer::parseToPointer(string str, VarTypes type, void* ptr_data) {
 	void* data = ptr_data;
 	size_t split1, split2, split3;
 	switch (type) {
-	case VariableSyncer::FileSyncer::type_noone:
+	case FileSyncer::type_noone:
 		break;
-	case VariableSyncer::FileSyncer::type_double:
+	case FileSyncer::type_double:
 		*((double*)data) = std::stod(str);
 		break;
-	case VariableSyncer::FileSyncer::type_float:
+	case FileSyncer::type_float:
 		*((float*)data) = std::stof(str);
 		break;
-	case VariableSyncer::FileSyncer::type_vector2:
+	case FileSyncer::type_vector2:
 		split1 = str.find(" ", 0);
 		((float*)data)[0] = std::stof(str.substr(0, split1));
 		((float*)data)[1] = std::stof(str.substr(split1 + 1, str.length() - (split1 + 1)));
 		break;
-	case VariableSyncer::FileSyncer::type_vector3:
+	case FileSyncer::type_vector3:
 		split1 = str.find(" ", 0);
 		split2 = str.find(" ", split1 + 1);
 		((float*)data)[0] = std::stof(str.substr(0, split1));
 		((float*)data)[1] = std::stof(str.substr(split1 + 1, split2 - (split1 + 1)));
 		((float*)data)[2] = std::stof(str.substr(split2 + 1, str.length() - (split2 + 1)));
 		break;
-	case VariableSyncer::FileSyncer::type_vector4:
+	case FileSyncer::type_vector4:
 		split1 = str.find(" ", 0);
 		split2 = str.find(" ", split1 + 1);
 		split3 = str.find(" ", split2 + 1);
@@ -224,40 +237,40 @@ void VariableSyncer::FileSyncer::parseToPointer(string str, VarTypes type, void*
 		((float*)data)[2] = std::stof(str.substr(split2 + 1, split3 - (split2 + 1)));
 		((float*)data)[3] = std::stof(str.substr(split3 + 1, str.length() - (split3 + 1)));
 		break;
-	case VariableSyncer::FileSyncer::type_int:
+	case FileSyncer::type_int:
 		*((int*)data) = std::stoi(str);
 		break;
-	case VariableSyncer::FileSyncer::type_string:
+	case FileSyncer::type_string:
 		*((string*)data) = str;
 		break;
 	}
 }
 
-string VariableSyncer::FileSyncer::typeToString(VarTypes type, void* ptr_data) {
+string FileSyncer::typeToString(VarTypes type, void* ptr_data) {
 	void* data = ptr_data;
 	string ret = "";
 	switch (type) {
-	case VariableSyncer::FileSyncer::type_noone:
+	case FileSyncer::type_noone:
 		break;
-	case VariableSyncer::FileSyncer::type_double:
+	case FileSyncer::type_double:
 		ret = to_string(*(double*)data);
 		break;
-	case VariableSyncer::FileSyncer::type_float:
+	case FileSyncer::type_float:
 		ret = to_string(*(float*)data);
 		break;
-	case VariableSyncer::FileSyncer::type_vector2:
+	case FileSyncer::type_vector2:
 		ret += to_string(((float*)data)[0]);
 		ret += " ";
 		ret += to_string(((float*)data)[1]);
 		break;
-	case VariableSyncer::FileSyncer::type_vector3:
+	case FileSyncer::type_vector3:
 		ret += to_string(((float*)data)[0]);
 		ret += " ";
 		ret += to_string(((float*)data)[1]);
 		ret += " ";
 		ret += to_string(((float*)data)[2]);
 		break;
-	case VariableSyncer::FileSyncer::type_vector4:
+	case FileSyncer::type_vector4:
 		ret += to_string(((float*)data)[0]);
 		ret += " ";
 		ret += to_string(((float*)data)[1]);
@@ -266,17 +279,17 @@ string VariableSyncer::FileSyncer::typeToString(VarTypes type, void* ptr_data) {
 		ret += " ";
 		ret += to_string(((float*)data)[3]);
 		break;
-	case VariableSyncer::FileSyncer::type_int:
+	case FileSyncer::type_int:
 		ret = to_string(*(int*)data);
 		break;
-	case VariableSyncer::FileSyncer::type_string:
+	case FileSyncer::type_string:
 		ret = *(string*)data;
 		break;
 	}
 	return ret;
 }
 
-time_t VariableSyncer::FileSyncer::getModificationTime() const {
+time_t FileSyncer::getModificationTime() const {
 	struct stat fileDesc;
 	if (stat((m_prePath + m_path).c_str(), &fileDesc) != 0) {
 		// error
@@ -284,7 +297,7 @@ time_t VariableSyncer::FileSyncer::getModificationTime() const {
 	return fileDesc.st_mtime;
 }
 
-void VariableSyncer::FileSyncer::onLoad() {
+void FileSyncer::onLoad() {
 	// update timestamp
 	time_t time = getModificationTime();
 	m_timestamp = time;
@@ -308,16 +321,16 @@ bool VariableSyncer::bind(string path, string description, void* data_ptr) {
 	return false; // not found
 }
 
-bool VariableSyncer::create(string path, void (*onLoad)(void)) {
+FileSyncer* VariableSyncer::create(string path, FileSyncer::SyncType type, void (*onLoad)(void)) {
 	bool found = false;
 	for (size_t i = 0; i < files.size(); i++) {
 		if (path == files[i].getPath()) {
-			return false; // file already exists
+			return &files[i]; // file already exists
 		}
 	}
 	// file doesnt exists yet
-	files.push_back(FileSyncer(path, onLoad));
-	return true;
+	files.push_back(FileSyncer(path, type, onLoad));
+	return &files.back();
 }
 
 void VariableSyncer::sync() {
@@ -331,10 +344,37 @@ void VariableSyncer::sync() {
 	}
 }
 
-void VariableSyncer::writeAll() {
+void VariableSyncer::saveAll() {
 	for (size_t i = 0; i < files.size(); i++) {
-		files[i].writeFile();
+		if (files[i].getType() == FileSyncer::SyncType::state_saveFile)
+			files[i].writeFile();
 	}
 }
 
-VariableSyncer::FileSyncer::FileVariable::FileVariable(string name) { m_varName = name; }
+bool VariableSyncer::writeToFile(string path, void* ptr, size_t byteSize) {
+	fstream file;
+	file.open(m_prePathForStatic+path, ios::binary | ios::out);
+	if (file.is_open()) {
+		file.write((char*)ptr, byteSize);
+		file.close();
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+bool VariableSyncer::readFromFile(string path, void* ptr, size_t byteSize) {
+	fstream file;
+	file.open(m_prePathForStatic+path, ios::binary | ios::in);
+	if (file.is_open()) {
+		file.read((char*)ptr, byteSize);
+		file.close();
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+FileSyncer::FileVariable::FileVariable(string name) { m_varName = name; }
