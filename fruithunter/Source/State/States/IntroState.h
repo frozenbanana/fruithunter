@@ -5,7 +5,9 @@
 #include "Button.h"
 #include <SpriteBatch.h>
 #include <CommonStates.h>
+#include "Timer.h"
 #include <SpriteFont.h>
+#define AMOUNT_OF_LETTERS 11
 
 class IntroState : public State {
 public:
@@ -32,7 +34,12 @@ private:
 	// LOGO
 	unique_ptr<SpriteBatch> m_spriteBatch;
 	unique_ptr<CommonStates> m_states;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
-	float m_scale;
-	float2 m_textureOffset;
+	Timer m_timer;
+	// Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textures[AMOUNT_OF_LETTERS];
+	wstring m_letterPaths[AMOUNT_OF_LETTERS];
+	float2 m_letterPos[AMOUNT_OF_LETTERS];
+	float2 m_speedOffsets[AMOUNT_OF_LETTERS];
+	float m_scales[AMOUNT_OF_LETTERS];
+	float2 m_textureOffsets[AMOUNT_OF_LETTERS];
 };
