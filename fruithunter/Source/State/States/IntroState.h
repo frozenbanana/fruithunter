@@ -10,10 +10,7 @@
 #include "Timer.h"
 #include "Apple.h"
 #include "Bow.h"
-#include <SpriteBatch.h>
-#include <CommonStates.h>
-#include <SpriteFont.h>
-#define AMOUNT_OF_LETTERS 11
+#include "LogoLetter.h"
 
 class IntroState : public State {
 public:
@@ -25,8 +22,6 @@ public:
 	void pause();
 	void play();
 	void draw();
-	void createLogoSprite();
-	void drawLogo();
 
 private:
 	TextRenderer m_textRenderer;
@@ -49,12 +44,5 @@ private:
 	Bow m_bow;
 
 	// Logo
-	unique_ptr<SpriteBatch> m_spriteBatch;
-	unique_ptr<CommonStates> m_states;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textures[AMOUNT_OF_LETTERS];
-	wstring m_letterPaths[AMOUNT_OF_LETTERS];
-	float2 m_letterPos[AMOUNT_OF_LETTERS];
-	float2 m_speedOffsets[AMOUNT_OF_LETTERS];
-	float m_scales[AMOUNT_OF_LETTERS];
-	float2 m_textureOffsets[AMOUNT_OF_LETTERS];
+	vector<LogoLetter> m_letters;
 };

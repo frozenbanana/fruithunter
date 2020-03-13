@@ -50,21 +50,29 @@ void IntroState::initialize() {
 	// m_apple.setPosition(float3(58.f, 11.0f, 18.0f));
 
 	// m_letterPaths[0] = L"assets/sprites/fruithunter_logo2.png";
-	m_letterPaths[0] = L"assets/sprites/fruithunter_logo_F_color.png";
-	m_letterPaths[1] = L"assets/sprites/fruithunter_logo_r_color.png";
-	m_letterPaths[2] = L"assets/sprites/fruithunter_logo_u_color.png";
-	m_letterPaths[3] = L"assets/sprites/fruithunter_logo_i_color.png";
-	m_letterPaths[4] = L"assets/sprites/fruithunter_logo_t_color.png";
-	m_letterPaths[5] = L"assets/sprites/fruithunter_logo_H_color.png";
-	m_letterPaths[6] = L"assets/sprites/fruithunter_logo_u_color.png";
-	m_letterPaths[7] = L"assets/sprites/fruithunter_logo_n_color.png";
-	m_letterPaths[8] = L"assets/sprites/fruithunter_logo_t_color.png";
-	m_letterPaths[9] = L"assets/sprites/fruithunter_logo_e_color.png";
-	m_letterPaths[10] = L"assets/sprites/fruithunter_logo_r_color.png";
+
+	string logoPaths[11] = {
+		"assets/sprites/fruithunter_logo_F_color.png",
+		"assets/sprites/fruithunter_logo_r_color.png",
+		"assets/sprites/fruithunter_logo_u_color.png",
+		"assets/sprites/fruithunter_logo_i_color.png",
+		"assets/sprites/fruithunter_logo_t_color.png",
+		"assets/sprites/fruithunter_logo_H_color.png",
+		"assets/sprites/fruithunter_logo_u_color.png",
+		"assets/sprites/fruithunter_logo_t_color.png",
+		"assets/sprites/fruithunter_logo_e_color.png",
+		"assets/sprites/fruithunter_logo_r_color.png",
+	};
+	float offsetX = STANDARD_WIDTH / 16.f;
+	float offsetY = STANDARD_HEIGHT / 3.f;
+	for (size_t i = 0; i < 11; i++) {
+		m_letters[i].load(logoPaths[i]);
+		m_letters[i].setPosition(float2(offsetX,offsetY));
+		offsetX += m_letters[i].getTextureSize().x / (1.65f * 2.f);
+	}
 	// random seed
 	srand((unsigned int)time(NULL));
 
-	createLogoSprite();
 	m_timer.reset();
 }
 
@@ -122,11 +130,9 @@ void IntroState::update() {
 
 	// Logo update
 	float t = m_timer.getTimePassed();
-	for (size_t i = 0; i < AMOUNT_OF_LETTERS; i++) {
+	for (size_t i = 0; i < m_letters.size(); i++)
+		m_letters[i].update(t);
 
-		m_letterPos[i].x += sin(t + m_speedOffsets[i].x) * 0.1f;
-		m_letterPos[i].y += cos(t + m_speedOffsets[i].y) * 0.1f;
-	}
 	Input::getInstance()->setMouseModeAbsolute();
 }
 
@@ -178,7 +184,8 @@ void IntroState::draw() {
 	m_skybox.draw(2, 2);
 
 	// Logo
-	drawLogo();
+	for (size_t i = 0; i < m_letters.size(); i++)
+		m_letters[i].draw();
 
 	// Draw menu buttons
 	m_startButton.draw();
@@ -188,50 +195,6 @@ void IntroState::draw() {
 	// Just ignore this. It fixes things
 	m_entity.draw();
 }
-
-void IntroState::createLogoSprite() {
-	m_spriteBatch = std::make_unique<SpriteBatch>(Renderer::getDeviceContext());
-	m_states = std::make_unique<CommonStates>(Renderer::getDevice());
-
-	vector<Microsoft::WRL::ComPtr<ID3D11Resource>> resources;
-	resources.resize(AMOUNT_OF_LETTERS);
-	for (size_t i = 0; i < AMOUNT_OF_LETTERS; i++) {
-		HRESULT t = CreateWICTextureFromFile(Renderer::getDevice(), m_letterPaths[i].c_str(),
-			resources[i].GetAddressOf(), m_textures[i].ReleaseAndGetAddressOf());
-		if (t)
-			ErrorLogger::logError(t, "Failed to create logo texture number " + to_string(i));
-
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> tex;
-		resources[i].As(&tex);
-		CD3D11_TEXTURE2D_DESC texDesc;
-		tex->GetDesc(&texDesc);
-
-		m_scales[i] = 0.25f;
-		m_textureOffsets[i] = float2(texDesc.Width / 2.0f, texDesc.Height / 2.0f);
-
-		resources[i].As(&tex);
-		tex->GetDesc(&texDesc);
-	}
-	float offsetX = STANDARD_WIDTH / 16.f;
-	float offsetY = STANDARD_HEIGHT / 3.f;
-	for (size_t i = 0; i < AMOUNT_OF_LETTERS; i++) {
-		m_speedOffsets[i] = float2(RandomFloat(-0.15f, 0.15f), RandomFloat(-0.5f, 0.5f));
-		m_letterPos[i] = float2(offsetX, offsetY);
-		offsetX += m_textureOffsets[i].x / 1.65f;
-	}
-}
-
-void IntroState::drawLogo() {
-	m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
-
-	for (size_t i = 0; i < AMOUNT_OF_LETTERS; i++) {
-		m_spriteBatch->Draw(m_textures[i].Get(), m_letterPos[i], nullptr, Colors::White, 0.f,
-			m_textureOffsets[i], m_scales[i]);
-	}
-
-	m_spriteBatch->End();
-}
-
 
 void IntroState::play() {
 	ErrorLogger::log(m_name + " play() called.");

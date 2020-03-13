@@ -170,6 +170,7 @@
     <ClCompile Include="Source\Drawable\EntityCollision.cpp" />
     <ClCompile Include="Source\Drawable\EntityRepository.cpp" />
     <ClCompile Include="Source\Drawable\HUD.cpp" />
+    <ClCompile Include="Source\Drawable\LogoLetter.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Animal.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Banana.cpp" />
@@ -220,6 +221,7 @@
     <ClInclude Include="Source\Drawable\EntityCollision.h" />
     <ClInclude Include="Source\Drawable\EntityRepository.h" />
     <ClInclude Include="Source\Drawable\HUD.h" />
+    <ClInclude Include="Source\Drawable\LogoLetter.h" />
     <ClInclude Include="Source\Drawable\Mesh\Animal.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Banana.h" />
