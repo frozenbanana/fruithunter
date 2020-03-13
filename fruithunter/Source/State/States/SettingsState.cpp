@@ -21,10 +21,11 @@ void SettingsState::initialize() {
 	m_drawDistance.initialize(
 		"Draw distance", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 50));
 
-
-	m_vsyncButton.initialize("V-Sync", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 50), true);
+	m_shadowsButton.initialize(
+		"Shadows", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 50), Button::Setting::MEDIUM);
 	m_darkEdgesButton.initialize(
 		"Dark Edges", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 100), true);
+	m_vsyncButton.initialize("V-Sync", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 150), true);
 
 	m_backButton.initialize("Back", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT - 100));
 	// Just ignore this. It fixes things.
@@ -55,6 +56,16 @@ void SettingsState::handleEvent() {
 	if (m_darkEdgesButton.update()) {
 		settings->setDarkEdges(m_darkEdgesButton.getOnOff());
 	}
+	if (m_shadowsButton.update()) {
+		if (m_shadowsButton.getLowMedHighUltra() == Button::Setting::LOW)
+			Renderer::getInstance()->getShadowMapper()->resizeShadowDepthViews(XMINT2(1024, 1024));
+		else if (m_shadowsButton.getLowMedHighUltra() == Button::Setting::MEDIUM)
+			Renderer::getInstance()->getShadowMapper()->resizeShadowDepthViews(XMINT2(2048, 2048));
+		else if (m_shadowsButton.getLowMedHighUltra() == Button::Setting::HIGH)
+			Renderer::getInstance()->getShadowMapper()->resizeShadowDepthViews(XMINT2(4096, 4096));
+		else if (m_shadowsButton.getLowMedHighUltra() == Button::Setting::ULTRA)
+			Renderer::getInstance()->getShadowMapper()->resizeShadowDepthViews(XMINT2(8192, 8192));
+	}
 
 	if (m_backButton.update() || Input::getInstance()->keyDown(Keyboard::Keys::Escape)) {
 		StateHandler::getInstance()->resumeMenuState();
@@ -71,6 +82,7 @@ void SettingsState::draw() {
 	m_darkEdgesButton.draw();
 	m_vsyncButton.draw();
 	m_backButton.draw();
+	m_shadowsButton.draw();
 
 	m_drawDistance.draw();
 	m_masterVolume.draw();

@@ -22,6 +22,7 @@ private:
 	Button m_vsyncButton;
 	Button m_darkEdgesButton;
 	Button m_backButton;
+	Button m_shadowsButton;
 
 	Slider m_drawDistance;
 	Slider m_masterVolume;
