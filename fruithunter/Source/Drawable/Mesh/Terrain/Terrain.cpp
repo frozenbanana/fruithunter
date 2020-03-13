@@ -4,6 +4,8 @@
 #include <WICTextureLoader.h>
 #include "Input.h"
 
+#define MAX_HEIGHT_OFFSET 5.f
+
 ShaderSet Terrain::m_shader;
 ShaderSet Terrain::m_shader_onlyMesh;
 Microsoft::WRL::ComPtr<ID3D11Buffer> Terrain::m_matrixBuffer;
@@ -709,7 +711,23 @@ float Terrain::castRay(float3 point, float3 direction) {
 	return -1;
 }
 
-float3 Terrain::getWind() { return m_wind; }
+float3 Terrain::getWindStatic() { return m_wind; }
+
+float3 Terrain::getWindFromPosition(float3 position) {
+	float groundHeight = getHeightFromPosition(position.x, position.z);
+	float distToGround = position.y - groundHeight;
+	float3 normal = getNormalFromPosition(position.x, position.z);
+	float3 wind = m_wind;
+
+	// project wind onto normal plane
+	float3 windOnGround = m_wind - wind.Dot(normal) * normal;
+
+	distToGround = Map(groundHeight, groundHeight + MAX_HEIGHT_OFFSET, 0.f, 1.f, distToGround);
+
+	// Make quadtric 'lerp' to make windOnGround arrive faster
+	distToGround *= distToGround;
+	return windOnGround * (1.f - distToGround) + m_wind * distToGround;
+}
 
 void Terrain::clearCulling() {
 	m_useCulling = false;

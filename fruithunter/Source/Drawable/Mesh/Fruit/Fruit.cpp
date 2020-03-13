@@ -18,7 +18,7 @@ void Fruit::setStartPosition(float3 pos) {
 	m_nextDestinationAnimationPosition = pos;
 
 	m_particleSystem = make_unique<ParticleSystem>(ParticleSystem::STARS);
-	m_particleSystem->setInActive();
+	m_particleSystem->stop();
 }
 
 void Fruit::setNextDestination(float3 nextDest) { m_nextDestinationAnimationPosition = nextDest; }

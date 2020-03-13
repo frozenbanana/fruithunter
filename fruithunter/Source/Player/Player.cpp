@@ -215,11 +215,8 @@ void Player::updateBow(float dt, Terrain* terrain) {
 		m_bow.shoot(m_playerForward, m_velocity, m_cameraPitch, m_cameraYaw);
 	}
 
-	float3 wind;
-	terrain != nullptr ? wind = terrain->getWind() : wind = float3(0.f);
-
 	m_bow.rotate(m_cameraPitch, m_cameraYaw);
-	m_bow.update(dt, getCameraPosition(), m_playerForward, m_playerRight, wind);
+	m_bow.update(dt, getCameraPosition(), m_playerForward, m_playerRight, terrain);
 }
 
 void Player::updateCamera() {

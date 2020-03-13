@@ -14,6 +14,8 @@ void PathFindingThread::exitThread() {
 	pft->m_running = false;
 	pft->m_ready = true;
 	pft->m_mutex.unlock();
+	pft->m_thread->join();
+	pft->m_thread = nullptr;
 }
 
 
