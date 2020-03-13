@@ -57,6 +57,11 @@ void LevelSelectState::initialize() {
 	m_terrainProps.addPlaceableEntity("RopeBridgeRailing2");
 
 	m_terrainProps.load("levelSelection");
+
+	//initiate level selectors
+	m_levels.push_back(InWorldLevelBowl(float3(7.3f, 3.0f, 47.4f)));
+	m_levels.push_back(InWorldLevelBowl(float3(41.7f, 3.0f, 20.6f)));
+	m_levels.push_back(InWorldLevelBowl(float3(90.6f, 3.0f, 47.0f)));
 }
 
 void LevelSelectState::update() {
@@ -87,7 +92,7 @@ void LevelSelectState::update() {
 	m_waterEffect.update(delta);
 
 	// Update bowls
-	for (int i = 0; i < NR_OF_LEVELS; i++) {
+	for (int i = 0; i < m_levels.size(); i++) {
 		// Check collision
 		if (m_player.getArrow().checkCollision(*m_levels[i].m_bowl)) {
 			m_player.getArrow().setPosition(float3(-1000.f));
@@ -159,7 +164,7 @@ void LevelSelectState::draw() {
 	shadowMap->mapShadowToFrustum(m_player.getFrustumPoints(0.4f));
 	shadowMap->setup_depthRendering();
 
-	for (int i = 0; i < NR_OF_LEVELS; i++) {
+	for (int i = 0; i < m_levels.size(); i++) {
 		m_levels[i].m_bowl->draw_onlyMesh(float3(0, 0, 0));
 	}
 
@@ -170,13 +175,13 @@ void LevelSelectState::draw() {
 	// draw first person
 	m_skyBox.bindLightBuffer();
 	m_player.draw();
-	for (int i = 0; i < NR_OF_LEVELS; i++) {
+	//draw bowls
+	for (int i = 0; i < m_levels.size(); i++) {
 		m_levels[i].m_bowl->draw();
-		string str = "Best Time - " + to_string(0) + ":" + to_string(0);
-		m_textRenderer.drawTextInWorld(
-			str, m_levels[i].m_bowl->getPosition() + float3(0, 5.f, 0), m_player.getCameraPosition(), float2(1.f, 1.f) * 3.f);
 	}
+	//draw terrain entities
 	m_terrainProps.draw();
+	//draw animals
 	for (int i = 0; i < m_animal.size(); i++) {
 		m_animal[i]->draw();
 	}
@@ -185,6 +190,16 @@ void LevelSelectState::draw() {
 	Renderer::getInstance()->copyDepthToSRV();
 	m_waterEffect.draw();
 
+	for (int i = 0; i < m_levels.size(); i++) {
+		size_t minutes = m_levels[i].m_completionTimeInSeconds / 60;
+		size_t seconds = m_levels[i].m_completionTimeInSeconds % 60;
+		string strMinutes = (minutes < 10 ? "0" : "") + to_string(minutes);
+		string strSeconds = (seconds < 10 ? "0" : "") + to_string(seconds);
+		string str = (m_levels[i].completed ? "COMPLETED" : "");
+		str += "\nBest Time - " + strMinutes + "." + strSeconds + " Minutes";
+		m_textRenderer.drawTextInWorld(str, m_levels[i].m_bowl->getPosition() + float3(0, 1.5f, 0),
+			m_player.getCameraPosition(), float2(1.f, 1.f) * 4.f);
+	}
 	Renderer::getInstance()->draw_darkEdges();
 	m_skyBox.draw(2, 2);
 }

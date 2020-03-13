@@ -2,13 +2,11 @@
 #include "Renderer.h"
 #include "ErrorLogger.h"
 
-bool TextRenderer::initiated = false;
 ShaderSet TextRenderer::m_shader;
-Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> TextRenderer::m_SRV;
-Microsoft::WRL::ComPtr<ID3D11RenderTargetView> TextRenderer::m_RTV;
 Microsoft::WRL::ComPtr<ID3D11Buffer> TextRenderer::m_vertexBuffer;
 size_t TextRenderer::m_vertexCount;
 Microsoft::WRL::ComPtr<ID3D11Buffer> TextRenderer::m_worldMatrixBuffer;
+Microsoft::WRL::ComPtr<ID3D11SamplerState> TextRenderer::m_samplerState;
 
 TextRenderer::TextRenderer() {
 	m_spriteFont = std::make_unique<DirectX::SpriteFont>(
@@ -46,8 +44,10 @@ TextRenderer::TextRenderer() {
 
 TextRenderer::~TextRenderer() { m_spriteBatch.reset(); }
 
+void TextRenderer::setViewSize(XMINT2 size) { createViewBuffers(size); }
 
-void TextRenderer::setColor(DirectX::XMVECTORF32 color) { m_color = color; }
+
+void TextRenderer::setColor(XMVECTORF32 color) { m_color = color; }
 
 float2 TextRenderer::getSize(string text) {
 	wstring wText = std::wstring(text.begin(), text.end());
@@ -68,51 +68,76 @@ float3 TextRenderer::normalToRotation(float3 normal) {
 }
 
 void TextRenderer::createViewBuffers(XMINT2 viewSize) {
+	initiated = true;
+	m_size = viewSize;
+
+	m_viewport.Width = (float)viewSize.x;
+	m_viewport.Height = (float)viewSize.y;
+	m_viewport.MinDepth = 0.0f;
+	m_viewport.MaxDepth = 1.0f;
+	m_viewport.TopLeftX = 0;
+	m_viewport.TopLeftY = 0;
+
 	auto device = Renderer::getDevice();
 	// texture 2d copy
 	ID3D11Texture2D* tex = 0;
 	D3D11_TEXTURE2D_DESC texDesc;
-	if (m_SRV.Get() == nullptr && m_RTV.Get() == nullptr) {
-		ZeroMemory(&texDesc, sizeof(D3D11_TEXTURE2D_DESC));
-		texDesc.Width = viewSize.x;
-		texDesc.Height = viewSize.y;
-		texDesc.ArraySize = 1;
-		texDesc.MipLevels = 1;
-		texDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT;
-		texDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-		texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-		texDesc.CPUAccessFlags = 0;
-		texDesc.MiscFlags = 0;
-		texDesc.SampleDesc.Count = 1;
-		HRESULT res = device->CreateTexture2D(&texDesc, nullptr, &tex);
-		if (FAILED(res))
-			ErrorLogger::logError(res, "(TextRenderer) Failed creating Texture2D buffer!");
-	}
+	ZeroMemory(&texDesc, sizeof(D3D11_TEXTURE2D_DESC));
+	texDesc.Width = viewSize.x;
+	texDesc.Height = viewSize.y;
+	texDesc.ArraySize = 1;
+	texDesc.MipLevels = 1;
+	texDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT;
+	texDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
+	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.MiscFlags = 0;
+	texDesc.SampleDesc.Count = 1;
+	HRESULT res = device->CreateTexture2D(&texDesc, nullptr, &tex);
+	if (FAILED(res))
+		ErrorLogger::logError(res, "(TextRenderer) Failed creating Texture2D buffer!");
 	// resource view
-	if (m_SRV.Get() == nullptr) {
-		D3D11_SHADER_RESOURCE_VIEW_DESC desc;
-		//ZeroMemory(&desc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
-		desc.Format = texDesc.Format;
-		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		desc.Texture2D.MipLevels = 1;
-		desc.Texture2D.MostDetailedMip = 0;
-		HRESULT srvHR = device->CreateShaderResourceView(tex, &desc, m_SRV.GetAddressOf());
-		if (FAILED(srvHR))
-			ErrorLogger::logError(srvHR, "(TextRenderer) Failed creating SRV buffer!");
-	}
-	//render target
-	if (m_RTV.Get() == nullptr) {
-		D3D11_RENDER_TARGET_VIEW_DESC desc;
-		//ZeroMemory(&desc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
-		desc.Format = texDesc.Format;
-		desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-		desc.Texture2D.MipSlice = 0;
-		HRESULT rtvHR = device->CreateRenderTargetView(tex, &desc, m_RTV.GetAddressOf());
-		if (FAILED(rtvHR))
-			ErrorLogger::logError(rtvHR, "(TextRenderer) Failed creating RTV buffer!");
-	}
+	m_SRV.Reset();
+	D3D11_SHADER_RESOURCE_VIEW_DESC descSRV;
+	descSRV.Format = texDesc.Format;
+	descSRV.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	descSRV.Texture2D.MipLevels = 1;
+	descSRV.Texture2D.MostDetailedMip = 0;
+	HRESULT srvHR = device->CreateShaderResourceView(tex, &descSRV, m_SRV.GetAddressOf());
+	if (FAILED(srvHR))
+		ErrorLogger::logError(srvHR, "(TextRenderer) Failed creating SRV buffer!");
+	// render target
+	m_RTV.Reset();
+	D3D11_RENDER_TARGET_VIEW_DESC descRTV;
+	descRTV.Format = texDesc.Format;
+	descRTV.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	descRTV.Texture2D.MipSlice = 0;
+	HRESULT rtvHR = device->CreateRenderTargetView(tex, &descRTV, m_RTV.GetAddressOf());
+	if (FAILED(rtvHR))
+		ErrorLogger::logError(rtvHR, "(TextRenderer) Failed creating RTV buffer!");
 	if (tex != nullptr)
 		tex->Release();
+}
+
+void TextRenderer::createSamplerState() {
+	auto device = Renderer::getDevice();
+	// sampler
+	if (m_samplerState.Get() == nullptr) {
+		D3D11_SAMPLER_DESC sampDesc;
+		sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.MipLODBias = 0.0f;
+		sampDesc.MaxAnisotropy = 16;
+		sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		sampDesc.MinLOD = -3.402823466e+38F;
+		sampDesc.MaxLOD = 3.402823466e+38F;
+
+		HRESULT res = device->CreateSamplerState(&sampDesc, m_samplerState.GetAddressOf());
+		if (FAILED(res))
+			ErrorLogger::logError(res, "Failed creating sampler state in Terrain class!\n");
+	}
 }
 
 void TextRenderer::createAndSetVertexBuffer(vector<Vertex> vertices) {
@@ -151,16 +176,15 @@ void TextRenderer::createMatrixBuffer() {
 	}
 }
 
-void TextRenderer::createBuffers() { 
-	if (!initiated) {
-		initiated = true;
-		createMatrixBuffer();
-		createViewBuffers(XMINT2(1280, 720));
+void TextRenderer::createBuffers() {
+	createMatrixBuffer();
+	if (m_vertexBuffer.Get() == nullptr) {
 		MeshHandler loader;
 		vector<Vertex> vertices;
 		loader.load("Quad", vertices);
 		createAndSetVertexBuffer(vertices);
 	}
+	createSamplerState();
 }
 
 void TextRenderer::updateWorldMatrixBuffer(float3 position, float3 scale, float3 rotation) {
@@ -261,34 +285,46 @@ void TextRenderer::draw(std::string text, float2 pos, float4 col) {
 // You can change this by passing custom state objects to SpriteBatch::Begin
 // See: https://github.com/microsoft/DirectXTK/wiki/SpriteBatch
 void TextRenderer::drawTextInWorld(string text, float3 position, float3 lookAt, float2 size) {
+	std::wstring wText = std::wstring(text.begin(), text.end());
+	Vector2 textSize = Vector2(m_spriteFont->MeasureString(wText.c_str()));
+	float aspectRatio = textSize.y / textSize.x;
+	if (!initiated || (textSize.x > m_size.x || textSize.y > m_size.y))
+		setViewSize(XMINT2(textSize.x, textSize.y));
 	auto deviceContext = Renderer::getDeviceContext();
-	//save settings
+	// save settings (push)
 	ID3D11RenderTargetView* holdRTV;
 	ID3D11DepthStencilView* holdDSV;
-	deviceContext->OMGetRenderTargets(1, &holdRTV, &holdDSV);//push state
+	D3D11_VIEWPORT holdVp;
+	UINT vpCount = 1;
+	deviceContext->OMGetRenderTargets(1, &holdRTV, &holdDSV);
+	deviceContext->RSGetViewports(&vpCount, &holdVp);
 
 	// draw text to render target
 	deviceContext->OMSetRenderTargets(1, m_RTV.GetAddressOf(), nullptr);
+	FLOAT clearColor[4] = { 0, 0, 0, 0 };
+	deviceContext->ClearRenderTargetView(m_RTV.Get(), clearColor);
+	deviceContext->RSSetViewports(1, &m_viewport);
 
-	m_spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront, nullptr, nullptr,
+	m_spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront, nullptr, m_samplerState.Get(),
 		Renderer::getInstance()->getDepthDSS());
 
-	std::wstring wText = std::wstring(text.begin(), text.end());
+	float2 center = float2(m_size.x / 2.f, m_size.y / 2.f);
 
-	Vector2 origin = Vector2(m_spriteFont->MeasureString(wText.c_str())) / 2.0f;
-
-	float2 center = float2(1280 / 2.f, 720 / 2.f);
-	m_spriteFont->DrawString(m_spriteBatch.get(), wText.c_str(), center, m_color, 0.f, origin);
+	m_spriteFont->DrawString(
+		m_spriteBatch.get(), wText.c_str(), center, m_color, 0.f, textSize / 2.f);
 
 	m_spriteBatch->End();
 	setDepthStateToNull();
 
-	//load settings
-	deviceContext->OMSetRenderTargets(1, &holdRTV, holdDSV);// pop state
+	// load settings (pop)
+	deviceContext->OMSetRenderTargets(1, &holdRTV, holdDSV);
+	deviceContext->RSSetViewports(1, &holdVp);
 	// draw model in world
 	m_shader.bindShadersAndLayout();
 
-	updateWorldMatrixBuffer(position, float3(size.x, size.y, 1.f), normalToRotation(lookAt-position));
+	size.y *= aspectRatio;
+	updateWorldMatrixBuffer(
+		position, float3(size.x, size.y, 1.f), normalToRotation(lookAt - position));
 	bindWorldMatrixBuffer();
 
 	bindTextView(0);

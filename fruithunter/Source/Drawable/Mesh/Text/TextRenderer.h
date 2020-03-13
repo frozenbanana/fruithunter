@@ -13,6 +13,8 @@ public:
 
 	TextRenderer();
 	~TextRenderer();
+	void setViewSize(XMINT2 size);
+
 	void draw(string text, float2 pos);
 	void draw(string text, float2 pos, Alignment al);
 	void draw(string text, float2 pos, float4 col);
@@ -31,9 +33,12 @@ private:
 	float2 m_fontPos;
 
 	//in world variables
-	static bool initiated;
-	static Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_SRV;
-	static Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_RTV;
+	bool initiated = false;
+	XMINT2 m_size;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_SRV;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_RTV;
+	static Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerState;
+	D3D11_VIEWPORT m_viewport;
 	static size_t m_vertexCount;
 	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 	struct WorldMatrixData {
@@ -43,6 +48,7 @@ private:
 	static ShaderSet m_shader;
 
 	void createViewBuffers(XMINT2 viewSize);
+	void createSamplerState();
 	void createAndSetVertexBuffer(vector<Vertex> vertices);
 	void createMatrixBuffer();
 	void createBuffers();

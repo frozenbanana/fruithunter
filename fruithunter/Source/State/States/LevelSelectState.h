@@ -10,8 +10,6 @@
 #include "Entity.h"
 #include "Animal.h"
 
-#define NR_OF_LEVELS 3
-
 class LevelSelectState : public State {
 public:
 	void initialize();
@@ -33,15 +31,12 @@ private:
 	SeaEffect m_waterEffect;
 	SkyBox m_skyBox;
 	struct InWorldLevelBowl {
-		Entity* m_bowl;
-		size_t m_completionTime = 0;
-		InWorldLevelBowl(float3 position) {
-			m_bowl = new Entity("Bowl", position);
-		}
+		Entity* m_bowl = nullptr;
+		size_t m_completionTimeInSeconds = 123;
+		bool completed = true;
+		InWorldLevelBowl(float3 position = float3(0, 0, 0)) { m_bowl = new Entity("Bowl", position); }
 	};
-	InWorldLevelBowl m_levels[NR_OF_LEVELS] = { InWorldLevelBowl(float3(7.3f, 3.0f, 47.4f)),
-		InWorldLevelBowl(float3(41.7f, 3.0f, 20.6f)),
-		InWorldLevelBowl(float3(90.6f, 3.0f, 47.0f)) };
+	vector<InWorldLevelBowl> m_levels;
 	std::vector<shared_ptr<Animal>> m_animal;
 	std::vector<string> m_maps;
 
