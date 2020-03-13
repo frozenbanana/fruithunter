@@ -1,6 +1,9 @@
 #pragma once
 #include "TextRenderer.h"
 
+#define COL_INACTIVE float4(1.f, 1.0f, 1.0f, 1.0f)
+#define COL_ACTIVE float4(1.f, 0.0f, 0.0f, 1.0f)
+
 class Button {
 private:
 	TextRenderer m_textRenderer;

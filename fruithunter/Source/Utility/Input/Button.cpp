@@ -11,7 +11,7 @@ void Button::setLabel(string label) { m_label = label; }
 void Button::initialize(string label, float2 position) {
 	m_label = label;
 	m_position = position;
-	m_colour = float4(1.f);
+	m_colour = COL_INACTIVE;
 	m_size = m_textRenderer.getSize(m_label);
 }
 
@@ -38,10 +38,10 @@ bool Button::update() {
 			m_on = !m_on;
 			clicked = true;
 		}
-		m_colour = float4(1.f, 0.f, 0.f, 1.f);
+		m_colour = COL_ACTIVE;
 	}
 	else {
-		m_colour = float4(1.f);
+		m_colour = COL_INACTIVE;
 	}
 
 	return clicked;
