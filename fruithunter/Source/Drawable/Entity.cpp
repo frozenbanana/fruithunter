@@ -180,6 +180,19 @@ void Entity::setScale(float scale) {
 
 void Entity::scaleBoundingBoxHalfSizes(float3 scale) { m_collisionData.setCollisionScale(scale); }
 
+void Entity::lookAt(float3 position) {
+	float3 dir = position - m_position;
+	dir.Normalize();
+
+	float2 mapY(dir.z, dir.x);
+	float2 mapX(float2(dir.x, dir.z).Length(), dir.y);
+	mapY.Normalize();
+	mapX.Normalize();
+	float rotY = (mapY.y >= 0) ? (acos(mapY.x)) : (-acos(mapY.x));
+	float rotX = -((mapX.y >= 0) ? (acos(mapX.x)) : (-acos(mapX.x)));
+	setRotation(float3(rotX, rotY, 0));
+}
+
 void Entity::lookTo(float3 lookAt) {
 	float rot = 0.f;
 	float dx = lookAt.x - getPosition().x;

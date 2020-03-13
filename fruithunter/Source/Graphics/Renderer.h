@@ -17,6 +17,7 @@ public:
 	static ID3D11DeviceContext* getDeviceContext();
 	static Renderer* getInstance();
 	HWND getHandle();
+	ID3D11DepthStencilState* getDepthDSS() const;
 
 	void bindBackAndDepthBuffer();
 	void clearDepth();
@@ -77,8 +78,8 @@ private:
 	// Loading screen
 	Quad m_loadingScreen;
 	bool m_loadingScreenInitialised = false;
-	
-	//shadows
+
+	// shadows
 	ShadowMapper m_shadowMapper;
 	DrawingState m_drawState = state_normal;
 };

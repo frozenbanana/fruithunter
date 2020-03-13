@@ -10,7 +10,6 @@ void LevelSelectState::initialize() {
 	// Initiate player
 	m_player.initialize();
 	m_player.setPosition(float3(34.0f, 2.5f, 79.9f));
-
 	// Initiate terrain
 	// m_maps = vector<string> maps(4);
 	m_maps.push_back("texture_grass.jpg");
@@ -33,14 +32,6 @@ void LevelSelectState::initialize() {
 	// Initiate water
 	m_waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(400, 400), XMINT2(1, 1),
 		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
-
-	// Initiate sky box
-
-
-	// Initiate fruit bowls
-	for (int i = 0; i < NR_OF_LEVELS; i++) {
-		m_bowls[i] = new Entity("bowl", m_bowlPos[i], float3(1));
-	}
 
 	// Initiate entity repos
 	m_terrainProps.addPlaceableEntity("treeMedium1");
@@ -98,16 +89,14 @@ void LevelSelectState::update() {
 	// Update bowls
 	for (int i = 0; i < NR_OF_LEVELS; i++) {
 		// Check collision
-		if (m_player.getArrow().checkCollision(*m_bowls[i])) {
+		if (m_player.getArrow().checkCollision(*m_levels[i].m_bowl)) {
 			m_player.getArrow().setPosition(float3(-1000.f));
-			m_player.setPosition(float3(34.0f, 2.5f, 79.9f));
+			m_player.setPosition(m_spawnPosition);
 			TerrainManager::getInstance()->removeAll();
 			draw(); // Updates hitboxes and prepares state for next time.
 			setLevel(i);
 			StateHandler::getInstance()->changeState(StateHandler::PLAY);
 		}
-
-		m_bowls[i]->updateAnimated(delta);
 	}
 
 	//Update animals
@@ -171,7 +160,7 @@ void LevelSelectState::draw() {
 	shadowMap->setup_depthRendering();
 
 	for (int i = 0; i < NR_OF_LEVELS; i++) {
-		m_bowls[i]->draw_onlyMesh(float3(0, 0, 0));
+		m_levels[i].m_bowl->draw_onlyMesh(float3(0, 0, 0));
 	}
 
 	// Set first person info
@@ -182,7 +171,10 @@ void LevelSelectState::draw() {
 	m_skyBox.bindLightBuffer();
 	m_player.draw();
 	for (int i = 0; i < NR_OF_LEVELS; i++) {
-		m_bowls[i]->draw();
+		m_levels[i].m_bowl->draw();
+		string str = "Best Time - " + to_string(0) + ":" + to_string(0);
+		m_textRenderer.drawTextInWorld(
+			str, m_levels[i].m_bowl->getPosition() + float3(0, 5.f, 0), m_player.getCameraPosition(), float2(1.f, 1.f) * 3.f);
 	}
 	m_terrainProps.draw();
 	for (int i = 0; i < m_animal.size(); i++) {
@@ -192,14 +184,12 @@ void LevelSelectState::draw() {
 	TerrainManager::getInstance()->draw();
 	Renderer::getInstance()->copyDepthToSRV();
 	m_waterEffect.draw();
+
 	Renderer::getInstance()->draw_darkEdges();
 	m_skyBox.draw(2, 2);
 }
 
 LevelSelectState::~LevelSelectState() {
-	for (int i = 0; i < NR_OF_LEVELS; i++) {
-		delete m_bowls[i];
-	}
 }
 
 void LevelSelectState::setLevel(int newLevel) {

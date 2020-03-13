@@ -50,13 +50,13 @@ void StateHandler::resumeMenuState() {
 
 void StateHandler::initialize() {
 	m_states.resize(LENGTH);
-	m_states[INTRO] = make_unique<IntroState>();
-	m_states[PLAY] = make_unique<PlayState>();
-	m_states[PAUSE] = make_unique<PauseState>();
-	m_states[SETTINGS] = make_unique<SettingsState>();
-	m_states[LEVEL_SELECT] = make_unique<LevelSelectState>();
-	m_states[ENDROUND] = make_unique<EndRoundState>();
-	m_states[LEVEL_SELECT] = make_unique<LevelSelectState>();
+	m_states[INTRO] = make_shared<IntroState>();
+	m_states[PLAY] = make_shared<PlayState>();
+	m_states[PAUSE] = make_shared<PauseState>();
+	m_states[SETTINGS] = make_shared<SettingsState>();
+	m_states[LEVEL_SELECT] = make_shared<LevelSelectState>();
+	m_states[ENDROUND] = make_shared<EndRoundState>();
+	m_states[LEVEL_SELECT] = make_shared<LevelSelectState>();
 	play();
 }
 

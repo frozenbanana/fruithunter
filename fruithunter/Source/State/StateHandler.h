@@ -29,7 +29,7 @@ private:
 	int m_current = INTRO;
 	int m_previous = INTRO;
 	int m_previousMenu = INTRO;
-	std::vector<std::unique_ptr<State>> m_states;
+	std::vector<std::shared_ptr<State>> m_states;
 
 	StateHandler();
 };

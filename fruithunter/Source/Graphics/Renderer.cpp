@@ -180,6 +180,8 @@ Renderer* Renderer::getInstance() { return &m_this; }
 
 HWND Renderer::getHandle() { return m_handle; }
 
+ID3D11DepthStencilState* Renderer::getDepthDSS() const { return m_depthDSS.Get(); }
+
 void Renderer::initalize(HWND window) {}
 
 void Renderer::beginFrame() {

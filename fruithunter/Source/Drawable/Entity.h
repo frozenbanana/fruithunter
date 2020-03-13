@@ -60,6 +60,7 @@ public:
 	void setScale(float3 scale);
 	void setScale(float scale);
 	void scaleBoundingBoxHalfSizes(float3 scale);
+	void lookAt(float3 position);
 	void lookTo(float3 lookAt);
 	void lookToDir(float3 dir);
 
