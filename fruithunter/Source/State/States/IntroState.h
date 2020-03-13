@@ -30,16 +30,13 @@ public:
 
 private:
 	TextRenderer m_textRenderer;
-
 	Timer m_timer;
-
 	Button m_startButton;
 	Button m_settingsButton;
 	Button m_exitButton;
-
 	Entity m_entity;
 
-	// Scene variables:
+	// Scene variables
 	Camera m_camera;
 	SkyBox m_skybox;
 	std::vector<string> m_maps;
@@ -51,10 +48,9 @@ private:
 	float m_shootTime = 0.f;
 	Bow m_bow;
 
-	// LOGO
+	// Logo
 	unique_ptr<SpriteBatch> m_spriteBatch;
 	unique_ptr<CommonStates> m_states;
-	Timer m_timer;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textures[AMOUNT_OF_LETTERS];
 	wstring m_letterPaths[AMOUNT_OF_LETTERS];
 	float2 m_letterPos[AMOUNT_OF_LETTERS];
