@@ -54,7 +54,7 @@ private:
 	XMINT2 m_gridPointSize;
 	vector<vector<Vertex>> m_gridPoints;
 
-	//quadtree for culling
+	// quadtree for culling
 	QuadTree<XMINT2> m_quadtree;
 
 	// vertex buffer
@@ -77,10 +77,10 @@ private:
 	// Spawn point
 	vector<float2> m_spawnPoint;
 
-	//Wind
+	// Wind
 	float3 m_wind = float3(0.f, 0.f, 10.f);
 
-	//Culling
+	// Culling
 	vector<XMINT2*> m_culledGrids;
 	bool m_useCulling = false;
 
@@ -124,8 +124,8 @@ public:
 	static float obbTest(float3 rayOrigin, float3 rayDir, float3 boxPos, float3 boxScale);
 	static float triangleTest(
 		float3 rayOrigin, float3 rayDir, float3 tri0, float3 tri1, float3 tri2);
-	
-	//properties modifications
+
+	// properties modifications
 	void setPosition(float3 position);
 	void setScale(float3 scale);
 
@@ -134,20 +134,23 @@ public:
 
 	void rotateY(float radian);
 
-	//terrain scanning
+	// terrain scanning
 	bool pointInsideTerrainBoundingBox(float3 point);
 	float getHeightFromPosition(float x, float z);
 	float3 getNormalFromPosition(float x, float z);
 	float castRay(float3 point, float3 direction);
 
-	float3 getWind();
+	float3 getWindStatic();
 
-	//culling
+	// culling
 	void clearCulling();
 	void quadtreeCull(vector<FrustumPlane> planes);
 	void boundingBoxCull(CubeBoundingBox bb);
 
-	//drawing
+	// drawing
+	float3 getWindFromPosition(float3 position);
+
+	// drawing
 	void draw();
 	void draw_onlyMesh();
 

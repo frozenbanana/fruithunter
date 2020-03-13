@@ -142,6 +142,6 @@ private:
 	void updateVelocity_onFlatGround(float3 playerForce, float dt);
 	void updateVelocity_onSteepGround(float dt);
 
-	//Ability
+	// Ability
 	void updateHunterMode(float);
 };

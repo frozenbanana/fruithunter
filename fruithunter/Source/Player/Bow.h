@@ -6,7 +6,8 @@ class Bow {
 public:
 	Bow();
 	~Bow();
-	void update(float dt, float3 playerPos, float3 playerForward, float3 playerRigh, float3 wind);
+	void update(
+		float dt, float3 playerPos, float3 playerForward, float3 playerRigh, Terrain* terrain);
 	void draw();
 	void rotate(float pitch, float yaw);
 	void aim();
