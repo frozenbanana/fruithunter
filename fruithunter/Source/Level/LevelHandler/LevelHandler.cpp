@@ -616,13 +616,15 @@ void LevelHandler::update(float dt) {
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
 		Terrain* currentTerrain =
 			m_terrainManager->getTerrainFromPosition(m_particleSystems[i].getPosition());
-		if (m_particleSystems[i].getType() == ParticleSystem::VULCANO_SMOKE ||
-			m_particleSystems[i].getType() == ParticleSystem::VULCANO_FIRE ||
-			m_particleSystems[i].getType() == ParticleSystem::LAVA_BUBBLE) {
-			m_particleSystems[i].update(dt, currentTerrain->getWindStatic());
-		}
-		else if (currentTerrain != nullptr) {
-			m_particleSystems[i].update(dt, currentTerrain); // Get wind dynamically
+		if (currentTerrain != nullptr) {
+			if (m_particleSystems[i].getType() == ParticleSystem::VULCANO_SMOKE ||
+				m_particleSystems[i].getType() == ParticleSystem::VULCANO_FIRE ||
+				m_particleSystems[i].getType() == ParticleSystem::LAVA_BUBBLE) {
+				m_particleSystems[i].update(dt, currentTerrain->getWindStatic());
+			}
+			else {
+				m_particleSystems[i].update(dt, currentTerrain); // Get wind dynamically
+			}
 		}
 	}
 
