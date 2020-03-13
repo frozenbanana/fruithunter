@@ -53,17 +53,17 @@ void IntroState::initialize() {
 
 	m_letters.resize(11);
 	string logoPaths[11] = {
-		"assets/sprites/fruithunter_logo_F_color.png",
-		"assets/sprites/fruithunter_logo_r_color.png",
-		"assets/sprites/fruithunter_logo_u_color.png",
-		"assets/sprites/fruithunter_logo_i_color.png",
-		"assets/sprites/fruithunter_logo_t_color.png",
-		"assets/sprites/fruithunter_logo_H_color.png",
-		"assets/sprites/fruithunter_logo_u_color.png",
-		"assets/sprites/fruithunter_logo_n_color.png",
-		"assets/sprites/fruithunter_logo_t_color.png",
-		"assets/sprites/fruithunter_logo_e_color.png",
-		"assets/sprites/fruithunter_logo_r_color.png",
+		"fruithunter_logo_F_color.png",
+		"fruithunter_logo_r_color.png",
+		"fruithunter_logo_u_color.png",
+		"fruithunter_logo_i_color.png",
+		"fruithunter_logo_t_color.png",
+		"fruithunter_logo_H_color.png",
+		"fruithunter_logo_u_color.png",
+		"fruithunter_logo_n_color.png",
+		"fruithunter_logo_t_color.png",
+		"fruithunter_logo_e_color.png",
+		"fruithunter_logo_r_color.png",
 	};
 	for (size_t i = 0; i < m_letters.size(); i++) {
 		m_letters[i].letter.load(logoPaths[i]);

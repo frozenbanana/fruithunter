@@ -6,7 +6,7 @@ unique_ptr<SpriteBatch> Sprite2D::m_spriteBatch;
 unique_ptr<CommonStates> Sprite2D::m_states;
 
 bool Sprite2D::load(string path) {
-	m_path = path;
+	m_path = m_prepath + path;
 	wstring str(m_path.begin(), m_path.end());
 
 	m_SRV.Reset();
