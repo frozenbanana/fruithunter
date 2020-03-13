@@ -10,7 +10,7 @@
 #include "Timer.h"
 #include "Apple.h"
 #include "Bow.h"
-#include "LogoLetter.h"
+#include "Sprite2D.h"
 
 class IntroState : public State {
 public:
@@ -44,5 +44,9 @@ private:
 	Bow m_bow;
 
 	// Logo
+	struct LogoLetter {
+		Sprite2D letter;
+		float2 speedOffset;
+	};
 	vector<LogoLetter> m_letters;
 };

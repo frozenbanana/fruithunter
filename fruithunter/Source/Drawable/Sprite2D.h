@@ -4,27 +4,25 @@
 #include <SpriteBatch.h>
 #include <CommonStates.h>
 #include <SpriteFont.h>
-class LogoLetter {
+class Sprite2D {
 private:
 	static unique_ptr<SpriteBatch> m_spriteBatch;
 	static unique_ptr<CommonStates> m_states;
 
+	bool m_initilized = false;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_SRV;
-	string m_letterPath;
-	float2 m_letterPos;
-	float2 m_speedOffset;
+	string m_path = "";
+	float2 m_position = float2(0, 0);
 	float m_scale = 0.25f;
-	XMINT2 m_textureSize;
+	XMINT2 m_textureSize = XMINT2(0, 0);
 
 public:
 	XMINT2 getTextureSize()const;
 	void setPosition(float2 position);
 
-	void update(float timePassed);
-
 	void draw();
 
-	void load(string path);
-	LogoLetter();
-	~LogoLetter();
+	bool load(string path);
+	Sprite2D();
+	~Sprite2D();
 };

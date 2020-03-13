@@ -51,6 +51,7 @@ void IntroState::initialize() {
 
 	// m_letterPaths[0] = L"assets/sprites/fruithunter_logo2.png";
 
+	m_letters.resize(11);
 	string logoPaths[11] = {
 		"assets/sprites/fruithunter_logo_F_color.png",
 		"assets/sprites/fruithunter_logo_r_color.png",
@@ -59,19 +60,15 @@ void IntroState::initialize() {
 		"assets/sprites/fruithunter_logo_t_color.png",
 		"assets/sprites/fruithunter_logo_H_color.png",
 		"assets/sprites/fruithunter_logo_u_color.png",
+		"assets/sprites/fruithunter_logo_n_color.png",
 		"assets/sprites/fruithunter_logo_t_color.png",
 		"assets/sprites/fruithunter_logo_e_color.png",
 		"assets/sprites/fruithunter_logo_r_color.png",
 	};
-	float offsetX = STANDARD_WIDTH / 16.f;
-	float offsetY = STANDARD_HEIGHT / 3.f;
-	for (size_t i = 0; i < 11; i++) {
-		m_letters[i].load(logoPaths[i]);
-		m_letters[i].setPosition(float2(offsetX,offsetY));
-		offsetX += m_letters[i].getTextureSize().x / (1.65f * 2.f);
+	for (size_t i = 0; i < m_letters.size(); i++) {
+		m_letters[i].letter.load(logoPaths[i]);
+		m_letters[i].speedOffset = float2(RandomFloat(-0.15f, 0.15f), RandomFloat(-0.5f, 0.5f));
 	}
-	// random seed
-	srand((unsigned int)time(NULL));
 
 	m_timer.reset();
 }
@@ -129,9 +126,16 @@ void IntroState::update() {
 	}
 
 	// Logo update
+	float offsetX = STANDARD_WIDTH / 16.f;
+	float offsetY = STANDARD_HEIGHT / 3.f;
 	float t = m_timer.getTimePassed();
-	for (size_t i = 0; i < m_letters.size(); i++)
-		m_letters[i].update(t);
+	for (size_t i = 0; i < m_letters.size(); i++) {
+		float2 movement =
+			float2(sin(t + m_letters[i].speedOffset.x), cos(t + m_letters[i].speedOffset.y)) *
+			10.f;
+		m_letters[i].letter.setPosition(float2(offsetX, offsetY) + movement);
+		offsetX += m_letters[i].letter.getTextureSize().x / (1.65f * 2.f);
+	}
 
 	Input::getInstance()->setMouseModeAbsolute();
 }
@@ -185,7 +189,7 @@ void IntroState::draw() {
 
 	// Logo
 	for (size_t i = 0; i < m_letters.size(); i++)
-		m_letters[i].draw();
+		m_letters[i].letter.draw();
 
 	// Draw menu buttons
 	m_startButton.draw();
