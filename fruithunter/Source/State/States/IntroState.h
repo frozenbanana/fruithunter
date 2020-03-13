@@ -10,6 +10,9 @@
 #include "Timer.h"
 #include "Apple.h"
 #include "Bow.h"
+#include <SpriteBatch.h>
+#include <CommonStates.h>
+#include <SpriteFont.h>
 
 class IntroState : public State {
 public:
@@ -21,6 +24,8 @@ public:
 	void pause();
 	void play();
 	void draw();
+	void createLogoSprite();
+	void drawLogo();
 
 private:
 	TextRenderer m_textRenderer;
@@ -44,4 +49,11 @@ private:
 	float m_shootThreshold = RandomFloat(2.4f, 4.f);
 	float m_shootTime = 0.f;
 	Bow m_bow;
+
+	// LOGO
+	unique_ptr<SpriteBatch> m_spriteBatch;
+	unique_ptr<CommonStates> m_states;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
+	float m_scale;
+	float2 m_textureOffset;
 };
