@@ -17,9 +17,9 @@ IntroState::~IntroState() {}
 void IntroState::initialize() {
 	m_name = "Intro State";
 
-	m_startButton.initialize("Start", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 50));
-	m_settingsButton.initialize("Settings", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2));
-	m_exitButton.initialize("Exit", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 50));
+	m_startButton.initialize("Start", float2(110, STANDARD_HEIGHT * 0.70f - 60.f));
+	m_settingsButton.initialize("Settings", float2(132, STANDARD_HEIGHT * 0.70f));
+	m_exitButton.initialize("Exit", float2(92, STANDARD_HEIGHT * 0.70f + 60.f));
 
 	// Just ignore this. It fixes things.
 	m_entity.load("Melon_000000");
@@ -29,7 +29,7 @@ void IntroState::initialize() {
 	// m_camera.setView(float3(61.4f, 16.8f, 44.4f), float3(61.2f, 7.16f, 28.7f), float3(0.f, 1.f,
 	// 0.f));
 	m_camera.setView(
-		//float3(56.4f, 11.0f, 18.2f), float3(68.9f, 10.64f, 23.9f), float3(0.f, 1.f, 0.f));
+		// float3(56.4f, 11.0f, 18.2f), float3(68.9f, 10.64f, 23.9f), float3(0.f, 1.f, 0.f));
 		float3(58.0f, 10.9f, 21.9f), float3(61.3f, 10.1f, -36.0f), float3(0.f, 1.f, 0.f));
 
 	// Initiate water
@@ -50,17 +50,17 @@ void IntroState::initialize() {
 	// m_apple.setPosition(float3(58.f, 11.0f, 18.0f));
 
 	// m_letterPaths[0] = L"assets/sprites/fruithunter_logo2.png";
-	m_letterPaths[0] = L"assets/sprites/fruithunter_logo_F.png";
-	m_letterPaths[1] = L"assets/sprites/fruithunter_logo_r.png";
-	m_letterPaths[2] = L"assets/sprites/fruithunter_logo_u.png";
-	m_letterPaths[3] = L"assets/sprites/fruithunter_logo_i.png";
-	m_letterPaths[4] = L"assets/sprites/fruithunter_logo_t.png";
-	m_letterPaths[5] = L"assets/sprites/fruithunter_logo_H.png";
-	m_letterPaths[6] = L"assets/sprites/fruithunter_logo_u.png";
-	m_letterPaths[7] = L"assets/sprites/fruithunter_logo_n.png";
-	m_letterPaths[8] = L"assets/sprites/fruithunter_logo_t.png";
-	m_letterPaths[9] = L"assets/sprites/fruithunter_logo_e.png";
-	m_letterPaths[10] = L"assets/sprites/fruithunter_logo_r.png";
+	m_letterPaths[0] = L"assets/sprites/fruithunter_logo_F_color.png";
+	m_letterPaths[1] = L"assets/sprites/fruithunter_logo_r_color.png";
+	m_letterPaths[2] = L"assets/sprites/fruithunter_logo_u_color.png";
+	m_letterPaths[3] = L"assets/sprites/fruithunter_logo_i_color.png";
+	m_letterPaths[4] = L"assets/sprites/fruithunter_logo_t_color.png";
+	m_letterPaths[5] = L"assets/sprites/fruithunter_logo_H_color.png";
+	m_letterPaths[6] = L"assets/sprites/fruithunter_logo_u_color.png";
+	m_letterPaths[7] = L"assets/sprites/fruithunter_logo_n_color.png";
+	m_letterPaths[8] = L"assets/sprites/fruithunter_logo_t_color.png";
+	m_letterPaths[9] = L"assets/sprites/fruithunter_logo_e_color.png";
+	m_letterPaths[10] = L"assets/sprites/fruithunter_logo_r_color.png";
 	// random seed
 	srand((unsigned int)time(NULL));
 
@@ -69,7 +69,6 @@ void IntroState::initialize() {
 }
 
 void IntroState::update() {
-
 	float3 bowPos(68.9f, 10.64f, 23.9f);
 	float3 treePos(56.4f, 9.0f, 18.2f);
 
@@ -78,24 +77,22 @@ void IntroState::update() {
 	m_totalDelta = fmod((m_totalDelta + delta), (2.f * XM_PI));
 	m_shootTime += delta;
 
-
 	Input::getInstance()->setMouseModeAbsolute();
 	m_skybox.updateNewOldLight(2);
 	m_skybox.updateCurrentLight();
 	m_waterEffect.update(delta);
 
-	m_apple.get()->setPosition(
-		float3(treePos.x + (cos(m_totalDelta) * 2.0f), treePos.y, treePos.z + (sin(m_totalDelta) * 2.0f)));
+	m_apple.get()->setPosition(float3(
+		treePos.x + (cos(m_totalDelta) * 2.0f), treePos.y, treePos.z + (sin(m_totalDelta) * 2.0f)));
 
 	m_apple.get()->setRotation(float3(0.0f, -m_totalDelta, 0.0f));
 	m_apple.get()->update(delta, m_camera.getPosition());
 
-	//float3 bowForward(56.4f - 68.9f, 9.0f - 9.64f, 18.2f - 23.9f);
+	// float3 bowForward(56.4f - 68.9f, 9.0f - 9.64f, 18.2f - 23.9f);
 	float3 bowForward = treePos - bowPos;
 	bowForward.Normalize();
 	m_bow.charge();
-	m_bow.update(delta, bowPos, bowForward,
-		bowForward.Cross(float3(0.f, 1.0f, 0.f)),
+	m_bow.update(delta, bowPos, bowForward, bowForward.Cross(float3(0.f, 1.0f, 0.f)),
 		TerrainManager::getInstance()->getTerrainFromPosition(bowPos));
 
 	if (m_shootTime > m_shootThreshold) {
@@ -107,16 +104,8 @@ void IntroState::update() {
 	m_bow.getTrailEffect().update(
 		delta, TerrainManager::getInstance()->getTerrainFromPosition(bowPos));
 	m_timer.update();
-	float t = m_timer.getTimePassed();
-	for (size_t i = 0; i < AMOUNT_OF_LETTERS; i++) {
 
-		m_letterPos[i].x += sin(t + m_speedOffsets[i].x) * 0.1f;
-		m_letterPos[i].y += cos(t + m_speedOffsets[i].y) * 0.1f;
-	}
-	Input::getInstance()->setMouseModeAbsolute();
-}
-
-	//Arrow collision
+	// Arrow collision
 	if (!m_bow.getArrowHitObject()) {
 		for (int i = 0; i < m_terrainProps.getEntities()->size(); i++) {
 			float rayCastingValue = m_terrainProps.getEntities()->at(i)->castRay(
@@ -130,6 +119,15 @@ void IntroState::update() {
 			}
 		}
 	}
+
+	// Logo update
+	float t = m_timer.getTimePassed();
+	for (size_t i = 0; i < AMOUNT_OF_LETTERS; i++) {
+
+		m_letterPos[i].x += sin(t + m_speedOffsets[i].x) * 0.1f;
+		m_letterPos[i].y += cos(t + m_speedOffsets[i].y) * 0.1f;
+	}
+	Input::getInstance()->setMouseModeAbsolute();
 }
 
 void IntroState::handleEvent() {
@@ -161,11 +159,10 @@ void IntroState::draw() {
 
 	// Scene drawing
 	Renderer::getInstance()->beginFrame();
-	drawLogo();
 	shadowMap->setup_shadowsRendering();
 	m_skybox.bindLightBuffer();
 	m_camera.bindMatrix();
-	
+
 	m_bow.draw();
 	m_terrainProps.draw();
 	TerrainManager::getInstance()->draw();
@@ -179,6 +176,9 @@ void IntroState::draw() {
 	Renderer::getInstance()->draw_darkEdges();
 	m_bow.getTrailEffect().draw();
 	m_skybox.draw(2, 2);
+
+	// Logo
+	drawLogo();
 
 	// Draw menu buttons
 	m_startButton.draw();
@@ -206,18 +206,18 @@ void IntroState::createLogoSprite() {
 		CD3D11_TEXTURE2D_DESC texDesc;
 		tex->GetDesc(&texDesc);
 
-		m_scales[i] = 0.3f;
+		m_scales[i] = 0.25f;
 		m_textureOffsets[i] = float2(texDesc.Width / 2.0f, texDesc.Height / 2.0f);
 
 		resources[i].As(&tex);
 		tex->GetDesc(&texDesc);
 	}
-	float offsetX = STANDARD_WIDTH / 6.f;
-	float offsetY = STANDARD_HEIGHT / 6.f;
+	float offsetX = STANDARD_WIDTH / 16.f;
+	float offsetY = STANDARD_HEIGHT / 3.f;
 	for (size_t i = 0; i < AMOUNT_OF_LETTERS; i++) {
 		m_speedOffsets[i] = float2(RandomFloat(-0.15f, 0.15f), RandomFloat(-0.5f, 0.5f));
 		m_letterPos[i] = float2(offsetX, offsetY);
-		offsetX += m_textureOffsets[i].x / 1.55f;
+		offsetX += m_textureOffsets[i].x / 1.65f;
 	}
 }
 
