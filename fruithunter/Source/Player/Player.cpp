@@ -25,7 +25,7 @@ void Player::initialize() {
 void Player::update(float dt, Terrain* terrain) {
 
 	float delta = dt;
-	m_speed += delta;
+
 	if (m_hunterMode) {
 		delta *= 0.1f;
 	}
