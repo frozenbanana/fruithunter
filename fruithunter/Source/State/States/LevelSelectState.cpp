@@ -18,9 +18,6 @@ void LevelSelectState::initialize() {
 	m_maps.push_back("texture_rock4.jpg");
 	m_maps.push_back("texture_rock6.jpg");
 
-	TerrainManager::getInstance()->removeAll();
-	TerrainManager::getInstance()->add(float3(0.f), float3(100.f, 25.f, 100.f), "tutorial.png",
-		m_maps, XMINT2(210, 210), XMINT2(1, 1), float3(0.f, 0.f, 0.f));
 	// Initiate animals
 	shared_ptr<Animal> animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 2, 10.f,
 		float3(41.369f, 2.746f, 50.425f), float3(20.f, 3.7f, 90.f), 0.f);
@@ -171,8 +168,13 @@ void LevelSelectState::draw() {
 	shadowMap->setup_depthRendering();
 
 	for (int i = 0; i < NR_OF_LEVELS; i++) {
-		m_bowls[i]->draw_onlyMesh(float3(0, 0, 0));
+		m_bowls[i]->draw();
 	}
+	m_terrainProps.draw();
+	for (int i = 0; i < m_animal.size(); i++) {
+		m_animal[i]->draw();
+	}
+	TerrainManager::getInstance()->draw();
 
 	// Set first person info
 	Renderer::getInstance()->beginFrame();
@@ -188,7 +190,6 @@ void LevelSelectState::draw() {
 	for (int i = 0; i < m_animal.size(); i++) {
 		m_animal[i]->draw();
 	}
-	// m_terrain->draw();
 	TerrainManager::getInstance()->draw();
 	Renderer::getInstance()->copyDepthToSRV();
 	m_waterEffect.draw();
