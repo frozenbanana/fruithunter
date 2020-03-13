@@ -24,9 +24,6 @@ private:
 public:
 	DragonFruit(float3 pos = float3(12.f, 0.f, 6.f));
 	void updateAnimated(float dt);
-	void waveFlight(float3 playerDir);
+	void waveFlight(float3 playerDir, float radius);
 	void circulateVertical(float3 playerDir, float radius);
-	void setDirection() override;
-
-	 void pathfinding(float3 start) override;
 };
