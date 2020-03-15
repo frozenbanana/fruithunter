@@ -29,6 +29,9 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	MSG msg = { 0 };
 	stateHandler->initialize();
 
+	// random seed
+	srand((unsigned int)time(NULL));
+
 	while (StateHandler::getInstance()->isRunning()) {
 		VariableSyncer::getInstance()->sync();
 		input->update();
@@ -51,6 +54,6 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 
 		MSG msg = { 0 };
 	}
-	
+	VariableSyncer::getInstance()->saveAll();
 	return 0;
 }
