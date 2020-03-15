@@ -35,11 +35,10 @@ private:
 	float3 m_bowPositioning_offset1 = float3(0.1f, -0.05f, 0.55f);//aiming
 	float3 m_bowPositioning_angle1 = float3(0, 0, -0.2f);
 	float m_bowPositioning_drawForward = 0.2f;
-	float m_bowPositioning_externalRotation = 30.f;
-	float m_bowPositioning_externalPosition = 80.f;
-	float m_bowPositioning_drawSpeed = 1.f;
-	float m_bowPositioning_drawSpeed_return = 3.0f;
-	float m_bowPositioning_stringSpeed_return = 20.f;
+	float m_bowPositioning_rotationDrag = 30.f;
+	float m_bowPositioning_bowDrag = 3.5f;
+	float m_bowPositioning_stringFriction = 0.0001f / 60.f;
+	float m_bowPositioning_stringDrag = 800.f;
 
 	bool m_ready = true;
 	bool m_aiming = false;
@@ -50,6 +49,7 @@ private:
 	float m_aimMovement = 1.0f; // moves bow from right (1.) to middle (0.)
 
 	float m_drawFactor = 0.0f;
+	float m_stringVelocity = 0;
 	float m_stringFactor = 0.0f;
 	float m_bowMass = 1.4f;
 

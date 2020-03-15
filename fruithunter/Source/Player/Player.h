@@ -104,8 +104,6 @@ private:
 	float3 m_playerRight = DEFAULTRIGHT;
 	float3 m_playerUp = DEFAULTUP;
 	float m_cameraPitch, m_cameraYaw;
-	float m_aimZoom = 1.f;
-	bool m_releasing = false;
 
 	//- - - Functions - - -
 	void updateBow(float dt, Terrain* terrain);
