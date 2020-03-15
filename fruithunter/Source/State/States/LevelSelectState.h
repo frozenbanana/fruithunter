@@ -30,13 +30,7 @@ private:
 	EntityRepository m_terrainProps;
 	SeaEffect m_waterEffect;
 	SkyBox m_skyBox;
-	struct InWorldLevelBowl {
-		Entity* m_bowl = nullptr;
-		size_t m_completionTimeInSeconds = 123;
-		bool completed = true;
-		InWorldLevelBowl(float3 position = float3(0, 0, 0)) { m_bowl = new Entity("Bowl", position); }
-	};
-	vector<InWorldLevelBowl> m_levels;
+	vector<unique_ptr<Entity>> m_levelBowls;
 	std::vector<shared_ptr<Animal>> m_animal;
 	std::vector<string> m_maps;
 

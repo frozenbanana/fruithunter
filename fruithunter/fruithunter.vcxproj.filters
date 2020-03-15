@@ -210,6 +210,9 @@
     <ClCompile Include="Source\Utility\Input\Slider.cpp">
       <Filter>Source\Utility\Input</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Utility\SaveState\SaveManager.cpp">
+      <Filter>Source\Utility\SaveState</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -362,6 +365,9 @@
     <ClInclude Include="Source\Utility\Input\Slider.h">
       <Filter>Source\Utility\Input</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Utility\SaveState\SaveManager.h">
+      <Filter>Source\Utility\SaveState</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
@@ -451,6 +457,9 @@
     </Filter>
     <Filter Include="Source\Utility\Settings">
       <UniqueIdentifier>{62af29f3-59ec-4d36-8476-2bd16a3afb21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Utility\SaveState">
+      <UniqueIdentifier>{756d5736-eeb1-4a7c-9e60-653aa6c01875}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

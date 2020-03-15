@@ -373,6 +373,7 @@ void LevelHandler::loadLevel(int levelNr) {
 
 		m_hud.setTimeTargets(currentLevel.m_timeTargets);
 		m_hud.setWinCondition(currentLevel.m_winCondition);
+		m_hud.setLevelIndex(levelNr);
 
 
 		if (currentLevel.m_nrOfFruits[APPLE] != 0)

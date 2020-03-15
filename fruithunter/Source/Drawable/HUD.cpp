@@ -2,11 +2,20 @@
 #include "Renderer.h"
 #include "WICTextureLoader.h"
 #include "ErrorLogger.h"
+#include "SaveManager.h"
 
 #include <iomanip>
 #include <sstream>
 
 string HUD::getTimePassed() { return getMinutes() + ":" + getSeconds(); }
+
+void HUD::atWin() { 
+	m_victory = true; 
+	if (m_levelIndex != -1) {
+		size_t time = (size_t)m_minutesPassed * 60 + (size_t)m_secondsPassed;
+		SaveManager::getInstance()->setLevelCompletion(m_levelIndex, time);
+	}
+}
 
 string HUD::getMinutes() {
 	if (m_secondsPassed > 60.0f) {
@@ -164,6 +173,8 @@ void HUD::setWinCondition(int winCons[]) {
 	}
 }
 
+void HUD::setLevelIndex(size_t levelIndex) { m_levelIndex = levelIndex; }
+
 void HUD::addFruit(int fruitType) {
 	m_inventory[fruitType]++;
 
@@ -173,8 +184,9 @@ void HUD::addFruit(int fruitType) {
 			completed = false;
 	}
 
-	if (completed)
-		m_victory = true;
+	if (completed) {
+		atWin();
+	}
 }
 
 void HUD::removeFruit(int fruitType) { m_inventory[fruitType]--; }

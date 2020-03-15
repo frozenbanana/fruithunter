@@ -3,13 +3,14 @@
 #include "Renderer.h"
 #include "Statehandler.h"
 #include "PlayState.h"
+#include "SaveManager.h"
 
 void LevelSelectState::initialize() {
 	m_name = "Level select state";
 
 	// Initiate player
 	m_player.initialize();
-	m_player.setPosition(float3(34.0f, 2.5f, 79.9f));
+	m_player.setPosition(m_spawnPosition);
 	// Initiate terrain
 	// m_maps = vector<string> maps(4);
 	m_maps.push_back("texture_grass.jpg");
@@ -59,9 +60,14 @@ void LevelSelectState::initialize() {
 	m_terrainProps.load("levelSelection");
 
 	//initiate level selectors
-	m_levels.push_back(InWorldLevelBowl(float3(7.3f, 3.0f, 47.4f)));
-	m_levels.push_back(InWorldLevelBowl(float3(41.7f, 3.0f, 20.6f)));
-	m_levels.push_back(InWorldLevelBowl(float3(90.6f, 3.0f, 47.0f)));
+	m_levelBowls.resize(3);
+	for (size_t i = 0; i < 3; i++) {
+		m_levelBowls[i] = make_unique<Entity>();
+		m_levelBowls[i]->load("Bowl");
+	}
+	m_levelBowls[0]->setPosition(float3(7.3f, 3.0f, 47.4f));
+	m_levelBowls[1]->setPosition(float3(41.7f, 3.0f, 20.6f));
+	m_levelBowls[2]->setPosition(float3(90.6f, 3.0f, 47.0f));
 }
 
 void LevelSelectState::update() {
@@ -92,9 +98,9 @@ void LevelSelectState::update() {
 	m_waterEffect.update(delta);
 
 	// Update bowls
-	for (int i = 0; i < m_levels.size(); i++) {
+	for (int i = 0; i < m_levelBowls.size(); i++) {
 		// Check collision
-		if (m_player.getArrow().checkCollision(*m_levels[i].m_bowl)) {
+		if (m_player.getArrow().checkCollision(*m_levelBowls[i].get())) {
 			m_player.getArrow().setPosition(float3(-1000.f));
 			m_player.setPosition(m_spawnPosition);
 			TerrainManager::getInstance()->removeAll();
@@ -164,8 +170,8 @@ void LevelSelectState::draw() {
 	shadowMap->mapShadowToFrustum(m_player.getFrustumPoints(0.4f));
 	shadowMap->setup_depthRendering();
 
-	for (int i = 0; i < m_levels.size(); i++) {
-		m_levels[i].m_bowl->draw_onlyMesh(float3(0, 0, 0));
+	for (int i = 0; i < m_levelBowls.size(); i++) {
+		m_levelBowls[i]->draw_onlyMesh(float3(0, 0, 0));
 	}
 
 	// Set first person info
@@ -176,8 +182,8 @@ void LevelSelectState::draw() {
 	m_skyBox.bindLightBuffer();
 	m_player.draw();
 	//draw bowls
-	for (int i = 0; i < m_levels.size(); i++) {
-		m_levels[i].m_bowl->draw();
+	for (int i = 0; i < m_levelBowls.size(); i++) {
+		m_levelBowls[i]->draw();
 	}
 	//draw terrain entities
 	m_terrainProps.draw();
@@ -190,17 +196,21 @@ void LevelSelectState::draw() {
 	Renderer::getInstance()->copyDepthToSRV();
 	m_waterEffect.draw();
 
-	for (int i = 0; i < m_levels.size(); i++) {
-		size_t minutes = m_levels[i].m_completionTimeInSeconds / 60;
-		size_t seconds = m_levels[i].m_completionTimeInSeconds % 60;
+	//text above bowls
+	for (int i = 0; i < m_levelBowls.size(); i++) {
+		LevelData levelData = SaveManager::getInstance()->getActiveSave()[i];
+		size_t minutes = levelData.timeOfCompletion / 60;
+		size_t seconds = levelData.timeOfCompletion % 60;
 		string strMinutes = (minutes < 10 ? "0" : "") + to_string(minutes);
 		string strSeconds = (seconds < 10 ? "0" : "") + to_string(seconds);
-		string str = (m_levels[i].completed ? "COMPLETED" : "");
+		string str = (levelData.isCompleted ? "COMPLETED" : "");
 		str += "\nBest Time - " + strMinutes + "." + strSeconds + " Minutes";
-		m_textRenderer.drawTextInWorld(str, m_levels[i].m_bowl->getPosition() + float3(0, 1.5f, 0),
+		m_textRenderer.drawTextInWorld(str, m_levelBowls[i]->getPosition() + float3(0, 1.5f, 0),
 			m_player.getCameraPosition(), float2(1.f, 1.f) * 4.f);
 	}
+	//dark edges
 	Renderer::getInstance()->draw_darkEdges();
+	//skybox
 	m_skyBox.draw(2, 2);
 }
 
