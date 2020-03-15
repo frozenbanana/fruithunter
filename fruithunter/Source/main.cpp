@@ -51,6 +51,6 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 
 		MSG msg = { 0 };
 	}
-	
+	VariableSyncer::getInstance()->saveAll();
 	return 0;
 }

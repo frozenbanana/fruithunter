@@ -10,7 +10,7 @@ Microsoft::WRL::ComPtr<ID3D11SamplerState> TextRenderer::m_samplerState;
 
 TextRenderer::TextRenderer() {
 	m_spriteFont = std::make_unique<DirectX::SpriteFont>(
-		Renderer::getDevice(), L"assets/fonts/myfile.spritefont");
+		Renderer::getDevice(), L"assets/fonts/myfile2.spritefont");
 
 	if (!m_spriteFont.get()) {
 		ErrorLogger::log("TextRenderer failed to load font.");

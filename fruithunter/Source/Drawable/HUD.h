@@ -12,6 +12,7 @@ private:
 		float2 screenPos;
 		float scale;
 		int fruitType;
+		float pickUp;
 	};
 
 	unique_ptr<SpriteBatch> m_spriteBatch;
