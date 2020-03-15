@@ -15,13 +15,17 @@ public:
 	// rawptr because problem with smartptr
 	thread* m_thread = nullptr;
 	mutex m_mutex;
-	std::vector<shared_ptr<Fruit>>* m_batch;
+	mutex m_sizeLock;
+	std::list<Fruit*> m_batch;
+	//std::vector<AI::Path*> m_pathVector;
 	std::vector<shared_ptr<Entity>> m_collidables;
-	void initialize(std::vector<shared_ptr<Fruit>>& batch, shared_ptr<size_t> currentFrame,
+	void initialize( shared_ptr<size_t> currentFrame,
 		vector<shared_ptr<Entity>> collidables);
 	~PathFindingThread();
 
 	void exitThread();
+	//void addPathToWork(std::vector<AI::Path*> &path);
+	void addFruit(Fruit* &fruit);
 
 private:
 	PathFindingThread();
@@ -30,7 +34,7 @@ private:
 
 
 	bool checkVolatile(bool& statement);
-
+	
 
 
 	void run();

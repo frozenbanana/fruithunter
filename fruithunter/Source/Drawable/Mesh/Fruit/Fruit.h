@@ -57,6 +57,8 @@ protected:
 
 	void updateVelocity(float dt);
 	void stopMovement();
+	void readyPath();
+	
 
 public:
 	virtual void release(float3 direction);
@@ -75,4 +77,5 @@ public:
 	void hit(float3 playerPos);
 
 	int getFruitType();
+
 };

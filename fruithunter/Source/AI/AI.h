@@ -53,6 +53,7 @@ protected:
 	// mutex m_mutex;
 
 	bool m_readyForPath = false;
+	bool m_beingWorked = false;
 	State m_currentState;
 	std::shared_ptr<Terrain> m_terrain;
 	std::list<float3> m_availablePath;
