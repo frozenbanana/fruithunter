@@ -289,7 +289,7 @@ void TextRenderer::drawTextInWorld(string text, float3 position, float3 lookAt, 
 	Vector2 textSize = Vector2(m_spriteFont->MeasureString(wText.c_str()));
 	float aspectRatio = textSize.y / textSize.x;
 	if (!initiated || (textSize.x > m_size.x || textSize.y > m_size.y))
-		setViewSize(XMINT2(textSize.x, textSize.y));
+		setViewSize(XMINT2((UINT)textSize.x, (UINT)textSize.y));
 	auto deviceContext = Renderer::getDeviceContext();
 	// save settings (push)
 	ID3D11RenderTargetView* holdRTV;
