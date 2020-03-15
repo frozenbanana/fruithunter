@@ -93,3 +93,7 @@ void TerrainManager::draw_onlyMesh() {
 float3 TerrainManager::getSpawnpoint(int terrainType) {
 	return m_terrains[terrainType].getRandomSpawnPoint();
 }
+
+void TerrainManager::reserve(size_t size) { m_terrains.reserve(size); }
+
+Terrain& TerrainManager::get(size_t index) { return m_terrains[index]; }

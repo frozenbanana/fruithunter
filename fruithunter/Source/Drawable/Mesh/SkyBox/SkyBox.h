@@ -14,16 +14,17 @@ private:
 	ShaderSet m_shaderSkyBox;
 	Mesh m_box;
 	float m_dt;
-	string m_fileNames[4] = { "ForestSkybox.jpg", "DesertSkybox.jpg", "PlainsSkybox.jpg",
+	string m_fileNames[AreaTags::Count] = { "PlainsSkybox.jpg", "ForestSkybox.jpg",
+		"DesertSkybox.jpg", "PlainsSkybox.jpg",
 		"VolcanoSkybox.jpg" };
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textures[4];
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textures[AreaTags::Count];
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_buffer;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightBuffer;
-	lightInfo m_lightInfo[4];
+	lightInfo m_lightInfo[AreaTags::Count];
 	lightInfo m_currentLightInfo;
-	int m_oldLight = 0;
-	int m_newLight = 0;
+	AreaTags m_oldLight = AreaTags::None;
+	AreaTags m_newLight = AreaTags::None;
 
 	bool createResourceBuffer(string path, ID3D11ShaderResourceView** buffer);
 	bool createConstantBuffer();
@@ -39,15 +40,13 @@ public:
 	~SkyBox();
 
 	void draw();
-	void draw(int oldSkybox, int newSkybox);
 	void createShaders();
 	
 	void updateDelta(float dt);
-	void resetDelta();
 
 	//Light information
 	void updateCurrentLight();
-	void updateNewOldLight(int);
+	bool updateNewOldLight(AreaTags tag);
 	bool createLightBuffer();
 	void bindLightBuffer();
 };

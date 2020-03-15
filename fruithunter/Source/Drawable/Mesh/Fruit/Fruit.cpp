@@ -74,7 +74,7 @@ void Fruit::hit(float3 playerPos) {
 	m_currentMaterial = 2;
 }
 
-int Fruit::getFruitType() { return m_fruitType; }
+FruitType Fruit::getFruitType() { return m_fruitType; }
 
 void Fruit::enforceOverTerrain() {
 	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
@@ -108,6 +108,7 @@ ParticleSystem* Fruit::getParticleSystem() { return m_particleSystem.get(); }
 void Fruit::update(float dt, float3 playerPosition) {
 	if (withinDistanceTo(playerPosition, 80.f)) {
 		m_particleSystem->setPosition(m_position);
+		m_particleSystem->update(dt);
 		checkOnGroundStatus();
 		doBehavior(playerPosition);
 		setDirection();

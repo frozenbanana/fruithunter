@@ -69,7 +69,7 @@ SkyBox::SkyBox() {
 	string fileName = "ForestSkybox.jpg";
 	string fileNamePath = filePath + fileName;
 
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < AreaTags::Count; i++) {
 		string fileNamePath = filePath + m_fileNames[i];
 		createResourceBuffer(fileNamePath, m_textures[i].GetAddressOf());
 	}
@@ -80,35 +80,42 @@ SkyBox::SkyBox() {
 
 	FileSyncer* file = VariableSyncer::getInstance()->create("ColourBuffer.txt");
 
-	//Forest - Refactor with variableSyncer?
+	// None
 	m_lightInfo[0] = { 
+		float4(0.7f, 0.7f, 0.7f, 1.0f), 
+		float4(0.8f, 0.9f, 0.7f, 1.0f),
+		float4(1.0f, 1.0f, 1.0f, 1.0f)
+	};
+
+	//Forest
+	m_lightInfo[1] = { 
 		float4(0.3f, 0.4f, 0.6f, 1.0f), 
 		float4(0.19f, 0.32f, 1.0f, 1.0f),
 		float4(0.4f, 0.5f, 1.0f, 1.0f)
 	};
 
 	// Desert
-	m_lightInfo[1] = { 
+	m_lightInfo[2] = { 
 		float4(0.75f, 0.6f, 0.28f, 1.0f),
 		float4(0.7f, 0.59f, 0.2f, 1.0f),
 		float4(1.0f, 0.9f, 0.65f, 1.0f)
 	};
 
 	// Plains
-	m_lightInfo[2] = { 
+	m_lightInfo[3] = { 
 		float4(0.7f, 0.7f, 0.7f, 1.0f), 
 		float4(0.8f, 0.9f, 0.7f, 1.0f),
 		float4(1.0f, 1.0f, 1.0f, 1.0f)
 	};
 
 	// Volcano
-	m_lightInfo[3] = { 
+	m_lightInfo[4] = { 
 		float4(0.6f, 0.2f, 0.0f, 1.0f), 
 		float4(0.7f, 0.2f, 0.1f, 1.0f),
 		float4(1.0f, 0.2f, 0.1f, 1.0f)
 	};
 
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < AreaTags::Count; i++) {
 		file->bind(
 			"Ambient_" + to_string(i) + ":v4", &m_lightInfo[i].ambient);
 		file->bind(
@@ -120,16 +127,8 @@ SkyBox::SkyBox() {
 
 SkyBox::~SkyBox() {}
 
-void SkyBox::draw() { 
-	m_box.bindMaterial(0);
-	m_box.bindMesh();
-	m_shaderSkyBox.bindShadersAndLayout();
-	Renderer::draw(m_box.getVertexCount(), 0);
-	//m_box.draw();
-}
-
-void SkyBox::draw(int oldSkybox, int newSkybox) {
-	bindTextures(oldSkybox, newSkybox);
+void SkyBox::draw() {
+	bindTextures(m_oldLight, m_newLight);
 	m_box.bindMesh();
 	m_shaderSkyBox.bindShadersAndLayout();
 	Renderer::draw(m_box.getVertexCount(), 0);
@@ -160,8 +159,6 @@ void SkyBox::updateDelta(float dt) {
 	m_dt = clamp(m_dt, 0.0f, 1.0f);
 }
 
-void SkyBox::resetDelta() { m_dt = 1.0f - m_dt; }
-
 void SkyBox::updateCurrentLight() {
 	//Interpolate values.
 	m_currentLightInfo.ambient = 
@@ -176,9 +173,19 @@ void SkyBox::updateCurrentLight() {
 	deviceContext->UpdateSubresource(m_lightBuffer.Get(), 0, 0, &m_currentLightInfo, 0, 0);
 }
 
-void SkyBox::updateNewOldLight(int terrainTag) {
- 	m_oldLight = m_newLight;
-	m_newLight = terrainTag;
+bool SkyBox::updateNewOldLight(AreaTags terrainTag) {
+	if (terrainTag != m_newLight) {
+		if (terrainTag == m_oldLight)
+			m_dt = 1.0f - m_dt;
+		else
+			m_dt = 0;
+
+		m_oldLight = m_newLight;
+		m_newLight = terrainTag;
+
+		return true;
+	}
+	return false;
 }
 
 bool SkyBox::createLightBuffer() {

@@ -136,18 +136,18 @@ void AudioHandler::changeMusicTo(AudioHandler::Music newMusic, float dt) {
 	}
 }
 
-void AudioHandler::changeMusicByTag(int tag, float dt) {
+void AudioHandler::changeMusicByTag(AreaTags tag, float dt) {
 	switch (tag) {
-	case 0:
+	case AreaTags::Forest:
 		changeMusicTo(AudioHandler::Music::KETAPOP, dt);
 		break;
-	case 1:
+	case AreaTags::Desert:
 		changeMusicTo(AudioHandler::Music::SPANISH_GUITAR, dt);
 		break;
-	case 2:
+	case AreaTags::Plains:
 		changeMusicTo(AudioHandler::Music::JINGLE_GUITAR, dt);
 		break;
-	case 3:
+	case AreaTags::Volcano:
 		changeMusicTo(AudioHandler::Music::KETAPOP_DARK, dt);
 		break;
 	default:

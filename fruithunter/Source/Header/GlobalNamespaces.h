@@ -27,8 +27,8 @@ enum TimeTargets { GOLD, SILVER, BRONZE, NR_OF_TIME_TARGETS };
 
 // Helper Math functions
 /* Generate a random float between low to high */
-static float RandomFloat(float low = 0.f, float high = 1.f) {
-	float randomCoefficent = (float)(rand() % (int)100.f) / 100.f; // normalize
+static float RandomFloat(float low = 0.f, float high = 1.f, size_t accuracy = 1000) {
+	float randomCoefficent = (float)(rand() % accuracy) / accuracy; // normalize
 	return low + randomCoefficent * (high - low);
 }
 
@@ -38,6 +38,8 @@ static float Map(float low, float high, float newLow, float newHigh, float value
 	float newRange = (newHigh - newLow) + newLow;
 	return oldCoefficient * newRange;
 }
+
+enum AreaTags { None, Forest, Desert, Plains, Volcano, Count };
 
 struct FrustumPlane {
 	float3 m_position, m_normal;

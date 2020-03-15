@@ -37,6 +37,9 @@ private:
 		float4x4 mWorld, mWorldInvTra;
 	} m_worldMatrix;
 
+	//type
+	AreaTags m_tag = AreaTags::None;
+
 	// heightmap
 	D3D11_TEXTURE2D_DESC m_heightmapDescription;
 	D3D11_MAPPED_SUBRESOURCE m_heightmapMappedData;
@@ -119,6 +122,7 @@ private:
 public:
 	// convenable functions
 	float3 getRandomSpawnPoint();
+	AreaTags getTag() const;
 
 	// intersection tests
 	static float obbTest(float3 rayOrigin, float3 rayDir, float3 boxPos, float3 boxScale);
@@ -128,6 +132,7 @@ public:
 	// properties modifications
 	void setPosition(float3 position);
 	void setScale(float3 scale);
+	void setTag(AreaTags tag);
 
 	void initilize(string filename, vector<string> textures, XMINT2 subsize,
 		XMINT2 splits = XMINT2(1, 1), float3 wind = float3(0.f, 0.f, 0.f));

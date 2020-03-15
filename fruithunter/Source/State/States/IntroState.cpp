@@ -83,7 +83,7 @@ void IntroState::update() {
 	m_shootTime += delta;
 
 	Input::getInstance()->setMouseModeAbsolute();
-	m_skybox.updateNewOldLight(2);
+	m_skybox.updateNewOldLight(AreaTags::Plains);
 	m_skybox.updateCurrentLight();
 	m_waterEffect.update(delta);
 
@@ -185,7 +185,7 @@ void IntroState::draw() {
 
 	Renderer::getInstance()->draw_darkEdges();
 	m_bow.getTrailEffect().draw();
-	m_skybox.draw(2, 2);
+	m_skybox.draw();
 
 	// Logo
 	for (size_t i = 0; i < m_letters.size(); i++)

@@ -11,7 +11,7 @@ void LevelHandler::initialiseLevel0() {
 
 	level.m_terrainPropsFilename = "level0";
 
-	level.m_terrainTags.push_back(Level::TerrainTags::Plains);
+	level.m_terrainTags.push_back(AreaTags::Plains);
 
 	level.m_fruitPos[APPLE].push_back(0);
 
@@ -60,8 +60,8 @@ void LevelHandler::initialiseLevel1() {
 
 	level.m_terrainPropsFilename = "level1";
 
-	level.m_terrainTags.push_back(Level::TerrainTags::Forest);
-	level.m_terrainTags.push_back(Level::TerrainTags::Plains);
+	level.m_terrainTags.push_back(AreaTags::Forest);
+	level.m_terrainTags.push_back(AreaTags::Plains);
 
 	level.m_fruitPos[APPLE].push_back(0);
 	level.m_fruitPos[MELON].push_back(1);
@@ -133,10 +133,10 @@ void LevelHandler::initialiseLevel2() {
 
 	level.m_terrainPropsFilename = "level2";
 
-	level.m_terrainTags.push_back(Level::TerrainTags::Volcano);
-	level.m_terrainTags.push_back(Level::TerrainTags::Forest);
-	level.m_terrainTags.push_back(Level::TerrainTags::Desert);
-	level.m_terrainTags.push_back(Level::TerrainTags::Plains);
+	level.m_terrainTags.push_back(AreaTags::Volcano);
+	level.m_terrainTags.push_back(AreaTags::Forest);
+	level.m_terrainTags.push_back(AreaTags::Desert);
+	level.m_terrainTags.push_back(AreaTags::Plains);
 
 	level.m_fruitPos[APPLE].push_back(1);
 	level.m_fruitPos[APPLE].push_back(2);
@@ -335,11 +335,13 @@ void LevelHandler::loadLevel(int levelNr) {
 
 		m_terrainProps.load(currentLevel.m_terrainPropsFilename);
 
+		m_terrainManager->reserve(m_levelsArr.at(levelNr).m_heightMapNames.size());
 		for (int i = 0; i < m_levelsArr.at(levelNr).m_heightMapNames.size(); i++) {
 			m_terrainManager->add(currentLevel.m_heightMapPos.at(i),
 				currentLevel.m_heightMapScales[i], currentLevel.m_heightMapNames.at(i),
 				currentLevel.m_heightmapTextures[i], currentLevel.m_heightMapSubSize.at(i),
 				currentLevel.m_heightMapDivision.at(i), currentLevel.m_wind.at(i));
+			m_terrainManager->get(i).setTag(currentLevel.m_terrainTags[i]);
 		}
 
 		for (int i = 0; i < currentLevel.m_nrOfFruits[APPLE]; i++) {
@@ -442,7 +444,7 @@ void LevelHandler::draw() {
 	}
 	m_player.getBow().getTrailEffect().draw();
 
-	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
+	m_skyBox.draw();
 	m_hud.draw(); // TODO: Find out why hud is not drawn if particleSystems are before
 }
 
@@ -486,8 +488,6 @@ void LevelHandler::update(float dt) {
 	auto pft = PathFindingThread::getInstance();
 
 	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
-
-	m_skyBox.updateDelta(dt);
 
 	if (Input::getInstance()->keyPressed(Keyboard::R) && m_currentLevel >= 0)
 		m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
@@ -533,28 +533,32 @@ void LevelHandler::update(float dt) {
 	dropFruit();
 
 	float3 playerPos = m_player.getPosition();
-	// ErrorLogger::logFloat3("Pos: ", playerPos);
 	// update terrain tag
-	int activeTerrain = m_terrainManager->getTerrainIndexFromPosition(playerPos);
-
-	if (activeTerrain != -1 && m_currentLevel != -1) {
-		Level::TerrainTags tag = m_levelsArr[m_currentLevel].m_terrainTags[activeTerrain];
-		if (m_currentTerrain != tag) {
-			m_oldTerrain = m_currentTerrain;
-			m_currentTerrain = tag;
-			m_skyBox.updateNewOldLight(tag);
-			m_skyBox.resetDelta();
-			AudioHandler::getInstance()->changeMusicByTag(tag, dt);
-		}
+	//	m_skyBox.updateDelta(dt);
+	//int activeTerrain = m_terrainManager->getTerrainIndexFromPosition(playerPos);
+	//if (activeTerrain != -1 && m_currentLevel != -1) {
+	//	Level::TerrainTags tag = m_levelsArr[m_currentLevel].m_terrainTags[activeTerrain];
+	//	if (m_currentTerrain != tag) {
+	//		m_oldTerrain = m_currentTerrain;
+	//		m_currentTerrain = tag;
+	//		m_skyBox.updateNewOldLight(tag);
+	//		m_skyBox.resetDelta();
+	//		AudioHandler::getInstance()->changeMusicByTag(tag, dt);
+	//	}
+	//}
+	//m_skyBox.updateCurrentLight();
+	m_skyBox.updateDelta(dt);
+	AreaTags activeTag = m_terrainManager->getTerrainFromPosition(m_player.getPosition())->getTag();
+	if (m_skyBox.updateNewOldLight(activeTag)) {
+		AudioHandler::getInstance()->changeMusicByTag(activeTag, dt);
 	}
-
 	m_skyBox.updateCurrentLight();
 
 	// update stuff
 
 	for (int i = 0; i < m_fruits.size(); i++) {
 
-		m_fruits[i]->getParticleSystem()->update(dt);
+		//m_fruits[i]->getParticleSystem()->update(dt);
 		pft->m_mutex.lock();
 		m_fruits[i]->update(dt, playerPos);
 		if (m_player.isShooting()) {

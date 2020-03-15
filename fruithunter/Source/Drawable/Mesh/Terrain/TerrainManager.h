@@ -21,8 +21,12 @@ public:
 
 	float3 getSpawnpoint(int terrainType);
 
-private:
+	void reserve(size_t size);
+	Terrain& get(size_t index);
+
 	TerrainManager();
+
+private:
 	vector<Terrain> m_terrains;
 	static TerrainManager m_this;
 };

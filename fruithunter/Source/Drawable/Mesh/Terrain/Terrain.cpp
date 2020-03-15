@@ -439,6 +439,8 @@ float3 Terrain::getRandomSpawnPoint() {
 	return float3(0.f);
 }
 
+AreaTags Terrain::getTag() const { return m_tag; }
+
 float Terrain::obbTest(float3 rayOrigin, float3 rayDir, float3 boxPos, float3 boxScale) {
 	// SLABS CALULATIONS(my own)
 	float4 data[3] = { float4(1, 0, 0, boxScale.x), float4(0, 1, 0, boxScale.y),
@@ -531,6 +533,8 @@ void Terrain::rotateY(float radian) {
 }
 
 void Terrain::setScale(float3 scale) { m_scale = scale; }
+
+void Terrain::setTag(AreaTags tag) { m_tag = tag; }
 
 bool Terrain::pointInsideTerrainBoundingBox(float3 point) {
 	float3 pos = point;

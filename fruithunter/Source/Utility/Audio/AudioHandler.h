@@ -36,7 +36,7 @@ public:
 	void pauseAllMusic();
 	void doTransition(AudioHandler::Music music);
 	void changeMusicTo(AudioHandler::Music music, float dt);
-	void changeMusicByTag(int, float);
+	void changeMusicByTag(AreaTags tag, float);
 	void pauseInstance(AudioHandler::Sounds sound);
 	void playOnce(AudioHandler::Sounds sound);
 	void playInstance(AudioHandler::Sounds sound);

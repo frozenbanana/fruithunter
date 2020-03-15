@@ -146,6 +146,21 @@ EntityCollision::EntityCollision(float3 point, float3 posOffset, float3 scale, f
 
 EntityCollision::~EntityCollision() {}
 
+void EntityCollision::operator=(const EntityCollision& other) {
+	
+	m_collisionType = other.m_collisionType;
+	m_collidable = other.m_collidable;
+	m_collisionData.reset();
+	if (m_collisionType == CollisionType::ctOBB) {
+		ObbData* obb = dynamic_cast<ObbData*>(other.m_collisionData.get());
+		m_collisionData = make_unique<ObbData>(*obb);
+	}
+	else if (m_collisionType == CollisionType::ctSphere) {
+		SphereData* obb = dynamic_cast<SphereData*>(other.m_collisionData.get());
+		m_collisionData = make_unique<SphereData>(*obb);
+	}
+}
+
 
 void EntityCollision::setCollisionData(float3 point, float3 posOffset, float3 scale, float radius) {
 	m_collisionType = ctSphere;

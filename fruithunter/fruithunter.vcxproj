@@ -166,10 +166,12 @@
     <ClCompile Include="Source\AI\AI.cpp" />
     <ClCompile Include="Source\AI\PathFindingThread.cpp" />
     <ClCompile Include="Source\Drawable\Animated.cpp" />
+    <ClCompile Include="Source\Drawable\Editor.cpp" />
     <ClCompile Include="Source\Drawable\Entity.cpp" />
     <ClCompile Include="Source\Drawable\EntityCollision.cpp" />
     <ClCompile Include="Source\Drawable\EntityRepository.cpp" />
     <ClCompile Include="Source\Drawable\HUD.cpp" />
+    <ClCompile Include="Source\Drawable\Scene.cpp" />
     <ClCompile Include="Source\Drawable\Sprite2D.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Animal.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp" />
@@ -218,10 +220,13 @@
     <ClInclude Include="Source\AI\AI.h" />
     <ClInclude Include="Source\AI\PathFindingThread.h" />
     <ClInclude Include="Source\Drawable\Animated.h" />
+    <ClInclude Include="Source\Drawable\Editor.h" />
     <ClInclude Include="Source\Drawable\Entity.h" />
     <ClInclude Include="Source\Drawable\EntityCollision.h" />
     <ClInclude Include="Source\Drawable\EntityRepository.h" />
     <ClInclude Include="Source\Drawable\HUD.h" />
+    <ClInclude Include="Source\Drawable\Mesh\Fruit\Fruits.h" />
+    <ClInclude Include="Source\Drawable\Scene.h" />
     <ClInclude Include="Source\Drawable\Sprite2D.h" />
     <ClInclude Include="Source\Drawable\Mesh\Animal.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h" />

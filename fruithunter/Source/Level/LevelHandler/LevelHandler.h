@@ -19,8 +19,8 @@
 
 struct Level {
 	// HeightMap
-	enum TerrainTags { Forest, Desert, Plains, Volcano, Count };
-	vector<TerrainTags> m_terrainTags;
+	//enum TerrainTags { Forest, Desert, Plains, Volcano, Count };
+	vector<AreaTags> m_terrainTags;
 	std::vector<std::string> m_heightMapNames;
 	std::vector<float3> m_heightMapPos;
 	std::vector<XMINT2> m_heightMapSubSize;
@@ -70,11 +70,9 @@ private:
 	vector<ParticleSystem> m_particleSystems;
 	vector<shared_ptr<Animal>> m_Animals;
 
-	QuadTree<int> tree;
-
 	int m_currentLevel = -1;
-	Level::TerrainTags m_currentTerrain = Level::TerrainTags::Forest;
-	Level::TerrainTags m_oldTerrain = Level::TerrainTags::Forest;
+	AreaTags m_currentTerrain = AreaTags::Forest;
+	AreaTags m_oldTerrain = AreaTags::Forest;
 
 	// HUD stuff
 	HUD m_hud;

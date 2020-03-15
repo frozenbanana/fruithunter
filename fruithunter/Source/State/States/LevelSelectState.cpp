@@ -89,7 +89,7 @@ void LevelSelectState::update() {
 	// Update Skybox
 	m_skyBox.updateDelta(delta);
 	m_skyBox.updateCurrentLight();
-	m_skyBox.updateNewOldLight(2);
+	m_skyBox.updateNewOldLight(AreaTags::Plains);
 
 	// update water
 	m_waterEffect.update(delta);
@@ -208,7 +208,7 @@ void LevelSelectState::draw() {
 	//dark edges
 	Renderer::getInstance()->draw_darkEdges();
 	//skybox
-	m_skyBox.draw(2, 2);
+	m_skyBox.draw();
 }
 
 LevelSelectState::~LevelSelectState() {
