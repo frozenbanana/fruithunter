@@ -213,6 +213,9 @@
     <ClCompile Include="Source\Utility\SaveState\SaveManager.cpp">
       <Filter>Source\Utility\SaveState</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Drawable\Sprite2D.cpp">
+      <Filter>Source\Drawable</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -367,6 +370,9 @@
     </ClInclude>
     <ClInclude Include="Source\Utility\SaveState\SaveManager.h">
       <Filter>Source\Utility\SaveState</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\Sprite2D.h">
+      <Filter>Source\Drawable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

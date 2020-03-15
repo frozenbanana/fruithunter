@@ -6,6 +6,7 @@
 class AudioHandler {
 public:
 	enum Sounds {
+		SLOW_MOTION,
 		DING_1,
 		DING_2,
 		DING_3,

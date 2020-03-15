@@ -368,9 +368,6 @@ void LevelHandler::loadLevel(int levelNr) {
 		m_skyBox.updateNewOldLight(m_currentTerrain);
 		AudioHandler::getInstance()->changeMusicByTag(m_currentTerrain, 0);
 
-		// placeAllBridges();
-		// placeAllAnimals();
-
 		m_hud.setTimeTargets(currentLevel.m_timeTargets);
 		m_hud.setWinCondition(currentLevel.m_winCondition);
 		m_hud.setLevelIndex(levelNr);
