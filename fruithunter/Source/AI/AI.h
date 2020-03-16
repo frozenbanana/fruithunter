@@ -5,7 +5,7 @@
 #include <list>
 #include <mutex>
 #define ARRIVAL_RADIUS 3.0f
-#define MAX_STEAPNESS .2f
+#define MAX_STEAPNESS .1f
 
 class AI {
 public:
@@ -37,7 +37,6 @@ public:
 		}
 	};
 	enum State { INACTIVE, PASSIVE, ACTIVE, CAUGHT, RELEASED };
-	void setWorld(std::shared_ptr<Terrain> terrain);
 	void pathfinding(float3 start);
 	void changeState(State newState);
 	State getState() const;
@@ -51,7 +50,6 @@ protected:
 
 	bool m_readyForPath = false;
 	State m_currentState;
-	std::shared_ptr<Terrain> m_terrain;
 	std::list<float3> m_availablePath;
 	virtual void behaviorInactive(float3 playerPosition){};
 	virtual void behaviorPassive(float3 playerPosition){};

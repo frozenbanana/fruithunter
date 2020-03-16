@@ -4,7 +4,7 @@
 #include "PathFindingThread.h"
 #define STEP_SCALE .250f
 #define EPSILON 0.001f
-#define MAX_STEPS 30
+#define MAX_STEPS 70
 
 bool areSame(float3 a, float3 b) { return (a - b).LengthSquared() < EPSILON; }
 
@@ -72,25 +72,26 @@ bool AI::beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>>
 bool AI::isValid(
 	float3 childPos, float3 currentNodePos, EntityRepository& collidables, float radius) {
 
-	auto pft = PathFindingThread::getInstance();
+	
 
 
-	if (childPos.y - currentNodePos.y > MAX_STEAPNESS) {
+	if (abs(childPos.y - currentNodePos.y) > MAX_STEAPNESS) {
 		return false;
 	}
 	if (childPos.y < 1.f) {
 		return false;
 	}
 
-
 	auto normal = TerrainManager::getInstance()->getNormalFromPosition(childPos);
 	normal.Normalize();
 	// Don't you climb no walls
-	if (abs(float3(0.0f, 1.0f, 0.0f).Dot(normal)) < 0.99f)
+	if (abs(float3(0.0f, 1.0f, 0.0f).Dot(normal)) < 0.87f)
 		return false;
 
 	vector<Entity**> objects = collidables.getCulledEntitiesByPosition(childPos);
 	for (size_t i = 0; i < objects.size(); ++i) {
+		if (!(*objects[i])->getIsCollidable())
+			continue;
 
 		float3 newPoint = (*objects[i])->getPosition() - childPos;
 		newPoint.Normalize();
@@ -121,9 +122,6 @@ void AI::makeReadyForPath(float3 destination) {
 	m_readyForPath = true;
 	m_destination = destination;
 }
-
-
-void AI::setWorld(std::shared_ptr<Terrain> terrain) { m_terrain = terrain; }
 
 void AI::pathfinding(float3 start) {
 	// ErrorLogger::log("thread starting for pathfinding");
@@ -216,7 +214,7 @@ void AI::pathfinding(float3 start) {
 
 void AI::changeState(State newState) {
 	m_currentState = newState;
-	m_availablePath.clear();
+	//m_availablePath.clear();
 }
 
 AI::State AI::getState() const { return m_currentState; }

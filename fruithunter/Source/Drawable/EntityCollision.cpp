@@ -140,7 +140,13 @@ bool EntityCollision::collisionPointOBB(float3 point, ObbData& obb) {
 		return false;
 	}
 
+	//dist = abs(objToPoint.Dot(obb.m_axis[1]) / obb.m_axis[1].Length());
+	//range = abs(obb.m_axis[1].Length() * obb.m_scale.y);
 
+	//if (dist > range) {
+	//	return false;
+	//}
+	objToPoint = point - obb.m_point;
 
 	dist = abs(objToPoint.Dot(obb.m_axis[2]) / obb.m_axis[2].Length());
 	range = abs(obb.m_axis[2].Length() * obb.m_scale.z);
