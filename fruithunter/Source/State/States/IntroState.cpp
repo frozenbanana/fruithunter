@@ -4,7 +4,6 @@
 #include "Renderer.h"
 #include "StateHandler.h"
 #include "Input.h"
-#include <memory>
 #include "TerrainManager.h"
 
 #include "WICTextureLoader.h"
@@ -18,9 +17,9 @@ IntroState::~IntroState() {}
 void IntroState::initialize() {
 	m_name = "Intro State";
 
-	m_startButton.initialize("Start", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 50));
-	m_settingsButton.initialize("Settings", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2));
-	m_exitButton.initialize("Exit", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 50));
+	m_startButton.initialize("Start", float2(110, STANDARD_HEIGHT * 0.70f - 60.f));
+	m_settingsButton.initialize("Settings", float2(132, STANDARD_HEIGHT * 0.70f));
+	m_exitButton.initialize("Exit", float2(92, STANDARD_HEIGHT * 0.70f + 60.f));
 
 	// Just ignore this. It fixes things.
 	m_entity.load("Melon_000000");
@@ -30,7 +29,7 @@ void IntroState::initialize() {
 	// m_camera.setView(float3(61.4f, 16.8f, 44.4f), float3(61.2f, 7.16f, 28.7f), float3(0.f, 1.f,
 	// 0.f));
 	m_camera.setView(
-		//float3(56.4f, 11.0f, 18.2f), float3(68.9f, 10.64f, 23.9f), float3(0.f, 1.f, 0.f));
+		// float3(56.4f, 11.0f, 18.2f), float3(68.9f, 10.64f, 23.9f), float3(0.f, 1.f, 0.f));
 		float3(58.0f, 10.9f, 21.9f), float3(61.3f, 10.1f, -36.0f), float3(0.f, 1.f, 0.f));
 
 	// Initiate water
@@ -50,11 +49,31 @@ void IntroState::initialize() {
 	m_apple = make_unique<Apple>(float3(58.0f, 10.1f, 16.9f));
 	// m_apple.setPosition(float3(58.f, 11.0f, 18.0f));
 
-	createLogoSprite();
+	// m_letterPaths[0] = L"assets/sprites/fruithunter_logo2.png";
+
+	m_letters.resize(11);
+	string logoPaths[11] = {
+		"fruithunter_logo_F_color.png",
+		"fruithunter_logo_r_color.png",
+		"fruithunter_logo_u_color.png",
+		"fruithunter_logo_i_color.png",
+		"fruithunter_logo_t_color.png",
+		"fruithunter_logo_H_color.png",
+		"fruithunter_logo_u_color.png",
+		"fruithunter_logo_n_color.png",
+		"fruithunter_logo_t_color.png",
+		"fruithunter_logo_e_color.png",
+		"fruithunter_logo_r_color.png",
+	};
+	for (size_t i = 0; i < m_letters.size(); i++) {
+		m_letters[i].letter.load(logoPaths[i]);
+		m_letters[i].speedOffset = float2(RandomFloat(-0.15f, 0.15f), RandomFloat(-0.5f, 0.5f));
+	}
+
+	m_timer.reset();
 }
 
 void IntroState::update() {
-
 	float3 bowPos(68.9f, 10.64f, 23.9f);
 	float3 treePos(56.4f, 9.0f, 18.2f);
 
@@ -63,24 +82,22 @@ void IntroState::update() {
 	m_totalDelta = fmod((m_totalDelta + delta), (2.f * XM_PI));
 	m_shootTime += delta;
 
-
 	Input::getInstance()->setMouseModeAbsolute();
 	m_skybox.updateNewOldLight(2);
 	m_skybox.updateCurrentLight();
 	m_waterEffect.update(delta);
 
-	m_apple.get()->setPosition(
-		float3(treePos.x + (cos(m_totalDelta) * 2.0f), treePos.y, treePos.z + (sin(m_totalDelta) * 2.0f)));
+	m_apple.get()->setPosition(float3(
+		treePos.x + (cos(m_totalDelta) * 2.0f), treePos.y, treePos.z + (sin(m_totalDelta) * 2.0f)));
 
 	m_apple.get()->setRotation(float3(0.0f, -m_totalDelta, 0.0f));
 	m_apple.get()->update(delta, m_camera.getPosition());
 
-	//float3 bowForward(56.4f - 68.9f, 9.0f - 9.64f, 18.2f - 23.9f);
+	// float3 bowForward(56.4f - 68.9f, 9.0f - 9.64f, 18.2f - 23.9f);
 	float3 bowForward = treePos - bowPos;
 	bowForward.Normalize();
 	m_bow.charge();
-	m_bow.update(delta, bowPos, bowForward,
-		bowForward.Cross(float3(0.f, 1.0f, 0.f)),
+	m_bow.update(delta, bowPos, bowForward, bowForward.Cross(float3(0.f, 1.0f, 0.f)),
 		TerrainManager::getInstance()->getTerrainFromPosition(bowPos));
 
 	if (m_shootTime > m_shootThreshold) {
@@ -91,8 +108,9 @@ void IntroState::update() {
 	}
 	m_bow.getTrailEffect().update(
 		delta, TerrainManager::getInstance()->getTerrainFromPosition(bowPos));
+	m_timer.update();
 
-	//Arrow collision
+	// Arrow collision
 	if (!m_bow.getArrowHitObject()) {
 		for (int i = 0; i < m_terrainProps.getEntities()->size(); i++) {
 			float rayCastingValue = m_terrainProps.getEntities()->at(i)->castRay(
@@ -106,6 +124,20 @@ void IntroState::update() {
 			}
 		}
 	}
+
+	// Logo update
+	float offsetX = STANDARD_WIDTH / 16.f;
+	float offsetY = STANDARD_HEIGHT / 3.f;
+	float t = m_timer.getTimePassed();
+	for (size_t i = 0; i < m_letters.size(); i++) {
+		float2 movement =
+			float2(sin(t + m_letters[i].speedOffset.x), cos(t + m_letters[i].speedOffset.y)) *
+			10.f;
+		m_letters[i].letter.setPosition(float2(offsetX, offsetY) + movement);
+		offsetX += m_letters[i].letter.getTextureSize().x / (1.65f * 2.f);
+	}
+
+	Input::getInstance()->setMouseModeAbsolute();
 }
 
 void IntroState::handleEvent() {
@@ -140,7 +172,7 @@ void IntroState::draw() {
 	shadowMap->setup_shadowsRendering();
 	m_skybox.bindLightBuffer();
 	m_camera.bindMatrix();
-	
+
 	m_bow.draw();
 	m_terrainProps.draw();
 	TerrainManager::getInstance()->draw();
@@ -155,51 +187,17 @@ void IntroState::draw() {
 	m_bow.getTrailEffect().draw();
 	m_skybox.draw(2, 2);
 
+	// Logo
+	for (size_t i = 0; i < m_letters.size(); i++)
+		m_letters[i].letter.draw();
+
 	// Draw menu buttons
-	drawLogo();
 	m_startButton.draw();
 	m_settingsButton.draw();
 	m_exitButton.draw();
 
 	// Just ignore this. It fixes things
 	m_entity.draw();
-}
-
-void IntroState::createLogoSprite() {
-	m_spriteBatch = std::make_unique<SpriteBatch>(Renderer::getDeviceContext());
-	m_states = std::make_unique<CommonStates>(Renderer::getDevice());
-
-	Microsoft::WRL::ComPtr<ID3D11Resource> resource;
-
-	HRESULT t =
-		CreateWICTextureFromFile(Renderer::getDevice(), L"assets/sprites/fruithunter_logo.png",
-			resource.GetAddressOf(), m_texture.ReleaseAndGetAddressOf());
-	if (t)
-		ErrorLogger::logError(t, "Failed to create slider sprite texture");
-
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> tex;
-	resource.As(&tex);
-	CD3D11_TEXTURE2D_DESC texDesc;
-	tex->GetDesc(&texDesc);
-
-	m_scale = 0.3f;
-	m_textureOffset = float2(texDesc.Width / 2.f, texDesc.Height / 2.f);
-
-	resource.As(&tex);
-	tex->GetDesc(&texDesc);
-
-	// m_backgroundOffset = float2(texDesc.Width / 2.f, texDesc.Height / 2.f);
-}
-
-void IntroState::drawLogo() {
-	m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
-
-	// m_spriteBatch->Draw(m_backgroundTexture.Get(), float2(m_position) + float2(150.f, 0.f),
-	// nullptr, 	Colors::White, 0.f, m_backgroundOffset);
-	m_spriteBatch->Draw(m_texture.Get(), float2(STANDARD_WIDTH / 2.f, STANDARD_HEIGHT / 6.f),
-		nullptr, Colors::White, 0.f, m_textureOffset, m_scale);
-
-	m_spriteBatch->End();
 }
 
 void IntroState::play() {
