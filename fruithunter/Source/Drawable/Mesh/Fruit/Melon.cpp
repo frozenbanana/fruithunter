@@ -3,8 +3,9 @@
 Melon::Melon(float3 pos) : Fruit(pos) {
 	loadAnimated("Melon", 1);
 	m_nrOfFramePhases = 6;
-	vector<string> names{ "Melon.mtl", "Melon2.mtl", "Melon.mtl" };
-	loadMaterials(names, 3);
+	vector<string> names{ "Melon.mtl", "Melon2bronze.mtl", "Melon2silver.mtl", "Melon2gold.mtl",
+		"Melon3.mtl" };
+	loadMaterials(names, 5);
 
 	m_meshAnim.setFrameTargets(0, 0);
 	m_rollSpeed = 5.f;

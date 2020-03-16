@@ -31,8 +31,6 @@ ParticleSystem::ParticleSystem(ParticleSystem::PARTICLE_TYPE type) {
 		m_particleProperties.resize(min(m_description->m_nrOfParticles, MAX_PARTICLES));
 		initialize();
 	}
-	// random seed
-	srand((unsigned int)time(NULL));
 }
 
 void ParticleSystem::initialize() {
