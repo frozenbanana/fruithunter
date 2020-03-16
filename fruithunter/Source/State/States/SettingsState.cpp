@@ -83,6 +83,21 @@ void SettingsState::handleEvent() {
 	if (m_backButton.update() || Input::getInstance()->keyDown(Keyboard::Keys::Escape)) {
 		StateHandler::getInstance()->resumeMenuState();
 	}
+
+	if (1) { // updated resolution
+		float width = SCREEN_WIDTH;
+		float height = SCREEN_HEIGHT;
+		m_masterVolume.setPosition(float2(width / 2, height / 2 - 200));
+		m_musicVolume.setPosition(float2(width / 2, height / 2 - 150));
+		m_effectsVolume.setPosition(float2(width / 2, height / 2 - 100));
+		m_drawDistance.setPosition(float2(width / 2, height / 2 - 50));
+
+		m_shadowsButton.setPosition(float2(width / 2, height / 2 + 50));
+		m_darkEdgesButton.setPosition(float2(width / 2, height / 2 + 100));
+		m_vsyncButton.setPosition(float2(width / 2, height / 2 + 150));
+
+		m_backButton.setPosition(float2(width / 2, height - 100));
+	}
 }
 
 void SettingsState::pause() {}

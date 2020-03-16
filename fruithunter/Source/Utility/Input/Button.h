@@ -25,6 +25,7 @@ public:
 	Button();
 	~Button();
 	void setLabel(string label);
+	void setPosition(float2 position);
 	void initialize(string label, float2 position);
 	void initialize(string label, float2 position, bool on);
 	void initialize(string label, float2 position, Setting value);

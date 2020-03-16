@@ -44,6 +44,12 @@ void EndRoundState::handleEvent() {
 		AudioHandler::getInstance()->pauseAllMusic();
 		StateHandler::getInstance()->quit();
 	}
+	if (1) { // Change resolution
+		float width = SCREEN_WIDTH;
+		float height = SCREEN_HEIGHT;
+		m_mainMenuButton.setPosition(float2(width / 2, height / 2 + 50));
+		m_exitButton.setPosition(float2(width / 2, height / 2 + 100));
+	}
 }
 
 void EndRoundState::pause() { ErrorLogger::log(m_name + " pause() called."); }

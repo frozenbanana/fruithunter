@@ -41,25 +41,25 @@ void HUD::drawTargetTime() {
 
 	if (timePassed < goldTarget) {
 		timeString = "Target: 0" + to_string(goldTarget / 60) + ":" +
-			(goldTarget % 60 < 10 ? "0" : "") + to_string(goldTarget % 60) + ".00";
+					 (goldTarget % 60 < 10 ? "0" : "") + to_string(goldTarget % 60) + ".00";
 		color = float4(1.0f, 0.85f, 0.0f, 1.0f);
 		m_price = GOLD;
 	}
 	else if (timePassed < silverTarget) {
 		timeString = "Target: 0" + to_string(silverTarget / 60) + ":" +
-			(silverTarget % 60 < 10 ? "0" : "") + to_string(silverTarget % 60) + ".00";
+					 (silverTarget % 60 < 10 ? "0" : "") + to_string(silverTarget % 60) + ".00";
 		color = float4(0.8f, 0.8f, 0.8f, 1.0f);
 		m_price = SILVER;
 	}
 	else if (timePassed < bronzeTarget) {
 		timeString = "Target: 0" + to_string(bronzeTarget / 60) + ":" +
-			(bronzeTarget % 60 < 10 ? "0" : "") + to_string(bronzeTarget % 60) + ".00";
+					 (bronzeTarget % 60 < 10 ? "0" : "") + to_string(bronzeTarget % 60) + ".00";
 		color = float4(0.85f, 0.55f, 0.25f, 1.0f);
 		m_price = BRONZE;
 	}
 	else {
 		timeString = "Target: 0" + to_string(bronzeTarget / 60) + ":" +
-			(bronzeTarget % 60 < 10 ? "0" : "") + to_string(bronzeTarget % 60) + ".00";
+					 (bronzeTarget % 60 < 10 ? "0" : "") + to_string(bronzeTarget % 60) + ".00";
 		color = float4(1.0f, 0.0f, 0.0f, 1.0f);
 		m_price = NR_OF_TIME_TARGETS;
 	}
@@ -196,6 +196,8 @@ void HUD::update(float dt, float playerStamina) {
 
 void HUD::draw() {
 	m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
+	m_backgroundPos = float2(15.0f, SCREEN_HEIGHT - 150.0f);
+	m_staminaPos = float2(SCREEN_WIDTH - 250.0f, SCREEN_HEIGHT - 100.0f);
 
 	// Draw fruit icons
 	for (size_t i = 0; i < m_sprites.size(); i++) {
@@ -227,7 +229,7 @@ void HUD::draw() {
 	// Draw inventory numbers
 	for (size_t i = 0; i < m_sprites.size(); i++) {
 		wText = to_wstring(m_inventory[m_sprites[i].fruitType]) + L"/" +
-			to_wstring(m_winCondition[m_sprites[i].fruitType]);
+				to_wstring(m_winCondition[m_sprites[i].fruitType]);
 		m_spriteFont->DrawString(m_spriteBatch.get(), wText.c_str(),
 			m_sprites[i].screenPos + float2(75.0f, 0.0f),
 			m_fruitTextColors[m_sprites[i].fruitType]);
