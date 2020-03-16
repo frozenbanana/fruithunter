@@ -78,7 +78,7 @@ Skillshot Fruit::hit(float3 playerPos) {
 		}
 		m_particleSystem->setColors(colors);
 		m_particleSystem->emit(nrOf);
-		m_currentMaterial = 1 + hitType;
+		m_currentMaterial = hitType;
 	}
 	return hitType;
 }
@@ -88,7 +88,7 @@ int Fruit::getFruitType() { return m_fruitType; }
 void Fruit::enforceOverTerrain() {
 	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
 		m_position.y = TerrainManager::getInstance()->getHeightFromPosition(m_position) +
-			abs(getHalfSizes().y / 2);
+					   abs(getHalfSizes().y / 2);
 	}
 }
 
