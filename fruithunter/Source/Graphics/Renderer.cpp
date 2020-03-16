@@ -149,7 +149,6 @@ void Renderer::drawCapturedFrame() {
 		m_capturedFrame.init();
 		m_capturedFrameLoaded = true;
 	}
-	ErrorLogger::log("Drawing captured Frame.");
 	m_capturedFrame.draw();
 }
 
