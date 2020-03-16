@@ -303,7 +303,7 @@ void SeaEffect::draw() {
 	// drawn
 	Renderer::getInstance()->bindDepthSRV(7);
 	// bind screen size
-	Renderer::getInstance()->bindConstantBuffer_ScreenSize(5);
+	Renderer::getInstance()->bindConstantBuffer_ScreenSize(7);
 	// bind constant buffers
 	bindConstantBuffers();
 	// bind maps
