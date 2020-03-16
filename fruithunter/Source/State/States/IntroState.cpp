@@ -18,9 +18,9 @@ IntroState::~IntroState() {}
 void IntroState::initialize() {
 	m_name = "Intro State";
 
-	m_startButton.initialize("Start", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 60));
-	m_settingsButton.initialize("Settings", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2));
-	m_exitButton.initialize("Exit", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 60));
+	m_startButton.initialize("Start", float2(120, STANDARD_HEIGHT - 240));
+	m_settingsButton.initialize("Settings", float2(120, STANDARD_HEIGHT - 180));
+	m_exitButton.initialize("Exit", float2(120, STANDARD_HEIGHT - 120));
 
 	// Just ignore this. It fixes things.
 	m_entity.load("Melon_000000");
@@ -30,7 +30,7 @@ void IntroState::initialize() {
 	// m_camera.setView(float3(61.4f, 16.8f, 44.4f), float3(61.2f, 7.16f, 28.7f), float3(0.f, 1.f,
 	// 0.f));
 	m_camera.setView(
-		//float3(56.4f, 11.0f, 18.2f), float3(68.9f, 10.64f, 23.9f), float3(0.f, 1.f, 0.f));
+		// float3(56.4f, 11.0f, 18.2f), float3(68.9f, 10.64f, 23.9f), float3(0.f, 1.f, 0.f));
 		float3(58.0f, 10.9f, 21.9f), float3(61.3f, 10.1f, -36.0f), float3(0.f, 1.f, 0.f));
 
 	// Initiate water
@@ -69,18 +69,17 @@ void IntroState::update() {
 	m_skybox.updateCurrentLight();
 	m_waterEffect.update(delta);
 
-	m_apple.get()->setPosition(
-		float3(treePos.x + (cos(m_totalDelta) * 2.0f), treePos.y, treePos.z + (sin(m_totalDelta) * 2.0f)));
+	m_apple.get()->setPosition(float3(
+		treePos.x + (cos(m_totalDelta) * 2.0f), treePos.y, treePos.z + (sin(m_totalDelta) * 2.0f)));
 
 	m_apple.get()->setRotation(float3(0.0f, -m_totalDelta, 0.0f));
 	m_apple.get()->update(delta, m_camera.getPosition());
 
-	//float3 bowForward(56.4f - 68.9f, 9.0f - 9.64f, 18.2f - 23.9f);
+	// float3 bowForward(56.4f - 68.9f, 9.0f - 9.64f, 18.2f - 23.9f);
 	float3 bowForward = treePos - bowPos;
 	bowForward.Normalize();
 	m_bow.charge();
-	m_bow.update(delta, bowPos, bowForward,
-		bowForward.Cross(float3(0.f, 1.0f, 0.f)),
+	m_bow.update(delta, bowPos, bowForward, bowForward.Cross(float3(0.f, 1.0f, 0.f)),
 		TerrainManager::getInstance()->getTerrainFromPosition(bowPos));
 
 	if (m_shootTime > m_shootThreshold) {
@@ -92,7 +91,7 @@ void IntroState::update() {
 	m_bow.getTrailEffect().update(
 		delta, TerrainManager::getInstance()->getTerrainFromPosition(bowPos));
 
-	//Arrow collision
+	// Arrow collision
 	if (!m_bow.getArrowHitObject()) {
 		for (int i = 0; i < m_terrainProps.getEntities()->size(); i++) {
 			float rayCastingValue = m_terrainProps.getEntities()->at(i)->castRay(
@@ -140,7 +139,7 @@ void IntroState::draw() {
 	shadowMap->setup_shadowsRendering();
 	m_skybox.bindLightBuffer();
 	m_camera.bindMatrix();
-	
+
 	m_bow.draw();
 	m_terrainProps.draw();
 	TerrainManager::getInstance()->draw();
