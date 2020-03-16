@@ -40,7 +40,6 @@ void EndRoundState::update() {
 
 void EndRoundState::handleEvent() {
 	if (m_restartButton.update()) {
-		AudioHandler::getInstance()->pauseAllMusic();
 		State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
 		dynamic_cast<PlayState*>(tempPointer)->destroyLevel();
 		TerrainManager::getInstance()->removeAll();

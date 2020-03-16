@@ -99,6 +99,7 @@ void LevelSelectState::update() {
 			m_player.getArrow().setPosition(float3(-1000.f));
 			m_player.setPosition(float3(34.0f, 2.5f, 79.9f));
 			TerrainManager::getInstance()->removeAll();
+			AudioHandler::getInstance()->pauseAllMusic();
 			draw(); // Updates hitboxes and prepares state for next time.
 			setLevel(i);
 			StateHandler::getInstance()->changeState(StateHandler::PLAY);
@@ -148,7 +149,6 @@ void LevelSelectState::handleEvent() {
 
 void LevelSelectState::pause() {
 	ErrorLogger::log(m_name + " pause() called.");
-	AudioHandler::getInstance()->pauseAllMusic();
 }
 
 void LevelSelectState::play() {

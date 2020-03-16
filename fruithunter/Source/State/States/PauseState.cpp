@@ -35,7 +35,6 @@ void PauseState::handleEvent() {
 		StateHandler::getInstance()->resumeState();
 	}
 	if (StateHandler::getInstance()->getPreviousStateName() == StateHandler::PLAY && m_restartButton.update()) {
-		AudioHandler::getInstance()->pauseAllMusic();
 		State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
 		dynamic_cast<PlayState*>(tempPointer)->destroyLevel();
 		TerrainManager::getInstance()->removeAll();
