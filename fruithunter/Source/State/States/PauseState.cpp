@@ -40,19 +40,19 @@ void PauseState::handleEvent() {
 		AudioHandler::getInstance()->pauseAllMusic();
 		StateHandler::getInstance()->quit();
 	}
-	if (1) {
-		float width = SCREEN_WIDTH;
-		float height = SCREEN_HEIGHT;
-		m_resumeButton.setPosition(float2(width / 2, height / 2 - 50));
-		m_settingsButton.setPosition(float2(width / 2, height / 2));
-		m_mainMenuButton.setPosition(float2(width / 2, height / 2 + 50));
-		m_exitButton.setPosition(float2(width / 2, height / 2 + 100));
-	}
 }
 
 void PauseState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
-void PauseState::play() { ErrorLogger::log(m_name + " play() called."); }
+void PauseState::play() {
+	ErrorLogger::log(m_name + " play() called.");
+	float width = SCREEN_WIDTH;
+	float height = SCREEN_HEIGHT;
+	m_resumeButton.setPosition(float2(width / 2, height / 2 - 50));
+	m_settingsButton.setPosition(float2(width / 2, height / 2));
+	m_mainMenuButton.setPosition(float2(width / 2, height / 2 + 50));
+	m_exitButton.setPosition(float2(width / 2, height / 2 + 100));
+}
 
 void PauseState::draw() {
 	Renderer::getInstance()->beginFrame();

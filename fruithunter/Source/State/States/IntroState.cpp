@@ -91,11 +91,19 @@ void IntroState::drawLogo() {
 
 	// m_spriteBatch->Draw(m_backgroundTexture.Get(), float2(m_position) + float2(150.f, 0.f),
 	// nullptr, 	Colors::White, 0.f, m_backgroundOffset);
-	m_spriteBatch->Draw(m_texture.Get(), float2(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 6.f),
-		nullptr, Colors::White, 0.f, m_textureOffset, m_scale);
+	m_spriteBatch->Draw(m_texture.Get(), float2(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 6.f), nullptr,
+		Colors::White, 0.f, m_textureOffset, m_scale);
 
 	m_spriteBatch->End();
 }
 
 
-void IntroState::play() { ErrorLogger::log(m_name + " play() called."); }
+void IntroState::play() {
+	ErrorLogger::log(m_name + " play() called.");
+	float width = SCREEN_WIDTH;
+	float height = SCREEN_HEIGHT;
+
+	m_startButton.setPosition(float2(width / 2, height / 2 - 50));
+	m_settingsButton.setPosition(float2(width / 2, height / 2));
+	m_exitButton.setPosition(float2(width / 2, height / 2 + 50));
+}
