@@ -22,6 +22,7 @@ private:
 	Button m_settingsButton;
 	Button m_mainMenuButton;
 	Button m_exitButton;
+	Button m_restartButton;
 
 	Entity m_entity;
 };

@@ -4,6 +4,7 @@
 #include "StateHandler.h"
 #include "Input.h"
 #include "AudioHandler.h"
+#include "PlayState.h"
 
 EndRoundState::EndRoundState() { initialize(); }
 
@@ -15,8 +16,9 @@ void EndRoundState::initialize() {
 
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
-	m_mainMenuButton.initialize("Main Menu", float2(width / 2, height / 2 + 50));
-	m_exitButton.initialize("Exit", float2(width / 2, height / 2 + 120));
+	m_restartButton.initialize("Restart", float2(width / 2, height / 2 + 50));
+	m_mainMenuButton.initialize("Main Menu", float2(width / 2, height / 2 + 120));
+	m_exitButton.initialize("Exit", float2(width / 2, height / 2 + 190));
 	m_particleSystem = ParticleSystem(ParticleSystem::CONFETTI);
 	m_particleSystem.setPosition(float3(0.0f, -1.f, 0.f));
 	m_timer.reset();
@@ -36,6 +38,13 @@ void EndRoundState::update() {
 }
 
 void EndRoundState::handleEvent() {
+	if (m_restartButton.update()) {
+		AudioHandler::getInstance()->pauseAllMusic();
+		State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
+		dynamic_cast<PlayState*>(tempPointer)->destroyLevel();
+		TerrainManager::getInstance()->removeAll();
+		StateHandler::getInstance()->changeState(StateHandler::PLAY);
+	}
 	if (m_mainMenuButton.update()) {
 		AudioHandler::getInstance()->pauseAllMusic();
 		StateHandler::getInstance()->changeState(StateHandler::INTRO);
@@ -52,8 +61,9 @@ void EndRoundState::play() {
 	ErrorLogger::log(m_name + " play() called.");
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
-	m_mainMenuButton.setPosition(float2(width / 2, height / 2 + 50));
-	m_exitButton.setPosition(float2(width / 2, height / 2 + 120));
+	m_restartButton.setPosition(float2(width / 2, height / 2 + 50));
+	m_mainMenuButton.setPosition(float2(width / 2, height / 2 + 120));
+	m_exitButton.setPosition(float2(width / 2, height / 2 + 190));
 }
 
 void EndRoundState::draw() {
@@ -63,6 +73,7 @@ void EndRoundState::draw() {
 	m_textRenderer.draw(
 		m_timeText, float2(width / 2, height / 2 - 125), float4(1., 1.f, 1.f, 1.0f));
 	m_textRenderer.draw(m_victoryText, float2(width / 2, height / 2 - 50), m_victoryColor);
+	m_restartButton.draw();
 	m_mainMenuButton.draw();
 	m_exitButton.draw();
 	m_camera.bindMatrix();

@@ -31,6 +31,7 @@ private:
 	string m_timeText;
 	Button m_exitButton;
 	Button m_mainMenuButton;
+	Button m_restartButton;
 	ParticleSystem m_particleSystem;
 
 	Entity m_entity;
