@@ -217,9 +217,9 @@ Renderer* Renderer::getInstance() { return &m_this; }
 
 HWND Renderer::getHandle() { return m_handle; }
 
-int Renderer::getScreenWidth() const { return m_screenWidth; }
+float Renderer::getScreenWidth() const { return (float)m_screenWidth; }
 
-int Renderer::getScreenHeight() const { return m_screenHeight; }
+float Renderer::getScreenHeight() const { return (float)m_screenHeight; }
 
 void Renderer::initalize(HWND window) {}
 

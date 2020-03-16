@@ -20,8 +20,8 @@ public:
 	static ID3D11DeviceContext* getDeviceContext();
 	static Renderer* getInstance();
 	HWND getHandle();
-	int getScreenWidth() const;
-	int getScreenHeight() const;
+	float getScreenWidth() const;
+	float getScreenHeight() const;
 
 	void bindBackAndDepthBuffer();
 	void clearDepth();
