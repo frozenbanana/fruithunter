@@ -2,7 +2,7 @@
 #include <algorithm>
 #include "Fruit.h"
 #include "PathFindingThread.h"
-#define STEP_SCALE 1.0f
+#define STEP_SCALE .250f
 #define EPSILON 0.001f
 #define MAX_STEPS 30
 
@@ -69,7 +69,8 @@ bool AI::beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>>
 	return true;
 }
 
-bool AI::isValid(float3 childPos, float3 currentNodePos, EntityRepository &collidables) {
+bool AI::isValid(
+	float3 childPos, float3 currentNodePos, EntityRepository& collidables, float radius) {
 
 	auto pft = PathFindingThread::getInstance();
 
@@ -91,16 +92,15 @@ bool AI::isValid(float3 childPos, float3 currentNodePos, EntityRepository &colli
 	vector<Entity**> objects = collidables.getCulledEntitiesByPosition(childPos);
 	for (size_t i = 0; i < objects.size(); ++i) {
 
-		float3 obstacle = (*objects[i])->getPosition();
-		obstacle.y = 0.f;
-		childPos.y = 0.f;
-		float lengthChildToCollidableSquared = (childPos - obstacle).LengthSquared();
-		float collidableRadiusSquared = (*objects[i])->getHalfSizes().LengthSquared();
-		
-		if (lengthChildToCollidableSquared < collidableRadiusSquared) {
+		float3 newPoint = (*objects[i])->getPosition() - childPos;
+		newPoint.Normalize();
+		newPoint *= radius;
+		newPoint += childPos;
 
+
+
+		if ((*objects[i])->checkCollision(newPoint))
 			return false;
-		}
 	}
 
 
@@ -197,7 +197,8 @@ void AI::pathfinding(float3 start) {
 						continue;
 					}
 
-					if (!isValid(child->position, currentNode->position, *pft->m_collidables)) {
+					if (!isValid(
+							child->position, currentNode->position, *pft->m_collidables, 0.7f)) {
 						continue;
 					}
 
@@ -214,7 +215,10 @@ void AI::pathfinding(float3 start) {
 	}
 }
 
-void AI::changeState(State newState) { m_currentState = newState; }
+void AI::changeState(State newState) {
+	m_currentState = newState;
+	m_availablePath.clear();
+}
 
 AI::State AI::getState() const { return m_currentState; }
 

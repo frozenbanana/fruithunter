@@ -127,6 +127,14 @@ bool EntityCollision::collisionOBBOBB(ObbData& a, ObbData& b) {
 	return 1;
 }
 
+bool EntityCollision::collisionPointOBB(float3 point, ObbData& obb) {
+	bool collide = (abs(point.x - obb.m_origin.x) < abs(obb.m_origin.x - obb.m_axis->x));
+	collide = true ? (abs(point.y - obb.m_origin.y) < abs(obb.m_origin.y - obb.m_axis->y)) : false;
+	collide = true ? (abs(point.z - obb.m_origin.z) < abs(obb.m_origin.z - obb.m_axis->z)) : false;
+
+	return collide;
+}
+
 bool EntityCollision::collisionSphereOBB(SphereData& sphere, ObbData& obb) {
 	float3 closestOnOBB = obb.closestPtPointOBB(sphere.m_point);
 	float distSq = (closestOnOBB - sphere.m_point).LengthSquared();
@@ -206,6 +214,13 @@ bool EntityCollision::collide(EntityCollision& other) {
 	return collides;
 }
 
+bool EntityCollision::collide(float3 point) {
+
+	bool collides = false;
+	collides = collisionPointOBB(point, *(ObbData*)m_collisionData.get());
+	return collides;
+}
+
 void EntityCollision::setCollisionPosition(float3 pos) {
 	if (m_collisionData->m_origin != pos) {
 		float3 diff = pos - m_collisionData->m_origin;
@@ -262,5 +277,6 @@ float3 EntityCollision::getClosestPointOnBox(float3 point) const {
 
 bool EntityCollision::getIsCollidable() const { return m_collidable; }
 
-float3 EntityCollision::getOBBHalfsize() { 
-	return m_collisionType == ctOBB ? ((ObbData*)m_collisionData.get())->m_halfSize : float3(0.f); }
+float3 EntityCollision::getOBBHalfsize() {
+	return m_collisionType == ctOBB ? ((ObbData*)m_collisionData.get())->m_halfSize : float3(0.f);
+}
