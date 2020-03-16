@@ -30,7 +30,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd C:\\Users\\BTH\\Pictures\\Referencer\\dragonfruitInside.png
+map_Kd dragonfruitInside.png
 
 newmtl Material.001
 Ns 225.000000
@@ -41,7 +41,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd C:\\Users\\BTH\\Pictures\\Referencer\\watermelon.png
+map_Kd watermelon.png
 
 newmtl MelonInside
 Ns 225.000000
@@ -52,7 +52,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd C:\\Users\\BTH\\Pictures\\Referencer\\watermelonInside.png
+map_Kd watermelonInside.png
 
 newmtl Yellow
 Ns 225.000000
