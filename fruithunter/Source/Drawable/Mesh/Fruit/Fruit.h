@@ -6,6 +6,8 @@
 
 #define THROWVELOCITY 30.f
 
+enum skillshot {nothing, bronze, silver, gold};
+
 class Fruit : public Entity, public AI {
 protected:
 	// Phyics based movment
@@ -71,8 +73,7 @@ public:
 	ParticleSystem* getParticleSystem();
 	float3 getHomePosition() const;
 
-
-	void hit(float3 playerPos);
+	skillshot hit(float3 playerPos);
 
 	int getFruitType();
 };

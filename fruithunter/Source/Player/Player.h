@@ -25,6 +25,7 @@ public:
 	Entity& getArrow() { return m_bow.getArrow(); };
 	Bow& getBow() { return m_bow; }
 	float getStamina() const;
+	void getStaminaBySkillshot(int skillShot);
 	bool isShooting() const;
 	void setPosition(float3 position);
 	void standsOnObject();
@@ -82,7 +83,7 @@ private:
 	bool m_jumpReset = true;
 	// stamina
 	const float STAMINA_MAX = 1.f;	// max value of sprint
-	float m_stamina = STAMINA_MAX;	// stamina available
+	float m_stamina = 0.0f;	// stamina available
 	bool m_staminaConsumed = false; // stamina consumed this frame update
 	// sprint
 	const float STAMINA_SPRINT_THRESHOLD = 0.0f;   // threshold when sprinting is available
