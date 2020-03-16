@@ -19,6 +19,8 @@ void SettingsState::initialize() {
 	m_effectsVolume.initialize("Effects Volume", float2(width / 2, height / 2 - 100));
 	m_drawDistance.initialize("Draw distance", float2(width / 2, height / 2 - 50));
 
+	m_resolutionButton.initialize(
+		"Resolution", float2(width / 2, height / 2), Button::Resolution::HD);
 	m_shadowsButton.initialize(
 		"Shadows", float2(width / 2, height / 2 + 50), Button::Setting::MEDIUM);
 	m_darkEdgesButton.initialize("Dark Edges", float2(width / 2, height / 2 + 100), true);
@@ -63,6 +65,16 @@ void SettingsState::handleEvent() {
 		else if (m_shadowsButton.getLowMedHighUltra() == Button::Setting::ULTRA)
 			Renderer::getInstance()->getShadowMapper()->resizeShadowDepthViews(XMINT2(8192, 8192));
 	}
+	if (m_resolutionButton.update()) {
+		if (m_resolutionButton.getResolution() == Button::Resolution::HD)
+			Renderer::getInstance()->changeResolution(1280, 720);
+		else if (m_resolutionButton.getResolution() == Button::Resolution::FHD)
+			Renderer::getInstance()->changeResolution(1920, 1080);
+		else if (m_resolutionButton.getResolution() == Button::Resolution::QHD)
+			Renderer::getInstance()->changeResolution(2560, 1440);
+		else if (m_resolutionButton.getResolution() == Button::Resolution::UHD)
+			Renderer::getInstance()->changeResolution(3840, 2160);
+	}
 
 	if (m_backButton.update() || Input::getInstance()->keyDown(Keyboard::Keys::Escape)) {
 		StateHandler::getInstance()->resumeMenuState();
@@ -80,6 +92,7 @@ void SettingsState::draw() {
 	m_vsyncButton.draw();
 	m_backButton.draw();
 	m_shadowsButton.draw();
+	m_resolutionButton.draw();
 
 	m_drawDistance.draw();
 	m_masterVolume.draw();

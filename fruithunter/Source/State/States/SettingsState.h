@@ -23,6 +23,7 @@ private:
 	Button m_darkEdgesButton;
 	Button m_backButton;
 	Button m_shadowsButton;
+	Button m_resolutionButton;
 
 	Slider m_drawDistance;
 	Slider m_masterVolume;

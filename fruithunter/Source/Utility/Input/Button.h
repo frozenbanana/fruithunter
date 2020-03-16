@@ -14,10 +14,13 @@ private:
 	bool m_on = true;
 	bool m_isToggle = false;
 	bool m_isLowMedHighUltra = false;
+	bool m_isResolution = false;
 	int m_lowMedHighUltra = 0;
+	int m_resolution = 0;
 
 public:
 	enum Setting { LOW, MEDIUM, HIGH, ULTRA };
+	enum Resolution { HD, FHD, QHD, UHD };
 
 	Button();
 	~Button();
@@ -25,8 +28,10 @@ public:
 	void initialize(string label, float2 position);
 	void initialize(string label, float2 position, bool on);
 	void initialize(string label, float2 position, Setting value);
+	void initialize(string label, float2 position, Resolution value);
 	bool getOnOff();
 	int getLowMedHighUltra();
+	int getResolution();
 	bool update();
 	void draw();
 };
