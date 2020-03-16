@@ -245,7 +245,6 @@ void Player::rotatePlayer(float dt) {
 	}
 	if (deltaY != 0.0f) {
 		m_cameraPitch += deltaY * rotationSpeed;
-		m_cameraPitch = min(max(m_cameraPitch, -1.5f), 1.5f);
 	}
 
 	if (ip->keyDown(Keyboard::Keys::Right))
@@ -256,6 +255,8 @@ void Player::rotatePlayer(float dt) {
 		m_cameraPitch -= 0.01f;
 	if (ip->keyDown(Keyboard::Keys::Down))
 		m_cameraPitch += 0.01f;
+
+	m_cameraPitch = min(max(m_cameraPitch, -1.5f), 1.5f);
 
 	Matrix cameraRotationMatrix = XMMatrixRotationRollPitchYaw(m_cameraPitch, m_cameraYaw, 0.f);
 	float3 cameraTarget = XMVector3TransformCoord(m_playerForward, cameraRotationMatrix);

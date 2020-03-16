@@ -85,10 +85,16 @@ vector<LevelData*> SaveManager::getAllSaveStates() const {
 }
 
 void SaveManager::setLevelCompletion(size_t index, size_t timeOfCompletion) { 
-	LevelData data;
-	data.isCompleted = true;
-	data.timeOfCompletion = timeOfCompletion;
-	m_activeState[index] = data;
+	if (m_activeState[index].isCompleted) {
+		//already completed
+		if (timeOfCompletion < m_activeState[index].timeOfCompletion)
+			m_activeState[index].timeOfCompletion = timeOfCompletion;
+	}
+	else {
+		//completed level
+		m_activeState[index].isCompleted = true;
+		m_activeState[index].timeOfCompletion = timeOfCompletion;
+	}
 }
 
 void SaveManager::resetSaveState() {

@@ -55,8 +55,8 @@ private:
 	const float ONGROUND_THRESHOLD =
 		0.03f; // extra height over terrain until player is not grounded
 
-	float3 m_position;
-	float3 m_velocity;
+	float3 m_position = float3(0, 0, 0);
+	float3 m_velocity = float3(0, 0, 0);
 
 	Camera m_camera;
 	Bow m_bow;
@@ -103,7 +103,7 @@ private:
 	float3 m_playerForward = DEFAULTFORWARD;
 	float3 m_playerRight = DEFAULTRIGHT;
 	float3 m_playerUp = DEFAULTUP;
-	float m_cameraPitch, m_cameraYaw;
+	float m_cameraPitch = 0, m_cameraYaw = 0;
 	float m_aimZoom = 1.f;
 	bool m_releasing = false;
 
