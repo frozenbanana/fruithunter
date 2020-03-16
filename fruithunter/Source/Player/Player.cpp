@@ -80,7 +80,7 @@ void Player::update(float dt, Terrain* terrain) {
 	// Reset player if below sea level
 	checkPlayerReset(delta);
 
-	//restoreStamina(delta);
+	// restoreStamina(delta);
 
 	// hunter mode
 	updateHunterMode(dt);
@@ -170,18 +170,18 @@ float3 Player::getVelocity() const { return m_velocity; }
 float Player::getStamina() const { return m_stamina; }
 
 void Player::getStaminaBySkillshot(Skillshot skillShot) {
-	switch (skillShot) { 
-		case Skillshot::SS_BRONZE:
-			m_stamina += 0.05f;
-			break;
-		case Skillshot::SS_SILVER:
-			m_stamina += 0.1f;
-			break;
-		case Skillshot::SS_GOLD:
-			m_stamina += 0.2f;
-			break;
+	switch (skillShot) {
+	case Skillshot::SS_BRONZE:
+		m_stamina += 0.1f;
+		break;
+	case Skillshot::SS_SILVER:
+		m_stamina += 0.2f;
+		break;
+	case Skillshot::SS_GOLD:
+		m_stamina += 0.3f;
+		break;
 	}
-		clamp(m_stamina, 1.0f, 0.0f);
+	clamp(m_stamina, 1.0f, 0.0f);
 }
 
 bool Player::isShooting() const { return m_bow.isShooting(); }
@@ -356,8 +356,7 @@ vector<float3> Player::getFrustumPoints(float scaleBetweenNearAndFarPlane) const
 }
 
 void Player::checkDash(float dt) {
-	if (Input::getInstance()->keyPressed(KEY_DASH) &&
-		!m_sprinting && m_onGround) {
+	if (Input::getInstance()->keyPressed(KEY_DASH) && !m_sprinting && m_onGround) {
 		m_chargingDash = true;
 	}
 
@@ -449,14 +448,14 @@ float Player::getPlayerMovementSpeed() const {
 	float speed = 0;
 	if (m_onGround) {
 		if (m_dashCharge > 0)
-			speed = m_speedOnChargingDash;//charging
+			speed = m_speedOnChargingDash; // charging
 		else
-			speed = m_speed;//walking normaly
+			speed = m_speed; // walking normaly
 		if (m_sprinting)
 			speed *= m_speedSprintMultiplier; // sprint multiplies speed
 	}
 	else
-		speed = m_speedInAir;//in air
+		speed = m_speedInAir; // in air
 	return speed;
 }
 
