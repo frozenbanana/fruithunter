@@ -24,6 +24,7 @@ using float4x4 = DirectX::SimpleMath::Matrix;
 
 enum FruitType { APPLE, BANANA, MELON, NR_OF_FRUITS };
 enum TimeTargets { GOLD, SILVER, BRONZE, NR_OF_TIME_TARGETS };
+enum Skillshot { SS_NOTHING, SS_BRONZE, SS_SILVER, SS_GOLD };
 
 // Helper Math functions
 /* Generate a random float between low to high */

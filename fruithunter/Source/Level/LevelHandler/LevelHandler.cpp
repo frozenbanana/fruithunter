@@ -368,9 +368,6 @@ void LevelHandler::loadLevel(int levelNr) {
 		m_skyBox.updateNewOldLight(m_currentTerrain);
 		AudioHandler::getInstance()->changeMusicByTag(m_currentTerrain, 0);
 
-		// placeAllBridges();
-		// placeAllAnimals();
-
 		m_hud.setTimeTargets(currentLevel.m_timeTargets);
 		m_hud.setWinCondition(currentLevel.m_winCondition);
 
@@ -562,7 +559,7 @@ void LevelHandler::update(float dt) {
 		if (m_player.isShooting()) {
 
 			if (m_player.getArrow().checkCollision(*m_fruits[i])) {
-				m_fruits[i]->hit(m_player.getPosition());
+				m_player.getStaminaBySkillshot(m_fruits[i]->hit(m_player.getPosition()));
 				AudioHandler::getInstance()->playOnceByDistance(
 					AudioHandler::HIT_FRUIT, m_player.getPosition(), m_fruits[i]->getPosition());
 

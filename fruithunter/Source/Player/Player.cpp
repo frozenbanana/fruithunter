@@ -80,7 +80,7 @@ void Player::update(float dt, Terrain* terrain) {
 	// Reset player if below sea level
 	checkPlayerReset(delta);
 
-	restoreStamina(delta);
+	//restoreStamina(delta);
 
 	// hunter mode
 	updateHunterMode(dt);
@@ -168,6 +168,21 @@ float3 Player::getForward() const { return m_playerForward; }
 float3 Player::getVelocity() const { return m_velocity; }
 
 float Player::getStamina() const { return m_stamina; }
+
+void Player::getStaminaBySkillshot(Skillshot skillShot) {
+	switch (skillShot) { 
+		case Skillshot::SS_BRONZE:
+			m_stamina += 0.05f;
+			break;
+		case Skillshot::SS_SILVER:
+			m_stamina += 0.1f;
+			break;
+		case Skillshot::SS_GOLD:
+			m_stamina += 0.2f;
+			break;
+	}
+		clamp(m_stamina, 1.0f, 0.0f);
+}
 
 bool Player::isShooting() const { return m_bow.isShooting(); }
 
@@ -342,15 +357,13 @@ void Player::checkJump() {
 }
 
 void Player::checkSprint(float dt) {
-	if (Input::getInstance()->keyPressed(KEY_SPRINT) && m_stamina > STAMINA_SPRINT_THRESHOLD &&
+	if (Input::getInstance()->keyPressed(KEY_SPRINT) &&
 		!m_chargingDash && m_onGround) {
 		// activate sprint
 		m_sprinting = true;
 	}
-	if (Input::getInstance()->keyDown(KEY_SPRINT) && m_sprinting && m_stamina > 0 &&
+	if (Input::getInstance()->keyDown(KEY_SPRINT) && m_sprinting &&
 		m_velocity.Length() > 0.1f) {
-		// consume stamina
-		consumeStamina(STAMINA_SPRINT_CONSUMPTION * dt);
 	}
 	else {
 		m_sprinting = false;
@@ -366,14 +379,13 @@ vector<float3> Player::getFrustumPoints(float scaleBetweenNearAndFarPlane) const
 }
 
 void Player::checkDash(float dt) {
-	if (Input::getInstance()->keyPressed(KEY_DASH) && m_stamina >= STAMINA_DASH_COST &&
+	if (Input::getInstance()->keyPressed(KEY_DASH) &&
 		!m_sprinting && m_onGround) {
 		m_chargingDash = true;
 	}
 
 	if (Input::getInstance()->keyDown(KEY_DASH) && m_chargingDash) {
 		m_dashCharge = clamp(m_dashCharge + dt, DASHMAXCHARGE, 0);
-		consumeStamina(STAMINA_DASH_COST * dt);
 	}
 	else if (Input::getInstance()->keyReleased(KEY_DASH)) {
 		m_chargingDash = false;
@@ -404,6 +416,7 @@ void Player::checkPlayerReset(float dt) {
 
 void Player::checkHunterMode() {
 	if (Input::getInstance()->keyPressed(KEY_HM)) {
+		AudioHandler::getInstance()->playOnce(AudioHandler::SLOW_MOTION);
 		m_hunterMode = 1 - m_hunterMode;
 	}
 }
