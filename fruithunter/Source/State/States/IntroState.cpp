@@ -94,7 +94,9 @@ void IntroState::update() {
 	// float3 bowForward(56.4f - 68.9f, 9.0f - 9.64f, 18.2f - 23.9f);
 	float3 bowForward = treePos - bowPos;
 	bowForward.Normalize();
-	m_bow.charge();
+	if (m_shootTime > m_chargeThreshold) {
+		m_bow.charge();
+	}
 	m_bow.update(delta, bowPos, bowForward, bowForward.Cross(float3(0.f, 1.0f, 0.f)),
 		TerrainManager::getInstance()->getTerrainFromPosition(bowPos));
 
@@ -118,7 +120,13 @@ void IntroState::update() {
 				float3 target = m_bow.getArrow().getPosition() +
 								m_bow.getArrowVelocity() * delta * rayCastingValue;
 				m_bow.arrowHitObject(target);
-				m_shootThreshold = RandomFloat(2.4f, 4.f);
+				m_chargeThreshold = RandomFloat(2.4f, 4.f);
+				m_shootDelay = RandomFloat(0.2f, 1.f);
+				m_shootThreshold = m_chargeThreshold + m_shootDelay;
+				shared_ptr<Entity> newArrow = make_shared<Entity>(m_bow.getArrow().getModelName(),
+					m_bow.getArrow().getPosition(), m_bow.getArrow().getScale());
+				newArrow->setRotationMatrix(m_bow.getArrow().getRotationMatrix());
+				m_arrows.push_back(newArrow);
 			}
 		}
 	}
@@ -165,6 +173,9 @@ void IntroState::draw() {
 	Renderer::getInstance()->disableAlphaBlending();
 	m_bow.draw();
 	m_bow.getTrailEffect().draw();
+	for (int i = 0; i < m_arrows.size(); i++) {
+		m_arrows.at(i)->draw_onlyMesh(float3(1.f));
+	}
 	m_terrainProps.draw_onlyMesh();
 	TerrainManager::getInstance()->draw_onlyMesh();
 
@@ -176,6 +187,9 @@ void IntroState::draw() {
 
 	m_bow.draw();
 	m_terrainProps.draw();
+	for (int i = 0; i < m_arrows.size(); i++) {
+		m_arrows.at(i)->draw();
+	}
 	TerrainManager::getInstance()->draw();
 	Renderer::getInstance()->copyDepthToSRV();
 	m_waterEffect.draw();
