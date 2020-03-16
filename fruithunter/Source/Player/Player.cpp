@@ -16,7 +16,7 @@ void Player::initialize() {
 	m_playerForward = DEFAULTFORWARD;
 	FileSyncer* file = VariableSyncer::getInstance()->create("Player.txt");
 	file->bind("speed walk:f", &m_speed);
-	file->bind("speed sprint:f", &m_speedSprint);
+	file->bind("speed sprint multiplier:f", &m_speedSprintMultiplier);
 	file->bind("speed in air:f", &m_speedInAir);
 	file->bind("jump force:f", &m_jumpForce);
 	file->bind("dash force:f", &m_dashForce);
@@ -80,7 +80,7 @@ void Player::update(float dt, Terrain* terrain) {
 	// Reset player if below sea level
 	checkPlayerReset(delta);
 
-	//restoreStamina(delta);
+	// restoreStamina(delta);
 
 	// hunter mode
 	updateHunterMode(dt);
@@ -170,18 +170,18 @@ float3 Player::getVelocity() const { return m_velocity; }
 float Player::getStamina() const { return m_stamina; }
 
 void Player::getStaminaBySkillshot(Skillshot skillShot) {
-	switch (skillShot) { 
-		case Skillshot::SS_BRONZE:
-			m_stamina += 0.05f;
-			break;
-		case Skillshot::SS_SILVER:
-			m_stamina += 0.1f;
-			break;
-		case Skillshot::SS_GOLD:
-			m_stamina += 0.2f;
-			break;
+	switch (skillShot) {
+	case Skillshot::SS_BRONZE:
+		m_stamina += 0.1f;
+		break;
+	case Skillshot::SS_SILVER:
+		m_stamina += 0.2f;
+		break;
+	case Skillshot::SS_GOLD:
+		m_stamina += 0.3f;
+		break;
 	}
-		clamp(m_stamina, 1.0f, 0.0f);
+	clamp(m_stamina, 1.0f, 0.0f);
 }
 
 bool Player::isShooting() const { return m_bow.isShooting(); }
@@ -200,25 +200,6 @@ void Player::activateHunterMode() { m_hunterMode = true; }
 void Player::updateBow(float dt, Terrain* terrain) {
 	Input* input = Input::getInstance();
 
-	if (input->mouseDown(Input::MouseButton::RIGHT)) {
-		m_aimZoom = max(0.4f, m_aimZoom - dt * 1.5f);
-		m_camera.setFov(m_camera.getDefaultFov() * m_aimZoom);
-		m_bow.aim();
-	}
-	else if (m_releasing || input->mouseReleased(Input::MouseButton::RIGHT)) {
-		m_releasing = true;
-
-		if (m_aimZoom < 1.0f) {
-			m_aimZoom += dt * 1.5f;
-		}
-		else {
-			m_bow.release();
-			m_aimZoom = 1.0f;
-			m_releasing = false;
-		}
-
-		m_camera.setFov(m_camera.getDefaultFov() * m_aimZoom);
-	}
 	if (input->mousePressed(Input::MouseButton::LEFT)) {
 		m_chargingBow = true;
 	}
@@ -253,7 +234,7 @@ void Player::rotatePlayer(float dt) {
 		deltaY = (float)ip->mouseY();
 	}
 
-	float rotationSpeed = m_aimZoom * 0.6f * dt;
+	float rotationSpeed = 0.6f * dt;
 
 	if (deltaX != 0.0f) {
 		m_cameraYaw += deltaX * rotationSpeed;
@@ -358,13 +339,9 @@ void Player::checkJump() {
 }
 
 void Player::checkSprint(float dt) {
-	if (Input::getInstance()->keyPressed(KEY_SPRINT) &&
-		!m_chargingDash && m_onGround) {
+	if (Input::getInstance()->keyDown(KEY_SPRINT)) {
 		// activate sprint
 		m_sprinting = true;
-	}
-	if (Input::getInstance()->keyDown(KEY_SPRINT) && m_sprinting &&
-		m_velocity.Length() > 0.1f) {
 	}
 	else {
 		m_sprinting = false;
@@ -380,8 +357,7 @@ vector<float3> Player::getFrustumPoints(float scaleBetweenNearAndFarPlane) const
 }
 
 void Player::checkDash(float dt) {
-	if (Input::getInstance()->keyPressed(KEY_DASH) &&
-		!m_sprinting && m_onGround) {
+	if (Input::getInstance()->keyPressed(KEY_DASH) && !m_sprinting && m_onGround) {
 		m_chargingDash = true;
 	}
 
@@ -470,12 +446,18 @@ float Player::clamp(float x, float high, float low) {
 }
 
 float Player::getPlayerMovementSpeed() const {
-	if (m_dashCharge > 0)
-		return m_speedOnChargingDash;
-	if (m_sprinting)
-		return m_speedSprint;
+	float speed = 0;
+	if (m_onGround) {
+		if (m_dashCharge > 0)
+			speed = m_speedOnChargingDash; // charging
+		else
+			speed = m_speed; // walking normaly
+		if (m_sprinting)
+			speed *= m_speedSprintMultiplier; // sprint multiplies speed
+	}
 	else
-		return m_speed;
+		speed = m_speedInAir; // in air
+	return speed;
 }
 
 void Player::consumeStamina(float amount) {
@@ -499,7 +481,7 @@ void Player::updateVelocity_inAir(float3 playerForce, float dt) {
 	m_velocity += m_gravity * dt; // gravity if in air
 
 	// add forces
-	m_velocity += playerForce * m_speedInAir * dt;
+	m_velocity += playerForce * getPlayerMovementSpeed() * dt;
 }
 
 void Player::updateVelocity_onFlatGround(float3 playerForce, float dt) {

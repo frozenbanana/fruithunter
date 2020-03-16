@@ -51,6 +51,13 @@ void Slider::initialize(string label, float2 pos) {
 
 float Slider::getValue() { return m_value; }
 
+void Slider::setPosition(float2 position) {
+	float offset = position.x - m_position.x;
+	m_position = position;
+	m_sliderPos.y = m_position.y;
+	m_sliderPos.x += offset;
+}
+
 bool Slider::update() {
 	Input* ip = Input::getInstance();
 	bool changed = false;
@@ -72,14 +79,14 @@ bool Slider::update() {
 
 	if (m_sliding && ip->mouseDown(Input::MouseButton::LEFT)) {
 		m_offset = ip->mouseX() - m_grabPos;
-		m_sliderPos.x = max(
-			min(STANDARD_WIDTH / 2 + 120.f, m_startPos.x + m_offset), STANDARD_WIDTH / 2 - 120.f);
+		m_sliderPos.x =
+			max(min(SCREEN_WIDTH / 2 + 120.f, m_startPos.x + m_offset), SCREEN_WIDTH / 2 - 120.f);
 	}
 	if (m_sliding && ip->mouseReleased(Input::MouseButton::LEFT)) {
 		changed = true;
 		m_sliding = false;
 		m_startPos = m_sliderPos;
-		m_value = (m_sliderPos.x - STANDARD_WIDTH / 2 + 120.f) / 240.f;
+		m_value = (m_sliderPos.x - SCREEN_WIDTH / 2 + 120.f) / 240.f;
 	}
 
 	return changed;

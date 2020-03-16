@@ -5,7 +5,7 @@
 #include <Keyboard.h>
 #include <Mouse.h>
 
-Renderer Renderer::m_this(STANDARD_WIDTH, STANDARD_HEIGHT);
+Renderer Renderer::m_this(1280, 720);
 
 LRESULT CALLBACK WinProc(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
 	// if (msg == WM_DESTROY || msg == WM_CLOSE) {
@@ -73,8 +73,42 @@ void Renderer::disableAlphaBlending() {
 		m_blendStateWithoutAlphaBlending.Get(), blendFactor, 0xffffffff);
 }
 
+void Renderer::changeResolution(int width, int height) {
+	m_screenWidth = width;
+	m_screenHeight = height;
+
+	// 1. clear the existing references to the backbuffer
+	ID3D11RenderTargetView* nullView = nullptr;
+	m_deviceContext->OMSetRenderTargets(1, &nullView, nullptr);
+	m_renderTargetView.Reset();
+	m_depthDSV.Reset();
+	m_deviceContext->Flush(); // not quite sure necessary ?
+
+	// 2. Resize the existing swapchain
+	HRESULT hr =
+		m_swapChain->ResizeBuffers(2, m_screenWidth, m_screenHeight, m_backBufferDesc.Format, NULL);
+	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
+		ErrorLogger::log("In renderer, could not resize buffers");
+	DXGI_MODE_DESC modeDesc = { 0 };
+	modeDesc.Width = m_screenWidth;
+	modeDesc.Height = m_screenHeight;
+	// modeDesc.Format = m_swapChain->GetDesc.format;
+	m_swapChain->ResizeTarget(&modeDesc);
+	// 3. Get the new backbuffer texture to use as a render target
+	createRenderTarget();
+
+	// 4. Create a depth/stencil buffer and create the depth stencil view
+	DXGI_SWAP_CHAIN_DESC swap_desc;
+	m_swapChain->GetDesc(&swap_desc);
+	createDepthBuffer(swap_desc);
+
+	// 5. Make sure other parts in program update with new screen sizes.
+}
+
+void Renderer::setFullscreen(bool value) { m_swapChain->SetFullscreenState(value, nullptr); }
+
 void Renderer::bindConstantBuffer_ScreenSize(int slot) {
-	XMINT4 data = XMINT4(STANDARD_WIDTH, STANDARD_HEIGHT, 0, 0);
+	XMINT4 data = XMINT4(m_screenWidth, m_screenHeight, 0, 0);
 	m_deviceContext->UpdateSubresource(m_screenSizeBuffer.Get(), 0, 0, &data, 0, 0);
 	m_deviceContext->PSSetConstantBuffers(slot, 1, m_screenSizeBuffer.GetAddressOf());
 }
@@ -133,6 +167,8 @@ void Renderer::draw(size_t vertexCount, size_t vertexOffset) {
 }
 
 Renderer::Renderer(int width, int height) {
+	m_screenHeight = height;
+	m_screenWidth = width;
 	// Define window style
 	WNDCLASS wc = { 0 };
 	wc.style = CS_OWNDC;
@@ -142,9 +178,10 @@ Renderer::Renderer(int width, int height) {
 	RegisterClass(&wc);
 
 	// Create the window
+	bool showTopBorder = true;
 	m_handle = CreateWindow(m_windowTitle, m_windowTitle,
-		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE, STANDARD_CORNER_X, STANDARD_CORNER_Y,
-		width, height, nullptr, nullptr, nullptr, nullptr);
+		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE, 0, 0, m_screenWidth,
+		m_screenHeight + 30 * showTopBorder, nullptr, nullptr, nullptr, nullptr);
 
 	// Create device, deviceContext and swapchain
 	Renderer* r = Renderer::getInstance();
@@ -181,6 +218,10 @@ Renderer* Renderer::getInstance() { return &m_this; }
 HWND Renderer::getHandle() { return m_handle; }
 
 ID3D11DepthStencilState* Renderer::getDepthDSS() const { return m_depthDSS.Get(); }
+
+float Renderer::getScreenWidth() const { return (float)m_screenWidth; }
+
+float Renderer::getScreenHeight() const { return (float)m_screenHeight; }
 
 void Renderer::initalize(HWND window) {}
 
@@ -240,11 +281,15 @@ void Renderer::createDevice(HWND window) {
 	// Define our swap chain
 	DXGI_SWAP_CHAIN_DESC swapChainDesc = { 0 };
 	swapChainDesc.BufferCount = 1;
-	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.BufferDesc.Format =
+		DXGI_FORMAT_R8G8B8A8_UNORM; // This bufferdesc becomed m_backBufferDesc
+	swapChainDesc.BufferDesc.Width = m_screenWidth;
+	swapChainDesc.BufferDesc.Height = m_screenHeight;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.OutputWindow = window;
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.Windowed = true;
+
 
 	// Create the swap chain, device and device context
 	HRESULT swpFlag = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0,
@@ -283,8 +328,8 @@ void Renderer::createRenderTarget() {
 void Renderer::createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd) {
 	// texture 2d
 	D3D11_TEXTURE2D_DESC DeStDesc;
-	DeStDesc.Width = STANDARD_WIDTH;
-	DeStDesc.Height = STANDARD_HEIGHT;
+	DeStDesc.Width = m_screenWidth;
+	DeStDesc.Height = m_screenHeight;
 	DeStDesc.ArraySize = 1;
 	DeStDesc.MipLevels = 1;
 	DeStDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R32_TYPELESS;

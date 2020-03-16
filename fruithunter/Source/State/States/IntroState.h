@@ -39,9 +39,12 @@ private:
 	EntityRepository m_terrainProps;
 	unique_ptr<Apple> m_apple;
 	float m_totalDelta = 0.f;
-	float m_shootThreshold = RandomFloat(2.4f, 4.f);
 	float m_shootTime = 0.f;
+	float m_chargeThreshold = RandomFloat(2.4f, 4.f);
+	float m_shootDelay = 0.5f;
+	float m_shootThreshold = m_chargeThreshold + m_shootDelay;
 	Bow m_bow;
+	std::vector<shared_ptr<Entity>> m_arrows;
 
 	// Logo
 	struct LogoLetter {

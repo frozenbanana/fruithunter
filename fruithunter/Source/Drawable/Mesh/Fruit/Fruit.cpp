@@ -78,7 +78,7 @@ Skillshot Fruit::hit(float3 playerPos) {
 		}
 		m_particleSystem->setColors(colors);
 		m_particleSystem->emit(nrOf);
-		m_currentMaterial = 2;
+		m_currentMaterial = hitType;
 	}
 	return hitType;
 }

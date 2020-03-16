@@ -16,14 +16,12 @@ IntroState::~IntroState() {}
 
 void IntroState::initialize() {
 	m_name = "Intro State";
+	float width = SCREEN_WIDTH;
+	float height = SCREEN_HEIGHT;
 
-	m_startButton.initialize("Start", float2(110, STANDARD_HEIGHT * 0.70f - 60.f));
-	m_settingsButton.initialize("Settings", float2(132, STANDARD_HEIGHT * 0.70f));
-	m_exitButton.initialize("Exit", float2(92, STANDARD_HEIGHT * 0.70f + 60.f));
-
-	// Just ignore this. It fixes things.
-	m_entity.load("Melon_000000");
-	m_entity.setPosition(float3(-1000));
+	m_startButton.initialize("Start", float2(106, height * 0.75f - 60.f));
+	m_settingsButton.initialize("Settings", float2(132, height * 0.75f));
+	m_exitButton.initialize("Exit", float2(92, height * 0.75f + 60.f));
 
 	// Initialise camera
 	// m_camera.setView(float3(61.4f, 16.8f, 44.4f), float3(61.2f, 7.16f, 28.7f), float3(0.f, 1.f,
@@ -96,7 +94,9 @@ void IntroState::update() {
 	// float3 bowForward(56.4f - 68.9f, 9.0f - 9.64f, 18.2f - 23.9f);
 	float3 bowForward = treePos - bowPos;
 	bowForward.Normalize();
-	m_bow.charge();
+	if (m_shootTime > m_chargeThreshold) {
+		m_bow.charge();
+	}
 	m_bow.update(delta, bowPos, bowForward, bowForward.Cross(float3(0.f, 1.0f, 0.f)),
 		TerrainManager::getInstance()->getTerrainFromPosition(bowPos));
 
@@ -120,19 +120,24 @@ void IntroState::update() {
 				float3 target = m_bow.getArrow().getPosition() +
 								m_bow.getArrowVelocity() * delta * rayCastingValue;
 				m_bow.arrowHitObject(target);
-				m_shootThreshold = RandomFloat(2.4f, 4.f);
+				m_chargeThreshold = RandomFloat(2.4f, 4.f);
+				m_shootDelay = RandomFloat(0.2f, 1.f);
+				m_shootThreshold = m_chargeThreshold + m_shootDelay;
+				shared_ptr<Entity> newArrow = make_shared<Entity>(m_bow.getArrow().getModelName(),
+					m_bow.getArrow().getPosition(), m_bow.getArrow().getScale());
+				newArrow->setRotationMatrix(m_bow.getArrow().getRotationMatrix());
+				m_arrows.push_back(newArrow);
 			}
 		}
 	}
 
 	// Logo update
-	float offsetX = STANDARD_WIDTH / 16.f;
-	float offsetY = STANDARD_HEIGHT / 3.f;
+	float offsetX = SCREEN_WIDTH / 16.f;
+	float offsetY = SCREEN_HEIGHT / 3.f;
 	float t = m_timer.getTimePassed();
 	for (size_t i = 0; i < m_letters.size(); i++) {
 		float2 movement =
-			float2(sin(t + m_letters[i].speedOffset.x), cos(t + m_letters[i].speedOffset.y)) *
-			10.f;
+			float2(sin(t + m_letters[i].speedOffset.x), cos(t + m_letters[i].speedOffset.y)) * 10.f;
 		m_letters[i].letter.setPosition(float2(offsetX, offsetY) + movement);
 		offsetX += m_letters[i].letter.getTextureSize().x / (1.65f * 2.f);
 	}
@@ -168,6 +173,9 @@ void IntroState::draw() {
 	Renderer::getInstance()->disableAlphaBlending();
 	m_bow.draw();
 	m_bow.getTrailEffect().draw();
+	for (int i = 0; i < m_arrows.size(); i++) {
+		m_arrows.at(i)->draw_onlyMesh(float3(1.f));
+	}
 	m_terrainProps.draw_onlyMesh();
 	TerrainManager::getInstance()->draw_onlyMesh();
 
@@ -179,6 +187,9 @@ void IntroState::draw() {
 
 	m_bow.draw();
 	m_terrainProps.draw();
+	for (int i = 0; i < m_arrows.size(); i++) {
+		m_arrows.at(i)->draw();
+	}
 	TerrainManager::getInstance()->draw();
 	Renderer::getInstance()->copyDepthToSRV();
 	m_waterEffect.draw();
@@ -199,13 +210,17 @@ void IntroState::draw() {
 	m_startButton.draw();
 	m_settingsButton.draw();
 	m_exitButton.draw();
-
-	// Just ignore this. It fixes things
-	m_entity.draw();
 }
+
 
 void IntroState::play() {
 	ErrorLogger::log(m_name + " play() called.");
+	float width = SCREEN_WIDTH;
+	float height = SCREEN_HEIGHT;
+
+	m_startButton.setPosition(float2(106, height * 0.75f - 60.f));
+	m_settingsButton.setPosition(float2(132, height * 0.75f));
+	m_exitButton.setPosition(float2(92, height * 0.75f + 60.f));
 
 	TerrainManager::getInstance()->removeAll();
 	TerrainManager::getInstance()->add(float3(0.f), float3(1.f, 0.10f, 1.f) * 100, "PlainMap.png",

@@ -18,8 +18,8 @@ TextRenderer::TextRenderer() {
 	}
 	m_spriteBatch = std::make_unique<DirectX::SpriteBatch>(Renderer::getDeviceContext());
 
-	m_fontPos.x = (float)STANDARD_WIDTH / 2.f;
-	m_fontPos.y = (float)STANDARD_HEIGHT / 2.f;
+	m_fontPos.y = (float)SCREEN_HEIGHT / 2.f;
+	m_fontPos.x = (float)SCREEN_WIDTH / 2.f;
 
 	createBuffers();
 

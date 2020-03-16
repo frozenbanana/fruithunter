@@ -7,6 +7,9 @@
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 
+#define SCREEN_HEIGHT Renderer::getInstance()->getScreenHeight()
+#define SCREEN_WIDTH Renderer::getInstance()->getScreenWidth()
+
 class Renderer {
 public:
 	enum DrawingState { state_normal, state_shadow };
@@ -18,13 +21,14 @@ public:
 	static Renderer* getInstance();
 	HWND getHandle();
 	ID3D11DepthStencilState* getDepthDSS() const;
+	float getScreenWidth() const;
+	float getScreenHeight() const;
 
 	void bindBackAndDepthBuffer();
 	void clearDepth();
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthDSV;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthDSS;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthSRV;
-
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthDSV;	 // Depth stencil view
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthDSS;	 // Depth stencil stade
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthSRV; // Depth shader resource view
 
 	void bindEverything();
 	void bindDepthSRV(int slot);
@@ -32,7 +36,8 @@ public:
 	void bindQuadVertexBuffer();
 	void enableAlphaBlending();
 	void disableAlphaBlending();
-
+	void changeResolution(int width, int height);
+	void setFullscreen(bool value);
 	void copyDepthToSRV();
 
 	void draw_darkEdges();
@@ -53,6 +58,7 @@ private:
 	void createConstantBuffers();
 	void createQuadVertexBuffer();
 	void createBlendState();
+
 	static Renderer m_this;
 	bool m_isLoaded = false;
 
@@ -82,4 +88,8 @@ private:
 	// shadows
 	ShadowMapper m_shadowMapper;
 	DrawingState m_drawState = state_normal;
+
+	// Resolution
+	int m_screenWidth;
+	int m_screenHeight;
 };
