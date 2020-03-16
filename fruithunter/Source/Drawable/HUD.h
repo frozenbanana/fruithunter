@@ -12,6 +12,7 @@ private:
 		float2 screenPos;
 		float scale;
 		int fruitType;
+		float pickUp;
 	};
 
 	unique_ptr<SpriteBatch> m_spriteBatch;
@@ -22,6 +23,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_backgroundTexture;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_staminaTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_staminaFrame;
 
 	float2 m_backgroundPos;
 	float2 m_staminaPos;

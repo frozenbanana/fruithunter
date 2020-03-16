@@ -214,7 +214,10 @@ void AI::pathfinding(float3 start) {
 	}
 }
 
-void AI::changeState(State newState) { m_currentState = newState; }
+void AI::changeState(State newState) {
+	m_currentState = newState;
+	m_availablePath.clear();
+}
 
 AI::State AI::getState() const { return m_currentState; }
 

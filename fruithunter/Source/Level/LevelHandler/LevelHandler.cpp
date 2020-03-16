@@ -7,91 +7,237 @@
 #include "PathFindingThread.h"
 
 void LevelHandler::initialiseLevel0() {
-	Level level0;
+	Level level;
 
-	level0.m_terrainPropsFilename = "level0";
+	level.m_terrainPropsFilename = "level0";
 
-	level0.m_terrainTags.push_back(Level::TerrainTags::Volcano);
-	level0.m_terrainTags.push_back(Level::TerrainTags::Forest);
-	level0.m_terrainTags.push_back(Level::TerrainTags::Desert);
-	level0.m_terrainTags.push_back(Level::TerrainTags::Plains);
+	level.m_terrainTags.push_back(Level::TerrainTags::Plains);
 
-	level0.m_fruitPos[APPLE].push_back(1);
-	level0.m_fruitPos[APPLE].push_back(2);
-	level0.m_fruitPos[APPLE].push_back(3);
-	level0.m_fruitPos[BANANA].push_back(1);
-	level0.m_fruitPos[BANANA].push_back(2);
-	level0.m_fruitPos[BANANA].push_back(3);
-	level0.m_fruitPos[MELON].push_back(0);
+	level.m_fruitPos[APPLE].push_back(0);
 
-	level0.m_heightMapNames.push_back("VolcanoMap.png");
-	level0.m_heightMapNames.push_back("ForestMap.png");
-	level0.m_heightMapNames.push_back("DesertMap.png");
-	level0.m_heightMapNames.push_back("PlainMap.png");
+	level.m_heightMapNames.push_back("PlainMap.png");
 
-	level0.m_heightMapPos.push_back(float3(100.f, 0.f, 100.f));
-	level0.m_heightMapPos.push_back(float3(0.f, 0.f, 0.f));
-	level0.m_heightMapPos.push_back(float3(0.f, 0.f, 100.f));
-	level0.m_heightMapPos.push_back(float3(100.f, 0.f, 0.f));
+	level.m_heightMapPos.push_back(float3(0.f, 0.f, 0.f));
 
-	level0.m_heightMapSubSize.push_back(XMINT2(15, 15));
-	level0.m_heightMapSubSize.push_back(XMINT2(15, 15));
-	level0.m_heightMapSubSize.push_back(XMINT2(15, 15));
-	level0.m_heightMapSubSize.push_back(XMINT2(15, 15));
+	level.m_heightMapSubSize.push_back(XMINT2(15, 15));
 
-	level0.m_heightMapDivision.push_back(XMINT2(16, 16));
-	level0.m_heightMapDivision.push_back(XMINT2(16, 16));
-	level0.m_heightMapDivision.push_back(XMINT2(16, 16));
-	level0.m_heightMapDivision.push_back(XMINT2(16, 16));
+	level.m_heightMapDivision.push_back(XMINT2(16, 16));
 
-	level0.m_heightMapScales.push_back(float3(1.f, 0.40f, 1.f) * 100);
-	level0.m_heightMapScales.push_back(float3(1.f, 0.15f, 1.f) * 100);
-	level0.m_heightMapScales.push_back(float3(1.f, 0.25f, 1.f) * 100);
-	level0.m_heightMapScales.push_back(float3(1.f, 0.10f, 1.f) * 100);
+	level.m_heightMapScales.push_back(float3(1.f, 0.10f, 1.f) * 100);
+
+	vector<string> maps(4);
+	maps[0] = "texture_grass.jpg";
+	maps[1] = "texture_rock4.jpg";
+	maps[2] = "texture_rock6.jpg";
+	maps[3] = "texture_rock6.jpg";
+	level.m_heightmapTextures.push_back(maps);
+
+	// level.m_wind.push_back(float3(0.f, 8.f, 0.f)); // Volcano
+	// level.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
+	// level.m_wind.push_back(float3(1.f, 0.f, 2.f)); // Desert
+	level.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
+
+	level.m_nrOfFruits[APPLE] = 20;
+	level.m_nrOfFruits[BANANA] = 0;
+	level.m_nrOfFruits[MELON] = 0;
+
+	level.m_winCondition[APPLE] = 10;
+	level.m_winCondition[BANANA] = 0;
+	level.m_winCondition[MELON] = 0;
+
+	level.m_playerStartPos = float3(5.6f, 2.5f, 38.7f);
+
+	level.m_timeTargets[GOLD] = 30;
+	level.m_timeTargets[SILVER] = 40;
+	level.m_timeTargets[BRONZE] = 60;
+
+	m_levelsArr.push_back(level);
+	m_hud.setTimeTargets(level.m_timeTargets);
+}
+
+void LevelHandler::initialiseLevel1() {
+	Level level;
+
+	level.m_terrainPropsFilename = "level1";
+
+	level.m_terrainTags.push_back(Level::TerrainTags::Forest);
+	level.m_terrainTags.push_back(Level::TerrainTags::Plains);
+
+	level.m_fruitPos[APPLE].push_back(0);
+	level.m_fruitPos[MELON].push_back(1);
+
+
+	level.m_heightMapNames.push_back("ForestMap.png");
+	level.m_heightMapNames.push_back("PlainMap.png");
+
+	level.m_heightMapPos.push_back(float3(0.f, 0.f, 0.f));
+	level.m_heightMapPos.push_back(float3(100.f, 0.f, 0.f));
+
+	level.m_heightMapSubSize.push_back(XMINT2(15, 15));
+	level.m_heightMapSubSize.push_back(XMINT2(15, 15));
+
+	level.m_heightMapDivision.push_back(XMINT2(16, 16));
+	level.m_heightMapDivision.push_back(XMINT2(16, 16));
+
+	level.m_heightMapScales.push_back(float3(1.f, 0.15f, 1.f) * 100);
+	level.m_heightMapScales.push_back(float3(1.f, 0.10f, 1.f) * 100);
+
+	vector<string> maps(4);
+	maps[0] = "texture_grass3.jpg";
+	maps[1] = "texture_sand1.jpg";
+	maps[2] = "texture_mossyRock.jpg";
+	maps[3] = "texture_mossyRock.jpg";
+	level.m_heightmapTextures.push_back(maps);
+	maps[0] = "texture_grass.jpg";
+	maps[1] = "texture_rock4.jpg";
+	maps[2] = "texture_rock6.jpg";
+	maps[3] = "texture_rock6.jpg";
+	level.m_heightmapTextures.push_back(maps);
+
+	level.m_bridgePosition.push_back(float3(103.2f, 3.1f, 39.f));
+	// level.m_bridgePosition.push_back(float3(35.f, 3.5f, 98.5f));
+
+	level.m_bridgeRotation.push_back(float3(0.f, -0.1f, -0.07f));
+	// level.m_bridgeRotation.push_back(float3(0.f, 1.7f, 0.02f));
+
+	level.m_bridgeScale.push_back(float3(1.9f, 1.f, 1.4f));
+	// level.m_bridgeScale.push_back(float3(1.6f, 1.f, 1.4f));
+
+	shared_ptr<Animal> animal = make_shared<Animal>("Goat", 10.f, 7.f, APPLE, 2, 10.f,
+		float3(96.2f, 3.45f, 38.f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
+	level.m_animal.push_back(animal);
+
+	level.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
+	level.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
+
+	level.m_nrOfFruits[APPLE] = 20;
+	level.m_nrOfFruits[BANANA] = 0;
+	level.m_nrOfFruits[MELON] = 20;
+
+	level.m_winCondition[APPLE] = 10;
+	level.m_winCondition[BANANA] = 0;
+	level.m_winCondition[MELON] = 10;
+
+	level.m_playerStartPos = float3(5.9f, 3.2f, 74.4f);
+
+	level.m_timeTargets[GOLD] = 120;
+	level.m_timeTargets[SILVER] = 160;
+	level.m_timeTargets[BRONZE] = 200;
+
+	m_levelsArr.push_back(level);
+	m_hud.setTimeTargets(level.m_timeTargets);
+}
+
+void LevelHandler::initialiseLevel2() {
+	Level level;
+
+	level.m_terrainPropsFilename = "level2";
+
+	level.m_terrainTags.push_back(Level::TerrainTags::Volcano);
+	level.m_terrainTags.push_back(Level::TerrainTags::Forest);
+	level.m_terrainTags.push_back(Level::TerrainTags::Desert);
+	level.m_terrainTags.push_back(Level::TerrainTags::Plains);
+
+	level.m_fruitPos[APPLE].push_back(1);
+	level.m_fruitPos[APPLE].push_back(2);
+	level.m_fruitPos[APPLE].push_back(3);
+	level.m_fruitPos[BANANA].push_back(1);
+	level.m_fruitPos[BANANA].push_back(2);
+	level.m_fruitPos[BANANA].push_back(3);
+	level.m_fruitPos[MELON].push_back(0);
+
+	level.m_heightMapNames.push_back("VolcanoMap.png");
+	level.m_heightMapNames.push_back("ForestMap.png");
+	level.m_heightMapNames.push_back("DesertMap.png");
+	level.m_heightMapNames.push_back("PlainMap.png");
+
+	level.m_heightMapPos.push_back(float3(100.f, 0.f, 100.f));
+	level.m_heightMapPos.push_back(float3(0.f, 0.f, 0.f));
+	level.m_heightMapPos.push_back(float3(0.f, 0.f, 100.f));
+	level.m_heightMapPos.push_back(float3(100.f, 0.f, 0.f));
+
+	level.m_heightMapSubSize.push_back(XMINT2(15, 15));
+	level.m_heightMapSubSize.push_back(XMINT2(15, 15));
+	level.m_heightMapSubSize.push_back(XMINT2(15, 15));
+	level.m_heightMapSubSize.push_back(XMINT2(15, 15));
+
+	level.m_heightMapDivision.push_back(XMINT2(16, 16));
+	level.m_heightMapDivision.push_back(XMINT2(16, 16));
+	level.m_heightMapDivision.push_back(XMINT2(16, 16));
+	level.m_heightMapDivision.push_back(XMINT2(16, 16));
+
+	level.m_heightMapScales.push_back(float3(1.f, 0.40f, 1.f) * 100);
+	level.m_heightMapScales.push_back(float3(1.f, 0.15f, 1.f) * 100);
+	level.m_heightMapScales.push_back(float3(1.f, 0.25f, 1.f) * 100);
+	level.m_heightMapScales.push_back(float3(1.f, 0.10f, 1.f) * 100);
 
 	vector<string> maps(4);
 	maps[0] = "texture_rock8.jpg"; // flat
 	maps[1] = "texture_lava1.jpg"; // low flat
 	maps[2] = "texture_rock2.jpg"; // tilt
 	maps[3] = "texture_rock2.jpg"; // low tilt
-	level0.m_heightmapTextures.push_back(maps);
+	level.m_heightmapTextures.push_back(maps);
 	maps[0] = "texture_grass3.jpg";
 	maps[1] = "texture_sand1.jpg";
 	maps[2] = "texture_mossyRock.jpg";
 	maps[3] = "texture_mossyRock.jpg";
-	level0.m_heightmapTextures.push_back(maps);
+	level.m_heightmapTextures.push_back(maps);
 	maps[0] = "texture_sand3.jpg";
 	maps[1] = "texture_sand1.jpg";
 	maps[2] = "texture_rock6.jpg";
 	maps[3] = "texture_rock6.jpg";
-	level0.m_heightmapTextures.push_back(maps);
+	level.m_heightmapTextures.push_back(maps);
 	maps[0] = "texture_grass.jpg";
 	maps[1] = "texture_rock4.jpg";
 	maps[2] = "texture_rock6.jpg";
 	maps[3] = "texture_rock6.jpg";
-	level0.m_heightmapTextures.push_back(maps);
+	level.m_heightmapTextures.push_back(maps);
 
-	level0.m_wind.push_back(float3(0.f, 8.f, 0.f)); // Volcano
-	level0.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
-	level0.m_wind.push_back(float3(1.f, 0.f, 2.f)); // Desert
-	level0.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
+	level.m_bridgePosition.push_back(float3(103.2f, 3.1f, 39.f));
+	level.m_bridgePosition.push_back(float3(35.f, 3.5f, 98.5f));
+	level.m_bridgePosition.push_back(float3(99.2f, 7.9f, 155.f));
 
-	level0.m_nrOfFruits[APPLE] = 5;
-	level0.m_nrOfFruits[BANANA] = 3;
-	level0.m_nrOfFruits[MELON] = 2;
+	level.m_bridgeRotation.push_back(float3(0.f, -0.1f, -0.07f));
+	level.m_bridgeRotation.push_back(float3(0.f, 1.7f, 0.02f));
+	level.m_bridgeRotation.push_back(float3(0.f, 0.f, -0.09f));
 
-	level0.m_winCondition[APPLE] = 2;
-	level0.m_winCondition[BANANA] = 2;
-	level0.m_winCondition[MELON] = 2;
+	level.m_bridgeScale.push_back(float3(1.9f, 1.f, 1.4f));
+	level.m_bridgeScale.push_back(float3(1.6f, 1.f, 1.4f));
+	level.m_bridgeScale.push_back(float3(1.3f, 1.f, 1.4f));
 
-	level0.m_playerStartPos = float3(20.f, 0.0f, 20.f);
+	shared_ptr<Animal> animal = make_shared<Animal>("Gorilla", 10.f, 7.f, BANANA, 2, 10.f,
+		float3(110.115f, 2.46f, 39.79f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
+	level.m_animal.push_back(animal);
 
-	level0.m_timeTargets[GOLD] = 120;
-	level0.m_timeTargets[SILVER] = 160;
-	level0.m_timeTargets[BRONZE] = 200;
+	animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 2, 10.f, float3(37.f, 3.2f, 93.f),
+		float3(20.f, 3.7f, 90.f), 0.f);
+	level.m_animal.push_back(animal);
 
-	m_levelsArr.push_back(level0);
-	m_hud.setTimeTargets(level0.m_timeTargets);
+	animal = make_shared<Animal>("Goat", 5.f, 3.5f, APPLE, 2, 5.f, float3(90.f, 8.2f, 152.f),
+		float3(87.f, 8.8f, 156.f), XM_PI * 0.5f);
+	level.m_animal.push_back(animal);
+
+	level.m_wind.push_back(float3(0.f, 8.f, 0.f));	// Volcano
+	level.m_wind.push_back(float3(3.f, 0.f, 6.f));	// Forest
+	level.m_wind.push_back(float3(3.f, 0.f, -2.f)); // Desert
+	level.m_wind.push_back(float3(0.f, 0.f, 1.f));	// Plains
+
+	level.m_nrOfFruits[APPLE] = 20;
+	level.m_nrOfFruits[BANANA] = 15;
+	level.m_nrOfFruits[MELON] = 9;
+
+	level.m_winCondition[APPLE] = 2;
+	level.m_winCondition[BANANA] = 2;
+	level.m_winCondition[MELON] = 2;
+
+	level.m_playerStartPos = float3(162.5f, 9.5f, 19.f);
+
+	level.m_timeTargets[GOLD] = 120;
+	level.m_timeTargets[SILVER] = 160;
+	level.m_timeTargets[BRONZE] = 200;
+
+	m_levelsArr.push_back(level);
+	m_hud.setTimeTargets(level.m_timeTargets);
 }
 
 void LevelHandler::placeBridge(float3 pos, float3 rot, float3 scale) {
@@ -123,32 +269,15 @@ void LevelHandler::placeBridge(float3 pos, float3 rot, float3 scale) {
 	m_collidableEntities.push_back(newEntity);
 }
 
-void LevelHandler::placeAllBridges() {
-	placeBridge(float3(103.2f, 3.1f, 39.f), float3(0.f, -0.1f, -0.07f), float3(1.9f, 1.f, 1.4f));
-	placeBridge(float3(35.f, 3.5f, 98.5f), float3(0.f, 1.7f, 0.02f), float3(1.6f, 1.f, 1.4f));
-	placeBridge(float3(99.2f, 7.9f, 155.f), float3(0.f, 0.f, -0.09f), float3(1.3f, 1.f, 1.4f));
-}
-
-void LevelHandler::placeAllAnimals() {
-	shared_ptr<Animal> animal = make_shared<Animal>("Gorilla", 10.f, 7.f, BANANA, 2, 10.f,
-		float3(96.2f, 3.45f, 38.f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
-	m_Animals.push_back(animal);
-
-	animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 2, 10.f, float3(37.f, 3.2f, 93.f),
-		float3(20.f, 3.7f, 90.f), 0.f);
-	m_Animals.push_back(animal);
-
-	animal = make_shared<Animal>("Goat", 5.f, 3.5f, APPLE, 2, 5.f, float3(90.f, 8.2f, 152.f),
-		float3(87.f, 8.8f, 156.f), XM_PI * 0.5f);
-	m_Animals.push_back(animal);
-}
-
 LevelHandler::LevelHandler() { initialise(); }
 
-LevelHandler::~LevelHandler() { PathFindingThread::getInstance()->exitThread(); }
+LevelHandler::~LevelHandler() {
+	PathFindingThread::getInstance()->exitThread();
+	m_terrainManager->removeAll();
+}
 
 void LevelHandler::initialise() {
-
+	m_sphere.load("Sphere");
 	m_player.initialize();
 	m_terrainManager = TerrainManager::getInstance();
 	m_terrainProps.addPlaceableEntity("treeMedium1");
@@ -169,18 +298,23 @@ void LevelHandler::initialise() {
 	m_terrainProps.addPlaceableEntity("Grass2");
 	m_terrainProps.addPlaceableEntity("Grass3");
 	m_terrainProps.addPlaceableEntity("Grass4");
+	m_terrainProps.addPlaceableEntity("RopeBridgeFloor");
+	m_terrainProps.addPlaceableEntity("RopeBridgeRailing1");
+	m_terrainProps.addPlaceableEntity("RopeBridgeRailing2");
 
 	initialiseLevel0();
+	initialiseLevel1();
+	initialiseLevel2();
 
 	m_particleSystems.resize(5);
 	m_particleSystems[0] = ParticleSystem(ParticleSystem::VULCANO_FIRE);
-	m_particleSystems[0].setPosition(float3(150.f, 20.f, 150.f));
+	m_particleSystems[0].setPosition(float3(150.f, 25.f, 150.f));
 	m_particleSystems[1] = ParticleSystem(ParticleSystem::VULCANO_SMOKE);
-	m_particleSystems[1].setPosition(float3(150.f, 29.f, 150.f));
+	m_particleSystems[1].setPosition(float3(150.f, 30.f, 150.f));
 	m_particleSystems[2] = ParticleSystem(ParticleSystem::GROUND_DUST);
 	m_particleSystems[2].setPosition(float3(42.f, 4.f, 125.f));
 	m_particleSystems[3] = ParticleSystem(ParticleSystem::FOREST_BUBBLE);
-	m_particleSystems[3].setPosition(float3(50.f, 5.f, 40.f));
+	m_particleSystems[3].setPosition(float3(50.f, 2.f, 40.f));
 	m_particleSystems[4] = ParticleSystem(ParticleSystem::LAVA_BUBBLE);
 	m_particleSystems[4].setPosition(float3(150.f, 0.f, 149.f));
 
@@ -231,25 +365,11 @@ void LevelHandler::loadLevel(int levelNr) {
 
 		m_currentTerrain = currentLevel.m_terrainTags[m_terrainManager->getTerrainIndexFromPosition(
 			currentLevel.m_playerStartPos)];
+		m_skyBox.updateNewOldLight(m_currentTerrain);
+		AudioHandler::getInstance()->changeMusicByTag(m_currentTerrain, 0);
 
-		// temp
-		float height =
-			TerrainManager::getInstance()->getHeightFromPosition(currentLevel.m_playerStartPos);
-		shared_ptr<Entity> newEntity = make_shared<Entity>();
-		newEntity->load("bush1");
-		newEntity->setScale(1);
-		newEntity->setPosition(currentLevel.m_playerStartPos + float3(1.f, height, 1.f));
-		newEntity->setCollisionDataOBB();
-		m_collidableEntities.push_back(newEntity);
-		newEntity = make_shared<Entity>();
-		newEntity->load("Cactus_tall");
-		newEntity->setScale(1);
-		newEntity->setPosition(currentLevel.m_playerStartPos + float3(1.f, height, 3.f));
-		newEntity->setCollisionDataOBB();
-		m_collidableEntities.push_back(newEntity);
-
-		placeAllBridges();
-		placeAllAnimals();
+		// placeAllBridges();
+		// placeAllAnimals();
 
 		m_hud.setTimeTargets(currentLevel.m_timeTargets);
 		m_hud.setWinCondition(currentLevel.m_winCondition);
@@ -261,16 +381,28 @@ void LevelHandler::loadLevel(int levelNr) {
 			m_hud.createFruitSprite("banana");
 		if (currentLevel.m_nrOfFruits[MELON] != 0)
 			m_hud.createFruitSprite("melon");
+
+		// Put out bridges correctly
+		for (int i = 0; i < currentLevel.m_bridgePosition.size(); i++) {
+			placeBridge(currentLevel.m_bridgePosition[i], currentLevel.m_bridgeRotation[i],
+				currentLevel.m_bridgeScale[i]);
+		}
+
+		for (int i = 0; i < currentLevel.m_animal.size(); i++) {
+			m_Animals.push_back(currentLevel.m_animal[i]);
+		}
 	}
 
 	if (PathFindingThread::getInstance()->m_thread == nullptr) {
-		PathFindingThread::getInstance()->initialize(m_fruits, m_frame, m_collidableEntities);
+		PathFindingThread::getInstance()->initialize(m_fruits, m_frame,
+			m_collidableEntities); // Inte en perfekt lösning. Ingen pathfinding vid levelbyte.
 	}
 }
 
 void LevelHandler::draw() {
 	m_skyBox.bindLightBuffer();
 	m_player.draw();
+
 	Renderer::getInstance()->enableAlphaBlending();
 	for (int i = 0; i < m_fruits.size(); i++) {
 		m_fruits[i]->draw_animate();
@@ -286,57 +418,69 @@ void LevelHandler::draw() {
 		m_collidableEntities[i]->draw();
 	}
 	m_entity.draw();
-	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
 
 	// frustum data for culling
 	vector<FrustumPlane> frustum = m_player.getFrustumPlanes();
 	// terrain entities
-	m_terrainProps.draw_quadtreeFrustumCulling(frustum);
+	m_terrainProps.quadtreeCull(frustum);
+	m_terrainProps.draw();
 
 	// terrain
-	m_terrainManager->draw_quadtreeFrustumCulling(frustum);
+	m_terrainManager->quadtreeCull(frustum);
+	m_terrainManager->draw();
 	// water/lava effect
 	Renderer::getInstance()->copyDepthToSRV();
-	waterEffect.draw_quadtreeFrustumCulling(frustum);
-	lavaEffect.draw_quadtreeFrustumCulling(frustum);
+	waterEffect.quadtreeCull(frustum);
+	waterEffect.draw();
+	lavaEffect.quadtreeCull(frustum);
+	lavaEffect.draw();
 
 	Renderer::getInstance()->draw_darkEdges();
 
 	/* --- Things to be drawn without dark edges --- */
-	m_hud.draw(); // TODO: Find out why hud is not drawn if particleSystems are before
-
 	// Particle Systems
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
 		m_particleSystems[i].draw();
 	}
 	m_player.getBow().getTrailEffect().draw();
+
+	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
+	m_hud.draw(); // TODO: Find out why hud is not drawn if particleSystems are before
 }
 
 void LevelHandler::drawShadowDynamic() {
+	ShadowMapper* shadowMap = Renderer::getInstance()->getShadowMapper();
+	vector<FrustumPlane> planes = shadowMap->getFrustumPlanes();
 	for (int i = 0; i < m_fruits.size(); i++) {
-		m_fruits[i]->draw_animate_shadow();
+		m_fruits[i]->draw_animate_onlyMesh(float3(0, 0, 0));
 	}
-	m_terrainManager->drawShadow();
+
+	// terrain manager
+	m_terrainManager->quadtreeCull(planes);
+	m_terrainManager->draw_onlyMesh();
 
 	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
-		m_collidableEntities[i]->drawShadow();
+		m_collidableEntities[i]->draw_onlyMesh(float3(0, 0, 0));
 	}
-	m_terrainProps.drawShadow();
+
+	// terrain entities
+	m_terrainProps.quadtreeCull(planes);
+	m_terrainProps.draw_onlyMesh();
 }
 
 void LevelHandler::drawShadowStatic() {
-	m_terrainManager->drawShadow();
+	m_terrainManager->draw_onlyMesh();
 
 	for (size_t i = 0; i < m_collidableEntities.size(); ++i) {
-		m_collidableEntities[i]->drawShadow();
+		m_collidableEntities[i]->draw_onlyMesh(float3(0, 0, 0));
 	}
 
-	m_terrainProps.drawShadow();
+	m_terrainProps.draw_onlyMesh();
 }
 
 void LevelHandler::drawShadowDynamicEntities() {
 	for (int i = 0; i < m_fruits.size(); i++) {
-		m_fruits[i]->draw_animate_shadow();
+		m_fruits[i]->draw_animate_onlyMesh(float3(0, 0, 0));
 	}
 }
 
@@ -359,7 +503,7 @@ void LevelHandler::update(float dt) {
 
 	auto pft = PathFindingThread::getInstance();
 
-	m_terrainProps.update(m_player.getCameraPosition(), m_player.getForward());
+	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
 	m_skyBox.updateDelta(dt);
 
@@ -407,30 +551,18 @@ void LevelHandler::update(float dt) {
 	dropFruit();
 
 	float3 playerPos = m_player.getPosition();
-
+	// ErrorLogger::logFloat3("Pos: ", playerPos);
 	// update terrain tag
 	int activeTerrain = m_terrainManager->getTerrainIndexFromPosition(playerPos);
-
-	if (activeTerrain == 2) {
-		AudioHandler::getInstance()->changeMusicTo(AudioHandler::SPANISH_GUITAR, dt);
-	}
-	else if (activeTerrain == 1) {
-		AudioHandler::getInstance()->changeMusicTo(AudioHandler::KETAPOP, dt);
-	}
-	else if (activeTerrain == 0) {
-		AudioHandler::getInstance()->changeMusicTo(AudioHandler::KETAPOP_DARK, dt);
-	}
-	else {
-		AudioHandler::getInstance()->changeMusicTo(AudioHandler::JINGLE_GUITAR, dt);
-	}
 
 	if (activeTerrain != -1 && m_currentLevel != -1) {
 		Level::TerrainTags tag = m_levelsArr[m_currentLevel].m_terrainTags[activeTerrain];
 		if (m_currentTerrain != tag) {
 			m_oldTerrain = m_currentTerrain;
 			m_currentTerrain = tag;
-			m_skyBox.resetDelta();
 			m_skyBox.updateNewOldLight(tag);
+			m_skyBox.resetDelta();
+			AudioHandler::getInstance()->changeMusicByTag(tag, dt);
 		}
 	}
 
@@ -500,7 +632,16 @@ void LevelHandler::update(float dt) {
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
 		Terrain* currentTerrain =
 			m_terrainManager->getTerrainFromPosition(m_particleSystems[i].getPosition());
-		m_particleSystems[i].update(dt, currentTerrain->getWind());
+		if (currentTerrain != nullptr) {
+			if (m_particleSystems[i].getType() == ParticleSystem::VULCANO_SMOKE ||
+				m_particleSystems[i].getType() == ParticleSystem::VULCANO_FIRE ||
+				m_particleSystems[i].getType() == ParticleSystem::LAVA_BUBBLE) {
+				m_particleSystems[i].update(dt, currentTerrain->getWindStatic());
+			}
+			else {
+				m_particleSystems[i].update(dt, currentTerrain); // Get wind dynamically
+			}
+		}
 	}
 
 	m_hud.update(dt, m_player.getStamina());
@@ -561,3 +702,9 @@ void LevelHandler::dropFruit() {
 }
 
 float3 LevelHandler::getPlayerPos() { return m_player.getPosition(); }
+
+CubeBoundingBox LevelHandler::getPlayerFrustumBB() { return m_player.getCameraBoundingBox(); }
+
+vector<float3> LevelHandler::getPlayerFrustumPoints(float scaleBetweenNearAndFarPlane) {
+	return m_player.getFrustumPoints(scaleBetweenNearAndFarPlane);
+}

@@ -3,6 +3,7 @@
 #include "Errorlogger.h"
 #include "VariableSyncer.h"
 #include "AudioHandler.h"
+#include "Settings.h"
 
 Player::Player() {}
 
@@ -13,12 +14,12 @@ void Player::initialize() {
 	m_lastSafePosition = m_position;
 	m_velocity = float3(0.0f, 0.0f, 0.0f);
 	m_playerForward = DEFAULTFORWARD;
-	VariableSyncer::getInstance()->create("Player.txt", nullptr);
-	VariableSyncer::getInstance()->bind("Player.txt", "speed walk:f", &m_speed);
-	VariableSyncer::getInstance()->bind("Player.txt", "speed sprint:f", &m_speedSprint);
-	VariableSyncer::getInstance()->bind("Player.txt", "speed in air:f", &m_speedInAir);
-	VariableSyncer::getInstance()->bind("Player.txt", "jump force:f", &m_jumpForce);
-	VariableSyncer::getInstance()->bind("Player.txt", "dash force:f", &m_dashForce);
+	FileSyncer* file = VariableSyncer::getInstance()->create("Player.txt");
+	file->bind("speed walk:f", &m_speed);
+	file->bind("speed sprint:f", &m_speedSprint);
+	file->bind("speed in air:f", &m_speedInAir);
+	file->bind("jump force:f", &m_jumpForce);
+	file->bind("dash force:f", &m_dashForce);
 }
 
 void Player::update(float dt, Terrain* terrain) {
@@ -214,15 +215,13 @@ void Player::updateBow(float dt, Terrain* terrain) {
 		m_bow.shoot(m_playerForward, m_velocity, m_cameraPitch, m_cameraYaw);
 	}
 
-	float3 wind;
-	terrain != nullptr ? wind = terrain->getWind() : wind = float3(0.f);
-
 	m_bow.rotate(m_cameraPitch, m_cameraYaw);
-	m_bow.update(dt, getCameraPosition(), m_playerForward, m_playerRight, wind);
+	m_bow.update(dt, getCameraPosition(), m_playerForward, m_playerRight, terrain);
 }
 
 void Player::updateCamera() {
 	float playerHeight = PLAYER_HEIGHT - 0.5f * (m_dashCharge / DASHMAXCHARGE);
+	m_camera.setFarPlane(Settings::getInstance()->getDrawDistance());
 	m_camera.setUp(m_playerUp);
 	m_camera.setEye(m_position + float3(0, playerHeight, 0));
 	m_camera.setTarget(m_position + float3(0, playerHeight, 0) + m_playerForward);
@@ -361,6 +360,10 @@ void Player::checkSprint(float dt) {
 vector<FrustumPlane> Player::getFrustumPlanes() const { return m_camera.getFrustumPlanes(); }
 
 CubeBoundingBox Player::getCameraBoundingBox() const { return m_camera.getFrustumBoundingBox(); }
+
+vector<float3> Player::getFrustumPoints(float scaleBetweenNearAndFarPlane) const {
+	return m_camera.getFrustumPoints(scaleBetweenNearAndFarPlane);
+}
 
 void Player::checkDash(float dt) {
 	if (Input::getInstance()->keyPressed(KEY_DASH) && m_stamina >= STAMINA_DASH_COST &&

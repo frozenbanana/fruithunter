@@ -3,6 +3,7 @@
 #include "Renderer.h"
 #include "StateHandler.h"
 #include "Input.h"
+#include "AudioHandler.h"
 
 PauseState::PauseState() { initialize(); }
 
@@ -32,9 +33,11 @@ void PauseState::handleEvent() {
 		StateHandler::getInstance()->changeState(StateHandler::SETTINGS);
 	}
 	if (m_mainMenuButton.update()) {
+		AudioHandler::getInstance()->pauseAllMusic();
 		StateHandler::getInstance()->changeState(StateHandler::INTRO);
 	}
 	if (m_exitButton.update()) {
+		AudioHandler::getInstance()->pauseAllMusic();
 		StateHandler::getInstance()->quit();
 	}
 }

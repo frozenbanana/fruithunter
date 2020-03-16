@@ -4,6 +4,7 @@
 #include "Input.h"
 #include "Statehandler.h"
 #include "ErrorLogger.h"
+#include "Settings.h"
 
 SettingsState::SettingsState() { initialize(); }
 
@@ -13,10 +14,21 @@ void SettingsState::initialize() {
 	m_name = "Settings State";
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
-	m_vsyncButton.initialize("V-Sync", float2(width / 2, height / 2 - 50), true);
-	m_darkEdgesButton.initialize("Dark Edges", float2(width / 2, height / 2), true);
-	m_backButton.initialize("Back", float2(width / 2, height / 2 + 50));
+	m_masterVolume.initialize(
+		"Master Volume", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 200));
+	m_musicVolume.initialize("Music Volume", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 150));
+	m_effectsVolume.initialize(
+		"Effects Volume", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 100));
+	m_drawDistance.initialize(
+		"Draw distance", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 50));
 
+	m_shadowsButton.initialize(
+		"Shadows", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 50), Button::Setting::MEDIUM);
+	m_darkEdgesButton.initialize(
+		"Dark Edges", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 100), true);
+	m_vsyncButton.initialize("V-Sync", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 150), true);
+
+	m_backButton.initialize("Back", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT - 100));
 	// Just ignore this. It fixes things.
 	m_entity.load("Melon_000000");
 	m_entity.setPosition(float3(-1000));
@@ -25,14 +37,38 @@ void SettingsState::initialize() {
 void SettingsState::update() { Input::getInstance()->setMouseModeAbsolute(); }
 
 void SettingsState::handleEvent() {
+	Settings* settings = Settings::getInstance();
 
+	if (m_masterVolume.update()) {
+		settings->setMasterVolume(m_masterVolume.getValue());
+	}
+	if (m_musicVolume.update()) {
+		settings->setMusicVolume(m_musicVolume.getValue());
+	}
+	if (m_effectsVolume.update()) {
+		settings->setEffectsVolume(m_effectsVolume.getValue());
+	}
+	if (m_drawDistance.update()) {
+		settings->setDrawDistance(m_drawDistance.getValue());
+	}
 	if (m_vsyncButton.update()) {
-		Renderer::getInstance()->setVsync(m_vsyncButton.getOnOff());
+		settings->setVsync(m_vsyncButton.getOnOff());
 	}
 	if (m_darkEdgesButton.update()) {
-		Renderer::getInstance()->setDarkEdges(m_darkEdgesButton.getOnOff());
+		settings->setDarkEdges(m_darkEdgesButton.getOnOff());
 	}
-	if (m_backButton.update()) {
+	if (m_shadowsButton.update()) {
+		if (m_shadowsButton.getLowMedHighUltra() == Button::Setting::LOW)
+			Renderer::getInstance()->getShadowMapper()->resizeShadowDepthViews(XMINT2(1024, 1024));
+		else if (m_shadowsButton.getLowMedHighUltra() == Button::Setting::MEDIUM)
+			Renderer::getInstance()->getShadowMapper()->resizeShadowDepthViews(XMINT2(2048, 2048));
+		else if (m_shadowsButton.getLowMedHighUltra() == Button::Setting::HIGH)
+			Renderer::getInstance()->getShadowMapper()->resizeShadowDepthViews(XMINT2(4096, 4096));
+		else if (m_shadowsButton.getLowMedHighUltra() == Button::Setting::ULTRA)
+			Renderer::getInstance()->getShadowMapper()->resizeShadowDepthViews(XMINT2(8192, 8192));
+	}
+
+	if (m_backButton.update() || Input::getInstance()->keyDown(Keyboard::Keys::Escape)) {
 		StateHandler::getInstance()->resumeMenuState();
 	}
 }
@@ -47,6 +83,12 @@ void SettingsState::draw() {
 	m_darkEdgesButton.draw();
 	m_vsyncButton.draw();
 	m_backButton.draw();
+	m_shadowsButton.draw();
+
+	m_drawDistance.draw();
+	m_masterVolume.draw();
+	m_musicVolume.draw();
+	m_effectsVolume.draw();
 
 	// Just ignore this. It fixes things
 	m_entity.draw();

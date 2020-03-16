@@ -21,7 +21,7 @@ Bow::Bow() {
 Bow::~Bow() {}
 
 void Bow::update(
-	float dt, float3 playerPos, float3 playerForward, float3 playerRight, float3 wind) {
+	float dt, float3 playerPos, float3 playerForward, float3 playerRight, Terrain* terrain) {
 	// m_bow.setRotationByAxis(playerForward, BOW_ANGLE * m_aimMovement);
 
 	// Set bow position based on player position and direction.
@@ -51,19 +51,22 @@ void Bow::update(
 
 	// Update arrow.
 	if (m_shooting) {
-		m_trailEffect.run();
 		if (!m_arrowHitObject) {
 			float castray =
 				TerrainManager::getInstance()->castRay(m_arrow.getPosition(), m_arrowVelocity * dt);
 			if (castray != -1) {
+				m_trailEffect.setEmitState(false);
 				// Arrow is hitting terrain
 				float3 target = m_arrow.getPosition() + m_arrowVelocity * castray * dt;
 				arrowHitObject(target);
 			}
 			else {
-				arrowPhysics(dt, wind); // Updates arrow in flight, wind is no longer hard coded.
+				arrowPhysics(dt, terrain->getWindFromPosition(
+									 m_arrow.getPosition())); // Updates arrow in flight, wind is no
+															  // longer hard coded.
 				// update Particle System
 				m_trailEffect.setPosition(m_arrow.getPosition());
+				m_trailEffect.setEmitState(true);
 
 				m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
 				m_arrow.setRotation(float3(m_arrowPitch, m_arrowYaw, 0));
@@ -76,7 +79,7 @@ void Bow::update(
 		}
 	}
 	else {
-		m_trailEffect.setInActive();
+		m_trailEffect.setEmitState(false);
 		if (m_charging) {
 			// Move arrow with bowstring. Hardcoded values determined by experimentation.
 			m_arrow.setPosition(

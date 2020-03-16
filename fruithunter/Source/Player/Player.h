@@ -21,6 +21,7 @@ public:
 	float3 getVelocity() const;
 	vector<FrustumPlane> getFrustumPlanes() const;
 	CubeBoundingBox getCameraBoundingBox() const;
+	vector<float3> getFrustumPoints(float scaleBetweenNearAndFarPlane) const;
 	Entity& getArrow() { return m_bow.getArrow(); };
 	Bow& getBow() { return m_bow; }
 	float getStamina() const;
@@ -141,6 +142,6 @@ private:
 	void updateVelocity_onFlatGround(float3 playerForce, float dt);
 	void updateVelocity_onSteepGround(float dt);
 
-	//Ability
+	// Ability
 	void updateHunterMode(float);
 };

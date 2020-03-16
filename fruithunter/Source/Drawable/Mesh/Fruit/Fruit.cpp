@@ -1,8 +1,11 @@
 #include "Fruit.h"
 #include "Input.h"
 #include "PathFindingThread.h"
+#include "AudioHandler.h"
 
-
+#define LONGSHOT 25.f
+#define MEDIUMSHOT 15.f
+#define FASTMOVING_VELOCITY 11.f
 
 void Fruit::jump(float3 direction, float power) { m_velocity += power * direction; }
 
@@ -15,12 +18,61 @@ void Fruit::setStartPosition(float3 pos) {
 	m_nextDestinationAnimationPosition = pos;
 
 	m_particleSystem = make_unique<ParticleSystem>(ParticleSystem::STARS);
-	m_particleSystem->setInActive();
+	m_particleSystem->stop();
 }
 
 void Fruit::setNextDestination(float3 nextDest) { m_nextDestinationAnimationPosition = nextDest; }
 
-
+void Fruit::hit(float3 playerPos) {
+	changeState(CAUGHT);
+	float dist = (playerPos - m_position).Length();
+	float4 colors[3];
+	int nrOf = 5;
+	if (dist > LONGSHOT) {
+		if (!m_onGround || m_velocity.Length() > FASTMOVING_VELOCITY) {
+			// gold
+			colors[0] = float4(1.00f, 0.95f, 0.00f, 1.0f);
+			colors[1] = float4(0.97f, 0.97f, 0.01f, 1.0f);
+			colors[2] = float4(0.99f, 0.98f, 0.02f, 1.0f);
+			nrOf = 22;
+		}
+		else {
+			// gold
+			colors[0] = float4(1.00f, 0.95f, 0.00f, 1.0f);
+			colors[1] = float4(0.97f, 0.97f, 0.01f, 1.0f);
+			colors[2] = float4(0.99f, 0.98f, 0.02f, 1.0f);
+			nrOf = 12;
+		}
+	}
+	else if (dist > MEDIUMSHOT) {
+		if (!m_onGround || m_velocity.Length() > FASTMOVING_VELOCITY) {
+			// case 2: Medium shot
+			// in air or fast moving -> gold
+			// Gold
+			colors[0] = float4(1.00f, 0.95f, 0.00f, 1.0f);
+			colors[1] = float4(0.97f, 0.97f, 0.01f, 1.0f);
+			colors[2] = float4(0.99f, 0.98f, 0.02f, 1.0f);
+			nrOf = 8;
+		}
+		else {
+			// silver
+			colors[0] = float4(0.75f, 0.75f, 0.75f, 1.0f);
+			colors[1] = float4(0.75f, 0.75f, 0.75f, 1.0f);
+			colors[2] = float4(0.75f, 0.75f, 0.75f, 1.0f);
+			nrOf = 13;
+		}
+	}
+	else {
+		// bronze
+		colors[0] = float4(0.69f, 0.34f, 0.05f, 1.0f);
+		colors[1] = float4(0.71f, 0.36f, 0.07f, 1.0f);
+		colors[2] = float4(0.70f, 0.32f, 0.09f, 1.0f);
+		nrOf = 6;
+	}
+	m_particleSystem->setColors(colors);
+	m_particleSystem->emit(nrOf);
+	m_currentMaterial = 2;
+}
 
 int Fruit::getFruitType() { return m_fruitType; }
 
@@ -85,6 +137,7 @@ Fruit::Fruit(float3 pos) : Entity() {
 	m_nrOfFramePhases = 0;
 	m_currentFramePhase = 0;
 	m_frameTime = 0.0f;
+	m_particleSystem->setAmountOfParticles(22);
 }
 
 // Perhaps a useful function later.

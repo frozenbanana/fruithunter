@@ -4,7 +4,7 @@
 
 TextRenderer::TextRenderer() {
 	m_spriteFont = std::make_unique<DirectX::SpriteFont>(
-		Renderer::getDevice(), L"assets/fonts/myfile.spritefont");
+		Renderer::getDevice(), L"assets/fonts/myfile2.spritefont");
 
 	if (!m_spriteFont.get()) {
 		ErrorLogger::log("TextRenderer failed to load font.");
@@ -46,6 +46,30 @@ void TextRenderer::draw(std::string text, float2 pos) {
 	std::wstring wText = std::wstring(text.begin(), text.end());
 
 	Vector2 origin = Vector2(m_spriteFont->MeasureString(wText.c_str())) / 2.0f;
+
+	m_spriteFont->DrawString(m_spriteBatch.get(), wText.c_str(), pos, m_color, 0.f, origin);
+
+	m_spriteBatch->End();
+	setDepthStateToNull();
+}
+
+void TextRenderer::draw(string text, float2 pos, Alignment al) {
+	m_spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront);
+	std::wstring wText = std::wstring(text.begin(), text.end());
+
+	float2 origin = float2(0.f);
+
+	if (al == LEFT) {
+		float2 stringSize = m_spriteFont->MeasureString(wText.c_str());
+		origin = float2(0.f, stringSize.y / 2.f);
+	}
+	else if (al == CENTER) {
+		origin = float2(m_spriteFont->MeasureString(wText.c_str())) / 2.0f;
+	}
+	else if (al == RIGHT) {
+		float2 stringSize = m_spriteFont->MeasureString(wText.c_str());
+		origin = float2(stringSize.x, stringSize.y / 2.f);
+	}
 
 	m_spriteFont->DrawString(m_spriteBatch.get(), wText.c_str(), pos, m_color, 0.f, origin);
 

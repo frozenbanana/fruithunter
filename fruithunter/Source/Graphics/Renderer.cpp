@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include "ErrorLogger.h"
+#include "Settings.h"
 #include <WICTextureLoader.h>
 #include <Keyboard.h>
 #include <Mouse.h>
@@ -128,7 +129,7 @@ void Renderer::copyDepthToSRV() {
 }
 
 void Renderer::draw_darkEdges() {
-	if (m_darkEdges) {
+	if (Settings::getInstance()->getDarkEdges()) {
 		copyDepthToSRV();
 		bindDepthSRV(0);
 
@@ -152,6 +153,17 @@ void Renderer::drawLoading() {
 	}
 	m_loadingScreen.draw();
 	endFrame();
+}
+
+void Renderer::setDrawState(DrawingState state) { m_drawState = state; }
+
+ShadowMapper* Renderer::getShadowMapper() { return &m_shadowMapper; }
+
+void Renderer::draw(size_t vertexCount, size_t vertexOffset) {
+	auto renderer = Renderer::getInstance();
+	if (renderer->m_drawState == state_shadow)
+		renderer->m_deviceContext->PSSetShader(nullptr, nullptr, 0); // unplug pixelshader
+	renderer->m_deviceContext->Draw((UINT)vertexCount, (UINT)vertexOffset);
 }
 
 Renderer::Renderer(int width, int height) {
@@ -179,6 +191,7 @@ Renderer::Renderer(int width, int height) {
 		r->createRenderTarget();
 		r->createConstantBuffers();
 		r->createQuadVertexBuffer();
+		m_shadowMapper.initiate();
 		r->m_isLoaded = true;
 	}
 
@@ -237,7 +250,7 @@ void Renderer::beginFrame() {
 
 void Renderer::endFrame() {
 	// Swap the buffer
-	m_swapChain->Present(m_vsync, 0);
+	m_swapChain->Present(Settings::getInstance()->getVsync(), 0);
 }
 
 ID3D11Device* Renderer::getDevice() {
