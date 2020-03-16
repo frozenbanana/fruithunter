@@ -92,9 +92,11 @@ void SettingsState::handleEvent() {
 		m_effectsVolume.setPosition(float2(width / 2, height / 2 - 100));
 		m_drawDistance.setPosition(float2(width / 2, height / 2 - 50));
 
+		m_resolutionButton.setPosition(float2(width / 2, height / 2));
 		m_shadowsButton.setPosition(float2(width / 2, height / 2 + 50));
 		m_darkEdgesButton.setPosition(float2(width / 2, height / 2 + 100));
 		m_vsyncButton.setPosition(float2(width / 2, height / 2 + 150));
+		m_fullscreenButton.setPosition(float2(width / 2, height / 2 + 200));
 
 		m_backButton.setPosition(float2(width / 2, height - 100));
 	}

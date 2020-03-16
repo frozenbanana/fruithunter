@@ -52,8 +52,10 @@ void Slider::initialize(string label, float2 pos) {
 float Slider::getValue() { return m_value; }
 
 void Slider::setPosition(float2 position) {
+	float offset = position.x - m_position.x;
 	m_position = position;
 	m_sliderPos.y = m_position.y;
+	m_sliderPos.x += offset;
 }
 
 bool Slider::update() {
