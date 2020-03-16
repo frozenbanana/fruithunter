@@ -19,13 +19,9 @@ void IntroState::initialize() {
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
 
-	m_startButton.initialize("Start", float2(110, height * 0.70f - 60.f));
+	m_startButton.initialize("Start", float2(106, height * 0.70f - 60.f));
 	m_settingsButton.initialize("Settings", float2(132, height * 0.70f));
 	m_exitButton.initialize("Exit", float2(92, height * 0.70f + 60.f));
-
-	// Just ignore this. It fixes things.
-	m_entity.load("Melon_000000");
-	m_entity.setPosition(float3(-1000));
 
 	// Initialise camera
 	// m_camera.setView(float3(61.4f, 16.8f, 44.4f), float3(61.2f, 7.16f, 28.7f), float3(0.f, 1.f,
@@ -128,13 +124,12 @@ void IntroState::update() {
 	}
 
 	// Logo update
-	float offsetX = STANDARD_WIDTH / 16.f;
-	float offsetY = STANDARD_HEIGHT / 3.f;
+	float offsetX = SCREEN_WIDTH / 16.f;
+	float offsetY = SCREEN_HEIGHT / 3.f;
 	float t = m_timer.getTimePassed();
 	for (size_t i = 0; i < m_letters.size(); i++) {
 		float2 movement =
-			float2(sin(t + m_letters[i].speedOffset.x), cos(t + m_letters[i].speedOffset.y)) *
-			10.f;
+			float2(sin(t + m_letters[i].speedOffset.x), cos(t + m_letters[i].speedOffset.y)) * 10.f;
 		m_letters[i].letter.setPosition(float2(offsetX, offsetY) + movement);
 		offsetX += m_letters[i].letter.getTextureSize().x / (1.65f * 2.f);
 	}
@@ -201,22 +196,6 @@ void IntroState::draw() {
 	m_startButton.draw();
 	m_settingsButton.draw();
 	m_exitButton.draw();
-
-	// Just ignore this. It fixes things
-	m_entity.draw();
-}
-
-void IntroState::drawLogo() {
-	m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
-
-	// m_spriteBatch->Draw(m_backgroundTexture.Get(), float2(m_position) + float2(150.f, 0.f),
-	// nullptr, 	Colors::White, 0.f, m_backgroundOffset);
-	m_spriteBatch->Draw(m_texture.Get(), float2(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 6.f), nullptr,
-		Colors::White, 0.f, m_textureOffset, m_scale);
-
-	TerrainManager::getInstance()->removeAll();
-	TerrainManager::getInstance()->add(float3(0.f), float3(1.f, 0.10f, 1.f) * 100, "PlainMap.png",
-		m_maps, XMINT2(210, 210), XMINT2(1, 1), float3(0.f, 0.f, 0.f));
 }
 
 
@@ -225,7 +204,11 @@ void IntroState::play() {
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
 
-	m_startButton.setPosition(float2(width / 2, height / 2 - 50));
-	m_settingsButton.setPosition(float2(width / 2, height / 2));
-	m_exitButton.setPosition(float2(width / 2, height / 2 + 50));
+	m_startButton.setPosition(float2(106, height * 0.70f - 60.f));
+	m_settingsButton.setPosition(float2(132, height * 0.70f));
+	m_exitButton.setPosition(float2(92, height * 0.70f + 60.f));
+
+	TerrainManager::getInstance()->removeAll();
+	TerrainManager::getInstance()->add(float3(0.f), float3(1.f, 0.10f, 1.f) * 100, "PlainMap.png",
+		m_maps, XMINT2(210, 210), XMINT2(1, 1), float3(0.f, 0.f, 0.f));
 }

@@ -5,7 +5,7 @@
 #include <Keyboard.h>
 #include <Mouse.h>
 
-Renderer Renderer::m_this(STANDARD_WIDTH, STANDARD_HEIGHT);
+Renderer Renderer::m_this(1280, 720);
 
 LRESULT CALLBACK WinProc(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
 	// if (msg == WM_DESTROY || msg == WM_CLOSE) {
@@ -180,8 +180,8 @@ Renderer::Renderer(int width, int height) {
 	// Create the window
 	bool showTopBorder = true;
 	m_handle = CreateWindow(m_windowTitle, m_windowTitle,
-		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE, STANDARD_CORNER_X, STANDARD_CORNER_Y,
-		m_screenWidth, m_screenHeight + 30 * showTopBorder, nullptr, nullptr, nullptr, nullptr);
+		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE, 0, 0, m_screenWidth,
+		m_screenHeight + 30 * showTopBorder, nullptr, nullptr, nullptr, nullptr);
 
 	// Create device, deviceContext and swapchain
 	Renderer* r = Renderer::getInstance();
