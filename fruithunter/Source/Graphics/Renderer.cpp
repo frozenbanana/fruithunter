@@ -89,7 +89,11 @@ void Renderer::changeResolution(int width, int height) {
 		m_swapChain->ResizeBuffers(2, m_screenWidth, m_screenHeight, m_backBufferDesc.Format, NULL);
 	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
 		ErrorLogger::log("In renderer, could not resize buffers");
-
+	DXGI_MODE_DESC modeDesc = { 0 };
+	modeDesc.Width = m_screenWidth;
+	modeDesc.Height = m_screenHeight;
+	// modeDesc.Format = m_swapChain->GetDesc.format;
+	m_swapChain->ResizeTarget(&modeDesc);
 	// 3. Get the new backbuffer texture to use as a render target
 	createRenderTarget();
 
