@@ -9,11 +9,15 @@
 
 string HUD::getTimePassed() { return getMinutes() + ":" + getSeconds(); }
 
-void HUD::atWin() { 
-	m_victory = true; 
+void HUD::atWin() {
+	m_victory = true;
 	if (m_levelIndex != -1) {
 		size_t time = (size_t)m_minutesPassed * 60 + (size_t)m_secondsPassed;
-		SaveManager::getInstance()->setLevelCompletion(m_levelIndex, time);
+		TimeTargets grade = TimeTargets::BRONZE;
+		for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++)
+			if (time < m_timeTargets[i])
+				grade = (TimeTargets)i;
+		SaveManager::getInstance()->setLevelCompletion(m_levelIndex, time, grade);
 	}
 }
 

@@ -7,6 +7,7 @@
 struct LevelData{
 	bool isCompleted = false;
 	size_t timeOfCompletion = 0;//in seconds
+	TimeTargets grade = TimeTargets::BRONZE;
 };
 
 class SaveManager {
@@ -30,7 +31,7 @@ public:
 	const LevelData* getActiveSave() const;
 	vector<LevelData*> getAllSaveStates() const;
 
-	void setLevelCompletion(size_t index, size_t timeOfCompletion);
+	void setLevelCompletion(size_t index, size_t timeOfCompletion, TimeTargets grade);
 	void resetSaveState();
 
 	bool load(size_t slot);

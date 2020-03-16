@@ -20,6 +20,8 @@ bool SaveManager::loadFile(string filename, LevelData* levels) const {
 				file.read((char*)&levels[i].isCompleted, sizeof(bool));
 				// timeofCompleteion
 				file.read((char*)&levels[i].timeOfCompletion, sizeof(size_t));
+				// grade
+				file.read((char*)&levels[i].grade, sizeof(TimeTargets));
 			}
 		}
 		else {
@@ -49,6 +51,8 @@ bool SaveManager::saveFile(string filename, LevelData *levels) const {
 				file.write((char*)&levels[i].isCompleted, sizeof(bool));
 				// timeofCompleteion
 				file.write((char*)&levels[i].timeOfCompletion, sizeof(size_t));
+				// grade
+				file.write((char*)&levels[i].grade, sizeof(TimeTargets));
 			}
 
 			file.close();
@@ -84,16 +88,18 @@ vector<LevelData*> SaveManager::getAllSaveStates() const {
 	return saves;
 }
 
-void SaveManager::setLevelCompletion(size_t index, size_t timeOfCompletion) { 
+void SaveManager::setLevelCompletion(size_t index, size_t timeOfCompletion, TimeTargets grade) { 
 	if (m_activeState[index].isCompleted) {
 		//already completed
 		if (timeOfCompletion < m_activeState[index].timeOfCompletion)
 			m_activeState[index].timeOfCompletion = timeOfCompletion;
+		m_activeState[index].grade = grade;
 	}
 	else {
 		//completed level
 		m_activeState[index].isCompleted = true;
 		m_activeState[index].timeOfCompletion = timeOfCompletion;
+		m_activeState[index].grade = grade;
 	}
 }
 
