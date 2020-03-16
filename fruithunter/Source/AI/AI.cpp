@@ -94,11 +94,9 @@ bool AI::isValid(
 
 		float3 newPoint = (*objects[i])->getPosition() - childPos;
 		newPoint.Normalize();
+		newPoint.y = (*objects[i])->getPosition().y;
 		newPoint *= radius;
 		newPoint += childPos;
-
-		float length = (newPoint - (*objects[i])->getPosition()).Length();
-
 
 		if ((*objects[i])->checkCollision(newPoint))
 			return false;

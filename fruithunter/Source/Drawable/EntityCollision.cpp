@@ -129,11 +129,12 @@ bool EntityCollision::collisionOBBOBB(ObbData& a, ObbData& b) {
 
 bool EntityCollision::collisionPointOBB(float3 point, ObbData& obb) {
 
+	float dist;
+	float range;
+	float3 objToPoint = point - obb.m_point;
 
-	float dist = abs(point.x - obb.m_origin.x);
-	float range = abs(obb.m_origin.x - obb.m_axis->x);
-	dist = abs(point.x - obb.m_origin.x);
-	range = abs(obb.m_origin.x - obb.m_axis->x);
+	dist = abs(objToPoint.Dot(obb.m_axis[0]) / obb.m_axis[0].Length());
+	range = abs(obb.m_axis[0].Length() * obb.m_scale.x);
 
 	if (dist > range) {
 		return false;
@@ -141,8 +142,8 @@ bool EntityCollision::collisionPointOBB(float3 point, ObbData& obb) {
 
 
 
-	dist = abs(point.z - obb.m_origin.z);
-	range = abs(obb.m_origin.z - obb.m_axis->z);
+	dist = abs(objToPoint.Dot(obb.m_axis[2]) / obb.m_axis[2].Length());
+	range = abs(obb.m_axis[2].Length() * obb.m_scale.z);
 
 	if (dist > range) {
 		return false;
