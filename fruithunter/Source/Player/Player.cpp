@@ -3,6 +3,7 @@
 #include "Errorlogger.h"
 #include "VariableSyncer.h"
 #include "AudioHandler.h"
+#include "Settings.h"
 
 Player::Player() {}
 
@@ -13,12 +14,12 @@ void Player::initialize() {
 	m_lastSafePosition = m_position;
 	m_velocity = float3(0.0f, 0.0f, 0.0f);
 	m_playerForward = DEFAULTFORWARD;
-	VariableSyncer::getInstance()->create("Player.txt", nullptr);
-	VariableSyncer::getInstance()->bind("Player.txt", "speed walk:f", &m_speed);
-	VariableSyncer::getInstance()->bind("Player.txt", "speed sprint:f", &m_speedSprint);
-	VariableSyncer::getInstance()->bind("Player.txt", "speed in air:f", &m_speedInAir);
-	VariableSyncer::getInstance()->bind("Player.txt", "jump force:f", &m_jumpForce);
-	VariableSyncer::getInstance()->bind("Player.txt", "dash force:f", &m_dashForce);
+	FileSyncer* file = VariableSyncer::getInstance()->create("Player.txt");
+	file->bind("speed walk:f", &m_speed);
+	file->bind("speed sprint:f", &m_speedSprint);
+	file->bind("speed in air:f", &m_speedInAir);
+	file->bind("jump force:f", &m_jumpForce);
+	file->bind("dash force:f", &m_dashForce);
 }
 
 void Player::update(float dt, Terrain* terrain) {
@@ -79,7 +80,7 @@ void Player::update(float dt, Terrain* terrain) {
 	// Reset player if below sea level
 	checkPlayerReset(delta);
 
-	restoreStamina(delta);
+	//restoreStamina(delta);
 
 	// hunter mode
 	updateHunterMode(dt);
@@ -168,6 +169,21 @@ float3 Player::getVelocity() const { return m_velocity; }
 
 float Player::getStamina() const { return m_stamina; }
 
+void Player::getStaminaBySkillshot(Skillshot skillShot) {
+	switch (skillShot) { 
+		case Skillshot::SS_BRONZE:
+			m_stamina += 0.05f;
+			break;
+		case Skillshot::SS_SILVER:
+			m_stamina += 0.1f;
+			break;
+		case Skillshot::SS_GOLD:
+			m_stamina += 0.2f;
+			break;
+	}
+		clamp(m_stamina, 1.0f, 0.0f);
+}
+
 bool Player::isShooting() const { return m_bow.isShooting(); }
 
 void Player::setPosition(float3 position) {
@@ -203,22 +219,24 @@ void Player::updateBow(float dt, Terrain* terrain) {
 
 		m_camera.setFov(m_camera.getDefaultFov() * m_aimZoom);
 	}
-	if (input->mouseDown(Input::MouseButton::LEFT)) {
+	if (input->mousePressed(Input::MouseButton::LEFT)) {
+		m_chargingBow = true;
+	}
+	if (input->mouseDown(Input::MouseButton::LEFT) && m_chargingBow) {
 		m_bow.charge();
 	}
 	else if (input->mouseUp(Input::MouseButton::LEFT)) {
+		m_chargingBow = false;
 		m_bow.shoot(m_playerForward, m_velocity, m_cameraPitch, m_cameraYaw);
 	}
 
-	float3 wind;
-	terrain != nullptr ? wind = terrain->getWind() : wind = float3(0.f);
-
 	m_bow.rotate(m_cameraPitch, m_cameraYaw);
-	m_bow.update(dt, getCameraPosition(), m_playerForward, m_playerRight, wind);
+	m_bow.update(dt, getCameraPosition(), m_playerForward, m_playerRight, terrain);
 }
 
 void Player::updateCamera() {
 	float playerHeight = PLAYER_HEIGHT - 0.5f * (m_dashCharge / DASHMAXCHARGE);
+	m_camera.setFarPlane(Settings::getInstance()->getDrawDistance());
 	m_camera.setUp(m_playerUp);
 	m_camera.setEye(m_position + float3(0, playerHeight, 0));
 	m_camera.setTarget(m_position + float3(0, playerHeight, 0) + m_playerForward);
@@ -339,15 +357,13 @@ void Player::checkJump() {
 }
 
 void Player::checkSprint(float dt) {
-	if (Input::getInstance()->keyPressed(KEY_SPRINT) && m_stamina > STAMINA_SPRINT_THRESHOLD &&
+	if (Input::getInstance()->keyPressed(KEY_SPRINT) &&
 		!m_chargingDash && m_onGround) {
 		// activate sprint
 		m_sprinting = true;
 	}
-	if (Input::getInstance()->keyDown(KEY_SPRINT) && m_sprinting && m_stamina > 0 &&
+	if (Input::getInstance()->keyDown(KEY_SPRINT) && m_sprinting &&
 		m_velocity.Length() > 0.1f) {
-		// consume stamina
-		consumeStamina(STAMINA_SPRINT_CONSUMPTION * dt);
 	}
 	else {
 		m_sprinting = false;
@@ -358,15 +374,18 @@ vector<FrustumPlane> Player::getFrustumPlanes() const { return m_camera.getFrust
 
 CubeBoundingBox Player::getCameraBoundingBox() const { return m_camera.getFrustumBoundingBox(); }
 
+vector<float3> Player::getFrustumPoints(float scaleBetweenNearAndFarPlane) const {
+	return m_camera.getFrustumPoints(scaleBetweenNearAndFarPlane);
+}
+
 void Player::checkDash(float dt) {
-	if (Input::getInstance()->keyPressed(KEY_DASH) && m_stamina >= STAMINA_DASH_COST &&
+	if (Input::getInstance()->keyPressed(KEY_DASH) &&
 		!m_sprinting && m_onGround) {
 		m_chargingDash = true;
 	}
 
 	if (Input::getInstance()->keyDown(KEY_DASH) && m_chargingDash) {
 		m_dashCharge = clamp(m_dashCharge + dt, DASHMAXCHARGE, 0);
-		consumeStamina(STAMINA_DASH_COST * dt);
 	}
 	else if (Input::getInstance()->keyReleased(KEY_DASH)) {
 		m_chargingDash = false;
@@ -397,6 +416,7 @@ void Player::checkPlayerReset(float dt) {
 
 void Player::checkHunterMode() {
 	if (Input::getInstance()->keyPressed(KEY_HM)) {
+		AudioHandler::getInstance()->playOnce(AudioHandler::SLOW_MOTION);
 		m_hunterMode = 1 - m_hunterMode;
 	}
 }

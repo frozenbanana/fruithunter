@@ -23,6 +23,7 @@ private:
 	// Thought bubble
 	Entity m_thoughtBubble;
 	float3 m_thoughtBubbleOffset;
+	bool m_isLookedAt;
 
 	void walkAndBack(float dt);
 	void walkToSleep(float dt);
@@ -47,4 +48,5 @@ public:
 	void draw();
 	void update(float dt, float3 playerPos);
 	void beginWalk(float3 pos);
+	bool checkLookedAt(float3 playerPos, float3 rayDir);
 };

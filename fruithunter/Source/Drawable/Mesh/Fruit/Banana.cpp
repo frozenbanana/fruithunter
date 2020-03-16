@@ -11,8 +11,9 @@
 Banana::Banana(float3 pos) : Fruit(pos) {
 	m_fruitType = BANANA;
 	loadAnimated("Banana", 3);
-	vector<string> names{ "Banana.mtl", "Banana2.mtl", "Banana3.mtl" };
-	loadMaterials(names, 3);
+	vector<string> names{ "Banana.mtl", "Banana2bronze.mtl", "Banana2silver.mtl", "Banana2gold.mtl",
+		"Banana3.mtl" };
+	loadMaterials(names, 5);
 	m_nrOfFramePhases = 5;
 	m_maxBounciness = 3;
 	m_bounciness = 0;
@@ -31,6 +32,14 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 
 void Banana::behaviorPassive(float3 playerPosition) {
 	TerrainManager* terrainManger = TerrainManager::getInstance();
+
+	if (m_position.y <= 1.f) {
+		float3 target = m_worldHome - m_position;
+		target.Normalize();
+		target.y = 1.f;
+		jump(target, 10.f);
+		return;
+	}
 	// Only decide what to do on ground
 	if (m_onGround) {
 		float3 direction = float3(0.f);

@@ -2,7 +2,10 @@
 #include "Entity.h"
 #include "AI.h"
 #include "TerrainManager.h"
+#include "ParticleSystem.h"
+
 #define THROWVELOCITY 30.f
+
 class Fruit : public Entity, public AI {
 protected:
 	// Phyics based movment
@@ -20,7 +23,7 @@ protected:
 	float m_passive_speed;
 	float m_active_speed;
 	float m_caught_speed;
-
+	unique_ptr<ParticleSystem> m_particleSystem;
 	// -------------------
 	int m_nrOfFramePhases; // nr of phases to a movement
 	int m_currentFramePhase;
@@ -65,13 +68,10 @@ public:
 	void setNextDestination(float3 nextDest);
 	void setWorldHome(float3 pos);
 	bool withinDistanceTo(float3 target, float treshhold);
+	ParticleSystem* getParticleSystem();
 	float3 getHomePosition() const;
 
-
-	void hit() {
-		changeState(CAUGHT);
-		m_currentMaterial = 2;
-	}
+	Skillshot hit(float3 playerPos);
 
 	int getFruitType();
 };

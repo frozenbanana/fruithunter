@@ -14,6 +14,8 @@ void TerrainManager::add(float3 position, float3 scale, string heightmapFilename
 	m_terrains.push_back(terrain);
 }
 
+void TerrainManager::removeAll() { m_terrains.clear(); }
+
 
 Terrain* TerrainManager::getTerrainFromPosition(float3 position) {
 	for (size_t i = 0; i < m_terrains.size(); i++) {
@@ -67,38 +69,25 @@ float TerrainManager::castRay(float3 point, float3 direction) {
 	return intersection;
 }
 
+void TerrainManager::clearCulling() {
+	for (size_t i = 0; i < m_terrains.size(); i++)
+		m_terrains[i].clearCulling();
+}
+
+void TerrainManager::quadtreeCull(const vector<FrustumPlane>& planes) {
+	for (size_t i = 0; i < m_terrains.size(); i++)
+		m_terrains[i].quadtreeCull(planes);
+}
+
 void TerrainManager::draw() {
 	for (size_t i = 0; i < m_terrains.size(); i++) {
 		m_terrains[i].draw();
 	}
 }
 
-vector<float3> TerrainManager::draw_frustumCulling(const vector<FrustumPlane>& planes) {
-	string strs[4] = { "volcano", "forest", "desert", "plains" };
-	for (size_t i = 0; i < m_terrains.size(); i++) {
-		if (m_terrains[i].draw_frustumCulling(planes)) {
-			// ErrorLogger::log(strs[i]);
-		}
-	}
-	return vector<float3>();
-}
-
-void TerrainManager::draw_quadtreeFrustumCulling(const vector<FrustumPlane>& planes) {
-	for (size_t i = 0; i < m_terrains.size(); i++) {
-		m_terrains[i].draw_quadtreeFrustumCulling(planes);
-	}
-}
-
-void TerrainManager::draw_quadtreeBBCulling(const CubeBoundingBox& bb) {
-	for (size_t i = 0; i < m_terrains.size(); i++) {
-		m_terrains[i].draw_quadtreeBBCulling(bb);
-	}
-}
-
-void TerrainManager::drawShadow() {
-	for (size_t i = 0; i < m_terrains.size(); i++) {
-		m_terrains[i].draw();
-	}
+void TerrainManager::draw_onlyMesh() {
+	for (size_t i = 0; i < m_terrains.size(); i++)
+		m_terrains[i].draw_onlyMesh();
 }
 
 float3 TerrainManager::getSpawnpoint(int terrainType) {

@@ -3,8 +3,9 @@
 Melon::Melon(float3 pos) : Fruit(pos) {
 	loadAnimated("Melon", 1);
 	m_nrOfFramePhases = 6;
-	vector<string> names{ "Melon.mtl", "Melon2.mtl", "Melon.mtl" };
-	loadMaterials(names, 3);
+	vector<string> names{ "Melon.mtl", "Melon2bronze.mtl", "Melon2silver.mtl", "Melon2gold.mtl",
+		"Melon3.mtl" };
+	loadMaterials(names, 5);
 
 	m_meshAnim.setFrameTargets(0, 0);
 	m_rollSpeed = 5.f;
@@ -32,7 +33,17 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 }
 
 void Melon::behaviorPassive(float3 playerPosition) {
-	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
+
+	if (m_position.y <= 1.f) {
+		float3 target = m_worldHome - m_position;
+		target.Normalize();
+		target.y = 1.f;
+		jump(target, 10.f);
+		return;
+	}
+
+
+	if (m_onGround) {
 
 		if (withinDistanceTo(m_worldHome, 0.75f)) {
 			m_direction = m_secondWorldHome - m_position;
@@ -46,28 +57,28 @@ void Melon::behaviorPassive(float3 playerPosition) {
 			m_direction = m_worldHome - m_position;
 			lookTo(m_worldHome);
 		}
-	}
-	m_speed = m_passive_speed;
-	if (withinDistanceTo(playerPosition, m_activeRadius)) {
-		changeState(ACTIVE);
+		m_speed = m_passive_speed;
+		if (withinDistanceTo(playerPosition, m_activeRadius)) {
+			changeState(ACTIVE);
+		}
 	}
 }
 
 void Melon::behaviorActive(float3 playerPosition) {
-	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
+	if (m_onGround) {
 
 		if (m_availablePath.empty()) {
 			float3 target = circulateAround(playerPosition);
 			makeReadyForPath(target);
 		}
-	}
 
-	lookToDir(m_position - playerPosition);
-	m_speed = m_active_speed;
+		lookTo(playerPosition);
+		m_speed = m_active_speed;
 
-	if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
-		stopMovement();
-		changeState(PASSIVE);
+		if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
+			stopMovement();
+			changeState(PASSIVE);
+		}
 	}
 }
 

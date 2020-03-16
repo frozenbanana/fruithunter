@@ -3,6 +3,7 @@
 #include "Renderer.h"
 #include "StateHandler.h"
 #include "Input.h"
+#include "AudioHandler.h"
 
 EndRoundState::EndRoundState() { initialize(); }
 
@@ -11,11 +12,12 @@ EndRoundState::~EndRoundState() {}
 void EndRoundState::initialize() {
 	m_name = "End Round State";
 	m_victoryText = "Nothing";
-	m_mainMenuButton.initialize("Main Menu", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 50));
-	m_exitButton.initialize("Exit", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 100));
+
+	float width = SCREEN_WIDTH;
+	float height = SCREEN_HEIGHT;
+	m_mainMenuButton.initialize("Main Menu", float2(width / 2, height / 2 + 50));
+	m_exitButton.initialize("Exit", float2(width / 2, height / 2 + 120));
 	m_particleSystem = ParticleSystem(ParticleSystem::CONFETTI);
-	ErrorLogger::log(
-		"confetti initalized, confirmed here: " + to_string(m_particleSystem.getIsActive()));
 	m_particleSystem.setPosition(float3(0.0f, -1.f, 0.f));
 	m_timer.reset();
 	m_camera.setView(float3(0.f, 0.f, 1.0f), float3(0.f, 0.f, .0f), float3(0.f, 1.f, .0f));
@@ -25,36 +27,42 @@ void EndRoundState::initialize() {
 }
 
 void EndRoundState::update() {
+	Input::getInstance()->setMouseModeAbsolute();
+
 	m_timer.update();
 	float dt = m_timer.getDt();
-	if (m_resumeButton.update()) {
-		StateHandler::getInstance()->changeState(StateHandler::PLAY);
-	}
-	if (m_mainMenuButton.update()) {
-		StateHandler::getInstance()->changeState(StateHandler::INTRO);
-	}
-	if (m_exitButton.update()) {
-		StateHandler::getInstance()->quit();
-	}
+
 	m_particleSystem.update(dt, float3(0.f, 0.4f, 0.0f));
 }
 
-void EndRoundState::handleEvent() {}
+void EndRoundState::handleEvent() {
+	if (m_mainMenuButton.update()) {
+		AudioHandler::getInstance()->pauseAllMusic();
+		StateHandler::getInstance()->changeState(StateHandler::INTRO);
+	}
+	if (m_exitButton.update()) {
+		AudioHandler::getInstance()->pauseAllMusic();
+		StateHandler::getInstance()->quit();
+	}
+}
 
 void EndRoundState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
 void EndRoundState::play() {
-	Input::getInstance()->setMouseModeAbsolute();
 	ErrorLogger::log(m_name + " play() called.");
+	float width = SCREEN_WIDTH;
+	float height = SCREEN_HEIGHT;
+	m_mainMenuButton.setPosition(float2(width / 2, height / 2 + 50));
+	m_exitButton.setPosition(float2(width / 2, height / 2 + 120));
 }
 
 void EndRoundState::draw() {
 	Renderer::getInstance()->beginFrame();
-
-	m_textRenderer.draw(m_timeText, float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 125),
-		float4(1., 1.f, 1.f, 1.0f));
+	float width = SCREEN_WIDTH;
+	float height = SCREEN_HEIGHT;
 	m_textRenderer.draw(
-		m_victoryText, float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 50), m_victoryColor);
+		m_timeText, float2(width / 2, height / 2 - 125), float4(1., 1.f, 1.f, 1.0f));
+	m_textRenderer.draw(m_victoryText, float2(width / 2, height / 2 - 50), m_victoryColor);
 	m_mainMenuButton.draw();
 	m_exitButton.draw();
 	m_camera.bindMatrix();

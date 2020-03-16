@@ -21,9 +21,11 @@ public:
 	float3 getVelocity() const;
 	vector<FrustumPlane> getFrustumPlanes() const;
 	CubeBoundingBox getCameraBoundingBox() const;
+	vector<float3> getFrustumPoints(float scaleBetweenNearAndFarPlane) const;
 	Entity& getArrow() { return m_bow.getArrow(); };
 	Bow& getBow() { return m_bow; }
 	float getStamina() const;
+	void getStaminaBySkillshot(Skillshot skillShot);
 	bool isShooting() const;
 	void setPosition(float3 position);
 	void standsOnObject();
@@ -51,7 +53,8 @@ private:
 	const float GROUND_FRICTION_WEAK = 1.0f; // friction on steep terrain, 0-60.
 	const float STEEPNESS_BORDER =
 		0.6f; // value of dot product when flat terrain goes to steep terrain
-	const float ONGROUND_THRESHOLD = 0.03f; // extra height over terrain until player is not grounded
+	const float ONGROUND_THRESHOLD =
+		0.03f; // extra height over terrain until player is not grounded
 
 	float3 m_position;
 	float3 m_velocity;
@@ -61,6 +64,7 @@ private:
 
 	// Player behavior
 	bool m_godMode = false;
+	bool m_chargingBow = false;
 	bool m_onGround;							// if player is grounded
 	bool m_onEntity;							// if player is standing on an object
 	float3 m_gravity = float3(0, -1, 0) * 15.f; // direction * strength
@@ -79,7 +83,7 @@ private:
 	bool m_jumpReset = true;
 	// stamina
 	const float STAMINA_MAX = 1.f;	// max value of sprint
-	float m_stamina = STAMINA_MAX;	// stamina available
+	float m_stamina = 0.0f;	// stamina available
 	bool m_staminaConsumed = false; // stamina consumed this frame update
 	// sprint
 	const float STAMINA_SPRINT_THRESHOLD = 0.0f;   // threshold when sprinting is available
@@ -139,6 +143,6 @@ private:
 	void updateVelocity_onFlatGround(float3 playerForce, float dt);
 	void updateVelocity_onSteepGround(float dt);
 
-	//Ability
+	// Ability
 	void updateHunterMode(float);
 };

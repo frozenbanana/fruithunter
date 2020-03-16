@@ -78,7 +78,7 @@ SkyBox::SkyBox() {
 	createConstantBuffer();
 	createShaders();
 
-	VariableSyncer::getInstance()->create("ColourBuffer.txt", nullptr);
+	FileSyncer* file = VariableSyncer::getInstance()->create("ColourBuffer.txt");
 
 	//Forest - Refactor with variableSyncer?
 	m_lightInfo[0] = { 
@@ -109,12 +109,12 @@ SkyBox::SkyBox() {
 	};
 
 	for (int i = 0; i < 4; i++) {
-		VariableSyncer::getInstance()->bind(
-			"ColourBuffer.txt", "Ambient_" + to_string(i) + ":v4", &m_lightInfo[i].ambient);
-		VariableSyncer::getInstance()->bind(
-			"ColourBuffer.txt", "Diffuse_" + to_string(i) + ":v4", &m_lightInfo[i].diffuse);
-		VariableSyncer::getInstance()->bind(
-			"ColourBuffer.txt", "Specular_" + to_string(i) + ":v4", &m_lightInfo[i].specular);
+		file->bind(
+			"Ambient_" + to_string(i) + ":v4", &m_lightInfo[i].ambient);
+		file->bind(
+			"Diffuse_" + to_string(i) + ":v4", &m_lightInfo[i].diffuse);
+		file->bind(
+			"Specular_" + to_string(i) + ":v4", &m_lightInfo[i].specular);
 	}
 }
 
@@ -124,7 +124,7 @@ void SkyBox::draw() {
 	m_box.bindMaterial(0);
 	m_box.bindMesh();
 	m_shaderSkyBox.bindShadersAndLayout();
-	Renderer::getDeviceContext()->Draw(m_box.getVertexCount(), 0);
+	Renderer::draw(m_box.getVertexCount(), 0);
 	//m_box.draw();
 }
 
@@ -132,7 +132,7 @@ void SkyBox::draw(int oldSkybox, int newSkybox) {
 	bindTextures(oldSkybox, newSkybox);
 	m_box.bindMesh();
 	m_shaderSkyBox.bindShadersAndLayout();
-	Renderer::getDeviceContext()->Draw(m_box.getVertexCount(), 0);
+	Renderer::draw(m_box.getVertexCount(), 0);
 }
 
 

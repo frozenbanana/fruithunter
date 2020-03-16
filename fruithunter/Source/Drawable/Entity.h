@@ -50,9 +50,9 @@ public:
 	void setRotationMatrix(float4x4 matrix);
 	void setRotationByAxis(float3 axis, float angle);
 	void rotateByAxis(float3 axis, float angle);
-	// order ZXY
+	/* order ZXY*/
 	void setRotation(float3 rotation);
-	// order ZXY
+	/* order ZXY*/
 	void rotate(float3 rotation);
 	void rotateX(float val);
 	void rotateY(float val);
@@ -65,12 +65,12 @@ public:
 
 	// Drawing
 	virtual void draw();
-	void drawShadow();
 	void draw_onlyMesh(float3 color);
 	void draw_boundingBox();
 
 	void draw_animate();
-	void draw_animate_shadow();
+	void draw_animate_onlyMesh(float3 color = float3(1.f));
+
 	virtual void updateAnimated(float dt);
 	virtual void updateAnimatedSpecific(float frameTime);
 	void setFrameTargets(int first, int second);
