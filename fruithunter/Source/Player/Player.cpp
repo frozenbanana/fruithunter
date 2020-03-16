@@ -16,7 +16,7 @@ void Player::initialize() {
 	m_playerForward = DEFAULTFORWARD;
 	FileSyncer* file = VariableSyncer::getInstance()->create("Player.txt");
 	file->bind("speed walk:f", &m_speed);
-	file->bind("speed sprint:f", &m_speedSprint);
+	file->bind("speed sprint multiplier:f", &m_speedSprintMultiplier);
 	file->bind("speed in air:f", &m_speedInAir);
 	file->bind("jump force:f", &m_jumpForce);
 	file->bind("dash force:f", &m_dashForce);
@@ -338,13 +338,9 @@ void Player::checkJump() {
 }
 
 void Player::checkSprint(float dt) {
-	if (Input::getInstance()->keyPressed(KEY_SPRINT) &&
-		!m_chargingDash && m_onGround) {
+	if (Input::getInstance()->keyDown(KEY_SPRINT)) {
 		// activate sprint
 		m_sprinting = true;
-	}
-	if (Input::getInstance()->keyDown(KEY_SPRINT) && m_sprinting &&
-		m_velocity.Length() > 0.1f) {
 	}
 	else {
 		m_sprinting = false;
@@ -450,12 +446,18 @@ float Player::clamp(float x, float high, float low) {
 }
 
 float Player::getPlayerMovementSpeed() const {
-	if (m_dashCharge > 0)
-		return m_speedOnChargingDash;
-	if (m_sprinting)
-		return m_speedSprint;
+	float speed = 0;
+	if (m_onGround) {
+		if (m_dashCharge > 0)
+			speed = m_speedOnChargingDash;//charging
+		else
+			speed = m_speed;//walking normaly
+		if (m_sprinting)
+			speed *= m_speedSprintMultiplier; // sprint multiplies speed
+	}
 	else
-		return m_speed;
+		speed = m_speedInAir;//in air
+	return speed;
 }
 
 void Player::consumeStamina(float amount) {
@@ -479,7 +481,7 @@ void Player::updateVelocity_inAir(float3 playerForce, float dt) {
 	m_velocity += m_gravity * dt; // gravity if in air
 
 	// add forces
-	m_velocity += playerForce * m_speedInAir * dt;
+	m_velocity += playerForce * getPlayerMovementSpeed() * dt;
 }
 
 void Player::updateVelocity_onFlatGround(float3 playerForce, float dt) {

@@ -74,7 +74,7 @@ private:
 	float m_resetDelay = 0.5f;					// Number of seconds before respawn
 	// movement speed
 	float m_speed = 20.f;				// player movement strength
-	float m_speedSprint = 40.f;			// player movement strength when sprinting
+	float m_speedSprintMultiplier = 2.f;// player movement multiplier when sprinting
 	float m_speedOnChargingDash = 10.f; // player movement when charging dash
 	float m_speedInAir = 2.5f;			// player movement in air
 	float m_godModeSpeed = 20.f;		// player movement in godmode
