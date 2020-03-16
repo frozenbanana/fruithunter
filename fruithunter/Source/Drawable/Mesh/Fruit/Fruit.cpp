@@ -71,7 +71,7 @@ void Fruit::hit(float3 playerPos) {
 	}
 	m_particleSystem->setColors(colors);
 	m_particleSystem->emit(nrOf);
-	m_currentMaterial = 2;
+	m_currentMaterial = 1;
 }
 
 int Fruit::getFruitType() { return m_fruitType; }

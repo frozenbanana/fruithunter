@@ -242,6 +242,7 @@ void Mesh::draw_noMaterial(float3 color) {
 
 	drawCall_all();
 }
+
 void Mesh::draw_BoundingBox() {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
@@ -274,6 +275,7 @@ float3 Mesh::getBoundingBoxSize() const {
 			   (m_MinMaxZPosition.y - m_MinMaxZPosition.x)) /
 		   2.f;
 }
+
 bool Mesh::load(std::string filename, bool combineParts) {
 	if (m_handler.load(filename, m_meshVertices, m_parts, m_materials[0], combineParts)) {
 		m_loadedMeshName = filename;
@@ -284,6 +286,7 @@ bool Mesh::load(std::string filename, bool combineParts) {
 	else
 		return false;
 }
+
 void Mesh::loadOtherMaterials(std::vector<string> fileNames, int nrOfMaterials) {
 	if (m_materials.size() < 2) {
 		m_materials.resize(nrOfMaterials); // Maybe not reload the first one and use +1 for index
@@ -293,6 +296,7 @@ void Mesh::loadOtherMaterials(std::vector<string> fileNames, int nrOfMaterials) 
 		}
 	}
 }
+
 float Mesh::castRayOnMesh(float3 rayPos, float3 rayDir) {
 	// get bounding box in local space
 	float3 bPos = getBoundingBoxPos();
