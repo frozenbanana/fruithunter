@@ -71,7 +71,7 @@ void Melon::behaviorActive(float3 playerPosition) {
 			makeReadyForPath(target);
 		}
 
-		lookToDir(m_position - playerPosition);
+		lookTo(playerPosition);
 		m_speed = m_active_speed;
 
 		if (!withinDistanceTo(playerPosition, m_passiveRadius)) {

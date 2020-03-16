@@ -163,7 +163,11 @@ void IntroState::draw() {
 	shadowMap->mapShadowToFrustum(m_camera.getFrustumPoints(0.1f));
 	shadowMap->setup_depthRendering();
 
-	m_apple.get()->draw_onlyMesh(float3(1.0f));
+	Renderer::getInstance()->enableAlphaBlending();
+	m_apple.get()->draw_animate_onlyMesh();
+	Renderer::getInstance()->disableAlphaBlending();
+	m_bow.draw();
+	m_bow.getTrailEffect().draw();
 	m_terrainProps.draw_onlyMesh();
 	TerrainManager::getInstance()->draw_onlyMesh();
 
