@@ -19,6 +19,7 @@ void SettingsState::initialize() {
 	m_effectsVolume.initialize("Effects Volume", float2(width / 2, height / 2 - 100));
 	m_drawDistance.initialize("Draw distance", float2(width / 2, height / 2 - 50));
 
+	m_fullscreenButton.initialize("Fullscreen", float2(width / 2, height / 2 + 200), false);
 	m_resolutionButton.initialize(
 		"Resolution", float2(width / 2, height / 2), Button::Resolution::HD);
 	m_shadowsButton.initialize(
@@ -54,6 +55,9 @@ void SettingsState::handleEvent() {
 	}
 	if (m_darkEdgesButton.update()) {
 		settings->setDarkEdges(m_darkEdgesButton.getOnOff());
+	}
+	if (m_fullscreenButton.update()) {
+		Renderer::getInstance()->setFullscreen(m_fullscreenButton.getOnOff());
 	}
 	if (m_shadowsButton.update()) {
 		if (m_shadowsButton.getLowMedHighUltra() == Button::Setting::LOW)
@@ -93,6 +97,7 @@ void SettingsState::draw() {
 	m_backButton.draw();
 	m_shadowsButton.draw();
 	m_resolutionButton.draw();
+	m_fullscreenButton.draw();
 
 	m_drawDistance.draw();
 	m_masterVolume.draw();

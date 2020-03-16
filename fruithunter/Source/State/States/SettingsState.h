@@ -24,6 +24,7 @@ private:
 	Button m_backButton;
 	Button m_shadowsButton;
 	Button m_resolutionButton;
+	Button m_fullscreenButton;
 
 	Slider m_drawDistance;
 	Slider m_masterVolume;

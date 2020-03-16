@@ -29,7 +29,6 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthDSS;	 // Depth stencil stade
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthSRV; // Depth shader resource view
 
-
 	void bindEverything();
 	void bindDepthSRV(int slot);
 	void bindConstantBuffer_ScreenSize(int slot);
@@ -37,6 +36,7 @@ public:
 	void enableAlphaBlending();
 	void disableAlphaBlending();
 	void changeResolution(int width, int height);
+	void setFullscreen(bool value);
 	void copyDepthToSRV();
 
 	void draw_darkEdges();
@@ -57,8 +57,6 @@ private:
 	void createConstantBuffers();
 	void createQuadVertexBuffer();
 	void createBlendState();
-
-
 
 	static Renderer m_this;
 	bool m_isLoaded = false;
@@ -86,11 +84,11 @@ private:
 	Quad m_loadingScreen;
 	bool m_loadingScreenInitialised = false;
 
-	//shadows
+	// shadows
 	ShadowMapper m_shadowMapper;
 	DrawingState m_drawState = state_normal;
 
-	//Resolution
+	// Resolution
 	int m_screenWidth;
 	int m_screenHeight;
 };
