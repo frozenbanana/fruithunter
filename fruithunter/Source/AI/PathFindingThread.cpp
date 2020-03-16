@@ -18,6 +18,7 @@ void PathFindingThread::exitThread() {
 	if (pft->m_thread) {
 		delete pft->m_thread;
 	}
+	pft->m_thread = nullptr;
 }
 
 
