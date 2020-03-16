@@ -65,7 +65,8 @@ protected:
 
 	void handleAvailablePath(float3 myPosition);
 
-	bool isValid(float3 childPos, float3 currentNodePos, EntityRepository &collidables);
+	bool isValid(
+		float3 childPos, float3 currentNodePos, EntityRepository& collidables, float radius);
 	bool isValid(float3 childPos, float3 currentNodePos);
 	void makeReadyForPath(float3 destination);
 
