@@ -35,6 +35,7 @@ public:
 	~Slider();
 	void initialize(string label, float2 pos);
 	float getValue();
+	void setPosition(float2 position);
 	bool update();
 	void draw();
 };

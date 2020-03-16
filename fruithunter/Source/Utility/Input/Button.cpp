@@ -8,6 +8,8 @@ Button::~Button() {}
 
 void Button::setLabel(string label) { m_label = label; }
 
+void Button::setPosition(float2 position) { m_position = position; }
+
 void Button::initialize(string label, float2 position) {
 	m_label = label;
 	m_position = position;
