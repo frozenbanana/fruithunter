@@ -23,8 +23,8 @@ void Fruit::setStartPosition(float3 pos) {
 
 void Fruit::setNextDestination(float3 nextDest) { m_nextDestinationAnimationPosition = nextDest; }
 
-skillshot Fruit::hit(float3 playerPos) {
-	skillshot hitType = nothing;
+Skillshot Fruit::hit(float3 playerPos) {
+	Skillshot hitType = SS_NOTHING;
 	if (m_currentState != CAUGHT) {
 		changeState(CAUGHT);
 		float dist = (playerPos - m_position).Length();
@@ -37,7 +37,7 @@ skillshot Fruit::hit(float3 playerPos) {
 				colors[1] = float4(0.97f, 0.97f, 0.01f, 1.0f);
 				colors[2] = float4(0.99f, 0.98f, 0.02f, 1.0f);
 				nrOf = 22;
-				hitType = gold;
+				hitType = SS_GOLD;
 			}
 			else {
 				// gold
@@ -45,7 +45,7 @@ skillshot Fruit::hit(float3 playerPos) {
 				colors[1] = float4(0.97f, 0.97f, 0.01f, 1.0f);
 				colors[2] = float4(0.99f, 0.98f, 0.02f, 1.0f);
 				nrOf = 12;
-				hitType = gold;
+				hitType = SS_GOLD;
 			}
 		}
 		else if (dist > MEDIUMSHOT) {
@@ -57,7 +57,7 @@ skillshot Fruit::hit(float3 playerPos) {
 				colors[1] = float4(0.97f, 0.97f, 0.01f, 1.0f);
 				colors[2] = float4(0.99f, 0.98f, 0.02f, 1.0f);
 				nrOf = 8;
-				hitType = gold;
+				hitType = SS_GOLD;
 			}
 			else {
 				// silver
@@ -65,7 +65,7 @@ skillshot Fruit::hit(float3 playerPos) {
 				colors[1] = float4(0.75f, 0.75f, 0.75f, 1.0f);
 				colors[2] = float4(0.75f, 0.75f, 0.75f, 1.0f);
 				nrOf = 13;
-				hitType = silver;
+				hitType = SS_SILVER;
 			}
 		}
 		else {
@@ -74,7 +74,7 @@ skillshot Fruit::hit(float3 playerPos) {
 			colors[1] = float4(0.71f, 0.36f, 0.07f, 1.0f);
 			colors[2] = float4(0.70f, 0.32f, 0.09f, 1.0f);
 			nrOf = 6;
-			hitType = bronze;
+			hitType = SS_BRONZE;
 		}
 		m_particleSystem->setColors(colors);
 		m_particleSystem->emit(nrOf);

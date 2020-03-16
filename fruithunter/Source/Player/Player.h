@@ -25,7 +25,7 @@ public:
 	Entity& getArrow() { return m_bow.getArrow(); };
 	Bow& getBow() { return m_bow; }
 	float getStamina() const;
-	void getStaminaBySkillshot(int skillShot);
+	void getStaminaBySkillshot(Skillshot skillShot);
 	bool isShooting() const;
 	void setPosition(float3 position);
 	void standsOnObject();

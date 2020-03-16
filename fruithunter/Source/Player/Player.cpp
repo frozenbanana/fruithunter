@@ -169,15 +169,15 @@ float3 Player::getVelocity() const { return m_velocity; }
 
 float Player::getStamina() const { return m_stamina; }
 
-void Player::getStaminaBySkillshot(int skillShot) {
+void Player::getStaminaBySkillshot(Skillshot skillShot) {
 	switch (skillShot) { 
-		case 1:
+		case Skillshot::SS_BRONZE:
 			m_stamina += 0.05f;
 			break;
-		case 2:
+		case Skillshot::SS_SILVER:
 			m_stamina += 0.1f;
 			break;
-		case 3:
+		case Skillshot::SS_GOLD:
 			m_stamina += 0.2f;
 			break;
 	}
