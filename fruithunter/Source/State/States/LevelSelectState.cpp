@@ -154,7 +154,14 @@ void LevelSelectState::draw() {
 		m_levelSelectors[i].m_bowl.draw_onlyMesh(float3(0, 0, 0));
 		m_levelSelectors[i].m_content.draw_onlyMesh(float3(0, 0, 0));
 	}
-	TerrainManager::getInstance()->draw();
+	//draw terrain
+	TerrainManager::getInstance()->draw_onlyMesh();
+	//draw terrain props
+	m_terrainProps.draw_onlyMesh();
+	// draw animals
+	for (int i = 0; i < m_animal.size(); i++) {
+		m_animal[i]->draw_onlyAnimal();
+	}
 
 	// Set first person info
 	Renderer::getInstance()->beginFrame();
