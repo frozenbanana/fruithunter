@@ -50,6 +50,7 @@ void EndRoundState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
 void EndRoundState::play() {
 	ErrorLogger::log(m_name + " play() called.");
+	Renderer::getInstance()->stashFrame();
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
 	m_mainMenuButton.setPosition(float2(width / 2, height / 2 + 50));
@@ -58,6 +59,7 @@ void EndRoundState::play() {
 
 void EndRoundState::draw() {
 	Renderer::getInstance()->beginFrame();
+	Renderer::getInstance()->drawCapturedFrame();
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
 	m_textRenderer.draw(

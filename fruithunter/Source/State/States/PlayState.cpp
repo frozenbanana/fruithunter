@@ -23,7 +23,8 @@ void PlayState::handleEvent() {
 	}
 
 	if (m_levelHandler->getHUD().hasWon()) {
-		ErrorLogger::log("Changing state to END ROUND!");
+		ErrorLogger::log("Changing state to END ROUND.");
+		Renderer::getInstance()->stashFrame();
 		StateHandler::getInstance()->changeState(StateHandler::ENDROUND);
 		EndRoundState* endRound =
 			dynamic_cast<EndRoundState*>(StateHandler::getInstance()->getCurrent());

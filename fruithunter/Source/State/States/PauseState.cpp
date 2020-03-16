@@ -46,6 +46,7 @@ void PauseState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
 void PauseState::play() {
 	ErrorLogger::log(m_name + " play() called.");
+	Renderer::getInstance()->stashFrame();
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
 	m_resumeButton.setPosition(float2(width / 2, height / 2 - 60));
@@ -56,7 +57,7 @@ void PauseState::play() {
 
 void PauseState::draw() {
 	Renderer::getInstance()->beginFrame();
-
+	Renderer::getInstance()->drawCapturedFrame();
 	m_resumeButton.draw();
 	m_mainMenuButton.draw();
 	m_settingsButton.draw();

@@ -120,7 +120,7 @@ void SettingsState::play() { m_screenStateChanged = false; }
 
 void SettingsState::draw() {
 	Renderer::getInstance()->beginFrame();
-
+	Renderer::getInstance()->drawCapturedFrame();
 	m_darkEdgesButton.draw();
 	m_vsyncButton.draw();
 	m_shadowsButton.draw();
