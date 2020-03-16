@@ -8,6 +8,8 @@ Button::~Button() {}
 
 void Button::setLabel(string label) { m_label = label; }
 
+void Button::setPosition(float2 position) { m_position = position; }
+
 void Button::initialize(string label, float2 position) {
 	m_label = label;
 	m_position = position;
@@ -33,9 +35,20 @@ void Button::initialize(string label, float2 position, Setting value) {
 	m_size = m_textRenderer.getSize(m_label + ": Ultra");
 }
 
+void Button::initialize(string label, float2 position, Resolution value) {
+	m_label = label;
+	m_position = position;
+	m_isResolution = true;
+	m_resolution = value;
+	m_colour = float4(1.f);
+	m_size = m_textRenderer.getSize(m_label + ": 3840x2160");
+}
+
 bool Button::getOnOff() { return m_on; }
 
 int Button::getLowMedHighUltra() { return m_lowMedHighUltra; }
+
+int Button::getResolution() { return m_resolution; }
 
 bool Button::update() {
 	Input* ip = Input::getInstance();
@@ -53,6 +66,11 @@ bool Button::update() {
 				m_lowMedHighUltra++;
 				if (m_lowMedHighUltra > 3)
 					m_lowMedHighUltra = 0;
+			}
+			else if (m_isResolution) {
+				m_resolution++;
+				if (m_resolution > 3)
+					m_resolution = 0;
 			}
 
 			clicked = true;
@@ -80,6 +98,16 @@ void Button::draw() {
 			m_textRenderer.draw(m_label + ": High", m_position, m_colour);
 		else if (m_lowMedHighUltra == ULTRA)
 			m_textRenderer.draw(m_label + ": Ultra", m_position, m_colour);
+	}
+	else if (m_isResolution) {
+		if (m_resolution == HD)
+			m_textRenderer.draw(m_label + ": 1280x720", m_position, m_colour);
+		else if (m_resolution == FHD)
+			m_textRenderer.draw(m_label + ": 1920x1080", m_position, m_colour);
+		else if (m_resolution == QHD)
+			m_textRenderer.draw(m_label + ": 2560x1440", m_position, m_colour);
+		else if (m_resolution == UHD)
+			m_textRenderer.draw(m_label + ": 3840x2160", m_position, m_colour);
 	}
 	else
 		m_textRenderer.draw(m_label, m_position, m_colour);

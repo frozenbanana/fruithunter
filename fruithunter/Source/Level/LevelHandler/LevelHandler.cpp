@@ -559,7 +559,7 @@ void LevelHandler::update(float dt) {
 		if (m_player.isShooting()) {
 
 			if (m_player.getArrow().checkCollision(*m_fruits[i])) {
-				m_fruits[i]->hit(m_player.getPosition());
+				m_player.getStaminaBySkillshot(m_fruits[i]->hit(m_player.getPosition()));
 				AudioHandler::getInstance()->playOnceByDistance(
 					AudioHandler::HIT_FRUIT, m_player.getPosition(), m_fruits[i]->getPosition());
 
