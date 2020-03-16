@@ -16,7 +16,7 @@ void EndRoundState::initialize() {
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
 	m_mainMenuButton.initialize("Main Menu", float2(width / 2, height / 2 + 50));
-	m_exitButton.initialize("Exit", float2(width / 2, height / 2 + 100));
+	m_exitButton.initialize("Exit", float2(width / 2, height / 2 + 110));
 	m_particleSystem = ParticleSystem(ParticleSystem::CONFETTI);
 	m_particleSystem.setPosition(float3(0.0f, -1.f, 0.f));
 	m_timer.reset();

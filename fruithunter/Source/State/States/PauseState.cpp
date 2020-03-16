@@ -13,10 +13,10 @@ void PauseState::initialize() {
 	m_name = "Pause State";
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
-	m_resumeButton.initialize("Resume", float2(width / 2, height / 2 - 50));
+	m_resumeButton.initialize("Resume", float2(width / 2, height / 2 - 60));
 	m_settingsButton.initialize("Settings", float2(width / 2, height / 2));
-	m_mainMenuButton.initialize("Main Menu", float2(width / 2, height / 2 + 50));
-	m_exitButton.initialize("Exit", float2(width / 2, height / 2 + 100));
+	m_mainMenuButton.initialize("Main Menu", float2(width / 2, height / 2 + 60));
+	m_exitButton.initialize("Exit", float2(width / 2, height / 2 + 120));
 
 	// Just ignore this. It fixes things.
 	m_entity.load("Melon_000000");
@@ -48,10 +48,10 @@ void PauseState::play() {
 	ErrorLogger::log(m_name + " play() called.");
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
-	m_resumeButton.setPosition(float2(width / 2, height / 2 - 50));
+	m_resumeButton.setPosition(float2(width / 2, height / 2 - 60));
 	m_settingsButton.setPosition(float2(width / 2, height / 2));
-	m_mainMenuButton.setPosition(float2(width / 2, height / 2 + 50));
-	m_exitButton.setPosition(float2(width / 2, height / 2 + 100));
+	m_mainMenuButton.setPosition(float2(width / 2, height / 2 + 60));
+	m_exitButton.setPosition(float2(width / 2, height / 2 + 120));
 }
 
 void PauseState::draw() {
