@@ -30,9 +30,14 @@ private:
 	EntityRepository m_terrainProps;
 	SeaEffect m_waterEffect;
 	SkyBox m_skyBox;
-	vector<unique_ptr<Entity>> m_levelBowls;
+	struct LevelSelector {
+		Entity m_bowl;
+		Entity m_content;
+	};
+	vector<LevelSelector> m_levelSelectors;
 	std::vector<shared_ptr<Animal>> m_animal;
 	std::vector<string> m_maps;
 
 	void setLevel(int);
+	void initializeLevelSelectors();
 };

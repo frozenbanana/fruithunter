@@ -161,6 +161,10 @@ void Animal::draw() {
 	Renderer::getInstance()->disableAlphaBlending();
 }
 
+void Animal::draw_onlyAnimal() {
+	Entity::draw(); // Draw the animal
+}
+
 void Animal::update(float dt, float3 playerPos) {
 	if (m_walkTimeTracker < 2) {
 		if (notBribed())

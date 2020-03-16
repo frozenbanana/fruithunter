@@ -14,9 +14,12 @@ void HUD::atWin() {
 	if (m_levelIndex != -1) {
 		size_t time = (size_t)m_minutesPassed * 60 + (size_t)m_secondsPassed;
 		TimeTargets grade = TimeTargets::BRONZE;
-		for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++)
-			if (time < m_timeTargets[i])
+		for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++) {
+			if (time < m_timeTargets[i]) {
 				grade = (TimeTargets)i;
+				break;
+			}
+		}
 		SaveManager::getInstance()->setLevelCompletion(m_levelIndex, time, grade);
 	}
 }
@@ -179,7 +182,7 @@ void HUD::setWinCondition(int winCons[]) {
 
 void HUD::setLevelIndex(size_t levelIndex) { m_levelIndex = levelIndex; }
 
-void HUD::addFruit(int fruitType) {
+void HUD::addFruit(FruitType fruitType) {
 	m_inventory[fruitType]++;
 	for (size_t i = 0; i < m_sprites.size(); i++) {
 		if (m_sprites[i].fruitType == fruitType)

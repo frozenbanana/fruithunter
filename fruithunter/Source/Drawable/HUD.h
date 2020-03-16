@@ -11,7 +11,7 @@ private:
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture;
 		float2 screenPos;
 		float scale;
-		int fruitType;
+		FruitType fruitType;
 		float pickUp;
 	};
 
@@ -57,7 +57,7 @@ public:
 	void setTimeTargets(int targets[]);
 	void setWinCondition(int winCons[]);
 	void setLevelIndex(size_t levelIndex);
-	void addFruit(int fruitType);
+	void addFruit(FruitType fruitType);
 	void removeFruit(int fruitType);
 	void update(float dt, float playerStamina);
 	void draw();
