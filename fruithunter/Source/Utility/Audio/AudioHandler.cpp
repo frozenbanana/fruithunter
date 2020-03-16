@@ -26,6 +26,8 @@ void AudioHandler::initalize() {
 	// Can add flags to parameters
 	m_this.m_audioEngine = std::make_unique<DirectX::AudioEngine>();
 	// One time sound effects
+	m_this.m_soundEffects[SLOW_MOTION] = std::make_unique<DirectX::SoundEffect>(
+		m_audioEngine.get(), L"assets/sounds/slowmotion.wav");
 	m_this.m_soundEffects[DING_1] =
 		std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), L"assets/sounds/ding1.wav");
 	m_this.m_soundEffects[DING_2] =
@@ -134,8 +136,8 @@ void AudioHandler::changeMusicTo(AudioHandler::Music newMusic, float dt) {
 	}
 }
 
-void AudioHandler::changeMusicByTag(int tag, float dt) { 
-	switch (tag) { 
+void AudioHandler::changeMusicByTag(int tag, float dt) {
+	switch (tag) {
 	case 0:
 		changeMusicTo(AudioHandler::Music::KETAPOP, dt);
 		break;

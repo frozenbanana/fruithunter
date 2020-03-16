@@ -10,9 +10,7 @@
 #include "Timer.h"
 #include "Apple.h"
 #include "Bow.h"
-#include <SpriteBatch.h>
-#include <CommonStates.h>
-#include <SpriteFont.h>
+#include "Sprite2D.h"
 
 class IntroState : public State {
 public:
@@ -24,21 +22,16 @@ public:
 	void pause();
 	void play();
 	void draw();
-	void createLogoSprite();
-	void drawLogo();
 
 private:
 	TextRenderer m_textRenderer;
-
 	Timer m_timer;
-
 	Button m_startButton;
 	Button m_settingsButton;
 	Button m_exitButton;
-
 	Entity m_entity;
 
-	// Scene variables:
+	// Scene variables
 	Camera m_camera;
 	SkyBox m_skybox;
 	std::vector<string> m_maps;
@@ -50,10 +43,10 @@ private:
 	float m_shootTime = 0.f;
 	Bow m_bow;
 
-	// LOGO
-	unique_ptr<SpriteBatch> m_spriteBatch;
-	unique_ptr<CommonStates> m_states;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
-	float m_scale;
-	float2 m_textureOffset;
+	// Logo
+	struct LogoLetter {
+		Sprite2D letter;
+		float2 speedOffset;
+	};
+	vector<LogoLetter> m_letters;
 };
