@@ -14,21 +14,17 @@ void SettingsState::initialize() {
 	m_name = "Settings State";
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
-	m_masterVolume.initialize(
-		"Master Volume", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 200));
-	m_musicVolume.initialize("Music Volume", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 150));
-	m_effectsVolume.initialize(
-		"Effects Volume", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 100));
-	m_drawDistance.initialize(
-		"Draw distance", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 - 50));
+	m_masterVolume.initialize("Master Volume", float2(width / 2, height / 2 - 200));
+	m_musicVolume.initialize("Music Volume", float2(width / 2, height / 2 - 150));
+	m_effectsVolume.initialize("Effects Volume", float2(width / 2, height / 2 - 100));
+	m_drawDistance.initialize("Draw distance", float2(width / 2, height / 2 - 50));
 
 	m_shadowsButton.initialize(
-		"Shadows", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 50), Button::Setting::MEDIUM);
-	m_darkEdgesButton.initialize(
-		"Dark Edges", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 100), true);
-	m_vsyncButton.initialize("V-Sync", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT / 2 + 150), true);
+		"Shadows", float2(width / 2, height / 2 + 50), Button::Setting::MEDIUM);
+	m_darkEdgesButton.initialize("Dark Edges", float2(width / 2, height / 2 + 100), true);
+	m_vsyncButton.initialize("V-Sync", float2(width / 2, height / 2 + 150), true);
 
-	m_backButton.initialize("Back", float2(STANDARD_WIDTH / 2, STANDARD_HEIGHT - 100));
+	m_backButton.initialize("Back", float2(width / 2, height - 100));
 	// Just ignore this. It fixes things.
 	m_entity.load("Melon_000000");
 	m_entity.setPosition(float3(-1000));

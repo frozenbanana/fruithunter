@@ -91,7 +91,7 @@ void IntroState::drawLogo() {
 
 	// m_spriteBatch->Draw(m_backgroundTexture.Get(), float2(m_position) + float2(150.f, 0.f),
 	// nullptr, 	Colors::White, 0.f, m_backgroundOffset);
-	m_spriteBatch->Draw(m_texture.Get(), float2(STANDARD_WIDTH / 2.f, STANDARD_HEIGHT / 6.f),
+	m_spriteBatch->Draw(m_texture.Get(), float2(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 6.f),
 		nullptr, Colors::White, 0.f, m_textureOffset, m_scale);
 
 	m_spriteBatch->End();

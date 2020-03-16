@@ -73,10 +73,6 @@ void Renderer::disableAlphaBlending() {
 		m_blendStateWithoutAlphaBlending.Get(), blendFactor, 0xffffffff);
 }
 
-void Renderer::setVsync(bool value) { m_vsync = value; }
-
-void Renderer::setDarkEdges(bool value) { m_darkEdges = value; }
-
 void Renderer::changeResolution(int width, int height) {
 	m_screenWidth = width;
 	m_screenHeight = height;
