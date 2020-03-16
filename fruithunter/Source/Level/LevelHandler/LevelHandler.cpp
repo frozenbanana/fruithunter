@@ -630,6 +630,9 @@ void LevelHandler::update(float dt) {
 	lavaEffect.update(dt);
 
 	// Renderer::getInstance()->setPlayerPos(playerPos);
+	if (Input::getInstance()->keyPressed(Keyboard::D9)) {
+		Renderer::getInstance()->stashFrame();
+	}
 }
 
 HUD& LevelHandler::getHUD() { return m_hud; }
