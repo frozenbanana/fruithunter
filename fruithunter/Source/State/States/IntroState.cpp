@@ -19,9 +19,9 @@ void IntroState::initialize() {
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
 
-	m_startButton.initialize("Start", float2(106, height * 0.70f - 60.f));
-	m_settingsButton.initialize("Settings", float2(132, height * 0.70f));
-	m_exitButton.initialize("Exit", float2(92, height * 0.70f + 60.f));
+	m_startButton.initialize("Start", float2(106, height * 0.75f - 60.f));
+	m_settingsButton.initialize("Settings", float2(132, height * 0.75f));
+	m_exitButton.initialize("Exit", float2(92, height * 0.75f + 60.f));
 
 	// Initialise camera
 	// m_camera.setView(float3(61.4f, 16.8f, 44.4f), float3(61.2f, 7.16f, 28.7f), float3(0.f, 1.f,
@@ -204,9 +204,9 @@ void IntroState::play() {
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
 
-	m_startButton.setPosition(float2(106, height * 0.70f - 60.f));
-	m_settingsButton.setPosition(float2(132, height * 0.70f));
-	m_exitButton.setPosition(float2(92, height * 0.70f + 60.f));
+	m_startButton.setPosition(float2(106, height * 0.75f - 60.f));
+	m_settingsButton.setPosition(float2(132, height * 0.75f));
+	m_exitButton.setPosition(float2(92, height * 0.75f + 60.f));
 
 	TerrainManager::getInstance()->removeAll();
 	TerrainManager::getInstance()->add(float3(0.f), float3(1.f, 0.10f, 1.f) * 100, "PlainMap.png",
