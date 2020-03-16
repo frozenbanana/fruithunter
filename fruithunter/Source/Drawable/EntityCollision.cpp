@@ -128,11 +128,29 @@ bool EntityCollision::collisionOBBOBB(ObbData& a, ObbData& b) {
 }
 
 bool EntityCollision::collisionPointOBB(float3 point, ObbData& obb) {
-	bool collide = (abs(point.x - obb.m_origin.x) < abs(obb.m_origin.x - obb.m_axis->x));
-	collide = true ? (abs(point.y - obb.m_origin.y) < abs(obb.m_origin.y - obb.m_axis->y)) : false;
-	collide = true ? (abs(point.z - obb.m_origin.z) < abs(obb.m_origin.z - obb.m_axis->z)) : false;
 
-	return collide;
+
+	float dist = abs(point.x - obb.m_origin.x);
+	float range = abs(obb.m_origin.x - obb.m_axis->x);
+	dist = abs(point.x - obb.m_origin.x);
+	range = abs(obb.m_origin.x - obb.m_axis->x);
+
+	if (dist > range) {
+		return false;
+	}
+
+
+
+	dist = abs(point.z - obb.m_origin.z);
+	range = abs(obb.m_origin.z - obb.m_axis->z);
+
+	if (dist > range) {
+		return false;
+	}
+
+
+
+	return true;
 }
 
 bool EntityCollision::collisionSphereOBB(SphereData& sphere, ObbData& obb) {
@@ -217,6 +235,7 @@ bool EntityCollision::collide(EntityCollision& other) {
 bool EntityCollision::collide(float3 point) {
 
 	bool collides = false;
+
 	collides = collisionPointOBB(point, *(ObbData*)m_collisionData.get());
 	return collides;
 }
