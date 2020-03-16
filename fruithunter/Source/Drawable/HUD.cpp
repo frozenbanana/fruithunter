@@ -66,7 +66,7 @@ void HUD::drawTargetTime() {
 
 	wstring wText = std::wstring(timeString.begin(), timeString.end());
 	m_spriteFont->DrawString(
-		m_spriteBatch.get(), wText.c_str(), float2(25.0f, STANDARD_HEIGHT - 150.0f), color);
+		m_spriteBatch.get(), wText.c_str(), float2(20.0f, STANDARD_HEIGHT - 160.0f), color);
 }
 
 void HUD::setDepthStateToNull() {
@@ -98,7 +98,7 @@ HUD::HUD() {
 		resource.GetAddressOf(), m_backgroundTexture.ReleaseAndGetAddressOf());
 	if (t)
 		ErrorLogger::logError(t, "Failed to create backgorund sprite texture");
-	m_backgroundPos = float2(15.0f, STANDARD_HEIGHT - 150.0f);
+	m_backgroundPos = float2(10.0f, STANDARD_HEIGHT - 160.0f);
 
 	t = CreateWICTextureFromFile(Renderer::getDevice(), L"assets/sprites/stamina.png",
 		resource.GetAddressOf(), m_staminaTexture.ReleaseAndGetAddressOf());
@@ -222,7 +222,7 @@ void HUD::draw() {
 
 	// Draw time and target time
 	m_spriteFont->DrawString(
-		m_spriteBatch.get(), wText.c_str(), float2(25.0f, STANDARD_HEIGHT - 100.0f));
+		m_spriteBatch.get(), wText.c_str(), float2(20.0f, STANDARD_HEIGHT - 120.0f));
 	drawTargetTime();
 
 	// Draw inventory numbers
