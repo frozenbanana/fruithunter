@@ -78,7 +78,7 @@ void SettingsState::handleEvent() {
 		StateHandler::getInstance()->resumeMenuState();
 	}
 	if (m_screenStateChanged) {
-		if (m_applyButton.update()) {
+		if (m_applyButton.update() || Input::getInstance()->keyDown(Keyboard::Keys::Enter)) {
 			Renderer::getInstance()->setFullscreen(m_fullscreenButton.getOnOff());
 
 			if (m_resolutionButton.getResolution() == Button::Resolution::HD)
