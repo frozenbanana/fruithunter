@@ -10,7 +10,7 @@ Camera::Camera() {
 
 	m_fov = DEFAULT_FOV;
 	m_projMatrix = XMMatrixPerspectiveFovLH(
-		m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, m_nearPlane, m_farPlane);
+		m_fov, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, m_nearPlane, m_farPlane);
 	m_viewMatrix = XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
 	m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 	{
@@ -91,12 +91,8 @@ void Camera::updateBuffer() {
 	if (m_viewChanged || m_projChanged) {
 
 		m_viewMatrix = XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
-		/*ErrorLogger::logFloat3("CameraPos: ", m_camEye);
-		ErrorLogger::logFloat3("CameraTarget: ", m_camTarget);
-		ErrorLogger::logFloat3("CameraUp: ", m_camUp);*/
-
 		m_projMatrix = XMMatrixPerspectiveFovLH(
-			m_fov, (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT, m_nearPlane, m_farPlane);
+			m_fov, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, m_nearPlane, m_farPlane);
 
 		m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 
@@ -139,7 +135,7 @@ vector<FrustumPlane> Camera::getFrustumPlanes() const {
 	planes.reserve(6);
 	float3 center = m_camEye;
 	float height = tan(m_fov / 2.f);
-	float aspectRatio = (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT;
+	float aspectRatio = (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT;
 	float width = height * aspectRatio;
 
 	float3 camForward = m_camTarget - m_camEye;
@@ -174,7 +170,7 @@ CubeBoundingBox Camera::getFrustumBoundingBox() const {
 vector<float3> Camera::getFrustumPoints(float scaleBetweenNearAndFarPlane) const {
 	float3 center = m_camEye;
 	float height = tan(m_fov / 2.f);
-	float aspectRatio = (float)STANDARD_WIDTH / (float)STANDARD_HEIGHT;
+	float aspectRatio = (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT;
 	float width = height * aspectRatio;
 
 	float3 camForward = m_camTarget - m_camEye;
