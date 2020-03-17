@@ -4,7 +4,7 @@ bool DragonFruit::isFalling() { return m_velocity.y <0.f; }
 
 DragonFruit::DragonFruit(float3 pos) : Fruit(pos) {
 	loadAnimated("Dragon", 3);
-	vector<string> names{ "Dragon1.mtl", "Dragon2.mtl", "Dragon3.mtl" };
+	vector<string> names{ "Dragon.mtl", "Dragon2.mtl", "Dragon3.mtl" };
 	loadMaterials(names, 3);
 
 	m_nrOfFramePhases = 2;

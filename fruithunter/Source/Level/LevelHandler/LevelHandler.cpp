@@ -65,6 +65,7 @@ void LevelHandler::initialiseLevel1() {
 
 	level.m_fruitPos[APPLE].push_back(0);
 	level.m_fruitPos[MELON].push_back(1);
+	level.m_fruitPos[DRAGON].push_back(0);
 
 
 	level.m_heightMapNames.push_back("ForestMap.png");
@@ -226,12 +227,12 @@ void LevelHandler::initialiseLevel2() {
 	level.m_nrOfFruits[APPLE] = 20;
 	level.m_nrOfFruits[BANANA] = 15;
 	level.m_nrOfFruits[MELON] = 9;
+	level.m_nrOfFruits[DRAGON] = 0;
 
 	level.m_winCondition[APPLE] = 2;
 	level.m_winCondition[BANANA] = 2;
 	level.m_winCondition[MELON] = 2;
-	level.m_nrOfFruits[DRAGON] = 0;
-
+	level.m_winCondition[DRAGON] = 0;
 	level.m_playerStartPos = float3(162.5f, 9.5f, 19.f);
 
 	level.m_timeTargets[GOLD] = 120;
