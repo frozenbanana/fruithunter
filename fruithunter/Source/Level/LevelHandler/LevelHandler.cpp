@@ -52,10 +52,12 @@ void LevelHandler::initialiseLevel0() {
 	level.m_nrOfFruits[APPLE] = 30;
 	level.m_nrOfFruits[BANANA] = 0;
 	level.m_nrOfFruits[MELON] = 0;
+	level.m_nrOfFruits[DRAGON] = 0;
 
 	level.m_winCondition[APPLE] = 15;
 	level.m_winCondition[BANANA] = 0;
 	level.m_winCondition[MELON] = 0;
+	level.m_winCondition[DRAGON] = 0;
 
 	level.m_playerStartPos = float3(5.6f, 2.5f, 38.7f);
 
@@ -139,6 +141,7 @@ void LevelHandler::initialiseLevel1() {
 	level.m_winCondition[BANANA] = 0;
 	level.m_winCondition[MELON] = 10;
 	level.m_winCondition[DRAGON] = 0;
+	
 
 	level.m_playerStartPos = float3(5.9f, 3.2f, 74.4f);
 
