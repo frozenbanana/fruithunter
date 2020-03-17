@@ -30,6 +30,10 @@ public:
 	void initialize(string label, float2 position, bool on);
 	void initialize(string label, float2 position, Setting value);
 	void initialize(string label, float2 position, Resolution value);
+
+	void setLowMedHighUltra(Setting value);
+	void setResolution(Resolution value);
+
 	bool getOnOff();
 	int getLowMedHighUltra();
 	int getResolution();

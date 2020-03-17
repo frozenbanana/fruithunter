@@ -37,14 +37,14 @@ public:
 		}
 	};
 	enum State { INACTIVE, PASSIVE, ACTIVE, CAUGHT, RELEASED };
-	void pathfinding(float3 start, std::vector<float4> animals);
+	virtual void pathfinding(float3 start, std::vector<float4> *animals);
 	void changeState(State newState);
 	State getState() const;
 	bool giveNewPath() const;
 	void setWorked();
 protected:
 	float m_passiveRadius, m_activeRadius;
-
+	bool m_beingWorked = false;
 	float3 m_destination;
 	// mutex m_mutex;
 

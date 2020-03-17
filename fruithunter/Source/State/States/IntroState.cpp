@@ -88,8 +88,8 @@ void IntroState::update() {
 	m_apple.get()->setPosition(float3(
 		treePos.x + (cos(m_totalDelta) * 2.0f), treePos.y, treePos.z + (sin(m_totalDelta) * 2.0f)));
 
-	m_apple.get()->setRotation(float3(0.0f, -m_totalDelta, 0.0f));
 	m_apple.get()->update(delta, m_camera.getPosition());
+	m_apple.get()->setRotation(float3(0.0f, -m_totalDelta, 0.0f));
 
 	// float3 bowForward(56.4f - 68.9f, 9.0f - 9.64f, 18.2f - 23.9f);
 	float3 bowForward = treePos - bowPos;
@@ -103,7 +103,7 @@ void IntroState::update() {
 	if (m_shootTime > m_shootThreshold) {
 		m_shootTime = 0.f;
 		m_bow.shoot(float3(bowForward.x, bowForward.y + RandomFloat(0.12f, 0.2f),
-						bowForward.z + RandomFloat(0.02f, 0.06f)),
+			bowForward.z + RandomFloat(0.02f, 0.06f)),
 			float3(0.f), -0.003f, 4.224f);
 	}
 	m_bow.getTrailEffect().update(
@@ -118,7 +118,7 @@ void IntroState::update() {
 			if (rayCastingValue != -1.f && rayCastingValue < 1.f) {
 				// Arrow is hitting object
 				float3 target = m_bow.getArrow().getPosition() +
-								m_bow.getArrowVelocity() * delta * rayCastingValue;
+					m_bow.getArrowVelocity() * delta * rayCastingValue;
 				m_bow.arrowHitObject(target);
 				m_chargeThreshold = RandomFloat(2.4f, 4.f);
 				m_shootDelay = RandomFloat(0.2f, 1.f);
@@ -217,6 +217,7 @@ void IntroState::play() {
 	ErrorLogger::log(m_name + " play() called.");
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
+	AudioHandler::getInstance()->playMusic(AudioHandler::Music::OCEAN);
 
 	m_startButton.setPosition(float2(106, height * 0.75f - 60.f));
 	m_settingsButton.setPosition(float2(132, height * 0.75f));

@@ -1,7 +1,7 @@
 #include "Fruit.h"
 #include "Input.h"
-#include "PathFindingThread.h"
 #include "AudioHandler.h"
+#include "PathFindingThread.h"
 
 #define LONGSHOT 25.f
 #define MEDIUMSHOT 15.f
@@ -84,7 +84,7 @@ Skillshot Fruit::hit(float3 playerPos) {
 	return hitType;
 }
 
-int Fruit::getFruitType() { return m_fruitType; }
+FruitType Fruit::getFruitType() { return m_fruitType; }
 
 void Fruit::enforceOverTerrain() {
 	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
@@ -118,6 +118,7 @@ ParticleSystem* Fruit::getParticleSystem() { return m_particleSystem.get(); }
 void Fruit::update(float dt, float3 playerPosition) {
 	
 	if (withinDistanceTo(playerPosition, 80.f)) {
+		m_isVisible = true;
 		m_particleSystem->setPosition(m_position);
 		checkOnGroundStatus();
 		doBehavior(playerPosition);
@@ -129,6 +130,8 @@ void Fruit::update(float dt, float3 playerPosition) {
 		enforceOverTerrain();
 		handleAvailablePath(m_position);
 	}
+	else
+		m_isVisible = false;
 }
 
 void Fruit::move(float dt) {
@@ -207,6 +210,8 @@ void Fruit::readyPath() {
 	}
 	pft->m_sizeLock.unlock();
 }
+
+bool Fruit::isVisible() const { return m_isVisible; }
 
 void Fruit::release(float3 direction) {
 	changeState(RELEASED);

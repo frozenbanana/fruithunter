@@ -60,6 +60,7 @@ public:
 	void setScale(float3 scale);
 	void setScale(float scale);
 	void scaleBoundingBoxHalfSizes(float3 scale);
+	void lookAt(float3 position);
 	void lookTo(float3 lookAt);
 	void lookToDir(float3 dir);
 
@@ -77,7 +78,7 @@ public:
 	bool load(string filename);
 	bool loadAnimated(string filename, int nrOfFrames);
 	void setCurrentMaterial(int materialIndex);
-	void loadMaterials(std::vector<string> fileNames, int nrOfMaterials);
+	void loadMaterials(std::vector<string> fileNames);
 
 	float castRay(float3 point, float3 direction);
 

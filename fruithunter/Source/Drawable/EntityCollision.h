@@ -6,13 +6,16 @@ public:
 	enum CollisionType { ctSphere, ctOBB, ctSimpleMesh };
 
 private:
-	struct CollisionData {
+	class CollisionData {
+	public:
 		float3 m_origin; // The position of the entity
 		float3 m_posOffset;
 		float3 m_point; // The point to use in calculations (origin + rotated offset)
 		float3 m_scale;
+		virtual ~CollisionData() {}
 	};
-	struct SphereData : CollisionData {
+	class SphereData : public CollisionData {
+	public:
 		float m_radius;
 		SphereData(float3 point, float3 posOffset, float3 scale, float radius) {
 			m_origin = point;
@@ -23,7 +26,8 @@ private:
 			m_radius = radius;
 		}
 	};
-	struct ObbData : CollisionData {
+	class ObbData : public CollisionData {
+	public:
 		float3 m_axis[3];
 		float3 m_halfSize;
 		ObbData(float3 point, float3 posOffset, float3 scale, float3 halfSize) {
@@ -49,11 +53,15 @@ private:
 	bool collisionSphereOBB(SphereData& sphere, ObbData& obb);
 
 public:
+	EntityCollision(const EntityCollision& other);
 	EntityCollision(float3 point = float3(0.f), float3 posOffset = float3(0.f),
 		float3 scale = float3(1.f),
 		float radius = 0.5f); // default is sphere
 	EntityCollision(float3 point, float3 posOffset, float3 scale, float3 halfSizes);
 	~EntityCollision();
+
+	EntityCollision& operator=(const EntityCollision& other);
+
 	void setCollisionData(float3 point, float3 posOffset, float3 scale, float radius);	  // sphere
 	void setCollisionData(float3 point, float3 posOffset, float3 scale, float3 halfSize); // OBB
 	void rotateObbAxis(float4x4 matRotation);

@@ -6,6 +6,12 @@
 #include "VariableSyncer.h"
 #include "PathFindingThread.h"
 
+
+#define WIND_PLAINS float3(0.f, 0.f, 7.f)
+#define WIND_FOREST float3(3.f, 0.f, -5.f)
+#define WIND_DESERT float3(-5.f, 0.f, 4.f)
+#define WIND_VULCANO float3(0.f, 8.f, 0.f)
+
 void LevelHandler::initialiseLevel0() {
 	Level level;
 
@@ -32,18 +38,26 @@ void LevelHandler::initialiseLevel0() {
 	maps[3] = "texture_rock6.jpg";
 	level.m_heightmapTextures.push_back(maps);
 
+	level.m_seaTypes.push_back(SeaEffect::SeaEffectTypes::water);
+	level.m_seaPositions.push_back(float3(0.f, 1.f, 0.f) - float3(200.f, 0, 200.f) + float3(50.f, 0, 50.f));
+	level.m_seaScales.push_back(float3(400, 2, 400));
+	level.m_seaGrids.push_back(XMINT2(8, 8));
+	level.m_seaTiles.push_back(XMINT2(50, 50));
+
 	// level.m_wind.push_back(float3(0.f, 8.f, 0.f)); // Volcano
 	// level.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
 	// level.m_wind.push_back(float3(1.f, 0.f, 2.f)); // Desert
-	level.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
+	level.m_wind.push_back(float3(0.f, 0.f, 3.f)); // Plains
 
-	level.m_nrOfFruits[APPLE] = 0;
+	level.m_nrOfFruits[APPLE] = 30;
 	level.m_nrOfFruits[BANANA] = 0;
 	level.m_nrOfFruits[MELON] = 0;
+	level.m_nrOfFruits[DRAGON] = 0;
 
-	level.m_winCondition[APPLE] = 10;
+	level.m_winCondition[APPLE] = 15;
 	level.m_winCondition[BANANA] = 0;
 	level.m_winCondition[MELON] = 0;
+	level.m_winCondition[DRAGON] = 0;
 
 	level.m_playerStartPos = float3(5.6f, 2.5f, 38.7f);
 
@@ -65,6 +79,7 @@ void LevelHandler::initialiseLevel1() {
 
 	level.m_fruitPos[APPLE].push_back(0);
 	level.m_fruitPos[MELON].push_back(1);
+	level.m_fruitPos[DRAGON].push_back(0);
 
 
 	level.m_heightMapNames.push_back("ForestMap.png");
@@ -94,6 +109,13 @@ void LevelHandler::initialiseLevel1() {
 	maps[3] = "texture_rock6.jpg";
 	level.m_heightmapTextures.push_back(maps);
 
+	level.m_seaTypes.push_back(SeaEffect::SeaEffectTypes::water);
+	level.m_seaPositions.push_back(
+		float3(0.f, 1.f, 0.f) - float3(200.f, 0.f, 200.f) + float3(100.f, 0, 50.f));
+	level.m_seaScales.push_back(float3(400.f, 2.f, 400.f));
+	level.m_seaGrids.push_back(XMINT2(8, 8));
+	level.m_seaTiles.push_back(XMINT2(50, 50));
+
 	level.m_bridgePosition.push_back(float3(103.2f, 3.1f, 39.f));
 	// level.m_bridgePosition.push_back(float3(35.f, 3.5f, 98.5f));
 
@@ -103,26 +125,29 @@ void LevelHandler::initialiseLevel1() {
 	level.m_bridgeScale.push_back(float3(1.9f, 1.f, 1.4f));
 	// level.m_bridgeScale.push_back(float3(1.6f, 1.f, 1.4f));
 
-	shared_ptr<Animal> animal = make_shared<Animal>("Goat", 10.f, 7.f, APPLE, 2, 10.f,
+	shared_ptr<Animal> animal = make_shared<Animal>("Goat", 10.f, 7.f, FruitType::APPLE, 2, 10.f,
 		float3(96.2f, 3.45f, 38.f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
 	level.m_animal.push_back(animal);
 
-	level.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
-	level.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
+	level.m_wind.push_back(WIND_FOREST); // Forest
+	level.m_wind.push_back(WIND_PLAINS); // Plains
 
 	level.m_nrOfFruits[APPLE] = 0;
 	level.m_nrOfFruits[BANANA] = 0;
-	level.m_nrOfFruits[MELON] = 0;
+	level.m_nrOfFruits[MELON] = 20;
+	level.m_nrOfFruits[DRAGON] = 0;
 
 	level.m_winCondition[APPLE] = 10;
 	level.m_winCondition[BANANA] = 0;
 	level.m_winCondition[MELON] = 10;
+	level.m_winCondition[DRAGON] = 0;
+	
 
 	level.m_playerStartPos = float3(5.9f, 3.2f, 74.4f);
 
-	level.m_timeTargets[GOLD] = 120;
-	level.m_timeTargets[SILVER] = 160;
-	level.m_timeTargets[BRONZE] = 200;
+	level.m_timeTargets[GOLD] = 70;
+	level.m_timeTargets[SILVER] = 90;
+	level.m_timeTargets[BRONZE] = 120;
 
 	m_levelsArr.push_back(level);
 	m_hud.setTimeTargets(level.m_timeTargets);
@@ -133,18 +158,18 @@ void LevelHandler::initialiseLevel2() {
 
 	level.m_terrainPropsFilename = "level2";
 
-	level.m_terrainTags.push_back(Level::TerrainTags::Volcano);
-	level.m_terrainTags.push_back(Level::TerrainTags::Forest);
-	level.m_terrainTags.push_back(Level::TerrainTags::Desert);
-	level.m_terrainTags.push_back(Level::TerrainTags::Plains);
+	level.m_terrainTags.push_back(Level::TerrainTags::Volcano); // 1
+	level.m_terrainTags.push_back(Level::TerrainTags::Forest);	// 2
+	level.m_terrainTags.push_back(Level::TerrainTags::Desert);	// 3
+	level.m_terrainTags.push_back(Level::TerrainTags::Plains);	// 4
 
+	level.m_fruitPos[APPLE].push_back(3); // 2 is  desert
 	level.m_fruitPos[APPLE].push_back(1);
-	level.m_fruitPos[APPLE].push_back(2);
-	level.m_fruitPos[APPLE].push_back(3);
-	level.m_fruitPos[BANANA].push_back(1);
+	level.m_fruitPos[BANANA].push_back(1); //  0 is volcano
 	level.m_fruitPos[BANANA].push_back(2);
 	level.m_fruitPos[BANANA].push_back(3);
-	level.m_fruitPos[MELON].push_back(0);
+	level.m_fruitPos[MELON].push_back(2);  // 1 is forest
+	level.m_fruitPos[DRAGON].push_back(0); // 3 is plains
 
 	level.m_heightMapNames.push_back("VolcanoMap.png");
 	level.m_heightMapNames.push_back("ForestMap.png");
@@ -193,6 +218,19 @@ void LevelHandler::initialiseLevel2() {
 	maps[3] = "texture_rock6.jpg";
 	level.m_heightmapTextures.push_back(maps);
 
+	level.m_seaTypes.push_back(SeaEffect::SeaEffectTypes::water);
+	level.m_seaPositions.push_back(float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f));
+	level.m_seaScales.push_back(float3(400.f, 2.f, 400.f));
+	level.m_seaGrids.push_back(XMINT2(8, 8));
+	level.m_seaTiles.push_back(XMINT2(50, 50));
+	float3 lavaSize(82.f, 0.f, 82.f);
+	float3 lavaPos(150, 1.5f, 150);
+	level.m_seaTypes.push_back(SeaEffect::SeaEffectTypes::lava);
+	level.m_seaPositions.push_back(lavaPos - lavaSize / 2.f);
+	level.m_seaScales.push_back(lavaSize + float3(0, 2.f, 0));
+	level.m_seaGrids.push_back(XMINT2(4, 4));
+	level.m_seaTiles.push_back(XMINT2(20, 20));
+
 	level.m_bridgePosition.push_back(float3(103.2f, 3.1f, 39.f));
 	level.m_bridgePosition.push_back(float3(35.f, 3.5f, 98.5f));
 	level.m_bridgePosition.push_back(float3(99.2f, 7.9f, 155.f));
@@ -217,24 +255,25 @@ void LevelHandler::initialiseLevel2() {
 		float3(87.f, 8.8f, 156.f), XM_PI * 0.5f);
 	level.m_animal.push_back(animal);
 
-	level.m_wind.push_back(float3(0.f, 8.f, 0.f));	// Volcano
-	level.m_wind.push_back(float3(3.f, 0.f, 6.f));	// Forest
-	level.m_wind.push_back(float3(3.f, 0.f, -2.f)); // Desert
-	level.m_wind.push_back(float3(0.f, 0.f, 1.f));	// Plains
+	level.m_wind.push_back(WIND_VULCANO); // Volcano
+	level.m_wind.push_back(WIND_FOREST);  // Forest
+	level.m_wind.push_back(WIND_DESERT);  // Desert
+	level.m_wind.push_back(WIND_PLAINS);  // Plains
 
-	level.m_nrOfFruits[APPLE] = 0;
-	level.m_nrOfFruits[BANANA] = 15;
-	level.m_nrOfFruits[MELON] = 0;
+	level.m_nrOfFruits[APPLE] = 20;
+	level.m_nrOfFruits[BANANA] = 20;
+	level.m_nrOfFruits[MELON] = 20;
+	level.m_nrOfFruits[DRAGON] = 10;
 
-	level.m_winCondition[APPLE] = 2;
-	level.m_winCondition[BANANA] = 2;
-	level.m_winCondition[MELON] = 2;
-
+	level.m_winCondition[APPLE] = 5;
+	level.m_winCondition[BANANA] = 5;
+	level.m_winCondition[MELON] = 5;
+	level.m_winCondition[DRAGON] = 5;
 	level.m_playerStartPos = float3(162.5f, 9.5f, 19.f);
 
-	level.m_timeTargets[GOLD] = 120;
-	level.m_timeTargets[SILVER] = 160;
-	level.m_timeTargets[BRONZE] = 200;
+	level.m_timeTargets[GOLD] = 150;
+	level.m_timeTargets[SILVER] = 180;
+	level.m_timeTargets[BRONZE] = 210;
 
 	m_levelsArr.push_back(level);
 	m_hud.setTimeTargets(level.m_timeTargets);
@@ -301,12 +340,16 @@ void LevelHandler::initialise() {
 	m_terrainProps.addPlaceableEntity("RopeBridgeFloor");
 	m_terrainProps.addPlaceableEntity("RopeBridgeRailing1");
 	m_terrainProps.addPlaceableEntity("RopeBridgeRailing2");
+	m_terrainProps.addPlaceableEntity("SignSlanted");
+	m_terrainProps.addPlaceableEntity("SignSlanted2");
+	m_terrainProps.addPlaceableEntity("SignHorizontal");
+	m_terrainProps.addPlaceableEntity("SignHorizontal2");
 
 	initialiseLevel0();
 	initialiseLevel1();
 	initialiseLevel2();
 
-	m_particleSystems.resize(5);
+	m_particleSystems.resize(6);
 	m_particleSystems[0] = ParticleSystem(ParticleSystem::VULCANO_FIRE);
 	m_particleSystems[0].setPosition(float3(150.f, 25.f, 150.f));
 	m_particleSystems[1] = ParticleSystem(ParticleSystem::VULCANO_SMOKE);
@@ -317,13 +360,8 @@ void LevelHandler::initialise() {
 	m_particleSystems[3].setPosition(float3(50.f, 2.f, 40.f));
 	m_particleSystems[4] = ParticleSystem(ParticleSystem::LAVA_BUBBLE);
 	m_particleSystems[4].setPosition(float3(150.f, 0.f, 149.f));
-
-	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(50, 50), XMINT2(8, 8),
-		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
-	float3 lavaSize(82.f, 0.f, 82.f);
-	float3 lavaPos(150, 1.5f, 150);
-	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(20, 20), XMINT2(4, 4),
-		lavaPos - lavaSize / 2.f, lavaSize + float3(0, 2.f, 0));
+	m_particleSystems[5] = ParticleSystem(ParticleSystem::GROUND_DUST);
+	m_particleSystems[5].setPosition(float3(125.f, 4.f, 50.f));
 }
 
 void LevelHandler::loadLevel(int levelNr) {
@@ -340,6 +378,13 @@ void LevelHandler::loadLevel(int levelNr) {
 				currentLevel.m_heightMapScales[i], currentLevel.m_heightMapNames.at(i),
 				currentLevel.m_heightmapTextures[i], currentLevel.m_heightMapSubSize.at(i),
 				currentLevel.m_heightMapDivision.at(i), currentLevel.m_wind.at(i));
+		}
+
+		m_seaEffects.resize(m_levelsArr.at(levelNr).m_seaTypes.size());
+		for (size_t i = 0; i < m_levelsArr.at(levelNr).m_seaTypes.size(); i++) {
+			m_seaEffects[i].initilize(currentLevel.m_seaTypes[i], currentLevel.m_seaTiles[i],
+				currentLevel.m_seaGrids[i], currentLevel.m_seaPositions[i],
+				currentLevel.m_seaScales[i]);
 		}
 
 		for (int i = 0; i < currentLevel.m_nrOfFruits[APPLE]; i++) {
@@ -360,6 +405,13 @@ void LevelHandler::loadLevel(int levelNr) {
 				m_terrainManager->getSpawnpoint(currentLevel.m_fruitPos[MELON].at(terrainTagNr)));
 			m_fruits.push_back(melon);
 		}
+		for (int i = 0; i < currentLevel.m_nrOfFruits[DRAGON]; i++) {
+			int terrainTagNr = i % currentLevel.m_fruitPos[DRAGON].size();
+			shared_ptr<DragonFruit> dragon = make_shared<DragonFruit>(
+				m_terrainManager->getSpawnpoint(currentLevel.m_fruitPos[DRAGON].at(terrainTagNr)));
+			m_fruits.push_back(dragon);
+		}
+
 
 		m_player.setPosition(currentLevel.m_playerStartPos);
 
@@ -370,6 +422,7 @@ void LevelHandler::loadLevel(int levelNr) {
 
 		m_hud.setTimeTargets(currentLevel.m_timeTargets);
 		m_hud.setWinCondition(currentLevel.m_winCondition);
+		m_hud.setLevelIndex(levelNr);
 
 
 		if (currentLevel.m_nrOfFruits[APPLE] != 0)
@@ -378,6 +431,8 @@ void LevelHandler::loadLevel(int levelNr) {
 			m_hud.createFruitSprite("banana");
 		if (currentLevel.m_nrOfFruits[MELON] != 0)
 			m_hud.createFruitSprite("melon");
+		if (currentLevel.m_nrOfFruits[DRAGON] != 0)
+			m_hud.createFruitSprite("dragonfruit");
 
 		// Put out bridges correctly
 		for (int i = 0; i < currentLevel.m_bridgePosition.size(); i++) {
@@ -397,8 +452,7 @@ void LevelHandler::loadLevel(int levelNr) {
 				a->getPosition().x, a->getPosition().y, a->getPosition().z, a->getFruitRange());
 			animalPos.push_back(ani);
 		}
-		PathFindingThread::getInstance()->initialize(m_fruits, m_frame,
-			m_terrainProps, animalPos); 
+		PathFindingThread::getInstance()->initialize(m_fruits, m_frame, m_terrainProps, animalPos);
 	}
 }
 
@@ -408,9 +462,12 @@ void LevelHandler::draw() {
 
 	Renderer::getInstance()->enableAlphaBlending();
 	for (int i = 0; i < m_fruits.size(); i++) {
-		m_fruits[i]->draw_animate();
-		m_fruits[i]->getParticleSystem()->drawNoAlpha();
+		if (m_fruits[i]->isVisible()) {
+			m_fruits[i]->draw_animate();
+			m_fruits[i]->getParticleSystem()->drawNoAlpha();
+		}
 	}
+
 	Renderer::getInstance()->disableAlphaBlending();
 
 	for (size_t i = 0; i < m_Animals.size(); ++i) {
@@ -433,10 +490,10 @@ void LevelHandler::draw() {
 	m_terrainManager->draw();
 	// water/lava effect
 	Renderer::getInstance()->copyDepthToSRV();
-	waterEffect.quadtreeCull(frustum);
-	waterEffect.draw();
-	lavaEffect.quadtreeCull(frustum);
-	lavaEffect.draw();
+	for (size_t i = 0; i < m_seaEffects.size(); i++) {
+		m_seaEffects[i].quadtreeCull(frustum);
+		m_seaEffects[i].draw();
+	}
 
 	Renderer::getInstance()->draw_darkEdges();
 
@@ -632,15 +689,13 @@ void LevelHandler::update(float dt) {
 	}
 
 	m_hud.update(dt, m_player.getStamina());
-	waterEffect.update(dt);
-	lavaEffect.update(dt);
-
-	// Renderer::getInstance()->setPlayerPos(playerPos);
+	for (size_t i = 0; i < m_seaEffects.size(); i++)
+		m_seaEffects[i].update(dt);
 }
 
 HUD& LevelHandler::getHUD() { return m_hud; }
 
-void LevelHandler::pickUpFruit(int fruitType) {
+void LevelHandler::pickUpFruit(FruitType fruitType) {
 	m_inventory[fruitType]++;
 	m_hud.addFruit(fruitType);
 }
@@ -684,6 +739,18 @@ void LevelHandler::dropFruit() {
 			
 			// m_inventory[MELON]--;
 			m_hud.removeFruit(MELON);
+		}
+	}
+	if (ip->keyPressed(Keyboard::D4)) {
+		if (m_inventory[DRAGON] >= 0) {
+			shared_ptr<DragonFruit> dragonFruit =
+				make_shared<DragonFruit>((m_player.getPosition() + float3(0.0f, 1.5f, 0.0f)));
+			dragonFruit->release(m_player.getForward());
+			pft->m_mutex.lock();
+			m_fruits.push_back(dragonFruit);
+			pft->m_mutex.unlock();
+			// m_inventory[MELON]--;
+			m_hud.removeFruit(DRAGON);
 		}
 	}
 }

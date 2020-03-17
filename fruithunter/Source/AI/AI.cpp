@@ -142,7 +142,7 @@ void AI::makeReadyForPath(float3 destination) {
 	m_destination = destination;
 }
 
-void AI::pathfinding(float3 start, std::vector<float4> animals) {
+void AI::pathfinding(float3 start, std::vector<float4> *animals) {
 	// ErrorLogger::log("thread starting for pathfinding");
 	auto pft = PathFindingThread::getInstance();
 	if ((start - m_destination).LengthSquared() < 0.5f)
@@ -214,7 +214,7 @@ void AI::pathfinding(float3 start, std::vector<float4> animals) {
 					if (!beingUsed(child, open, closed)) {
 						continue;
 					}
-					if (!checkAnimals(animals, childPosition)) {
+					if (!checkAnimals(*animals, childPosition)) {
 						continue;
 					}
 
@@ -240,7 +240,7 @@ void AI::pathfinding(float3 start, std::vector<float4> animals) {
 
 void AI::changeState(State newState) {
 	m_currentState = newState;
-	//m_availablePath.clear();
+	m_availablePath.clear();
 }
 
 AI::State AI::getState() const { return m_currentState; }

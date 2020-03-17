@@ -5,7 +5,7 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	m_nrOfFramePhases = 6;
 	vector<string> names{ "Melon.mtl", "Melon2bronze.mtl", "Melon2silver.mtl", "Melon2gold.mtl",
 		"Melon3.mtl" };
-	loadMaterials(names, 5);
+	loadMaterials(names);
 
 	m_meshAnim.setFrameTargets(0, 0);
 	m_rollSpeed = 5.f;
@@ -29,7 +29,7 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 
 	m_passive_speed = 8.f;
 	m_active_speed = 15.f;
-	m_caught_speed = 10.f;
+	m_caught_speed = 15.f;
 }
 
 void Melon::behaviorPassive(float3 playerPosition) {

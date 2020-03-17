@@ -22,7 +22,7 @@ void Button::initialize(string label, float2 position, bool on) {
 	m_position = position;
 	m_on = on;
 	m_isToggle = true;
-	m_colour = float4(1.f);
+	m_colour = COL_INACTIVE;
 	m_size = m_textRenderer.getSize(m_label + ": On");
 }
 
@@ -31,7 +31,7 @@ void Button::initialize(string label, float2 position, Setting value) {
 	m_position = position;
 	m_isLowMedHighUltra = true;
 	m_lowMedHighUltra = value;
-	m_colour = float4(1.f);
+	m_colour = COL_INACTIVE;
 	m_size = m_textRenderer.getSize(m_label + ": Ultra");
 }
 
@@ -40,9 +40,13 @@ void Button::initialize(string label, float2 position, Resolution value) {
 	m_position = position;
 	m_isResolution = true;
 	m_resolution = value;
-	m_colour = float4(1.f);
+	m_colour = COL_INACTIVE;
 	m_size = m_textRenderer.getSize(m_label + ": 3840x2160");
 }
+
+void Button::setLowMedHighUltra(Setting value) { m_lowMedHighUltra = value; }
+
+void Button::setResolution(Resolution value) { m_resolution = value; }
 
 bool Button::getOnOff() { return m_on; }
 

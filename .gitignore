@@ -4,9 +4,17 @@ assets/FileSyncs/*
 fruithunter/assets/PerformanceAnalysis/RuntimeAnalysis.txt
 x64/
 .vs/
+assets/captures/backbuffer.png
+fruithunter/assets/captures/backbuffer.png
+assets/settings.txt
+fruithunter/assets/settings.txt
+assets/SaveStates/*
+fruithunter/assets/SaveStates/*
 fruithunter/Debug/
 fruithunter/Release/
 fruithunter/x64/
 fruithunter/*.cso
 fruithunter/assets/FileSyncs/*
 /fruithunter/assets/Meshes/Textures/loadingScreen.pdn
+/fruithunter/assets/settings.txt
+/fruithunter/assets/captures/backbuffer.png

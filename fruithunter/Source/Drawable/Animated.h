@@ -38,7 +38,7 @@ public:
 	void draw_onlyMesh(float3 color);
 
 	bool load(std::string filename, int nrOfFrames = 1, bool combineParts = true);
-	void loadMaterials(std::vector<string> fileNames, int nrOfMaterials);
+	void loadMaterials(std::vector<string> fileNames);
 
 	float3 getBoundingBoxHalfSizes() const;
 	float3 getBoundingBoxPos() const;

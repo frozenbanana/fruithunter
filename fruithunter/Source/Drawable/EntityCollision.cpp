@@ -167,6 +167,8 @@ bool EntityCollision::collisionSphereOBB(SphereData& sphere, ObbData& obb) {
 	return distSq < sphere.m_radius * sphere.m_radius * sphere.m_scale.y * sphere.m_scale.y;
 }
 
+EntityCollision::EntityCollision(const EntityCollision& other) { *this = other; }
+
 EntityCollision::EntityCollision(float3 point, float3 posOffset, float3 scale, float radius) {
 	setCollisionData(point, posOffset, scale, radius);
 	m_collidable = true;
@@ -178,6 +180,22 @@ EntityCollision::EntityCollision(float3 point, float3 posOffset, float3 scale, f
 }
 
 EntityCollision::~EntityCollision() {}
+
+EntityCollision& EntityCollision::operator=(const EntityCollision& other) {
+	
+	m_collisionType = other.m_collisionType;
+	m_collidable = other.m_collidable;
+	m_collisionData.reset();
+	if (m_collisionType == CollisionType::ctOBB) {
+		m_collisionData =
+			make_unique<ObbData>(*dynamic_cast<ObbData*>(other.m_collisionData.get()));
+	}
+	else if (m_collisionType == CollisionType::ctSphere) {
+		m_collisionData =
+			make_unique<SphereData>(*dynamic_cast<SphereData*>(other.m_collisionData.get()));
+	}
+	return *this;
+}
 
 
 void EntityCollision::setCollisionData(float3 point, float3 posOffset, float3 scale, float radius) {
