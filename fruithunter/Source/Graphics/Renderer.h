@@ -41,13 +41,10 @@ public:
 	void copyDepthToSRV();
 
 	void captureFrame();
-	void copyFrame();
-
 	void drawCapturedFrame();
-	void drawCopyFrame();
-
+	
+	void drawAA();
 	void draw_darkEdges();
-
 	void drawLoading();
 
 	void setDrawState(DrawingState state);
@@ -86,6 +83,8 @@ private:
 	// post process dark edges variables
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexQuadBuffer;
 	ShaderSet m_shader_darkEdges;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_BBSRV;
 
 	// Loading screen
 	Quad m_loadingScreen;

@@ -62,6 +62,29 @@ void Quad::draw() {
 	deviceContext->DrawIndexed(6, 0, 0);
 }
 
+void Quad::draw(ID3D11ShaderResourceView* rsv) {
+	auto deviceContext = Renderer::getDeviceContext();
+
+	// Set shaders to renderer
+	m_shader.bindShadersAndLayout();
+
+	// Set Sampler for texturing
+	deviceContext->PSSetSamplers(0, 1, &m_samplerState);
+	deviceContext->PSSetShaderResources(0, 1, &rsv);
+
+	// Bind our vertex buffer
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+	deviceContext->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
+
+	// Bind our index buffer
+	deviceContext->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+
+	// Draw
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	deviceContext->DrawIndexed(6, 0, 0);
+}
+
 void Quad::createMesh() {
 	auto device = Renderer::getDevice();
 

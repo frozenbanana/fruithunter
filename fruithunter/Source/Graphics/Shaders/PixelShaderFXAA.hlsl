@@ -195,8 +195,7 @@ float3 FXAA(float2 texCoord)
 	return objTexture.Sample(objSamplerState, finalCoord).rgb;
 }
 
-float4 main(Input input) : SV_Target
-{
+float4 main(Input input) : SV_Target {
     return float4(FXAA(input.uv), 1.0f);
 };
 

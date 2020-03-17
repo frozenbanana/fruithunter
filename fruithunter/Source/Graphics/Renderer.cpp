@@ -144,20 +144,6 @@ void Renderer::captureFrame() {
 	}
 }
 
-void Renderer::copyFrame() {
-	auto hr = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&m_backBufferTex);
-	if (FAILED(hr)) {
-		ErrorLogger::logError(hr, "Failed to capture backbuffer.");
-	}
-	else {
-		// Write out the render target to png
-		hr = SaveWICTextureToFile(Renderer::getDeviceContext(), m_backBufferTex.Get(),
-			GUID_ContainerFormatPng, L"assets/captures/backbuffer.png", nullptr, nullptr);
-		m_copyFrame.init();
-		m_copyFrameLoaded = true;
-	}
-}
-
 void Renderer::drawCapturedFrame() {
 	if (!m_capturedFrameLoaded) {
 		m_capturedFrame.init();
@@ -166,12 +152,32 @@ void Renderer::drawCapturedFrame() {
 	m_capturedFrame.draw();
 }
 
-void Renderer::drawCopyFrame() {
+void Renderer::drawAA() {
+	ID3D11Texture2D* pBuffer;
+	D3D11_TEXTURE2D_DESC td;
+
+	auto hr = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBuffer);
+
 	if (!m_copyFrameLoaded) {
 		m_copyFrame.init();
 		m_copyFrameLoaded = true;
 	}
-	m_copyFrame.draw();
+
+	pBuffer->GetDesc(&td);
+	td.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+	hr = m_device->CreateTexture2D(&td, NULL, &m_backBufferTex);
+	if (FAILED(hr))
+		ErrorLogger::logWarning(hr, "C2D");
+
+	m_deviceContext->CopyResource(m_backBufferTex.Get(), pBuffer);
+	pBuffer->Release();
+
+	hr = m_device->CreateShaderResourceView(m_backBufferTex.Get(), nullptr, &m_BBSRV);
+	if (FAILED(hr))
+		ErrorLogger::logWarning(hr, "CSRV");
+
+	m_copyFrame.draw(m_BBSRV.Get());
 }
 
 void Renderer::draw_darkEdges() {

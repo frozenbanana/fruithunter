@@ -11,6 +11,7 @@ public:
 	~Quad();
 	void init();
 	void draw();
+	void draw(ID3D11ShaderResourceView* rsv);
 
 private:
 	void createMesh();
