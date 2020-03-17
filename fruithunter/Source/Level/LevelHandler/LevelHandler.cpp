@@ -35,7 +35,7 @@ void LevelHandler::initialiseLevel0() {
 	// level.m_wind.push_back(float3(0.f, 8.f, 0.f)); // Volcano
 	// level.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
 	// level.m_wind.push_back(float3(1.f, 0.f, 2.f)); // Desert
-	level.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
+	level.m_wind.push_back(float3(0.f, 0.f, 3.f)); // Plains
 
 	level.m_nrOfFruits[APPLE] = 20;
 	level.m_nrOfFruits[BANANA] = 0;
@@ -108,7 +108,7 @@ void LevelHandler::initialiseLevel1() {
 	level.m_animal.push_back(animal);
 
 	level.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
-	level.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
+	level.m_wind.push_back(float3(0.f, 0.f, 3.f)); // Plains
 
 	level.m_nrOfFruits[APPLE] = 20;
 	level.m_nrOfFruits[BANANA] = 0;
