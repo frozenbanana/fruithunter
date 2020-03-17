@@ -27,10 +27,9 @@ void Player::update(float dt, Terrain* terrain) {
 	// Movement force
 	float3 force = getMovementForce();
 
+	checkSteepTerrain(terrain);
 	checkSprint(delta);
 	checkDash(delta);
-	checkSteepTerrain(terrain);
-	checkGround(terrain);
 	checkHunterMode();
 
 	rotatePlayer(dt);
@@ -51,6 +50,7 @@ void Player::update(float dt, Terrain* terrain) {
 		m_position += m_velocity * delta;
 
 		// Update velocity for next frame
+		checkGround(terrain);
 		if (m_onGround) {
 			if (m_onSteepGround) {
 				// Steep ground
@@ -103,6 +103,7 @@ void Player::collideObject(Entity& obj) {
 		if (m_velocity.y <= 0.f) {
 			m_velocity.y = 0.f;
 			m_onGround = true;
+			m_onSteepGround = false;
 			m_onEntity = true;
 			if (obj.getCollisionType() == EntityCollision::ctOBB)
 				m_position.y +=
@@ -353,7 +354,7 @@ vector<float3> Player::getFrustumPoints(float scaleBetweenNearAndFarPlane) const
 }
 
 void Player::checkDash(float dt) {
-	if (Input::getInstance()->keyPressed(KEY_DASH) && m_onGround) {
+	if (Input::getInstance()->keyPressed(KEY_DASH) && (m_onGround || m_onEntity) && !m_onSteepGround) {
 		m_chargingDash = true;
 	}
 
