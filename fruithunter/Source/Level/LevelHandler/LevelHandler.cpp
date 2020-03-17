@@ -37,7 +37,7 @@ void LevelHandler::initialiseLevel0() {
 	// level.m_wind.push_back(float3(1.f, 0.f, 2.f)); // Desert
 	level.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
 
-	level.m_nrOfFruits[APPLE] = 20;
+	level.m_nrOfFruits[APPLE] = 0;
 	level.m_nrOfFruits[BANANA] = 0;
 	level.m_nrOfFruits[MELON] = 0;
 
@@ -401,8 +401,14 @@ void LevelHandler::loadLevel(int levelNr) {
 	}
 
 	if (PathFindingThread::getInstance()->m_thread == nullptr) {
+		std::vector<float4> animalPos;
+		for (auto a : m_Animals) {
+			float4 ani = float4(
+				a->getPosition().x, a->getPosition().y, a->getPosition().z, a->getFruitRange());
+			animalPos.push_back(ani);
+		}
 		PathFindingThread::getInstance()->initialize(m_fruits, m_frame,
-			m_collidableEntities); // Inte en perfekt lösning. Ingen pathfinding vid levelbyte.
+			m_terrainProps, animalPos); 
 	}
 }
 

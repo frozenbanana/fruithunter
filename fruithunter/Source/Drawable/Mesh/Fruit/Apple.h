@@ -7,7 +7,6 @@ private:
 	void behaviorPassive(float3 playerPosition) override;
 	void behaviorActive(float3 playerPosition) override;
 	void behaviorCaught(float3 playerPosition) override;
-
 	int m_nrOfJumps = 0;
 
 public:
