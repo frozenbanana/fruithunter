@@ -147,9 +147,7 @@ void LevelSelectState::handleEvent() {
 	}
 }
 
-void LevelSelectState::pause() {
-	ErrorLogger::log(m_name + " pause() called.");
-}
+void LevelSelectState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
 void LevelSelectState::play() {
 	Input::getInstance()->setMouseModeRelative();
