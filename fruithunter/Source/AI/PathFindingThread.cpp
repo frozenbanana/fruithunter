@@ -15,6 +15,9 @@ void PathFindingThread::exitThread() {
 	pft->m_ready = true;
 	pft->m_mutex.unlock();
 	pft->m_thread->join();
+	if (pft->m_thread) {
+		delete pft->m_thread;
+	}
 	pft->m_thread = nullptr;
 }
 //
@@ -32,12 +35,6 @@ void PathFindingThread::addFruit(Fruit* &fruit) {
 
 
 PathFindingThread::~PathFindingThread() {
-	auto pft = PathFindingThread::getInstance();
-	if (pft->m_thread) {
-
-		pft->m_thread->join();
-		delete pft->m_thread;
-	}
 	
 }
 
