@@ -38,6 +38,12 @@ void LevelHandler::initialiseLevel0() {
 	maps[3] = "texture_rock6.jpg";
 	level.m_heightmapTextures.push_back(maps);
 
+	level.m_seaTypes.push_back(SeaEffect::SeaEffectTypes::water);
+	level.m_seaPositions.push_back(float3(0.f, 1.f, 0.f) - float3(200.f, 0, 200.f) + float3(50.f, 0, 50.f));
+	level.m_seaScales.push_back(float3(400, 2, 400));
+	level.m_seaGrids.push_back(XMINT2(8, 8));
+	level.m_seaTiles.push_back(XMINT2(50, 50));
+
 	// level.m_wind.push_back(float3(0.f, 8.f, 0.f)); // Volcano
 	// level.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
 	// level.m_wind.push_back(float3(1.f, 0.f, 2.f)); // Desert
@@ -100,6 +106,13 @@ void LevelHandler::initialiseLevel1() {
 	maps[3] = "texture_rock6.jpg";
 	level.m_heightmapTextures.push_back(maps);
 
+	level.m_seaTypes.push_back(SeaEffect::SeaEffectTypes::water);
+	level.m_seaPositions.push_back(
+		float3(0.f, 1.f, 0.f) - float3(200.f, 0.f, 200.f) + float3(100.f, 0, 50.f));
+	level.m_seaScales.push_back(float3(400.f, 2.f, 400.f));
+	level.m_seaGrids.push_back(XMINT2(8, 8));
+	level.m_seaTiles.push_back(XMINT2(50, 50));
+
 	level.m_bridgePosition.push_back(float3(103.2f, 3.1f, 39.f));
 	// level.m_bridgePosition.push_back(float3(35.f, 3.5f, 98.5f));
 
@@ -109,7 +122,7 @@ void LevelHandler::initialiseLevel1() {
 	level.m_bridgeScale.push_back(float3(1.9f, 1.f, 1.4f));
 	// level.m_bridgeScale.push_back(float3(1.6f, 1.f, 1.4f));
 
-	shared_ptr<Animal> animal = make_shared<Animal>("Goat", 10.f, 7.f, APPLE, 2, 10.f,
+	shared_ptr<Animal> animal = make_shared<Animal>("Goat", 10.f, 7.f, FruitType::APPLE, 2, 10.f,
 		float3(96.2f, 3.45f, 38.f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
 	level.m_animal.push_back(animal);
 
@@ -198,6 +211,19 @@ void LevelHandler::initialiseLevel2() {
 	maps[2] = "texture_rock6.jpg";
 	maps[3] = "texture_rock6.jpg";
 	level.m_heightmapTextures.push_back(maps);
+
+	level.m_seaTypes.push_back(SeaEffect::SeaEffectTypes::water);
+	level.m_seaPositions.push_back(float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f));
+	level.m_seaScales.push_back(float3(400.f, 2.f, 400.f));
+	level.m_seaGrids.push_back(XMINT2(8, 8));
+	level.m_seaTiles.push_back(XMINT2(50, 50));
+	float3 lavaSize(82.f, 0.f, 82.f);
+	float3 lavaPos(150, 1.5f, 150);
+	level.m_seaTypes.push_back(SeaEffect::SeaEffectTypes::lava);
+	level.m_seaPositions.push_back(lavaPos - lavaSize / 2.f);
+	level.m_seaScales.push_back(lavaSize + float3(0, 2.f, 0));
+	level.m_seaGrids.push_back(XMINT2(4, 4));
+	level.m_seaTiles.push_back(XMINT2(20, 20));
 
 	level.m_bridgePosition.push_back(float3(103.2f, 3.1f, 39.f));
 	level.m_bridgePosition.push_back(float3(35.f, 3.5f, 98.5f));
@@ -325,13 +351,6 @@ void LevelHandler::initialise() {
 	m_particleSystems[4].setPosition(float3(150.f, 0.f, 149.f));
 	m_particleSystems[5] = ParticleSystem(ParticleSystem::GROUND_DUST);
 	m_particleSystems[5].setPosition(float3(125.f, 4.f, 50.f));
-
-	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(50, 50), XMINT2(8, 8),
-		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
-	float3 lavaSize(82.f, 0.f, 82.f);
-	float3 lavaPos(150, 1.5f, 150);
-	lavaEffect.initilize(SeaEffect::SeaEffectTypes::lava, XMINT2(20, 20), XMINT2(4, 4),
-		lavaPos - lavaSize / 2.f, lavaSize + float3(0, 2.f, 0));
 }
 
 void LevelHandler::loadLevel(int levelNr) {
@@ -348,6 +367,13 @@ void LevelHandler::loadLevel(int levelNr) {
 				currentLevel.m_heightMapScales[i], currentLevel.m_heightMapNames.at(i),
 				currentLevel.m_heightmapTextures[i], currentLevel.m_heightMapSubSize.at(i),
 				currentLevel.m_heightMapDivision.at(i), currentLevel.m_wind.at(i));
+		}
+
+		m_seaEffects.resize(m_levelsArr.at(levelNr).m_seaTypes.size());
+		for (size_t i = 0; i < m_levelsArr.at(levelNr).m_seaTypes.size(); i++) {
+			m_seaEffects[i].initilize(currentLevel.m_seaTypes[i], currentLevel.m_seaTiles[i],
+				currentLevel.m_seaGrids[i], currentLevel.m_seaPositions[i],
+				currentLevel.m_seaScales[i]);
 		}
 
 		for (int i = 0; i < currentLevel.m_nrOfFruits[APPLE]; i++) {
@@ -434,10 +460,10 @@ void LevelHandler::draw() {
 	m_terrainManager->draw();
 	// water/lava effect
 	Renderer::getInstance()->copyDepthToSRV();
-	waterEffect.quadtreeCull(frustum);
-	waterEffect.draw();
-	lavaEffect.quadtreeCull(frustum);
-	lavaEffect.draw();
+	for (size_t i = 0; i < m_seaEffects.size(); i++) {
+		m_seaEffects[i].quadtreeCull(frustum);
+		m_seaEffects[i].draw();
+	}
 
 	Renderer::getInstance()->draw_darkEdges();
 
@@ -635,8 +661,8 @@ void LevelHandler::update(float dt) {
 	}
 
 	m_hud.update(dt, m_player.getStamina());
-	waterEffect.update(dt);
-	lavaEffect.update(dt);
+	for (size_t i = 0; i < m_seaEffects.size(); i++)
+		m_seaEffects[i].update(dt);
 }
 
 HUD& LevelHandler::getHUD() { return m_hud; }

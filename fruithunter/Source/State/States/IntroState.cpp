@@ -88,8 +88,8 @@ void IntroState::update() {
 	m_apple.get()->setPosition(float3(
 		treePos.x + (cos(m_totalDelta) * 2.0f), treePos.y, treePos.z + (sin(m_totalDelta) * 2.0f)));
 
-	m_apple.get()->setRotation(float3(0.0f, -m_totalDelta, 0.0f));
 	m_apple.get()->update(delta, m_camera.getPosition());
+	m_apple.get()->setRotation(float3(0.0f, -m_totalDelta, 0.0f));
 
 	// float3 bowForward(56.4f - 68.9f, 9.0f - 9.64f, 18.2f - 23.9f);
 	float3 bowForward = treePos - bowPos;
