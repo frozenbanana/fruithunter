@@ -4,6 +4,8 @@
 #include <WICTextureLoader.h>
 #include <Keyboard.h>
 #include <Mouse.h>
+#include <ScreenGrab.h>
+#include <wincodec.h>
 
 Renderer Renderer::m_this(1280, 720);
 
@@ -128,6 +130,28 @@ void Renderer::copyDepthToSRV() {
 	m_deviceContext->CopyResource(dst, src);
 }
 
+void Renderer::captureFrame() {
+	auto hr = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&m_backBufferTex);
+	if (FAILED(hr)) {
+		ErrorLogger::logError(hr, "Failed to capture backbuffer.");
+	}
+	else {
+		// Write out the render target to png
+		hr = SaveWICTextureToFile(Renderer::getDeviceContext(), m_backBufferTex.Get(),
+			GUID_ContainerFormatPng, L"assets/captures/backbuffer.png", nullptr, nullptr);
+		m_capturedFrame.init();
+		m_capturedFrameLoaded = true;
+	}
+}
+
+void Renderer::drawCapturedFrame() {
+	if (!m_capturedFrameLoaded) {
+		m_capturedFrame.init();
+		m_capturedFrameLoaded = true;
+	}
+	m_capturedFrame.draw();
+}
+
 void Renderer::draw_darkEdges() {
 	if (Settings::getInstance()->getDarkEdges()) {
 		copyDepthToSRV();
@@ -209,6 +233,10 @@ Renderer::Renderer(int width, int height) {
 		m_shader_darkEdges.createShaders(L"VertexShader_quadSimplePass.hlsl", nullptr,
 			L"PixelShader_darkEdge.hlsl", inputLayout_onlyMesh, 1);
 	}
+
+	// Set texture paths to quads
+	m_capturedFrame.setTexturePath("assets/captures/backbuffer.png");
+	m_capturedFrame.setPixelShaderPath("PixelShader_blur.hlsl");
 }
 
 Renderer::~Renderer() {}
