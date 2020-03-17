@@ -181,7 +181,7 @@ void Player::getStaminaBySkillshot(Skillshot skillShot) {
 		m_stamina += 0.3f;
 		break;
 	}
-	clamp(m_stamina, 1.0f, 0.0f);
+	m_stamina = min(m_stamina, 1.0f);
 }
 
 bool Player::isShooting() const { return m_bow.isShooting(); }
@@ -392,7 +392,11 @@ void Player::checkPlayerReset(float dt) {
 
 void Player::checkHunterMode() {
 	if (Input::getInstance()->keyPressed(KEY_HM)) {
-		AudioHandler::getInstance()->playOnce(AudioHandler::SLOW_MOTION);
+		if (!m_hunterMode)
+			AudioHandler::getInstance()->playOnce(AudioHandler::SLOW_MOTION);
+		else
+			AudioHandler::getInstance()->playOnce(AudioHandler::SLOW_MOTION_REVERSED);
+
 		m_hunterMode = 1 - m_hunterMode;
 	}
 }

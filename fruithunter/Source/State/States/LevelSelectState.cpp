@@ -82,7 +82,7 @@ void LevelSelectState::update() {
 		m_player.collideObject(*m_terrainProps.getEntities()->at(i));
 	}
 
-	//ErrorLogger::logFloat3("playerPos: ", m_player.getPosition());
+	// ErrorLogger::logFloat3("playerPos: ", m_player.getPosition());
 
 	// Update Skybox
 	m_skyBox.updateDelta(delta);
@@ -99,6 +99,7 @@ void LevelSelectState::update() {
 			m_player.getArrow().setPosition(float3(-1000.f));
 			m_player.setPosition(float3(34.0f, 2.5f, 79.9f));
 			TerrainManager::getInstance()->removeAll();
+			AudioHandler::getInstance()->pauseAllMusic();
 			draw(); // Updates hitboxes and prepares state for next time.
 			setLevel(i);
 			StateHandler::getInstance()->changeState(StateHandler::PLAY);
@@ -107,7 +108,7 @@ void LevelSelectState::update() {
 		m_bowls[i]->updateAnimated(delta);
 	}
 
-	//Update animals
+	// Update animals
 	// for all animals
 	for (size_t i = 0; i < m_animal.size(); ++i) {
 		m_animal[i]->checkLookedAt(m_player.getCameraPosition(), m_player.getForward());
@@ -148,7 +149,6 @@ void LevelSelectState::handleEvent() {
 
 void LevelSelectState::pause() {
 	ErrorLogger::log(m_name + " pause() called.");
-	AudioHandler::getInstance()->pauseAllMusic();
 }
 
 void LevelSelectState::play() {

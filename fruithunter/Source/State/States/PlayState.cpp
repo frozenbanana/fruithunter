@@ -65,7 +65,6 @@ void PlayState::handleEvent() {
 
 void PlayState::pause() {
 	ErrorLogger::log(m_name + " pause() called.");
-	// AudioHandler::getInstance()->pauseAllMusic();
 }
 
 void PlayState::draw() {

@@ -22,6 +22,9 @@ private:
 	Button m_settingsButton;
 	Button m_mainMenuButton;
 	Button m_exitButton;
+	Button m_restartButton;
+
+	int m_previousState;
 
 	Entity m_entity;
 };

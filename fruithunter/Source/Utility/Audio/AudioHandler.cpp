@@ -28,6 +28,8 @@ void AudioHandler::initalize() {
 	// One time sound effects
 	m_this.m_soundEffects[SLOW_MOTION] = std::make_unique<DirectX::SoundEffect>(
 		m_audioEngine.get(), L"assets/sounds/slowmotion.wav");
+	m_this.m_soundEffects[SLOW_MOTION_REVERSED] = std::make_unique<DirectX::SoundEffect>(
+		m_audioEngine.get(), L"assets/sounds/slowmotion-reversed.wav");
 	m_this.m_soundEffects[DING_1] =
 		std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), L"assets/sounds/ding1.wav");
 	m_this.m_soundEffects[DING_2] =
@@ -81,7 +83,8 @@ void AudioHandler::initalize() {
 		m_audioEngine.get(), L"assets/sounds/ketapop-dark-short.wav");
 	m_this.m_music[ELEVATOR] = std::make_unique<DirectX::SoundEffect>(
 		m_audioEngine.get(), L"assets/sounds/elevator-music.wav");
-
+	m_this.m_music[OCEAN] = std::make_unique<DirectX::SoundEffect>(
+		m_audioEngine.get(), L"assets/sounds/ocean-music.wav");
 	m_this.m_musicInstances[JINGLE_GUITAR] = m_this.m_music[JINGLE_GUITAR]->CreateInstance();
 	m_this.m_musicInstances[SPANISH_GUITAR] = m_this.m_music[SPANISH_GUITAR]->CreateInstance();
 	m_this.m_musicInstances[KETAPOP] = m_this.m_music[KETAPOP]->CreateInstance();
@@ -92,6 +95,8 @@ void AudioHandler::initalize() {
 	m_this.m_musicInstances[KETAPOP]->SetVolume(m_musicVolume);
 	m_this.m_musicInstances[KETAPOP_DARK]->SetVolume(m_musicVolume);
 	m_this.m_musicInstances[ELEVATOR]->SetVolume(m_musicVolume);
+	m_this.m_musicInstances[OCEAN] = m_this.m_music[OCEAN]->CreateInstance();
+
 
 	m_oldMusic = Music::MUSIC_LENGTH;
 }
