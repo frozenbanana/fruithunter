@@ -2,7 +2,7 @@
 #include <algorithm>
 #include "Fruit.h"
 #include "PathFindingThread.h"
-#define STEP_SCALE 1.0f
+#define STEP_SCALE .250f
 #define EPSILON 0.001f
 #define MAX_STEPS 30
 
@@ -69,38 +69,38 @@ bool AI::beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>>
 	return true;
 }
 
-bool AI::isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entity>> collidables) {
+bool AI::isValid(
+	float3 childPos, float3 currentNodePos, EntityRepository& collidables, float radius) {
 
-	auto pft = PathFindingThread::getInstance();
+	
 
 
-	if (childPos.y - currentNodePos.y > MAX_STEAPNESS) {
+	if (abs(childPos.y - currentNodePos.y) > MAX_STEAPNESS) {
 		return false;
 	}
 	if (childPos.y < 1.f) {
 		return false;
 	}
 
-
 	auto normal = TerrainManager::getInstance()->getNormalFromPosition(childPos);
 	normal.Normalize();
 	// Don't you climb no walls
-	if (abs(float3(0.0f, 1.0f, 0.0f).Dot(normal)) < 0.99f)
+	if (abs(float3(0.0f, 1.0f, 0.0f).Dot(normal)) < 0.87f)
 		return false;
 
+	vector<Entity**> objects = collidables.getCulledEntitiesByPosition(childPos);
+	for (size_t i = 0; i < objects.size(); ++i) {
+		if (!(*objects[i])->getIsCollidable())
+			continue;
 
-	for (size_t i = 0; i < collidables.size(); ++i) {
+		float3 newPoint = (*objects[i])->getPosition() - childPos;
+		newPoint.Normalize();
+		newPoint.y = (*objects[i])->getPosition().y;
+		newPoint *= radius;
+		newPoint += childPos;
 
-		float3 obstacle = collidables.at(i)->getPosition();
-		obstacle.y = 0.f;
-		childPos.y = 0.f;
-		float lengthChildToCollidableSquared = (childPos - obstacle).LengthSquared();
-		float collidableRadiusSquared = collidables.at(i)->getHalfSizes().LengthSquared();
-
-		if (lengthChildToCollidableSquared < collidableRadiusSquared) {
-
+		if ((*objects[i])->checkCollision(newPoint))
 			return false;
-		}
 	}
 
 
@@ -118,15 +118,27 @@ bool AI::isValid(float3 childPos, float3 currentNodePos) {
 	return true;
 }
 
+bool AI::checkAnimals(std::vector<float4> animals, float3 childPos) { 
+	childPos.y = 0.f;
+	for (auto e : animals) {
+		float3 animalPos;
+		animalPos.x = e.x;
+		animalPos.y = 0.f;
+		animalPos.z = e.z;
+		float len = (childPos - animalPos).LengthSquared();
+		if ( len < e.w*e.w*1.5f) {
+			return false;
+		}
+	}	
+	return true; 
+}
+
 void AI::makeReadyForPath(float3 destination) {
 	m_readyForPath = true;
 	m_destination = destination;
 }
 
-
-void AI::setWorld(std::shared_ptr<Terrain> terrain) { m_terrain = terrain; }
-
-void AI::pathfinding(float3 start) {
+void AI::pathfinding(float3 start, std::vector<float4> animals) {
 	// ErrorLogger::log("thread starting for pathfinding");
 	auto pft = PathFindingThread::getInstance();
 	if ((start - m_destination).LengthSquared() < 0.5f)
@@ -196,8 +208,12 @@ void AI::pathfinding(float3 start) {
 					if (!beingUsed(child, open, closed)) {
 						continue;
 					}
+					if (!checkAnimals(animals, childPosition)) {
+						continue;
+					}
 
-					if (!isValid(child->position, currentNode->position, pft->m_collidables)) {
+					if (!isValid(
+							child->position, currentNode->position, *pft->m_collidables, 0.7f)) {
 						continue;
 					}
 
@@ -216,7 +232,7 @@ void AI::pathfinding(float3 start) {
 
 void AI::changeState(State newState) {
 	m_currentState = newState;
-	m_availablePath.clear();
+	//m_availablePath.clear();
 }
 
 AI::State AI::getState() const { return m_currentState; }
