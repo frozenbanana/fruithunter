@@ -301,6 +301,10 @@ void LevelHandler::initialise() {
 	m_terrainProps.addPlaceableEntity("RopeBridgeFloor");
 	m_terrainProps.addPlaceableEntity("RopeBridgeRailing1");
 	m_terrainProps.addPlaceableEntity("RopeBridgeRailing2");
+	m_terrainProps.addPlaceableEntity("SignSlanted");
+	m_terrainProps.addPlaceableEntity("SignSlanted2");
+	m_terrainProps.addPlaceableEntity("SignHorizontal");
+	m_terrainProps.addPlaceableEntity("SignHorizontal2");
 
 	initialiseLevel0();
 	initialiseLevel1();
