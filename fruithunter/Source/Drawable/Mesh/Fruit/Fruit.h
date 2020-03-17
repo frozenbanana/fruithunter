@@ -4,17 +4,20 @@
 #include "TerrainManager.h"
 #include "ParticleSystem.h"
 
+
+
 #define THROWVELOCITY 30.f
 
 class Fruit : public Entity, public AI {
 protected:
 	// Phyics based movment
+	bool m_isVisible = true;
 	float3 m_velocity = float3(0.f);
 	float m_speed = 0.0f;
 	float3 m_gravity = float3(0.0f, -1.0f, 0.0f) * 15.0f; // same as player
 	float3 m_direction;
 	float m_groundFriction = 10.f;
-	float m_airFriction = 20.f;
+	float m_airFriction = 5.f;
 
 	bool m_onGround = true;
 
@@ -50,7 +53,7 @@ protected:
 	void behaviorReleased() override;
 	void behaviorInactive(float3 playerPosition) override;
 
-	void setDirection();
+	virtual void setDirection();
 
 
 	bool m_afterRealease = false;
@@ -59,6 +62,7 @@ protected:
 	void stopMovement();
 
 public:
+	bool isVisible() const;
 	virtual void release(float3 direction);
 	void move(float dt);
 	void update(float dt, float3 playerPosition);

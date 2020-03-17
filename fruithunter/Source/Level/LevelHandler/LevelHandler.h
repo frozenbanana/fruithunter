@@ -7,6 +7,7 @@
 #include "SkyBox.h"
 #include "Banana.h"
 #include "Melon.h"
+#include "DragonFruit.h"
 #include "Player.h"
 #include "EntityRepository.h"
 #include "HUD.h"
