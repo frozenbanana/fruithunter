@@ -430,7 +430,7 @@ bool Terrain::boxInsideFrustum(float3 boxPos, float3 boxSize, const vector<Frust
 
 float3 Terrain::getRandomSpawnPoint() {
 	if (m_spawnPoint.size() > 0) {
-		size_t random = (size_t)RandomFloat( 0.0f, (float)m_spawnPoint.size());
+		size_t random = (size_t)RandomFloat(0.0f, (float)m_spawnPoint.size());
 		float3 spawnPoint = float3(m_spawnPoint[random].x, 0.0f, m_spawnPoint[random].y);
 		spawnPoint = (spawnPoint / 10) + m_position;
 		spawnPoint.y = getHeightFromPosition(spawnPoint.x, spawnPoint.z);

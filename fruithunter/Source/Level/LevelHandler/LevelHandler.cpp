@@ -6,6 +6,12 @@
 #include "VariableSyncer.h"
 #include "PathFindingThread.h"
 
+
+#define WIND_PLAINS float3(0.f, 0.f, 7.f)
+#define WIND_FOREST float3(3.f, 0.f, -5.f)
+#define WIND_DESERT float3(-5.f, 0.f, 4.f)
+#define WIND_VULCANO float3(0.f, 8.f, 0.f)
+
 void LevelHandler::initialiseLevel0() {
 	Level level;
 
@@ -108,8 +114,8 @@ void LevelHandler::initialiseLevel1() {
 		float3(96.2f, 3.45f, 38.f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
 	level.m_animal.push_back(animal);
 
-	level.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
-	level.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
+	level.m_wind.push_back(WIND_FOREST); // Forest
+	level.m_wind.push_back(WIND_PLAINS); // Plains
 
 	level.m_nrOfFruits[APPLE] = 20;
 	level.m_nrOfFruits[BANANA] = 0;
@@ -219,10 +225,10 @@ void LevelHandler::initialiseLevel2() {
 		float3(87.f, 8.8f, 156.f), XM_PI * 0.5f);
 	level.m_animal.push_back(animal);
 
-	level.m_wind.push_back(float3(0.f, 8.f, 0.f));	// Volcano
-	level.m_wind.push_back(float3(3.f, 0.f, 6.f));	// Forest
-	level.m_wind.push_back(float3(3.f, 0.f, -2.f)); // Desert
-	level.m_wind.push_back(float3(0.f, 0.f, 1.f));	// Plains
+	level.m_wind.push_back(WIND_VULCANO); // Volcano
+	level.m_wind.push_back(WIND_FOREST);  // Forest
+	level.m_wind.push_back(WIND_DESERT);  // Desert
+	level.m_wind.push_back(WIND_PLAINS);  // Plains
 
 	level.m_nrOfFruits[APPLE] = 20;
 	level.m_nrOfFruits[BANANA] = 15;
@@ -309,7 +315,7 @@ void LevelHandler::initialise() {
 	initialiseLevel1();
 	initialiseLevel2();
 
-	m_particleSystems.resize(5);
+	m_particleSystems.resize(6);
 	m_particleSystems[0] = ParticleSystem(ParticleSystem::VULCANO_FIRE);
 	m_particleSystems[0].setPosition(float3(150.f, 25.f, 150.f));
 	m_particleSystems[1] = ParticleSystem(ParticleSystem::VULCANO_SMOKE);
@@ -320,6 +326,8 @@ void LevelHandler::initialise() {
 	m_particleSystems[3].setPosition(float3(50.f, 2.f, 40.f));
 	m_particleSystems[4] = ParticleSystem(ParticleSystem::LAVA_BUBBLE);
 	m_particleSystems[4].setPosition(float3(150.f, 0.f, 149.f));
+	m_particleSystems[5] = ParticleSystem(ParticleSystem::GROUND_DUST);
+	m_particleSystems[5].setPosition(float3(125.f, 4.f, 50.f));
 
 	waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(50, 50), XMINT2(8, 8),
 		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
@@ -531,7 +539,9 @@ void LevelHandler::update(float dt) {
 
 			for (size_t iFruit = 0; iFruit < m_fruits.size(); ++iFruit) {
 				pft->m_mutex.lock();
-				if (m_fruits[iFruit]->getFruitType() == m_Animals[i]->getfruitType()) {
+				if (m_fruits[iFruit]->getFruitType() == m_Animals[i]->getfruitType() &&
+					(m_fruits[iFruit]->getState() == AI::State::RELEASED ||
+						m_fruits[iFruit]->getState() == AI::State::CAUGHT)) {
 					float len =
 						(m_Animals[i]->getPosition() - m_fruits[iFruit]->getPosition()).Length();
 					if (len < m_Animals[i]->getFruitRange()) {
@@ -644,8 +654,6 @@ void LevelHandler::update(float dt) {
 	m_hud.update(dt, m_player.getStamina());
 	waterEffect.update(dt);
 	lavaEffect.update(dt);
-
-	// Renderer::getInstance()->setPlayerPos(playerPos);
 }
 
 HUD& LevelHandler::getHUD() { return m_hud; }
