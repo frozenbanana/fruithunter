@@ -65,8 +65,6 @@ void LevelSelectState::update() {
 		m_player.collideObject(*m_terrainProps.getEntities()->at(i));
 	}
 
-	// ErrorLogger::logFloat3("playerPos: ", m_player.getPosition());
-
 	// Update Skybox
 	m_skyBox.updateDelta(delta);
 	m_skyBox.updateCurrentLight();

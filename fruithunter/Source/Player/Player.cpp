@@ -27,7 +27,6 @@ void Player::update(float dt, Terrain* terrain) {
 	// Movement force
 	float3 force = getMovementForce();
 
-	checkJump();
 	checkSprint(delta);
 	checkDash(delta);
 	checkHunterMode();
@@ -325,13 +324,6 @@ void Player::calculateTerrainCollision(Terrain* terrain, float dt) {
 	};
 }
 
-void Player::checkJump() {
-	if (Input::getInstance()->keyPressed(KEY_JUMP) && m_jumpReset) {
-		m_jumpReset = false;
-		m_velocity.y = m_jumpForce;
-	}
-}
-
 void Player::checkSprint(float dt) {
 	if (Input::getInstance()->keyDown(KEY_SPRINT)) {
 		// activate sprint
@@ -351,14 +343,14 @@ vector<float3> Player::getFrustumPoints(float scaleBetweenNearAndFarPlane) const
 }
 
 void Player::checkDash(float dt) {
-	if (Input::getInstance()->keyPressed(KEY_DASH) && !m_sprinting && m_onGround) {
+	if (Input::getInstance()->keyPressed(KEY_DASH) && m_onGround) {
 		m_chargingDash = true;
 	}
 
 	if (Input::getInstance()->keyDown(KEY_DASH) && m_chargingDash) {
-		m_dashCharge = clamp(m_dashCharge + dt, DASHMAXCHARGE, 0);
+		m_dashCharge = clamp(m_dashCharge + dt, DASHMAXCHARGE, DASHMINCHARGE);
 	}
-	else if (Input::getInstance()->keyReleased(KEY_DASH)) {
+	else if (Input::getInstance()->keyReleased(KEY_DASH) && m_chargingDash) {
 		m_chargingDash = false;
 
 		float interpolateScale = 0.75f; // 0 = dash forward, 1 = dash up,
@@ -370,7 +362,7 @@ void Player::checkDash(float dt) {
 	}
 	else {
 		// return to original state
-		m_dashCharge = clamp(m_dashCharge - 2 * dt, DASHMAXCHARGE, 0);
+		m_dashCharge = clamp(m_dashCharge - 2 * dt, DASHMAXCHARGE, DASHMINCHARGE);
 	}
 }
 
@@ -387,7 +379,11 @@ void Player::checkPlayerReset(float dt) {
 
 void Player::checkHunterMode() {
 	if (Input::getInstance()->keyPressed(KEY_HM)) {
-		AudioHandler::getInstance()->playOnce(AudioHandler::SLOW_MOTION);
+		if (!m_hunterMode)
+			AudioHandler::getInstance()->playOnce(AudioHandler::SLOW_MOTION);
+		else
+			AudioHandler::getInstance()->playOnce(AudioHandler::SLOW_MOTION_REVERSED);
+
 		m_hunterMode = 1 - m_hunterMode;
 	}
 }
@@ -442,10 +438,7 @@ float Player::clamp(float x, float high, float low) {
 float Player::getPlayerMovementSpeed() const {
 	float speed = 0;
 	if (m_onGround) {
-		if (m_dashCharge > 0)
-			speed = m_speedOnChargingDash; // charging
-		else
-			speed = m_speed; // walking normaly
+		speed = m_speed; // walking normaly
 		if (m_sprinting)
 			speed *= m_speedSprintMultiplier; // sprint multiplies speed
 	}
@@ -480,8 +473,6 @@ void Player::updateVelocity_inAir(float3 playerForce, float dt) {
 
 void Player::updateVelocity_onFlatGround(float3 playerForce, float dt) {
 	m_velocity *= pow(GROUND_FRICTION / 60.f, dt); // ground friction
-
-	m_jumpReset = true;
 
 	// add player forces
 	m_velocity += playerForce * getPlayerMovementSpeed() * dt;
