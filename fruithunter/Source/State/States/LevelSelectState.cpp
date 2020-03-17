@@ -133,7 +133,6 @@ void LevelSelectState::handleEvent() {
 
 void LevelSelectState::pause() {
 	ErrorLogger::log(m_name + " pause() called.");
-	AudioHandler::getInstance()->pauseAllMusic();
 }
 
 void LevelSelectState::play() {

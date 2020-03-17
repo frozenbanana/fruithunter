@@ -97,7 +97,7 @@ private:
 	bool m_chargingDash = false;		  // is the player charging
 
 	// hunter mode
-	const float STAMINA_HM_COST = 0.34f;
+	const float STAMINA_HM_COST = 0.1f;
 	bool m_hunterMode = false;
 
 	// Orientation

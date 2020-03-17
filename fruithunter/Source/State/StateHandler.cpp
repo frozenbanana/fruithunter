@@ -74,4 +74,6 @@ bool StateHandler::isRunning() { return m_running; }
 
 void StateHandler::quit() { m_running = false; }
 
+int StateHandler::getPreviousStateName() { return m_previous; }
+
 StateHandler* StateHandler::getInstance() { return &m_this; }

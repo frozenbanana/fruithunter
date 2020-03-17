@@ -4,6 +4,8 @@
 #include "StateHandler.h"
 #include "Input.h"
 #include "AudioHandler.h"
+#include "TerrainManager.h"
+#include "PlayState.h"
 
 PauseState::PauseState() { initialize(); }
 
@@ -11,8 +13,11 @@ PauseState::~PauseState() {}
 
 void PauseState::initialize() {
 	m_name = "Pause State";
+
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
+	
+	m_restartButton.initialize("Restart", float2(width / 2, height / 2 - 120));
 	m_resumeButton.initialize("Resume", float2(width / 2, height / 2 - 60));
 	m_settingsButton.initialize("Settings", float2(width / 2, height / 2));
 	m_mainMenuButton.initialize("Main Menu", float2(width / 2, height / 2 + 60));
@@ -28,6 +33,12 @@ void PauseState::update() { Input::getInstance()->setMouseModeAbsolute(); }
 void PauseState::handleEvent() {
 	if (m_resumeButton.update() || Input::getInstance()->keyPressed(Keyboard::Keys::Escape)) {
 		StateHandler::getInstance()->resumeState();
+	}
+	if (StateHandler::getInstance()->getPreviousStateName() == StateHandler::PLAY && m_restartButton.update()) {
+		State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
+		dynamic_cast<PlayState*>(tempPointer)->destroyLevel();
+		TerrainManager::getInstance()->removeAll();
+		StateHandler::getInstance()->changeState(StateHandler::PLAY);
 	}
 	if (m_settingsButton.update()) {
 		StateHandler::getInstance()->changeState(StateHandler::SETTINGS);
@@ -48,6 +59,8 @@ void PauseState::play() {
 	ErrorLogger::log(m_name + " play() called.");
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
+
+	m_restartButton.setPosition(float2(width / 2, height / 2 - 120));
 	m_resumeButton.setPosition(float2(width / 2, height / 2 - 60));
 	m_settingsButton.setPosition(float2(width / 2, height / 2));
 	m_mainMenuButton.setPosition(float2(width / 2, height / 2 + 60));
@@ -56,6 +69,9 @@ void PauseState::play() {
 
 void PauseState::draw() {
 	Renderer::getInstance()->beginFrame();
+
+	if (StateHandler::getInstance()->getPreviousStateName() == StateHandler::PLAY)
+		m_restartButton.draw();
 
 	m_resumeButton.draw();
 	m_mainMenuButton.draw();

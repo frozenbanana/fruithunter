@@ -9,14 +9,15 @@ void onLoad() { ErrorLogger::log("BowLoaded"); }
 Bow::Bow() {
 	m_bow.loadAnimated("Bow", 3);
 	m_bow.setScale(0.2f);
-	m_arrow.load("arrowV2");
+	m_arrow.load("arrowV3");
 	// m_arrow.setScale(float3(0.2f, 0.2f, m_arrowLength));
 	m_arrow.setScale(float3(0.5f, 0.5f, m_arrowLength));
 	m_arrow.setPosition(float3(-10.f)); // To make sure that arrow doesn't spawn in fruits.
 	m_arrow.setCollisionDataOBB();
 	m_trailEffect = ParticleSystem(ParticleSystem::ARROW_GLITTER);
 
-	FileSyncer* file = VariableSyncer::getInstance()->create("Bow.txt",FileSyncer::SyncType::state_liveFile, onLoad);
+	FileSyncer* file = VariableSyncer::getInstance()->create(
+		"Bow.txt", FileSyncer::SyncType::state_liveFile, onLoad);
 	file->bind("offset0:v3", &m_bowPositioning_offset0);
 	file->bind("angle0:v3", &m_bowPositioning_angle0);
 	file->bind("offset1:v3", &m_bowPositioning_offset1);
@@ -35,23 +36,22 @@ void Bow::update(
 
 	// rotate to desired rotation
 	float3 rotationChange = m_desiredRotation - m_rotation;
-		//(m_desiredRotation - m_rotation) * m_bowPositioning_rotationSpringConstant * dt;
+	//(m_desiredRotation - m_rotation) * m_bowPositioning_rotationSpringConstant * dt;
 	//	THIS WORKS BUT GIVES STUTTERS
 	////clamp rotation velocity
-	//float3 maxRot = float3(1.f, 1.f, 1.f) * m_bowPositioning_rotationVelocityClamp;
-	//float3 forceRot(0, 0, 0);
-	//if (abs(rotationChange.x) > maxRot.x)
+	// float3 maxRot = float3(1.f, 1.f, 1.f) * m_bowPositioning_rotationVelocityClamp;
+	// float3 forceRot(0, 0, 0);
+	// if (abs(rotationChange.x) > maxRot.x)
 	//	forceRot.x = Frac(abs(rotationChange.x) / maxRot.x) * rotationChange.x;
-	//if (abs(rotationChange.y) > maxRot.y)
+	// if (abs(rotationChange.y) > maxRot.y)
 	//	forceRot.y = Frac(abs(rotationChange.y) / maxRot.y) * rotationChange.y;
-	//if (abs(rotationChange.z) > maxRot.z)
+	// if (abs(rotationChange.z) > maxRot.z)
 	//	forceRot.z = Frac(abs(rotationChange.z) / maxRot.z) * rotationChange.z;
-	//rotationChange -= forceRot;
-	//set rotation
-	//m_rotation =
+	// rotationChange -= forceRot;
+	// set rotation
+	// m_rotation =
 	//	forceRot + rotationChange * m_bowPositioning_rotationSpringConstant * dt + m_rotation;
-	m_rotation =
-		rotationChange * m_bowPositioning_rotationSpringConstant * dt + m_rotation;
+	m_rotation = rotationChange * m_bowPositioning_rotationSpringConstant * dt + m_rotation;
 	m_bow.setRotation(m_rotation);
 
 	float3 forward = getForward();
