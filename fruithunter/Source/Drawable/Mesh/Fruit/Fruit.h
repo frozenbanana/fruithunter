@@ -11,6 +11,7 @@
 class Fruit : public Entity, public AI {
 protected:
 	// Phyics based movment
+	bool m_isVisible = true;
 	float3 m_velocity = float3(0.f);
 	float m_speed = 0.0f;
 	float3 m_gravity = float3(0.0f, -1.0f, 0.0f) * 15.0f; // same as player
@@ -61,6 +62,7 @@ protected:
 	void stopMovement();
 
 public:
+	bool isVisible() const;
 	virtual void release(float3 direction);
 	void move(float dt);
 	void update(float dt, float3 playerPosition);
