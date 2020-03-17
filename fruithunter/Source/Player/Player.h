@@ -64,8 +64,9 @@ private:
 	// Player behavior
 	bool m_godMode = false;
 	bool m_chargingBow = false;
-	bool m_onGround = false;					// if player is grounded
-	bool m_onEntity = false;					// if player is standing on an object
+	bool m_onGround = false;				 // if player is grounded
+	bool m_onSteepGround = false;			//if player is on steep terrain				
+	bool m_onEntity = false;							// if player is standing on an object
 	float3 m_gravity = float3(0, -1, 0) * 15.f; // direction * strength
 	float3 m_lastSafePosition = float3(0, 0, 0);// Latest position where player was on ground
 	float m_seaHeight = 1.f;					// Height where player falls in sea
@@ -110,8 +111,8 @@ private:
 	void updateGodMode(float dt);
 
 	float3 getMovementForce();
-	bool onGround(Terrain* terrain);
-	float getSteepness(Terrain* terrain);
+	void checkGround(Terrain* terrain);
+	void checkSteepTerrain(Terrain* terrain);
 	void calculateTerrainCollision(Terrain* terrain, float dt);
 
 	void checkSprint(float dt);
