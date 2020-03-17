@@ -17,7 +17,7 @@ using float3 = DirectX::SimpleMath::Vector3;
 using float4 = DirectX::SimpleMath::Vector4;
 using float4x4 = DirectX::SimpleMath::Matrix;
 
-enum FruitType { APPLE, BANANA, MELON, DRAGON, NR_OF_FRUITS };
+enum FruitType { APPLE, BANANA, MELON, NR_OF_FRUITS };
 enum TimeTargets { GOLD, SILVER, BRONZE, NR_OF_TIME_TARGETS };
 enum Skillshot { SS_NOTHING, SS_BRONZE, SS_SILVER, SS_GOLD };
 
@@ -34,8 +34,6 @@ static float Map(float low, float high, float newLow, float newHigh, float value
 	float newRange = (newHigh - newLow) + newLow;
 	return oldCoefficient * newRange;
 }
-static float Clamp(float val, float low, float high) { return max(min(val, high),low); }
-static float Frac(float val) { return val - ((int)val); }
 
 struct FrustumPlane {
 	float3 m_position, m_normal;

@@ -1,13 +1,11 @@
 #pragma once
 #include "GlobalNamespaces.h"
 #include "Terrain.h"
-#include "Entity.h"
+#include "EntityRepository.h"
 #include <list>
 #include <mutex>
 #define ARRIVAL_RADIUS 3.0f
-#define MAX_STEAPNESS .2f
-
-
+#define MAX_STEAPNESS .1f
 
 class AI {
 public:
@@ -39,8 +37,7 @@ public:
 		}
 	};
 	enum State { INACTIVE, PASSIVE, ACTIVE, CAUGHT, RELEASED };
-	void setWorld(std::shared_ptr<Terrain> terrain);
-	virtual void pathfinding(float3 start);
+	void pathfinding(float3 start, std::vector<float4> animals);
 	void changeState(State newState);
 	State getState() const;
 	bool giveNewPath() const;
@@ -53,7 +50,6 @@ protected:
 
 	bool m_readyForPath = false;
 	State m_currentState;
-	std::shared_ptr<Terrain> m_terrain;
 	std::list<float3> m_availablePath;
 	virtual void behaviorInactive(float3 playerPosition){};
 	virtual void behaviorPassive(float3 playerPosition){};
@@ -67,8 +63,10 @@ protected:
 
 	void handleAvailablePath(float3 myPosition);
 
-	bool isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entity>> collidables);
+	bool isValid(
+		float3 childPos, float3 currentNodePos, EntityRepository& collidables, float radius);
 	bool isValid(float3 childPos, float3 currentNodePos);
+	bool checkAnimals(std::vector<float4> animals, float3 childPos);
 	void makeReadyForPath(float3 destination);
 
 private:
