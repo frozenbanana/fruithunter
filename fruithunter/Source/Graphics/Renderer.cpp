@@ -217,6 +217,8 @@ Renderer* Renderer::getInstance() { return &m_this; }
 
 HWND Renderer::getHandle() { return m_handle; }
 
+ID3D11DepthStencilState* Renderer::getDepthDSS() const { return m_depthDSS.Get(); }
+
 float Renderer::getScreenWidth() const { return (float)m_screenWidth; }
 
 float Renderer::getScreenHeight() const { return (float)m_screenHeight; }

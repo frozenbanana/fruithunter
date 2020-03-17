@@ -404,6 +404,7 @@ void LevelHandler::loadLevel(int levelNr) {
 
 		m_hud.setTimeTargets(currentLevel.m_timeTargets);
 		m_hud.setWinCondition(currentLevel.m_winCondition);
+		m_hud.setLevelIndex(levelNr);
 
 
 		if (currentLevel.m_nrOfFruits[APPLE] != 0)
@@ -667,7 +668,7 @@ void LevelHandler::update(float dt) {
 
 HUD& LevelHandler::getHUD() { return m_hud; }
 
-void LevelHandler::pickUpFruit(int fruitType) {
+void LevelHandler::pickUpFruit(FruitType fruitType) {
 	m_inventory[fruitType]++;
 	m_hud.addFruit(fruitType);
 }

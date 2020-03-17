@@ -78,8 +78,6 @@ SkyBox::SkyBox() {
 	createConstantBuffer();
 	createShaders();
 
-	FileSyncer* file = VariableSyncer::getInstance()->create("ColourBuffer.txt");
-
 	//Forest - Refactor with variableSyncer?
 	m_lightInfo[0] = { 
 		float4(0.3f, 0.4f, 0.6f, 1.0f), 
@@ -107,15 +105,6 @@ SkyBox::SkyBox() {
 		float4(0.7f, 0.2f, 0.1f, 1.0f),
 		float4(1.0f, 0.2f, 0.1f, 1.0f)
 	};
-
-	for (int i = 0; i < 4; i++) {
-		file->bind(
-			"Ambient_" + to_string(i) + ":v4", &m_lightInfo[i].ambient);
-		file->bind(
-			"Diffuse_" + to_string(i) + ":v4", &m_lightInfo[i].diffuse);
-		file->bind(
-			"Specular_" + to_string(i) + ":v4", &m_lightInfo[i].specular);
-	}
 }
 
 SkyBox::~SkyBox() {}

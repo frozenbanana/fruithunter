@@ -556,14 +556,6 @@ void SeaEffect::initilize(SeaEffectTypes type, XMINT2 tiles, XMINT2 gridSize, fl
 }
 
 SeaEffect::SeaEffect() {
-	// variable syncer
-	FileSyncer* file = VariableSyncer::getInstance()->create("WaterEffect.txt");
-	file->bind(
-		"Distortion Strength:f&White Effect Threshold:f&Time Speed:f&Shading Levels:i&Depth "
-		"Difference Strength:f&Color Edge:v3&Color Shallow:v4&Color Deep:v4&Height Threshold "
-		"Edge:v2&Tide Height Scaling:v2&Tide Height Strength:f",
-		&m_properties);
-
 	// static shader stuff
 	if (!m_shader.isLoaded()) {
 		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = {
