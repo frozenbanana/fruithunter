@@ -4,7 +4,7 @@
 #include "PathFindingThread.h"
 #define STEP_SCALE .250f
 #define EPSILON 0.001f
-#define MAX_STEPS 70
+#define MAX_STEPS 30
 
 bool areSame(float3 a, float3 b) { return (a - b).LengthSquared() < EPSILON; }
 
