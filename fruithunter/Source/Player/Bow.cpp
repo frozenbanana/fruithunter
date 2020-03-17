@@ -34,8 +34,10 @@ Bow::~Bow() {}
 void Bow::update(
 	float dt, float3 playerPos, float3 playerForward, float3 playerRight, Terrain* terrain) {
 
+	/* Smooth rotation is temporary removed because of the stutters it gives*/
+
 	// rotate to desired rotation
-	float3 rotationChange = m_desiredRotation - m_rotation;
+	//float3 rotationChange = m_desiredRotation - m_rotation;
 	//(m_desiredRotation - m_rotation) * m_bowPositioning_rotationSpringConstant * dt;
 	//	THIS WORKS BUT GIVES STUTTERS
 	////clamp rotation velocity
@@ -51,8 +53,7 @@ void Bow::update(
 	// set rotation
 	// m_rotation =
 	//	forceRot + rotationChange * m_bowPositioning_rotationSpringConstant * dt + m_rotation;
-	m_rotation = rotationChange * m_bowPositioning_rotationSpringConstant * dt + m_rotation;
-	m_bow.setRotation(m_rotation);
+	//m_rotation += rotationChange * Clamp(m_bowPositioning_rotationSpringConstant * dt, 0, 1.f);
 
 	float3 forward = getForward();
 	// Set bow position based on player position and direction.
@@ -67,8 +68,8 @@ void Bow::update(
 			playerUp * m_bowPositioning_offset1.y) +
 		forward * m_drawFactor * m_bowPositioning_drawForward;
 
-	m_desiredPosition = (position_holstered * (1 - m_drawFactor) + position_aiming * m_drawFactor);
-	m_bow.setPosition(m_desiredPosition);
+	float3 drawPosition = (position_holstered * (1 - m_drawFactor) + position_aiming * m_drawFactor);
+	m_bow.setPosition(drawPosition);
 
 	// Update m_arrowReturnTimer
 	m_arrowReturnTimer -= dt;
@@ -152,8 +153,8 @@ void Bow::draw() {
 void Bow::rotate(float pitch, float yaw) {
 	float3 rotation_holstered = float3(pitch, yaw, 0) + m_bowPositioning_angle0;
 	float3 rotation_aiming = float3(pitch, yaw, 0) + m_bowPositioning_angle1;
-	m_desiredRotation = (rotation_holstered * (1 - m_drawFactor) + rotation_aiming * m_drawFactor);
-	// m_bow.setRotation(m_rotation);
+	m_rotation = (rotation_holstered * (1 - m_drawFactor) + rotation_aiming * m_drawFactor);
+	m_bow.setRotation(m_rotation);
 }
 
 void Bow::aim() { m_aiming = true; }

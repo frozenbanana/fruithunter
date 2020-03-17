@@ -27,6 +27,7 @@ void Player::update(float dt, Terrain* terrain) {
 	// Movement force
 	float3 force = getMovementForce();
 
+	checkSteepTerrain(terrain);
 	checkSprint(delta);
 	checkDash(delta);
 	checkHunterMode();
@@ -49,8 +50,9 @@ void Player::update(float dt, Terrain* terrain) {
 		m_position += m_velocity * delta;
 
 		// Update velocity for next frame
-		if (onGround(terrain)) {
-			if (getSteepness(terrain) < STEEPNESS_BORDER) {
+		checkGround(terrain);
+		if (m_onGround) {
+			if (m_onSteepGround) {
 				// Steep ground
 				updateVelocity_onSteepGround(delta);
 			}
@@ -101,6 +103,7 @@ void Player::collideObject(Entity& obj) {
 		if (m_velocity.y <= 0.f) {
 			m_velocity.y = 0.f;
 			m_onGround = true;
+			m_onSteepGround = false;
 			m_onEntity = true;
 			if (obj.getCollisionType() == EntityCollision::ctOBB)
 				m_position.y +=
@@ -284,24 +287,32 @@ float3 Player::getMovementForce() {
 	return force;
 }
 
-bool Player::onGround(Terrain* terrain) {
-	float terrainHeight = terrain->getHeightFromPosition(
-		m_position.x, m_position.z); // height of terrain on current position
-	m_position.y = clamp(
-		m_position.y, m_position.y, terrainHeight); // clamp position to never go under terrain!
+void Player::checkGround(Terrain* terrain) {
+	if (terrain == nullptr) {
+		m_onGround = false;
+	}
+	else {
+		float terrainHeight = terrain->getHeightFromPosition(
+			m_position.x, m_position.z); // height of terrain on current position
+		m_position.y = clamp(
+			m_position.y, m_position.y, terrainHeight); // clamp position to never go under terrain!
 
-	m_onGround = abs(m_position.y - terrainHeight) < ONGROUND_THRESHOLD;
-
-	return m_onGround;
+		m_onGround = abs(m_position.y - terrainHeight) < ONGROUND_THRESHOLD;
+	}
 }
 
-float Player::getSteepness(Terrain* terrain) {
-	float3 normal =
-		terrain->getNormalFromPosition(m_position.x, m_position.z); // normal on current position
-	float terrainSteepness =
-		abs(float3(0, 1, 0).Dot(normal)); // abs() because sometime the dot product becomes negative
+void Player::checkSteepTerrain(Terrain* terrain) {
+	if (terrain == nullptr) {
+		m_onSteepGround = false;
+	}
+	else {
+		float3 normal = terrain->getNormalFromPosition(
+			m_position.x, m_position.z); // normal on current position
+		float terrainSteepness = abs(
+			float3(0, 1, 0).Dot(normal)); // abs() because sometime the dot product becomes negative
 
-	return terrainSteepness;
+		m_onSteepGround = terrainSteepness < STEEPNESS_BORDER;
+	}
 }
 
 void Player::calculateTerrainCollision(Terrain* terrain, float dt) {
@@ -343,7 +354,7 @@ vector<float3> Player::getFrustumPoints(float scaleBetweenNearAndFarPlane) const
 }
 
 void Player::checkDash(float dt) {
-	if (Input::getInstance()->keyPressed(KEY_DASH) && m_onGround) {
+	if (Input::getInstance()->keyPressed(KEY_DASH) && (m_onGround || m_onEntity) && !m_onSteepGround) {
 		m_chargingDash = true;
 	}
 

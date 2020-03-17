@@ -188,15 +188,18 @@ void LevelSelectState::draw() {
 		LevelData levelData = SaveManager::getInstance()->getActiveSave()[i];
 		size_t minutes = levelData.timeOfCompletion / 60;
 		size_t seconds = levelData.timeOfCompletion % 60;
-		string strMinutes = (minutes == 0 ? "--" : (minutes < 10 ? "0" : "") + to_string(minutes));
-		string strSeconds = (seconds == 0 ? "--" : (seconds < 10 ? "0" : "") + to_string(seconds));
+		string strMinutes = "--";
+		string strSeconds = "--";
+		if (SaveManager::getInstance()->getActiveSave()[i].isCompleted) {
+			strMinutes = (minutes < 10 ? "0" : "") + to_string(minutes);
+			strSeconds = (seconds < 10 ? "0" : "") + to_string(seconds);
+		}
 		string str = (levelData.isCompleted ? "COMPLETED" : "");
 		str += "\nBest Time: " + strMinutes + "." + strSeconds + " Minutes";
 		m_textRenderer.drawTextInWorld(str,
 			m_levelSelectors[i].m_bowl.getPosition() + float3(0, 1.5f, 0),
 			m_levelSelectors[i].m_bowl.getPosition() + float3(0, 1.5f, 0) - m_player.getForward(),
 			float2(1.f) * 4.f);
-		// m_player.getCameraPosition(), float2(1.f, 1.f) * 4.f);
 	}
 	// dark edges
 	Renderer::getInstance()->draw_darkEdges();
