@@ -4,6 +4,7 @@ assets/FileSyncs/*
 fruithunter/assets/PerformanceAnalysis/RuntimeAnalysis.txt
 x64/
 .vs/
+fruithunter/assets/captures/backbuffer.png
 fruithunter/Debug/
 fruithunter/Release/
 fruithunter/x64/

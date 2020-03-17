@@ -42,7 +42,7 @@ void Sprite2D::draw() {
 	if (m_initilized) {
 		m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
 
-		m_spriteBatch->Draw(m_SRV.Get(), m_position, nullptr, Colors::White, 0.f,
+		m_spriteBatch->Draw(m_SRV.Get(), m_position, nullptr, Colors::White, m_rotation,
 			float2(m_textureSize.x / 2.f, m_textureSize.y / 2.f), m_scale);
 
 		m_spriteBatch->End();
@@ -52,3 +52,7 @@ void Sprite2D::draw() {
 XMINT2 Sprite2D::getTextureSize() const { return m_textureSize; }
 
 void Sprite2D::setPosition(float2 position) { m_position = position; }
+
+void Sprite2D::setScale(float scale) { m_scale = scale; }
+
+void Sprite2D::setRotation(float rot) { m_rotation = rot; }

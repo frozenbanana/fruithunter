@@ -7,6 +7,7 @@ class AudioHandler {
 public:
 	enum Sounds {
 		SLOW_MOTION,
+		SLOW_MOTION_REVERSED,
 		DING_1,
 		DING_2,
 		DING_3,
@@ -29,7 +30,15 @@ public:
 		SOUNDS_LENGTH
 	};
 
-	enum Music { JINGLE_GUITAR, SPANISH_GUITAR, KETAPOP, KETAPOP_DARK, ELEVATOR, MUSIC_LENGTH };
+	enum Music {
+		JINGLE_GUITAR,
+		SPANISH_GUITAR,
+		KETAPOP,
+		KETAPOP_DARK,
+		ELEVATOR,
+		OCEAN,
+		MUSIC_LENGTH
+	};
 	bool isPlaying(AudioHandler::Sounds sound);
 	void initalize();
 	void playMusic(Music music);
