@@ -18,7 +18,6 @@ void Player::initialize() {
 	file->bind("speed walk:f", &m_speed);
 	file->bind("speed sprint multiplier:f", &m_speedSprintMultiplier);
 	file->bind("speed in air:f", &m_speedInAir);
-	file->bind("jump force:f", &m_jumpForce);
 	file->bind("dash force:f", &m_dashForce);
 }
 
@@ -33,7 +32,6 @@ void Player::update(float dt, Terrain* terrain) {
 	// Movement force
 	float3 force = getMovementForce();
 
-	checkJump();
 	checkSprint(delta);
 	checkDash(delta);
 	checkHunterMode();
@@ -330,13 +328,6 @@ void Player::calculateTerrainCollision(Terrain* terrain, float dt) {
 	};
 }
 
-void Player::checkJump() {
-	if (Input::getInstance()->keyPressed(KEY_JUMP) && m_jumpReset) {
-		m_jumpReset = false;
-		m_velocity.y = m_jumpForce;
-	}
-}
-
 void Player::checkSprint(float dt) {
 	if (Input::getInstance()->keyDown(KEY_SPRINT)) {
 		// activate sprint
@@ -482,8 +473,6 @@ void Player::updateVelocity_inAir(float3 playerForce, float dt) {
 
 void Player::updateVelocity_onFlatGround(float3 playerForce, float dt) {
 	m_velocity *= pow(GROUND_FRICTION / 60.f, dt); // ground friction
-
-	m_jumpReset = true;
 
 	// add player forces
 	m_velocity += playerForce * getPlayerMovementSpeed() * dt;

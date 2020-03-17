@@ -38,7 +38,6 @@ private:
 	const Keyboard::Keys KEY_BACKWARD = Keyboard::S;
 	const Keyboard::Keys KEY_LEFT = Keyboard::A;
 	const Keyboard::Keys KEY_RIGHT = Keyboard::D;
-	const Keyboard::Keys KEY_JUMP = Keyboard::LeftControl;
 	const Keyboard::Keys KEY_DASH = Keyboard::Space;
 	const Keyboard::Keys KEY_SPRINT = Keyboard::LeftShift;
 	const Keyboard::Keys KEY_HM = Keyboard::F;
@@ -78,9 +77,6 @@ private:
 	float m_speedOnChargingDash = 10.f; // player movement when charging dash
 	float m_speedInAir = 2.5f;			// player movement in air
 	float m_godModeSpeed = 20.f;		// player movement in godmode
-	// jump
-	float m_jumpForce = 5.f; // strength of jump force
-	bool m_jumpReset = true;
 	// stamina
 	const float STAMINA_MAX = 1.f;	// max value of sprint
 	float m_stamina = 0.0f;	// stamina available
@@ -118,7 +114,6 @@ private:
 	float getSteepness(Terrain* terrain);
 	void calculateTerrainCollision(Terrain* terrain, float dt);
 
-	void checkJump();
 	void checkSprint(float dt);
 	void checkDash(float dt);
 	void checkPlayerReset(float dt); // Resets player if below sea level
