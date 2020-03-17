@@ -38,8 +38,8 @@ private:
 	const Keyboard::Keys KEY_BACKWARD = Keyboard::S;
 	const Keyboard::Keys KEY_LEFT = Keyboard::A;
 	const Keyboard::Keys KEY_RIGHT = Keyboard::D;
-	const Keyboard::Keys KEY_JUMP = Keyboard::Space;
-	const Keyboard::Keys KEY_DASH = Keyboard::LeftControl;
+	const Keyboard::Keys KEY_JUMP = Keyboard::LeftControl;
+	const Keyboard::Keys KEY_DASH = Keyboard::Space;
 	const Keyboard::Keys KEY_SPRINT = Keyboard::LeftShift;
 	const Keyboard::Keys KEY_HM = Keyboard::F;
 
@@ -93,6 +93,7 @@ private:
 	float m_dashForce = 11.f;
 	const float STAMINA_DASH_COST = 0.0f; // stamina cost of full charged dash
 	const float DASHMAXCHARGE = 1.f;	  // Max charge of dash charge in seconds
+	const float DASHMINCHARGE = 0.4f;	  // Min charge of dash charge in seconds
 	float m_dashCharge = 0.f;			  // charge of dash in seconds
 	bool m_chargingDash = false;		  // is the player charging
 
