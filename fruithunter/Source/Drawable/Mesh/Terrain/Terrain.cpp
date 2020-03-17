@@ -515,7 +515,6 @@ void Terrain::initilize(
 		m_isInitilized = true;
 		m_tileSize = subsize;
 		m_wind = wind;
-		ErrorLogger::logFloat3("Setting wind", wind);
 		createGrid(splits); // create space for memory
 		if (loadHeightmap(m_heightmapPath + filename)) {
 			createGridPointsFromHeightmap();
