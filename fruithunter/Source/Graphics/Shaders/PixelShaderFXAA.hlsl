@@ -7,8 +7,8 @@ struct Input {
 Texture2D objTexture : TEXTURE : register(t0);
 SamplerState objSamplerState : SAMPLER : register(s0);
 
-#define WIDTH 2560.0f
-#define HEIGHT 1440.0f
+#define WIDTH 1920.0f
+#define HEIGHT 1080.0f
 
 //Calculate luminosity or "brightness" of a color based on given formula
 float rgb2luma(float3 rgb)
