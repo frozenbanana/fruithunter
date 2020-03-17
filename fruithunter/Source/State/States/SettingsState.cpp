@@ -15,18 +15,41 @@ void SettingsState::initialize() {
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
 
+	Settings* settings = Settings::getInstance();
+
 	m_masterVolume.initialize("Master Volume", float2(width / 2, height / 2 - 250));
 	m_musicVolume.initialize("Music Volume", float2(width / 2, height / 2 - 200));
 	m_effectsVolume.initialize("Effects Volume", float2(width / 2, height / 2 - 150));
 	m_drawDistance.initialize("Draw distance", float2(width / 2, height / 2 - 70));
 	m_shadowsButton.initialize(
 		"Shadows", float2(width / 2, height / 2 - 10), Button::Setting::MEDIUM);
-	m_darkEdgesButton.initialize("Dark Edges", float2(width / 2, height / 2 + 50), true);
+	m_darkEdgesButton.initialize(
+		"Dark Edges", float2(width / 2, height / 2 + 50), settings->getDarkEdges());
 
 	m_resolutionButton.initialize(
 		"Resolution", float2(width / 2, height / 2 + 140), Button::Resolution::HD);
-	m_fullscreenButton.initialize("Fullscreen", float2(width / 2 + 150, height / 2 + 200), false);
-	m_vsyncButton.initialize("V-Sync", float2(width / 2 - 150, height / 2 + 200), true);
+	m_fullscreenButton.initialize(
+		"Fullscreen", float2(width / 2 + 150, height / 2 + 200), settings->getFullscreen());
+	m_vsyncButton.initialize(
+		"V-Sync", float2(width / 2 - 150, height / 2 + 200), settings->getVsync());
+
+	if (settings->getResolution().x == 1280)
+		m_resolutionButton.setResolution(Button::Resolution::HD);
+	else if (settings->getResolution().x == 1920)
+		m_resolutionButton.setResolution(Button::Resolution::FHD);
+	else if (settings->getResolution().x == 2560)
+		m_resolutionButton.setResolution(Button::Resolution::QHD);
+	else if (settings->getResolution().x == 38400)
+		m_resolutionButton.setResolution(Button::Resolution::UHD);
+
+	if (settings->getShadowResolution().x == 1024)
+		m_shadowsButton.setLowMedHighUltra(Button::Setting::LOW);
+	else if (settings->getShadowResolution().x == 2048)
+		m_shadowsButton.setLowMedHighUltra(Button::Setting::MEDIUM);
+	else if (settings->getShadowResolution().x == 4096)
+		m_shadowsButton.setLowMedHighUltra(Button::Setting::HIGH);
+	else if (settings->getShadowResolution().x == 8192)
+		m_shadowsButton.setLowMedHighUltra(Button::Setting::ULTRA);
 
 	m_backButton.initialize("Back", float2(width / 2, height - 80));
 	m_applyButton.initialize("Apply", float2(width / 2 - 100, height - 80));
@@ -113,7 +136,7 @@ void SettingsState::handleEvent() {
 	}
 }
 
-void SettingsState::pause() {}
+void SettingsState::pause() { Settings::getInstance()->saveAllSetting(); }
 
 void SettingsState::play() { m_screenStateChanged = false; }
 

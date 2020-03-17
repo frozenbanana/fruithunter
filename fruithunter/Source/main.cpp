@@ -17,8 +17,8 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	Input::initilize(Renderer::getInstance()->getHandle());
-	Settings::initialize();
 
+	Settings::getInstance()->loadAllSetting();
 	StateHandler* stateHandler = StateHandler::getInstance();
 	Input* input = Input::getInstance();
 	Renderer* renderer = Renderer::getInstance();
@@ -28,8 +28,6 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 
 	MSG msg = { 0 };
 	stateHandler->initialize();
-
-	Settings::getInstance()->loadAllSetting();
 
 	// random seed
 	srand((unsigned int)time(NULL));
