@@ -37,7 +37,7 @@ public:
 		}
 	};
 	enum State { INACTIVE, PASSIVE, ACTIVE, CAUGHT, RELEASED };
-	void pathfinding(float3 start);
+	void pathfinding(float3 start, std::vector<float4> animals);
 	void changeState(State newState);
 	State getState() const;
 	bool giveNewPath() const;
@@ -66,6 +66,7 @@ protected:
 	bool isValid(
 		float3 childPos, float3 currentNodePos, EntityRepository& collidables, float radius);
 	bool isValid(float3 childPos, float3 currentNodePos);
+	bool checkAnimals(std::vector<float4> animals, float3 childPos);
 	void makeReadyForPath(float3 destination);
 
 private:

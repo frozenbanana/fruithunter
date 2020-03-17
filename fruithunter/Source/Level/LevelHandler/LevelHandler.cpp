@@ -391,8 +391,14 @@ void LevelHandler::loadLevel(int levelNr) {
 	}
 
 	if (PathFindingThread::getInstance()->m_thread == nullptr) {
+		std::vector<float4> animalPos;
+		for (auto a : m_Animals) {
+			float4 ani = float4(
+				a->getPosition().x, a->getPosition().y, a->getPosition().z, a->getFruitRange());
+			animalPos.push_back(ani);
+		}
 		PathFindingThread::getInstance()->initialize(m_fruits, m_frame,
-			m_terrainProps); // Inte en perfekt lösning. Ingen pathfinding vid levelbyte.
+			m_terrainProps, animalPos); 
 	}
 }
 
