@@ -78,7 +78,7 @@ public:
 	bool load(string filename);
 	bool loadAnimated(string filename, int nrOfFrames);
 	void setCurrentMaterial(int materialIndex);
-	void loadMaterials(std::vector<string> fileNames, int nrOfMaterials);
+	void loadMaterials(std::vector<string> fileNames);
 
 	float castRay(float3 point, float3 direction);
 

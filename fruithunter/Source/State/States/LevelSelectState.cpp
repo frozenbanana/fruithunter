@@ -77,14 +77,21 @@ void LevelSelectState::update() {
 
 	// Update bowls
 	for (int i = 0; i < m_levelSelectors.size(); i++) {
-		// Check collision
-		if (m_player.getArrow().checkCollision(m_levelSelectors[i].m_bowl)) {
-			m_player.getArrow().setPosition(float3(-1000.f));
-			m_player.setPosition(m_spawnPosition);
-			TerrainManager::getInstance()->removeAll();
-			draw(); // Updates hitboxes and prepares state for next time.
-			setLevel(i);
-			StateHandler::getInstance()->changeState(StateHandler::PLAY);
+		size_t index = i - 1;
+		//if index inside array
+		if (index >= 0 && index < m_levelSelectors.size()) {
+			//if the level before this one is completed, then you may start the next one
+			if (SaveManager::getInstance()->getActiveSave()[index].isCompleted) {
+				// Check collision
+				if (m_player.getArrow().checkCollision(m_levelSelectors[i].m_bowl)) {
+					m_player.getArrow().setPosition(float3(-1000.f));
+					m_player.setPosition(m_spawnPosition);
+					TerrainManager::getInstance()->removeAll();
+					draw(); // Updates hitboxes and prepares state for next time.
+					setLevel(i);
+					StateHandler::getInstance()->changeState(StateHandler::PLAY);
+				}
+			}
 		}
 	}
 
@@ -154,9 +161,9 @@ void LevelSelectState::draw() {
 		m_levelSelectors[i].m_bowl.draw_onlyMesh(float3(0, 0, 0));
 		m_levelSelectors[i].m_content.draw_onlyMesh(float3(0, 0, 0));
 	}
-	//draw terrain
+	// draw terrain
 	TerrainManager::getInstance()->draw_onlyMesh();
-	//draw terrain props
+	// draw terrain props
 	m_terrainProps.draw_onlyMesh();
 	// draw animals
 	for (int i = 0; i < m_animal.size(); i++) {
@@ -170,14 +177,14 @@ void LevelSelectState::draw() {
 	// draw first person
 	m_skyBox.bindLightBuffer();
 	m_player.draw();
-	//draw bowls
+	// draw bowls
 	for (int i = 0; i < m_levelSelectors.size(); i++) {
 		m_levelSelectors[i].m_bowl.draw();
 		m_levelSelectors[i].m_content.draw();
 	}
-	//draw terrain entities
+	// draw terrain entities
 	m_terrainProps.draw();
-	//draw animals
+	// draw animals
 	for (int i = 0; i < m_animal.size(); i++) {
 		m_animal[i]->draw_onlyAnimal();
 	}
@@ -185,7 +192,7 @@ void LevelSelectState::draw() {
 	Renderer::getInstance()->copyDepthToSRV();
 	m_waterEffect.draw();
 
-	//text above bowls
+	// text above bowls
 	for (int i = 0; i < m_levelSelectors.size(); i++) {
 		LevelData levelData = SaveManager::getInstance()->getActiveSave()[i];
 		size_t minutes = levelData.timeOfCompletion / 60;
@@ -194,17 +201,17 @@ void LevelSelectState::draw() {
 		string strSeconds = (seconds == 0 ? "--" : (seconds < 10 ? "0" : "") + to_string(seconds));
 		string str = (levelData.isCompleted ? "COMPLETED" : "");
 		str += "\nBest Time: " + strMinutes + "." + strSeconds + " Minutes";
-		m_textRenderer.drawTextInWorld(str, m_levelSelectors[i].m_bowl.getPosition() + float3(0, 1.5f, 0),
+		m_textRenderer.drawTextInWorld(str,
+			m_levelSelectors[i].m_bowl.getPosition() + float3(0, 1.5f, 0),
 			m_player.getCameraPosition(), float2(1.f, 1.f) * 4.f);
 	}
-	//dark edges
+	// dark edges
 	Renderer::getInstance()->draw_darkEdges();
-	//skybox
+	// skybox
 	m_skyBox.draw(2, 2);
 }
 
-LevelSelectState::~LevelSelectState() {
-}
+LevelSelectState::~LevelSelectState() {}
 
 void LevelSelectState::setLevel(int newLevel) {
 
@@ -217,10 +224,11 @@ void LevelSelectState::initializeLevelSelectors() {
 	float3 bowlPositions[3]{ float3(7.3f, 2.7f, 47.4f), float3(41.7f, 2.75f, 20.6f),
 		float3(90.6f, 2.7f, 47.0f) };
 	vector<string> bowlMaterials;
-	bowlMaterials.resize(TimeTargets::NR_OF_TIME_TARGETS);
+	bowlMaterials.resize(TimeTargets::NR_OF_TIME_TARGETS + 1);
 	bowlMaterials[TimeTargets::GOLD] = "BowlGold.mtl";
 	bowlMaterials[TimeTargets::SILVER] = "BowlSilver.mtl";
 	bowlMaterials[TimeTargets::BRONZE] = "BowlBronze.mtl";
+	bowlMaterials[TimeTargets::NR_OF_TIME_TARGETS] = "Bowl.mtl";
 	string bowlContent[3] = { "BowlContent1", "BowlContent2", "BowlContent3" };
 	m_levelSelectors.resize(3);
 	for (size_t i = 0; i < 3; i++) {
@@ -228,11 +236,15 @@ void LevelSelectState::initializeLevelSelectors() {
 		TimeTargets grade = SaveManager::getInstance()->getActiveSave()[i].grade;
 		m_levelSelectors[i].m_bowl.load("Bowl");
 		m_levelSelectors[i].m_bowl.setPosition(bowlPositions[i]);
+		m_levelSelectors[i].m_bowl.loadMaterials(bowlMaterials);
 		if (isCompleted) {
-			m_levelSelectors[i].m_bowl.loadMaterials(bowlMaterials, 3);
 			m_levelSelectors[i].m_bowl.setCurrentMaterial(grade);
 			m_levelSelectors[i].m_content.load(bowlContent[i]);
 			m_levelSelectors[i].m_content.setPosition(bowlPositions[i]);
+		}
+		else {
+			m_levelSelectors[i].m_bowl.setCurrentMaterial(
+				TimeTargets::NR_OF_TIME_TARGETS); // use bowl.mtl material, ignore strange index
 		}
 	}
 
@@ -247,5 +259,4 @@ void LevelSelectState::initializeLevelSelectors() {
 		float3(87.f, 8.8f, 156.f), XM_PI * 0.5f);
 	if (!SaveManager::getInstance()->getActiveSave()[1].isCompleted)
 		m_animal.push_back(animal);
-
 }

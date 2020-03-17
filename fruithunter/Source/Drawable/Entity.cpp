@@ -276,11 +276,11 @@ void Entity::setMaterial(int index) {
 		m_meshAnim.setMaterials(index);
 }
 
-void Entity::loadMaterials(std::vector<string> fileNames, int nrOfMaterials) {
+void Entity::loadMaterials(std::vector<string> fileNames) {
 	if (m_mesh.get() != nullptr)
-		return m_mesh->loadOtherMaterials(fileNames, nrOfMaterials);
+		return m_mesh->loadOtherMaterials(fileNames);
 	else
-		m_meshAnim.loadMaterials(fileNames, nrOfMaterials);
+		m_meshAnim.loadMaterials(fileNames);
 }
 
 bool Entity::checkCollision(Entity& other) {

@@ -65,7 +65,7 @@ Animal::Animal(string modelName, float playerRange, float fruitRange, int fruitT
 		string mtlName = "ThoughtBubble" + to_string(i) + ".mtl";
 		mtlNames[i] = mtlName;
 	}
-	m_thoughtBubble.loadMaterials(mtlNames, 10);
+	m_thoughtBubble.loadMaterials(mtlNames);
 	m_thoughtBubble.setCurrentMaterial(3 * fruitType + nrRequiredFruits - 1);
 
 	m_thoughtBubbleOffset = getBoundingBoxPos() + float3(0.f, getHalfSizes().y + 0.5f, 0.f);

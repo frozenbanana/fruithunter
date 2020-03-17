@@ -5,7 +5,7 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 	loadAnimated("Apple", 3);
 	vector<string> names{ "Apple.mtl", "Apple2bronze.mtl", "Apple2silver.mtl", "Apple2gold.mtl",
 		"Apple3.mtl" };
-	loadMaterials(names, 5);
+	loadMaterials(names);
 
 	m_nrOfFramePhases = 6;
 	setScale(0.5);

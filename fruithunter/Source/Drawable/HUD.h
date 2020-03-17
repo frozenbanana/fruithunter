@@ -9,10 +9,10 @@ class HUD {
 private:
 	struct Sprite {
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture;
-		float2 screenPos;
-		float scale;
-		FruitType fruitType;
-		float pickUp;
+		float2 screenPos = float2(0, 0);
+		float scale = 1;
+		FruitType fruitType = FruitType::APPLE;//removes warning if set at creation
+		float pickUp = 0;
 	};
 
 	unique_ptr<SpriteBatch> m_spriteBatch;
