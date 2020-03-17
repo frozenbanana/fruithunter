@@ -6,10 +6,11 @@ private:
 	Settings();
 	static Settings m_this;
 
+	const string m_filePath = "assets/settings.txt";
+
 	bool m_vsync = true;
-	bool m_darkEdges = true;
-	bool m_particles = true;
 	bool m_fullscreen = false;
+	bool m_darkEdges = true;
 
 	float m_masterVolume = 0.5f;
 	float m_musicVolume = 0.5f;
@@ -19,14 +20,18 @@ private:
 	XMINT2 m_resolution = XMINT2(1280, 720);
 	XMINT2 m_shadowResolution = XMINT2(2048, 2048);
 
+	string getSetting(ifstream* input);
+
 public:
 	static void initialize();
 	static Settings* getInstance();
 	~Settings();
 
+	void loadAllSetting();
+	void saveAllSetting();
+
 	void setVsync(bool value);
 	void setDarkEdges(bool value);
-	void setParticles(bool value);
 	void setFullscreen(bool value);
 
 	void setDrawDistance(float value);
@@ -39,7 +44,6 @@ public:
 
 	bool getVsync();
 	bool getDarkEdges();
-	bool getParticles();
 	bool getFullscreen();
 
 	float getDrawDistance();

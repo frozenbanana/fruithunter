@@ -29,6 +29,8 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	MSG msg = { 0 };
 	stateHandler->initialize();
 
+	Settings::getInstance()->loadAllSetting();
+
 	// random seed
 	srand((unsigned int)time(NULL));
 
@@ -54,6 +56,8 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 
 		MSG msg = { 0 };
 	}
+
+	Settings::getInstance()->saveAllSetting();
 	VariableSyncer::getInstance()->saveAll();
 	return 0;
 }
