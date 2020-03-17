@@ -16,6 +16,17 @@ Bow::Bow() {
 	m_arrow.setCollisionDataOBB();
 	m_trailEffect = ParticleSystem(ParticleSystem::ARROW_GLITTER);
 
+	FileSyncer* file = VariableSyncer::getInstance()->create(
+		"Bow.txt", FileSyncer::SyncType::state_liveFile, onLoad);
+	file->bind("offset0:v3", &m_bowPositioning_offset0);
+	file->bind("angle0:v3", &m_bowPositioning_angle0);
+	file->bind("offset1:v3", &m_bowPositioning_offset1);
+	file->bind("angle1:v3", &m_bowPositioning_angle1);
+	file->bind("drawForward:f", &m_bowPositioning_drawForward);
+	file->bind("rotation drag:f", &m_bowPositioning_rotationSpringConstant);
+	file->bind("bow drag:f", &m_bowPositioning_bowDrag);
+	file->bind("string friction:f", &m_bowPositioning_stringFriction);
+	file->bind("string drag:f", &m_bowPositioning_stringSpringConstant);
 }
 
 Bow::~Bow() {}
@@ -43,7 +54,6 @@ void Bow::update(
 	// m_rotation =
 	//	forceRot + rotationChange * m_bowPositioning_rotationSpringConstant * dt + m_rotation;
 	//m_rotation += rotationChange * Clamp(m_bowPositioning_rotationSpringConstant * dt, 0, 1.f);
-	//m_bow.setRotation(m_rotation);
 
 	float3 forward = getForward();
 	// Set bow position based on player position and direction.
@@ -143,8 +153,8 @@ void Bow::draw() {
 void Bow::rotate(float pitch, float yaw) {
 	float3 rotation_holstered = float3(pitch, yaw, 0) + m_bowPositioning_angle0;
 	float3 rotation_aiming = float3(pitch, yaw, 0) + m_bowPositioning_angle1;
-	float3 rot = (rotation_holstered * (1 - m_drawFactor) + rotation_aiming * m_drawFactor);
-	m_bow.setRotation(rot);
+	m_rotation = (rotation_holstered * (1 - m_drawFactor) + rotation_aiming * m_drawFactor);
+	m_bow.setRotation(m_rotation);
 }
 
 void Bow::aim() { m_aiming = true; }
