@@ -14,7 +14,6 @@ private:
 	float m_wingStrength;
 	float m_passiveTurnSpeed;
 	float m_activeTurnSpeed;
-	Timer m_timer;
 	bool isFalling();
 	bool m_ascend = false;
 	bool updated = false;

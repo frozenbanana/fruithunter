@@ -28,31 +28,7 @@ DragonFruit::DragonFruit(float3 pos) : Fruit(pos) {
 
 	setCollisionDataOBB();
 	m_airFriction = m_groundFriction;
-	m_timer.reset();
 }
-
-
-
-// void DragonFruit::waveFlight(float3 playerPosition) {
-//
-//	if (isFalling()) {
-//		PathFindingThread* pft = PathFindingThread::getInstance();
-//		float3 target;
-//		if (m_availablePath.size() > 0) {
-//			target = m_availablePath.back();
-//			// jump(target, 5.f);
-//		}
-//		else {
-//			target = m_direction;
-//			target.Normalize();
-//			target.y = 1.f;
-//			target += m_direction;
-//			makeReadyForPath(target);
-//			// jump(target, 5.f);
-//		}
-//	}
-//}
-
 
 
 void DragonFruit::pathfinding(float3 start, std::vector<float4>* animals) {}
@@ -80,7 +56,6 @@ void DragonFruit::behaviorPassive(float3 playerPosition) {
 	}
 	float terrainHeight = TerrainManager::getInstance()->getHeightFromPosition(m_position);
 	float3 terrainPos = float3(m_position.x, terrainHeight, m_position.z);
-	// m_timer.update();
 	if (withinDistanceTo(terrainPos, 1.0f)) {
 		jump(float3(0.0f, 1.0f, 0.0f), 15.f);
 		m_target = getRandomTarget();
