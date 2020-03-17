@@ -43,11 +43,11 @@ void LevelHandler::initialiseLevel0() {
 	// level.m_wind.push_back(float3(1.f, 0.f, 2.f)); // Desert
 	level.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
 
-	level.m_nrOfFruits[APPLE] = 0;
+	level.m_nrOfFruits[APPLE] = 30;
 	level.m_nrOfFruits[BANANA] = 0;
 	level.m_nrOfFruits[MELON] = 0;
 
-	level.m_winCondition[APPLE] = 10;
+	level.m_winCondition[APPLE] = 15;
 	level.m_winCondition[BANANA] = 0;
 	level.m_winCondition[MELON] = 0;
 
@@ -127,9 +127,9 @@ void LevelHandler::initialiseLevel1() {
 
 	level.m_playerStartPos = float3(5.9f, 3.2f, 74.4f);
 
-	level.m_timeTargets[GOLD] = 120;
-	level.m_timeTargets[SILVER] = 160;
-	level.m_timeTargets[BRONZE] = 200;
+	level.m_timeTargets[GOLD] = 70;
+	level.m_timeTargets[SILVER] = 90;
+	level.m_timeTargets[BRONZE] = 120;
 
 	m_levelsArr.push_back(level);
 	m_hud.setTimeTargets(level.m_timeTargets);
@@ -231,19 +231,19 @@ void LevelHandler::initialiseLevel2() {
 	level.m_wind.push_back(WIND_PLAINS);  // Plains
 
 	level.m_nrOfFruits[APPLE] = 20;
-	level.m_nrOfFruits[BANANA] = 15;
-	level.m_nrOfFruits[MELON] = 9;
+	level.m_nrOfFruits[BANANA] = 20;
+	level.m_nrOfFruits[MELON] = 20;
 	level.m_nrOfFruits[DRAGON] = 0;
 
 	level.m_winCondition[APPLE] = 2;
 	level.m_winCondition[BANANA] = 2;
 	level.m_winCondition[MELON] = 2;
-	level.m_winCondition[DRAGON] = 0;
+	level.m_nrOfFruits[DRAGON] = 0;
 	level.m_playerStartPos = float3(162.5f, 9.5f, 19.f);
 
-	level.m_timeTargets[GOLD] = 120;
-	level.m_timeTargets[SILVER] = 160;
-	level.m_timeTargets[BRONZE] = 200;
+	level.m_timeTargets[GOLD] = 150;
+	level.m_timeTargets[SILVER] = 180;
+	level.m_timeTargets[BRONZE] = 210;
 
 	m_levelsArr.push_back(level);
 	m_hud.setTimeTargets(level.m_timeTargets);
@@ -377,7 +377,7 @@ void LevelHandler::loadLevel(int levelNr) {
 				m_terrainManager->getSpawnpoint(currentLevel.m_fruitPos[DRAGON].at(terrainTagNr)));
 			m_fruits.push_back(dragon);
 		}
-		
+
 
 		m_player.setPosition(currentLevel.m_playerStartPos);
 
@@ -416,7 +416,7 @@ void LevelHandler::loadLevel(int levelNr) {
 			animalPos.push_back(ani);
 		}
 		PathFindingThread::getInstance()->initialize(m_fruits, m_frame,
-			m_terrainProps, animalPos); 
+			m_terrainProps, animalPos);
 	}
 }
 
