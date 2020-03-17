@@ -7,7 +7,6 @@
 #define ARRIVAL_RADIUS 3.0f
 #define MAX_STEAPNESS .2f
 
-// int runningThreads = 0;
 
 
 class AI {
