@@ -47,7 +47,7 @@ void PathFindingThread::run() {
 		if (pft->m_batch->size() > 0) {
 
 			auto object = pft->m_batch->at(index);
-			object->pathfinding(object->getPosition(), m_animals);
+			object->pathfinding(object->getPosition(), &m_animals);
 		}
 		pft->m_mutex.unlock();
 	}

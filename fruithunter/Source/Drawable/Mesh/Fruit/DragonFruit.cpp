@@ -1,12 +1,13 @@
 #include "DragonFruit.h"
 #include "PathFindingThread.h"
 
-bool DragonFruit::isFalling() { return m_velocity.y < 0.f; }
+bool DragonFruit::isFalling() { return m_velocity.y < 0.f && !m_onGround; }
 
 DragonFruit::DragonFruit(float3 pos) : Fruit(pos) {
 	loadAnimated("Dragon", 3);
-	vector<string> names{ "Dragon.mtl", "Dragon2.mtl", "Dragon3.mtl" };
-	loadMaterials(names, 3);
+	vector<string> names{ "Dragon.mtl", "Dragon2.mtl", "Dragon3.mtl", "Dragon2.mtl",
+		"Dragon3.mtl" };
+	loadMaterials(names, 5);
 
 	m_nrOfFramePhases = 2;
 
@@ -54,7 +55,7 @@ void DragonFruit::circulateVertical(float3 playerPosition, float radius) {
 
 
 	float3 levitationPoint = m_position - playerPosition;
-	levitationPoint.y = playerPosition.y + 5.f;
+	levitationPoint.y = playerPosition.y;
 
 
 
@@ -68,7 +69,10 @@ void DragonFruit::circulateVertical(float3 playerPosition, float radius) {
 	target *= radius;
 
 	target += playerPosition;
-	target.y = playerPosition.y + 10.f;
+
+	float groundPoint =
+		max(playerPosition.y, TerrainManager::getInstance()->getHeightFromPosition(target));
+	target.y = groundPoint + 15.f;
 	// target *= 10.f;
 	m_direction = target - m_position;
 	lookToDir(playerPosition - m_position);
@@ -82,24 +86,11 @@ void DragonFruit::setDirection() {
 		m_direction.y = 1.f;
 		jump(m_direction, m_wingStrength);
 	}
+	updated = false;
 }
 
-void DragonFruit::pathfinding(float3 start) {
-	if (m_readyForPath) {
-		if (m_velocity.y < 0.f) {
-			float3 dir = m_velocity;
-			dir.Normalize();
-			dir += start;
-			float distToSurface = castRay(start, m_velocity);
-			if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(start) + 8.f) ||
-				distToSurface >= 0.f && distToSurface <= 1.f) {
-				// jump(m_direction, 50.f);
-				// dir += 50.f * float3(0.f, 1.f, 0.f);
-				m_availablePath.push_back(dir);
-				m_readyForPath = !m_readyForPath;
-			}
-		}
-	}
+void DragonFruit::pathfinding(float3 start,  std::vector<float4> *animals) {
+	
 }
 
 
@@ -109,7 +100,8 @@ void DragonFruit::behaviorPassive(float3 playerPosition) {
 
 	if (withinDistanceTo(playerPosition, m_passiveRadius)) {
 		changeState(ACTIVE);
-		m_gravity.y = -40.f;
+		
+		jump(float3(0.0f, 1.f, 0.f), 40.f);
 		return;
 	}
 	if (!withinDistanceTo(m_worldHome + float3(0.f, 6.f, 0.f), 0.f)) {
@@ -129,16 +121,29 @@ void DragonFruit::behaviorActive(float3 playerPosition) {
 	// when player is near, take flight
 	if (!withinDistanceTo(playerPosition, m_activeRadius)) {
 		changeState(PASSIVE);
-		m_gravity.y = -15.f;
+		
 		return;
 	}
 	// circulate player in air.
 	// m_gravity = float3(0.f);
-	circulateVertical(playerPosition, 17.f);
-	waveFlight(playerPosition);
+	auto height = TerrainManager::getInstance()->getHeightFromPosition(m_position);
+	
+	if (min(abs(m_position.y - playerPosition.y), abs(m_position.y - height)) > 5.f &&
+		isFalling()) {
+		jump(float3(0.f, 1.f, 0.f), m_wingStrength);
+	}
+
+	if (min(abs(m_position.y - playerPosition.y), abs(m_position.y - height) )> 5.f) {
+		circulateVertical(playerPosition, 17.f);
+		waveFlight(playerPosition);
+	}
+	else {
+		circulateVertical(playerPosition, 15.f);
+		//jump(m_direction, 1.f);
+	}
 
 	m_speed = 20.f;
-	m_wingStrength = 40.f;
+	m_wingStrength = 0.f;
 }
 
 void DragonFruit::behaviorCaught(float3 playerPosition) {
