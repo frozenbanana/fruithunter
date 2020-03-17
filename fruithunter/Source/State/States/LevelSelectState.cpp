@@ -29,10 +29,7 @@ void LevelSelectState::initialize() {
 
 	// Initiate water
 	m_waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(400, 400), XMINT2(1, 1),
-		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
-
-	// Initiate sky box
-
+		float3(0.f, 1.f, 0.f) - float3(150.f, 0.f, 150.f), float3(400.f, 2.f, 400.f));
 
 	// Initiate fruit bowls
 	for (int i = 0; i < NR_OF_LEVELS; i++) {
@@ -81,8 +78,6 @@ void LevelSelectState::update() {
 	for (int i = 0; i < m_terrainProps.getEntities()->size(); i++) {
 		m_player.collideObject(*m_terrainProps.getEntities()->at(i));
 	}
-
-	// ErrorLogger::logFloat3("playerPos: ", m_player.getPosition());
 
 	// Update Skybox
 	m_skyBox.updateDelta(delta);
