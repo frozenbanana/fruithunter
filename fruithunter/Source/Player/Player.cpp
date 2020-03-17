@@ -383,7 +383,11 @@ void Player::checkPlayerReset(float dt) {
 
 void Player::checkHunterMode() {
 	if (Input::getInstance()->keyPressed(KEY_HM)) {
-		AudioHandler::getInstance()->playOnce(AudioHandler::SLOW_MOTION);
+		if (!m_hunterMode)
+			AudioHandler::getInstance()->playOnce(AudioHandler::SLOW_MOTION);
+		else
+			AudioHandler::getInstance()->playOnce(AudioHandler::SLOW_MOTION_REVERSED);
+
 		m_hunterMode = 1 - m_hunterMode;
 	}
 }

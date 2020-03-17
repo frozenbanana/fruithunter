@@ -217,7 +217,7 @@ void IntroState::play() {
 	ErrorLogger::log(m_name + " play() called.");
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
-
+	AudioHandler::getInstance()->playMusic(AudioHandler::Music::OCEAN);
 	// Temporary solution to fix imperfect screen size when starting application
 	Renderer::getInstance()->changeResolution((int)width, (int)height);
 
