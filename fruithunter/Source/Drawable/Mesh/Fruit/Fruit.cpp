@@ -200,7 +200,7 @@ void Fruit::readyPath() {
 
 
 	pft->m_sizeLock.lock();
-	if (m_readyForPath) {
+	if (m_readyForPath && !m_beingWorked) {
 		auto t = this;
 		pft->addFruit(t);
 		m_beingWorked = true;

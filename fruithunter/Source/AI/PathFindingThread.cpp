@@ -62,8 +62,10 @@ void PathFindingThread::run() {
 			object->pathfinding(object->getPosition(), m_animals);
 			
 			//object.
+			object->setWorked();
 			pft->m_batch.pop_front();
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			
+			
 		}
 		pft->m_sizeLock.unlock();
 		//pft->m_sizeLock.lock();

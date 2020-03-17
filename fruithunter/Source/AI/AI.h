@@ -41,7 +41,7 @@ public:
 	void changeState(State newState);
 	State getState() const;
 	bool giveNewPath() const;
-
+	void setWorked();
 protected:
 	float m_passiveRadius, m_activeRadius;
 

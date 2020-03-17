@@ -247,6 +247,13 @@ AI::State AI::getState() const { return m_currentState; }
 
 bool AI::giveNewPath() const { return m_readyForPath; }
 
+void AI::setWorked() { 
+	if (m_beingWorked)
+		m_beingWorked = false;
+	else
+		m_beingWorked = true;
+}
+
 void AI::doBehavior(float3 playerPosition) {
 	auto pft = PathFindingThread::getInstance();
 
