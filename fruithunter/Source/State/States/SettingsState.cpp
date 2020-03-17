@@ -114,6 +114,8 @@ void SettingsState::handleEvent() {
 			m_backButton.setPosition(float2(width / 2, height - 80));
 			m_applyButton.setPosition(float2(width / 2 - 100, height - 80));
 
+			m_settingsBackground.setPosition(float2(width / 2.f, height / 2.f));
+
 			m_screenStateChanged = false;
 		}
 	}

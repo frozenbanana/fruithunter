@@ -74,6 +74,8 @@ void PauseState::play() {
 	m_settingsButton.setPosition(float2(width / 2, height / 2));
 	m_mainMenuButton.setPosition(float2(width / 2, height / 2 + 60));
 	m_exitButton.setPosition(float2(width / 2, height / 2 + 120));
+
+	m_settingsBackground.setPosition(float2(width / 2.f, height / 2.f));
 }
 
 
