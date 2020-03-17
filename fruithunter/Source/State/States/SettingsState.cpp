@@ -31,6 +31,11 @@ void SettingsState::initialize() {
 
 	m_backButton.initialize("Back", float2(width / 2, height - 80));
 	m_applyButton.initialize("Apply", float2(width / 2 - 100, height - 80));
+
+	m_settingsBackground.load("melon.png");
+	m_settingsBackground.setPosition(float2(width / 2.f, height / 2.f));
+	m_settingsBackground.setRotation(3.1415f / 2.f);
+	m_settingsBackground.setScale(1.75f);
 	// Just ignore this. It fixes things.
 	m_entity.load("Melon_000000");
 	m_entity.setPosition(float3(-1000));
@@ -116,11 +121,15 @@ void SettingsState::handleEvent() {
 
 void SettingsState::pause() {}
 
-void SettingsState::play() { m_screenStateChanged = false; }
+void SettingsState::play() {
+	ErrorLogger::log(m_name + " play() called.");
+	m_screenStateChanged = false;
+}
 
 void SettingsState::draw() {
 	Renderer::getInstance()->beginFrame();
 	Renderer::getInstance()->drawCapturedFrame();
+	m_settingsBackground.draw();
 	m_darkEdgesButton.draw();
 	m_vsyncButton.draw();
 	m_shadowsButton.draw();

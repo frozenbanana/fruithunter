@@ -23,6 +23,10 @@ void PauseState::initialize() {
 	m_mainMenuButton.initialize("Main Menu", float2(width / 2, height / 2 + 60));
 	m_exitButton.initialize("Exit", float2(width / 2, height / 2 + 120));
 
+	m_settingsBackground.load("apple.png");
+	m_settingsBackground.setPosition(float2(width / 2.f, height / 2.f));
+	m_settingsBackground.setScale(1.25f);
+
 	// Just ignore this. It fixes things.
 	m_entity.load("Melon_000000");
 	m_entity.setPosition(float3(-1000));
@@ -58,10 +62,16 @@ void PauseState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
 void PauseState::play() {
 	ErrorLogger::log(m_name + " play() called.");
-	if (StateHandler::getInstance()->getPreviousState() != StateHandler::SETTINGS) {
-		ErrorLogger::log("Stashing frame");
+	int previousState = StateHandler::getInstance()->getPreviousState();
+	if (previousState == StateHandler::LEVEL_SELECT || previousState == StateHandler::PLAY) {
+		ErrorLogger::log("Capturing frame. Previous: " +
+						 to_string(StateHandler::getInstance()->getPreviousState()) +
+						 ", settings: " + to_string(StateHandler::SETTINGS));
 		Renderer::getInstance()->captureFrame();
 	}
+	ErrorLogger::log(
+		"NOT Capturing. Current: " + StateHandler::getInstance()->getCurrent()->getName());
+
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
 
@@ -75,6 +85,7 @@ void PauseState::play() {
 void PauseState::draw() {
 	Renderer::getInstance()->beginFrame();
 	Renderer::getInstance()->drawCapturedFrame();
+	m_settingsBackground.draw();
 
 	if (StateHandler::getInstance()->getPreviousState() == StateHandler::PLAY)
 		m_restartButton.draw();
