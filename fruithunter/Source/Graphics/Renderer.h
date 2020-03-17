@@ -20,6 +20,7 @@ public:
 	static ID3D11DeviceContext* getDeviceContext();
 	static Renderer* getInstance();
 	HWND getHandle();
+	ID3D11DepthStencilState* getDepthDSS() const;
 	float getScreenWidth() const;
 	float getScreenHeight() const;
 
@@ -28,7 +29,7 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthDSV;	 // Depth stencil view
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthDSS;	 // Depth stencil stade
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthSRV; // Depth shader resource view
-
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_backBufferTex;
 	void bindEverything();
 	void bindDepthSRV(int slot);
 	void bindConstantBuffer_ScreenSize(int slot);
@@ -38,6 +39,10 @@ public:
 	void changeResolution(int width, int height);
 	void setFullscreen(bool value);
 	void copyDepthToSRV();
+
+	void captureFrame();
+
+	void drawCapturedFrame();
 
 	void draw_darkEdges();
 
@@ -83,6 +88,10 @@ private:
 	// Loading screen
 	Quad m_loadingScreen;
 	bool m_loadingScreenInitialised = false;
+
+	// Loading screen
+	Quad m_capturedFrame;
+	bool m_capturedFrameLoaded = false;
 
 	// shadows
 	ShadowMapper m_shadowMapper;

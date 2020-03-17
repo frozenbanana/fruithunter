@@ -78,7 +78,7 @@ private:
 	vector<float2> m_spawnPoint;
 
 	// Wind
-	float3 m_wind = float3(0.f, 0.f, 10.f);
+	float3 m_wind;
 
 	// Culling
 	vector<XMINT2*> m_culledGrids;

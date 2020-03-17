@@ -164,9 +164,9 @@ void Animated::setMaterials(int index) {
 	}
 }
 
-void Animated::loadMaterials(std::vector<string> fileNames, int nrOfMaterials) {
+void Animated::loadMaterials(std::vector<string> fileNames) {
 	for (size_t i = 0; i < m_nrOfMeshes; ++i) {
-		m_meshes[i]->loadOtherMaterials(fileNames, nrOfMaterials);
+		m_meshes[i]->loadOtherMaterials(fileNames);
 	}
 }
 

@@ -15,22 +15,54 @@ void SettingsState::initialize() {
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
 
+	Settings* settings = Settings::getInstance();
+
 	m_masterVolume.initialize("Master Volume", float2(width / 2, height / 2 - 250));
 	m_musicVolume.initialize("Music Volume", float2(width / 2, height / 2 - 200));
 	m_effectsVolume.initialize("Effects Volume", float2(width / 2, height / 2 - 150));
 	m_drawDistance.initialize("Draw distance", float2(width / 2, height / 2 - 70));
 	m_shadowsButton.initialize(
 		"Shadows", float2(width / 2, height / 2 - 10), Button::Setting::MEDIUM);
-	m_darkEdgesButton.initialize("Dark Edges", float2(width / 2, height / 2 + 50), true);
+	m_darkEdgesButton.initialize(
+		"Dark Edges", float2(width / 2, height / 2 + 50), settings->getDarkEdges());
 
 	m_resolutionButton.initialize(
 		"Resolution", float2(width / 2, height / 2 + 140), Button::Resolution::HD);
-	m_fullscreenButton.initialize("Fullscreen", float2(width / 2 + 150, height / 2 + 200), false);
+	m_fullscreenButton.initialize(
+		"Fullscreen", float2(width / 2 + 150, height / 2 + 200), settings->getFullscreen());
+	m_vsyncButton.initialize(
+		"V-Sync", float2(width / 2 - 150, height / 2 + 200), settings->getVsync());
 
-	m_vsyncButton.initialize("V-Sync", float2(width / 2 - 150, height / 2 + 200), true);
+	if (settings->getResolution().x == 1280)
+		m_resolutionButton.setResolution(Button::Resolution::HD);
+	else if (settings->getResolution().x == 1920)
+		m_resolutionButton.setResolution(Button::Resolution::FHD);
+	else if (settings->getResolution().x == 2560)
+		m_resolutionButton.setResolution(Button::Resolution::QHD);
+	else if (settings->getResolution().x == 38400)
+		m_resolutionButton.setResolution(Button::Resolution::UHD);
+
+	if (settings->getShadowResolution().x == 1024)
+		m_shadowsButton.setLowMedHighUltra(Button::Setting::LOW);
+	else if (settings->getShadowResolution().x == 2048)
+		m_shadowsButton.setLowMedHighUltra(Button::Setting::MEDIUM);
+	else if (settings->getShadowResolution().x == 4096)
+		m_shadowsButton.setLowMedHighUltra(Button::Setting::HIGH);
+	else if (settings->getShadowResolution().x == 8192)
+		m_shadowsButton.setLowMedHighUltra(Button::Setting::ULTRA);
+
+	m_masterVolume.setValue(settings->getMasterVolume());
+	m_musicVolume.setValue(settings->getMusicVolume());
+	m_effectsVolume.setValue(settings->getEffectsVolume());
+	m_drawDistance.setValue(settings->getDrawDistanceValue());
 
 	m_backButton.initialize("Back", float2(width / 2, height - 80));
 	m_applyButton.initialize("Apply", float2(width / 2 - 100, height - 80));
+
+	m_settingsBackground.load("melon.png");
+	m_settingsBackground.setPosition(float2(width / 2.f, height / 2.f));
+	m_settingsBackground.setRotation(3.1415f / 2.f);
+	m_settingsBackground.setScale(1.85f);
 	// Just ignore this. It fixes things.
 	m_entity.load("Melon_000000");
 	m_entity.setPosition(float3(-1000));
@@ -59,38 +91,34 @@ void SettingsState::handleEvent() {
 	if (m_darkEdgesButton.update()) {
 		settings->setDarkEdges(m_darkEdgesButton.getOnOff());
 	}
-	if (m_fullscreenButton.update()) {
-		m_screenStateChanged = true;
-	}
 	if (m_shadowsButton.update()) {
 		if (m_shadowsButton.getLowMedHighUltra() == Button::Setting::LOW)
-			Renderer::getInstance()->getShadowMapper()->resizeShadowDepthViews(XMINT2(1024, 1024));
+			settings->setShadowResolution(1024);
 		else if (m_shadowsButton.getLowMedHighUltra() == Button::Setting::MEDIUM)
-			Renderer::getInstance()->getShadowMapper()->resizeShadowDepthViews(XMINT2(2048, 2048));
+			settings->setShadowResolution(2048);
 		else if (m_shadowsButton.getLowMedHighUltra() == Button::Setting::HIGH)
-			Renderer::getInstance()->getShadowMapper()->resizeShadowDepthViews(XMINT2(4096, 4096));
+			settings->setShadowResolution(4096);
 		else if (m_shadowsButton.getLowMedHighUltra() == Button::Setting::ULTRA)
-			Renderer::getInstance()->getShadowMapper()->resizeShadowDepthViews(XMINT2(8192, 8192));
+			settings->setShadowResolution(8192);
+	}
+	if (m_fullscreenButton.update()) {
+		m_screenStateChanged = true;
 	}
 	if (m_resolutionButton.update()) {
 		m_screenStateChanged = true;
 	}
-
-	if (m_backButton.update() || Input::getInstance()->keyDown(Keyboard::Keys::Escape)) {
-		StateHandler::getInstance()->resumeMenuState();
-	}
 	if (m_screenStateChanged) {
 		if (m_applyButton.update() || Input::getInstance()->keyDown(Keyboard::Keys::Enter)) {
-			Renderer::getInstance()->setFullscreen(m_fullscreenButton.getOnOff());
+			settings->setFullscreen(m_fullscreenButton.getOnOff());
 
 			if (m_resolutionButton.getResolution() == Button::Resolution::HD)
-				Renderer::getInstance()->changeResolution(1280, 720);
+				settings->setResolution(1280, 720);
 			else if (m_resolutionButton.getResolution() == Button::Resolution::FHD)
-				Renderer::getInstance()->changeResolution(1920, 1080);
+				settings->setResolution(1920, 1080);
 			else if (m_resolutionButton.getResolution() == Button::Resolution::QHD)
-				Renderer::getInstance()->changeResolution(2560, 1440);
+				settings->setResolution(2560, 1440);
 			else if (m_resolutionButton.getResolution() == Button::Resolution::UHD)
-				Renderer::getInstance()->changeResolution(3840, 2160);
+				settings->setResolution(3840, 2160);
 
 			float width = SCREEN_WIDTH;
 			float height = SCREEN_HEIGHT;
@@ -109,18 +137,28 @@ void SettingsState::handleEvent() {
 			m_backButton.setPosition(float2(width / 2, height - 80));
 			m_applyButton.setPosition(float2(width / 2 - 100, height - 80));
 
+			m_settingsBackground.setPosition(float2(width / 2.f, height / 2.f));
+
 			m_screenStateChanged = false;
 		}
 	}
+
+	if (m_backButton.update() || Input::getInstance()->keyDown(Keyboard::Keys::Escape)) {
+		StateHandler::getInstance()->resumeMenuState();
+	}
 }
 
-void SettingsState::pause() {}
+void SettingsState::pause() { Settings::getInstance()->saveAllSetting(); }
 
-void SettingsState::play() { m_screenStateChanged = false; }
+void SettingsState::play() {
+	ErrorLogger::log(m_name + " play() called.");
+	m_screenStateChanged = false;
+}
 
 void SettingsState::draw() {
 	Renderer::getInstance()->beginFrame();
-
+	Renderer::getInstance()->drawCapturedFrame();
+	m_settingsBackground.draw();
 	m_darkEdgesButton.draw();
 	m_vsyncButton.draw();
 	m_shadowsButton.draw();
@@ -141,7 +179,6 @@ void SettingsState::draw() {
 		m_backButton.setPosition(float2(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 80));
 		m_backButton.draw();
 	}
-
 
 	// Just ignore this. It fixes things
 	m_entity.draw();

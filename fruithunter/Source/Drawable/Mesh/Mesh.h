@@ -74,7 +74,7 @@ public:
 
 	// -- INITILIZE --
 	bool load(std::string filename, bool combineParts = true);
-	void loadOtherMaterials(std::vector<string> fileNames, int nrOfMaterials);
+	void loadOtherMaterials(std::vector<string> fileNames);
 
 	Mesh(std::string OBJFile = "");
 	Mesh& operator=(const Mesh& other) = delete;

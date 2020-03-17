@@ -18,7 +18,7 @@ public:
 	void draw();
 	bool isRunning();
 	void quit();
-	int getPreviousStateName();
+	int getPreviousState();
 
 	static StateHandler* getInstance();
 	State* getCurrent();

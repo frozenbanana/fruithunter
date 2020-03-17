@@ -23,7 +23,8 @@ void PlayState::handleEvent() {
 	}
 
 	if (m_levelHandler->getHUD().hasWon()) {
-		ErrorLogger::log("Changing state to END ROUND!");
+		ErrorLogger::log("Changing state to END ROUND.");
+		Renderer::getInstance()->captureFrame();
 		StateHandler::getInstance()->changeState(StateHandler::ENDROUND);
 		EndRoundState* endRound =
 			dynamic_cast<EndRoundState*>(StateHandler::getInstance()->getCurrent());
@@ -62,9 +63,7 @@ void PlayState::handleEvent() {
 	}
 }
 
-void PlayState::pause() {
-	ErrorLogger::log(m_name + " pause() called.");
-}
+void PlayState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
 void PlayState::draw() {
 	ShadowMapper* shadowMap = Renderer::getInstance()->getShadowMapper();

@@ -1,8 +1,3 @@
-//cbuffer MatrixBuffer : register(b5) { 
-//	matrix viewMatrix;
-//	matrix projMatrix; 
-//};
-
 struct Input {
 	float2 position : POSITION;
 	float3 color : COLOR;

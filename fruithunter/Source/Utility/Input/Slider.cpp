@@ -56,6 +56,12 @@ void Slider::setPosition(float2 position) {
 	m_position = position;
 	m_sliderPos.y = m_position.y;
 	m_sliderPos.x += offset;
+	m_startPos = m_sliderPos;
+}
+
+void Slider::setValue(float value) {
+	m_value = value;
+	m_sliderPos.x = (m_value * 240.f) + SCREEN_WIDTH / 2 - 120.f;
 }
 
 bool Slider::update() {
@@ -69,6 +75,7 @@ bool Slider::update() {
 		m_colour = float4(0.5f, 0.5f, 0.5f, 1.f);
 		if (ip->mousePressed(Input::MouseButton::LEFT)) {
 			m_grabPos = (float)ip->mouseX();
+			m_startPos = m_sliderPos;
 			m_offset = 0.f;
 			m_sliding = true;
 		}
