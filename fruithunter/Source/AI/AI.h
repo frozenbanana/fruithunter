@@ -37,7 +37,7 @@ public:
 		}
 	};
 	enum State { INACTIVE, PASSIVE, ACTIVE, CAUGHT, RELEASED };
-	void pathfinding(float3 start, std::vector<float4> animals);
+	virtual void pathfinding(float3 start, std::vector<float4> animals);
 	void changeState(State newState);
 	State getState() const;
 	bool giveNewPath() const;
