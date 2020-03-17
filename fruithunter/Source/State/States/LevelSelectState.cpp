@@ -77,20 +77,17 @@ void LevelSelectState::update() {
 
 	// Update bowls
 	for (int i = 0; i < m_levelSelectors.size(); i++) {
-		size_t index = i - 1;
-		//if index inside array
-		if (index >= 0 && index < m_levelSelectors.size()) {
-			//if the level before this one is completed, then you may start the next one
-			if (SaveManager::getInstance()->getActiveSave()[index].isCompleted) {
-				// Check collision
-				if (m_player.getArrow().checkCollision(m_levelSelectors[i].m_bowl)) {
-					m_player.getArrow().setPosition(float3(-1000.f));
-					m_player.setPosition(m_spawnPosition);
-					TerrainManager::getInstance()->removeAll();
-					draw(); // Updates hitboxes and prepares state for next time.
-					setLevel(i);
-					StateHandler::getInstance()->changeState(StateHandler::PLAY);
-				}
+		//if index inside array and previous level is completed, then allow to play level
+		if (i == 0 ||
+			SaveManager::getInstance()->getActiveSave()[i-1].isCompleted) {
+			// Check collision
+			if (m_player.getArrow().checkCollision(m_levelSelectors[i].m_bowl)) {
+				m_player.getArrow().setPosition(float3(-1000.f));
+				m_player.setPosition(m_spawnPosition);
+				TerrainManager::getInstance()->removeAll();
+				draw(); // Updates hitboxes and prepares state for next time.
+				setLevel(i);
+				StateHandler::getInstance()->changeState(StateHandler::PLAY);
 			}
 		}
 	}
