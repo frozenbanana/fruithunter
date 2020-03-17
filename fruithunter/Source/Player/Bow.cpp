@@ -3,6 +3,7 @@
 #include "AudioHandler.h"
 #include "ErrorLogger.h"
 #include "VariableSyncer.h"
+#include "Errorlogger.h"
 
 void onLoad() { ErrorLogger::log("BowLoaded"); }
 
@@ -104,6 +105,7 @@ void Bow::update(
 				arrowHitObject(target);
 			}
 			else {
+				ErrorLogger::logFloat3("Current wind", terrain->getWindStatic());
 				arrowPhysics(dt, terrain->getWindStatic()); // Updates arrow in flight, wind is no
 															// longer hard coded.
 				// update Particle System
@@ -233,7 +235,7 @@ void Bow::arrowPhysics(float dt, float3 windVector) { // Updates arrow in flight
 		m_arrowArea = 0.0001f;
 	}
 	else {
-		relativeVelocity = m_arrowVelocity - windVector;
+		relativeVelocity = m_arrowVelocity + windVector;
 		calcArea(relativeVelocity);
 	}
 
@@ -243,7 +245,7 @@ void Bow::arrowPhysics(float dt, float3 windVector) { // Updates arrow in flight
 		(totalDragTimesLength * relativeVelocity.y) - 9.82f,
 		totalDragTimesLength * relativeVelocity.z);
 
-	m_arrowVelocity += acceleration * dt;
+	m_arrowVelocity += (acceleration + windVector) * dt;
 
 	float angle = calcAngle(m_arrowVelocity, m_oldArrowVelocity);
 	m_arrowPitch += angle;
