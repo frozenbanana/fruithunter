@@ -120,10 +120,12 @@ void LevelHandler::initialiseLevel1() {
 	level.m_nrOfFruits[APPLE] = 20;
 	level.m_nrOfFruits[BANANA] = 0;
 	level.m_nrOfFruits[MELON] = 20;
+	level.m_nrOfFruits[DRAGON] = 0;
 
 	level.m_winCondition[APPLE] = 10;
 	level.m_winCondition[BANANA] = 0;
 	level.m_winCondition[MELON] = 10;
+	level.m_winCondition[DRAGON] = 0;
 
 	level.m_playerStartPos = float3(5.9f, 3.2f, 74.4f);
 
@@ -140,19 +142,18 @@ void LevelHandler::initialiseLevel2() {
 
 	level.m_terrainPropsFilename = "level2";
 
-	level.m_terrainTags.push_back(Level::TerrainTags::Volcano);
-	level.m_terrainTags.push_back(Level::TerrainTags::Forest);
-	level.m_terrainTags.push_back(Level::TerrainTags::Desert);
-	level.m_terrainTags.push_back(Level::TerrainTags::Plains);
+	level.m_terrainTags.push_back(Level::TerrainTags::Volcano); // 1
+	level.m_terrainTags.push_back(Level::TerrainTags::Forest);	// 2
+	level.m_terrainTags.push_back(Level::TerrainTags::Desert);	// 3
+	level.m_terrainTags.push_back(Level::TerrainTags::Plains);	// 4
 
+	level.m_fruitPos[APPLE].push_back(3); // 2 is  desert
 	level.m_fruitPos[APPLE].push_back(1);
-	level.m_fruitPos[APPLE].push_back(2);
-	level.m_fruitPos[APPLE].push_back(3);
-	level.m_fruitPos[BANANA].push_back(1);
+	level.m_fruitPos[BANANA].push_back(1); //  0 is volcano
 	level.m_fruitPos[BANANA].push_back(2);
 	level.m_fruitPos[BANANA].push_back(3);
-	level.m_fruitPos[MELON].push_back(0);
-	level.m_fruitPos[DRAGON].push_back(0);
+	level.m_fruitPos[MELON].push_back(2);  // 1 is forest
+	level.m_fruitPos[DRAGON].push_back(0); // 3 is plains
 
 	level.m_heightMapNames.push_back("VolcanoMap.png");
 	level.m_heightMapNames.push_back("ForestMap.png");
@@ -233,12 +234,12 @@ void LevelHandler::initialiseLevel2() {
 	level.m_nrOfFruits[APPLE] = 20;
 	level.m_nrOfFruits[BANANA] = 20;
 	level.m_nrOfFruits[MELON] = 20;
-	level.m_nrOfFruits[DRAGON] = 0;
+	level.m_nrOfFruits[DRAGON] = 10;
 
-	level.m_winCondition[APPLE] = 2;
-	level.m_winCondition[BANANA] = 2;
-	level.m_winCondition[MELON] = 2;
-	level.m_nrOfFruits[DRAGON] = 0;
+	level.m_winCondition[APPLE] = 5;
+	level.m_winCondition[BANANA] = 5;
+	level.m_winCondition[MELON] = 5;
+	level.m_winCondition[DRAGON] = 5;
 	level.m_playerStartPos = float3(162.5f, 9.5f, 19.f);
 
 	level.m_timeTargets[GOLD] = 150;
@@ -396,6 +397,8 @@ void LevelHandler::loadLevel(int levelNr) {
 			m_hud.createFruitSprite("banana");
 		if (currentLevel.m_nrOfFruits[MELON] != 0)
 			m_hud.createFruitSprite("melon");
+		if (currentLevel.m_nrOfFruits[DRAGON] != 0)
+			m_hud.createFruitSprite("dragonfruit");
 
 		// Put out bridges correctly
 		for (int i = 0; i < currentLevel.m_bridgePosition.size(); i++) {
@@ -415,8 +418,7 @@ void LevelHandler::loadLevel(int levelNr) {
 				a->getPosition().x, a->getPosition().y, a->getPosition().z, a->getFruitRange());
 			animalPos.push_back(ani);
 		}
-		PathFindingThread::getInstance()->initialize(m_fruits, m_frame,
-			m_terrainProps, animalPos);
+		PathFindingThread::getInstance()->initialize(m_fruits, m_frame, m_terrainProps, animalPos);
 	}
 }
 

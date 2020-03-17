@@ -87,6 +87,7 @@ HUD::HUD() {
 	m_fruitTextColors[APPLE] = { 1.f, 0.f, 0.f, 1.f };
 	m_fruitTextColors[BANANA] = { 0.9f, 0.7f, 0.2f, 1.f };
 	m_fruitTextColors[MELON] = { 0.4f, 0.7f, 0.3f, 1.f };
+	m_fruitTextColors[DRAGON] = { 1.0f, 0.3f, 0.3f, 1.f };
 
 	m_spriteBatch = std::make_unique<SpriteBatch>(Renderer::getDeviceContext());
 	m_states = std::make_unique<CommonStates>(Renderer::getDevice());
@@ -142,6 +143,8 @@ void HUD::createFruitSprite(string fruitName) {
 		sprite.fruitType = BANANA;
 	else if (fruitName == "melon")
 		sprite.fruitType = MELON;
+	else if (fruitName == "dragonfruit")
+		sprite.fruitType = DRAGON;
 
 	// Set all sprites to the same size with equal spacing
 	sprite.scale = 75.0f / (float)texDesc.Height;
