@@ -3,7 +3,6 @@
 #include "AudioHandler.h"
 #include "ErrorLogger.h"
 #include "VariableSyncer.h"
-#include "Errorlogger.h"
 
 void onLoad() { ErrorLogger::log("BowLoaded"); }
 
