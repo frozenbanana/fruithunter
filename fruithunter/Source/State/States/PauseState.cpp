@@ -67,7 +67,7 @@ void PauseState::play() {
 		Renderer::getInstance()->captureFrame();
 
 	float width = SCREEN_WIDTH;
-	float height = SCREEN_HEIGHT;
+	float height = SCREEN_HEIGHT + 60;
 
 	m_restartButton.setPosition(float2(width / 2, height / 2 - 120));
 	m_resumeButton.setPosition(float2(width / 2, height / 2 - 60));
