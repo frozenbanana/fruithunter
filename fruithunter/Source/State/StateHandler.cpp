@@ -42,9 +42,9 @@ void StateHandler::resumeMenuState() {
 	ErrorLogger::log("Current state: " + (int)m_previous);
 	getCurrent()->pause();
 	Input::getInstance()->update();
-	m_previous = m_current;
+	int temp = m_current;
 	m_current = m_previousMenu;
-	m_previousMenu = m_previous; // update current
+	m_previousMenu = temp;
 	getCurrent()->play();
 }
 
