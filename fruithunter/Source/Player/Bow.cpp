@@ -9,7 +9,7 @@ void onLoad() { ErrorLogger::log("BowLoaded"); }
 Bow::Bow() {
 	m_bow.loadAnimated("Bow", 3);
 	m_bow.setScale(0.2f);
-	m_arrow.load("arrowV2");
+	m_arrow.load("arrowV3");
 	// m_arrow.setScale(float3(0.2f, 0.2f, m_arrowLength));
 	m_arrow.setScale(float3(0.5f, 0.5f, m_arrowLength));
 	m_arrow.setPosition(float3(-10.f)); // To make sure that arrow doesn't spawn in fruits.
@@ -233,7 +233,7 @@ void Bow::arrowPhysics(float dt, float3 windVector) { // Updates arrow in flight
 		m_arrowArea = 0.0001f;
 	}
 	else {
-		relativeVelocity = m_arrowVelocity - windVector;
+		relativeVelocity = m_arrowVelocity + windVector;
 		calcArea(relativeVelocity);
 	}
 
@@ -243,7 +243,7 @@ void Bow::arrowPhysics(float dt, float3 windVector) { // Updates arrow in flight
 		(totalDragTimesLength * relativeVelocity.y) - 9.82f,
 		totalDragTimesLength * relativeVelocity.z);
 
-	m_arrowVelocity += acceleration * dt;
+	m_arrowVelocity += (acceleration + windVector) * dt;
 
 	float angle = calcAngle(m_arrowVelocity, m_oldArrowVelocity);
 	m_arrowPitch += angle;
