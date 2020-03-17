@@ -28,9 +28,6 @@ cbuffer lightInfo : register(b6) {
 
 float3 lighting(float3 pos, float3 normal, float3 color, float shade) {
 	// light utility
-	/*float3 lightPos = float3(-0.f, 110.f, 100.f);
-	float3 toLight = normalize(lightPos - pos);*/
-	// float3 toLight = normalize(float3(-100.f, 110.f, 0));
 	float3 toLight = normalize(cb_toLight.xyz);
 
 	// diffuse
@@ -40,7 +37,6 @@ float3 lighting(float3 pos, float3 normal, float3 color, float shade) {
 	// float reflectTint =
 	//	pow(max(dot(normalize(reflect(-toLight, normal)), normalize(-pos)), 0.0), 20.0);
 	// return color * (0.2 + shadowTint + reflectTint);
-
 	return color * (ambient.xyz + shadowTint * shade * diffuse.xyz);
 }
 

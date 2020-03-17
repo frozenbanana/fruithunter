@@ -47,7 +47,7 @@ void LevelHandler::initialiseLevel0() {
 	// level.m_wind.push_back(float3(0.f, 8.f, 0.f)); // Volcano
 	// level.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
 	// level.m_wind.push_back(float3(1.f, 0.f, 2.f)); // Desert
-	level.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
+	level.m_wind.push_back(float3(0.f, 0.f, 3.f)); // Plains
 
 	level.m_nrOfFruits[APPLE] = 30;
 	level.m_nrOfFruits[BANANA] = 0;
@@ -404,6 +404,7 @@ void LevelHandler::loadLevel(int levelNr) {
 
 		m_hud.setTimeTargets(currentLevel.m_timeTargets);
 		m_hud.setWinCondition(currentLevel.m_winCondition);
+		m_hud.setLevelIndex(levelNr);
 
 
 		if (currentLevel.m_nrOfFruits[APPLE] != 0)
@@ -667,7 +668,7 @@ void LevelHandler::update(float dt) {
 
 HUD& LevelHandler::getHUD() { return m_hud; }
 
-void LevelHandler::pickUpFruit(int fruitType) {
+void LevelHandler::pickUpFruit(FruitType fruitType) {
 	m_inventory[fruitType]++;
 	m_hud.addFruit(fruitType);
 }

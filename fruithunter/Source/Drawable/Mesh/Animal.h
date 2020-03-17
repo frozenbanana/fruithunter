@@ -46,6 +46,7 @@ public:
 
 	void grabFruit(float3 pos);
 	void draw();
+	void draw_onlyAnimal();
 	void update(float dt, float3 playerPos);
 	void beginWalk(float3 pos);
 	bool checkLookedAt(float3 playerPos, float3 rayDir);

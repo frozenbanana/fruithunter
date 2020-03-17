@@ -111,7 +111,7 @@ public:
 	// To see if we have reached goal
 	HUD& getHUD();
 	// Fruit stuff
-	void pickUpFruit(int fruitType);
+	void pickUpFruit(FruitType fruitType);
 	void dropFruit();
 
 	std::vector<Fruit> fruitsInLevel;
