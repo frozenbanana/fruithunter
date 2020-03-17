@@ -6,7 +6,6 @@ ShaderSet TextRenderer::m_shader;
 Microsoft::WRL::ComPtr<ID3D11Buffer> TextRenderer::m_vertexBuffer;
 size_t TextRenderer::m_vertexCount;
 Microsoft::WRL::ComPtr<ID3D11Buffer> TextRenderer::m_worldMatrixBuffer;
-Microsoft::WRL::ComPtr<ID3D11SamplerState> TextRenderer::m_samplerState;
 
 TextRenderer::TextRenderer() {
 	m_spriteFont = std::make_unique<DirectX::SpriteFont>(
@@ -68,7 +67,7 @@ float3 TextRenderer::normalToRotation(float3 normal) {
 }
 
 void TextRenderer::createViewBuffers(XMINT2 viewSize) {
-	initiated = true;
+	m_initializedViews = true;
 	m_size = viewSize;
 
 	m_viewport.Width = (float)viewSize.x;
@@ -119,27 +118,6 @@ void TextRenderer::createViewBuffers(XMINT2 viewSize) {
 		tex->Release();
 }
 
-void TextRenderer::createSamplerState() {
-	auto device = Renderer::getDevice();
-	// sampler
-	if (m_samplerState.Get() == nullptr) {
-		D3D11_SAMPLER_DESC sampDesc;
-		sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		sampDesc.MipLODBias = 0.0f;
-		sampDesc.MaxAnisotropy = 16;
-		sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-		sampDesc.MinLOD = -3.402823466e+38F;
-		sampDesc.MaxLOD = 3.402823466e+38F;
-
-		HRESULT res = device->CreateSamplerState(&sampDesc, m_samplerState.GetAddressOf());
-		if (FAILED(res))
-			ErrorLogger::logError(res, "Failed creating sampler state in Terrain class!\n");
-	}
-}
-
 void TextRenderer::createAndSetVertexBuffer(vector<Vertex> vertices) {
 	// vertex buffer
 	m_vertexBuffer.Reset();
@@ -184,7 +162,6 @@ void TextRenderer::createBuffers() {
 		loader.load("Quad", vertices);
 		createAndSetVertexBuffer(vertices);
 	}
-	createSamplerState();
 }
 
 void TextRenderer::updateWorldMatrixBuffer(float3 position, float3 scale, float3 rotation) {
@@ -194,7 +171,7 @@ void TextRenderer::updateWorldMatrixBuffer(float3 position, float3 scale, float3
 					   float4x4::CreateRotationY(rotation.y)) *
 				   float4x4::CreateTranslation(position);
 	data.mWorld = mat.Transpose();
-	data.mInvTraWorld = mat.Invert();//double transposes deletes eachother
+	data.mInvTraWorld = mat.Invert(); // double transposes deletes eachother
 	Renderer::getDeviceContext()->UpdateSubresource(m_worldMatrixBuffer.Get(), 0, 0, &data, 0, 0);
 }
 
@@ -288,7 +265,7 @@ void TextRenderer::drawTextInWorld(string text, float3 position, float3 lookAt, 
 	std::wstring wText = std::wstring(text.begin(), text.end());
 	Vector2 textSize = Vector2(m_spriteFont->MeasureString(wText.c_str()));
 	float aspectRatio = textSize.y / textSize.x;
-	if (!initiated || (textSize.x > m_size.x || textSize.y > m_size.y))
+	if (!m_initializedViews || (textSize.x > m_size.x+1 || textSize.y > m_size.y+1))
 		setViewSize(XMINT2((UINT)textSize.x, (UINT)textSize.y));
 	auto deviceContext = Renderer::getDeviceContext();
 	// save settings (push)
@@ -305,7 +282,7 @@ void TextRenderer::drawTextInWorld(string text, float3 position, float3 lookAt, 
 	deviceContext->ClearRenderTargetView(m_RTV.Get(), clearColor);
 	deviceContext->RSSetViewports(1, &m_viewport);
 
-	m_spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront, nullptr, m_samplerState.Get(),
+	m_spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront, nullptr, nullptr,
 		Renderer::getInstance()->getDepthDSS());
 
 	float2 center = float2(m_size.x / 2.f, m_size.y / 2.f);

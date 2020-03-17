@@ -33,11 +33,10 @@ private:
 	float2 m_fontPos;
 
 	//in world variables
-	bool initiated = false;
+	bool m_initializedViews = false;
 	XMINT2 m_size;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_SRV;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_RTV;
-	static Microsoft::WRL::ComPtr<ID3D11SamplerState> m_samplerState;
 	D3D11_VIEWPORT m_viewport;
 	static size_t m_vertexCount;
 	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
@@ -48,7 +47,6 @@ private:
 	static ShaderSet m_shader;
 
 	void createViewBuffers(XMINT2 viewSize);
-	void createSamplerState();
 	void createAndSetVertexBuffer(vector<Vertex> vertices);
 	void createMatrixBuffer();
 	void createBuffers();

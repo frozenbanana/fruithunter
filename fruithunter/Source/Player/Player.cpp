@@ -14,12 +14,6 @@ void Player::initialize() {
 	m_lastSafePosition = m_position;
 	m_velocity = float3(0.0f, 0.0f, 0.0f);
 	m_playerForward = DEFAULTFORWARD;
-	FileSyncer* file = VariableSyncer::getInstance()->create("Player.txt");
-	file->bind("speed walk:f", &m_speed);
-	file->bind("speed sprint multiplier:f", &m_speedSprintMultiplier);
-	file->bind("speed in air:f", &m_speedInAir);
-	file->bind("jump force:f", &m_jumpForce);
-	file->bind("dash force:f", &m_dashForce);
 }
 
 void Player::update(float dt, Terrain* terrain) {
