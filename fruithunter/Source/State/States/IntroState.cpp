@@ -103,7 +103,7 @@ void IntroState::update() {
 	if (m_shootTime > m_shootThreshold) {
 		m_shootTime = 0.f;
 		m_bow.shoot(float3(bowForward.x, bowForward.y + RandomFloat(0.12f, 0.2f),
-						bowForward.z + RandomFloat(0.02f, 0.06f)),
+			bowForward.z + RandomFloat(0.02f, 0.06f)),
 			float3(0.f), -0.003f, 4.224f);
 	}
 	m_bow.getTrailEffect().update(
@@ -118,7 +118,7 @@ void IntroState::update() {
 			if (rayCastingValue != -1.f && rayCastingValue < 1.f) {
 				// Arrow is hitting object
 				float3 target = m_bow.getArrow().getPosition() +
-								m_bow.getArrowVelocity() * delta * rayCastingValue;
+					m_bow.getArrowVelocity() * delta * rayCastingValue;
 				m_bow.arrowHitObject(target);
 				m_chargeThreshold = RandomFloat(2.4f, 4.f);
 				m_shootDelay = RandomFloat(0.2f, 1.f);
@@ -218,8 +218,6 @@ void IntroState::play() {
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
 	AudioHandler::getInstance()->playMusic(AudioHandler::Music::OCEAN);
-	// Temporary solution to fix imperfect screen size when starting application
-	Renderer::getInstance()->changeResolution((int)width, (int)height);
 
 	m_startButton.setPosition(float2(106, height * 0.75f - 60.f));
 	m_settingsButton.setPosition(float2(132, height * 0.75f));
