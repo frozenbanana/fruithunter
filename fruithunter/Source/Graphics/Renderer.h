@@ -20,6 +20,7 @@ public:
 	static ID3D11DeviceContext* getDeviceContext();
 	static Renderer* getInstance();
 	HWND getHandle();
+	ID3D11DepthStencilState* getDepthDSS() const;
 	float getScreenWidth() const;
 	float getScreenHeight() const;
 

@@ -64,6 +64,9 @@
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_blur.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_textInWorld.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp">
@@ -209,6 +212,9 @@
     </ClCompile>
     <ClCompile Include="Source\Utility\Input\Slider.cpp">
       <Filter>Source\Utility\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\SaveState\SaveManager.cpp">
+      <Filter>Source\Utility\SaveState</Filter>
     </ClCompile>
     <ClCompile Include="Source\Drawable\Sprite2D.cpp">
       <Filter>Source\Drawable</Filter>
@@ -365,6 +371,9 @@
     <ClInclude Include="Source\Utility\Input\Slider.h">
       <Filter>Source\Utility\Input</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Utility\SaveState\SaveManager.h">
+      <Filter>Source\Utility\SaveState</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Drawable\Sprite2D.h">
       <Filter>Source\Drawable</Filter>
     </ClInclude>
@@ -457,6 +466,9 @@
     </Filter>
     <Filter Include="Source\Utility\Settings">
       <UniqueIdentifier>{62af29f3-59ec-4d36-8476-2bd16a3afb21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Utility\SaveState">
+      <UniqueIdentifier>{756d5736-eeb1-4a7c-9e60-653aa6c01875}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

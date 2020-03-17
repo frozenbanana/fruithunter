@@ -70,29 +70,14 @@ float texSampleGrease(
 }
 
 float4 main(PS_IN ip) : SV_TARGET {
-	// PS_OUT op = (PS_OUT)0;
-	// op.normal = float4(normalize(ip.Normal), 1);
-	// op.color = float4(color.rgb, 1);
-	// op.position = float4(ip.PosW, 1);
-	// op.specular = float4(0.5, 0.5, 0.5, 50);
-	// op.viewPos = float4(ip.PosV, 1);
-	// op.bloom = float4(0, 0, 0, 1);
-
-	// light
-	// float3 lightPos = float3(-0.f, 110.f, 100.f);
-	/*float3 toLight = normalize(lightPos - ip.PosW);*/
 	float3 toLight = normalize(cb_toLight.xyz);
-
-	// ambient base
-	/*float3 ambientBase =
-		mapUsages.x ? (textures[0].Sample(samplerAni, ip.TexCoord)).rgb : (ambient3.rgb);*/
 
 	// base color
 	float3 pixelBaseColor =
 		mapUsages.y ? (textures[1].Sample(samplerAni, ip.TexCoord)).rgb : (diffuse3_strength.rgb);
 	if (mapUsages.y && (textures[1].Sample(samplerAni, ip.TexCoord)).a == 0)
 		return float4(0, 0, 0, 0);
-	// return textures[1].Sample(samplerAni, ip.TexCoord);
+
 	// diffuse
 	float diffuseTint = max(dot(toLight, ip.Normal), 0.0);
 

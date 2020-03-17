@@ -55,8 +55,8 @@ private:
 	const float ONGROUND_THRESHOLD =
 		0.03f; // extra height over terrain until player is not grounded
 
-	float3 m_position;
-	float3 m_velocity;
+	float3 m_position = float3(0, 0, 0);
+	float3 m_velocity = float3(0, 0, 0);
 
 	Camera m_camera;
 	Bow m_bow;
@@ -64,10 +64,10 @@ private:
 	// Player behavior
 	bool m_godMode = false;
 	bool m_chargingBow = false;
-	bool m_onGround;							// if player is grounded
-	bool m_onEntity;							// if player is standing on an object
+	bool m_onGround = false;					// if player is grounded
+	bool m_onEntity = false;					// if player is standing on an object
 	float3 m_gravity = float3(0, -1, 0) * 15.f; // direction * strength
-	float3 m_lastSafePosition;					// Latest position where player was on ground
+	float3 m_lastSafePosition = float3(0, 0, 0);// Latest position where player was on ground
 	float m_seaHeight = 1.f;					// Height where player falls in sea
 	float m_resetTimer = 0.f;					// Timer for respawn time
 	float m_resetDelay = 0.5f;					// Number of seconds before respawn
@@ -101,7 +101,7 @@ private:
 	float3 m_playerForward = DEFAULTFORWARD;
 	float3 m_playerRight = DEFAULTRIGHT;
 	float3 m_playerUp = DEFAULTUP;
-	float m_cameraPitch, m_cameraYaw;
+	float m_cameraPitch = 0, m_cameraYaw = 0;
 
 	//- - - Functions - - -
 	void updateBow(float dt, Terrain* terrain);

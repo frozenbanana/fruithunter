@@ -67,8 +67,6 @@ float texSampleGrease(
 
 float3 lighting(float3 pos, float3 normal, float3 color, float shade) {
 	// light utility
-	/*float3 lightPos = float3(-0.f, 110.f, 100.f);
-	float3 toLight = normalize(lightPos - pos);*/
 	float3 toLight = normalize(cb_toLight.xyz);
 
 	// diffuse
