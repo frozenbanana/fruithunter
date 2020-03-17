@@ -36,6 +36,8 @@ void Player::update(float dt, Terrain* terrain) {
 	checkJump();
 	checkSprint(delta);
 	checkDash(delta);
+	checkSteepTerrain(terrain);
+	checkGround(terrain);
 	checkHunterMode();
 
 	rotatePlayer(dt);
@@ -56,8 +58,8 @@ void Player::update(float dt, Terrain* terrain) {
 		m_position += m_velocity * delta;
 
 		// Update velocity for next frame
-		if (onGround(terrain)) {
-			if (getSteepness(terrain) < STEEPNESS_BORDER) {
+		if (m_onGround) {
+			if (m_onSteepGround) {
 				// Steep ground
 				updateVelocity_onSteepGround(delta);
 			}
@@ -290,24 +292,32 @@ float3 Player::getMovementForce() {
 	return force;
 }
 
-bool Player::onGround(Terrain* terrain) {
-	float terrainHeight = terrain->getHeightFromPosition(
-		m_position.x, m_position.z); // height of terrain on current position
-	m_position.y = clamp(
-		m_position.y, m_position.y, terrainHeight); // clamp position to never go under terrain!
+void Player::checkGround(Terrain* terrain) {
+	if (terrain == nullptr) {
+		m_onGround = false;
+	}
+	else {
+		float terrainHeight = terrain->getHeightFromPosition(
+			m_position.x, m_position.z); // height of terrain on current position
+		m_position.y = clamp(
+			m_position.y, m_position.y, terrainHeight); // clamp position to never go under terrain!
 
-	m_onGround = abs(m_position.y - terrainHeight) < ONGROUND_THRESHOLD;
-
-	return m_onGround;
+		m_onGround = abs(m_position.y - terrainHeight) < ONGROUND_THRESHOLD;
+	}
 }
 
-float Player::getSteepness(Terrain* terrain) {
-	float3 normal =
-		terrain->getNormalFromPosition(m_position.x, m_position.z); // normal on current position
-	float terrainSteepness =
-		abs(float3(0, 1, 0).Dot(normal)); // abs() because sometime the dot product becomes negative
+void Player::checkSteepTerrain(Terrain* terrain) {
+	if (terrain == nullptr) {
+		m_onSteepGround = false;
+	}
+	else {
+		float3 normal = terrain->getNormalFromPosition(
+			m_position.x, m_position.z); // normal on current position
+		float terrainSteepness = abs(
+			float3(0, 1, 0).Dot(normal)); // abs() because sometime the dot product becomes negative
 
-	return terrainSteepness;
+		m_onSteepGround = terrainSteepness < STEEPNESS_BORDER;
+	}
 }
 
 void Player::calculateTerrainCollision(Terrain* terrain, float dt) {

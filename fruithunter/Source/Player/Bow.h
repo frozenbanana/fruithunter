@@ -27,8 +27,6 @@ private:
 	ParticleSystem m_trailEffect;
 	float3 m_arrowVelocity;
 	float3 m_rotation;
-	float3 m_desiredPosition;
-	float3 m_desiredRotation;
 
 	float3 m_bowPositioning_offset0 = float3(0.05f, -0.3f, 0.5f);//holstered
 	float3 m_bowPositioning_angle0 = float3(0.4f, 0, -0.8f);
@@ -36,7 +34,7 @@ private:
 	float3 m_bowPositioning_angle1 = float3(0, 0, -0.2f);
 	float m_bowPositioning_drawForward = 0.2f;
 	float m_bowPositioning_rotationVelocityClamp = 0.5f;
-	float m_bowPositioning_rotationSpringConstant = 40.f;
+	float m_bowPositioning_rotationSpringConstant = 30.f;
 	float m_bowPositioning_bowDrag = 3.5f;
 	float m_bowPositioning_stringFriction = 0.0001f / 60.f;
 	float m_bowPositioning_stringSpringConstant = 800.f;
