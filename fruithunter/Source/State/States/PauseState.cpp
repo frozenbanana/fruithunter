@@ -63,23 +63,18 @@ void PauseState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 void PauseState::play() {
 	ErrorLogger::log(m_name + " play() called.");
 	int previousState = StateHandler::getInstance()->getPreviousState();
-	if (previousState == StateHandler::LEVEL_SELECT || previousState == StateHandler::PLAY) {
-		ErrorLogger::log("Capturing frame. Previous: " +
-						 to_string(StateHandler::getInstance()->getPreviousState()) +
-						 ", settings: " + to_string(StateHandler::SETTINGS));
+	if (previousState == StateHandler::LEVEL_SELECT || previousState == StateHandler::PLAY)
 		Renderer::getInstance()->captureFrame();
-	}
-	ErrorLogger::log(
-		"NOT Capturing. Current: " + StateHandler::getInstance()->getCurrent()->getName());
+}
 
-	float width = SCREEN_WIDTH;
-	float height = SCREEN_HEIGHT;
+float width = SCREEN_WIDTH;
+float height = SCREEN_HEIGHT;
 
-	m_restartButton.setPosition(float2(width / 2, height / 2 - 120));
-	m_resumeButton.setPosition(float2(width / 2, height / 2 - 60));
-	m_settingsButton.setPosition(float2(width / 2, height / 2));
-	m_mainMenuButton.setPosition(float2(width / 2, height / 2 + 60));
-	m_exitButton.setPosition(float2(width / 2, height / 2 + 120));
+m_restartButton.setPosition(float2(width / 2, height / 2 - 120));
+m_resumeButton.setPosition(float2(width / 2, height / 2 - 60));
+m_settingsButton.setPosition(float2(width / 2, height / 2));
+m_mainMenuButton.setPosition(float2(width / 2, height / 2 + 60));
+m_exitButton.setPosition(float2(width / 2, height / 2 + 120));
 }
 
 void PauseState::draw() {
