@@ -32,34 +32,39 @@ void PlayState::handleEvent() {
 		string vicText = "";
 		float4 vicColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 		float confettiEmitRate = 6.0f;
+		size_t prizeIndex = 0;
 		switch (m_levelHandler->getHUD().getPrize()) {
 		case GOLD:
 			vicText += "You earned GOLD";
 			vicColor = float4(1.0f, 0.85f, 0.0f, 1.0f);
 			confettiEmitRate = 22.0f;
+			prizeIndex = GOLD;
 			break;
 		case SILVER:
 			vicText += "You earned SILVER";
 			vicColor = float4(0.8f, 0.8f, 0.8f, 1.0f);
 			confettiEmitRate = 18.0f;
+			prizeIndex = SILVER;
 
 			break;
 		case BRONZE:
 			vicText += "You earned BRONZE";
 			vicColor = float4(0.85f, 0.55f, 0.25f, 1.0f);
 			confettiEmitRate = 14.0f;
-
+			prizeIndex = BRONZE;
 			break;
 		default:
 			vicText += "You earned NOTHING";
 			vicColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 			confettiEmitRate = 2.0f;
-
+			prizeIndex = BRONZE;
 			break;
 		}
 		endRound->setVictoryText(vicText);
 		endRound->setVictoryColor(vicColor);
 		endRound->setConfettiPower(confettiEmitRate);
+		endRound->setBowlMaterial(prizeIndex);
+		endRound->setParticleColorByPrize(prizeIndex);
 	}
 }
 
