@@ -18,7 +18,7 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 
 	m_passive_speed = 3.f;
 	m_active_speed = 15.f;
-	m_caught_speed = 5.f;
+	m_caught_speed = 10.f;
 
 	setCollisionDataOBB();
 }
@@ -77,6 +77,7 @@ void Apple::behaviorPassive(float3 playerPosition) {
 			}
 		}
 	}
+	lookToDir(m_velocity);
 }
 
 void Apple::behaviorActive(float3 playerPosition) {
@@ -87,6 +88,7 @@ void Apple::behaviorActive(float3 playerPosition) {
 	else {
 		flee(playerPosition);
 		m_speed = m_active_speed;
+		lookToDir(m_velocity);
 	}
 }
 
@@ -101,15 +103,7 @@ void Apple::behaviorCaught(float3 playerPosition) {
 void Apple::updateAnimated(float dt) {
 	m_startAnimationPosition = m_position;
 	int frameOrder[] = { 0, 1, 0, 2, 0, 1 }; // Order of using keyframes
-	float3 posOrder[6] = {
-		m_startAnimationPosition,
-		m_startAnimationPosition,
-		m_startAnimationPosition,
-		m_startAnimationPosition,
-		m_startAnimationPosition,
-		m_startAnimationPosition,
-	};
-	bool justChanged = false;
+
 	float frameSpeedOrder[] = { 4.f, 5.f, 2.0f, 1.9f, 4.f, 2.f };
 	m_frameTime += dt * frameSpeedOrder[m_currentFramePhase];
 	// Maybe change keyframes
@@ -119,30 +113,14 @@ void Apple::updateAnimated(float dt) {
 
 		if (m_currentFramePhase == m_nrOfFramePhases) {
 			m_currentFramePhase = 0;
-			setAnimationDestination();
-			justChanged = true;
-			lookTo(m_nextDestinationAnimationPosition);
 		}
 
 		m_meshAnim.setFrameTargets(frameOrder[m_currentFramePhase],
 			frameOrder[(m_currentFramePhase + 1) % (m_nrOfFramePhases)]);
 	}
-	if (m_currentFramePhase >= 2 || justChanged) {
-		posOrder[0] = getPosition();
-		posOrder[1] = getPosition();
-	}
 
 	// Update mesh specificly with our frametime
 	m_meshAnim.updateSpecific(m_frameTime);
-
-
-
-	if (Input::getInstance()->keyPressed(Keyboard::O)) {
-		m_currentMaterial = 0;
-	}
-	if (Input::getInstance()->keyPressed(Keyboard::P)) {
-		m_currentMaterial = 1;
-	}
 }
 
 void Apple::flee(float3 playerPos) {
