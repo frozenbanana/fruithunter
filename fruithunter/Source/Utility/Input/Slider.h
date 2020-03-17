@@ -36,6 +36,7 @@ public:
 	void initialize(string label, float2 pos);
 	float getValue();
 	void setPosition(float2 position);
+	void setValue(float value);
 	bool update();
 	void draw();
 };
