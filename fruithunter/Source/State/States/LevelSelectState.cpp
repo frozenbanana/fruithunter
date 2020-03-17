@@ -77,9 +77,8 @@ void LevelSelectState::update() {
 
 	// Update bowls
 	for (int i = 0; i < m_levelSelectors.size(); i++) {
-		//if index inside array and previous level is completed, then allow to play level
-		if (i == 0 ||
-			SaveManager::getInstance()->getActiveSave()[i-1].isCompleted) {
+		// if index inside array and previous level is completed, then allow to play level
+		if (i == 0 || SaveManager::getInstance()->getActiveSave()[i - 1].isCompleted) {
 			// Check collision
 			if (m_player.getArrow().checkCollision(m_levelSelectors[i].m_bowl)) {
 				m_player.getArrow().setPosition(float3(-1000.f));
@@ -131,9 +130,7 @@ void LevelSelectState::handleEvent() {
 	}
 }
 
-void LevelSelectState::pause() {
-	ErrorLogger::log(m_name + " pause() called.");
-}
+void LevelSelectState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
 void LevelSelectState::play() {
 	Input::getInstance()->setMouseModeRelative();
@@ -199,7 +196,9 @@ void LevelSelectState::draw() {
 		str += "\nBest Time: " + strMinutes + "." + strSeconds + " Minutes";
 		m_textRenderer.drawTextInWorld(str,
 			m_levelSelectors[i].m_bowl.getPosition() + float3(0, 1.5f, 0),
-			m_player.getCameraPosition(), float2(1.f, 1.f) * 4.f);
+			m_levelSelectors[i].m_bowl.getPosition() + float3(0, 1.5f, 0) - m_player.getForward(),
+			float2(1.f) * 4.f);
+		// m_player.getCameraPosition(), float2(1.f, 1.f) * 4.f);
 	}
 	// dark edges
 	Renderer::getInstance()->draw_darkEdges();
