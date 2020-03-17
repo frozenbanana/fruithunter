@@ -39,7 +39,7 @@ public:
 	void setFullscreen(bool value);
 	void copyDepthToSRV();
 
-	void stashFrame();
+	void captureFrame();
 
 	void drawCapturedFrame();
 

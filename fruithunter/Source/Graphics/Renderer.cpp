@@ -130,7 +130,7 @@ void Renderer::copyDepthToSRV() {
 	m_deviceContext->CopyResource(dst, src);
 }
 
-void Renderer::stashFrame() {
+void Renderer::captureFrame() {
 	auto hr = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&m_backBufferTex);
 	if (FAILED(hr)) {
 		ErrorLogger::logError(hr, "Failed to capture backbuffer.");
