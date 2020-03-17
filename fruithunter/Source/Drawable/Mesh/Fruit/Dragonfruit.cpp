@@ -4,8 +4,9 @@ bool DragonFruit::isFalling() { return m_velocity.y <0.f; }
 
 DragonFruit::DragonFruit(float3 pos) : Fruit(pos) {
 	loadAnimated("Dragon", 3);
-	vector<string> names{ "Dragon.mtl", "Dragon2.mtl", "Dragon3.mtl" };
-	loadMaterials(names, 3);
+	vector<string> names{ "Dragon.mtl", "Apple2bronze.mtl", "Apple2silver.mtl", "Apple2gold.mtl",
+		"Dragon3.mtl" };
+	loadMaterials(names, 5);
 
 	m_nrOfFramePhases = 2;
 
@@ -36,7 +37,7 @@ if (m_position.y < playerPosition.y + 3.f && isFalling()) {
 		target.Normalize();
 		target.y = 1.f;
 		target += m_direction;
-		jump(target, .8f);
+		jump(target, 5.8f);
 	}
 }
 
@@ -91,7 +92,7 @@ void DragonFruit::behaviorActive(float3 playerPosition) {
 	// when player is near, take flight
 
 	// circulate player in air.
-	//m_gravity = float3(0.f);
+	m_gravity.y = -40.f;
 	circulateVertical(playerPosition, 17.f);
 	waveFlight(playerPosition, 3.f);
 	
