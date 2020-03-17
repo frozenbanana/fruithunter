@@ -515,7 +515,9 @@ void LevelHandler::update(float dt) {
 
 			for (size_t iFruit = 0; iFruit < m_fruits.size(); ++iFruit) {
 				pft->m_mutex.lock();
-				if (m_fruits[iFruit]->getFruitType() == m_Animals[i]->getfruitType()) {
+				if (m_fruits[iFruit]->getFruitType() == m_Animals[i]->getfruitType() &&
+					(m_fruits[iFruit]->getState() == AI::State::RELEASED ||
+						m_fruits[iFruit]->getState() == AI::State::CAUGHT)) {
 					float len =
 						(m_Animals[i]->getPosition() - m_fruits[iFruit]->getPosition()).Length();
 					if (len < m_Animals[i]->getFruitRange()) {
