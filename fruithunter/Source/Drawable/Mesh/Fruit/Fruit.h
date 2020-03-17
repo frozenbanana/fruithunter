@@ -44,7 +44,7 @@ protected:
 
 	float3 m_worldHome;
 	size_t m_nrOfTriesGoHome = 0;
-	int m_fruitType;
+	FruitType m_fruitType;
 	float m_startRotation; // start and end to interpolate between.
 	float m_endRotation;
 	void setAnimationDestination();
@@ -77,5 +77,5 @@ public:
 
 	Skillshot hit(float3 playerPos);
 
-	int getFruitType();
+	FruitType getFruitType();
 };

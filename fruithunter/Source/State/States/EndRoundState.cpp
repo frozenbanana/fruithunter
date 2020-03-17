@@ -23,7 +23,7 @@ void EndRoundState::initialize() {
 	m_particleSystem.setPosition(float3(0.0f, -1.f, 0.f));
 	m_timer.reset();
 	m_camera.setView(float3(0.f, 0.f, 1.0f), float3(0.f, 0.f, .0f), float3(0.f, 1.f, .0f));
-	
+
 	// Just ignore this. It fixes things.
 	m_entity.load("Melon_000000");
 	m_entity.setPosition(float3(-1000));
@@ -59,6 +59,7 @@ void EndRoundState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
 void EndRoundState::play() {
 	ErrorLogger::log(m_name + " play() called.");
+	Renderer::getInstance()->captureFrame();
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
 	m_restartButton.setPosition(float2(width / 2, height / 2 + 50));
@@ -68,6 +69,7 @@ void EndRoundState::play() {
 
 void EndRoundState::draw() {
 	Renderer::getInstance()->beginFrame();
+	Renderer::getInstance()->drawCapturedFrame();
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
 	m_textRenderer.draw(

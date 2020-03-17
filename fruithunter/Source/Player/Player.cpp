@@ -14,11 +14,6 @@ void Player::initialize() {
 	m_lastSafePosition = m_position;
 	m_velocity = float3(0.0f, 0.0f, 0.0f);
 	m_playerForward = DEFAULTFORWARD;
-	FileSyncer* file = VariableSyncer::getInstance()->create("Player.txt");
-	file->bind("speed walk:f", &m_speed);
-	file->bind("speed sprint multiplier:f", &m_speedSprintMultiplier);
-	file->bind("speed in air:f", &m_speedInAir);
-	file->bind("dash force:f", &m_dashForce);
 }
 
 void Player::update(float dt, Terrain* terrain) {
@@ -239,7 +234,6 @@ void Player::rotatePlayer(float dt) {
 	}
 	if (deltaY != 0.0f) {
 		m_cameraPitch += deltaY * rotationSpeed;
-		m_cameraPitch = min(max(m_cameraPitch, -1.5f), 1.5f);
 	}
 
 	if (ip->keyDown(Keyboard::Keys::Right))
@@ -250,6 +244,8 @@ void Player::rotatePlayer(float dt) {
 		m_cameraPitch -= 0.01f;
 	if (ip->keyDown(Keyboard::Keys::Down))
 		m_cameraPitch += 0.01f;
+
+	m_cameraPitch = min(max(m_cameraPitch, -1.5f), 1.5f);
 
 	Matrix cameraRotationMatrix = XMMatrixRotationRollPitchYaw(m_cameraPitch, m_cameraYaw, 0.f);
 	float3 cameraTarget = XMVector3TransformCoord(m_playerForward, cameraRotationMatrix);

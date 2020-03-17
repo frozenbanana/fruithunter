@@ -9,10 +9,10 @@ class HUD {
 private:
 	struct Sprite {
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture;
-		float2 screenPos;
-		float scale;
-		int fruitType;
-		float pickUp;
+		float2 screenPos = float2(0, 0);
+		float scale = 1;
+		FruitType fruitType = FruitType::APPLE;//removes warning if set at creation
+		float pickUp = 0;
 	};
 
 	unique_ptr<SpriteBatch> m_spriteBatch;
@@ -30,6 +30,7 @@ private:
 	float2 m_timerPos;
 	XMVECTORF32 m_fruitTextColors[NR_OF_FRUITS];
 
+	size_t m_levelIndex = -1;
 	float m_stamina = 1.0f;
 	float m_secondsPassed = 0.0f;
 	int m_minutesPassed = 0;
@@ -50,11 +51,13 @@ public:
 	~HUD();
 	TimeTargets getPrize() const;
 	string getTimePassed();
+	void atWin();
 	bool hasWon();
 	void createFruitSprite(string fruitName);
 	void setTimeTargets(int targets[]);
 	void setWinCondition(int winCons[]);
-	void addFruit(int fruitType);
+	void setLevelIndex(size_t levelIndex);
+	void addFruit(FruitType fruitType);
 	void removeFruit(int fruitType);
 	void update(float dt, float playerStamina);
 	void draw();

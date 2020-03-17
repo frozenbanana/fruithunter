@@ -83,7 +83,7 @@ Skillshot Fruit::hit(float3 playerPos) {
 	return hitType;
 }
 
-int Fruit::getFruitType() { return m_fruitType; }
+FruitType Fruit::getFruitType() { return m_fruitType; }
 
 void Fruit::enforceOverTerrain() {
 	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {

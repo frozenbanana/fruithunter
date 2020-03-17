@@ -29,6 +29,13 @@ struct Level {
 	std::vector<float3> m_heightMapScales;
 	std::vector<std::vector<string>> m_heightmapTextures;
 
+	//sea
+	vector<SeaEffect::SeaEffectTypes> m_seaTypes;
+	std::vector<float3> m_seaPositions;
+	std::vector<XMINT2> m_seaTiles;
+	std::vector<XMINT2> m_seaGrids;
+	std::vector<float3> m_seaScales;
+
 	// terrain props
 	string m_terrainPropsFilename;
 
@@ -62,7 +69,6 @@ private:
 	Player m_player;
 	TerrainManager* m_terrainManager;
 	EntityRepository m_terrainProps;
-	SeaEffect waterEffect, lavaEffect;
 	Entity m_sphere;
 	Entity m_entity;
 	SkyBox m_skyBox;
@@ -70,6 +76,7 @@ private:
 	vector<shared_ptr<Entity>> m_collidableEntities;
 	vector<ParticleSystem> m_particleSystems;
 	vector<shared_ptr<Animal>> m_Animals;
+	vector<SeaEffect> m_seaEffects;
 
 	QuadTree<int> tree;
 
@@ -105,7 +112,7 @@ public:
 	// To see if we have reached goal
 	HUD& getHUD();
 	// Fruit stuff
-	void pickUpFruit(int fruitType);
+	void pickUpFruit(FruitType fruitType);
 	void dropFruit();
 
 	std::vector<Fruit> fruitsInLevel;

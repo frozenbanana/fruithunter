@@ -3,6 +3,7 @@
 #include "TextRenderer.h"
 #include "Entity.h"
 #include "Button.h"
+#include "Sprite2D.h"
 
 class PauseState : public State {
 public:
@@ -17,7 +18,7 @@ public:
 
 private:
 	TextRenderer m_textRenderer;
-
+	Sprite2D m_settingsBackground;
 	Button m_resumeButton;
 	Button m_settingsButton;
 	Button m_mainMenuButton;

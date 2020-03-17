@@ -15,12 +15,14 @@ private:
 	string m_path = "";
 	float2 m_position = float2(0, 0);
 	float m_scale = 0.25f;
+	float m_rotation = 0.0f;
 	XMINT2 m_textureSize = XMINT2(0, 0);
 
 public:
-	XMINT2 getTextureSize()const;
+	XMINT2 getTextureSize() const;
 	void setPosition(float2 position);
-
+	void setScale(float scale);
+	void setRotation(float rot);
 	void draw();
 
 	bool load(string path);

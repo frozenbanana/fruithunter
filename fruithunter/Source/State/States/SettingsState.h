@@ -4,6 +4,7 @@
 #include "Entity.h"
 #include "Button.h"
 #include "Slider.h"
+#include "Sprite2D.h"
 
 class SettingsState : public State {
 public:
@@ -18,7 +19,7 @@ public:
 
 private:
 	TextRenderer m_textRenderer;
-
+	Sprite2D m_settingsBackground;
 	Button m_vsyncButton;
 	Button m_darkEdgesButton;
 	Button m_shadowsButton;

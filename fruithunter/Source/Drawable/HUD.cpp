@@ -2,11 +2,27 @@
 #include "Renderer.h"
 #include "WICTextureLoader.h"
 #include "ErrorLogger.h"
+#include "SaveManager.h"
 
 #include <iomanip>
 #include <sstream>
 
 string HUD::getTimePassed() { return getMinutes() + ":" + getSeconds(); }
+
+void HUD::atWin() {
+	m_victory = true;
+	if (m_levelIndex != -1) {
+		size_t time = (size_t)m_minutesPassed * 60 + (size_t)m_secondsPassed;
+		TimeTargets grade = TimeTargets::BRONZE;
+		for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++) {
+			if (time < m_timeTargets[i]) {
+				grade = (TimeTargets)i;
+				break;
+			}
+		}
+		SaveManager::getInstance()->setLevelCompletion(m_levelIndex, time, grade);
+	}
+}
 
 string HUD::getMinutes() {
 	if (m_secondsPassed > 60.0f) {
@@ -96,19 +112,19 @@ HUD::HUD() {
 
 	HRESULT t = CreateWICTextureFromFile(Renderer::getDevice(), L"assets/sprites/background.png",
 		resource.GetAddressOf(), m_backgroundTexture.ReleaseAndGetAddressOf());
-	if (t)
+	if (FAILED(t))
 		ErrorLogger::logError(t, "Failed to create backgorund sprite texture");
 
 
 	t = CreateWICTextureFromFile(Renderer::getDevice(), L"assets/sprites/stamina.png",
 		resource.GetAddressOf(), m_staminaTexture.ReleaseAndGetAddressOf());
-	if (t)
+	if (FAILED(t))
 		ErrorLogger::logError(t, "Failed to create stamina sprite texture");
 
 
 	t = CreateWICTextureFromFile(Renderer::getDevice(), L"assets/sprites/staminaFrame.png",
 		resource.GetAddressOf(), m_staminaFrame.ReleaseAndGetAddressOf());
-	if (t)
+	if (FAILED(t))
 		ErrorLogger::logError(t, "Failed to create stamina frame texture");
 }
 
@@ -129,7 +145,7 @@ void HUD::createFruitSprite(string fruitName) {
 	HRESULT t = CreateWICTextureFromFile(Renderer::getDevice(), filePath.c_str(),
 		resource.GetAddressOf(), sprite.texture.ReleaseAndGetAddressOf());
 
-	if (t)
+	if (FAILED(t))
 		ErrorLogger::logError(t, "Failed to create fruit sprite texture");
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> tex;
@@ -167,7 +183,9 @@ void HUD::setWinCondition(int winCons[]) {
 	}
 }
 
-void HUD::addFruit(int fruitType) {
+void HUD::setLevelIndex(size_t levelIndex) { m_levelIndex = levelIndex; }
+
+void HUD::addFruit(FruitType fruitType) {
 	m_inventory[fruitType]++;
 	for (size_t i = 0; i < m_sprites.size(); i++) {
 		if (m_sprites[i].fruitType == fruitType)
@@ -180,8 +198,9 @@ void HUD::addFruit(int fruitType) {
 			completed = false;
 	}
 
-	if (completed)
-		m_victory = true;
+	if (completed) {
+		atWin();
+	}
 }
 
 void HUD::removeFruit(int fruitType) { m_inventory[fruitType]--; }
