@@ -73,8 +73,7 @@ public:
 	ParticleSystem* getParticleSystem();
 	float3 getHomePosition() const;
 
-
-	void hit(float3 playerPos);
+	Skillshot hit(float3 playerPos);
 
 	int getFruitType();
 };

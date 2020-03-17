@@ -4,7 +4,7 @@
 
 TextRenderer::TextRenderer() {
 	m_spriteFont = std::make_unique<DirectX::SpriteFont>(
-		Renderer::getDevice(), L"assets/fonts/myfile.spritefont");
+		Renderer::getDevice(), L"assets/fonts/myfile2.spritefont");
 
 	if (!m_spriteFont.get()) {
 		ErrorLogger::log("TextRenderer failed to load font.");
@@ -12,8 +12,9 @@ TextRenderer::TextRenderer() {
 	}
 	m_spriteBatch = std::make_unique<DirectX::SpriteBatch>(Renderer::getDeviceContext());
 
-	m_fontPos.x = (float)STANDARD_WIDTH / 2.f;
-	m_fontPos.y = (float)STANDARD_HEIGHT / 2.f;
+
+	m_fontPos.y = (float)SCREEN_HEIGHT / 2.f;
+	m_fontPos.x = (float)SCREEN_WIDTH / 2.f;
 }
 
 TextRenderer::~TextRenderer() { m_spriteBatch.reset(); }

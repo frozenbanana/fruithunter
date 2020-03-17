@@ -17,21 +17,25 @@ using float3 = DirectX::SimpleMath::Vector3;
 using float4 = DirectX::SimpleMath::Vector4;
 using float4x4 = DirectX::SimpleMath::Matrix;
 
-#define STANDARD_WIDTH 1280
-#define STANDARD_HEIGHT 720
-#define STANDARD_CORNER_X 0
-#define STANDARD_CORNER_Y 0
-
-#define NEAR_PLANE 0.1f
-#define FAR_PLANE 100.f
-
-enum FruitType { APPLE, BANANA, MELON, DRAGON, NR_OF_FRUITS };
+enum FruitType { APPLE, BANANA, MELON, NR_OF_FRUITS };
 enum TimeTargets { GOLD, SILVER, BRONZE, NR_OF_TIME_TARGETS };
+enum Skillshot { SS_NOTHING, SS_BRONZE, SS_SILVER, SS_GOLD };
 
+// Helper Math functions
+/* Generate a random float between low to high */
 static float RandomFloat(float low = 0.f, float high = 1.f) {
 	float randomCoefficent = (float)(rand() % (int)100.f) / 100.f; // normalize
 	return low + randomCoefficent * (high - low);
 }
+
+/* Map value from interval [low, high] to new value corresponding to interval [newLow, newHigh] */
+static float Map(float low, float high, float newLow, float newHigh, float value) {
+	float oldCoefficient = (value / (low + (high - low)));
+	float newRange = (newHigh - newLow) + newLow;
+	return oldCoefficient * newRange;
+}
+static float Clamp(float val, float low, float high) { return max(min(val, high),low); }
+static float Frac(float val) { return val - ((int)val); }
 
 struct FrustumPlane {
 	float3 m_position, m_normal;
@@ -43,7 +47,7 @@ struct FrustumPlane {
 };
 struct CubeBoundingBox {
 	float3 m_position, m_size;
-	float3 getCenter() const { return m_position + m_size / 2.f;}
+	float3 getCenter() const { return m_position + m_size / 2.f; }
 	CubeBoundingBox(float3 position = float3(0, 0, 0), float3 size = float3(0, 0, 0)) {
 		m_position = position;
 		m_size = size;

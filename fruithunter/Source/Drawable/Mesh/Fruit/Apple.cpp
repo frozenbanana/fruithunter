@@ -3,8 +3,9 @@
 
 Apple::Apple(float3 pos) : Fruit(pos) {
 	loadAnimated("Apple", 3);
-	vector<string> names{ "Apple.mtl", "Apple2.mtl", "Apple3.mtl" };
-	loadMaterials(names, 3);
+	vector<string> names{ "Apple.mtl", "Apple2bronze.mtl", "Apple2silver.mtl", "Apple2gold.mtl",
+		"Apple3.mtl" };
+	loadMaterials(names, 5);
 
 	m_nrOfFramePhases = 6;
 	setScale(0.5);
@@ -12,11 +13,11 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 
 	m_fruitType = APPLE;
 
-	m_activeRadius = 8.f;
-	m_passiveRadius = 12.f;
+	m_activeRadius = 12.f;
+	m_passiveRadius = 18.f;
 
 	m_passive_speed = 3.f;
-	m_active_speed = 10.f;
+	m_active_speed = 15.f;
 	m_caught_speed = 5.f;
 
 	setCollisionDataOBB();
@@ -86,7 +87,6 @@ void Apple::behaviorActive(float3 playerPosition) {
 	else {
 		flee(playerPosition);
 		m_speed = m_active_speed;
-		m_readyForPath = true;
 	}
 }
 
@@ -152,8 +152,7 @@ void Apple::flee(float3 playerPos) {
 		runTo.Normalize();
 		runTo *= m_passiveRadius;
 		runTo += m_position;
-		m_destination = runTo;
-		m_readyForPath = true;
+		makeReadyForPath(runTo);
 	}
 	// set new velocity from path
 }

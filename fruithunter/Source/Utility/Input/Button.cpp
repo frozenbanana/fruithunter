@@ -8,10 +8,12 @@ Button::~Button() {}
 
 void Button::setLabel(string label) { m_label = label; }
 
+void Button::setPosition(float2 position) { m_position = position; }
+
 void Button::initialize(string label, float2 position) {
 	m_label = label;
 	m_position = position;
-	m_colour = float4(1.f);
+	m_colour = COL_INACTIVE;
 	m_size = m_textRenderer.getSize(m_label);
 }
 
@@ -24,7 +26,29 @@ void Button::initialize(string label, float2 position, bool on) {
 	m_size = m_textRenderer.getSize(m_label + ": On");
 }
 
+void Button::initialize(string label, float2 position, Setting value) {
+	m_label = label;
+	m_position = position;
+	m_isLowMedHighUltra = true;
+	m_lowMedHighUltra = value;
+	m_colour = float4(1.f);
+	m_size = m_textRenderer.getSize(m_label + ": Ultra");
+}
+
+void Button::initialize(string label, float2 position, Resolution value) {
+	m_label = label;
+	m_position = position;
+	m_isResolution = true;
+	m_resolution = value;
+	m_colour = float4(1.f);
+	m_size = m_textRenderer.getSize(m_label + ": 3840x2160");
+}
+
 bool Button::getOnOff() { return m_on; }
+
+int Button::getLowMedHighUltra() { return m_lowMedHighUltra; }
+
+int Button::getResolution() { return m_resolution; }
 
 bool Button::update() {
 	Input* ip = Input::getInstance();
@@ -35,13 +59,26 @@ bool Button::update() {
 
 	if (x < m_size.x / 2.f && y < m_size.y / 2.f) {
 		if (ip->mousePressed(Input::MouseButton::LEFT)) {
-			m_on = !m_on;
+			if (m_isToggle) {
+				m_on = !m_on;
+			}
+			else if (m_isLowMedHighUltra) {
+				m_lowMedHighUltra++;
+				if (m_lowMedHighUltra > 3)
+					m_lowMedHighUltra = 0;
+			}
+			else if (m_isResolution) {
+				m_resolution++;
+				if (m_resolution > 3)
+					m_resolution = 0;
+			}
+
 			clicked = true;
 		}
-		m_colour = float4(1.f, 0.f, 0.f, 1.f);
+		m_colour = COL_ACTIVE;
 	}
 	else {
-		m_colour = float4(1.f);
+		m_colour = COL_INACTIVE;
 	}
 
 	return clicked;
@@ -52,6 +89,26 @@ void Button::draw() {
 		m_textRenderer.draw(m_label + ": On", m_position, m_colour);
 	else if (m_isToggle && !m_on)
 		m_textRenderer.draw(m_label + ": Off", m_position, m_colour);
+	else if (m_isLowMedHighUltra) {
+		if (m_lowMedHighUltra == LOW)
+			m_textRenderer.draw(m_label + ": Low", m_position, m_colour);
+		else if (m_lowMedHighUltra == MEDIUM)
+			m_textRenderer.draw(m_label + ": Medium", m_position, m_colour);
+		else if (m_lowMedHighUltra == HIGH)
+			m_textRenderer.draw(m_label + ": High", m_position, m_colour);
+		else if (m_lowMedHighUltra == ULTRA)
+			m_textRenderer.draw(m_label + ": Ultra", m_position, m_colour);
+	}
+	else if (m_isResolution) {
+		if (m_resolution == HD)
+			m_textRenderer.draw(m_label + ": 1280x720", m_position, m_colour);
+		else if (m_resolution == FHD)
+			m_textRenderer.draw(m_label + ": 1920x1080", m_position, m_colour);
+		else if (m_resolution == QHD)
+			m_textRenderer.draw(m_label + ": 2560x1440", m_position, m_colour);
+		else if (m_resolution == UHD)
+			m_textRenderer.draw(m_label + ": 3840x2160", m_position, m_colour);
+	}
 	else
 		m_textRenderer.draw(m_label, m_position, m_colour);
 }

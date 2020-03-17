@@ -66,7 +66,7 @@ void HUD::drawTargetTime() {
 
 	wstring wText = std::wstring(timeString.begin(), timeString.end());
 	m_spriteFont->DrawString(
-		m_spriteBatch.get(), wText.c_str(), float2(25.0f, STANDARD_HEIGHT - 150.0f), color);
+		m_spriteBatch.get(), wText.c_str(), float2(30.0f, SCREEN_HEIGHT - 130.0f), color);
 }
 
 void HUD::setDepthStateToNull() {
@@ -76,7 +76,7 @@ void HUD::setDepthStateToNull() {
 HUD::HUD() {
 	// Text font
 	m_spriteFont = std::make_unique<DirectX::SpriteFont>(
-		Renderer::getDevice(), L"assets/fonts/myfile.spritefont");
+		Renderer::getDevice(), L"assets/fonts/myfile2.spritefont");
 
 	if (!m_spriteFont.get()) {
 		ErrorLogger::log("HUD failed to load font.");
@@ -93,18 +93,17 @@ HUD::HUD() {
 
 	Microsoft::WRL::ComPtr<ID3D11Resource> resource;
 
-
 	HRESULT t = CreateWICTextureFromFile(Renderer::getDevice(), L"assets/sprites/background.png",
 		resource.GetAddressOf(), m_backgroundTexture.ReleaseAndGetAddressOf());
 	if (t)
 		ErrorLogger::logError(t, "Failed to create backgorund sprite texture");
-	m_backgroundPos = float2(15.0f, STANDARD_HEIGHT - 150.0f);
+
 
 	t = CreateWICTextureFromFile(Renderer::getDevice(), L"assets/sprites/stamina.png",
 		resource.GetAddressOf(), m_staminaTexture.ReleaseAndGetAddressOf());
 	if (t)
 		ErrorLogger::logError(t, "Failed to create stamina sprite texture");
-	m_staminaPos = float2(STANDARD_WIDTH - 250.0f, STANDARD_HEIGHT - 100.0f);
+
 
 	t = CreateWICTextureFromFile(Renderer::getDevice(), L"assets/sprites/staminaFrame.png",
 		resource.GetAddressOf(), m_staminaFrame.ReleaseAndGetAddressOf());
@@ -148,6 +147,7 @@ void HUD::createFruitSprite(string fruitName) {
 	sprite.scale = 75.0f / (float)texDesc.Height;
 	sprite.screenPos.x = 25.0f;
 	sprite.screenPos.y = 25.0f + 100.0f * m_sprites.size();
+	sprite.pickUp = 0.f;
 
 	m_sprites.push_back(sprite);
 }
@@ -166,6 +166,10 @@ void HUD::setWinCondition(int winCons[]) {
 
 void HUD::addFruit(int fruitType) {
 	m_inventory[fruitType]++;
+	for (size_t i = 0; i < m_sprites.size(); i++) {
+		if (m_sprites[i].fruitType == fruitType)
+			m_sprites[i].pickUp = 0.5f;
+	}
 
 	bool completed = true;
 	for (size_t i = 0; i < NR_OF_FRUITS; i++) {
@@ -182,24 +186,32 @@ void HUD::removeFruit(int fruitType) { m_inventory[fruitType]--; }
 void HUD::update(float dt, float playerStamina) {
 	m_stamina = playerStamina;
 
+	for (size_t i = 0; i < m_sprites.size(); i++) {
+		m_sprites[i].pickUp = max(0.f, m_sprites[i].pickUp - dt);
+	}
+
 	if (!m_victory)
 		m_secondsPassed += dt;
 }
 
 void HUD::draw() {
 	m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
+	m_backgroundPos = float2(20.0f, SCREEN_HEIGHT - 130.0f);
+	m_staminaPos = float2(SCREEN_WIDTH - 230.0f, SCREEN_HEIGHT - 60.0f);
 
 	// Draw fruit icons
 	for (size_t i = 0; i < m_sprites.size(); i++) {
 		m_spriteBatch->Draw(m_sprites[i].texture.Get(), m_sprites[i].screenPos, nullptr,
-			Colors::White, 0.f, float2(0.0f, 0.0f), m_sprites[i].scale);
+			Colors::White, 0.f, float2(0.0f, 0.0f),
+			m_sprites[i].scale + 0.1f * m_sprites[i].pickUp);
 	}
 
 	// Draw text background
 	m_spriteBatch->Draw(m_backgroundTexture.Get(), m_backgroundPos);
 	m_spriteBatch->Draw(m_staminaTexture.Get(), m_staminaPos, nullptr, Colors::White, 0.0f,
 		float2(0.0f, 0.0f), float2(m_stamina + 0.05f, 0.8f));
-	m_spriteBatch->Draw(m_staminaFrame.Get(), float2(m_staminaPos.x - 27.0f, m_staminaPos.y - 10.0f), nullptr, Colors::White, 0.0f,
+	m_spriteBatch->Draw(m_staminaFrame.Get(),
+		float2(m_staminaPos.x - 27.0f, m_staminaPos.y - 10.0f), nullptr, Colors::White, 0.0f,
 		float2(0.0f, 0.0f), float2(1.05f, 0.8f));
 
 	m_spriteBatch->End();
@@ -211,7 +223,7 @@ void HUD::draw() {
 
 	// Draw time and target time
 	m_spriteFont->DrawString(
-		m_spriteBatch.get(), wText.c_str(), float2(25.0f, STANDARD_HEIGHT - 100.0f));
+		m_spriteBatch.get(), wText.c_str(), float2(30.0f, SCREEN_HEIGHT - 80.0f));
 	drawTargetTime();
 
 	// Draw inventory numbers

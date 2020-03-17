@@ -31,8 +31,6 @@ ParticleSystem::ParticleSystem(ParticleSystem::PARTICLE_TYPE type) {
 		m_particleProperties.resize(min(m_description->m_nrOfParticles, MAX_PARTICLES));
 		initialize();
 	}
-	// random seed
-	srand((unsigned int)time(NULL));
 }
 
 void ParticleSystem::initialize() {
@@ -151,43 +149,89 @@ void ParticleSystem::activateOneParticle() {
 
 void ParticleSystem::emit(size_t count) {
 	m_isRunning = true;
+
 	for (size_t i = 0; i < count; i++)
 		activateOneParticle();
 }
 
-void ParticleSystem::update(float dt, float3 wind) {
-	m_timePassed += dt;
-	if (m_isEmitting) {
-		m_emitTimer += dt;
-		float rate = m_description->m_emitRate;
-		if (rate >= 0.f) {
-			float emits = m_emitTimer * rate;
-			size_t emitCount = (size_t)emits;
-			if (emits > 1.0f) {
-				emit(emitCount);
-				m_emitTimer -= (1.f / rate) * emitCount;
-			}
+void ParticleSystem::updateEmits(float dt) {
+	m_emitTimer += dt;
+	float rate = m_description->m_emitRate;
+	if (rate >= 0.f) {
+		float emits = m_emitTimer * rate;
+		size_t emitCount = (size_t)emits;
+		if (emits > 1.0f) {
+			emit(emitCount);
+			m_emitTimer -= (1.f / rate) * emitCount;
 		}
 	}
-	size_t nrOfActive = 0;
-	if (m_isRunning) {
-		for (size_t i = 0; i < m_particles.size(); i++) {
-			if (m_particles[i].getActiveValue() == 1.0f) {
-				nrOfActive++;
-				m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
-				m_particleProperties[i].m_timeLeft -= dt;
-				m_particles[i].update(dt, m_particleProperties[i].m_velocity + wind);
+}
 
-				// Inactivate particles when lifetime is over
-				if (m_particleProperties[i].m_timeLeft <= 0.f) {
-					m_particles[i].setActiveValue(0.0f);
-				}
+void ParticleSystem::updateParticles(float dt, Terrain* terrain) {
+	size_t nrOfActive = 0;
+	for (size_t i = 0; i < m_particles.size(); i++) {
+		if (m_particles[i].getActiveValue() == 1.0f) {
+			nrOfActive++;
+			m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
+			m_particleProperties[i].m_timeLeft -= dt;
+			m_particles[i].update(
+				dt, m_particleProperties[i].m_velocity +
+						terrain->getWindFromPosition(m_particles[i].getPosition()));
+
+			// Inactivate particles when lifetime is over
+			if (m_particleProperties[i].m_timeLeft <= 0.f) {
+				m_particles[i].setActiveValue(0.0f);
 			}
 		}
 	}
 
 	if (nrOfActive == 0) {
 		m_isRunning = false;
+	}
+}
+
+void ParticleSystem::updateParticles(float dt, float3 wind) {
+	size_t nrOfActive = 0;
+	for (size_t i = 0; i < m_particles.size(); i++) {
+		if (m_particles[i].getActiveValue() == 1.0f) {
+			nrOfActive++;
+			m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
+			m_particleProperties[i].m_timeLeft -= dt;
+			m_particles[i].update(dt, m_particleProperties[i].m_velocity + wind);
+
+			// Inactivate particles when lifetime is over
+			if (m_particleProperties[i].m_timeLeft <= 0.f) {
+				m_particles[i].setActiveValue(0.0f);
+			}
+		}
+	}
+
+	if (nrOfActive == 0) {
+		m_isRunning = false;
+	}
+}
+
+void ParticleSystem::update(float dt, Terrain* terrain) {
+	m_timePassed += dt;
+
+	if (m_isEmitting) {
+		updateEmits(dt);
+	}
+
+	if (m_isRunning) {
+		updateParticles(dt, terrain);
+	}
+}
+
+void ParticleSystem::update(float dt, float3 wind) {
+	m_timePassed += dt;
+
+	if (m_isEmitting) {
+		updateEmits(dt);
+	}
+
+	if (m_isRunning) {
+		updateParticles(dt, wind);
 	}
 }
 
@@ -225,7 +269,6 @@ void ParticleSystem::bindBuffers() {
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 }
 
-
 void ParticleSystem::draw() {
 	if (m_isRunning) {
 		auto deviceContext = Renderer::getDeviceContext();
@@ -238,7 +281,7 @@ void ParticleSystem::draw() {
 		bindBuffers();
 
 		Renderer::getInstance()->enableAlphaBlending();
-		Renderer::draw((UINT)m_particles.size(), (UINT)0);
+		deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
 		Renderer::getInstance()->disableAlphaBlending();
 	}
 }
@@ -256,14 +299,7 @@ void ParticleSystem::drawNoAlpha() {
 	}
 }
 
-void ParticleSystem::activateAllParticles() {
-	emit(m_particles.size());
-	/*m_particles.resize(m_description->m_nrOfParticles);
-	for (size_t i = 0; i < m_particles.size(); i++) {
-		m_particles[i].setActiveValue(1.0f);
-		setParticle(*m_description, i);
-	}*/
-}
+void ParticleSystem::activateAllParticles() { emit(m_particles.size()); }
 
 void ParticleSystem::inactivateAllParticles() {
 	for (size_t i = 0; i < m_particles.size(); i++) {
@@ -275,18 +311,26 @@ void ParticleSystem::run(bool startAll) {
 	if (startAll) {
 		activateAllParticles();
 	}
-	m_isRunning = true;
+	if (m_type == ARROW_GLITTER)
+		m_isRunning = true;
 }
 
-void ParticleSystem::setInActive() { m_isRunning = false; }
+void ParticleSystem::stop() {
+	if (m_isRunning) {
+		m_isRunning = false;
+	}
+}
 
-bool ParticleSystem::getIsActive() { return m_isRunning; }
+
+bool ParticleSystem::isRunning() { return m_isRunning; }
 
 void ParticleSystem::setPosition(float3 position) { m_spawnPoint = position; }
 
 float3 ParticleSystem::getPosition() const { return m_spawnPoint; }
 
 void ParticleSystem::setEmitState(bool state) { m_isEmitting = state; }
+
+ParticleSystem::PARTICLE_TYPE ParticleSystem::getType() const { return m_type; }
 
 void ParticleSystem::setEmitRate(float emitRate) { m_description->m_emitRate = emitRate; }
 

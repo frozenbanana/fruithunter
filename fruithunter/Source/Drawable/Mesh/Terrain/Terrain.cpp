@@ -4,6 +4,8 @@
 #include <WICTextureLoader.h>
 #include "Input.h"
 
+#define MAX_HEIGHT_OFFSET 5.f
+
 ShaderSet Terrain::m_shader;
 ShaderSet Terrain::m_shader_onlyMesh;
 Microsoft::WRL::ComPtr<ID3D11Buffer> Terrain::m_matrixBuffer;
@@ -428,7 +430,7 @@ bool Terrain::boxInsideFrustum(float3 boxPos, float3 boxSize, const vector<Frust
 
 float3 Terrain::getRandomSpawnPoint() {
 	if (m_spawnPoint.size() > 0) {
-		size_t random = rand() % m_spawnPoint.size();
+		size_t random = (size_t)RandomFloat( 0.0f, (float)m_spawnPoint.size());
 		float3 spawnPoint = float3(m_spawnPoint[random].x, 0.0f, m_spawnPoint[random].y);
 		spawnPoint = (spawnPoint / 10) + m_position;
 		spawnPoint.y = getHeightFromPosition(spawnPoint.x, spawnPoint.z);
@@ -709,7 +711,23 @@ float Terrain::castRay(float3 point, float3 direction) {
 	return -1;
 }
 
-float3 Terrain::getWind() { return m_wind; }
+float3 Terrain::getWindStatic() { return m_wind; }
+
+float3 Terrain::getWindFromPosition(float3 position) {
+	float groundHeight = getHeightFromPosition(position.x, position.z);
+	float distToGround = position.y - groundHeight;
+	float3 normal = getNormalFromPosition(position.x, position.z);
+	float3 wind = m_wind;
+
+	// project wind onto normal plane
+	float3 windOnGround = m_wind - wind.Dot(normal) * normal;
+
+	distToGround = Map(groundHeight, groundHeight + MAX_HEIGHT_OFFSET, 0.f, 1.f, distToGround);
+
+	// Make quadtric 'lerp' to make windOnGround arrive faster
+	distToGround *= distToGround;
+	return windOnGround * (1.f - distToGround) + m_wind * distToGround;
+}
 
 void Terrain::clearCulling() {
 	m_useCulling = false;

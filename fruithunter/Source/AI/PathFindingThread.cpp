@@ -14,15 +14,16 @@ void PathFindingThread::exitThread() {
 	pft->m_running = false;
 	pft->m_ready = true;
 	pft->m_mutex.unlock();
+	pft->m_thread->join();
+	if (pft->m_thread) {
+		delete pft->m_thread;
+	}
+	pft->m_thread = nullptr;
 }
 
 
 PathFindingThread::~PathFindingThread() {
-	auto pft = PathFindingThread::getInstance();
-	if (pft->m_thread) {
-		pft->m_thread->join();
-		delete pft->m_thread;
-	}
+	
 }
 
 PathFindingThread* PathFindingThread::getInstance() { return &m_this; }
@@ -44,7 +45,7 @@ void PathFindingThread::run() {
 		pft->m_mutex.lock();
 		index = (index < m_batch->size() - 1) ? index + 1 : 0;
 		if (pft->m_batch->size() > 0) {
-			// pft->.lock();
+
 			auto object = pft->m_batch->at(index);
 			object->pathfinding(object->getPosition());
 		}

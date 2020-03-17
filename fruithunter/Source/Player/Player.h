@@ -25,6 +25,7 @@ public:
 	Entity& getArrow() { return m_bow.getArrow(); };
 	Bow& getBow() { return m_bow; }
 	float getStamina() const;
+	void getStaminaBySkillshot(Skillshot skillShot);
 	bool isShooting() const;
 	void setPosition(float3 position);
 	void standsOnObject();
@@ -73,7 +74,7 @@ private:
 	float m_resetDelay = 0.5f;					// Number of seconds before respawn
 	// movement speed
 	float m_speed = 20.f;				// player movement strength
-	float m_speedSprint = 40.f;			// player movement strength when sprinting
+	float m_speedSprintMultiplier = 2.f;// player movement multiplier when sprinting
 	float m_speedOnChargingDash = 10.f; // player movement when charging dash
 	float m_speedInAir = 2.5f;			// player movement in air
 	float m_godModeSpeed = 20.f;		// player movement in godmode
@@ -82,7 +83,7 @@ private:
 	bool m_jumpReset = true;
 	// stamina
 	const float STAMINA_MAX = 1.f;	// max value of sprint
-	float m_stamina = STAMINA_MAX;	// stamina available
+	float m_stamina = 0.0f;	// stamina available
 	bool m_staminaConsumed = false; // stamina consumed this frame update
 	// sprint
 	const float STAMINA_SPRINT_THRESHOLD = 0.0f;   // threshold when sprinting is available
@@ -104,8 +105,6 @@ private:
 	float3 m_playerRight = DEFAULTRIGHT;
 	float3 m_playerUp = DEFAULTUP;
 	float m_cameraPitch, m_cameraYaw;
-	float m_aimZoom = 1.f;
-	bool m_releasing = false;
 
 	//- - - Functions - - -
 	void updateBow(float dt, Terrain* terrain);
@@ -142,6 +141,6 @@ private:
 	void updateVelocity_onFlatGround(float3 playerForce, float dt);
 	void updateVelocity_onSteepGround(float dt);
 
-	//Ability
+	// Ability
 	void updateHunterMode(float);
 };
