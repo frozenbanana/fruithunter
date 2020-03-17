@@ -21,6 +21,8 @@ public:
 	~PathFindingThread();
 
 	void exitThread();
+	//void addPathToWork(std::vector<AI::Path*> &path);
+	void addFruit(Fruit* &fruit);
 
 	EntityRepository* m_collidables;
 private:
@@ -33,7 +35,7 @@ private:
 
 
 	bool checkVolatile(bool& statement);
-
+	
 
 
 	void run();

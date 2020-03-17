@@ -21,6 +21,7 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 	m_caught_speed = 5.f;
 
 	setCollisionDataOBB();
+	
 }
 
 void Apple::behaviorPassive(float3 playerPosition) {

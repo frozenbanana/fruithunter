@@ -19,6 +19,7 @@ void Fruit::setStartPosition(float3 pos) {
 
 	m_particleSystem = make_unique<ParticleSystem>(ParticleSystem::STARS);
 	m_particleSystem->stop();
+
 }
 
 void Fruit::setNextDestination(float3 nextDest) { m_nextDestinationAnimationPosition = nextDest; }
@@ -115,10 +116,12 @@ bool Fruit::withinDistanceTo(float3 target, float treshhold) {
 ParticleSystem* Fruit::getParticleSystem() { return m_particleSystem.get(); }
 
 void Fruit::update(float dt, float3 playerPosition) {
+	
 	if (withinDistanceTo(playerPosition, 80.f)) {
 		m_particleSystem->setPosition(m_position);
 		checkOnGroundStatus();
 		doBehavior(playerPosition);
+		readyPath();
 		setDirection();
 		updateAnimated(dt);
 		updateVelocity(dt);
@@ -188,6 +191,19 @@ void Fruit::stopMovement() {
 	m_velocity = float3(0.f);
 	m_speed = 0.f;
 	m_availablePath.clear();
+}
+
+void Fruit::readyPath() {
+	auto pft = PathFindingThread::getInstance();
+
+
+	pft->m_sizeLock.lock();
+	if (m_readyForPath) {
+		auto t = this;
+		pft->addFruit(t);
+		m_beingWorked = true;
+	}
+	pft->m_sizeLock.unlock();
 }
 
 void Fruit::release(float3 direction) {

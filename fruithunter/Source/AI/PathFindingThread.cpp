@@ -20,6 +20,18 @@ void PathFindingThread::exitThread() {
 	}
 	pft->m_thread = nullptr;
 }
+//
+//void PathFindingThread::addPathToWork(std::vector<float3*> &path) {
+//	m_sizeLock.lock();
+//	m_pathVector.push_back(path);
+//	m_sizeLock.unlock();
+//}
+
+void PathFindingThread::addFruit(Fruit* &fruit) {
+	//m_sizeLock.lock();
+	m_batch.push_back(fruit);
+	//m_sizeLock.unlock();
+}
 
 
 PathFindingThread::~PathFindingThread() {
@@ -41,15 +53,22 @@ void PathFindingThread::run() {
 	while (!checkVolatile(pft->m_ready)) {}
 	// Thread updateLoop
 	while (checkVolatile(pft->m_running)) {
-
-		pft->m_mutex.lock();
-		index = (index < m_batch->size() - 1) ? index + 1 : 0;
-		if (pft->m_batch->size() > 0) {
-
-			auto object = pft->m_batch->at(index);
-			object->pathfinding(object->getPosition(), m_animals);
+		pft->m_sizeLock.lock();
+		if (!pft->m_batch.empty()) {
+			// pft->.lock();
+			auto object = pft->m_batch.front();
+			object->pathfinding(object->getPosition());
+			//object.
+			pft->m_batch.pop_front();
 		}
-		pft->m_mutex.unlock();
+		pft->m_sizeLock.unlock();
+		//pft->m_sizeLock.lock();
+		//if (pft->m_pathVector.size() > 0) {
+		//	auto path = pft->m_pathVector.front();
+		//	AI::pathfinding(path);
+		//}
+		//pft->m_sizeLock.unlock();
+		
 	}
 }
 
@@ -70,7 +89,6 @@ void PathFindingThread::initialize(std::vector<shared_ptr<Fruit>>& batch,
 	pft->m_running = true;
 	pft->m_thread = new thread([this] { run(); });
 	pft->m_mutex.lock();
-	pft->m_batch = &batch;
 	pft->m_currentFrame = currentFrame;
 	pft->m_collidables = &collidables;
 	pft->m_ready = true;

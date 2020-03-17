@@ -82,7 +82,7 @@ void LevelSelectState::update() {
 		m_player.collideObject(*m_terrainProps.getEntities()->at(i));
 	}
 
-	//ErrorLogger::logFloat3("playerPos: ", m_player.getPosition());
+	// ErrorLogger::logFloat3("playerPos: ", m_player.getPosition());
 
 	// Update Skybox
 	m_skyBox.updateDelta(delta);
@@ -107,7 +107,7 @@ void LevelSelectState::update() {
 		m_bowls[i]->updateAnimated(delta);
 	}
 
-	//Update animals
+	// Update animals
 	// for all animals
 	for (size_t i = 0; i < m_animal.size(); ++i) {
 		m_animal[i]->checkLookedAt(m_player.getCameraPosition(), m_player.getForward());
