@@ -65,17 +65,17 @@ void PauseState::play() {
 	int previousState = StateHandler::getInstance()->getPreviousState();
 	if (previousState == StateHandler::LEVEL_SELECT || previousState == StateHandler::PLAY)
 		Renderer::getInstance()->captureFrame();
+
+	float width = SCREEN_WIDTH;
+	float height = SCREEN_HEIGHT;
+
+	m_restartButton.setPosition(float2(width / 2, height / 2 - 120));
+	m_resumeButton.setPosition(float2(width / 2, height / 2 - 60));
+	m_settingsButton.setPosition(float2(width / 2, height / 2));
+	m_mainMenuButton.setPosition(float2(width / 2, height / 2 + 60));
+	m_exitButton.setPosition(float2(width / 2, height / 2 + 120));
 }
 
-float width = SCREEN_WIDTH;
-float height = SCREEN_HEIGHT;
-
-m_restartButton.setPosition(float2(width / 2, height / 2 - 120));
-m_resumeButton.setPosition(float2(width / 2, height / 2 - 60));
-m_settingsButton.setPosition(float2(width / 2, height / 2));
-m_mainMenuButton.setPosition(float2(width / 2, height / 2 + 60));
-m_exitButton.setPosition(float2(width / 2, height / 2 + 120));
-}
 
 void PauseState::draw() {
 	Renderer::getInstance()->beginFrame();
