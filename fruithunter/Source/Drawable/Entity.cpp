@@ -283,6 +283,8 @@ void Entity::loadMaterials(std::vector<string> fileNames) {
 		m_meshAnim.loadMaterials(fileNames);
 }
 
+bool Entity::checkCollision(float3 point) { return m_collisionData.collide(point); }
+
 bool Entity::checkCollision(Entity& other) {
 	return m_collisionData.collide(other.m_collisionData);
 }

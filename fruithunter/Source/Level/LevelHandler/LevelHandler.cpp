@@ -52,10 +52,12 @@ void LevelHandler::initialiseLevel0() {
 	level.m_nrOfFruits[APPLE] = 30;
 	level.m_nrOfFruits[BANANA] = 0;
 	level.m_nrOfFruits[MELON] = 0;
+	level.m_nrOfFruits[DRAGON] = 0;
 
 	level.m_winCondition[APPLE] = 15;
 	level.m_winCondition[BANANA] = 0;
 	level.m_winCondition[MELON] = 0;
+	level.m_winCondition[DRAGON] = 0;
 
 	level.m_playerStartPos = float3(5.6f, 2.5f, 38.7f);
 
@@ -77,6 +79,7 @@ void LevelHandler::initialiseLevel1() {
 
 	level.m_fruitPos[APPLE].push_back(0);
 	level.m_fruitPos[MELON].push_back(1);
+	level.m_fruitPos[DRAGON].push_back(0);
 
 
 	level.m_heightMapNames.push_back("ForestMap.png");
@@ -132,10 +135,13 @@ void LevelHandler::initialiseLevel1() {
 	level.m_nrOfFruits[APPLE] = 20;
 	level.m_nrOfFruits[BANANA] = 0;
 	level.m_nrOfFruits[MELON] = 20;
+	level.m_nrOfFruits[DRAGON] = 0;
 
 	level.m_winCondition[APPLE] = 10;
 	level.m_winCondition[BANANA] = 0;
 	level.m_winCondition[MELON] = 10;
+	level.m_winCondition[DRAGON] = 0;
+	
 
 	level.m_playerStartPos = float3(5.9f, 3.2f, 74.4f);
 
@@ -152,18 +158,18 @@ void LevelHandler::initialiseLevel2() {
 
 	level.m_terrainPropsFilename = "level2";
 
-	level.m_terrainTags.push_back(Level::TerrainTags::Volcano);
-	level.m_terrainTags.push_back(Level::TerrainTags::Forest);
-	level.m_terrainTags.push_back(Level::TerrainTags::Desert);
-	level.m_terrainTags.push_back(Level::TerrainTags::Plains);
+	level.m_terrainTags.push_back(Level::TerrainTags::Volcano); // 1
+	level.m_terrainTags.push_back(Level::TerrainTags::Forest);	// 2
+	level.m_terrainTags.push_back(Level::TerrainTags::Desert);	// 3
+	level.m_terrainTags.push_back(Level::TerrainTags::Plains);	// 4
 
+	level.m_fruitPos[APPLE].push_back(3); // 2 is  desert
 	level.m_fruitPos[APPLE].push_back(1);
-	level.m_fruitPos[APPLE].push_back(2);
-	level.m_fruitPos[APPLE].push_back(3);
-	level.m_fruitPos[BANANA].push_back(1);
+	level.m_fruitPos[BANANA].push_back(1); //  0 is volcano
 	level.m_fruitPos[BANANA].push_back(2);
 	level.m_fruitPos[BANANA].push_back(3);
-	level.m_fruitPos[MELON].push_back(0);
+	level.m_fruitPos[MELON].push_back(2);  // 1 is forest
+	level.m_fruitPos[DRAGON].push_back(0); // 3 is plains
 
 	level.m_heightMapNames.push_back("VolcanoMap.png");
 	level.m_heightMapNames.push_back("ForestMap.png");
@@ -257,11 +263,12 @@ void LevelHandler::initialiseLevel2() {
 	level.m_nrOfFruits[APPLE] = 20;
 	level.m_nrOfFruits[BANANA] = 20;
 	level.m_nrOfFruits[MELON] = 20;
+	level.m_nrOfFruits[DRAGON] = 10;
 
-	level.m_winCondition[APPLE] = 10;
-	level.m_winCondition[BANANA] = 10;
-	level.m_winCondition[MELON] = 10;
-
+	level.m_winCondition[APPLE] = 5;
+	level.m_winCondition[BANANA] = 5;
+	level.m_winCondition[MELON] = 5;
+	level.m_winCondition[DRAGON] = 5;
 	level.m_playerStartPos = float3(162.5f, 9.5f, 19.f);
 
 	level.m_timeTargets[GOLD] = 150;
@@ -333,6 +340,10 @@ void LevelHandler::initialise() {
 	m_terrainProps.addPlaceableEntity("RopeBridgeFloor");
 	m_terrainProps.addPlaceableEntity("RopeBridgeRailing1");
 	m_terrainProps.addPlaceableEntity("RopeBridgeRailing2");
+	m_terrainProps.addPlaceableEntity("SignSlanted");
+	m_terrainProps.addPlaceableEntity("SignSlanted2");
+	m_terrainProps.addPlaceableEntity("SignHorizontal");
+	m_terrainProps.addPlaceableEntity("SignHorizontal2");
 
 	initialiseLevel0();
 	initialiseLevel1();
@@ -394,6 +405,13 @@ void LevelHandler::loadLevel(int levelNr) {
 				m_terrainManager->getSpawnpoint(currentLevel.m_fruitPos[MELON].at(terrainTagNr)));
 			m_fruits.push_back(melon);
 		}
+		for (int i = 0; i < currentLevel.m_nrOfFruits[DRAGON]; i++) {
+			int terrainTagNr = i % currentLevel.m_fruitPos[DRAGON].size();
+			shared_ptr<DragonFruit> dragon = make_shared<DragonFruit>(
+				m_terrainManager->getSpawnpoint(currentLevel.m_fruitPos[DRAGON].at(terrainTagNr)));
+			m_fruits.push_back(dragon);
+		}
+
 
 		m_player.setPosition(currentLevel.m_playerStartPos);
 
@@ -413,6 +431,8 @@ void LevelHandler::loadLevel(int levelNr) {
 			m_hud.createFruitSprite("banana");
 		if (currentLevel.m_nrOfFruits[MELON] != 0)
 			m_hud.createFruitSprite("melon");
+		if (currentLevel.m_nrOfFruits[DRAGON] != 0)
+			m_hud.createFruitSprite("dragonfruit");
 
 		// Put out bridges correctly
 		for (int i = 0; i < currentLevel.m_bridgePosition.size(); i++) {
@@ -426,7 +446,13 @@ void LevelHandler::loadLevel(int levelNr) {
 	}
 
 	if (PathFindingThread::getInstance()->m_thread == nullptr) {
-		PathFindingThread::getInstance()->initialize(m_fruits, m_frame, m_collidableEntities);
+		std::vector<float4> animalPos;
+		for (auto a : m_Animals) {
+			float4 ani = float4(
+				a->getPosition().x, a->getPosition().y, a->getPosition().z, a->getFruitRange());
+			animalPos.push_back(ani);
+		}
+		PathFindingThread::getInstance()->initialize(m_fruits, m_frame, m_terrainProps, animalPos);
 	}
 }
 
@@ -436,9 +462,12 @@ void LevelHandler::draw() {
 
 	Renderer::getInstance()->enableAlphaBlending();
 	for (int i = 0; i < m_fruits.size(); i++) {
-		m_fruits[i]->draw_animate();
-		m_fruits[i]->getParticleSystem()->drawNoAlpha();
+		if (m_fruits[i]->isVisible()) {
+			m_fruits[i]->draw_animate();
+			m_fruits[i]->getParticleSystem()->drawNoAlpha();
+		}
 	}
+
 	Renderer::getInstance()->disableAlphaBlending();
 
 	for (size_t i = 0; i < m_Animals.size(); ++i) {
@@ -712,6 +741,18 @@ void LevelHandler::dropFruit() {
 			pft->m_mutex.unlock();
 			// m_inventory[MELON]--;
 			m_hud.removeFruit(MELON);
+		}
+	}
+	if (ip->keyPressed(Keyboard::D4)) {
+		if (m_inventory[DRAGON] >= 0) {
+			shared_ptr<DragonFruit> dragonFruit =
+				make_shared<DragonFruit>((m_player.getPosition() + float3(0.0f, 1.5f, 0.0f)));
+			dragonFruit->release(m_player.getForward());
+			pft->m_mutex.lock();
+			m_fruits.push_back(dragonFruit);
+			pft->m_mutex.unlock();
+			// m_inventory[MELON]--;
+			m_hud.removeFruit(DRAGON);
 		}
 	}
 }

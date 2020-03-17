@@ -83,6 +83,7 @@ public:
 	float castRay(float3 point, float3 direction);
 
 	// Collisions
+	bool checkCollision(float3 point);
 	bool checkCollision(Entity& other);
 	bool checkCollision(EntityCollision& other);
 	void setCollisionData(float3 point, float3 posOffset, float3 scale, float radius);

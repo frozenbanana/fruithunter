@@ -46,20 +46,22 @@ void Melon::behaviorPassive(float3 playerPosition) {
 	if (m_onGround) {
 
 		if (withinDistanceTo(m_worldHome, 0.75f)) {
-			m_direction = m_secondWorldHome - m_position;
+			m_destination = m_secondWorldHome - m_position;
 			lookTo(m_secondWorldHome);
 		}
 		else if (withinDistanceTo(m_secondWorldHome, 0.75f)) {
-			m_direction = m_worldHome - m_position;
+			m_destination = m_worldHome - m_position;
 			lookTo(m_worldHome);
 		}
 		else if (!withinDistanceTo(m_worldHome, 5.f) && !withinDistanceTo(m_secondWorldHome, 5.f)) {
-			m_direction = m_worldHome - m_position;
+			m_destination = m_worldHome - m_position;
 			lookTo(m_worldHome);
 		}
 		m_speed = m_passive_speed;
+		makeReadyForPath(m_destination);
 		if (withinDistanceTo(playerPosition, m_activeRadius)) {
 			changeState(ACTIVE);
+			stopMovement();
 		}
 	}
 }
