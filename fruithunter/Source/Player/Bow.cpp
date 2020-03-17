@@ -105,7 +105,6 @@ void Bow::update(
 				arrowHitObject(target);
 			}
 			else {
-				ErrorLogger::logFloat3("Current wind", terrain->getWindStatic());
 				arrowPhysics(dt, terrain->getWindStatic()); // Updates arrow in flight, wind is no
 															// longer hard coded.
 				// update Particle System
