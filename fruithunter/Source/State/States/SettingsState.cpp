@@ -51,6 +51,11 @@ void SettingsState::initialize() {
 	else if (settings->getShadowResolution().x == 8192)
 		m_shadowsButton.setLowMedHighUltra(Button::Setting::ULTRA);
 
+	m_masterVolume.setValue(settings->getMasterVolume());
+	m_musicVolume.setValue(settings->getMusicVolume());
+	m_effectsVolume.setValue(settings->getEffectsVolume());
+	m_drawDistance.setValue(settings->getDrawDistanceValue());
+
 	m_backButton.initialize("Back", float2(width / 2, height - 80));
 	m_applyButton.initialize("Apply", float2(width / 2 - 100, height - 80));
 	// Just ignore this. It fixes things.

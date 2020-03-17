@@ -119,6 +119,8 @@ bool Settings::getFullscreen() { return m_fullscreen; }
 
 float Settings::getDrawDistance() { return 100.f + 100.f * m_drawDistance; }
 
+float Settings::getDrawDistanceValue() { return m_drawDistance; }
+
 float Settings::getMasterVolume() { return m_masterVolume; }
 
 float Settings::getMusicVolume() { return m_musicVolume; }

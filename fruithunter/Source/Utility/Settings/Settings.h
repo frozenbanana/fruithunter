@@ -47,6 +47,7 @@ public:
 	bool getFullscreen();
 
 	float getDrawDistance();
+	float getDrawDistanceValue();
 	float getMasterVolume();
 	float getMusicVolume();
 	float getEffectsVolume();
