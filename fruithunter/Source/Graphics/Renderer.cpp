@@ -144,12 +144,34 @@ void Renderer::captureFrame() {
 	}
 }
 
+void Renderer::copyFrame() {
+	auto hr = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&m_backBufferTex);
+	if (FAILED(hr)) {
+		ErrorLogger::logError(hr, "Failed to capture backbuffer.");
+	}
+	else {
+		// Write out the render target to png
+		hr = SaveWICTextureToFile(Renderer::getDeviceContext(), m_backBufferTex.Get(),
+			GUID_ContainerFormatPng, L"assets/captures/backbuffer.png", nullptr, nullptr);
+		m_copyFrame.init();
+		m_copyFrameLoaded = true;
+	}
+}
+
 void Renderer::drawCapturedFrame() {
 	if (!m_capturedFrameLoaded) {
 		m_capturedFrame.init();
 		m_capturedFrameLoaded = true;
 	}
 	m_capturedFrame.draw();
+}
+
+void Renderer::drawCopyFrame() {
+	if (!m_copyFrameLoaded) {
+		m_copyFrame.init();
+		m_copyFrameLoaded = true;
+	}
+	m_copyFrame.draw();
 }
 
 void Renderer::draw_darkEdges() {
@@ -237,6 +259,10 @@ Renderer::Renderer(int width, int height) {
 	// Set texture paths to quads
 	m_capturedFrame.setTexturePath("assets/captures/backbuffer.png");
 	m_capturedFrame.setPixelShaderPath("PixelShader_blur.hlsl");
+
+	// Set texture paths to quads
+	m_copyFrame.setTexturePath("assets/captures/backbuffer.png");
+	m_copyFrame.setPixelShaderPath("PixelShaderFXAA.hlsl");
 }
 
 Renderer::~Renderer() {}

@@ -41,8 +41,10 @@ public:
 	void copyDepthToSRV();
 
 	void captureFrame();
+	void copyFrame();
 
 	void drawCapturedFrame();
+	void drawCopyFrame();
 
 	void draw_darkEdges();
 
@@ -92,6 +94,10 @@ private:
 	// Loading screen
 	Quad m_capturedFrame;
 	bool m_capturedFrameLoaded = false;
+
+	// Copy screen
+	Quad m_copyFrame;
+	bool m_copyFrameLoaded = false;
 
 	// shadows
 	ShadowMapper m_shadowMapper;
