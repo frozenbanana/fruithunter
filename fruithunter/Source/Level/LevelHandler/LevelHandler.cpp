@@ -6,6 +6,12 @@
 #include "VariableSyncer.h"
 #include "PathFindingThread.h"
 
+
+#define WIND_PLAINS float3(0.f, 0.f, 5.f)
+#define WIND_FOREST float3(2.f, 0.f, -4.f)
+#define WIND_DESERT float3(-4.f, 0.f, 3.f)
+#define WIND_VULCANO float3(0.f, 4.f, 0.f)
+
 void LevelHandler::initialiseLevel0() {
 	Level level;
 
@@ -107,8 +113,8 @@ void LevelHandler::initialiseLevel1() {
 		float3(96.2f, 3.45f, 38.f), float3(90.2f, 3.7f, 49.f), XM_PI * 0.5f);
 	level.m_animal.push_back(animal);
 
-	level.m_wind.push_back(float3(3.f, 0.f, 6.f)); // Forest
-	level.m_wind.push_back(float3(0.f, 0.f, 1.f)); // Plains
+	level.m_wind.push_back(WIND_FOREST); // Forest
+	level.m_wind.push_back(WIND_PLAINS); // Plains
 
 	level.m_nrOfFruits[APPLE] = 20;
 	level.m_nrOfFruits[BANANA] = 0;
@@ -217,10 +223,10 @@ void LevelHandler::initialiseLevel2() {
 		float3(87.f, 8.8f, 156.f), XM_PI * 0.5f);
 	level.m_animal.push_back(animal);
 
-	level.m_wind.push_back(float3(0.f, 8.f, 0.f));	// Volcano
-	level.m_wind.push_back(float3(3.f, 0.f, 6.f));	// Forest
-	level.m_wind.push_back(float3(3.f, 0.f, -2.f)); // Desert
-	level.m_wind.push_back(float3(0.f, 0.f, 1.f));	// Plains
+	level.m_wind.push_back(WIND_VULCANO); // Volcano
+	level.m_wind.push_back(WIND_FOREST);  // Forest
+	level.m_wind.push_back(WIND_DESERT);  // Desert
+	level.m_wind.push_back(WIND_PLAINS);  // Plains
 
 	level.m_nrOfFruits[APPLE] = 20;
 	level.m_nrOfFruits[BANANA] = 15;
@@ -628,8 +634,6 @@ void LevelHandler::update(float dt) {
 	m_hud.update(dt, m_player.getStamina());
 	waterEffect.update(dt);
 	lavaEffect.update(dt);
-
-	// Renderer::getInstance()->setPlayerPos(playerPos);
 }
 
 HUD& LevelHandler::getHUD() { return m_hud; }
