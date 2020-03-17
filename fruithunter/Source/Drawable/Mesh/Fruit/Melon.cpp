@@ -43,7 +43,7 @@ void Melon::behaviorPassive(float3 playerPosition) {
 	}
 
 
-	if (m_onGround) {
+	if (m_onGround && m_availablePath.empty() && !m_readyForPath) {
 
 		if (withinDistanceTo(m_worldHome, 0.75f)) {
 			m_destination = m_secondWorldHome - m_position;
@@ -68,7 +68,6 @@ void Melon::behaviorPassive(float3 playerPosition) {
 
 void Melon::behaviorActive(float3 playerPosition) {
 	if (m_onGround) {
-
 		if (m_availablePath.empty()) {
 			float3 target = circulateAround(playerPosition);
 			makeReadyForPath(target);
@@ -85,11 +84,11 @@ void Melon::behaviorActive(float3 playerPosition) {
 }
 
 void Melon::behaviorCaught(float3 playerPosition) {
-	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
+	if (m_onGround && m_availablePath.empty()) {
 		m_direction = playerPosition - m_position; // run to player
 
 		m_speed = m_caught_speed;
-		makeReadyForPath(playerPosition);
+		//makeReadyForPath(playerPosition);
 	}
 	lookTo(playerPosition);
 }

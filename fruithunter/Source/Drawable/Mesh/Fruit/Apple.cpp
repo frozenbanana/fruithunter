@@ -92,8 +92,9 @@ void Apple::behaviorActive(float3 playerPosition) {
 }
 
 void Apple::behaviorCaught(float3 playerPosition) {
-	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
-		makeReadyForPath(playerPosition);
+	if (m_onGround) {
+		//makeReadyForPath(playerPosition);
+		m_direction = playerPosition - m_position;
 		m_speed = m_caught_speed;
 	}
 	lookTo(playerPosition);

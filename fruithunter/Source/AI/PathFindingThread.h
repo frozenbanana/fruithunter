@@ -15,6 +15,7 @@ public:
 	// rawptr because problem with smartptr
 	thread* m_thread = nullptr;
 	mutex m_mutex;
+	mutex m_sizeLock;
 	//std::vector<shared_ptr<Entity>> m_collidables;
 	void initialize(std::vector<shared_ptr<Fruit>>& batch, shared_ptr<size_t> currentFrame,
 		EntityRepository& collidables, std::vector<float4> animals);
@@ -28,7 +29,7 @@ public:
 private:
 	PathFindingThread();
 	std::shared_ptr<size_t> m_currentFrame;
-	std::vector<shared_ptr<Fruit>>* m_batch;
+	std::list<Fruit*> m_batch;
 	static PathFindingThread m_this;
 	bool m_ready, m_running;
 	std::vector<float4> m_animals;

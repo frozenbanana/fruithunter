@@ -43,6 +43,9 @@ int AI::partition(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, in
 }
 
 void AI::handleAvailablePath(float3 myPosition) {
+	auto pft = PathFindingThread::getInstance();
+
+	pft->m_mutex.lock();
 	if (!m_availablePath.empty()) {
 		float3 positionXZ = float3(myPosition.x, 0.0f, myPosition.z);
 		float3 currentTargetXZ = float3(m_availablePath.back().x, 0.0f, m_availablePath.back().z);
@@ -52,6 +55,7 @@ void AI::handleAvailablePath(float3 myPosition) {
 			m_availablePath.pop_back();
 		}
 	}
+	pft->m_mutex.unlock();
 }
 
 bool AI::beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>>& openList,
@@ -145,8 +149,9 @@ void AI::pathfinding(float3 start, std::vector<float4> animals) {
 		return;
 	if (m_readyForPath) {
 		{
+			pft->m_mutex.lock();
 			m_availablePath.clear();
-
+			pft->m_mutex.unlock();
 			TerrainManager* tm = TerrainManager::getInstance();
 			// enforce start and m_destination to terrain
 			float3 startCopy = float3(start.x, tm->getHeightFromPosition(start), start.z);
@@ -176,7 +181,8 @@ void AI::pathfinding(float3 start, std::vector<float4> animals) {
 
 				if ((currentNode->position - m_destinationCopy).LengthSquared() < ARRIVAL_RADIUS ||
 					counter == MAX_STEPS - 1) {
-					m_availablePath.clear(); // Reset path
+					pft->m_mutex.lock();
+					
 
 					// Add path steps
 					while (currentNode->parent != nullptr) {
@@ -190,7 +196,7 @@ void AI::pathfinding(float3 start, std::vector<float4> animals) {
 													// as startCopy.
 					}
 					m_readyForPath = false;
-
+					pft->m_mutex.unlock();
 					return;
 				}
 
@@ -221,11 +227,13 @@ void AI::pathfinding(float3 start, std::vector<float4> animals) {
 					open.push_back(child);
 				}
 			}
+			pft->m_mutex.lock();
 			while (currentNode->parent != nullptr) {
 				m_availablePath.push_back(currentNode->position);
 				currentNode = currentNode->parent;
 			}
 			m_readyForPath = false;
+			pft->m_mutex.unlock();
 		}
 	}
 }
@@ -242,7 +250,7 @@ bool AI::giveNewPath() const { return m_readyForPath; }
 void AI::doBehavior(float3 playerPosition) {
 	auto pft = PathFindingThread::getInstance();
 
-	// pft->m_mutex.lock();
+	 pft->m_mutex.lock();
 	switch (m_currentState) {
 	case INACTIVE:
 		behaviorInactive(playerPosition);
@@ -260,5 +268,5 @@ void AI::doBehavior(float3 playerPosition) {
 		behaviorReleased();
 		break;
 	}
-	// pft->m_mutex.unlock();
+	 pft->m_mutex.unlock();
 }

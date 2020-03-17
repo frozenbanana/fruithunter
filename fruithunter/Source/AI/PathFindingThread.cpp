@@ -1,4 +1,5 @@
 #include "PathFindingThread.h"
+#include <chrono>
 
 PathFindingThread PathFindingThread::m_this;
 
@@ -29,7 +30,8 @@ void PathFindingThread::exitThread() {
 
 void PathFindingThread::addFruit(Fruit* &fruit) {
 	//m_sizeLock.lock();
-	m_batch.push_back(fruit);
+	auto pft = PathFindingThread::getInstance();
+	pft->m_batch.push_back(fruit);
 	//m_sizeLock.unlock();
 }
 
@@ -57,9 +59,11 @@ void PathFindingThread::run() {
 		if (!pft->m_batch.empty()) {
 			// pft->.lock();
 			auto object = pft->m_batch.front();
-			object->pathfinding(object->getPosition());
+			object->pathfinding(object->getPosition(), m_animals);
+			
 			//object.
 			pft->m_batch.pop_front();
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 		pft->m_sizeLock.unlock();
 		//pft->m_sizeLock.lock();

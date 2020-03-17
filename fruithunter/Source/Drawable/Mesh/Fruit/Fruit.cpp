@@ -158,11 +158,13 @@ void Fruit::behaviorInactive(float3 playerPosition) { return; }
 void Fruit::setDirection() {
 	auto pft = PathFindingThread::getInstance();
 	// pft->m_mutex.lock();
+	pft->m_mutex.lock();
 	if (!m_availablePath.empty() &&
 		atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
 		m_direction = m_availablePath.back() - m_position;
 		m_direction.Normalize();
 	}
+	pft->m_mutex.unlock();
 	// pft->m_mutex.unlock();
 }
 
