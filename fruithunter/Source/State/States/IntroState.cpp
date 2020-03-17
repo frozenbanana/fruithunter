@@ -219,7 +219,7 @@ void IntroState::play() {
 	float height = SCREEN_HEIGHT;
 
 	// Temporary solution to fix imperfect screen size when starting application
-	Renderer::getInstance()->changeResolution(width, height);
+	Renderer::getInstance()->changeResolution((int)width, (int)height);
 
 	m_startButton.setPosition(float2(106, height * 0.75f - 60.f));
 	m_settingsButton.setPosition(float2(132, height * 0.75f));
