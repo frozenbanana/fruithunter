@@ -29,7 +29,7 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 
 	m_passive_speed = 8.f;
 	m_active_speed = 15.f;
-	m_caught_speed = 10.f;
+	m_caught_speed = 15.f;
 }
 
 void Melon::behaviorPassive(float3 playerPosition) {
