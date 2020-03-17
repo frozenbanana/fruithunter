@@ -181,7 +181,7 @@ void Player::getStaminaBySkillshot(Skillshot skillShot) {
 		m_stamina += 0.3f;
 		break;
 	}
-	clamp(m_stamina, 1.0f, 0.0f);
+	m_stamina = min(m_stamina, 1.0f);
 }
 
 bool Player::isShooting() const { return m_bow.isShooting(); }
