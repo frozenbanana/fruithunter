@@ -715,7 +715,8 @@ void LevelHandler::dropFruit() {
 			pft->m_mutex.lock();
 			m_fruits.push_back(apple);
 			pft->m_mutex.unlock();
-			m_inventory[APPLE]--;
+			if (!DEBUG)
+				m_inventory[APPLE]--;
 			m_hud.removeFruit(APPLE);
 		}
 	}
@@ -727,7 +728,8 @@ void LevelHandler::dropFruit() {
 			pft->m_mutex.lock();
 			m_fruits.push_back(banana);
 			pft->m_mutex.unlock();
-			m_inventory[BANANA]--;
+			if (!DEBUG)
+				m_inventory[BANANA]--;
 			m_hud.removeFruit(BANANA);
 		}
 	}
@@ -739,7 +741,8 @@ void LevelHandler::dropFruit() {
 			pft->m_mutex.lock();
 			m_fruits.push_back(melon);
 			pft->m_mutex.unlock();
-			m_inventory[MELON]--;
+			if (!DEBUG)
+				m_inventory[MELON]--;
 			m_hud.removeFruit(MELON);
 		}
 	}
@@ -751,7 +754,8 @@ void LevelHandler::dropFruit() {
 			pft->m_mutex.lock();
 			m_fruits.push_back(dragonFruit);
 			pft->m_mutex.unlock();
-			m_inventory[DRAGON]--;
+			if (!DEBUG)
+				m_inventory[DRAGON]--;
 			m_hud.removeFruit(DRAGON);
 		}
 	}
