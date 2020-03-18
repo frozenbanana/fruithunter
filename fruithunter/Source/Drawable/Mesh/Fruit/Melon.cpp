@@ -27,6 +27,7 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 
 	m_passiveRadius = 15.f;
 	m_activeRadius = 15.f;
+	m_maxSteps = 10;
 
 	m_passive_speed = 8.f;
 	m_active_speed = 15.f;
@@ -56,6 +57,11 @@ void Melon::behaviorPassive(float3 playerPosition) {
 
 
 	if (m_onGround) {
+		if (withinDistanceTo(playerPosition, m_activeRadius)) {
+			changeState(ACTIVE);
+			stopMovement();
+			return;
+		}
 
 		if (withinDistanceTo(m_worldHome, 0.75f)) {
 			m_destination = m_secondWorldHome - m_position;
@@ -71,16 +77,17 @@ void Melon::behaviorPassive(float3 playerPosition) {
 		}
 		m_speed = m_passive_speed;
 		makeReadyForPath(m_destination);
-		if (withinDistanceTo(playerPosition, m_activeRadius)) {
-			changeState(ACTIVE);
-			stopMovement();
-		}
+		
 	}
 }
 
 void Melon::behaviorActive(float3 playerPosition) {
 	if (m_onGround) {
-
+		if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
+			stopMovement();
+			changeState(PASSIVE);
+			return;
+		}
 		if (m_availablePath.empty()) {
 			float3 target = circulateAround(playerPosition);
 			makeReadyForPath(target);
@@ -89,10 +96,7 @@ void Melon::behaviorActive(float3 playerPosition) {
 		lookTo(playerPosition);
 		m_speed = m_active_speed;
 
-		if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
-			stopMovement();
-			changeState(PASSIVE);
-		}
+		
 	}
 }
 
@@ -101,7 +105,8 @@ void Melon::behaviorCaught(float3 playerPosition) {
 		m_direction = playerPosition - m_position; // run to player
 
 		m_speed = m_caught_speed;
-		makeReadyForPath(playerPosition);
+		//makeReadyForPath(playerPosition);
+		
 	}
 	lookTo(playerPosition);
 }
@@ -149,12 +154,11 @@ void Melon::setRollSpeed(float rollSpeed) { m_rollAnimationSpeed = rollSpeed; }
 void Melon::pathfinding(float3 start, std::vector<float4>* animals) {
 	// ErrorLogger::log("thread starting for pathfinding");
 	auto pft = PathFindingThread::getInstance();
+
 	if ((start - m_destination).LengthSquared() < 0.5f)
 		return;
 	if (m_readyForPath) {
-		{
-			m_availablePath.clear();
-
+		
 			TerrainManager* tm = TerrainManager::getInstance();
 			// enforce start and m_destination to terrain
 			float3 startCopy = float3(start.x, tm->getHeightFromPosition(start), start.z);
@@ -198,7 +202,7 @@ void Melon::pathfinding(float3 start, std::vector<float4>* animals) {
 													// as startCopy.
 					}
 					m_readyForPath = false;
-					m_nrOfTriesGoHome++;
+
 					return;
 				}
 
@@ -232,10 +236,7 @@ void Melon::pathfinding(float3 start, std::vector<float4>* animals) {
 			while (currentNode->parent != nullptr) {
 				m_availablePath.push_back(currentNode->position);
 				currentNode = currentNode->parent;
-				m_nrOfTriesGoHome++;
-				ErrorLogger::log(std::to_string(m_nrOfTriesGoHome));
 			}
 			m_readyForPath = false;
 		}
 	}
-}

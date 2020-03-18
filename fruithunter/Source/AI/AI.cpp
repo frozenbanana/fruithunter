@@ -3,6 +3,7 @@
 #include "PathFindingThread.h"
 
 
+
 bool areSame(float3 a, float3 b) { return (a - b).LengthSquared() < EPSILON; }
 
 bool isIn(shared_ptr<AI::Node> target, std::vector<shared_ptr<AI::Node>> vector) {
@@ -75,7 +76,7 @@ bool AI::isValid(
 	if (abs(childPos.y - currentNodePos.y) > MAX_STEAPNESS) {
 		return false;
 	}
-	if (childPos.y < 1.f) {
+	if (childPos.y < 1.5f) {
 		return false;
 	}
 
@@ -104,17 +105,6 @@ bool AI::isValid(
 	return true;
 }
 
-bool AI::isValid(float3 childPos, float3 currentNodePos) {
-	if (childPos.y - currentNodePos.y > MAX_STEAPNESS) {
-		return false;
-	}
-	if (childPos.y < 1.f) {
-		return false;
-	}
-
-	return true;
-}
-
 bool AI::checkAnimals(std::vector<float4> animals, float3 childPos) { 
 	childPos.y = 0.f;
 	for (auto e : animals) {
@@ -138,12 +128,13 @@ void AI::makeReadyForPath(float3 destination) {
 void AI::pathfinding(float3 start, std::vector<float4> *animals) {
 	// ErrorLogger::log("thread starting for pathfinding");
 	auto pft = PathFindingThread::getInstance();
+	
 	if ((start - m_destination).LengthSquared() < 0.5f)
 		return;
 	if (m_readyForPath) {
 		{
 			m_availablePath.clear();
-
+			
 			TerrainManager* tm = TerrainManager::getInstance();
 			// enforce start and m_destination to terrain
 			float3 startCopy = float3(start.x, tm->getHeightFromPosition(start), start.z);

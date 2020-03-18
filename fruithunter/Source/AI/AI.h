@@ -52,6 +52,7 @@ protected:
 	// mutex m_mutex;
 	int m_maxSteps;
 	bool m_readyForPath = false;
+	bool m_hit = false;
 	State m_currentState;
 	std::list<float3> m_availablePath;
 	virtual void behaviorInactive(float3 playerPosition){};
@@ -68,7 +69,7 @@ protected:
 
 	bool isValid(
 		float3 childPos, float3 currentNodePos, EntityRepository& collidables, float radius);
-	bool isValid(float3 childPos, float3 currentNodePos);
+	bool isValid(float3 point);
 	bool checkAnimals(std::vector<float4> animals, float3 childPos);
 	void makeReadyForPath(float3 destination);
 
