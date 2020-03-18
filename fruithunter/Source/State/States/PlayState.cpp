@@ -63,7 +63,7 @@ void PlayState::handleEvent() {
 		endRound->setVictoryText(vicText);
 		endRound->setVictoryColor(vicColor);
 		endRound->setConfettiPower(confettiEmitRate);
-		endRound->setBowlMaterial(m_currentLevel, prizeIndex); // change to reflect actual level
+		endRound->setBowlMaterial(m_currentLevel, (int)prizeIndex); // change to reflect actual level
 		endRound->setParticleColorByPrize(prizeIndex);
 	}
 }

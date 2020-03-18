@@ -19,7 +19,7 @@ void EndRoundState::initialize() {
 	m_restartButton.initialize("Restart", float2(width / 2, height / 2 + 50));
 	m_levelSelectButton.initialize("Select Level", float2(width / 2, height / 2 + 120));
 	m_exitButton.initialize("Exit", float2(width / 2, height / 2 + 190));
-	m_particleSystem = ParticleSystem(ParticleSystem::FOREST_BUBBLE);
+	m_particleSystem = ParticleSystem(ParticleSystem::STARS);
 	// m_particleSystem.setEmitRate(10.f);
 	m_particleSystem.setPosition(float3(0.0f, -1.f, 0.f));
 	m_timer.reset();
@@ -85,6 +85,8 @@ void EndRoundState::play() {
 	m_restartButton.setPosition(float2(width / 2, height / 2 + 50));
 	m_levelSelectButton.setPosition(float2(width / 2, height / 2 + 120));
 	m_exitButton.setPosition(float2(width / 2, height / 2 + 190));
+
+	AudioHandler::getInstance()->playOnce(AudioHandler::APPLAUSE);
 }
 
 void EndRoundState::draw() {
@@ -92,6 +94,7 @@ void EndRoundState::draw() {
 	Renderer::getInstance()->drawCapturedFrame();
 	Renderer::getInstance()->clearDepth();
 
+	m_particleSystem.draw();
 	m_bowl.draw();
 	m_bowlContents[m_currentBowlContent].draw();
 	Renderer::getInstance()->clearDepth();
@@ -106,7 +109,7 @@ void EndRoundState::draw() {
 	m_levelSelectButton.draw();
 	m_exitButton.draw();
 
-	m_particleSystem.draw();
+	
 	// Just ignore this. It fixes things
 	m_entity.draw();
 }

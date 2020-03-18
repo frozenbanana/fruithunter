@@ -104,7 +104,7 @@ void Bow::update(
 				float3 target = m_arrow.getPosition() + m_arrowVelocity * castray * dt;
 				arrowHitObject(target);
 			}
-			else {
+			else if(terrain != nullptr){
 				arrowPhysics(dt, terrain->getWindStatic()); // Updates arrow in flight, wind is no
 															// longer hard coded.
 				// update Particle System
