@@ -47,13 +47,18 @@ void PauseState::initialize() {
 		position.x += picWidth + padding;
 	}
 
+	//sloMo
+	vector<string> strSlowMo = { "hourGlass0.png", "hourGlass1.png" };
+	m_slowMo.load(strSlowMo, animationSpeed);
+	m_slowMo.set(position, scale);
+	
 	//Buttons
 	position = float2(10, 10);
 	position.y += pixHeight + padding;
 	vector<vector<string>> strTextureButtons = { { "btn1.png", "btn1_pressed.png" },
 		{ "btn2.png", "btn2_pressed.png" }, { "btn3.png", "btn3_pressed.png" },
-		{ "btn4.png", "btn4_pressed.png" } };
-	for (size_t i = 0; i < 4; i++) {
+		{ "btn4.png", "btn4_pressed.png" }, { "btnF.png", "btnF_pressed.png" } };
+	for (size_t i = 0; i < strTextureButtons.size(); i++) {
 		m_btns[i].load(strTextureButtons[i], animationSpeed);
 		m_btns[i].set(position, scale);
 		position.x += picWidth + padding;
@@ -155,6 +160,8 @@ void PauseState::draw() {
 		m_dropFruits[i].draw();
 		m_btns[i].draw();
 	}
+	m_slowMo.draw();
+	m_btns[4].draw();
 	m_movementKeys.draw();
 	m_charMovement.draw();
 	m_jumpKey.draw();

@@ -28,11 +28,12 @@ private:
 
 	//tutorial sprites
 	Sprite2D m_dropFruits[4];
-	Sprite2D m_btns[4];
+	Sprite2D m_btns[5];
 	Sprite2D m_movementKeys;
 	Sprite2D m_charMovement;
 	Sprite2D m_jumpKey;
 	Sprite2D m_charJump;
+	Sprite2D m_slowMo;
 
 	int m_previousState;
 
