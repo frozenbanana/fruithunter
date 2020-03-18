@@ -48,6 +48,8 @@ void Button::setLowMedHighUltra(Setting value) { m_lowMedHighUltra = value; }
 
 void Button::setResolution(Resolution value) { m_resolution = value; }
 
+void Button::setOnOff(bool value) { m_on = value; }
+
 bool Button::getOnOff() { return m_on; }
 
 int Button::getLowMedHighUltra() { return m_lowMedHighUltra; }

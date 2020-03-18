@@ -1,10 +1,7 @@
 #include "AI.h"
 #include <algorithm>
-#include "Fruit.h"
 #include "PathFindingThread.h"
-#define STEP_SCALE .250f
-#define EPSILON 0.001f
-#define MAX_STEPS 30
+
 
 bool areSame(float3 a, float3 b) { return (a - b).LengthSquared() < EPSILON; }
 
@@ -171,7 +168,7 @@ void AI::pathfinding(float3 start, std::vector<float4> *animals) {
 
 
 			open.push_back(currentNode);
-			while (!open.empty() && counter++ < MAX_STEPS) {
+			while (!open.empty() && counter++ < m_maxSteps) {
 				quickSort(open, 0, (int)open.size() - 1);
 				closed.push_back(open.back());
 				open.pop_back();

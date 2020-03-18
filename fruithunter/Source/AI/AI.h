@@ -4,8 +4,11 @@
 #include "EntityRepository.h"
 #include <list>
 #include <mutex>
-#define ARRIVAL_RADIUS 3.0f
+#define ARRIVAL_RADIUS 1.0f
 #define MAX_STEAPNESS .1f
+#define STEP_SCALE .250f
+#define EPSILON 0.001f
+
 
 class AI {
 public:
@@ -47,7 +50,7 @@ protected:
 	bool m_beingWorked = false;
 	float3 m_destination;
 	// mutex m_mutex;
-
+	int m_maxSteps;
 	bool m_readyForPath = false;
 	State m_currentState;
 	std::list<float3> m_availablePath;
@@ -69,7 +72,6 @@ protected:
 	bool checkAnimals(std::vector<float4> animals, float3 childPos);
 	void makeReadyForPath(float3 destination);
 
-private:
 	bool beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>>& openList,
 		std::vector<shared_ptr<AI::Node>>& closedList);
 };
