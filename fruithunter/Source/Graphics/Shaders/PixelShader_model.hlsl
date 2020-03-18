@@ -23,6 +23,13 @@ cbuffer lightInfo : register(b5) {
 	float4 specularColour;
 };
 
+cbuffer lightInfo : register(b6) {
+	float2 cb_shadowMapRes;
+	float2 cb_nearFarPlane;
+	float4 cb_toLight;
+};
+
+
 SamplerState samplerAni {
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Linear;
@@ -43,46 +50,34 @@ float linearDepth(float depthSample) {
 	return zLinear;
 }
 
-float4 texSampleGrease(
+float texSampleGrease(
 	Texture2D texMap, uint2 texSize, float2 uv, float depthFromCamera, float3 posW) {
-	float2 mappedUV = uv * (float2)texSize;
-	int2 floorUV = (int2)mappedUV;
-	float2 restUV = frac(mappedUV);
-	float2 mapDelta = float2(1.0f / texSize.x, 1.0f / texSize.y);
+	if (uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1) {
+		float2 mappedUV = uv * (float2)texSize;
+		int2 floorUV = (int2)mappedUV;
+		float2 restUV = frac(mappedUV);
+		float2 mapDelta = float2(1.0f / texSize.x, 1.0f / texSize.y);
 
-	float depth_linear = linearDepth(depthFromCamera - 0.001f);
+		float depth_linear = linearDepth(depthFromCamera - 0.001f);
 
-	uv = (float2)floorUV / texSize;
-	float2 external = (1.0f * float2(random(posW, 1), random(posW, 2)) + restUV.xy) * mapDelta;
-	float sampledDepth_linear = linearDepth(texMap.Sample(samplerAni, uv + external).r);
+		uv = (float2)floorUV / texSize;
+		float2 external = (1.0f * float2(random(posW, 1), random(posW, 2)) + restUV.xy) * mapDelta;
+		float sampledDepth_linear = linearDepth(texMap.Sample(samplerAni, uv + external).r);
 
-	return sampledDepth_linear < depth_linear ? 0.0f : 1.f;
+		return sampledDepth_linear < depth_linear ? 0.0f : 1.f;
+	}
+	return 1.f;
 }
 
 float4 main(PS_IN ip) : SV_TARGET {
-	// PS_OUT op = (PS_OUT)0;
-	// op.normal = float4(normalize(ip.Normal), 1);
-	// op.color = float4(color.rgb, 1);
-	// op.position = float4(ip.PosW, 1);
-	// op.specular = float4(0.5, 0.5, 0.5, 50);
-	// op.viewPos = float4(ip.PosV, 1);
-	// op.bloom = float4(0, 0, 0, 1);
-
-	// light
-	// float3 lightPos = float3(-0.f, 110.f, 100.f);
-	/*float3 toLight = normalize(lightPos - ip.PosW);*/
-	float3 toLight = normalize(float3(-100.f, 110.f, 0));
-
-	// ambient base
-	/*float3 ambientBase =
-		mapUsages.x ? (textures[0].Sample(samplerAni, ip.TexCoord)).rgb : (ambient3.rgb);*/
+	float3 toLight = normalize(cb_toLight.xyz);
 
 	// base color
 	float3 pixelBaseColor =
 		mapUsages.y ? (textures[1].Sample(samplerAni, ip.TexCoord)).rgb : (diffuse3_strength.rgb);
 	if (mapUsages.y && (textures[1].Sample(samplerAni, ip.TexCoord)).a == 0)
 		return float4(0, 0, 0, 0);
-	// return textures[1].Sample(samplerAni, ip.TexCoord);
+
 	// diffuse
 	float diffuseTint = max(dot(toLight, ip.Normal), 0.0);
 
@@ -98,7 +93,7 @@ float4 main(PS_IN ip) : SV_TARGET {
 	}
 
 	float shade = texSampleGrease(
-		texture_shadowMap, float2(3840.f, 2160.f), ip.ShadowPosH.xy, ip.ShadowPosH.z, ip.PosW.xyz)
+		texture_shadowMap, cb_shadowMapRes, ip.ShadowPosH.xy, ip.ShadowPosH.z, ip.PosW.xyz)
 					  .r;
 
 	// final color

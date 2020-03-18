@@ -1,21 +1,14 @@
 #pragma once
 #include "State.h"
 //#include "Quad.h"
-//#include "Timer.h"
-//#include "TextRenderer.h"
+#include "Timer.h"
+#include "TextRenderer.h"
 #include "AudioHandler.h"
 #include "LevelHandler.h"
 #include "ShadowMapping.h"
 #include "AudioHandler.h"
-//#include "Entity.h"
-//#include "TerrainManager.h"
-//#include "Apple.h"
-//#include "SkyBox.h"
-//#include "Banana.h"
-//#include "Melon.h"
 #include "Entity.h"
-
-#define NR_OF_LEVELS 1
+#include "Animal.h"
 
 class LevelSelectState : public State {
 public:
@@ -30,16 +23,21 @@ public:
 	~LevelSelectState();
 
 private:
+	float3 m_spawnPosition = float3(34.0f, 2.5f, 79.9f);
+	TextRenderer m_textRenderer;
+	Timer m_timer;
 	Player m_player;
 	EntityRepository m_terrainProps;
 	SeaEffect m_waterEffect;
 	SkyBox m_skyBox;
-	Terrain* m_terrain;
-	Entity* m_bowls[NR_OF_LEVELS];
+	struct LevelSelector {
+		Entity m_bowl;
+		Entity m_content;
+	};
+	vector<LevelSelector> m_levelSelectors;
+	std::vector<shared_ptr<Animal>> m_animal;
+	std::vector<string> m_maps;
 
 	void setLevel(int);
-
-	// Shadow stuff
-	unique_ptr<ShadowMapper> m_shadowMap;
-	bool m_staticShadowNotDrawn = true;
+	void initializeLevelSelectors();
 };

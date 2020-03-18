@@ -1,8 +1,11 @@
 #include "Fruit.h"
 #include "Input.h"
+#include "AudioHandler.h"
 #include "PathFindingThread.h"
 
-
+#define LONGSHOT 25.f
+#define MEDIUMSHOT 15.f
+#define FASTMOVING_VELOCITY 11.f
 
 void Fruit::jump(float3 direction, float power) { m_velocity += power * direction; }
 
@@ -13,13 +16,74 @@ void Fruit::setStartPosition(float3 pos) {
 	m_heightAnimationPosition = pos;
 	m_destinationAnimationPosition = pos;
 	m_nextDestinationAnimationPosition = pos;
+
+	m_particleSystem = make_unique<ParticleSystem>(ParticleSystem::STARS);
+	m_particleSystem->stop();
 }
 
 void Fruit::setNextDestination(float3 nextDest) { m_nextDestinationAnimationPosition = nextDest; }
 
+Skillshot Fruit::hit(float3 playerPos) {
+	Skillshot hitType = SS_NOTHING;
+	if (m_currentState != CAUGHT) {
+		changeState(CAUGHT);
+		float dist = (playerPos - m_position).Length();
+		float4 colors[3];
+		int nrOf = 5;
+		if (dist > LONGSHOT) {
+			if (!m_onGround || m_velocity.Length() > FASTMOVING_VELOCITY) {
+				// gold
+				colors[0] = float4(1.00f, 0.95f, 0.00f, 1.0f);
+				colors[1] = float4(0.97f, 0.97f, 0.01f, 1.0f);
+				colors[2] = float4(0.99f, 0.98f, 0.02f, 1.0f);
+				nrOf = 22;
+				hitType = SS_GOLD;
+			}
+			else {
+				// gold
+				colors[0] = float4(1.00f, 0.95f, 0.00f, 1.0f);
+				colors[1] = float4(0.97f, 0.97f, 0.01f, 1.0f);
+				colors[2] = float4(0.99f, 0.98f, 0.02f, 1.0f);
+				nrOf = 12;
+				hitType = SS_GOLD;
+			}
+		}
+		else if (dist > MEDIUMSHOT) {
+			if (!m_onGround || m_velocity.Length() > FASTMOVING_VELOCITY) {
+				// case 2: Medium shot
+				// in air or fast moving -> gold
+				// Gold
+				colors[0] = float4(1.00f, 0.95f, 0.00f, 1.0f);
+				colors[1] = float4(0.97f, 0.97f, 0.01f, 1.0f);
+				colors[2] = float4(0.99f, 0.98f, 0.02f, 1.0f);
+				nrOf = 8;
+				hitType = SS_GOLD;
+			}
+			else {
+				// silver
+				colors[0] = float4(0.75f, 0.75f, 0.75f, 1.0f);
+				colors[1] = float4(0.75f, 0.75f, 0.75f, 1.0f);
+				colors[2] = float4(0.75f, 0.75f, 0.75f, 1.0f);
+				nrOf = 13;
+				hitType = SS_SILVER;
+			}
+		}
+		else {
+			// bronze
+			colors[0] = float4(0.69f, 0.34f, 0.05f, 1.0f);
+			colors[1] = float4(0.71f, 0.36f, 0.07f, 1.0f);
+			colors[2] = float4(0.70f, 0.32f, 0.09f, 1.0f);
+			nrOf = 6;
+			hitType = SS_BRONZE;
+		}
+		m_particleSystem->setColors(colors);
+		m_particleSystem->emit(nrOf);
+		m_currentMaterial = hitType;
+	}
+	return hitType;
+}
 
-
-int Fruit::getFruitType() { return m_fruitType; }
+FruitType Fruit::getFruitType() { return m_fruitType; }
 
 void Fruit::enforceOverTerrain() {
 	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
@@ -48,8 +112,12 @@ bool Fruit::withinDistanceTo(float3 target, float treshhold) {
 	return (m_position - target).Length() < treshhold;
 }
 
+ParticleSystem* Fruit::getParticleSystem() { return m_particleSystem.get(); }
+
 void Fruit::update(float dt, float3 playerPosition) {
 	if (withinDistanceTo(playerPosition, 80.f)) {
+		m_isVisible = true;
+		m_particleSystem->setPosition(m_position);
 		checkOnGroundStatus();
 		doBehavior(playerPosition);
 		setDirection();
@@ -59,11 +127,12 @@ void Fruit::update(float dt, float3 playerPosition) {
 		enforceOverTerrain();
 		handleAvailablePath(m_position);
 	}
+	else
+		m_isVisible = false;
 }
 
 void Fruit::move(float dt) {
 	// m_speed.y = 0.0f;
-
 
 	m_position += m_velocity * dt;
 	setPosition(m_position);
@@ -80,6 +149,7 @@ Fruit::Fruit(float3 pos) : Entity() {
 	m_nrOfFramePhases = 0;
 	m_currentFramePhase = 0;
 	m_frameTime = 0.0f;
+	m_particleSystem->setAmountOfParticles(22);
 }
 
 // Perhaps a useful function later.
@@ -89,7 +159,7 @@ void Fruit::setDirection() {
 	auto pft = PathFindingThread::getInstance();
 	// pft->m_mutex.lock();
 	if (!m_availablePath.empty() &&
-		atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
+		m_onGround) {
 		m_direction = m_availablePath.back() - m_position;
 		m_direction.Normalize();
 	}
@@ -122,6 +192,8 @@ void Fruit::stopMovement() {
 	m_speed = 0.f;
 	m_availablePath.clear();
 }
+
+bool Fruit::isVisible() const { return m_isVisible; }
 
 void Fruit::release(float3 direction) {
 	changeState(RELEASED);

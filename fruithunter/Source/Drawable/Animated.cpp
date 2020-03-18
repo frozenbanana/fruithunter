@@ -126,15 +126,16 @@ void Animated::draw() {
 	bindConstantBuffer();
 	m_shaderObject_animation.bindShadersAndLayout();
 
-	m_meshes[0]->draw_withoutBinding();
+	m_meshes[0]->drawCall_perMaterial();
 }
 
-void Animated::drawShadow() {
+void Animated::draw_onlyMesh(float3 color) {
 	bindMeshes();
 	bindConstantBuffer();
-	m_shaderObject_animation.bindShadersAndLayoutForShadowMap();
+	m_shaderObject_animation.bindShadersAndLayout();
 
-	m_meshes[0]->draw_withoutBinding();
+	m_meshes[0]->bindColorBuffer(color);
+	m_meshes[0]->drawCall_all();
 }
 
 bool Animated::load(std::string filename, int nrOfFrames, bool combineParts) {
@@ -163,9 +164,9 @@ void Animated::setMaterials(int index) {
 	}
 }
 
-void Animated::loadMaterials(std::vector<string> fileNames, int nrOfMaterials) {
+void Animated::loadMaterials(std::vector<string> fileNames) {
 	for (size_t i = 0; i < m_nrOfMeshes; ++i) {
-		m_meshes[i]->loadOtherMaterials(fileNames, nrOfMaterials);
+		m_meshes[i]->loadOtherMaterials(fileNames);
 	}
 }
 

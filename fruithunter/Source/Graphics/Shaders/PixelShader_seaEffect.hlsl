@@ -26,7 +26,7 @@ cbuffer cb_properties : register(b3) {
 	float tideHeightStrength;
 	float3 filler;
 }
-cbuffer cb_screenSize : register(b5) { int4 screenSize2; }
+cbuffer cb_screenSize : register(b7) { int4 screenSize2; }
 
 float linearDepth(float depthSample) {
 	const float zNear = 0.025f;

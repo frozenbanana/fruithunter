@@ -9,7 +9,27 @@ struct Vertex {
 	float u, v;
 };
 
-Quad::Quad() {}
+Quad::Quad() {
+	string strTex = "assets/Meshes/Textures/loadingScreen.jpg";
+	string strPixSha = "PixelShader.hlsl";
+	m_texturePath = wstring(strTex.begin(), strTex.end());
+	m_pixelShaderPath = wstring(strPixSha.begin(), strPixSha.end());
+}
+
+Quad::Quad(string texturePath) {
+	wstring wstr(texturePath.begin(), texturePath.end());
+	m_texturePath = wstr;
+}
+
+void Quad::setTexturePath(string texturePath) {
+	wstring wstr(texturePath.begin(), texturePath.end());
+	m_texturePath = wstr;
+}
+
+void Quad::setPixelShaderPath(string path) {
+	wstring wstr(path.begin(), path.end());
+	m_pixelShaderPath = wstr;
+}
 
 void Quad::init() {
 	createMesh();
@@ -21,11 +41,6 @@ Quad::~Quad() {}
 
 void Quad::draw() {
 	auto deviceContext = Renderer::getDeviceContext();
-
-	// Set render states
-	// deviceContext->RSSetState(m_rasterizerState.Get());
-	// deviceContext->OMSetBlendState(m_blendState.Get(), NULL, 0xffffffff);
-	// deviceContext->OMSetDepthStencilState(m_depthState.Get(), 1);
 
 	// Set shaders to renderer
 	m_shader.bindShadersAndLayout();
@@ -85,13 +100,12 @@ void Quad::createMesh() {
 	}
 
 	// Texture
-	HRESULT tfFlag =
-		DirectX::CreateWICTextureFromFile(device, L"assets/Meshes/Textures/loadingScreen.jpg",
-			m_texture.GetAddressOf(), m_shaderResourceView.GetAddressOf());
+	HRESULT tfFlag = DirectX::CreateWICTextureFromFile(device, m_texturePath.c_str(),
+		m_texture.GetAddressOf(), m_shaderResourceView.GetAddressOf());
 
 	if (FAILED(tfFlag)) {
-		ErrorLogger::messageBox(tfFlag, "Failed to initalize texture from file.");
-		return;
+		ErrorLogger::logWarning(tfFlag, "Failed to initalize texture from file. Capturing frame");
+		Renderer::getInstance()->captureFrame();
 	}
 
 	// Sampler
@@ -124,25 +138,5 @@ void Quad::createShaders() {
 			D3D11_INPUT_PER_VERTEX_DATA },
 	};
 
-	m_shader.createShaders(L"VertexShader.hlsl", nullptr, L"PixelShader.hlsl", layout, 3);
+	m_shader.createShaders(L"VertexShader.hlsl", nullptr, m_pixelShaderPath.c_str(), layout, 3);
 }
-
-// void Quad::createRenderStates() {
-//	auto device = Renderer::getDevice();
-//	// Rasterizer state
-//	auto rasterizerDesc = CD3D11_RASTERIZER_DESC(
-//		D3D11_FILL_SOLID, D3D11_CULL_BACK, false, 0, 0, 0, 0, false, false, false);
-//	device->CreateRasterizerState(&rasterizerDesc, m_rasterizerState.GetAddressOf());
-//
-//	// Blend state
-//	auto blendDesc = CD3D11_BLEND_DESC(CD3D11_DEFAULT());
-//	device->CreateBlendState(&blendDesc, m_blendState.GetAddressOf());
-//
-//	// Depth state
-//	auto depthDesc = CD3D11_DEPTH_STENCIL_DESC(FALSE, D3D11_DEPTH_WRITE_MASK_ZERO,
-//		D3D11_COMPARISON_LESS, FALSE, D3D11_DEFAULT_STENCIL_READ_MASK,
-//		D3D11_DEFAULT_STENCIL_WRITE_MASK, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP,
-//		D3D11_STENCIL_OP_KEEP, D3D11_COMPARISON_ALWAYS, D3D11_STENCIL_OP_KEEP,
-//		D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP, D3D11_COMPARISON_ALWAYS);
-//	device->CreateDepthStencilState(&depthDesc, m_depthState.GetAddressOf());
-//}

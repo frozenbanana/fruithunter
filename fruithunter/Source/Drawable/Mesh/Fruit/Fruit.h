@@ -2,16 +2,22 @@
 #include "Entity.h"
 #include "AI.h"
 #include "TerrainManager.h"
+#include "ParticleSystem.h"
+
+
+
 #define THROWVELOCITY 30.f
+
 class Fruit : public Entity, public AI {
 protected:
 	// Phyics based movment
+	bool m_isVisible = true;
 	float3 m_velocity = float3(0.f);
 	float m_speed = 0.0f;
 	float3 m_gravity = float3(0.0f, -1.0f, 0.0f) * 15.0f; // same as player
 	float3 m_direction;
-	float m_groundFriction = 10.f;
-	float m_airFriction = 20.f;
+	float m_groundFriction =10.f;
+	float m_airFriction = 5.f;
 
 	bool m_onGround = true;
 
@@ -20,7 +26,7 @@ protected:
 	float m_passive_speed;
 	float m_active_speed;
 	float m_caught_speed;
-
+	unique_ptr<ParticleSystem> m_particleSystem;
 	// -------------------
 	int m_nrOfFramePhases; // nr of phases to a movement
 	int m_currentFramePhase;
@@ -38,7 +44,7 @@ protected:
 
 	float3 m_worldHome;
 	size_t m_nrOfTriesGoHome = 0;
-	int m_fruitType;
+	FruitType m_fruitType;
 	float m_startRotation; // start and end to interpolate between.
 	float m_endRotation;
 	void setAnimationDestination();
@@ -47,7 +53,7 @@ protected:
 	void behaviorReleased() override;
 	void behaviorInactive(float3 playerPosition) override;
 
-	void setDirection();
+	virtual void setDirection();
 
 
 	bool m_afterRealease = false;
@@ -56,6 +62,7 @@ protected:
 	void stopMovement();
 
 public:
+	bool isVisible() const;
 	virtual void release(float3 direction);
 	void move(float dt);
 	void update(float dt, float3 playerPosition);
@@ -65,13 +72,10 @@ public:
 	void setNextDestination(float3 nextDest);
 	void setWorldHome(float3 pos);
 	bool withinDistanceTo(float3 target, float treshhold);
+	ParticleSystem* getParticleSystem();
 	float3 getHomePosition() const;
 
+	Skillshot hit(float3 playerPos);
 
-	void hit() {
-		changeState(CAUGHT);
-		m_currentMaterial = 2;
-	}
-
-	int getFruitType();
+	FruitType getFruitType();
 };

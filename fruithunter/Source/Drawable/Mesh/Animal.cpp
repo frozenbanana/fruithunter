@@ -1,6 +1,7 @@
 #include "Animal.h"
 #include "Renderer.h"
 #include "AudioHandler.h"
+#define START_ZOOM_LENGTH 1500
 
 void Animal::walkAndBack(float dt) {
 	if (m_walkTimeTracker < 1) { // on way to position
@@ -50,6 +51,7 @@ Animal::Animal(string modelName, float playerRange, float fruitRange, int fruitT
 	m_returnSpeed = 1;
 	m_hasAttacked = false; // for triggering angry sound once when inside attack radius
 	m_isSatisfied = false; // for triggering happy sound once when briebed.
+	m_isLookedAt = false;
 	rotateY(rotation);
 	m_startRotation = rotation;
 
@@ -63,11 +65,11 @@ Animal::Animal(string modelName, float playerRange, float fruitRange, int fruitT
 		string mtlName = "ThoughtBubble" + to_string(i) + ".mtl";
 		mtlNames[i] = mtlName;
 	}
-	m_thoughtBubble.loadMaterials(mtlNames, 10);
+	m_thoughtBubble.loadMaterials(mtlNames);
 	m_thoughtBubble.setCurrentMaterial(3 * fruitType + nrRequiredFruits - 1);
 
-	m_thoughtBubbleOffset = float3(0.f, getHalfSizes().y + 0.5f, 0.f);
-	float3 topPos = getPosition() + getBoundingBoxPos() + m_thoughtBubbleOffset;
+	m_thoughtBubbleOffset = getBoundingBoxPos() + float3(0.f, getHalfSizes().y + 0.5f, 0.f);
+	float3 topPos = getPosition() + m_thoughtBubbleOffset;
 	m_thoughtBubble.setPosition(topPos);
 }
 
@@ -143,7 +145,7 @@ void Animal::grabFruit(float3 pos) {
 	m_thoughtBubble.setCurrentMaterial(3 * m_fruitType + fruitsLeft - 1);
 	if (!notBribed()) {
 		m_thoughtBubble.setCurrentMaterial(9);
-		m_thoughtBubbleOffset.y = 0.5;
+		m_thoughtBubbleOffset.y = 1.5f;
 		makeHappySound();
 	}
 	else {
@@ -159,6 +161,10 @@ void Animal::draw() {
 	Renderer::getInstance()->disableAlphaBlending();
 }
 
+void Animal::draw_onlyAnimal() {
+	Entity::draw(); // Draw the animal
+}
+
 void Animal::update(float dt, float3 playerPos) {
 	if (m_walkTimeTracker < 2) {
 		if (notBribed())
@@ -166,16 +172,23 @@ void Animal::update(float dt, float3 playerPos) {
 		else {
 			walkToSleep(dt);
 		}
-
-		// also update thoughtBubble
-		float3 topPos = getPosition() + getBoundingBoxPos() + m_thoughtBubbleOffset;
-		m_thoughtBubble.setPosition(topPos);
 	}
 	else if (notBribed())
 		setRotation(float3(0.f, m_startRotation, 0.0f));
 
-	// Billboard thoughtBubble
+	// update thoughtBubble
+
 	m_thoughtBubble.lookTo(playerPos);
+	float scaleMax = 4.5f;
+	float scaleFactor = m_thoughtBubble.getScale().x;
+	scaleFactor = (scaleFactor - 1.f) / (scaleMax - 1.f);
+	scaleFactor += dt * ((float)m_isLookedAt - 0.5f) * 12.f;
+	scaleFactor = min(1.f, max(0.f, scaleFactor));
+	m_thoughtBubble.setScale(scaleFactor * (scaleMax - 1.f) + 1.f);
+
+	float3 topPos = getPosition() + m_thoughtBubbleOffset;
+	float3 topPos2 = topPos + float3(0.f, 1.8f, 0.f);
+	m_thoughtBubble.setPosition(XMVectorLerp(topPos, topPos2, scaleFactor));
 }
 
 void Animal::beginWalk(float3 pos) {
@@ -183,4 +196,19 @@ void Animal::beginWalk(float3 pos) {
 		m_walkToPos = (pos + getPosition()) * 0.5;
 		m_walkTimeTracker = 0.f;
 	}
+}
+
+bool Animal::checkLookedAt(float3 playerPos, float3 rayDir) {
+	float3 playerToAnimal = getPosition() + getBoundingBoxPos() - playerPos;
+	bool isLookedAt = false;
+	if (playerToAnimal.LengthSquared() < START_ZOOM_LENGTH) {
+		float3 vec = rayDir.Cross(playerToAnimal);
+		vec = vec.Cross(rayDir);
+		vec.Normalize();
+		float proj = playerToAnimal.Dot(vec);
+
+		isLookedAt = abs(proj) < getHalfSizes().x * 1.5f;
+	}
+	m_isLookedAt = isLookedAt;
+	return isLookedAt;
 }

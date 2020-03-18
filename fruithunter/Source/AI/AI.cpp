@@ -1,10 +1,8 @@
 #include "AI.h"
 #include <algorithm>
-#include "Fruit.h"
 #include "PathFindingThread.h"
-#define STEP_SCALE 1.0f
-#define EPSILON 0.001f
-#define MAX_STEPS 30
+
+
 
 bool areSame(float3 a, float3 b) { return (a - b).LengthSquared() < EPSILON; }
 
@@ -69,53 +67,57 @@ bool AI::beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>>
 	return true;
 }
 
-bool AI::isValid(float3 childPos, float3 currentNodePos, vector<shared_ptr<Entity>> collidables) {
+bool AI::isValid(
+	float3 childPos, float3 currentNodePos, EntityRepository& collidables, float radius) {
 
-	auto pft = PathFindingThread::getInstance();
+	
 
 
-	if (childPos.y - currentNodePos.y > MAX_STEAPNESS) {
+	if (abs(childPos.y - currentNodePos.y) > MAX_STEAPNESS) {
 		return false;
 	}
-	if (childPos.y < 1.f) {
+	if (childPos.y < 1.5f) {
 		return false;
 	}
-
 
 	auto normal = TerrainManager::getInstance()->getNormalFromPosition(childPos);
 	normal.Normalize();
 	// Don't you climb no walls
-	if (abs(float3(0.0f, 1.0f, 0.0f).Dot(normal)) < 0.99f)
+	if (abs(float3(0.0f, 1.0f, 0.0f).Dot(normal)) < 0.87f)
 		return false;
 
+	vector<Entity**> objects = collidables.getCulledEntitiesByPosition(childPos);
+	for (size_t i = 0; i < objects.size(); ++i) {
+		if (!(*objects[i])->getIsCollidable())
+			continue;
 
-	for (size_t i = 0; i < collidables.size(); ++i) {
+		float3 newPoint = (*objects[i])->getPosition() - childPos;
+		newPoint.Normalize();
+		newPoint.y = (*objects[i])->getPosition().y;
+		newPoint *= radius;
+		newPoint += childPos;
 
-		float3 obstacle = collidables.at(i)->getPosition();
-		obstacle.y = 0.f;
-		childPos.y = 0.f;
-		float lengthChildToCollidableSquared = (childPos - obstacle).LengthSquared();
-		float collidableRadiusSquared = collidables.at(i)->getHalfSizes().LengthSquared();
-
-		if (lengthChildToCollidableSquared < collidableRadiusSquared) {
-
+		if ((*objects[i])->checkCollision(newPoint))
 			return false;
-		}
 	}
 
 
 	return true;
 }
 
-bool AI::isValid(float3 childPos, float3 currentNodePos) {
-	if (childPos.y - currentNodePos.y > MAX_STEAPNESS) {
-		return false;
-	}
-	if (childPos.y < 1.f) {
-		return false;
-	}
-
-	return true;
+bool AI::checkAnimals(std::vector<float4> animals, float3 childPos) { 
+	childPos.y = 0.f;
+	for (auto e : animals) {
+		float3 animalPos;
+		animalPos.x = e.x;
+		animalPos.y = 0.f;
+		animalPos.z = e.z;
+		float len = (childPos - animalPos).LengthSquared();
+		if ( len < e.w*e.w*1.5f) {
+			return false;
+		}
+	}	
+	return true; 
 }
 
 void AI::makeReadyForPath(float3 destination) {
@@ -123,18 +125,16 @@ void AI::makeReadyForPath(float3 destination) {
 	m_destination = destination;
 }
 
-
-void AI::setWorld(std::shared_ptr<Terrain> terrain) { m_terrain = terrain; }
-
-void AI::pathfinding(float3 start) {
+void AI::pathfinding(float3 start, std::vector<float4> *animals) {
 	// ErrorLogger::log("thread starting for pathfinding");
 	auto pft = PathFindingThread::getInstance();
+	
 	if ((start - m_destination).LengthSquared() < 0.5f)
 		return;
 	if (m_readyForPath) {
 		{
 			m_availablePath.clear();
-
+			
 			TerrainManager* tm = TerrainManager::getInstance();
 			// enforce start and m_destination to terrain
 			float3 startCopy = float3(start.x, tm->getHeightFromPosition(start), start.z);
@@ -154,7 +154,7 @@ void AI::pathfinding(float3 start) {
 
 
 			open.push_back(currentNode);
-			while (!open.empty() && counter++ < MAX_STEPS) {
+			while (!open.empty() && counter++ < m_maxSteps) {
 				quickSort(open, 0, (int)open.size() - 1);
 				closed.push_back(open.back());
 				open.pop_back();
@@ -163,7 +163,7 @@ void AI::pathfinding(float3 start) {
 				shared_ptr<AI::Node> currentNode = closed.back();
 
 				if ((currentNode->position - m_destinationCopy).LengthSquared() < ARRIVAL_RADIUS ||
-					counter == MAX_STEPS - 1) {
+					counter == m_maxSteps - 1) {
 					m_availablePath.clear(); // Reset path
 
 					// Add path steps
@@ -196,8 +196,12 @@ void AI::pathfinding(float3 start) {
 					if (!beingUsed(child, open, closed)) {
 						continue;
 					}
+					if (!checkAnimals(*animals, childPosition)) {
+						continue;
+					}
 
-					if (!isValid(child->position, currentNode->position, pft->m_collidables)) {
+					if (!isValid(
+							child->position, currentNode->position, *pft->m_collidables, 0.7f)) {
 						continue;
 					}
 
@@ -214,7 +218,10 @@ void AI::pathfinding(float3 start) {
 	}
 }
 
-void AI::changeState(State newState) { m_currentState = newState; }
+void AI::changeState(State newState) {
+	m_currentState = newState;
+	m_availablePath.clear();
+}
 
 AI::State AI::getState() const { return m_currentState; }
 

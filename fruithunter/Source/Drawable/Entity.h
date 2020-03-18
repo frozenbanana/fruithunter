@@ -50,9 +50,9 @@ public:
 	void setRotationMatrix(float4x4 matrix);
 	void setRotationByAxis(float3 axis, float angle);
 	void rotateByAxis(float3 axis, float angle);
-	// order ZXY
+	/* order ZXY*/
 	void setRotation(float3 rotation);
-	// order ZXY
+	/* order ZXY*/
 	void rotate(float3 rotation);
 	void rotateX(float val);
 	void rotateY(float val);
@@ -60,28 +60,30 @@ public:
 	void setScale(float3 scale);
 	void setScale(float scale);
 	void scaleBoundingBoxHalfSizes(float3 scale);
+	void lookAt(float3 position);
 	void lookTo(float3 lookAt);
 	void lookToDir(float3 dir);
 
 	// Drawing
 	virtual void draw();
-	void drawShadow();
 	void draw_onlyMesh(float3 color);
 	void draw_boundingBox();
 
 	void draw_animate();
-	void draw_animate_shadow();
+	void draw_animate_onlyMesh(float3 color = float3(1.f));
+
 	virtual void updateAnimated(float dt);
 	virtual void updateAnimatedSpecific(float frameTime);
 	void setFrameTargets(int first, int second);
 	bool load(string filename);
 	bool loadAnimated(string filename, int nrOfFrames);
 	void setCurrentMaterial(int materialIndex);
-	void loadMaterials(std::vector<string> fileNames, int nrOfMaterials);
+	void loadMaterials(std::vector<string> fileNames);
 
 	float castRay(float3 point, float3 direction);
 
 	// Collisions
+	bool checkCollision(float3 point);
 	bool checkCollision(Entity& other);
 	bool checkCollision(EntityCollision& other);
 	void setCollisionData(float3 point, float3 posOffset, float3 scale, float radius);
@@ -95,6 +97,7 @@ public:
 	float3 getBoundingBoxPos() const;
 	int getCollisionType() const;
 	float3 getPointOnOBB(float3 point) const;
+	bool getIsCollidable() const;
 
 	Entity(string meshName = "", float3 position = float3(0, 0, 0), float3 scale = float3(1, 1, 1));
 	~Entity();

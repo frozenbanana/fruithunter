@@ -180,6 +180,19 @@ void Entity::setScale(float scale) {
 
 void Entity::scaleBoundingBoxHalfSizes(float3 scale) { m_collisionData.setCollisionScale(scale); }
 
+void Entity::lookAt(float3 position) {
+	float3 dir = position - m_position;
+	dir.Normalize();
+
+	float2 mapY(dir.z, dir.x);
+	float2 mapX(float2(dir.x, dir.z).Length(), dir.y);
+	mapY.Normalize();
+	mapX.Normalize();
+	float rotY = (mapY.y >= 0) ? (acos(mapY.x)) : (-acos(mapY.x));
+	float rotX = -((mapX.y >= 0) ? (acos(mapX.x)) : (-acos(mapX.x)));
+	setRotation(float3(rotX, rotY, 0));
+}
+
 void Entity::lookTo(float3 lookAt) {
 	float rot = 0.f;
 	float dx = lookAt.x - getPosition().x;
@@ -208,14 +221,6 @@ void Entity::draw() {
 	}
 }
 
-void Entity::drawShadow() {
-	if (isMeshInitialized()) {
-		bindModelMatrixBuffer();
-
-		m_mesh.get()->drawShadow();
-	}
-}
-
 void Entity::draw_onlyMesh(float3 color) {
 	if (isMeshInitialized()) {
 		bindModelMatrixBuffer();
@@ -236,9 +241,9 @@ void Entity::draw_animate() {
 	m_meshAnim.draw();
 }
 
-void Entity::draw_animate_shadow() {
+void Entity::draw_animate_onlyMesh(float3 color) {
 	bindModelMatrixBuffer();
-	m_meshAnim.drawShadow();
+	m_meshAnim.draw_onlyMesh(color);
 }
 
 void Entity::updateAnimated(float dt) { m_meshAnim.update(dt); }
@@ -271,12 +276,14 @@ void Entity::setMaterial(int index) {
 		m_meshAnim.setMaterials(index);
 }
 
-void Entity::loadMaterials(std::vector<string> fileNames, int nrOfMaterials) {
+void Entity::loadMaterials(std::vector<string> fileNames) {
 	if (m_mesh.get() != nullptr)
-		return m_mesh->loadOtherMaterials(fileNames, nrOfMaterials);
+		return m_mesh->loadOtherMaterials(fileNames);
 	else
-		m_meshAnim.loadMaterials(fileNames, nrOfMaterials);
+		m_meshAnim.loadMaterials(fileNames);
 }
+
+bool Entity::checkCollision(float3 point) { return m_collisionData.collide(point); }
 
 bool Entity::checkCollision(Entity& other) {
 	return m_collisionData.collide(other.m_collisionData);
@@ -366,6 +373,8 @@ int Entity::getCollisionType() const { return m_collisionData.getCollisionType()
 float3 Entity::getPointOnOBB(float3 point) const {
 	return m_collisionData.getClosestPointOnBox(point);
 }
+
+bool Entity::getIsCollidable() const { return m_collisionData.getIsCollidable(); }
 
 Entity::Entity(string filename, float3 position, float3 scale) {
 	load(filename);
