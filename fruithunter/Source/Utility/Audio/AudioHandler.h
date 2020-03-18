@@ -6,6 +6,7 @@
 class AudioHandler {
 public:
 	enum Sounds {
+		APPLAUSE,
 		SLOW_MOTION,
 		SLOW_MOTION_REVERSED,
 		DING_1,
