@@ -28,6 +28,7 @@ ParticleSystem::ParticleSystem(ParticleSystem::PARTICLE_TYPE type) {
 											  ", limit is " + to_string(MAX_PARTICLES));
 		}
 		m_particles.resize(min(m_description->m_nrOfParticles, MAX_PARTICLES));
+		m_particles.reserve(MAX_PARTICLES);
 		m_particleProperties.resize(min(m_description->m_nrOfParticles, MAX_PARTICLES));
 		initialize();
 	}
@@ -343,6 +344,7 @@ void ParticleSystem::setColors(float4 colors[3]) {
 void ParticleSystem::setAmountOfParticles(int nrOf) {
 	m_description->m_nrOfParticles = (int)nrOf;
 	m_particles.resize(m_description->m_nrOfParticles);
+	m_particles.reserve(MAX_PARTICLES);
 }
 
 void ParticleSystem::setDesciption(Description newDescription) { *m_description = newDescription; }
