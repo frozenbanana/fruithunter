@@ -41,7 +41,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 		renderer->beginFrame();
 		stateHandler->draw();
 		
-		if (input->keyDown(Keyboard::Keys::K)) {
+		if (!input->keyDown(Keyboard::Keys::K)) {
 			renderer->drawAA();
 		}
 		
