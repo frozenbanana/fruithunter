@@ -27,6 +27,7 @@ DragonFruit::DragonFruit(float3 pos) : Fruit(pos) {
 	m_wingStrength = 10.f;
 
 	setCollisionDataOBB();
+	m_groundFriction = 10.f;
 	m_airFriction = m_groundFriction;
 }
 
@@ -42,6 +43,7 @@ float3 DragonFruit::getRandomTarget() {
 
 void DragonFruit::behaviorPassive(float3 playerPosition) {
 	// Perch on ground or on tree?
+	
 
 	if (withinDistanceTo(playerPosition, m_passiveRadius)) {
 		changeState(ACTIVE);
