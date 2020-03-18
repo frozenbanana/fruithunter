@@ -26,6 +26,8 @@ void AudioHandler::initalize() {
 	// Can add flags to parameters
 	m_this.m_audioEngine = std::make_unique<DirectX::AudioEngine>();
 	// One time sound effects
+	m_this.m_soundEffects[APPLAUSE] = std::make_unique<DirectX::SoundEffect>(
+		m_audioEngine.get(), L"assets/sounds/applause.wav");
 	m_this.m_soundEffects[SLOW_MOTION] = std::make_unique<DirectX::SoundEffect>(
 		m_audioEngine.get(), L"assets/sounds/slowmotion.wav");
 	m_this.m_soundEffects[SLOW_MOTION_REVERSED] = std::make_unique<DirectX::SoundEffect>(
