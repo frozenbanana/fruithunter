@@ -73,7 +73,7 @@ void Apple::behaviorPassive(float3 playerPosition) {
 					newHome += float3(RandomFloat(-10.f, 10.f), 0.f, RandomFloat(-10.f, 10.f));
 					newHome.y = TerrainManager::getInstance()->getHeightFromPosition(newHome);
 					auto pft = PathFindingThread::getInstance();
-					if (newHome.y > 1.f) {
+					if (isValid(newHome)) {
 						m_worldHome = newHome;
 						m_nrOfJumps = 0;
 					}
@@ -107,8 +107,6 @@ void Apple::behaviorCaught(float3 playerPosition) {
 		lookToDir(m_direction);
 		
 		m_speed = m_caught_speed;
-		
-		//m_speed = m_caught_speed;
 	}
 	lookTo(playerPosition);
 }
@@ -118,6 +116,10 @@ bool Apple::isValid(float3 point) {
 	auto normal = TerrainManager::getInstance()->getNormalFromPosition(point);
 	normal.Normalize();
 	// Don't you climb no walls
+	if (point.y < 1.f)
+		return false;
+
+
 	if (abs(float3(0.0f, 1.0f, 0.0f).Dot(normal)) < 0.87f)
 		return false;
 
