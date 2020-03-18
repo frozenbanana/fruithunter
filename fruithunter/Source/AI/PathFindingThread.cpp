@@ -21,12 +21,6 @@ void PathFindingThread::exitThread() {
 	}
 	pft->m_thread = nullptr;
 }
-//
-//void PathFindingThread::addPathToWork(std::vector<float3*> &path) {
-//	m_sizeLock.lock();
-//	m_pathVector.push_back(path);
-//	m_sizeLock.unlock();
-//}
 
 void PathFindingThread::addFruit(Fruit* &fruit) {
 	//m_sizeLock.lock();
