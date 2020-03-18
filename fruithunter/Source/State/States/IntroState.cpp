@@ -5,6 +5,7 @@
 #include "StateHandler.h"
 #include "Input.h"
 #include "TerrainManager.h"
+#include "Settings.h"
 
 #include "WICTextureLoader.h"
 
@@ -215,6 +216,9 @@ void IntroState::draw() {
 
 void IntroState::play() {
 	ErrorLogger::log(m_name + " play() called.");
+
+	Settings::getInstance()->loadAllSetting();
+
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
 	AudioHandler::getInstance()->playMusic(AudioHandler::Music::OCEAN);
