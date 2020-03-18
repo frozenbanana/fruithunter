@@ -60,9 +60,10 @@ void SettingsState::initialize() {
 	m_applyButton.initialize("Apply", float2(width / 2 - 100, height - 80));
 
 	m_settingsBackground.load("melon.png");
-	m_settingsBackground.setPosition(float2(width / 2.f, height / 2.f));
+	m_settingsBackground.setPosition(float2(1280.f / 2.f, 720.f / 2.f));
 	m_settingsBackground.setRotation(3.1415f / 2.f);
 	m_settingsBackground.setScale(1.85f);
+	m_settingsBackground.setAlignment();//center
 	// Just ignore this. It fixes things.
 	m_entity.load("Melon_000000");
 	m_entity.setPosition(float3(-1000));
@@ -136,8 +137,6 @@ void SettingsState::handleEvent() {
 
 			m_backButton.setPosition(float2(width / 2, height - 80));
 			m_applyButton.setPosition(float2(width / 2 - 100, height - 80));
-
-			m_settingsBackground.setPosition(float2(width / 2.f, height / 2.f));
 
 			m_screenStateChanged = false;
 		}

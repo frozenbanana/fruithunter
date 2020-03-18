@@ -65,7 +65,9 @@ void IntroState::initialize() {
 	};
 	for (size_t i = 0; i < m_letters.size(); i++) {
 		m_letters[i].letter.load(logoPaths[i]);
+		m_letters[i].letter.setScale(0.25f);
 		m_letters[i].speedOffset = float2(RandomFloat(-0.15f, 0.15f), RandomFloat(-0.5f, 0.5f));
+		m_letters[i].letter.setAlignment();//center
 	}
 
 	m_timer.reset();
