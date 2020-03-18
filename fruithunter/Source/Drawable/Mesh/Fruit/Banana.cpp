@@ -3,7 +3,7 @@
 #include "ErrorLogger.h"
 
 #define PASSIVE_JUMP_POWER 15.f
-#define ACTIVE_JUMP_POWER 35.f
+#define ACTIVE_JUMP_POWER 25.f
 #define PANIC_JUMP_POWER 40.f
 
 
