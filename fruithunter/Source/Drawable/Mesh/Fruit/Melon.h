@@ -19,4 +19,5 @@ public:
 	void updateAnimated(float dt);
 	void setRollSpeed(float rollSpeed);
 	float3 circulateAround(float3 playerPosition);
+	void pathfinding(float3 start, std::vector<float4>* animals) override;
 };

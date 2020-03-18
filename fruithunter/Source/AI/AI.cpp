@@ -2,9 +2,8 @@
 #include <algorithm>
 #include "Fruit.h"
 #include "PathFindingThread.h"
-#define STEP_SCALE .250f
-#define EPSILON 0.001f
-#define MAX_STEPS 30
+
+
 
 bool areSame(float3 a, float3 b) { return (a - b).LengthSquared() < EPSILON; }
 
@@ -78,14 +77,14 @@ bool AI::isValid(
 	if (abs(childPos.y - currentNodePos.y) > MAX_STEAPNESS) {
 		return false;
 	}
-	if (childPos.y < 1.f) {
+	if (childPos.y < 1.5f) {
 		return false;
 	}
 
 	auto normal = TerrainManager::getInstance()->getNormalFromPosition(childPos);
 	normal.Normalize();
 	// Don't you climb no walls
-	if (abs(float3(0.0f, 1.0f, 0.0f).Dot(normal)) < 0.97f)
+	if (abs(float3(0.0f, 1.0f, 0.0f).Dot(normal)) < 0.87f)
 		return false;
 
 	vector<Entity**> objects = collidables.getCulledEntitiesByPosition(childPos);
@@ -108,7 +107,7 @@ bool AI::isValid(
 }
 
 bool AI::isValid(float3 childPos, float3 currentNodePos) {
-	if (childPos.y - currentNodePos.y > MAX_STEAPNESS) {
+	if (abs(childPos.y - currentNodePos.y) > MAX_STEAPNESS) {
 		return false;
 	}
 	if (childPos.y < 1.f) {
@@ -147,13 +146,7 @@ void AI::pathfinding(float3 start, std::vector<float4> *animals) {
 	if (m_readyForPath) {
 		{
 			m_availablePath.clear();
-			if (!isValid(start, start, *pft->m_collidables, 0.7f)) {
-				float3 newUnstuck = m_destination - start;
-				newUnstuck.Normalize();
-				newUnstuck += start;
-				m_availablePath.push_back(newUnstuck);
-				return;
-			}
+			
 			TerrainManager* tm = TerrainManager::getInstance();
 			// enforce start and m_destination to terrain
 			float3 startCopy = float3(start.x, tm->getHeightFromPosition(start), start.z);
@@ -173,7 +166,7 @@ void AI::pathfinding(float3 start, std::vector<float4> *animals) {
 
 
 			open.push_back(currentNode);
-			while (!open.empty() && counter++ < MAX_STEPS) {
+			while (!open.empty() && counter++ < m_maxSteps) {
 				quickSort(open, 0, (int)open.size() - 1);
 				closed.push_back(open.back());
 				open.pop_back();
@@ -182,7 +175,7 @@ void AI::pathfinding(float3 start, std::vector<float4> *animals) {
 				shared_ptr<AI::Node> currentNode = closed.back();
 
 				if ((currentNode->position - m_destinationCopy).LengthSquared() < ARRIVAL_RADIUS ||
-					counter == MAX_STEPS - 1) {
+					counter == m_maxSteps - 1) {
 					m_availablePath.clear(); // Reset path
 
 					// Add path steps

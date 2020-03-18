@@ -1,5 +1,6 @@
 #include "Apple.h"
 #include "Input.h"
+#include "PathFindingThread.h"
 
 Apple::Apple(float3 pos) : Fruit(pos) {
 	loadAnimated("Apple", 3);
@@ -19,7 +20,8 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 	m_passive_speed = 3.f;
 	m_active_speed = 15.f;
 	m_caught_speed = 15.f;
-
+	m_groundFriction = 5.f;
+	m_maxSteps = 30;
 	setCollisionDataOBB();
 }
 
@@ -94,8 +96,7 @@ void Apple::behaviorActive(float3 playerPosition) {
 
 void Apple::behaviorCaught(float3 playerPosition) {
 	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
-		//makeReadyForPath(playerPosition);
-		m_direction = playerPosition - m_position;
+		makeReadyForPath(playerPosition);
 		//m_speed = m_caught_speed;
 	}
 	lookTo(playerPosition);
@@ -134,4 +135,105 @@ void Apple::flee(float3 playerPos) {
 		makeReadyForPath(runTo);
 	}
 	// set new velocity from path
+}
+void Apple::pathfinding(float3 start, std::vector<float4>* animals) {
+	// ErrorLogger::log("thread starting for pathfinding");
+	auto pft = PathFindingThread::getInstance();
+
+	if ((start - m_destination).LengthSquared() < 0.5f)
+		return;
+	if (m_readyForPath) {
+		{
+			m_availablePath.clear();
+			if (!isValid(start, start, *pft->m_collidables, 0.7f)) {
+				float3 newUnstuck = m_destination - start;
+				newUnstuck.Normalize();
+				newUnstuck += start;
+				if (isValid(newUnstuck, newUnstuck, *pft->m_collidables, 0.7f)) {
+					m_availablePath.push_back(newUnstuck);
+					m_readyForPath = false;
+					return;
+				}
+			}
+			TerrainManager* tm = TerrainManager::getInstance();
+			// enforce start and m_destination to terrain
+			float3 startCopy = float3(start.x, tm->getHeightFromPosition(start), start.z);
+			float3 m_destinationCopy =
+				float3(m_destination.x, tm->getHeightFromPosition(m_destination), m_destination.z);
+
+			shared_ptr<AI::Node> currentNode = make_shared<AI::Node>(
+				shared_ptr<AI::Node>(), startCopy, startCopy, m_destinationCopy);
+			bool collidedWithSomething = false;
+			size_t counter = 0;
+			std::vector<shared_ptr<AI::Node>> open;
+			std::vector<shared_ptr<AI::Node>> closed;
+			std::list<float3> childPositionOffsets = { float3(-1.f, 0.f, -1.f),
+				float3(0.f, 0.f, -1.f), float3(1.f, 0.f, -1.f), float3(-1.f, 0.f, 0.f),
+				float3(1.f, 0.f, 0.f), float3(-1.f, 0.f, 1.f), float3(0.f, 0.f, 1.f),
+				float3(1.f, 0.f, 1.f) };
+
+
+			open.push_back(currentNode);
+			while (!open.empty() && counter++ < m_maxSteps) {
+				quickSort(open, 0, (int)open.size() - 1);
+				closed.push_back(open.back());
+				open.pop_back();
+
+				// Check to see if we're inside a certain radius of m_destinationCopy location
+				shared_ptr<AI::Node> currentNode = closed.back();
+
+				if ((currentNode->position - m_destinationCopy).LengthSquared() < ARRIVAL_RADIUS ||
+					counter == m_maxSteps - 1) {
+					m_availablePath.clear(); // Reset path
+
+					// Add path steps
+					while (currentNode->parent != nullptr) {
+						m_availablePath.push_back(currentNode->position);
+						currentNode = currentNode->parent;
+					}
+
+
+					if (m_availablePath.size() > 2) {
+						m_availablePath.pop_back(); // remove first position because it is the same
+													// as startCopy.
+					}
+					m_readyForPath = false;
+
+					return;
+				}
+
+				for (auto childOffset : childPositionOffsets) {
+
+					// Create child AI::Node
+					float3 childPosition = currentNode->position + STEP_SCALE * childOffset;
+					childPosition.y = tm->getHeightFromPosition(childPosition);
+
+					shared_ptr<AI::Node> child = make_shared<AI::Node>(
+						currentNode, childPosition, startCopy, m_destinationCopy);
+
+
+					// Check if node is in open or closed.
+					if (!beingUsed(child, open, closed)) {
+						continue;
+					}
+					if (!checkAnimals(*animals, childPosition)) {
+						continue;
+					}
+
+					if (!isValid(
+							child->position, currentNode->position, *pft->m_collidables, 0.7f)) {
+						continue;
+					}
+
+					// Add child to open
+					open.push_back(child);
+				}
+			}
+			while (currentNode->parent != nullptr) {
+				m_availablePath.push_back(currentNode->position);
+				currentNode = currentNode->parent;
+			}
+			m_readyForPath = false;
+		}
+	}
 }
