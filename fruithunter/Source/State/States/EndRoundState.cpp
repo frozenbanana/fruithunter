@@ -90,9 +90,19 @@ void EndRoundState::play() {
 }
 
 void EndRoundState::draw() {
+	// Draw to shadowmap
+	ShadowMapper* shadowMap = Renderer::getInstance()->getShadowMapper();
+	shadowMap->mapShadowToFrustum(m_camera.getFrustumPoints(0.1f));
+	shadowMap->setup_depthRendering();
+	m_bowl.draw();
+	m_bowlContents[m_currentBowlContent].draw();
+	
 	Renderer::getInstance()->beginFrame();	
 	Renderer::getInstance()->drawCapturedFrame();
 	Renderer::getInstance()->clearDepth();
+
+	shadowMap->setup_shadowsRendering();
+	m_camera.bindMatrix();
 
 	m_particleSystem.draw();
 	m_bowl.draw();
