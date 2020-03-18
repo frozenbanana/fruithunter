@@ -177,7 +177,7 @@ void AI::pathfinding(float3 start, std::vector<float4> *animals) {
 				shared_ptr<AI::Node> currentNode = closed.back();
 
 				if ((currentNode->position - m_destinationCopy).LengthSquared() < ARRIVAL_RADIUS ||
-					counter == MAX_STEPS - 1) {
+					counter == m_maxSteps - 1) {
 					pft->m_mutex.lock();
 					
 
