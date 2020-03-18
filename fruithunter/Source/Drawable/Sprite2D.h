@@ -46,6 +46,7 @@ public:
 	void setAnimationSpeed(float animationSpeed);
 
 	void draw();
+	void drawNoScaling();
 
 	bool load(string path);
 	bool load(vector<string> paths, float animationSpeed = 1.f);

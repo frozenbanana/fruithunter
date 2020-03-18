@@ -135,8 +135,8 @@ void IntroState::update() {
 	}
 
 	// Logo update
-	float offsetX = SCREEN_WIDTH / 16.f;
-	float offsetY = SCREEN_HEIGHT / 3.f;
+	float offsetX = 1280.f / 16.f;
+	float offsetY = 720.f / 3.f;
 	float t = m_timer.getTimePassed();
 	for (size_t i = 0; i < m_letters.size(); i++) {
 		float2 movement =

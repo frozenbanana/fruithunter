@@ -112,8 +112,8 @@ void SettingsState::handleEvent() {
 			m_fullscreenButton.setPosition(float2(width / 2 + 150, height / 2 + 200));
 			m_vsyncButton.setPosition(float2(width / 2 - 150, height / 2 + 200));
 
-			m_backButton.setPosition(float2(width / 2, height - 80));
-			m_applyButton.setPosition(float2(width / 2 - 100, height - 80));
+			m_backButton.setPosition(float2(width / 2, height / 2 + 300));
+			m_applyButton.setPosition(float2(width / 2 - 100, height / 2 + 300));
 
 			m_screenStateChanged = false;
 		}
@@ -144,10 +144,8 @@ void SettingsState::play() {
 	m_fullscreenButton.setPosition(float2(width / 2 + 150, height / 2 + 200));
 	m_vsyncButton.setPosition(float2(width / 2 - 150, height / 2 + 200));
 
-	m_backButton.setPosition(float2(width / 2, height - 80));
-	m_applyButton.setPosition(float2(width / 2 - 100, height - 80));
-
-	m_settingsBackground.setPosition(float2(width / 2.f, height / 2.f));
+	m_backButton.setPosition(float2(width / 2, height / 2 + 300));
+	m_applyButton.setPosition(float2(width / 2 - 100, height / 2 + 300));
 
 	m_vsyncButton.setOnOff(settings->getVsync());
 	m_fullscreenButton.setOnOff(settings->getFullscreen());
@@ -182,7 +180,7 @@ void SettingsState::play() {
 void SettingsState::draw() {
 	Renderer::getInstance()->beginFrame();
 	Renderer::getInstance()->drawCapturedFrame();
-	m_settingsBackground.draw();
+	m_settingsBackground.drawNoScaling();
 	m_darkEdgesButton.draw();
 	m_vsyncButton.draw();
 	m_shadowsButton.draw();
@@ -195,12 +193,12 @@ void SettingsState::draw() {
 	m_effectsVolume.draw();
 
 	if (m_screenStateChanged) {
-		m_backButton.setPosition(float2(SCREEN_WIDTH / 2 + 100, SCREEN_HEIGHT - 80));
+		m_backButton.setPosition(float2(SCREEN_WIDTH / 2 + 100, SCREEN_HEIGHT / 2 + 300));
 		m_backButton.draw();
 		m_applyButton.draw();
 	}
 	else {
-		m_backButton.setPosition(float2(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 80));
+		m_backButton.setPosition(float2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 300));
 		m_backButton.draw();
 	}
 
