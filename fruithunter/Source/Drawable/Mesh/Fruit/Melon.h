@@ -12,7 +12,8 @@ private:
 
 	void roll(float dt);
 	float m_rollSpeed;
-
+	int m_angleDirection;
+	int m_triesToGoHome;
 
 public:
 	Melon(float3 pos = float3(0.f, 0.f, 0.f));

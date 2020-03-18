@@ -4,10 +4,11 @@
 #include "EntityRepository.h"
 #include <list>
 #include <mutex>
-#define ARRIVAL_RADIUS 3.0f
+#define ARRIVAL_RADIUS 1.0f
 #define MAX_STEAPNESS .1f
 #define STEP_SCALE .250f
 #define EPSILON 0.001f
+
 
 class AI {
 public:

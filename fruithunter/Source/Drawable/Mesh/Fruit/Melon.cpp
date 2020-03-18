@@ -32,6 +32,17 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	m_passive_speed = 8.f;
 	m_active_speed = 15.f;
 	m_caught_speed = 15.f;
+
+	int rand = 0;
+	rand = std::rand();
+	if (rand % 2 == 0) {
+		m_angleDirection = 1;
+	}
+	else {
+		m_angleDirection = -1;
+	}
+	m_triesToGoHome = 0;
+	m_maxSteps = 16;
 }
 
 void Melon::behaviorPassive(float3 playerPosition) {
@@ -106,7 +117,12 @@ float3 Melon::circulateAround(float3 playerPosition) {
 
 	float3 toMelon = m_position - playerPosition;
 	toMelon.y = playerPosition.y;
+	if (m_nrOfTriesGoHome == 100) {
+		m_angleDirection *= -1;
+		m_nrOfTriesGoHome = 0;
+	}
 	float angle = XM_PI / 8;
+	angle *= m_angleDirection;
 	Matrix rotate = Matrix(cos(angle), 0.f, -sin(angle), 0.f, 0.f, 1.f, 0.f, 0.f, sin(angle), 0.f,
 		cos(angle), 0.f, 0.f, 0.f, 0.f, 1.f);
 

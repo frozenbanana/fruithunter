@@ -39,7 +39,8 @@ void LevelHandler::initialiseLevel0() {
 	level.m_heightmapTextures.push_back(maps);
 
 	level.m_seaTypes.push_back(SeaEffect::SeaEffectTypes::water);
-	level.m_seaPositions.push_back(float3(0.f, 1.f, 0.f) - float3(200.f, 0, 200.f) + float3(50.f, 0, 50.f));
+	level.m_seaPositions.push_back(
+		float3(0.f, 1.f, 0.f) - float3(200.f, 0, 200.f) + float3(50.f, 0, 50.f));
 	level.m_seaScales.push_back(float3(400, 2, 400));
 	level.m_seaGrids.push_back(XMINT2(8, 8));
 	level.m_seaTiles.push_back(XMINT2(50, 50));
@@ -141,7 +142,7 @@ void LevelHandler::initialiseLevel1() {
 	level.m_winCondition[BANANA] = 0;
 	level.m_winCondition[MELON] = 10;
 	level.m_winCondition[DRAGON] = 0;
-	
+
 
 	level.m_playerStartPos = float3(5.9f, 3.2f, 74.4f);
 

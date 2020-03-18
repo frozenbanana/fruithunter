@@ -91,9 +91,10 @@ vector<LevelData*> SaveManager::getAllSaveStates() const {
 void SaveManager::setLevelCompletion(size_t index, size_t timeOfCompletion, TimeTargets grade) { 
 	if (m_activeState[index].isCompleted) {
 		//already completed
-		if (timeOfCompletion < m_activeState[index].timeOfCompletion)
+		if (timeOfCompletion < m_activeState[index].timeOfCompletion) {
 			m_activeState[index].timeOfCompletion = timeOfCompletion;
-		m_activeState[index].grade = grade;
+			m_activeState[index].grade = grade;
+		}
 	}
 	else {
 		//completed level

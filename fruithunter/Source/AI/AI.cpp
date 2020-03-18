@@ -1,6 +1,5 @@
 #include "AI.h"
 #include <algorithm>
-#include "Fruit.h"
 #include "PathFindingThread.h"
 
 

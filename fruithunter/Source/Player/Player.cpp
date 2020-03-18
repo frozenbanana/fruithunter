@@ -450,6 +450,8 @@ float Player::getPlayerMovementSpeed() const {
 	float speed = 0;
 	if (m_onGround) {
 		speed = m_speed; // walking normaly
+		if (m_chargingDash)
+			speed = m_speedOnChargingDash;
 		if (m_sprinting)
 			speed *= m_speedSprintMultiplier; // sprint multiplies speed
 	}
