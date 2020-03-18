@@ -66,7 +66,9 @@ void IntroState::initialize() {
 	};
 	for (size_t i = 0; i < m_letters.size(); i++) {
 		m_letters[i].letter.load(logoPaths[i]);
+		m_letters[i].letter.setScale(0.25f);
 		m_letters[i].speedOffset = float2(RandomFloat(-0.15f, 0.15f), RandomFloat(-0.5f, 0.5f));
+		m_letters[i].letter.setAlignment();//center
 	}
 
 	m_timer.reset();
@@ -133,8 +135,8 @@ void IntroState::update() {
 	}
 
 	// Logo update
-	float offsetX = SCREEN_WIDTH / 16.f;
-	float offsetY = SCREEN_HEIGHT / 3.f;
+	float offsetX = 1280.f / 16.f;
+	float offsetY = 720.f / 3.f;
 	float t = m_timer.getTimePassed();
 	for (size_t i = 0; i < m_letters.size(); i++) {
 		float2 movement =

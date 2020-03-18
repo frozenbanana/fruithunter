@@ -233,7 +233,7 @@ void HUD::draw() {
 	m_spriteBatch->Draw(m_staminaTexture.Get(), m_staminaPos, nullptr, Colors::White, 0.0f,
 		float2(0.0f, 0.0f), float2(m_stamina + 0.05f, 0.8f));
 	m_spriteBatch->Draw(m_staminaFrame.Get(),
-		float2(m_staminaPos.x - 27.0f, m_staminaPos.y - 10.0f), nullptr, Colors::White, 0.0f,
+		float2(m_staminaPos.x - 13.0f, m_staminaPos.y - 10.0f), nullptr, Colors::White, 0.0f,
 		float2(0.0f, 0.0f), float2(1.05f, 0.8f));
 
 	m_spriteBatch->End();

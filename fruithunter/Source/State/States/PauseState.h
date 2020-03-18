@@ -4,6 +4,7 @@
 #include "Entity.h"
 #include "Button.h"
 #include "Sprite2D.h"
+#include "Timer.h"
 
 class PauseState : public State {
 public:
@@ -24,6 +25,15 @@ private:
 	Button m_mainMenuButton;
 	Button m_exitButton;
 	Button m_restartButton;
+
+	//tutorial sprites
+	Sprite2D m_dropFruits[4];
+	Sprite2D m_btns[5];
+	Sprite2D m_movementKeys;
+	Sprite2D m_charMovement;
+	Sprite2D m_jumpKey;
+	Sprite2D m_charJump;
+	Sprite2D m_slowMo;
 
 	int m_previousState;
 
