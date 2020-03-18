@@ -12,11 +12,13 @@ private:
 
 	void roll(float dt);
 	float m_rollSpeed;
-
+	int m_angleDirection;
+	int m_triesToGoHome;
 
 public:
 	Melon(float3 pos = float3(0.f, 0.f, 0.f));
 	void updateAnimated(float dt);
 	void setRollSpeed(float rollSpeed);
 	float3 circulateAround(float3 playerPosition);
+	void pathfinding(float3 start, std::vector<float4>* animals) override;
 };

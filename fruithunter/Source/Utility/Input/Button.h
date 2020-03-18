@@ -33,6 +33,7 @@ public:
 
 	void setLowMedHighUltra(Setting value);
 	void setResolution(Resolution value);
+	void setOnOff(bool value);
 
 	bool getOnOff();
 	int getLowMedHighUltra();
