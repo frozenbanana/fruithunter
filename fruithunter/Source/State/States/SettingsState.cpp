@@ -157,7 +157,7 @@ void SettingsState::play() {
 void SettingsState::draw() {
 	Renderer::getInstance()->beginFrame();
 	Renderer::getInstance()->drawCapturedFrame();
-	m_settingsBackground.draw();
+	m_settingsBackground.drawNoScaling();
 	m_darkEdgesButton.draw();
 	m_vsyncButton.draw();
 	m_shadowsButton.draw();

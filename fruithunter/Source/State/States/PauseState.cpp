@@ -146,7 +146,7 @@ void PauseState::play() {
 void PauseState::draw() {
 	Renderer::getInstance()->beginFrame();
 	Renderer::getInstance()->drawCapturedFrame();
-	m_settingsBackground.draw();
+	m_settingsBackground.drawNoScaling();
 
 	if (StateHandler::getInstance()->getPreviousState() == StateHandler::PLAY)
 		m_restartButton.draw();
