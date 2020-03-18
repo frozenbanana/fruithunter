@@ -708,51 +708,50 @@ void LevelHandler::dropFruit() {
 	auto pft = PathFindingThread::getInstance();
 
 	if (ip->keyPressed(Keyboard::D1)) {
-		if (m_inventory[APPLE] >= 0) {
+		if (m_inventory[APPLE] > 0) {
 			shared_ptr<Apple> apple =
 				make_shared<Apple>(m_player.getPosition() + float3(0.0f, 1.5f, 0.0f));
 			apple->release(m_player.getForward());
 			pft->m_mutex.lock();
 			m_fruits.push_back(apple);
 			pft->m_mutex.unlock();
-
-			// m_inventory[APPLE]--;
+			m_inventory[APPLE]--;
 			m_hud.removeFruit(APPLE);
 		}
 	}
 	if (ip->keyPressed(Keyboard::D2)) {
-		if (m_inventory[BANANA] >= 0) {
+		if (m_inventory[BANANA] > 0) {
 			shared_ptr<Banana> banana =
 				make_shared<Banana>(float3(m_player.getPosition() + float3(0.0f, 1.5f, 0.0f)));
 			banana->release(m_player.getForward());
 			pft->m_mutex.lock();
 			m_fruits.push_back(banana);
 			pft->m_mutex.unlock();
-			// m_inventory[BANANA]--;
+			m_inventory[BANANA]--;
 			m_hud.removeFruit(BANANA);
 		}
 	}
 	if (ip->keyPressed(Keyboard::D3)) {
-		if (m_inventory[MELON] >= 0) {
+		if (m_inventory[MELON] > 0) {
 			shared_ptr<Melon> melon =
 				make_shared<Melon>((m_player.getPosition() + float3(0.0f, 1.5f, 0.0f)));
 			melon->release(m_player.getForward());
 			pft->m_mutex.lock();
 			m_fruits.push_back(melon);
 			pft->m_mutex.unlock();
-			// m_inventory[MELON]--;
+			m_inventory[MELON]--;
 			m_hud.removeFruit(MELON);
 		}
 	}
 	if (ip->keyPressed(Keyboard::D4)) {
-		if (m_inventory[DRAGON] >= 0) {
+		if (m_inventory[DRAGON] > 0) {
 			shared_ptr<DragonFruit> dragonFruit =
 				make_shared<DragonFruit>((m_player.getPosition() + float3(0.0f, 1.5f, 0.0f)));
 			dragonFruit->release(m_player.getForward());
 			pft->m_mutex.lock();
 			m_fruits.push_back(dragonFruit);
 			pft->m_mutex.unlock();
-			// m_inventory[MELON]--;
+			m_inventory[DRAGON]--;
 			m_hud.removeFruit(DRAGON);
 		}
 	}

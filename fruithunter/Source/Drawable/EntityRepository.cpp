@@ -304,7 +304,7 @@ void EntityRepository::assignCollisionData(Entity* entity) {
 
 void EntityRepository::update(float dt, float3 point, float3 direction) {
 	Input* ip = Input::getInstance();
-	if (ip->keyPressed(m_stateSwitchKey)) {
+	if (ip->keyPressed(m_stateSwitchKey) && DEBUG) {
 		// switch state
 		m_state = (ModeState)((m_state + 1) % ModeState::Length);
 		if (m_state == ModeState::state_placing)

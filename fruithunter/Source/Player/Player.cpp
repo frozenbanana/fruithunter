@@ -264,7 +264,7 @@ void Player::rotatePlayer(float dt) {
 void Player::updateGodMode(float dt) {
 	Input* ip = Input::getInstance();
 
-	if (ip->keyPressed(Keyboard::Keys::G))
+	if (ip->keyPressed(Keyboard::Keys::G) && DEBUG)
 		m_godMode = !m_godMode;
 
 	if (m_godMode) {
