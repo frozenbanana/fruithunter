@@ -144,7 +144,7 @@ void SettingsState::handleEvent() {
 	}
 
 	if (m_backButton.update() || Input::getInstance()->keyDown(Keyboard::Keys::Escape)) {
-		StateHandler::getInstance()->resumeState();
+		StateHandler::getInstance()->resumeMenuState();
 	}
 }
 
