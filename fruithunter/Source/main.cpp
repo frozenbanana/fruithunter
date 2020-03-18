@@ -18,7 +18,6 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 
 	Input::initilize(Renderer::getInstance()->getHandle());
 
-	Settings::getInstance()->loadAllSetting();
 	StateHandler* stateHandler = StateHandler::getInstance();
 	Input* input = Input::getInstance();
 	Renderer* renderer = Renderer::getInstance();

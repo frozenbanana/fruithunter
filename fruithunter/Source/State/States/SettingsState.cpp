@@ -33,29 +33,6 @@ void SettingsState::initialize() {
 	m_vsyncButton.initialize(
 		"V-Sync", float2(width / 2 - 150, height / 2 + 200), settings->getVsync());
 
-	if (settings->getResolution().x == 1280)
-		m_resolutionButton.setResolution(Button::Resolution::HD);
-	else if (settings->getResolution().x == 1920)
-		m_resolutionButton.setResolution(Button::Resolution::FHD);
-	else if (settings->getResolution().x == 2560)
-		m_resolutionButton.setResolution(Button::Resolution::QHD);
-	else if (settings->getResolution().x == 38400)
-		m_resolutionButton.setResolution(Button::Resolution::UHD);
-
-	if (settings->getShadowResolution().x == 1024)
-		m_shadowsButton.setLowMedHighUltra(Button::Setting::LOW);
-	else if (settings->getShadowResolution().x == 2048)
-		m_shadowsButton.setLowMedHighUltra(Button::Setting::MEDIUM);
-	else if (settings->getShadowResolution().x == 4096)
-		m_shadowsButton.setLowMedHighUltra(Button::Setting::HIGH);
-	else if (settings->getShadowResolution().x == 8192)
-		m_shadowsButton.setLowMedHighUltra(Button::Setting::ULTRA);
-
-	m_masterVolume.setValue(settings->getMasterVolume());
-	m_musicVolume.setValue(settings->getMusicVolume());
-	m_effectsVolume.setValue(settings->getEffectsVolume());
-	m_drawDistance.setValue(settings->getDrawDistanceValue());
-
 	m_backButton.initialize("Back", float2(width / 2, height - 80));
 	m_applyButton.initialize("Apply", float2(width / 2 - 100, height - 80));
 
@@ -152,6 +129,54 @@ void SettingsState::pause() { Settings::getInstance()->saveAllSetting(); }
 
 void SettingsState::play() {
 	ErrorLogger::log(m_name + " play() called.");
+	Settings* settings = Settings::getInstance();
+
+	float width = SCREEN_WIDTH;
+	float height = SCREEN_HEIGHT;
+	m_masterVolume.setPosition(float2(width / 2, height / 2 - 250));
+	m_musicVolume.setPosition(float2(width / 2, height / 2 - 200));
+	m_effectsVolume.setPosition(float2(width / 2, height / 2 - 150));
+
+	m_drawDistance.setPosition(float2(width / 2, height / 2 - 70));
+	m_shadowsButton.setPosition(float2(width / 2, height / 2 - 10));
+	m_darkEdgesButton.setPosition(float2(width / 2, height / 2 + 50));
+
+	m_resolutionButton.setPosition(float2(width / 2, height / 2 + 140));
+	m_fullscreenButton.setPosition(float2(width / 2 + 150, height / 2 + 200));
+	m_vsyncButton.setPosition(float2(width / 2 - 150, height / 2 + 200));
+
+	m_backButton.setPosition(float2(width / 2, height - 80));
+	m_applyButton.setPosition(float2(width / 2 - 100, height - 80));
+
+	m_settingsBackground.setPosition(float2(width / 2.f, height / 2.f));
+
+	m_vsyncButton.setOnOff(settings->getVsync());
+	m_fullscreenButton.setOnOff(settings->getFullscreen());
+	m_darkEdgesButton.setOnOff(settings->getDarkEdges());
+
+	if (settings->getResolution().x == 1280)
+		m_resolutionButton.setResolution(Button::Resolution::HD);
+	else if (settings->getResolution().x == 1920)
+		m_resolutionButton.setResolution(Button::Resolution::FHD);
+	else if (settings->getResolution().x == 2560)
+		m_resolutionButton.setResolution(Button::Resolution::QHD);
+	else if (settings->getResolution().x == 3840)
+		m_resolutionButton.setResolution(Button::Resolution::UHD);
+
+	if (settings->getShadowResolution().x == 1024)
+		m_shadowsButton.setLowMedHighUltra(Button::Setting::LOW);
+	else if (settings->getShadowResolution().x == 2048)
+		m_shadowsButton.setLowMedHighUltra(Button::Setting::MEDIUM);
+	else if (settings->getShadowResolution().x == 4096)
+		m_shadowsButton.setLowMedHighUltra(Button::Setting::HIGH);
+	else if (settings->getShadowResolution().x == 8192)
+		m_shadowsButton.setLowMedHighUltra(Button::Setting::ULTRA);
+
+	m_masterVolume.setValue(settings->getMasterVolume());
+	m_musicVolume.setValue(settings->getMusicVolume());
+	m_effectsVolume.setValue(settings->getEffectsVolume());
+	m_drawDistance.setValue(settings->getDrawDistanceValue());
+
 	m_screenStateChanged = false;
 }
 

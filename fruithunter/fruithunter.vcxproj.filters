@@ -222,6 +222,9 @@
     <ClCompile Include="Source\Drawable\Sprite2D.cpp">
       <Filter>Source\Drawable</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Drawable\Mesh\Fruit\Dragonfruit.cpp">
+      <Filter>Source\Drawable\Mesh\Fruits</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -379,6 +382,9 @@
     </ClInclude>
     <ClInclude Include="Source\Drawable\Sprite2D.h">
       <Filter>Source\Drawable</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\Mesh\Fruit\Dragonfruit.h">
+      <Filter>Source\Drawable\Mesh\Fruits</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
