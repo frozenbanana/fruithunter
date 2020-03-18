@@ -89,7 +89,8 @@ void Melon::behaviorCaught(float3 playerPosition) {
 		m_direction = playerPosition - m_position; // run to player
 
 		m_speed = m_caught_speed;
-		makeReadyForPath(playerPosition);
+		//makeReadyForPath(playerPosition);
+		
 	}
 	lookTo(playerPosition);
 }

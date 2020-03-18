@@ -85,7 +85,7 @@ bool AI::isValid(
 	auto normal = TerrainManager::getInstance()->getNormalFromPosition(childPos);
 	normal.Normalize();
 	// Don't you climb no walls
-	if (abs(float3(0.0f, 1.0f, 0.0f).Dot(normal)) < 0.87f)
+	if (abs(float3(0.0f, 1.0f, 0.0f).Dot(normal)) < 0.97f)
 		return false;
 
 	vector<Entity**> objects = collidables.getCulledEntitiesByPosition(childPos);
@@ -141,12 +141,19 @@ void AI::makeReadyForPath(float3 destination) {
 void AI::pathfinding(float3 start, std::vector<float4> *animals) {
 	// ErrorLogger::log("thread starting for pathfinding");
 	auto pft = PathFindingThread::getInstance();
+	
 	if ((start - m_destination).LengthSquared() < 0.5f)
 		return;
 	if (m_readyForPath) {
 		{
 			m_availablePath.clear();
-
+			if (!isValid(start, start, *pft->m_collidables, 0.7f)) {
+				float3 newUnstuck = m_destination - start;
+				newUnstuck.Normalize();
+				newUnstuck += start;
+				m_availablePath.push_back(newUnstuck);
+				return;
+			}
 			TerrainManager* tm = TerrainManager::getInstance();
 			// enforce start and m_destination to terrain
 			float3 startCopy = float3(start.x, tm->getHeightFromPosition(start), start.z);
