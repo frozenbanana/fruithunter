@@ -33,7 +33,9 @@ private:
 	static PathFindingThread m_this;
 	bool m_ready, m_running;
 	std::vector<float4> m_animals;
-
+	shared_ptr<size_t> m_frame;
+	size_t prevFrame = 0;
+	size_t howManyUpdated = 0;
 
 	bool checkVolatile(bool& statement);
 	

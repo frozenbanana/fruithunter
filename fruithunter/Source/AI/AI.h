@@ -49,7 +49,6 @@ protected:
 	// mutex m_mutex;
 
 	bool m_readyForPath = false;
-	bool m_beingWorked = false;
 	State m_currentState;
 	std::list<float3> m_availablePath;
 	virtual void behaviorInactive(float3 playerPosition){};

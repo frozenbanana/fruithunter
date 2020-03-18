@@ -79,6 +79,6 @@ public:
 
 	Skillshot hit(float3 playerPos);
 
-	int getFruitType();
+	FruitType getFruitType();
 
 };

@@ -444,7 +444,8 @@ void LevelHandler::loadLevel(int levelNr) {
 			m_Animals.push_back(currentLevel.m_animal[i]);
 		}
 	}
-
+	m_frame = make_unique<size_t>();
+	*m_frame = 0;
 	if (PathFindingThread::getInstance()->m_thread == nullptr) {
 		std::vector<float4> animalPos;
 		for (auto a : m_Animals) {
@@ -546,7 +547,7 @@ void LevelHandler::drawShadowDynamicEntities() {
 
 void LevelHandler::update(float dt) {
 	
-
+	*m_frame += 1;
 	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
 	m_skyBox.updateDelta(dt);
@@ -746,9 +747,9 @@ void LevelHandler::dropFruit() {
 			shared_ptr<DragonFruit> dragonFruit =
 				make_shared<DragonFruit>((m_player.getPosition() + float3(0.0f, 1.5f, 0.0f)));
 			dragonFruit->release(m_player.getForward());
-			pft->m_mutex.lock();
+			
 			m_fruits.push_back(dragonFruit);
-			pft->m_mutex.unlock();
+			
 			// m_inventory[MELON]--;
 			m_hud.removeFruit(DRAGON);
 		}
