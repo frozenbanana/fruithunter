@@ -45,8 +45,8 @@ void EndRoundState::update() {
 
 	m_timer.update();
 	float dt = m_timer.getDt();
-	// m_bowl.rotateY(dt);
-	// m_bowlContents[m_currentBowlContent].rotateY(dt);
+	 m_bowl.rotateY(dt * 0.5f);
+	 m_bowlContents[m_currentBowlContent].rotateY(dt * 0.5f);
 	m_particleSystem.update(dt, float3(0.f, 0.4f, 0.0f));
 }
 
@@ -76,10 +76,11 @@ void EndRoundState::play() {
 	float height = SCREEN_HEIGHT;
 
 	// Set the correct bowl
-	m_bowl.setPosition(float3(0.0f, 0.0f, 3.0f));
-	m_bowlContents[m_currentBowlContent].setPosition(float3(0.0f, 0.0f + 2.0f, 3.0f));
-	m_camera.setEye(m_bowl.getPosition() + float3(0.f, 0.f, -3.0f));
-	m_camera.setTarget(m_bowl.getPosition());
+	// Bowl material and content are set in Playstate handleEvent(hasWon)
+	m_bowl.setPosition(float3(0.0f, 0.0f, 0.0f));
+	m_bowlContents[m_currentBowlContent].setPosition(m_bowl.getPosition());
+	m_camera.setEye(m_bowl.getPosition() + float3(0.f, 0.7f, 1.0f));
+	m_camera.setTarget(m_bowl.getPosition() + float3(0.f,0.3f,0.f));
 
 	m_restartButton.setPosition(float2(width / 2, height / 2 + 50));
 	m_levelSelectButton.setPosition(float2(width / 2, height / 2 + 120));
@@ -87,20 +88,24 @@ void EndRoundState::play() {
 }
 
 void EndRoundState::draw() {
-	Renderer::getInstance()->beginFrame();
+	Renderer::getInstance()->beginFrame();	
 	Renderer::getInstance()->drawCapturedFrame();
+	Renderer::getInstance()->clearDepth();
+
+	m_bowl.draw();
+	m_bowlContents[m_currentBowlContent].draw();
+	Renderer::getInstance()->clearDepth();
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
-	m_background.draw();
+	m_camera.bindMatrix();
+	//m_background.draw();
 	m_textRenderer.draw(
 		m_timeText, float2(width / 2, height / 2 - 125), float4(1., 1.f, 1.f, 1.0f));
 	m_textRenderer.draw(m_victoryText, float2(width / 2, height / 2 - 50), m_victoryColor);
 	m_restartButton.draw();
 	m_levelSelectButton.draw();
 	m_exitButton.draw();
-	m_camera.bindMatrix();
-	m_bowl.draw();
-	m_bowlContents[m_currentBowlContent].draw();
+
 	m_particleSystem.draw();
 	// Just ignore this. It fixes things
 	m_entity.draw();
@@ -132,9 +137,9 @@ void EndRoundState::setParticleColorByPrize(size_t prize) {
 	m_particleSystem.setColors(colors);
 }
 
-void EndRoundState::setBowlMaterial(size_t index) {
-	m_currentBowlContent = index;
-	m_bowl.setCurrentMaterial((int)index);
+void EndRoundState::setBowlMaterial(size_t contentIndex, int bowlMaterial) {
+	m_currentBowlContent = contentIndex;
+	m_bowl.setCurrentMaterial((int)bowlMaterial);
 }
 
 void EndRoundState::setTimeText(string text) { m_timeText = text; }

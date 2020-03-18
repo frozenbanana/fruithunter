@@ -21,7 +21,7 @@ public:
 	void setParticleColorByPrize(size_t prize);
 	void setVictoryText(string text);
 	void setVictoryColor(float4 color);
-	void setBowlMaterial(size_t index);
+	void setBowlMaterial(size_t contentIndex, int bowlMaterial);
 	void setTimeText(string text);
 	void setConfettiPower(float emitRate);
 
