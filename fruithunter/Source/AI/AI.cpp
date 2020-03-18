@@ -105,17 +105,6 @@ bool AI::isValid(
 	return true;
 }
 
-bool AI::isValid(float3 childPos, float3 currentNodePos) {
-	if (abs(childPos.y - currentNodePos.y) > MAX_STEAPNESS) {
-		return false;
-	}
-	if (childPos.y < 1.f) {
-		return false;
-	}
-
-	return true;
-}
-
 bool AI::checkAnimals(std::vector<float4> animals, float3 childPos) { 
 	childPos.y = 0.f;
 	for (auto e : animals) {

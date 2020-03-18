@@ -158,9 +158,7 @@ void Melon::pathfinding(float3 start, std::vector<float4>* animals) {
 	if ((start - m_destination).LengthSquared() < 0.5f)
 		return;
 	if (m_readyForPath) {
-		{
-			
-			}
+		
 			TerrainManager* tm = TerrainManager::getInstance();
 			// enforce start and m_destination to terrain
 			float3 startCopy = float3(start.x, tm->getHeightFromPosition(start), start.z);
