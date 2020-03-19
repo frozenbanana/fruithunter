@@ -65,15 +65,20 @@ bool Sprite2D::load(vector<string> paths, float animationSpeed) {
 		m_animationSpeed = animationSpeed;
 		m_textures.resize(paths.size());
 		size_t index = 0;
+		size_t failedIndex = -1;
 		for (size_t i = 0; i < m_textures.size(); i++) {
 			if (m_textures[index].load(paths[i])) {
 				index++;
 			}
+			else 
+				failedIndex = i;
 		}
 		if (index != paths.size())
 			m_textures.resize(index);
-		if (index == 0)
+		if (failedIndex != -1) {
+			ErrorLogger::logWarning(HRESULT(), "(Sprite2D) Failed loading sprite: " + paths[failedIndex]);
 			return false; // failed if no texture was succesfully loaded
+		}
 		return true;
 	}
 	return false;
@@ -85,14 +90,21 @@ void Sprite2D::set(float2 position, float2 scale, float rotation) {
 	m_rotation = rotation;
 }
 
-XMINT2 Sprite2D::getTextureSize() const { 
-	if (m_textures.size() > 0)
-		return m_textures[0].m_textureSize;
+XMINT2 Sprite2D::getTextureSize(size_t index) const { 
+	if (index < m_textures.size() && index >= 0)
+		return m_textures[index].m_textureSize;
 	else
 		return XMINT2(0, 0);
 }
 
-XMINT2 Sprite2D::getTextureSize(size_t index) const { return m_textures[index].m_textureSize; }
+float2 Sprite2D::getSize(size_t index) const {
+	if (index < m_textures.size() && index >= 0) {
+		XMINT2 texSize = getTextureSize(index);
+		return float2(texSize.x, texSize.y) * m_scale;
+	}
+	else
+		return float2(0, 0);
+}
 
 float2 Sprite2D::getPosition() const { return m_position; }
 

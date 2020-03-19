@@ -34,6 +34,8 @@ private:
 	Sprite2D m_jumpKey;
 	Sprite2D m_charJump;
 	Sprite2D m_slowMo;
+	Sprite2D m_bow;
+	Sprite2D m_mouseLeft;
 
 	int m_previousState;
 

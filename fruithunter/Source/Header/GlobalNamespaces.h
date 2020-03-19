@@ -17,7 +17,7 @@ using float3 = DirectX::SimpleMath::Vector3;
 using float4 = DirectX::SimpleMath::Vector4;
 using float4x4 = DirectX::SimpleMath::Matrix;
 
-#define DEBUG false
+#define DEBUG true
 
 enum FruitType { APPLE, BANANA, MELON, DRAGON, NR_OF_FRUITS };
 enum TimeTargets { GOLD, SILVER, BRONZE, NR_OF_TIME_TARGETS };

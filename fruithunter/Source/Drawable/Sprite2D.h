@@ -32,8 +32,8 @@ private:
 	float m_animationSpeed = 1.f; // time between frames, in seconds
 
 public:
-	XMINT2 getTextureSize() const;
-	XMINT2 getTextureSize(size_t index) const;
+	XMINT2 getTextureSize(size_t index = 0) const;
+	float2 getSize(size_t index = 0) const;
 	float2 getPosition() const;
 	float getRotation() const;
 	float2 getScale() const;

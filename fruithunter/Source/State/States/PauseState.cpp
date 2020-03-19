@@ -48,9 +48,10 @@ void PauseState::initialize() {
 	}
 
 	//sloMo
-	vector<string> strSlowMo = { "hourGlass0.png", "hourGlass1.png" };
+	vector<string> strSlowMo = { "hourglassV2_0.png", "hourglassV2_1.png", "hourglassV2_2.png",
+		"hourglassV2_1.png" };
 	m_slowMo.load(strSlowMo, animationSpeed);
-	m_slowMo.set(position, scale);
+	m_slowMo.set(position - m_slowMo.getSize() * scale * 0.5f * 0.3f - float2(0, -10.f), scale * 1.3f);
 	
 	//Buttons
 	position = float2(10, 10);
@@ -63,6 +64,14 @@ void PauseState::initialize() {
 		m_btns[i].set(position, scale);
 		position.x += picWidth + padding;
 	}
+
+	//shooting
+	vector<string> strMouseLeft = { "mouse.png", "mouse_left.png" };
+	m_mouseLeft.load(strMouseLeft, animationSpeed);
+	m_mouseLeft.set(float2(10, 270), float2(1.f) * 0.4f);
+	vector<string> strBow = { "bow_unstreched.png", "bow_streched.png" };
+	m_bow.load(strBow, animationSpeed);
+	m_bow.set(float2(140, 230), float2(1.f) * 0.6f);
 
 	// movement keys
 	vector<string> strMovementTex = {
@@ -166,6 +175,8 @@ void PauseState::draw() {
 	m_charMovement.draw();
 	m_jumpKey.draw();
 	m_charJump.draw();
+	m_mouseLeft.draw();
+	m_bow.draw();
 
 	// Just ignore this. It fixes things
 	m_entity.draw();

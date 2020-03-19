@@ -44,25 +44,29 @@ void ErrorLogger::messageBox(HRESULT res, std::wstring message) {
 }
 
 void ErrorLogger::logWarning(HRESULT res, std::string message) {
-	_com_error error(res);
-	std::wstring resMessage = error.ErrorMessage();
-	std::string output = message + " | " + ws2s(resMessage.c_str()) + "\n";
+	if (DEBUG) {
+		_com_error error(res);
+		std::wstring resMessage = error.ErrorMessage();
+		std::string output = message + " | " + ws2s(resMessage.c_str()) + "\n";
 
-	HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(console, 6); // 6 = Yellow
-	std::cout << output;
-	SetConsoleTextAttribute(console, 15); // 15 = White
+		HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleTextAttribute(console, 6); // 6 = Yellow
+		std::cout << output;
+		SetConsoleTextAttribute(console, 15); // 15 = White
+	}
 }
 
 void ErrorLogger::logError(HRESULT res, std::string message) {
-	_com_error error(res);
-	std::wstring resMessage = error.ErrorMessage();
-	std::string output = message + " | " + ws2s(resMessage.c_str()) + "\n";
+	if (DEBUG) {
+		_com_error error(res);
+		std::wstring resMessage = error.ErrorMessage();
+		std::string output = message + " | " + ws2s(resMessage.c_str()) + "\n";
 
-	HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(console, 4); // 4 = Red
-	std::cout << output;
-	SetConsoleTextAttribute(console, 15); // 15 = White
+		HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleTextAttribute(console, 4); // 4 = Red
+		std::cout << output;
+		SetConsoleTextAttribute(console, 15); // 15 = White
+	}
 }
 
 void ErrorLogger::log(std::string message) { std::cout << message + "\n"; }
