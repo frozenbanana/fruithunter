@@ -5,6 +5,7 @@ struct VS_OUT {
 cbuffer screenSizeBuffer { float4 cb_screenSize; };
 
 Texture2D<float> depthMap : register(s0);
+Texture2D targetMap : register(s1);
 
 float linearDepth(float depthSample) {
 	const float zNear = 0.025f;
@@ -15,24 +16,41 @@ float linearDepth(float depthSample) {
 }
 
 float4 main(VS_OUT ip) : SV_TARGET {
-	float alpha = 0.f;
-	float3 color = float3(0, 0, 0);
+	float blend = 1.f;
+	float3 edgeColor = float3(0, 0, 0);
+	float3 backColor = targetMap[ip.posH.xy].xyz;
 
 	uint2 screenSize = uint2(cb_screenSize.x, cb_screenSize.y);
 
 	float2 uv = float2(ip.posH.x / screenSize.x, ip.posH.y / screenSize.y);
 
 	float pixThis = linearDepth(depthMap[ip.posH.xy]);
-	// int size = clamp((1 - clamp((pixThis - 0.025) / 50.f, 0, 1)) * 5.f, 3, 5);
-	int size = 5;
-	for (int xx = -size / 2; xx < size / 2; xx++) {
-		for (int yy = -size / 2; yy < size / 2; yy++) {
-			float pixOther = linearDepth(depthMap[ip.posH.xy + int2(xx, yy)]);
+	//float pixThisNorm = clamp((pixThis - 0.025) / (150-0.025), 0, 1);
+	//float maxD = 5, minD = 0;
+	//float size = max((1 - pixThisNorm) * maxD, minD);
+	//float rest = frac(size);
+	//int isize = ceil(size);
+
+	float table[] = {
+		0, 1, 2, 1, 0,
+		1, 2, 3, 2, 1,
+		2, 3, 0, 3, 2,
+		1, 2, 3, 2, 1,
+		0, 1, 2, 1, 0,
+	};
+
+	float sum = 0;
+	float total = 0;
+	int isize = 5;
+	for (int xx = 0; xx < isize; xx++) {
+		for (int yy = 0; yy < isize; yy++) {
+			total += table[yy * isize + xx];
+			float pixOther = linearDepth(depthMap[ip.posH.xy + int2(xx - (int)(isize/2), yy - (int)(isize/2))]);
 			if ((pixThis - pixOther) > 0.15f * pixThis) {
-				alpha = 1.f;
+				sum += table[yy * isize + xx];
 			}
 		}
 	}
-
-	return float4(color, alpha);
+	blend = 5*sum / total;
+	return float4(backColor + (edgeColor-backColor)*blend, 1);
 }

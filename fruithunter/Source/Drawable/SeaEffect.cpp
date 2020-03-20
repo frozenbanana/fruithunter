@@ -301,7 +301,7 @@ void SeaEffect::draw() {
 	// bind depth buffer
 	// Renderer::getInstance()->copyDepthToSRV(); // dont do this here if multiple waterEffects are
 	// drawn
-	Renderer::getInstance()->bindDepthSRV(7);
+	Renderer::getInstance()->bindDepthSRVCopy(7);
 	// bind screen size
 	Renderer::getInstance()->bindConstantBuffer_ScreenSize(7);
 	// bind constant buffers
@@ -340,7 +340,7 @@ void SeaEffect::draw_onlyMesh() {
 	bindWorldMatrix();
 	// bind depth buffer
 	// Renderer::getInstance()->copyDepthToSRV(); // dont do this here if multiple waterEffects are drawn
-	Renderer::getInstance()->bindDepthSRV(7);
+	Renderer::getInstance()->bindDepthSRVCopy(7);
 	// bind screen size
 	Renderer::getInstance()->bindConstantBuffer_ScreenSize(5);
 	// bind constant buffers
@@ -386,7 +386,7 @@ void SeaEffect::draw_frustumCulling(const vector<FrustumPlane>& planes) {
 		// bind depth buffer
 		// Renderer::getInstance()->copyDepthToSRV(); // dont do this here if multiple waterEffects
 		// are drawn
-		Renderer::getInstance()->bindDepthSRV(7);
+		Renderer::getInstance()->bindDepthSRVCopy(7);
 
 		// bind screen size
 		Renderer::getInstance()->bindConstantBuffer_ScreenSize(5);
@@ -441,7 +441,7 @@ void SeaEffect::draw_quadtreeFrustumCulling(vector<FrustumPlane> planes) {
 		// bind depth buffer
 		// Renderer::getInstance()->copyDepthToSRV(); // dont do this here if multiple waterEffects
 		// are drawn
-		Renderer::getInstance()->bindDepthSRV(7);
+		Renderer::getInstance()->bindDepthSRVCopy(7);
 
 		// bind screen size
 		Renderer::getInstance()->bindConstantBuffer_ScreenSize(5);
@@ -488,7 +488,7 @@ void SeaEffect::draw_quadtreeBBCulling(CubeBoundingBox bb) {
 		// bind depth buffer
 		// Renderer::getInstance()->copyDepthToSRV(); // dont do this here if multiple waterEffects
 		// are drawn
-		Renderer::getInstance()->bindDepthSRV(7);
+		Renderer::getInstance()->bindDepthSRVCopy(7);
 
 		// bind screen size
 		Renderer::getInstance()->bindConstantBuffer_ScreenSize(5);

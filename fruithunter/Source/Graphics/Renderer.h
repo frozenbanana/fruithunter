@@ -26,12 +26,10 @@ public:
 
 	void bindBackAndDepthBuffer();
 	void clearDepth();
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthDSV;	 // Depth stencil view
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthDSS;	 // Depth stencil stade
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthSRV; // Depth shader resource view
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_backBufferTex;
+
 	void bindEverything();
-	void bindDepthSRV(int slot);
+	void bindDepthSRVCopy(int slot);
+	void bindTargetSRVCopy(int slot);
 	void bindConstantBuffer_ScreenSize(int slot);
 	void bindQuadVertexBuffer();
 	void enableAlphaBlending();
@@ -39,6 +37,7 @@ public:
 	void changeResolution(int width, int height);
 	void setFullscreen(bool value);
 	void copyDepthToSRV();
+	void copyTargetToSRV();
 
 	void captureFrame();
 
@@ -74,11 +73,22 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Device> m_device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;
 
+	//RenderTarget
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
-	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendStateAlphaBlending;
-	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendStateWithoutAlphaBlending;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_targetSRVCopy;
 	D3D11_TEXTURE2D_DESC m_backBufferDesc;
 
+	//BlendState
+	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendStateAlphaBlending;
+	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendStateWithoutAlphaBlending;
+
+	//Depth buffer
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthDSV;	 // Depth stencil view
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthDSS;	 // Depth stencil state
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthSRV; // Depth shader resource view
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_backBufferTex;
+
+	//buffer
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_screenSizeBuffer;
 
 	// post process dark edges variables
@@ -89,7 +99,7 @@ private:
 	Quad m_loadingScreen;
 	bool m_loadingScreenInitialised = false;
 
-	// Loading screen
+	// Menu Background
 	Quad m_capturedFrame;
 	bool m_capturedFrameLoaded = false;
 

@@ -100,7 +100,7 @@ XMINT2 Sprite2D::getTextureSize(size_t index) const {
 float2 Sprite2D::getSize(size_t index) const {
 	if (index < m_textures.size() && index >= 0) {
 		XMINT2 texSize = getTextureSize(index);
-		return float2(texSize.x, texSize.y) * m_scale;
+		return float2((float)texSize.x, (float)texSize.y) * m_scale;
 	}
 	else
 		return float2(0, 0);

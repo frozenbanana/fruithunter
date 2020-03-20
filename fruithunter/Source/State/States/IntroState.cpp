@@ -201,9 +201,9 @@ void IntroState::draw() {
 	m_apple.get()->draw_animate();
 	Renderer::getInstance()->disableAlphaBlending();
 
+	m_skybox.draw(2, 2);
 	Renderer::getInstance()->draw_darkEdges();
 	m_bow.getTrailEffect().draw();
-	m_skybox.draw(2, 2);
 
 	// Logo
 	for (size_t i = 0; i < m_letters.size(); i++)

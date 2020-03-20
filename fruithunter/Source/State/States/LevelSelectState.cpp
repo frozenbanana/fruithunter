@@ -201,10 +201,10 @@ void LevelSelectState::draw() {
 			m_levelSelectors[i].m_bowl.getPosition() + float3(0, 1.5f, 0) - m_player.getForward(),
 			float2(1.f) * 4.f);
 	}
-	// dark edges
-	Renderer::getInstance()->draw_darkEdges();
 	// skybox
 	m_skyBox.draw(2, 2);
+	// dark edges
+	Renderer::getInstance()->draw_darkEdges();
 }
 
 LevelSelectState::~LevelSelectState() {}
