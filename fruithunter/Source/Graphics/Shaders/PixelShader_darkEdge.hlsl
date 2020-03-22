@@ -51,6 +51,6 @@ float4 main(VS_OUT ip) : SV_TARGET {
 			}
 		}
 	}
-	blend = 5*sum / total;
+	blend = clamp(5*sum / total, 0, 1);
 	return float4(backColor + (edgeColor-backColor)*blend, 1);
 }

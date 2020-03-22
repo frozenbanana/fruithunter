@@ -101,7 +101,7 @@ void EndRoundState::draw() {
 	Renderer::getInstance()->drawCapturedFrame();
 	Renderer::getInstance()->clearDepth();
 
-	shadowMap->setup_shadowsRendering();
+	shadowMap->setup_shadowRendering();
 	m_camera.bindMatrix();
 
 	m_particleSystem.draw();

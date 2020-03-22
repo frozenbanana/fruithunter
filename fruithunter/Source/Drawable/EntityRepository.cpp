@@ -79,7 +79,7 @@ void EntityRepository::loadPlacements(string filename) {
 		ErrorLogger::log("(EntityRepository) Loaded entity placements from file: " + filename);
 	}
 	else {
-		ErrorLogger::logWarning(HRESULT(), "Couldnt open and load from file: " + path);
+		ErrorLogger::logWarning("Couldnt open and load from file: " + path);
 	}
 }
 
@@ -146,7 +146,7 @@ void EntityRepository::savePlacements(string filename) const {
 			ErrorLogger::log("(EntityRepository) Saved entity placements in file: " + filename);
 		}
 		else {
-			ErrorLogger::logWarning(HRESULT(), "Couldnt open and save to file: " + path);
+			ErrorLogger::logWarning("Couldnt open and save to file: " + path);
 		}
 	}
 	else {
@@ -188,8 +188,7 @@ void EntityRepository::save() {
 			}
 		}
 		else
-			ErrorLogger::logWarning(
-				HRESULT(), "(EntityRepository) Loaded repository name not set when should!");
+			ErrorLogger::logWarning("(EntityRepository) Loaded repository name not set when should!");
 	}
 }
 

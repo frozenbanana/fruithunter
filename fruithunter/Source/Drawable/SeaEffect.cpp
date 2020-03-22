@@ -57,7 +57,7 @@ void SeaEffect::createBuffers() {
 		HRESULT res =
 			Renderer::getDevice()->CreateBuffer(&desc, nullptr, m_worldMatrixBuffer.GetAddressOf());
 		if (FAILED(res))
-			ErrorLogger::logError(res, "Failed creating matrix buffer in WaterEffect class!\n");
+			ErrorLogger::logError("Failed creating matrix buffer in WaterEffect class!\n", res);
 	}
 	// time Buffer
 	if (m_timeBuffer.Get() == nullptr) {
@@ -70,7 +70,7 @@ void SeaEffect::createBuffers() {
 		HRESULT res =
 			Renderer::getDevice()->CreateBuffer(&desc, nullptr, m_timeBuffer.GetAddressOf());
 		if (FAILED(res))
-			ErrorLogger::logError(res, "Failed creating time buffer in WaterEffect class!\n");
+			ErrorLogger::logError("Failed creating time buffer in WaterEffect class!\n", res);
 	}
 	// properties Buffer
 	if (m_propertiesBuffer.Get() == nullptr) {
@@ -83,7 +83,7 @@ void SeaEffect::createBuffers() {
 		HRESULT res =
 			Renderer::getDevice()->CreateBuffer(&desc, nullptr, m_propertiesBuffer.GetAddressOf());
 		if (FAILED(res))
-			ErrorLogger::logError(res, "Failed creating properties buffer in WaterEffect class!\n");
+			ErrorLogger::logError("Failed creating properties buffer in WaterEffect class!\n", res);
 	}
 	// maps sizes Buffer
 	if (m_mapSizesBuffer.Get() == nullptr) {
@@ -96,7 +96,7 @@ void SeaEffect::createBuffers() {
 		HRESULT res =
 			Renderer::getDevice()->CreateBuffer(&desc, nullptr, m_mapSizesBuffer.GetAddressOf());
 		if (FAILED(res))
-			ErrorLogger::logError(res, "Failed creating map sizes buffer in WaterEffect class!\n");
+			ErrorLogger::logError("Failed creating map sizes buffer in WaterEffect class!\n", res);
 	}
 	// maps
 	createResourceBuffer(m_waterHeightMapName, m_waterHeightMap.GetAddressOf());
@@ -594,7 +594,7 @@ void SeaEffect::SubWaterGrid::createBuffers() {
 		Renderer::getDevice()->CreateBuffer(&bufferDesc, &data, m_vertexBuffer.GetAddressOf());
 	if (FAILED(res))
 		ErrorLogger::logError(
-			res, "Failed creating vertex buffer in WaterEffect::SubGrid class!\n");
+			"Failed creating vertex buffer in WaterEffect::SubGrid class!\n", res);
 }
 
 void SeaEffect::SubWaterGrid::initilize() { createBuffers(); }

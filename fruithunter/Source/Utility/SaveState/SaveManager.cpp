@@ -25,9 +25,9 @@ bool SaveManager::loadFile(string filename, LevelData* levels) const {
 			}
 		}
 		else {
-			ErrorLogger::logWarning(HRESULT(),
+			ErrorLogger::logWarning(
 				"(SaveManager) File is corrupted! Nr of levels is incorrect!\nFile: " + path +
-					"\nIncorrectNrOfLevels: " + to_string(count));
+				"\nIncorrectNrOfLevels: " + to_string(count));
 		}
 		file.close();
 		return true;

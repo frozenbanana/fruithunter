@@ -69,7 +69,7 @@ void Animated::createAnimationConstantBuffer() {
 
 	check = gDevice->CreateBuffer(&bufferDesc, &data, m_animationBuffer.GetAddressOf());
 	if (FAILED(check))
-		ErrorLogger::logError(check, "Failed creating animation buffer in Animated class!\n");
+		ErrorLogger::logError("Failed creating animation buffer in Animated class!\n", check);
 }
 
 void Animated::bindConstantBuffer() {

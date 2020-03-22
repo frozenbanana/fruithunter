@@ -15,7 +15,7 @@ void ShadowMapper::createCameraBuffer() {
 	bufferDesc.ByteWidth = sizeof(m_vpMatrix_t);
 	HRESULT res = device->CreateBuffer(&bufferDesc, nullptr, m_matrixBuffer.GetAddressOf());
 	if (FAILED(res))
-		ErrorLogger::logWarning(res, "(ShadowMapping) Failed creating CameraVPT constant buffer!");
+		ErrorLogger::logWarning("(ShadowMapping) Failed creating CameraVPT constant buffer!", res);
 }
 
 void ShadowMapper::createVPTBuffer() {
@@ -29,7 +29,7 @@ void ShadowMapper::createVPTBuffer() {
 
 	HRESULT res = device->CreateBuffer(&bufferDesc, nullptr, m_matrixVPTBuffer.GetAddressOf());
 	if (FAILED(res))
-		ErrorLogger::logWarning(res, "(ShadowMapping) Failed creating VPTMatrix constant buffer!");
+		ErrorLogger::logWarning("(ShadowMapping) Failed creating VPTMatrix constant buffer!", res);
 }
 
 void ShadowMapper::createInfoBuffer() {
@@ -47,7 +47,7 @@ void ShadowMapper::createInfoBuffer() {
 	data.pSysMem = &m_shadowInfo;
 	HRESULT res = device->CreateBuffer(&bufferDesc, &data, m_ShadowInfoBuffer.GetAddressOf());
 	if (FAILED(res))
-		ErrorLogger::logWarning(res, "(ShadowMapping) Failed creating ShadowInfo constant buffer!");
+		ErrorLogger::logWarning("(ShadowMapping) Failed creating ShadowInfo constant buffer!", res);
 }
 
 void ShadowMapper::updateViewMatrix() {
@@ -174,7 +174,7 @@ void ShadowMapper::resizeShadowDepthViews(XMINT2 shadowDepthTextureSize) {
 	m_depthMap.Reset();
 	HRESULT hr_0 = device->CreateTexture2D(&shadowTexDesc, 0, m_depthMap.GetAddressOf());
 	if (FAILED(hr_0))
-		ErrorLogger::logWarning(hr_0, "(ShadowMapper) Failed creating depth texture!");
+		ErrorLogger::logWarning("(ShadowMapper) Failed creating depth texture!", hr_0);
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC shadowDSVDesc;
 	shadowDSVDesc.Flags = 0;
@@ -185,7 +185,7 @@ void ShadowMapper::resizeShadowDepthViews(XMINT2 shadowDepthTextureSize) {
 	m_shadowDSV.Reset();
 	HRESULT hr_1 = device->CreateDepthStencilView(m_depthMap.Get(), &shadowDSVDesc, &m_shadowDSV);
 	if (FAILED(hr_1))
-		ErrorLogger::logWarning(hr_1, "(ShadowMapper) Failed creating depth stencil view!");
+		ErrorLogger::logWarning("(ShadowMapper) Failed creating depth stencil view!", hr_1);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shadowSRVDesc;
 	shadowSRVDesc.Format = DXGI_FORMAT_R32_FLOAT; // DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
@@ -196,7 +196,7 @@ void ShadowMapper::resizeShadowDepthViews(XMINT2 shadowDepthTextureSize) {
 	m_shadowSRV.Reset();
 	HRESULT hr_2 = device->CreateShaderResourceView(m_depthMap.Get(), &shadowSRVDesc, &m_shadowSRV);
 	if (FAILED(hr_2))
-		ErrorLogger::logWarning(hr_2, "(ShadowMapper) Failed creating depth resource view!");
+		ErrorLogger::logWarning("(ShadowMapper) Failed creating depth resource view!", hr_2);
 }
 
 void ShadowMapper::update(float3 playerPos) {
@@ -215,7 +215,7 @@ void ShadowMapper::setup_depthRendering() {
 	bindShadowInfoBuffer();
 }
 
-void ShadowMapper::setup_shadowsRendering() {
+void ShadowMapper::setup_shadowRendering() {
 	Renderer::getInstance()->setDrawState(Renderer::DrawingState::state_normal);
 	bindVPTBuffer();
 	bindShadowMap();

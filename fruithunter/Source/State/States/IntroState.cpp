@@ -84,8 +84,6 @@ void IntroState::update() {
 	m_shootTime += delta;
 
 	Input::getInstance()->setMouseModeAbsolute();
-	m_skybox.updateNewOldLight(2);
-	m_skybox.updateCurrentLight();
 	m_waterEffect.update(delta);
 
 	m_apple.get()->setPosition(float3(
@@ -111,7 +109,6 @@ void IntroState::update() {
 	}
 	m_bow.getTrailEffect().update(
 		delta, TerrainManager::getInstance()->getTerrainFromPosition(bowPos));
-	m_timer.update();
 
 	// Arrow collision
 	if (!m_bow.getArrowHitObject()) {
@@ -144,6 +141,8 @@ void IntroState::update() {
 		m_letters[i].letter.setPosition(float2(offsetX, offsetY) + movement);
 		offsetX += m_letters[i].letter.getTextureSize().x / (1.65f * 2.f);
 	}
+
+	m_skybox.update(delta);
 
 	Input::getInstance()->setMouseModeAbsolute();
 }
@@ -184,7 +183,7 @@ void IntroState::draw() {
 
 	// Scene drawing
 	Renderer::getInstance()->beginFrame();
-	shadowMap->setup_shadowsRendering();
+	shadowMap->setup_shadowRendering();
 	m_skybox.bindLightBuffer();
 	m_camera.bindMatrix();
 
@@ -201,7 +200,7 @@ void IntroState::draw() {
 	m_apple.get()->draw_animate();
 	Renderer::getInstance()->disableAlphaBlending();
 
-	m_skybox.draw(2, 2);
+	m_skybox.draw(AreaTag::Plains);
 	Renderer::getInstance()->draw_darkEdges();
 	m_bow.getTrailEffect().draw();
 

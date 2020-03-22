@@ -4,21 +4,17 @@
 #include "VariableSyncer.h"
 #include "AudioHandler.h"
 #include "Settings.h"
+#include "TerrainManager.h"
 
 Player::Player() {}
 
 Player::~Player() {}
 
-void Player::initialize() {
-	m_position = float3(1.0f, 2.0f, 3.0f);
-	m_lastSafePosition = m_position;
-	m_velocity = float3(0.0f, 0.0f, 0.0f);
-	m_playerForward = DEFAULTFORWARD;
-}
-
-void Player::update(float dt, Terrain* terrain) {
+void Player::update(float dt) {
 
 	float delta = dt;
+
+	Terrain* terrain = TerrainManager::getInstance()->getTerrainFromPosition(m_position);
 
 	if (m_hunterMode) {
 		delta *= 0.1f;
@@ -81,14 +77,18 @@ void Player::update(float dt, Terrain* terrain) {
 	updateHunterMode(dt);
 
 	updateGodMode(delta);
+
 	updateCamera();
 
 	updateBow(dt, terrain);
 }
 
 void Player::draw() {
-	m_camera.bindMatrix();
 	m_bow.draw();
+}
+
+void Player::bindMatrix() { 
+	m_camera.bindMatrix();
 }
 
 void Player::collideObject(Entity& obj) {
@@ -114,7 +114,7 @@ void Player::collideObject(Entity& obj) {
 				down.Normalize();
 				float cast = obj.castRay(m_position + float3(0.f, stepHeight, 0.f), down);
 				if (cast != -1.f && cast < stepHeight) {
-					m_position.y = m_position.y + stepHeight - cast;
+					m_position.y += stepHeight - cast;
 					// m_position.y += (stepHeight - cast) * 1.f;
 				}
 			}
@@ -138,6 +138,21 @@ void Player::collideObject(Entity& obj) {
 			m_velocity *= 0.5f;
 		}
 	}
+}
+
+bool Player::arrowCollideToEntity(Entity& entity, float dt) { 
+	float3 arrowPosition = m_bow.getArrow().getPosition();
+	float3 arrowVelocity = m_bow.getArrowVelocity() * dt;
+	if (isShooting() && !m_bow.getArrowHitObject()) {
+		float castray = entity.castRay(arrowPosition, arrowVelocity);
+		if (castray != -1.f && castray < 1.f) {
+			// Arrow is hitting object
+			float3 target = arrowPosition + arrowVelocity * castray;
+			m_bow.arrowHitObject(target);
+			return true;
+		}
+	}
+	return false;
 }
 
 bool Player::checkAnimal(float3 animalPos, float range, float throwStrength) {
@@ -328,8 +343,8 @@ void Player::calculateTerrainCollision(Terrain* terrain, float dt) {
 		slide(dt, collisionNormal, l);
 		loopCount--;
 		if (loopCount <= 0) {
-			ErrorLogger::logWarning(HRESULT(), "WARNING! Player collision with terrain calculated "
-											   "ALOT of iterations in the update function!");
+			ErrorLogger::logWarning("WARNING! Player collision with terrain calculated "
+									"ALOT of iterations in the update function!");
 			break;
 		}
 	};
@@ -352,6 +367,10 @@ CubeBoundingBox Player::getCameraBoundingBox() const { return m_camera.getFrustu
 vector<float3> Player::getFrustumPoints(float scaleBetweenNearAndFarPlane) const {
 	return m_camera.getFrustumPoints(scaleBetweenNearAndFarPlane);
 }
+
+Entity& Player::getArrow() { return m_bow.getArrow(); }
+
+Bow& Player::getBow() { return m_bow; }
 
 void Player::checkDash(float dt) {
 	if (Input::getInstance()->keyPressed(KEY_DASH) && (m_onGround || m_onEntity) && !m_onSteepGround) {

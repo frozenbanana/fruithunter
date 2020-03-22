@@ -9,7 +9,6 @@ void LevelSelectState::initialize() {
 	m_name = "Level select state";
 
 	// Initiate player
-	m_player.initialize();
 	m_player.setPosition(m_spawnPosition);
 	// Initiate terrain
 	// m_maps = vector<string> maps(4);
@@ -52,26 +51,24 @@ void LevelSelectState::update() {
 	Input::getInstance()->setMouseModeRelative();
 
 	m_timer.update();
-	float delta = m_timer.getDt();
+	float dt = m_timer.getDt();
 
 	// Update terrainprops
-	m_terrainProps.update(delta, m_player.getCameraPosition(), m_player.getForward());
+	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
 	// update player
-	m_player.update(
-		delta, TerrainManager::getInstance()->getTerrainFromPosition(m_player.getPosition()));
+	m_player.update(dt);
 
 	for (int i = 0; i < m_terrainProps.getEntities()->size(); i++) {
 		m_player.collideObject(*m_terrainProps.getEntities()->at(i));
 	}
 
 	// Update Skybox
-	m_skyBox.updateDelta(delta);
-	m_skyBox.updateCurrentLight();
-	m_skyBox.updateNewOldLight(2);
+	m_skyBox.update(dt);
+	m_skyBox.switchLight(AreaTag::Plains);
 
 	// update water
-	m_waterEffect.update(delta);
+	m_waterEffect.update(dt);
 
 	// Update bowls
 	for (int i = 0; i < m_levelSelectors.size(); i++) {
@@ -118,8 +115,18 @@ void LevelSelectState::update() {
 				pft->m_mutex.unlock();
 			}*/
 		}
-		m_animal[i]->update(delta, m_player.getPosition());
+		m_animal[i]->update(dt, m_player.getPosition());
 	}
+
+	// Check entity - arrow
+	vector<Entity**> entitiesAroundArrow =
+		m_terrainProps.getCulledEntitiesByPosition(m_player.getArrow().getPosition());
+	for (size_t i = 0; i < entitiesAroundArrow.size(); i++) {
+		if ((*entitiesAroundArrow[i])->getIsCollidable()) {
+			m_player.arrowCollideToEntity(**entitiesAroundArrow[i], dt);
+		}
+	}
+
 }
 
 void LevelSelectState::handleEvent() {
@@ -163,10 +170,12 @@ void LevelSelectState::draw() {
 
 	// Set first person info
 	Renderer::getInstance()->beginFrame();
-	shadowMap->setup_shadowsRendering();
+	shadowMap->setup_shadowRendering();
 
 	// draw first person
 	m_skyBox.bindLightBuffer();
+	m_player.bindMatrix();
+	//draw bow
 	m_player.draw();
 	// draw bowls
 	for (int i = 0; i < m_levelSelectors.size(); i++) {
@@ -202,7 +211,7 @@ void LevelSelectState::draw() {
 			float2(1.f) * 4.f);
 	}
 	// skybox
-	m_skyBox.draw(2, 2);
+	m_skyBox.draw();
 	// dark edges
 	Renderer::getInstance()->draw_darkEdges();
 }

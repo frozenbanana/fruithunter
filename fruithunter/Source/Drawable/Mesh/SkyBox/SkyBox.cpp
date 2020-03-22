@@ -29,7 +29,7 @@ bool SkyBox::createConstantBuffer() {
 	cbDesc.MiscFlags = 0;
 	cbDesc.StructureByteStride = 0;
 
-	HRESULT hr = device->CreateBuffer(&cbDesc, nullptr, m_buffer.GetAddressOf());
+	HRESULT hr = device->CreateBuffer(&cbDesc, nullptr, m_interpolationBuffer.GetAddressOf());
 	if (FAILED(hr)) {
 		ErrorLogger::messageBox(hr, "Failed creating constant buffer from texture\n");
 		return false;
@@ -48,80 +48,121 @@ wstring SkyBox::s2ws(const std::string& s) {
 	return r;
 }
 
-void SkyBox::bindTextures(int oldSkybox, int newSkybox) {
+bool SkyBox::bindTextures() {
 	ID3D11Device* device = Renderer::getDevice();
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
-	//// update buffer
-	float4 dataBuffer = float4(m_dt,0,0,0);
-	deviceContext->UpdateSubresource(m_buffer.Get(), 0, 0, &dataBuffer, 0, 0);
+	// update and bind interpolation buffer
+	float4 dataBuffer = float4(m_interpolation,0,0,0);
+	deviceContext->UpdateSubresource(m_interpolationBuffer.Get(), 0, 0, &dataBuffer, 0, 0);
+	deviceContext->PSSetConstantBuffers(0, 1, m_interpolationBuffer.GetAddressOf());
 
 	// bind texture maps
-	deviceContext->PSSetConstantBuffers(0, 1, m_buffer.GetAddressOf());
-	deviceContext->PSSetShaderResources(1, 1, m_textures[oldSkybox].GetAddressOf());
-	deviceContext->PSSetShaderResources(2, 1, m_textures[newSkybox].GetAddressOf());
+	if (m_textures[m_oldLight].Get() != nullptr && m_textures[m_newLight].Get() != nullptr) {
+		deviceContext->PSSetShaderResources(1, 1, m_textures[m_oldLight].GetAddressOf());
+		deviceContext->PSSetShaderResources(2, 1, m_textures[m_newLight].GetAddressOf());
+		return true;
+	}
+	else {
+		ErrorLogger::logWarning("(SkyBox) Failed binding textures!");
+		return false;//failed binding
+	}
+}
+
+bool SkyBox::bindTexture(AreaTag tag) { 
+	ID3D11Device* device = Renderer::getDevice();
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+
+	// update and bind interpolation buffer
+	float4 dataBuffer = float4(m_interpolation, 0, 0, 0);
+	deviceContext->UpdateSubresource(m_interpolationBuffer.Get(), 0, 0, &dataBuffer, 0, 0);
+	deviceContext->PSSetConstantBuffers(0, 1, m_interpolationBuffer.GetAddressOf());
+
+	// bind texture maps
+	if (m_textures[tag].Get() != nullptr) {
+		deviceContext->PSSetShaderResources(1, 1, m_textures[tag].GetAddressOf());
+		deviceContext->PSSetShaderResources(2, 1, m_textures[tag].GetAddressOf());
+		return true;
+	}
+	else {
+		ErrorLogger::logWarning("(SkyBox) Failed binding texture!");
+		return false; // failed binding
+	}
+}
+
+void SkyBox::load(
+	string fileNames[AreaTag::NR_OF_AREAS], lightInfo lightInfos[AreaTag::NR_OF_AREAS]) {
+	
+	for (int i = 0; i < AreaTag::NR_OF_AREAS; i++) {
+		//create texture
+		string fileNamePath = m_prePath + fileNames[i];
+		createResourceBuffer(fileNamePath, m_textures[i].GetAddressOf());
+		//set light info
+		m_lightInfo[i] = lightInfos[i];
+	}
+
+}
+
+void SkyBox::loadStandard() {
+	string fileNames[AreaTag::NR_OF_AREAS];
+	fileNames[AreaTag::Forest] = "ForestSkybox.jpg";
+	fileNames[AreaTag::Plains] = "PlainsSkybox.jpg";
+	fileNames[AreaTag::Desert] = "DesertSkybox.jpg";
+	fileNames[AreaTag::Volcano] = "VolcanoSkybox.jpg";
+	
+	lightInfo info[AreaTag::NR_OF_AREAS];
+	info[AreaTag::Forest] = { 
+		float4(0.3f, 0.4f, 0.6f, 1.0f), 
+		float4(0.19f, 0.32f, 1.0f, 1.0f),
+		float4(0.4f, 0.5f, 1.0f, 1.0f)
+	};
+	info[AreaTag::Plains] = { 
+		float4(0.7f, 0.7f, 0.7f, 1.0f),
+		float4(0.8f, 0.9f, 0.7f, 1.0f),
+		float4(1.0f, 1.0f, 1.0f, 1.0f)
+	};
+	info[AreaTag::Desert] = {
+		float4(0.75f, 0.6f, 0.28f, 1.0f),
+		float4(0.7f, 0.59f, 0.2f, 1.0f),
+		float4(1.0f, 0.9f, 0.65f, 1.0f)
+	};
+	info[AreaTag::Volcano] = { 
+		float4(0.6f, 0.2f, 0.0f, 1.0f), 
+		float4(0.7f, 0.2f, 0.1f, 1.0f),
+		float4(1.0f, 0.2f, 0.1f, 1.0f) 
+	};
+	load(fileNames, info);
 }
 
 SkyBox::SkyBox() { 
 	m_box.load("skybox");
 
-	string filePath = "assets/Meshes/Textures/";
-	string fileName = "ForestSkybox.jpg";
-	string fileNamePath = filePath + fileName;
-
-	for (int i = 0; i < 4; i++) {
-		string fileNamePath = filePath + m_fileNames[i];
-		createResourceBuffer(fileNamePath, m_textures[i].GetAddressOf());
-	}
-	m_dt = 0;
 	createLightBuffer();
 	createConstantBuffer();
 	createShaders();
 
-	//Forest - Refactor with variableSyncer?
-	m_lightInfo[0] = { 
-		float4(0.3f, 0.4f, 0.6f, 1.0f), 
-		float4(0.19f, 0.32f, 1.0f, 1.0f),
-		float4(0.4f, 0.5f, 1.0f, 1.0f)
-	};
-
-	// Desert
-	m_lightInfo[1] = { 
-		float4(0.75f, 0.6f, 0.28f, 1.0f),
-		float4(0.7f, 0.59f, 0.2f, 1.0f),
-		float4(1.0f, 0.9f, 0.65f, 1.0f)
-	};
-
-	// Plains
-	m_lightInfo[2] = { 
-		float4(0.7f, 0.7f, 0.7f, 1.0f), 
-		float4(0.8f, 0.9f, 0.7f, 1.0f),
-		float4(1.0f, 1.0f, 1.0f, 1.0f)
-	};
-
-	// Volcano
-	m_lightInfo[3] = { 
-		float4(0.6f, 0.2f, 0.0f, 1.0f), 
-		float4(0.7f, 0.2f, 0.1f, 1.0f),
-		float4(1.0f, 0.2f, 0.1f, 1.0f)
-	};
+	loadStandard();
 }
 
 SkyBox::~SkyBox() {}
 
-void SkyBox::draw() { 
-	m_box.bindMaterial(0);
-	m_box.bindMesh();
-	m_shaderSkyBox.bindShadersAndLayout();
-	Renderer::draw(m_box.getVertexCount(), 0);
-	//m_box.draw();
+void SkyBox::draw() {
+	if (bindTextures()) {
+		//sucessfully binded buffers
+		m_box.bindMesh();
+		m_shaderSkyBox.bindShadersAndLayout();
+		Renderer::draw(m_box.getVertexCount(), 0);
+	}
 }
 
-void SkyBox::draw(int oldSkybox, int newSkybox) {
-	bindTextures(oldSkybox, newSkybox);
-	m_box.bindMesh();
-	m_shaderSkyBox.bindShadersAndLayout();
-	Renderer::draw(m_box.getVertexCount(), 0);
+void SkyBox::draw(AreaTag tag) {
+	if (bindTexture(tag)) {
+		// sucessfully binded buffers
+		updateLightInfo(tag);
+		m_box.bindMesh();
+		m_shaderSkyBox.bindShadersAndLayout();
+		Renderer::draw(m_box.getVertexCount(), 0);
+	}
 }
 
 
@@ -144,30 +185,42 @@ void SkyBox::createShaders() {
 		L"VertexShaderSkyBox.hlsl", nullptr, L"PixelShaderSkyBox.hlsl", inputLayout_skyBox, 3);
 }
 
-void SkyBox::updateDelta(float dt) { 
-	m_dt += dt;
-	m_dt = clamp(m_dt, 0.0f, 1.0f);
-}
+void SkyBox::updateLightInfo() {
+	m_interpolatedLightInfo.ambient = (m_lightInfo[m_oldLight].ambient * (1 - m_interpolation)) +
+									  (m_lightInfo[m_newLight].ambient * m_interpolation);
+	m_interpolatedLightInfo.diffuse = (m_lightInfo[m_oldLight].diffuse * (1 - m_interpolation)) +
+									  (m_lightInfo[m_newLight].diffuse * m_interpolation);
+	m_interpolatedLightInfo.specular = (m_lightInfo[m_oldLight].specular * (1 - m_interpolation)) +
+									   (m_lightInfo[m_newLight].specular * m_interpolation);
 
-void SkyBox::resetDelta() { m_dt = 1.0f - m_dt; }
-
-void SkyBox::updateCurrentLight() {
-	//Interpolate values.
-	m_currentLightInfo.ambient = 
-		(m_lightInfo[m_oldLight].ambient * (1 - m_dt)) + (m_lightInfo[m_newLight].ambient * m_dt);
-	m_currentLightInfo.diffuse =
-		(m_lightInfo[m_oldLight].diffuse * (1 - m_dt)) + (m_lightInfo[m_newLight].diffuse * m_dt);
-	m_currentLightInfo.specular =
-		(m_lightInfo[m_oldLight].specular * (1 - m_dt)) + (m_lightInfo[m_newLight].specular * m_dt);
-
-	//Update buffer with new values.
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
-	deviceContext->UpdateSubresource(m_lightBuffer.Get(), 0, 0, &m_currentLightInfo, 0, 0);
+	deviceContext->UpdateSubresource(m_lightBuffer.Get(), 0, 0, &m_interpolatedLightInfo, 0, 0);
 }
 
-void SkyBox::updateNewOldLight(int terrainTag) {
- 	m_oldLight = m_newLight;
-	m_newLight = terrainTag;
+void SkyBox::updateLightInfo(AreaTag tag) {
+	m_interpolatedLightInfo = m_lightInfo[tag];
+
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+	deviceContext->UpdateSubresource(m_lightBuffer.Get(), 0, 0, &m_interpolatedLightInfo, 0, 0);
+}
+
+void SkyBox::update(float dt) { 
+	m_interpolation = Clamp(m_interpolation + dt, 0, 1.f);
+	updateLightInfo();
+}
+
+bool SkyBox::switchLight(AreaTag tag) { 
+	if (tag == m_newLight)
+		return false;
+	if (tag == m_oldLight) {
+		m_interpolation = 1.0f - m_interpolation;
+	}
+	else {
+		m_interpolation = 0;
+	}
+	m_oldLight = m_newLight;
+	m_newLight = tag;
+	return true;
 }
 
 bool SkyBox::createLightBuffer() {

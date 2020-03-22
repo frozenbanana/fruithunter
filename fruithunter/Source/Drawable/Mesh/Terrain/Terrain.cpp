@@ -29,7 +29,7 @@ void Terrain::createBuffers() {
 
 		HRESULT res = gDevice->CreateSamplerState(&sampDesc, m_sampler.GetAddressOf());
 		if (FAILED(res))
-			ErrorLogger::logError(res, "Failed creating sampler state in Terrain class!\n");
+			ErrorLogger::logError("Failed creating sampler state in Terrain class!\n", res);
 	}
 
 	// matrix buffer
@@ -42,7 +42,7 @@ void Terrain::createBuffers() {
 
 		HRESULT res = gDevice->CreateBuffer(&desc, nullptr, m_matrixBuffer.GetAddressOf());
 		if (FAILED(res))
-			ErrorLogger::logError(res, "Failed creating matrix buffer in Terrain class!\n");
+			ErrorLogger::logError("Failed creating matrix buffer in Terrain class!\n", res);
 	}
 	// textures
 	m_mapsInitilized = true;
@@ -92,7 +92,7 @@ bool Terrain::loadHeightmap(string filePath) {
 	HRESULT hr = CreateWICTextureFromFileEx(gDevice, fp, 0, D3D11_USAGE_STAGING, 0,
 		D3D11_CPU_ACCESS_READ, 0, WIC_LOADER_DEFAULT, &res, nullptr);
 	if (FAILED(hr)) {
-		ErrorLogger::logError(hr, "ERROR! Failed loading texture: " + filePath);
+		ErrorLogger::logError("ERROR! Failed loading texture: " + filePath, hr);
 		return false;
 	}
 
@@ -221,8 +221,7 @@ void Terrain::createGrid(XMINT2 size) {
 		}
 	}
 	else {
-		ErrorLogger::logWarning(
-			HRESULT(), "WARNING! Tried to change a terrain to inappropriate size");
+		ErrorLogger::logWarning("WARNING! Tried to change a terrain to inappropriate size");
 	}
 }
 
@@ -865,7 +864,7 @@ void Terrain::SubGrid::createBuffers() {
 	HRESULT res =
 		Renderer::getDevice()->CreateBuffer(&bufferDesc, &data, m_vertexBuffer.GetAddressOf());
 	if (FAILED(res))
-		ErrorLogger::logError(res, "Failed creating vertex buffer in Terrain::SubGrid class!\n");
+		ErrorLogger::logError("Failed creating vertex buffer in Terrain::SubGrid class!\n", res);
 }
 
 unsigned int Terrain::SubGrid::getVerticeCount() const { return (unsigned int)m_vertices.size(); }

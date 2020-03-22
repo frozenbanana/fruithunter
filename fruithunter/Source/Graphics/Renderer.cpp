@@ -140,7 +140,7 @@ void Renderer::copyTargetToSRV() {
 void Renderer::captureFrame() {
 	auto hr = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&m_backBufferTex);
 	if (FAILED(hr)) {
-		ErrorLogger::logError(hr, "Failed to capture backbuffer.");
+		ErrorLogger::logError("Failed to capture backbuffer.", hr);
 	}
 	else {
 		// Write out the render target to png
@@ -300,7 +300,7 @@ ID3D11Device* Renderer::getDevice() {
 		return r->m_device.Get();
 	}
 	else {
-		ErrorLogger::logError(NULL, "Renderer : Trying to get device without being initalized.");
+		ErrorLogger::logError("Renderer : Trying to get device without being initalized.");
 		return nullptr;
 	}
 }
@@ -311,7 +311,7 @@ ID3D11DeviceContext* Renderer::getDeviceContext() {
 	}
 	else {
 		ErrorLogger::logError(
-			NULL, "Renderer : Trying to get device context without being initalized.");
+			"Renderer : Trying to get device context without being initalized.");
 		return nullptr;
 	}
 }
@@ -355,7 +355,7 @@ void Renderer::createDevice(HWND window) {
 	ID3D11Texture2D* texCopy = 0;
 	HRESULT res = m_device->CreateTexture2D(&copyDesc, 0, &texCopy);
 	if (FAILED(res))
-		ErrorLogger::logError(res, "(Renderer) Failed creating render 2d texture copy!");
+		ErrorLogger::logError("(Renderer) Failed creating render 2d texture copy!", res);
 	//Shader resourceView
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	ZeroMemory(&srvDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
@@ -366,7 +366,7 @@ void Renderer::createDevice(HWND window) {
 	HRESULT srvHR =
 		m_device->CreateShaderResourceView(texCopy, &srvDesc, m_targetSRVCopy.GetAddressOf());
 	if (FAILED(srvHR))
-		ErrorLogger::logError(srvHR, "(Renderer) Failed creating render SRV copy!");
+		ErrorLogger::logError("(Renderer) Failed creating render SRV copy!", srvHR);
 	texCopy->Release();
 
 	createDepthState();
@@ -410,7 +410,7 @@ void Renderer::createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd) {
 	ID3D11Texture2D* tex = 0;
 	HRESULT res = m_device->CreateTexture2D(&DeStDesc, 0, &tex);
 	if (FAILED(res))
-		ErrorLogger::logError(res, "(Renderer) Failed creating depth 2D texture!");
+		ErrorLogger::logError("(Renderer) Failed creating depth 2D texture!", res);
 
 	// depth stencil
 	D3D11_DEPTH_STENCIL_VIEW_DESC viewDesc;
@@ -421,7 +421,7 @@ void Renderer::createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd) {
 	viewDesc.Texture2D.MipSlice = 0;
 	HRESULT hr2 = m_device->CreateDepthStencilView(tex, &viewDesc, m_depthDSV.GetAddressOf());
 	if (FAILED(hr2))
-		ErrorLogger::logError(hr2, "(Renderer) Failed creating depth stencil view!");
+		ErrorLogger::logError("(Renderer) Failed creating depth stencil view!", hr2);
 
 	tex->Release();
 
@@ -433,7 +433,7 @@ void Renderer::createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd) {
 	DeStDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	res = m_device->CreateTexture2D(&CopyDeStDesc, 0, &texCopy);
 	if (FAILED(res))
-		ErrorLogger::logError(res, "(Renderer) Failed creating depth 2D texture copy!");
+		ErrorLogger::logError("(Renderer) Failed creating depth 2D texture copy!", res);
 
 	// depth shader resource
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
@@ -445,7 +445,7 @@ void Renderer::createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd) {
 	HRESULT srvHR =
 		m_device->CreateShaderResourceView(texCopy, &srvDesc, m_depthSRV.GetAddressOf());
 	if (FAILED(srvHR))
-		ErrorLogger::logError(srvHR, "(Renderer) Failed creating depthSRV!");
+		ErrorLogger::logError("(Renderer) Failed creating depthSRV!", srvHR);
 
 	texCopy->Release();
 }
@@ -486,7 +486,7 @@ void Renderer::createConstantBuffers() {
 	HRESULT res =
 		Renderer::getDevice()->CreateBuffer(&desc, nullptr, m_screenSizeBuffer.GetAddressOf());
 	if (FAILED(res))
-		ErrorLogger::logError(res, "Failed creating screen size buffer in Renderer class!\n");
+		ErrorLogger::logError("Failed creating screen size buffer in Renderer class!\n", res);
 }
 
 void Renderer::createQuadVertexBuffer() {
@@ -506,7 +506,7 @@ void Renderer::createQuadVertexBuffer() {
 		HRESULT res = Renderer::getDevice()->CreateBuffer(
 			&bufferDesc, &data, m_vertexQuadBuffer.GetAddressOf());
 		if (FAILED(res))
-			ErrorLogger::logError(res, "Failed creating quad vertex buffer in Renderer class!\n");
+			ErrorLogger::logError("Failed creating quad vertex buffer in Renderer class!\n", res);
 	}
 }
 

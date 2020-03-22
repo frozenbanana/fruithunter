@@ -48,7 +48,7 @@ void Entity::createBuffers() {
 		HRESULT res =
 			Renderer::getDevice()->CreateBuffer(&desc, nullptr, m_modelMatrixBuffer.GetAddressOf());
 		if (FAILED(res))
-			ErrorLogger::logError(res, "Entity failed creating matrix buffer!");
+			ErrorLogger::logError("Entity failed creating matrix buffer!", res);
 	}
 }
 

@@ -104,7 +104,7 @@ void Quad::createMesh() {
 		m_texture.GetAddressOf(), m_shaderResourceView.GetAddressOf());
 
 	if (FAILED(tfFlag)) {
-		ErrorLogger::logWarning(tfFlag, "Failed to initalize texture from file. Capturing frame");
+		ErrorLogger::logWarning("Failed to initalize texture from file. Capturing frame", tfFlag);
 		Renderer::getInstance()->captureFrame();
 	}
 

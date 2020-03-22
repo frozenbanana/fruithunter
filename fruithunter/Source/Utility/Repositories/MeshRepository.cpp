@@ -20,7 +20,7 @@ bool MeshRepository::add(string OBJ_Name) {
 		ErrorLogger::log("Loaded Mesh: " + OBJ_Name);
 	}
 	else {
-		ErrorLogger::logWarning(HRESULT(), "Failed loading Mesh: " + OBJ_Name);
+		ErrorLogger::logWarning("Failed loading Mesh: " + OBJ_Name);
 	}
 	return state;
 }

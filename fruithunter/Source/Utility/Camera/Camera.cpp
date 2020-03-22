@@ -4,14 +4,14 @@
 
 Camera::Camera() {
 	// Set initial values
-	m_camEye = float3(0.0, 0.0, -4.0);
-	m_camTarget = float3(0.0, 0.0, 0.0);
-	m_camUp = float3(0.0, 1.0, 0.0);
+	m_positionEye = float3(0.0, 0.0, -4.0);
+	m_positionTarget = float3(0.0, 0.0, 0.0);
+	m_up = float3(0.0, 1.0, 0.0);
 
 	m_fov = DEFAULT_FOV;
 	m_projMatrix = XMMatrixPerspectiveFovLH(
 		m_fov, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, m_nearPlane, m_farPlane);
-	m_viewMatrix = XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
+	m_viewMatrix = XMMatrixLookAtLH(m_positionEye, m_positionTarget, m_up);
 	m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 	{
 		// Create constant buffer
@@ -49,24 +49,26 @@ Camera::Camera() {
 Camera::~Camera() {}
 
 void Camera::setEye(float3 camEye) {
-	m_camEye = camEye;
+	m_positionEye = camEye;
 	m_viewChanged = true;
 }
 
+void Camera::move(float3 movement) { setEye(m_positionEye + movement); }
+
 void Camera::setTarget(float3 camTarget) {
-	m_camTarget = camTarget;
+	m_positionTarget = camTarget;
 	m_viewChanged = true;
 }
 
 void Camera::setUp(float3 camUp) {
-	m_camUp = camUp;
+	m_up = camUp;
 	m_viewChanged = true;
 }
 
 void Camera::setView(float3 camEye, float3 camTarget, float3 camUp) {
-	m_camEye = camEye;
-	m_camTarget = camTarget;
-	m_camUp = camUp;
+	m_positionEye = camEye;
+	m_positionTarget = camTarget;
+	m_up = camUp;
 	m_viewChanged = true;
 }
 
@@ -90,7 +92,7 @@ float Camera::getDefaultFov() const { return DEFAULT_FOV; }
 void Camera::updateBuffer() {
 	if (m_viewChanged || m_projChanged) {
 
-		m_viewMatrix = XMMatrixLookAtLH(m_camEye, m_camTarget, m_camUp);
+		m_viewMatrix = XMMatrixLookAtLH(m_positionEye, m_positionTarget, m_up);
 		m_projMatrix = XMMatrixPerspectiveFovLH(
 			m_fov, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, m_nearPlane, m_farPlane);
 
@@ -128,19 +130,19 @@ float4x4 Camera::getViewMatrix() const { return m_viewMatrix; }
 
 float4x4 Camera::getViewProjMatrix() const { return m_vpMatrix; }
 
-float3 Camera::getPosition() const { return m_camEye; }
+float3 Camera::getPosition() const { return m_positionEye; }
 
 vector<FrustumPlane> Camera::getFrustumPlanes() const {
 	vector<FrustumPlane> planes;
 	planes.reserve(6);
-	float3 center = m_camEye;
+	float3 center = m_positionEye;
 	float height = tan(m_fov / 2.f);
 	float aspectRatio = (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT;
 	float width = height * aspectRatio;
 
-	float3 camForward = m_camTarget - m_camEye;
+	float3 camForward = m_positionTarget - m_positionEye;
 	camForward.Normalize();
-	float3 camLeft = m_camUp.Cross(camForward);
+	float3 camLeft = m_up.Cross(camForward);
 	camLeft.Normalize();
 	float3 camUp = camForward.Cross(camLeft);
 	camUp.Normalize();
@@ -168,14 +170,14 @@ CubeBoundingBox Camera::getFrustumBoundingBox() const {
 }
 
 vector<float3> Camera::getFrustumPoints(float scaleBetweenNearAndFarPlane) const {
-	float3 center = m_camEye;
+	float3 center = m_positionEye;
 	float height = tan(m_fov / 2.f);
 	float aspectRatio = (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT;
 	float width = height * aspectRatio;
 
-	float3 camForward = m_camTarget - m_camEye;
+	float3 camForward = m_positionTarget - m_positionEye;
 	camForward.Normalize();
-	float3 camLeft = m_camUp.Cross(camForward);
+	float3 camLeft = m_up.Cross(camForward);
 	camLeft.Normalize();
 	float3 camUp = camForward.Cross(camLeft);
 	camUp.Normalize();

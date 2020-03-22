@@ -113,19 +113,19 @@ HUD::HUD() {
 	HRESULT t = CreateWICTextureFromFile(Renderer::getDevice(), L"assets/sprites/background.png",
 		resource.GetAddressOf(), m_backgroundTexture.ReleaseAndGetAddressOf());
 	if (FAILED(t))
-		ErrorLogger::logError(t, "Failed to create backgorund sprite texture");
+		ErrorLogger::logError("Failed to create backgorund sprite texture", t);
 
 
 	t = CreateWICTextureFromFile(Renderer::getDevice(), L"assets/sprites/stamina.png",
 		resource.GetAddressOf(), m_staminaTexture.ReleaseAndGetAddressOf());
 	if (FAILED(t))
-		ErrorLogger::logError(t, "Failed to create stamina sprite texture");
+		ErrorLogger::logError("Failed to create stamina sprite texture", t);
 
 
 	t = CreateWICTextureFromFile(Renderer::getDevice(), L"assets/sprites/staminaFrame.png",
 		resource.GetAddressOf(), m_staminaFrame.ReleaseAndGetAddressOf());
 	if (FAILED(t))
-		ErrorLogger::logError(t, "Failed to create stamina frame texture");
+		ErrorLogger::logError("Failed to create stamina frame texture", t);
 }
 
 HUD::~HUD() {
@@ -146,7 +146,7 @@ void HUD::createFruitSprite(string fruitName) {
 		resource.GetAddressOf(), sprite.texture.ReleaseAndGetAddressOf());
 
 	if (FAILED(t))
-		ErrorLogger::logError(t, "Failed to create fruit sprite texture");
+		ErrorLogger::logError("Failed to create fruit sprite texture", t);
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> tex;
 	resource.As(&tex);

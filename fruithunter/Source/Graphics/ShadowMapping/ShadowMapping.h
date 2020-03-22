@@ -66,7 +66,7 @@ public:
 	void update(float3);
 
 	void setup_depthRendering();
-	void setup_shadowsRendering();
+	void setup_shadowRendering();
 
 	//Utility
 	void resizeShadowDepthViews(XMINT2 shadowDepthTextureSize);

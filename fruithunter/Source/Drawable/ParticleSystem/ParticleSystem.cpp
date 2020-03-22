@@ -23,9 +23,9 @@ ParticleSystem::ParticleSystem(ParticleSystem::PARTICLE_TYPE type) {
 			m_description.get());*/
 
 		if (m_description->m_nrOfParticles > MAX_PARTICLES) {
-			ErrorLogger::logWarning(NULL, "Particle System is not allowed " +
-											  to_string(m_description->m_nrOfParticles) +
-											  ", limit is " + to_string(MAX_PARTICLES));
+			ErrorLogger::logWarning("Particle System is not allowed " +
+									to_string(m_description->m_nrOfParticles) + ", limit is " +
+									to_string(MAX_PARTICLES));
 		}
 		m_particles.resize(min(m_description->m_nrOfParticles, MAX_PARTICLES));
 		m_particles.reserve(MAX_PARTICLES);
@@ -257,7 +257,7 @@ void ParticleSystem::createBuffers() {
 		HRESULT check = device->CreateBuffer(&buffDesc, &data, m_vertexBuffer.GetAddressOf());
 
 		if (FAILED(check))
-			ErrorLogger::logError(check, "Failed creating buffer in ParticleSystem class!\n");
+			ErrorLogger::logError("Failed creating buffer in ParticleSystem class!\n", check);
 	}
 }
 

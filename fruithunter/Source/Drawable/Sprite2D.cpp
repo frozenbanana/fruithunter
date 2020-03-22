@@ -76,7 +76,7 @@ bool Sprite2D::load(vector<string> paths, float animationSpeed) {
 		if (index != paths.size())
 			m_textures.resize(index);
 		if (failedIndex != -1) {
-			ErrorLogger::logWarning(HRESULT(), "(Sprite2D) Failed loading sprite: " + paths[failedIndex]);
+			ErrorLogger::logWarning("(Sprite2D) Failed loading sprite: " + paths[failedIndex]);
 			return false; // failed if no texture was succesfully loaded
 		}
 		return true;
@@ -136,7 +136,7 @@ bool Sprite2D::SpriteTexture::load(string path) {
 	HRESULT res = CreateWICTextureFromFile(Renderer::getDevice(), str.c_str(),
 		resource.GetAddressOf(), m_SRV.ReleaseAndGetAddressOf());
 	if (FAILED(res)) {
-		ErrorLogger::logError(res, "(Sprite2D) Failed to create SRV buffer! Path: " + m_path);
+		ErrorLogger::logError("(Sprite2D) Failed to create SRV buffer! Path: " + m_path, res);
 		return false;
 	}
 	else {

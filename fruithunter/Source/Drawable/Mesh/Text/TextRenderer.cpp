@@ -94,7 +94,7 @@ void TextRenderer::createViewBuffers(XMINT2 viewSize) {
 	texDesc.SampleDesc.Count = 1;
 	HRESULT res = device->CreateTexture2D(&texDesc, nullptr, &tex);
 	if (FAILED(res))
-		ErrorLogger::logError(res, "(TextRenderer) Failed creating Texture2D buffer!");
+		ErrorLogger::logError("(TextRenderer) Failed creating Texture2D buffer!", res);
 	// resource view
 	m_SRV.Reset();
 	D3D11_SHADER_RESOURCE_VIEW_DESC descSRV;
@@ -104,7 +104,7 @@ void TextRenderer::createViewBuffers(XMINT2 viewSize) {
 	descSRV.Texture2D.MostDetailedMip = 0;
 	HRESULT srvHR = device->CreateShaderResourceView(tex, &descSRV, m_SRV.GetAddressOf());
 	if (FAILED(srvHR))
-		ErrorLogger::logError(srvHR, "(TextRenderer) Failed creating SRV buffer!");
+		ErrorLogger::logError("(TextRenderer) Failed creating SRV buffer!", srvHR);
 	// render target
 	m_RTV.Reset();
 	D3D11_RENDER_TARGET_VIEW_DESC descRTV;
@@ -113,7 +113,7 @@ void TextRenderer::createViewBuffers(XMINT2 viewSize) {
 	descRTV.Texture2D.MipSlice = 0;
 	HRESULT rtvHR = device->CreateRenderTargetView(tex, &descRTV, m_RTV.GetAddressOf());
 	if (FAILED(rtvHR))
-		ErrorLogger::logError(rtvHR, "(TextRenderer) Failed creating RTV buffer!");
+		ErrorLogger::logError("(TextRenderer) Failed creating RTV buffer!", rtvHR);
 	if (tex != nullptr)
 		tex->Release();
 }
@@ -135,7 +135,7 @@ void TextRenderer::createAndSetVertexBuffer(vector<Vertex> vertices) {
 		HRESULT check =
 			Renderer::getDevice()->CreateBuffer(&bufferDesc, &data, m_vertexBuffer.GetAddressOf());
 		if (FAILED(check))
-			ErrorLogger::logError(check, "(TextRenderer) Failed creating vertex buffer!\n");
+			ErrorLogger::logError("(TextRenderer) Failed creating vertex buffer!\n", check);
 	}
 }
 
@@ -150,7 +150,7 @@ void TextRenderer::createMatrixBuffer() {
 		HRESULT res =
 			Renderer::getDevice()->CreateBuffer(&desc, nullptr, m_worldMatrixBuffer.GetAddressOf());
 		if (FAILED(res))
-			ErrorLogger::logError(res, "(TextRenderer) Failed creating matrix buffer!");
+			ErrorLogger::logError("(TextRenderer) Failed creating matrix buffer!", res);
 	}
 }
 

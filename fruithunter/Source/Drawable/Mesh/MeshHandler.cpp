@@ -135,9 +135,8 @@ bool MeshHandler::load(std::string filename, std::vector<Vertex>& mesh, std::vec
 			}
 			else {
 				// failed loading material
-				ErrorLogger::logWarning(HRESULT(),
-					"WARNING! MeshHandler failed at reading the file: " + m_materialFileName +
-						" for mesh: " + filename);
+				ErrorLogger::logWarning("WARNING! MeshHandler failed at reading the file: " +
+										m_materialFileName + " for mesh: " + filename);
 				// success is still true! Mesh will be forced rendered without material
 			}
 		}
@@ -154,16 +153,16 @@ bool MeshHandler::load(std::string filename, std::vector<Vertex>& mesh, std::vec
 				}
 				else {
 					// failed loading material
-					ErrorLogger::logWarning(HRESULT(),
+					ErrorLogger::logWarning(
 						"WARNING! MeshHandler failed at reading the file: " + m_materialFileName +
-							" for mesh: " + filename); // failed loading material
+						" for mesh: " + filename); // failed loading material
 					// success is still true! Mesh will be forced rendered without material
 				}
 			}
 			else {
 				if (loadOBJ(filename, parts)) {
 					ErrorLogger::logWarning(
-						HRESULT(), "WARNING! MeshHandler failed at reading .obj file: " + filename);
+						"WARNING! MeshHandler failed at reading .obj file: " + filename);
 				}
 				else {
 					success = false; // failed loading .obj and .rw file
@@ -188,7 +187,7 @@ bool MeshHandler::load(std::string filename, std::vector<Vertex>& mesh) {
 		}
 		else {
 			ErrorLogger::logWarning(
-				HRESULT(), "WARNING! MeshHandler failed at reading .obj file: " + filename);
+				"WARNING! MeshHandler failed at reading .obj file: " + filename);
 			success = false; // failed loading .obj and .rw file
 		}
 	}
@@ -346,8 +345,8 @@ bool MeshHandler::loadRaw(std::string filename, std::vector<Vertex>& mesh) {
 		file.read((char*)mesh.data(), sizeof(Vertex) * length); // read vertex data
 		file.close();
 		if (mesh.size() <= 0)
-			ErrorLogger::logWarning(HRESULT(), "WARNING! The Raw mesh file: " + filename +
-												   ".rw is empty, please remove this file!");
+			ErrorLogger::logWarning("WARNING! The Raw mesh file: " + filename +
+									".rw is empty, please remove this file!");
 		return (mesh.size() > 0);
 	}
 	return false;
@@ -373,9 +372,8 @@ bool MeshHandler::loadRawDesc(std::string filename, std::vector<Part>& parts) {
 			}
 		}
 		if (parts.size() <= 0)
-			ErrorLogger::logWarning(
-				HRESULT(), "WARNING! The Raw description from file: " + filename +
-							   ".rwd is empty, please remove this file!");
+			ErrorLogger::logWarning("WARNING! The Raw description from file: " + filename +
+									".rwd is empty, please remove this file!");
 		return (parts.size() > 0);
 	}
 	return false;

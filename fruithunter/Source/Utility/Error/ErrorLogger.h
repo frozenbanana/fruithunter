@@ -12,8 +12,10 @@ public:
 	static void messageBox(std::string message);
 	static void messageBox(HRESULT res, std::wstring message);
 	static void messageBox(HRESULT res, std::string message);
-	static void logWarning(HRESULT res, std::string message);
-	static void logError(HRESULT res, std::string message);
+	static void logWarning(std::string message, HRESULT res);
+	static void logWarning(std::string message);
+	static void logError(std::string message, HRESULT res);
+	static void logError(std::string message);
 	static void log(std::string message);
 	static void logFloat3(std::string description, float3 f3);
 

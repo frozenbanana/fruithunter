@@ -17,7 +17,7 @@ void LevelHandler::initialiseLevel0() {
 
 	level.m_terrainPropsFilename = "level0";
 
-	level.m_terrainTags.push_back(Level::TerrainTags::Plains);
+	level.m_terrainTags.push_back(AreaTag::Plains);
 
 	level.m_fruitPos[APPLE].push_back(0);
 
@@ -75,8 +75,8 @@ void LevelHandler::initialiseLevel1() {
 
 	level.m_terrainPropsFilename = "level1";
 
-	level.m_terrainTags.push_back(Level::TerrainTags::Forest);
-	level.m_terrainTags.push_back(Level::TerrainTags::Plains);
+	level.m_terrainTags.push_back(AreaTag::Forest);
+	level.m_terrainTags.push_back(AreaTag::Plains);
 
 	level.m_fruitPos[APPLE].push_back(0);
 	level.m_fruitPos[MELON].push_back(1);
@@ -159,10 +159,10 @@ void LevelHandler::initialiseLevel2() {
 
 	level.m_terrainPropsFilename = "level2";
 
-	level.m_terrainTags.push_back(Level::TerrainTags::Volcano); // 1
-	level.m_terrainTags.push_back(Level::TerrainTags::Forest);	// 2
-	level.m_terrainTags.push_back(Level::TerrainTags::Desert);	// 3
-	level.m_terrainTags.push_back(Level::TerrainTags::Plains);	// 4
+	level.m_terrainTags.push_back(AreaTag::Volcano);			// 1
+	level.m_terrainTags.push_back(AreaTag::Forest);				// 2
+	level.m_terrainTags.push_back(AreaTag::Desert);				// 3
+	level.m_terrainTags.push_back(AreaTag::Plains);				// 4
 
 	level.m_fruitPos[APPLE].push_back(3); // 2 is  desert
 	level.m_fruitPos[APPLE].push_back(1);
@@ -318,7 +318,7 @@ LevelHandler::~LevelHandler() {
 
 void LevelHandler::initialise() {
 	m_sphere.load("Sphere");
-	m_player.initialize();
+
 	m_terrainManager = TerrainManager::getInstance();
 	m_terrainProps.addPlaceableEntity("treeMedium1");
 	m_terrainProps.addPlaceableEntity("treeMedium2");
@@ -418,7 +418,7 @@ void LevelHandler::loadLevel(int levelNr) {
 
 		m_currentTerrain = currentLevel.m_terrainTags[m_terrainManager->getTerrainIndexFromPosition(
 			currentLevel.m_playerStartPos)];
-		m_skyBox.updateNewOldLight(m_currentTerrain);
+		m_skyBox.switchLight(m_currentTerrain);
 		AudioHandler::getInstance()->changeMusicByTag(m_currentTerrain, 0);
 
 		m_hud.setTimeTargets(currentLevel.m_timeTargets);
@@ -459,8 +459,9 @@ void LevelHandler::loadLevel(int levelNr) {
 
 void LevelHandler::draw() {
 	m_skyBox.bindLightBuffer();
-	m_player.draw();
+	m_player.bindMatrix();
 
+	m_player.draw();
 	Renderer::getInstance()->enableAlphaBlending();
 	for (int i = 0; i < m_fruits.size(); i++) {
 		if (m_fruits[i]->isVisible()) {
@@ -505,7 +506,7 @@ void LevelHandler::draw() {
 	}
 	m_player.getBow().getTrailEffect().draw();
 
-	m_skyBox.draw(m_oldTerrain, m_currentTerrain);
+	m_skyBox.draw();
 	m_hud.draw(); // TODO: Find out why hud is not drawn if particleSystems are before
 }
 
@@ -550,12 +551,10 @@ void LevelHandler::update(float dt) {
 
 	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
 
-	m_skyBox.updateDelta(dt);
-
 	if (Input::getInstance()->keyPressed(Keyboard::R) && m_currentLevel >= 0)
 		m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
 
-	m_player.update(dt, m_terrainManager->getTerrainFromPosition(m_player.getPosition()));
+	m_player.update(dt);
 	m_player.getBow().getTrailEffect().update(dt);
 
 	if (m_player.inHuntermode()) {
@@ -603,17 +602,14 @@ void LevelHandler::update(float dt) {
 	int activeTerrain = m_terrainManager->getTerrainIndexFromPosition(playerPos);
 
 	if (activeTerrain != -1 && m_currentLevel != -1) {
-		Level::TerrainTags tag = m_levelsArr[m_currentLevel].m_terrainTags[activeTerrain];
+		AreaTag tag = m_levelsArr[m_currentLevel].m_terrainTags[activeTerrain];
 		if (m_currentTerrain != tag) {
 			m_oldTerrain = m_currentTerrain;
 			m_currentTerrain = tag;
-			m_skyBox.updateNewOldLight(tag);
-			m_skyBox.resetDelta();
+			m_skyBox.switchLight(tag);
 			AudioHandler::getInstance()->changeMusicByTag(tag, dt);
 		}
 	}
-
-	m_skyBox.updateCurrentLight();
 
 	// update stuff
 
@@ -656,26 +652,15 @@ void LevelHandler::update(float dt) {
 
 
 	// Check entity - arrow
-	float3 arrowPosision = m_player.getArrow().getPosition();
-	float3 arrowVelocity = m_player.getBow().getArrowVelocity();
 	vector<Entity**> entitiesAroundArrow =
-		m_terrainProps.getCulledEntitiesByPosition(arrowPosision);
-	if (m_player.isShooting() && !m_player.getBow().getArrowHitObject()) {
-		for (size_t i = 0; i < entitiesAroundArrow.size(); i++) {
-			if ((*entitiesAroundArrow[i])->getIsCollidable()) {
-				float castray =
-					(*entitiesAroundArrow[i])->castRay(arrowPosision, arrowVelocity * dt);
-				if (castray != -1.f && castray < 1.f) {
-					// Arrow is hitting object
-					float3 target = arrowPosision + arrowVelocity * dt * castray;
-					m_player.getBow().arrowHitObject(target);
-				}
-			}
+		m_terrainProps.getCulledEntitiesByPosition(m_player.getArrow().getPosition());
+	for (size_t i = 0; i < entitiesAroundArrow.size(); i++) {
+		if ((*entitiesAroundArrow[i])->getIsCollidable()) {
+			m_player.arrowCollideToEntity(**entitiesAroundArrow[i], dt);
 		}
 	}
 
-
-
+	//particle system
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
 		Terrain* currentTerrain =
 			m_terrainManager->getTerrainFromPosition(m_particleSystems[i].getPosition());
@@ -690,7 +675,7 @@ void LevelHandler::update(float dt) {
 			}
 		}
 	}
-
+	m_skyBox.update(dt);
 	m_hud.update(dt, m_player.getStamina());
 	for (size_t i = 0; i < m_seaEffects.size(); i++)
 		m_seaEffects[i].update(dt);

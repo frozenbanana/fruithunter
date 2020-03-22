@@ -80,7 +80,7 @@ void PlayState::draw() {
 	// Set first person info
 	Renderer::getInstance()->beginFrame();
 
-	shadowMap->setup_shadowsRendering();
+	shadowMap->setup_shadowRendering();
 
 	// draw first person
 	m_levelHandler->draw();

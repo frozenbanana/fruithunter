@@ -13,41 +13,50 @@ class SkyBox {
 private:
 	ShaderSet m_shaderSkyBox;
 	Mesh m_box;
-	float m_dt;
-	string m_fileNames[4] = { "ForestSkybox.jpg", "DesertSkybox.jpg", "PlainsSkybox.jpg",
-		"VolcanoSkybox.jpg" };
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textures[4];
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_buffer;
 
+	AreaTag m_oldLight = AreaTag::Plains;
+	AreaTag m_newLight = AreaTag::Plains;
+
+	//interpolation buffer
+	float m_interpolation = 1.f;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_interpolationBuffer;
+
+	//textures
+	const string m_prePath = "assets/Meshes/Textures/"; 
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textures[AreaTag::NR_OF_AREAS];
+
+	//light
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightBuffer;
-	lightInfo m_lightInfo[4];
-	lightInfo m_currentLightInfo;
-	int m_oldLight = 0;
-	int m_newLight = 0;
+	lightInfo m_lightInfo[AreaTag::NR_OF_AREAS];
+	lightInfo m_interpolatedLightInfo;
+
+	// -- Functions --
 
 	bool createResourceBuffer(string path, ID3D11ShaderResourceView** buffer);
 	bool createConstantBuffer();
 	wstring s2ws(const std::string& s);
-	void bindTextures(int oldSkybox, int newSkybox);
+	bool bindTextures();
+	bool bindTexture(AreaTag tag);
 
-	float clamp(float val, float min, float max) {
-		return (val < min ? min : val > max ? max : val);
-	}
+	bool createLightBuffer();
+	void createShaders();
+
+	void updateLightInfo();
+	void updateLightInfo(AreaTag tag);
 
 public:
+	//manual binding
+	void bindLightBuffer();
+	//Light information
+	bool switchLight(AreaTag tag);
+	//draw
+	void draw();
+	void draw(AreaTag tag);
+	//update
+	void update(float dt);
+	//initilizers
+	void load(string fileNames[AreaTag::NR_OF_AREAS], lightInfo lightInfos[AreaTag::NR_OF_AREAS]);
+	void loadStandard();
 	SkyBox();
 	~SkyBox();
-
-	void draw();
-	void draw(int oldSkybox, int newSkybox);
-	void createShaders();
-	
-	void updateDelta(float dt);
-	void resetDelta();
-
-	//Light information
-	void updateCurrentLight();
-	void updateNewOldLight(int);
-	bool createLightBuffer();
-	void bindLightBuffer();
 };

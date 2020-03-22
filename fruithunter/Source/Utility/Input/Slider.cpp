@@ -13,7 +13,7 @@ Slider::Slider() {
 	HRESULT t = CreateWICTextureFromFile(Renderer::getDevice(), L"assets/sprites/apple.png",
 		resource.GetAddressOf(), m_texture.ReleaseAndGetAddressOf());
 	if (t)
-		ErrorLogger::logError(t, "Failed to create slider sprite texture");
+		ErrorLogger::logError("Failed to create slider sprite texture", t);
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> tex;
 	resource.As(&tex);
@@ -28,7 +28,7 @@ Slider::Slider() {
 	t = CreateWICTextureFromFile(Renderer::getDevice(), L"assets/sprites/sliderBackground.png",
 		resource.GetAddressOf(), m_backgroundTexture.ReleaseAndGetAddressOf());
 	if (t)
-		ErrorLogger::logError(t, "Failed to create backgorund sprite texture");
+		ErrorLogger::logError("Failed to create backgorund sprite texture", t);
 
 	resource.As(&tex);
 	tex->GetDesc(&texDesc);

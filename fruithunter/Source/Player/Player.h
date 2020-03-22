@@ -8,13 +8,18 @@ class Player {
 public:
 	Player();
 	~Player();
-	void initialize();
-	void update(float dt, Terrain* terrain);
+
+	void update(float dt);
 
 	void draw();
+
+	void bindMatrix();
+
 	void collideObject(Entity& obj);
+	bool arrowCollideToEntity(Entity& entity, float dt);
 	bool checkAnimal(float3 animalPos, float range, float throwStrength);
 
+	// GETS
 	float3 getPosition() const;
 	float3 getCameraPosition() const;
 	float3 getForward() const;
@@ -22,14 +27,19 @@ public:
 	vector<FrustumPlane> getFrustumPlanes() const;
 	CubeBoundingBox getCameraBoundingBox() const;
 	vector<float3> getFrustumPoints(float scaleBetweenNearAndFarPlane) const;
-	Entity& getArrow() { return m_bow.getArrow(); };
-	Bow& getBow() { return m_bow; }
+	Entity& getArrow();
+	Bow& getBow();
 	float getStamina() const;
 	void getStaminaBySkillshot(Skillshot skillShot);
-	bool isShooting() const;
+
+	// SETS
 	void setPosition(float3 position);
-	void standsOnObject();
+
+	//States
+	bool isShooting() const;
 	bool inHuntermode() const;
+
+	void standsOnObject();
 	void activateHunterMode();
 
 private:
@@ -46,7 +56,7 @@ private:
 	const float3 DEFAULTRIGHT = float3(1.0f, 0.0f, 0.0f);
 	const float3 DEFAULTUP = float3(0.0f, 1.0f, 0.0f);
 
-	const float PLAYER_HEIGHT = 1.5f; // meters above ground
+	const float PLAYER_HEIGHT = 1.5f; // units above ground
 	const float GROUND_FRICTION =
 		0.5f; // friction on flat terrain, reduces velocity by percentage per seconds, 0-60.
 	const float GROUND_FRICTION_WEAK = 1.0f; // friction on steep terrain, 0-60.
@@ -57,6 +67,7 @@ private:
 
 	float3 m_position = float3(0, 0, 0);
 	float3 m_velocity = float3(0, 0, 0);
+	float3 m_lastSafePosition = float3(0, 0, 0); // Latest position where player was on ground
 
 	Camera m_camera;
 	Bow m_bow;
@@ -68,7 +79,6 @@ private:
 	bool m_onSteepGround = false;			//if player is on steep terrain				
 	bool m_onEntity = false;							// if player is standing on an object
 	float3 m_gravity = float3(0, -1, 0) * 15.f; // direction * strength
-	float3 m_lastSafePosition = float3(0, 0, 0);// Latest position where player was on ground
 	float m_seaHeight = 1.f;					// Height where player falls in sea
 	float m_resetTimer = 0.f;					// Timer for respawn time
 	float m_resetDelay = 0.5f;					// Number of seconds before respawn

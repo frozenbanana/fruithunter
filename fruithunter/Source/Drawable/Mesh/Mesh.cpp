@@ -158,7 +158,7 @@ void Mesh::createBuffers(bool instancing) {
 
 	check = gDevice->CreateBuffer(&bufferDesc, &data, m_vertexBuffer.GetAddressOf());
 	if (FAILED(check))
-		ErrorLogger::logError(check, "Failed creating vertex buffer in Mesh class!\n");
+		ErrorLogger::logError("Failed creating vertex buffer in Mesh class!\n", check);
 
 	// boundingbox buffer
 	if (m_vertexBuffer_BoundingBox.Get() == nullptr) {
@@ -172,7 +172,7 @@ void Mesh::createBuffers(bool instancing) {
 		check =
 			gDevice->CreateBuffer(&buffDesc, nullptr, m_vertexBuffer_BoundingBox.GetAddressOf());
 		if (FAILED(check))
-			ErrorLogger::logError(check, "Failed creating boundingbox buffer in Mesh class!\n");
+			ErrorLogger::logError("Failed creating boundingbox buffer in Mesh class!\n", check);
 	}
 	// color buffer
 	if (m_colorBuffer.Get() == nullptr) {
@@ -184,7 +184,7 @@ void Mesh::createBuffers(bool instancing) {
 
 		HRESULT res = gDevice->CreateBuffer(&desc, nullptr, m_colorBuffer.GetAddressOf());
 		if (FAILED(res))
-			ErrorLogger::logError(res, "Failed creating color buffer in Mesh class!\n");
+			ErrorLogger::logError("Failed creating color buffer in Mesh class!\n", res);
 	}
 }
 void Mesh::bindMaterial(int index) { m_materials[m_currentMaterial][index].bind(); }

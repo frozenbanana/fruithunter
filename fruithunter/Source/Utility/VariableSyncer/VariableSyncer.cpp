@@ -50,15 +50,14 @@ void FileSyncer::readFile() {
 						// corrupt line
 						// ignore line
 						ErrorLogger::logWarning(
-							HRESULT(), "(VariableSyncer) At file: " + m_path + "\nCorrupt line!");
+							"(VariableSyncer) At file: " + m_path + "\nCorrupt line!");
 					}
 				}
 				else {
 					// variable was not found
 					// ignore line
-					ErrorLogger::logWarning(
-						HRESULT(), "(VariableSyncer) At file: " + m_path +
-									   "\nLine in wrong format! (VarName:VarType)");
+					ErrorLogger::logWarning("(VariableSyncer) At file: " + m_path +
+											"\nLine in wrong format! (VarName:VarType)");
 				}
 			}
 			file.close();
@@ -70,7 +69,7 @@ void FileSyncer::readFile() {
 	}
 	else {
 		ErrorLogger::logWarning(
-			HRESULT(), "(VariableSyncer) Failed opening unvalid struct for file: " + m_path);
+			"(VariableSyncer) Failed opening unvalid struct for file: " + m_path);
 	}
 }
 
@@ -89,13 +88,11 @@ void FileSyncer::writeFile() {
 			m_timestamp = getModificationTime();
 		}
 		else {
-			ErrorLogger::logWarning(
-				HRESULT(), "(VariableSyncer) Failed at opening file: " + m_path);
+			ErrorLogger::logWarning("(VariableSyncer) Failed at opening file: " + m_path);
 		}
 	}
 	else {
-		ErrorLogger::logWarning(
-			HRESULT(), "(VariableSyncer) Failed opening unvalid file: " + m_path);
+		ErrorLogger::logWarning("(VariableSyncer) Failed opening unvalid file: " + m_path);
 	}
 }
 
