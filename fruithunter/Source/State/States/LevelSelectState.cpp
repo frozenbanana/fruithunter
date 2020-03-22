@@ -100,20 +100,6 @@ void LevelSelectState::update() {
 			else {
 				m_animal[i]->setAttacked(false);
 			}
-
-
-			/*for (size_t iFruit = 0; iFruit < m_fruits.size(); ++iFruit) {
-				pft->m_mutex.lock();
-				if (m_fruits[iFruit]->getFruitType() == m_Animals[i]->getfruitType()) {
-					float len =
-						(m_Animals[i]->getPosition() - m_fruits[iFruit]->getPosition()).Length();
-					if (len < m_Animals[i]->getFruitRange()) {
-						m_Animals[i]->grabFruit(m_fruits[iFruit]->getPosition());
-						m_fruits.erase(m_fruits.begin() + iFruit);
-					}
-				}
-				pft->m_mutex.unlock();
-			}*/
 		}
 		m_animal[i]->update(dt, m_player.getPosition());
 	}
@@ -214,6 +200,7 @@ void LevelSelectState::draw() {
 	m_skyBox.draw();
 	// dark edges
 	Renderer::getInstance()->draw_darkEdges();
+	m_player.getBow().getTrailEffect().drawNoAlpha();
 }
 
 LevelSelectState::~LevelSelectState() {}

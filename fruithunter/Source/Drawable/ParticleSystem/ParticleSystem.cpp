@@ -3,88 +3,31 @@
 #include "ErrorLogger.h"
 #include "time.h"
 #include "VariableSyncer.h"
+#include "TerrainManager.h"
 
 ShaderSet ParticleSystem::m_shaderSetCircle;
 ShaderSet ParticleSystem::m_shaderSetStar;
-Microsoft::WRL::ComPtr<ID3D11Buffer> ParticleSystem::m_vertexBuffer;
 
-ParticleSystem::ParticleSystem(ParticleSystem::PARTICLE_TYPE type) {
-
+void ParticleSystem::load(ParticleSystem::PARTICLE_TYPE type) {
 	m_type = type;
-	m_description = make_shared<Description>(type);
+	m_description = Description(type);
 
 	if (type != NONE) {
-		// string sid = "ParticleSystem" + to_string((long)this) + "-" + to_string(type) + ".txt";
-		/*VariableSyncer::getInstance()->create(sid);
-		VariableSyncer::getInstance()->bind(sid,
-			"ParticleCount:i&emitRate:f&acceleration:v3&spawnRadius:f&radiusInterval:v2&velocity:"
-			"v3&velocityOffsetInterval:v2&sizeInterval:v2&timeAliveInteral:v2&color[0]:v3&color[1]:"
-			"v3&color[2]:v3",
-			m_description.get());*/
-
-		if (m_description->m_nrOfParticles > MAX_PARTICLES) {
-			ErrorLogger::logWarning("Particle System is not allowed " +
-									to_string(m_description->m_nrOfParticles) + ", limit is " +
-									to_string(MAX_PARTICLES));
-		}
-		m_particles.resize(min(m_description->m_nrOfParticles, MAX_PARTICLES));
-		m_particles.reserve(MAX_PARTICLES);
-		m_particleProperties.resize(min(m_description->m_nrOfParticles, MAX_PARTICLES));
-		initialize();
+		//average amount of particles needed
+		m_size = m_description.m_emitRate *
+				 (m_description.m_timeAliveInterval.x + m_description.m_timeAliveInterval.y) * 0.5f;
+		m_particles.resize(m_size);
+		m_particleProperties.resize(m_size);
 	}
 }
 
-void ParticleSystem::initialize() {
-	// Timer
-	m_timePassed = 0.0f;
-	m_emitTimer = 0.f;
-	float3 spawnPos = m_spawnPoint;
-	inactivateAllParticles();
-
-	// Buffer
-	createBuffers();
-
-	// shader
-	if (!m_shaderSetCircle.isLoaded() || !m_shaderSetStar.isLoaded()) {
-
-		D3D11_INPUT_ELEMENT_DESC inputLayout[] = {
-			{
-				"Position",					 // "semantic" name in shader
-				0,							 // "semantic" index (not used)
-				DXGI_FORMAT_R32G32B32_FLOAT, // size of ONE element (3 floats)
-				0,							 // input slot
-				0,							 // offset of first element
-				D3D11_INPUT_PER_VERTEX_DATA, // specify data PER vertex
-				0							 // used for INSTANCING (ignore)
-			},
-			{ "Color", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "Size", 0, DXGI_FORMAT_R32_FLOAT, 0, 28, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "IsActive", 0, DXGI_FORMAT_R32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		};
-
-		m_shaderSetCircle.createShaders(L"VertexShader_particleSystem.hlsl",
-			L"GeometryShader_particleSystem.hlsl", L"PixelShader_particleSystem_circle.hlsl",
-			inputLayout, 4);
-		m_shaderSetStar.createShaders(L"VertexShader_particleSystem.hlsl",
-			L"GeometryShader_particleSystem.hlsl", L"PixelShader_particleSystem_star.hlsl",
-			inputLayout, 4);
-	}
-
-	switch (m_type) {
-	case PARTICLE_TYPE::STARS:
-		m_currentShaderSet = &m_shaderSetStar;
-		break;
-	default:
-		m_currentShaderSet = &m_shaderSetCircle;
-		break;
-	}
-
-	run();
+ParticleSystem::ParticleSystem(ParticleSystem::PARTICLE_TYPE type) { 
+	createShaders();
+	load(type);
 }
 
 void ParticleSystem::setParticle(Description desc, size_t index) {
 	Particle* part = &m_particles[index];
-	ParticleProperty* partProp = &m_particleProperties[index];
 	part->setActiveValue(1.0f);
 	// Position in world
 	float3 spawnPos = m_spawnPoint;
@@ -98,7 +41,7 @@ void ParticleSystem::setParticle(Description desc, size_t index) {
 	part->setPosition(spawnPos + float3(x, y, z));
 	// Color
 	float4 pickedColor = float4(1.0f, 1.f, 0.0f, 1.0f);
-	int pick = rand() % 3; // 0..1
+	int pick = rand() % 3;
 	pickedColor = desc.m_color[pick];
 
 	part->setColor(pickedColor);
@@ -132,56 +75,59 @@ void ParticleSystem::setParticle(Description desc, size_t index) {
 			RandomFloat(desc.m_velocityOffsetInterval.x, desc.m_velocityOffsetInterval.y);
 		pp.m_velocity = desc.m_velocity + float3(randVeloX, randVeloY, randVeloZ);
 	};
-
-
 	pp.m_timeLeft = pp.m_lifeTime;
-	*partProp = pp;
+
+	m_particleProperties[index] = pp;
 }
 
+void ParticleSystem::stopEmiting() { m_isEmitting = false; }
 
-void ParticleSystem::activateOneParticle() {
-	for (size_t i = 0; i < m_particles.size(); i++) {
-		if (m_particles[i].getActiveValue() == 0.f) {
-			setParticle(*m_description, i);
-			break;
-		}
-	}
-}
+void ParticleSystem::startEmiting() { m_isEmitting = true; }
 
 void ParticleSystem::emit(size_t count) {
 	m_isRunning = true;
-
-	for (size_t i = 0; i < count; i++)
-		activateOneParticle();
+	for (size_t i = 0; i < m_particles.size() && count > 0; i++) {
+		if (m_particles[i].getActiveValue() == 0.f) {
+			setParticle(m_description, i);
+			count--;
+		}
+	}
 }
 
 void ParticleSystem::updateEmits(float dt) {
 	m_emitTimer += dt;
-	float rate = m_description->m_emitRate;
-	if (rate >= 0.f) {
+	float rate = m_description.m_emitRate;
+	if (rate > 0.f) {
 		float emits = m_emitTimer * rate;
 		size_t emitCount = (size_t)emits;
-		if (emits > 1.0f) {
+		if (emitCount > 0) {
 			emit(emitCount);
-			m_emitTimer -= (1.f / rate) * emitCount;
+			m_emitTimer -= (float)emitCount / rate;
 		}
 	}
 }
 
-void ParticleSystem::updateParticles(float dt, Terrain* terrain) {
+void ParticleSystem::updateParticles(float dt) {
 	size_t nrOfActive = 0;
+	Terrain* terrain = TerrainManager::getInstance()->getTerrainFromPosition(m_spawnPoint);
 	for (size_t i = 0; i < m_particles.size(); i++) {
 		if (m_particles[i].getActiveValue() == 1.0f) {
 			nrOfActive++;
-			m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
 			m_particleProperties[i].m_timeLeft -= dt;
-			m_particles[i].update(
-				dt, m_particleProperties[i].m_velocity +
-						terrain->getWindFromPosition(m_particles[i].getPosition()));
-
-			// Inactivate particles when lifetime is over
 			if (m_particleProperties[i].m_timeLeft <= 0.f) {
+				// Inactivate particles when lifetime is over
 				m_particles[i].setActiveValue(0.0f);
+			}
+			else {
+				// get wind
+				float3 wind(0, 0, 0);
+				if (m_windState == WindState::Static)
+					wind = m_staticWind;
+				else if (m_windState == WindState::Dynamic && terrain != nullptr)
+					wind = terrain->getWindFromPosition(m_particles[i].getPosition());
+				//update velocity and position
+				m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
+				m_particles[i].update(dt, m_particleProperties[i].m_velocity + wind);
 			}
 		}
 	}
@@ -191,78 +137,65 @@ void ParticleSystem::updateParticles(float dt, Terrain* terrain) {
 	}
 }
 
-void ParticleSystem::updateParticles(float dt, float3 wind) {
-	size_t nrOfActive = 0;
-	for (size_t i = 0; i < m_particles.size(); i++) {
-		if (m_particles[i].getActiveValue() == 1.0f) {
-			nrOfActive++;
-			m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
-			m_particleProperties[i].m_timeLeft -= dt;
-			m_particles[i].update(dt, m_particleProperties[i].m_velocity + wind);
-
-			// Inactivate particles when lifetime is over
-			if (m_particleProperties[i].m_timeLeft <= 0.f) {
-				m_particles[i].setActiveValue(0.0f);
-			}
-		}
-	}
-
-	if (nrOfActive == 0) {
-		m_isRunning = false;
-	}
-}
-
-void ParticleSystem::update(float dt, Terrain* terrain) {
-	m_timePassed += dt;
-
+void ParticleSystem::update(float dt) { 
 	if (m_isEmitting) {
 		updateEmits(dt);
 	}
-
 	if (m_isRunning) {
-		updateParticles(dt, terrain);
+		updateParticles(dt);
+	}
+
+}
+
+void ParticleSystem::createShaders() {
+	if (!m_shaderSetCircle.isLoaded() || !m_shaderSetStar.isLoaded()) {
+		D3D11_INPUT_ELEMENT_DESC inputLayout[] = {
+			{
+				"Position",					 // "semantic" name in shader
+				0,							 // "semantic" index (not used)
+				DXGI_FORMAT_R32G32B32_FLOAT, // size of ONE element (3 floats)
+				0,							 // input slot
+				0,							 // offset of first element
+				D3D11_INPUT_PER_VERTEX_DATA, // specify data PER vertex
+				0							 // used for INSTANCING (ignore)
+			},
+			{ "Color", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "Size", 0, DXGI_FORMAT_R32_FLOAT, 0, 28, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "IsActive", 0, DXGI_FORMAT_R32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		};
+
+		m_shaderSetCircle.createShaders(L"VertexShader_particleSystem.hlsl",
+			L"GeometryShader_particleSystem.hlsl", L"PixelShader_particleSystem_circle.hlsl",
+			inputLayout, 4);
+		m_shaderSetStar.createShaders(L"VertexShader_particleSystem.hlsl",
+			L"GeometryShader_particleSystem.hlsl", L"PixelShader_particleSystem_star.hlsl",
+			inputLayout, 4);
 	}
 }
 
-void ParticleSystem::update(float dt, float3 wind) {
-	m_timePassed += dt;
-
-	if (m_isEmitting) {
-		updateEmits(dt);
-	}
-
-	if (m_isRunning) {
-		updateParticles(dt, wind);
-	}
-}
-
-void ParticleSystem::createBuffers() {
+void ParticleSystem::resizeVertexBuffer(size_t size) {
 	auto device = Renderer::getDevice();
 	auto deviceContext = Renderer::getDeviceContext();
 
 	//  Buffer for particle data
-	if (m_vertexBuffer.Get() == nullptr) {
-		D3D11_BUFFER_DESC buffDesc;
-		memset(&buffDesc, 0, sizeof(buffDesc));
+	m_vertexBuffer.Reset();
+	D3D11_BUFFER_DESC buffDesc;
+	memset(&buffDesc, 0, sizeof(buffDesc));
+	buffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	buffDesc.Usage = D3D11_USAGE_DEFAULT;
+	buffDesc.ByteWidth = (UINT)(sizeof(Particle) * size);
 
-		buffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		buffDesc.Usage = D3D11_USAGE_DEFAULT;
-		m_particles.reserve(MAX_PARTICLES);
-		buffDesc.ByteWidth = (UINT)(sizeof(Particle) * MAX_PARTICLES);
+	HRESULT check = device->CreateBuffer(&buffDesc, NULL, m_vertexBuffer.GetAddressOf());
 
-		D3D11_SUBRESOURCE_DATA data;
-
-		data.pSysMem = m_particles.data();
-
-		HRESULT check = device->CreateBuffer(&buffDesc, &data, m_vertexBuffer.GetAddressOf());
-
-		if (FAILED(check))
-			ErrorLogger::logError("Failed creating buffer in ParticleSystem class!\n", check);
-	}
+	if (FAILED(check))
+		ErrorLogger::logError("(ParticleSystem) Failed creating vertex buffer!\n", check);
 }
 
-void ParticleSystem::bindBuffers() {
+void ParticleSystem::bindVertexBuffer() {
 	auto deviceContext = Renderer::getDeviceContext();
+
+	deviceContext->UpdateSubresource(
+		m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
 
 	UINT strides = sizeof(Particle);
 	UINT offset = 0;
@@ -273,14 +206,12 @@ void ParticleSystem::bindBuffers() {
 void ParticleSystem::draw() {
 	if (m_isRunning) {
 		auto deviceContext = Renderer::getDeviceContext();
-		// Since we are using the same vertex buffer for all Particle Systems
-		// the buffer update needs to be next to the draw call.
 
+		//bind
 		m_currentShaderSet->bindShadersAndLayout();
-		Renderer::getDeviceContext()->UpdateSubresource(
-			m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
-		bindBuffers();
+		bindVertexBuffer();
 
+		//draw
 		Renderer::getInstance()->enableAlphaBlending();
 		deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
 		Renderer::getInstance()->disableAlphaBlending();
@@ -290,63 +221,162 @@ void ParticleSystem::draw() {
 void ParticleSystem::drawNoAlpha() {
 	if (m_isRunning) {
 		auto deviceContext = Renderer::getDeviceContext();
-		// Since we are using the same vertex buffer for all Particle Systems
-		// the buffer update needs to be next to the draw call.
+
+		//bind
 		m_currentShaderSet->bindShadersAndLayout();
-		Renderer::getDeviceContext()->UpdateSubresource(
-			m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
-		bindBuffers();
+		bindVertexBuffer();
+
+		//draw
 		deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
 	}
 }
 
 void ParticleSystem::activateAllParticles() { emit(m_particles.size()); }
 
-void ParticleSystem::inactivateAllParticles() {
-	for (size_t i = 0; i < m_particles.size(); i++) {
-		m_particles[i].setActiveValue(0.0f);
-	}
-}
-
-void ParticleSystem::run(bool startAll) {
-	if (startAll) {
-		activateAllParticles();
-	}
-	if (m_type == ARROW_GLITTER)
-		m_isRunning = true;
-}
-
-void ParticleSystem::stop() {
-	if (m_isRunning) {
-		m_isRunning = false;
-	}
-}
-
-
-bool ParticleSystem::isRunning() { return m_isRunning; }
-
 void ParticleSystem::setPosition(float3 position) { m_spawnPoint = position; }
+
+void ParticleSystem::setWind(WindState state, float3 staticWind) { 
+	m_staticWind = staticWind;
+	m_windState = state;
+}
 
 float3 ParticleSystem::getPosition() const { return m_spawnPoint; }
 
-void ParticleSystem::setEmitState(bool state) { m_isEmitting = state; }
-
 ParticleSystem::PARTICLE_TYPE ParticleSystem::getType() const { return m_type; }
 
-void ParticleSystem::setEmitRate(float emitRate) { m_description->m_emitRate = emitRate; }
+void ParticleSystem::setEmitRate(float emitRate) { m_description.m_emitRate = emitRate; }
 
 void ParticleSystem::setColors(float4 colors[3]) {
-	m_description->m_color[0] = colors[0];
-	m_description->m_color[1] = colors[1];
-	m_description->m_color[2] = colors[2];
+	m_description.m_color[0] = colors[0];
+	m_description.m_color[1] = colors[1];
+	m_description.m_color[2] = colors[2];
 }
 
-void ParticleSystem::setAmountOfParticles(int nrOf) {
-	m_description->m_nrOfParticles = (int)nrOf;
-	m_particles.resize(m_description->m_nrOfParticles);
-	m_particles.reserve(MAX_PARTICLES);
+void ParticleSystem::Description::load(ParticleSystem::PARTICLE_TYPE type) {
+	switch (type) {
+	case FOREST_BUBBLE:
+		m_emitRate = 25.0f;						   // particles per sec
+		m_acceleration = float3(0.0f, 0.0f, 0.0f); // float3(0.1f, 0.5f, -0.1f);
+		m_accelerationOffsetInterval = float2(-0.15f, 0.15f);
+		m_spawnRadius = 40.f;
+		m_radiusInterval = float2(-35.2f, 0.2f);
+		m_velocity = float3(0.f, 0.f, 0.f);
+		m_velocityOffsetInterval = float2(-0.43f, 0.43f); // for x, y and z
+		m_sizeInterval = float2(0.10f, 0.20f);
+		m_timeAliveInterval = float2(4.f, 6.f);
+		m_color[0] = float4(0.0f, 0.65f, 0.05f, 1.0f);
+		m_color[1] = float4(0.0f, 0.65f, 0.4f, 1.0f);
+		m_color[2] = float4(0.0f, 0.65f, 0.55f, 1.0f);
+		break;
+	case GROUND_DUST:
+		m_emitRate = 25.0f; // particles per sec
+		m_acceleration = float3(0.0f, 0.0f, 0.0f);
+		m_accelerationOffsetInterval = float2(-0.15f, 0.15f);
+		m_spawnRadius = 40.f;
+		m_radiusInterval = float2(-35.2f, 0.2f);
+		m_velocity = float3(0.f, 0.f, 0.f);
+		m_velocityOffsetInterval = float2(-0.43f, 0.43f); // for x, y and z
+		m_sizeInterval = float2(0.10f, 0.20f);
+		m_timeAliveInterval = float2(2.5f, 3.5f);
+		m_color[0] = float4(0.77f, 0.35f, 0.51f, 1.0f);
+		m_color[1] = float4(0.71f, 0.55f, 0.31f, 1.0f);
+		m_color[2] = float4(0.81f, 0.58f, 0.39f, 1.0f);
+		break;
+	case VULCANO_FIRE:
+		m_emitRate = 70.0f; // particles per sec
+		m_acceleration = float3(0.f, 0.75f, 0.f);
+		m_accelerationOffsetInterval = float2(-1.20f, 1.20f);
+		m_spawnRadius = 0.5f;
+		m_radiusInterval = float2(-0.25f, 0.25f);
+		m_velocity = float3(0.f, 0.f, 0.f);
+		m_velocityOffsetInterval = float2(-0.5f, 0.5f); // for x, y and z
+		m_sizeInterval = float2(0.48f, 2.8f);
+		m_timeAliveInterval = float2(1.f, 1.5f);
+		m_color[0] = float4(1.0f, 0.00f, 0.00f, 1.0f);
+		m_color[1] = float4(0.71f, 0.35f, 0.0f, 1.0f);
+		m_color[2] = float4(0.81f, 0.58f, 0.0f, 1.0f);
+		break;
+	case VULCANO_SMOKE:
+		m_emitRate = 120.0f; // particles per sec
+		m_acceleration = float3(0.f, -0.9f, 0.f);
+		m_accelerationOffsetInterval = float2(-1.80f, 1.80f);
+		m_spawnRadius = 0.75f;
+		m_radiusInterval = float2(-0.7f, 0.0f);
+		m_velocity = float3(0.f, 0.f, 0.f);
+		m_velocityOffsetInterval = float2(-1.5f, 1.5f); // for x, y and z
+		m_sizeInterval = float2(0.48f, 2.8f);
+		m_timeAliveInterval = float2(2.f, 3.f);
+		m_color[0] = float4(0.50f, 0.40f, 0.40f, 1.0f);
+		m_color[1] = float4(0.30f, 0.30f, 0.30f, 1.0f);
+		m_color[2] = float4(0.60f, 0.60f, 0.60f, 1.0f);
+		break;
+	case LAVA_BUBBLE:
+		m_emitRate = 28.0f; // particles per sec
+		m_acceleration = float3(0.3f, 0.3f, 0.3f);
+		m_accelerationOffsetInterval = float2(-0.05f, 0.05f); // for x, y and z
+		m_spawnRadius = 45.f;
+		m_radiusInterval = float2(-35.f, 0.1f);
+		m_velocity = float3(0.f, 0.f, 0.f);
+		m_velocityOffsetInterval = float2(-0.75f, 0.75f); // for x, y and z
+		m_sizeInterval = float2(0.11f, 0.22f);
+		m_timeAliveInterval = float2(0.4f, 1.6f);
+		m_color[0] = float4(0.70f, 0.20f, 0.20f, 1.0f);
+		m_color[1] = float4(0.41f, 0.25f, 0.23f, 1.0f);
+		m_color[2] = float4(0.51f, 0.34f, 0.17f, 1.0f);
+		break;
+	case ARROW_GLITTER:
+		m_emitRate = 32.0f; // particles per sec
+		m_acceleration = float3(0.0f, 0.0f, 0.0f);
+		m_accelerationOffsetInterval = float2(0.0f, 0.0f);
+		m_spawnRadius = 0.0f;
+		m_radiusInterval = float2(0.002f, 0.003f);
+		m_velocity = float3(0.f, 0.f, 0.f);
+		m_velocityOffsetInterval = float2(0.0f, 0.0f); // for x, y and z
+		m_sizeInterval = float2(0.050f, 0.050f);
+		m_timeAliveInterval = float2(0.5f, 0.5f);
+		m_color[0] = float4(0.88f, 0.87f, 0.81f, 1.0f);
+		m_color[1] = float4(0.92f, 0.89f, 0.83f, 1.0f);
+		m_color[2] = float4(0.87f, 0.82f, 0.80f, 1.0f);
+		break;
+	case CONFETTI:
+		m_emitRate = 12.0f; // particles per sec
+		m_acceleration = float3(0.0f, 0.0f, 0.0f);
+		m_accelerationOffsetInterval = float2(-0.2f, 0.2f);
+		m_spawnRadius = 2.5f;
+		m_radiusInterval = float2(-2.3f, 0.0f);
+		m_velocity = float3(0.f, 0.0f, 0.f);
+		m_velocityOffsetInterval = float2(-0.2f, 0.2f); // for x, y and z
+		m_sizeInterval = float2(0.035f, 0.09f);
+		m_timeAliveInterval = float2(1.5f, 3.0f);
+		m_color[0] = float4(1.00f, 0.00f, 0.00f, 1.0f);
+		m_color[1] = float4(0.00f, 1.00f, 0.00f, 1.0f);
+		m_color[2] = float4(0.00f, 0.00f, 1.00f, 1.0f);
+		break;
+	case STARS:
+		m_emitRate = -1.0f; // particles per sec
+		m_acceleration = float3(0.0f, 0.0f, 0.0f);
+		m_accelerationOffsetInterval = float2(0.0f, 0.0f);
+		m_spawnRadius = 0.9f;
+		m_radiusInterval = float2(0.0f, 0.0f);
+		m_velocity = float3(0.f, 0.0f, 0.f);
+		m_velocityOffsetInterval = float2(0.0f, 0.0f); // for x, y and z
+		m_sizeInterval = float2(0.2f, .3f);
+		m_timeAliveInterval = float2(0.6f, .65f);
+		m_color[0] = float4(0.81f, 0.90f, 0.00f, 1.0f);
+		m_color[1] = float4(0.90f, 0.81f, 0.00f, 1.0f);
+		m_color[2] = float4(0.88f, 0.78f, 0.00f, 1.0f);
+		break;
+	default:
+		m_emitRate = 0; // particles per sec
+		m_acceleration = float3(0, 0, 0);
+		m_spawnRadius = 0;
+		m_radiusInterval = float2(0, 0);
+		m_velocity = float3(0.f, 0.f, 0.f);
+		m_velocityOffsetInterval = float2(0, 0); // for x, y and z
+		m_sizeInterval = float2(0, 0);
+		m_timeAliveInterval = float2(0, 0);
+		break;
+	}
 }
 
-void ParticleSystem::setDesciption(Description newDescription) { *m_description = newDescription; }
-
-ParticleSystem::Description* ParticleSystem::getDescription() { return m_description.get(); }
+ParticleSystem::Description::Description(ParticleSystem::PARTICLE_TYPE type) { load(type); }
