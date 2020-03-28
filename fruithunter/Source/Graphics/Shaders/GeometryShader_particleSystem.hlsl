@@ -10,7 +10,6 @@ struct GSOutput {
 	float4 PosH : SV_POSITION;
 	float4 Color : Color;
 	float2 UV : UV;
-	float Size : Size;
 };
 
 cbuffer cb_viewPerspective : register(b5) { matrix mView, mPerspective; };
@@ -21,7 +20,7 @@ struct Corner {
 };
 
 [maxvertexcount(4)] void main(point VS_OUT input[1], inout TriangleStream<GSOutput> output) {
-	if (input[0].IsActive < 1.1 && input[0].IsActive > 0.9) {
+	if (abs(1.f-input[0].IsActive) < 0.1) {
 		float size = input[0].Size;
 		float3 posV = input[0].PosV.xyz;
 		float3 playerPosition = float3(0.0f, 0.0f, 0.0f);
@@ -49,7 +48,6 @@ struct Corner {
 			element.PosH = mul(corners[i].pos, mPerspective);
 			element.Color = input[0].Color;
 			element.UV = corners[i].uv;
-			element.Size = input[0].Size;
 			output.Append(element);
 		}
 	}

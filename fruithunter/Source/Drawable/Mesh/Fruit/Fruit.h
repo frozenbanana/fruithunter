@@ -4,8 +4,6 @@
 #include "TerrainManager.h"
 #include "ParticleSystem.h"
 
-
-
 #define THROWVELOCITY 30.f
 
 class Fruit : public Entity, public AI {
@@ -26,7 +24,7 @@ protected:
 	float m_passive_speed;
 	float m_active_speed;
 	float m_caught_speed;
-	unique_ptr<ParticleSystem> m_particleSystem;
+	ParticleSystem m_particleSystem;
 	// -------------------
 	int m_nrOfFramePhases; // nr of phases to a movement
 	int m_currentFramePhase;

@@ -19,7 +19,7 @@ void EndRoundState::initialize() {
 	m_restartButton.initialize("Restart", float2(width / 2, height / 2 + 50));
 	m_levelSelectButton.initialize("Select Level", float2(width / 2, height / 2 + 120));
 	m_exitButton.initialize("Exit", float2(width / 2, height / 2 + 190));
-	m_particleSystem = ParticleSystem(ParticleSystem::STARS);
+	m_particleSystem = ParticleSystem(ParticleSystem::STARS, 25);
 	// m_particleSystem.setEmitRate(10.f);
 	m_particleSystem.setPosition(float3(0.0f, -1.f, 0.f));
 	m_timer.reset();
@@ -45,9 +45,9 @@ void EndRoundState::update() {
 
 	m_timer.update();
 	float dt = m_timer.getDt();
-	 m_bowl.rotateY(dt * 0.5f);
-	 m_bowlContents[m_currentBowlContent].rotateY(dt * 0.5f);
-	m_particleSystem.update(dt, float3(0.f, 0.4f, 0.0f));
+	m_bowl.rotateY(dt * 0.5f);
+	m_bowlContents[m_currentBowlContent].rotateY(dt * 0.5f);
+	m_particleSystem.update(dt);
 }
 
 void EndRoundState::handleEvent() {

@@ -18,6 +18,7 @@ public:
 		STARS,
 		TYPE_LENGTH
 	};
+	enum WindState { None, Static, Dynamic };
 
 private:
 	PARTICLE_TYPE m_type = NONE;
@@ -28,12 +29,7 @@ private:
 	bool m_isEmitting = true;
 	float m_emitTimer = 0;
 	//wind
-	enum WindState {
-		None,
-		Static,
-		Dynamic
-	} m_windState = None;
-	float3 m_staticWind = float3(0, 0, 0);
+	WindState m_windState = None;
 	//description
 	struct Description {
 		float m_emitRate; // particles per sec
@@ -84,7 +80,7 @@ public:
 	void setEmitRate(float emitRate);
 	void setColors(float4 colors[3]);
 	void setPosition(float3 position);
-	void setWind(WindState state, float3 wind = float3(0, 0, 0));
+	void setWind(WindState state);
 
 	float3 getPosition() const;
 	PARTICLE_TYPE getType() const;
@@ -94,12 +90,10 @@ public:
 	void draw();
 	void drawNoAlpha();
 
-	void activateAllParticles();
-
 	void stopEmiting();
 	void startEmiting();
 	void emit(size_t count);
 
-	void load(ParticleSystem::PARTICLE_TYPE type);
-	ParticleSystem(ParticleSystem::PARTICLE_TYPE type = NONE);
+	void load(ParticleSystem::PARTICLE_TYPE type, int forceSize = -1);
+	ParticleSystem(ParticleSystem::PARTICLE_TYPE type = NONE, int forceSize = -1);
 };

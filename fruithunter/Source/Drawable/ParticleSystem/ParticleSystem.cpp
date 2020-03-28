@@ -8,22 +8,33 @@
 ShaderSet ParticleSystem::m_shaderSetCircle;
 ShaderSet ParticleSystem::m_shaderSetStar;
 
-void ParticleSystem::load(ParticleSystem::PARTICLE_TYPE type) {
-	m_type = type;
-	m_description = Description(type);
-
+void ParticleSystem::load(ParticleSystem::PARTICLE_TYPE type, int forceSize) {
 	if (type != NONE) {
-		//average amount of particles needed
-		m_size = m_description.m_emitRate *
-				 (m_description.m_timeAliveInterval.x + m_description.m_timeAliveInterval.y) * 0.5f;
+		m_type = type;
+		m_description = Description(type);
+
+		if (forceSize != -1)
+			m_size = forceSize; // force size
+		else
+			m_size = (size_t)(
+				m_description.m_emitRate *
+				(m_description.m_timeAliveInterval.x + m_description.m_timeAliveInterval.y) /
+				2.f); // average amount of particles needed
+
 		m_particles.resize(m_size);
 		m_particleProperties.resize(m_size);
+		resizeVertexBuffer(m_size);
+
+		if (type == STARS)
+			m_currentShaderSet = &m_shaderSetStar;
+		else
+			m_currentShaderSet = &m_shaderSetCircle;
 	}
 }
 
-ParticleSystem::ParticleSystem(ParticleSystem::PARTICLE_TYPE type) { 
+ParticleSystem::ParticleSystem(ParticleSystem::PARTICLE_TYPE type, int forceSize) {
 	createShaders();
-	load(type);
+	load(type, forceSize);
 }
 
 void ParticleSystem::setParticle(Description desc, size_t index) {
@@ -121,10 +132,12 @@ void ParticleSystem::updateParticles(float dt) {
 			else {
 				// get wind
 				float3 wind(0, 0, 0);
-				if (m_windState == WindState::Static)
-					wind = m_staticWind;
-				else if (m_windState == WindState::Dynamic && terrain != nullptr)
-					wind = terrain->getWindFromPosition(m_particles[i].getPosition());
+				if (terrain != nullptr) {
+					if (m_windState == WindState::Static)
+						wind = terrain->getWindStatic();
+					else if (m_windState == WindState::Dynamic && terrain != nullptr)
+						wind = terrain->getWindFromPosition(m_particles[i].getPosition());
+				}
 				//update velocity and position
 				m_particleProperties[i].m_velocity += m_particleProperties[i].m_acceleration * dt;
 				m_particles[i].update(dt, m_particleProperties[i].m_velocity + wind);
@@ -215,6 +228,7 @@ void ParticleSystem::draw() {
 		Renderer::getInstance()->enableAlphaBlending();
 		deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
 		Renderer::getInstance()->disableAlphaBlending();
+		ShaderSet::clearShaderBindings();// removes bug of sprites not being able to be drawn(by removing geometry shade)
 	}
 }
 
@@ -231,12 +245,9 @@ void ParticleSystem::drawNoAlpha() {
 	}
 }
 
-void ParticleSystem::activateAllParticles() { emit(m_particles.size()); }
-
 void ParticleSystem::setPosition(float3 position) { m_spawnPoint = position; }
 
-void ParticleSystem::setWind(WindState state, float3 staticWind) { 
-	m_staticWind = staticWind;
+void ParticleSystem::setWind(WindState state) { 
 	m_windState = state;
 }
 
@@ -353,7 +364,7 @@ void ParticleSystem::Description::load(ParticleSystem::PARTICLE_TYPE type) {
 		m_color[2] = float4(0.00f, 0.00f, 1.00f, 1.0f);
 		break;
 	case STARS:
-		m_emitRate = -1.0f; // particles per sec
+		m_emitRate = 0.f; // particles per sec
 		m_acceleration = float3(0.0f, 0.0f, 0.0f);
 		m_accelerationOffsetInterval = float2(0.0f, 0.0f);
 		m_spawnRadius = 0.9f;

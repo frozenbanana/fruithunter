@@ -353,16 +353,22 @@ void LevelHandler::initialise() {
 	m_particleSystems.resize(6);
 	m_particleSystems[0] = ParticleSystem(ParticleSystem::VULCANO_FIRE);
 	m_particleSystems[0].setPosition(float3(150.f, 25.f, 150.f));
+	m_particleSystems[0].setWind(ParticleSystem::WindState::Static);
 	m_particleSystems[1] = ParticleSystem(ParticleSystem::VULCANO_SMOKE);
 	m_particleSystems[1].setPosition(float3(150.f, 30.f, 150.f));
+	m_particleSystems[1].setWind(ParticleSystem::WindState::Static);
 	m_particleSystems[2] = ParticleSystem(ParticleSystem::GROUND_DUST);
 	m_particleSystems[2].setPosition(float3(42.f, 4.f, 125.f));
+	m_particleSystems[2].setWind(ParticleSystem::WindState::Dynamic);
 	m_particleSystems[3] = ParticleSystem(ParticleSystem::FOREST_BUBBLE);
 	m_particleSystems[3].setPosition(float3(50.f, 2.f, 40.f));
+	m_particleSystems[3].setWind(ParticleSystem::WindState::Dynamic);
 	m_particleSystems[4] = ParticleSystem(ParticleSystem::LAVA_BUBBLE);
 	m_particleSystems[4].setPosition(float3(150.f, 0.f, 149.f));
+	m_particleSystems[4].setWind(ParticleSystem::WindState::Static);
 	m_particleSystems[5] = ParticleSystem(ParticleSystem::GROUND_DUST);
 	m_particleSystems[5].setPosition(float3(125.f, 4.f, 50.f));
+	m_particleSystems[5].setWind(ParticleSystem::WindState::Dynamic);
 }
 
 void LevelHandler::loadLevel(int levelNr) {
@@ -555,7 +561,6 @@ void LevelHandler::update(float dt) {
 		m_player.setPosition(m_levelsArr[m_currentLevel].m_playerStartPos);
 
 	m_player.update(dt);
-	m_player.getBow().getTrailEffect().update(dt);
 
 	if (m_player.inHuntermode()) {
 		dt *= 0.1f;
@@ -662,18 +667,7 @@ void LevelHandler::update(float dt) {
 
 	//particle system
 	for (size_t i = 0; i < m_particleSystems.size(); i++) {
-		Terrain* currentTerrain =
-			m_terrainManager->getTerrainFromPosition(m_particleSystems[i].getPosition());
-		if (currentTerrain != nullptr) {
-			if (m_particleSystems[i].getType() == ParticleSystem::VULCANO_SMOKE ||
-				m_particleSystems[i].getType() == ParticleSystem::VULCANO_FIRE ||
-				m_particleSystems[i].getType() == ParticleSystem::LAVA_BUBBLE) {
-				m_particleSystems[i].update(dt, currentTerrain->getWindStatic());
-			}
-			else {
-				m_particleSystems[i].update(dt, currentTerrain); // Get wind dynamically
-			}
-		}
+		m_particleSystems[i].update(dt);
 	}
 	m_skyBox.update(dt);
 	m_hud.update(dt, m_player.getStamina());

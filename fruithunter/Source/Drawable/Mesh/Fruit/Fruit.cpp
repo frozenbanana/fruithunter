@@ -17,8 +17,7 @@ void Fruit::setStartPosition(float3 pos) {
 	m_destinationAnimationPosition = pos;
 	m_nextDestinationAnimationPosition = pos;
 
-	m_particleSystem = make_unique<ParticleSystem>(ParticleSystem::STARS);
-	m_particleSystem->stop();
+	m_particleSystem.load(ParticleSystem::PARTICLE_TYPE::STARS, 25);
 }
 
 void Fruit::setNextDestination(float3 nextDest) { m_nextDestinationAnimationPosition = nextDest; }
@@ -76,8 +75,8 @@ Skillshot Fruit::hit(float3 playerPos) {
 			nrOf = 6;
 			hitType = SS_BRONZE;
 		}
-		m_particleSystem->setColors(colors);
-		m_particleSystem->emit(nrOf);
+		m_particleSystem.setColors(colors);
+		m_particleSystem.emit(nrOf);
 		m_currentMaterial = hitType;
 	}
 	return hitType;
@@ -112,12 +111,12 @@ bool Fruit::withinDistanceTo(float3 target, float treshhold) {
 	return (m_position - target).Length() < treshhold;
 }
 
-ParticleSystem* Fruit::getParticleSystem() { return m_particleSystem.get(); }
+ParticleSystem* Fruit::getParticleSystem() { return &m_particleSystem; }
 
 void Fruit::update(float dt, float3 playerPosition) {
 	if (withinDistanceTo(playerPosition, 80.f)) {
 		m_isVisible = true;
-		m_particleSystem->setPosition(m_position);
+		m_particleSystem.setPosition(m_position);
 		checkOnGroundStatus();
 		doBehavior(playerPosition);
 		setDirection();
@@ -149,7 +148,6 @@ Fruit::Fruit(float3 pos) : Entity() {
 	m_nrOfFramePhases = 0;
 	m_currentFramePhase = 0;
 	m_frameTime = 0.0f;
-	m_particleSystem->setAmountOfParticles(22);
 }
 
 // Perhaps a useful function later.

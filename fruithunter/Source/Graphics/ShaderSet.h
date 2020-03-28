@@ -22,6 +22,7 @@ public:
 	bool createShaders(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR fragmentName,
 		D3D11_INPUT_ELEMENT_DESC* inputDesc = nullptr, int inputDescCount = 0);
 	void bindShadersAndLayout();
+	static void clearShaderBindings();
 
 	ShaderSet(LPCWSTR vertexName, LPCWSTR geometryName, LPCWSTR fragmentName,
 		D3D11_INPUT_ELEMENT_DESC* inputDesc = nullptr, int inputDescCount = 0);

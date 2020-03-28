@@ -200,7 +200,7 @@ void LevelSelectState::draw() {
 	m_skyBox.draw();
 	// dark edges
 	Renderer::getInstance()->draw_darkEdges();
-	m_player.getBow().getTrailEffect().drawNoAlpha();
+	m_player.getBow().getTrailEffect().draw();
 }
 
 LevelSelectState::~LevelSelectState() {}

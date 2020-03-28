@@ -107,8 +107,6 @@ void IntroState::update() {
 			bowForward.z + RandomFloat(0.02f, 0.06f)),
 			float3(0.f), -0.003f, 4.224f);
 	}
-	m_bow.getTrailEffect().update(
-		delta, TerrainManager::getInstance()->getTerrainFromPosition(bowPos));
 
 	// Arrow collision
 	if (!m_bow.getArrowHitObject()) {

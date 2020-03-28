@@ -14,19 +14,8 @@ Bow::Bow() {
 	m_arrow.setScale(float3(0.5f, 0.5f, m_arrowLength));
 	m_arrow.setPosition(float3(-10.f)); // To make sure that arrow doesn't spawn in fruits.
 	m_arrow.setCollisionDataOBB();
-	m_trailEffect = ParticleSystem(ParticleSystem::ARROW_GLITTER);
-
-	FileSyncer* file = VariableSyncer::getInstance()->create(
-		"Bow.txt", FileSyncer::SyncType::state_liveFile, onLoad);
-	file->bind("offset0:v3", &m_bowPositioning_offset0);
-	file->bind("angle0:v3", &m_bowPositioning_angle0);
-	file->bind("offset1:v3", &m_bowPositioning_offset1);
-	file->bind("angle1:v3", &m_bowPositioning_angle1);
-	file->bind("drawForward:f", &m_bowPositioning_drawForward);
-	file->bind("rotation drag:f", &m_bowPositioning_rotationSpringConstant);
-	file->bind("bow drag:f", &m_bowPositioning_bowDrag);
-	file->bind("string friction:f", &m_bowPositioning_stringFriction);
-	file->bind("string drag:f", &m_bowPositioning_stringSpringConstant);
+	m_trailEffect.load(ParticleSystem::ARROW_GLITTER);
+	m_trailEffect.setWind(ParticleSystem::WindState::Dynamic);
 }
 
 Bow::~Bow() {}
@@ -91,7 +80,7 @@ void Bow::update(
 		m_bow.setFrameTargets(0, 1);
 	}
 
-	// m_trailEffect.update(dt);
+	m_trailEffect.update(dt);
 
 	// Update arrow.
 	if (m_shooting) {
@@ -99,7 +88,7 @@ void Bow::update(
 			float castray =
 				TerrainManager::getInstance()->castRay(m_arrow.getPosition(), m_arrowVelocity * dt);
 			if (castray != -1) {
-				m_trailEffect.setEmitState(false);
+				m_trailEffect.stopEmiting();
 				// Arrow is hitting terrain
 				float3 target = m_arrow.getPosition() + m_arrowVelocity * castray * dt;
 				arrowHitObject(target);
@@ -109,7 +98,7 @@ void Bow::update(
 															// longer hard coded.
 				// update Particle System
 				m_trailEffect.setPosition(m_arrow.getPosition());
-				m_trailEffect.setEmitState(true);
+				m_trailEffect.startEmiting();
 
 				m_arrow.setPosition(m_arrow.getPosition() + m_arrowVelocity * dt);
 				m_arrow.setRotation(float3(m_arrowPitch, m_arrowYaw, 0));
@@ -122,7 +111,7 @@ void Bow::update(
 		}
 	}
 	else {
-		m_trailEffect.setEmitState(false);
+		m_trailEffect.stopEmiting();
 		if (m_charging) {
 			// Move arrow with bowstring. Hardcoded values determined by experimentation.
 			m_arrow.setPosition(
