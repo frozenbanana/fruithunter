@@ -163,6 +163,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Source\AI\AI.cpp" />
     <ClCompile Include="Source\AI\PathFindingThread.cpp" />
     <ClCompile Include="Source\Drawable\Animated.cpp" />
@@ -216,6 +217,7 @@
     <ClCompile Include="Source\Utility\VariableSyncer\VariableSyncer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="Source\AI\AI.h" />
     <ClInclude Include="Source\AI\PathFindingThread.h" />
     <ClInclude Include="Source\Drawable\Animated.h" />

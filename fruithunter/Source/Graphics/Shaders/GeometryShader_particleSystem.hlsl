@@ -19,7 +19,8 @@ struct Corner {
 	float2 uv;
 };
 
-[maxvertexcount(4)] void main(point VS_OUT input[1], inout TriangleStream<GSOutput> output) {
+[maxvertexcount(4)] 
+void main(point VS_OUT input[1], inout TriangleStream<GSOutput> output) {
 	if (abs(1.f-input[0].IsActive) < 0.1) {
 		float size = input[0].Size;
 		float3 posV = input[0].PosV.xyz;

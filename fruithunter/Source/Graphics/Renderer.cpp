@@ -137,6 +137,16 @@ void Renderer::copyTargetToSRV() {
 	m_deviceContext->CopyResource(dst, src);
 }
 
+void Renderer::bindRenderAndDepthTarget() {
+	m_deviceContext.Get()->OMSetRenderTargets(
+		1, m_renderTargetView.GetAddressOf(), m_depthDSV.Get());
+}
+
+void Renderer::bindRenderTarget() {
+	m_deviceContext.Get()->OMSetRenderTargets(
+		1, m_renderTargetView.GetAddressOf(), NULL);
+}
+
 void Renderer::captureFrame() {
 	auto hr = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&m_backBufferTex);
 	if (FAILED(hr)) {
@@ -174,9 +184,11 @@ void Renderer::draw_darkEdges() {
 		//bind vertex buffer
 		bindQuadVertexBuffer();
 
-		enableAlphaBlending();
+		bindRenderTarget();//need to remove depth buffer!
+
 		m_deviceContext->Draw(6, 0);
-		disableAlphaBlending();
+
+		bindRenderAndDepthTarget();//place back the depth buffer
 	}
 }
 
@@ -340,35 +352,6 @@ void Renderer::createDevice(HWND window) {
 		return;
 	}
 
-	//Render ShaderResourceView Copy
-	D3D11_TEXTURE2D_DESC copyDesc;
-	copyDesc.Width = m_screenWidth;
-	copyDesc.Height = m_screenHeight;
-	copyDesc.ArraySize = 1;
-	copyDesc.MipLevels = 1;
-	copyDesc.Format = swapChainDesc.BufferDesc.Format;
-	copyDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-	copyDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	copyDesc.CPUAccessFlags = 0;
-	copyDesc.MiscFlags = 0;
-	copyDesc.SampleDesc = swapChainDesc.SampleDesc; // same as swapChain
-	ID3D11Texture2D* texCopy = 0;
-	HRESULT res = m_device->CreateTexture2D(&copyDesc, 0, &texCopy);
-	if (FAILED(res))
-		ErrorLogger::logError("(Renderer) Failed creating render 2d texture copy!", res);
-	//Shader resourceView
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	ZeroMemory(&srvDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
-	srvDesc.Format = copyDesc.Format;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-	HRESULT srvHR =
-		m_device->CreateShaderResourceView(texCopy, &srvDesc, m_targetSRVCopy.GetAddressOf());
-	if (FAILED(srvHR))
-		ErrorLogger::logError("(Renderer) Failed creating render SRV copy!", srvHR);
-	texCopy->Release();
-
 	createDepthState();
 	createDepthBuffer(swapChainDesc);
 	createBlendState();
@@ -392,6 +375,37 @@ void Renderer::createRenderTarget() {
 	backBuffer->GetDesc(&m_backBufferDesc);
 	if (backBuffer != nullptr)
 		backBuffer->Release();
+
+	// Render ShaderResourceView Copy
+	DXGI_SWAP_CHAIN_DESC swap_desc;
+	m_swapChain->GetDesc(&swap_desc);
+	D3D11_TEXTURE2D_DESC copyDesc;
+	copyDesc.Width = m_screenWidth;
+	copyDesc.Height = m_screenHeight;
+	copyDesc.ArraySize = 1;
+	copyDesc.MipLevels = 1;
+	copyDesc.Format = swap_desc.BufferDesc.Format; // same as swapchains description!
+	copyDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
+	copyDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	copyDesc.CPUAccessFlags = 0;
+	copyDesc.MiscFlags = 0;
+	copyDesc.SampleDesc = swap_desc.SampleDesc; // same as swapChain
+	ID3D11Texture2D* texCopy = 0;
+	HRESULT res = m_device->CreateTexture2D(&copyDesc, 0, &texCopy);
+	if (FAILED(res))
+		ErrorLogger::logError("(Renderer) Failed creating render 2d texture copy!", res);
+	// Shader resourceView
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	srvDesc.Format = copyDesc.Format;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	HRESULT srvHR =
+		m_device->CreateShaderResourceView(texCopy, &srvDesc, m_targetSRVCopy.GetAddressOf());
+	if (FAILED(srvHR))
+		ErrorLogger::logError("(Renderer) Failed creating render SRV copy!", srvHR);
+	texCopy->Release();
 }
 
 void Renderer::createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd) {

@@ -2,7 +2,7 @@ struct VS_OUT {
 	float4 posH : SV_POSITION;
 };
 
-cbuffer screenSizeBuffer { float4 cb_screenSize; };
+cbuffer screenSizeBuffer : register(b6) { float4 cb_screenSize; };
 
 Texture2D<float> depthMap : register(s0);
 Texture2D targetMap : register(s1);
@@ -19,7 +19,6 @@ float4 main(VS_OUT ip) : SV_TARGET {
 	float blend = 1.f;
 	float3 edgeColor = float3(0, 0, 0);
 	float3 backColor = targetMap[ip.posH.xy].xyz;
-
 	uint2 screenSize = uint2(cb_screenSize.x, cb_screenSize.y);
 
 	float2 uv = float2(ip.posH.x / screenSize.x, ip.posH.y / screenSize.y);

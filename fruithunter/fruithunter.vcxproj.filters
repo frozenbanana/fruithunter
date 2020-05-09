@@ -222,6 +222,7 @@
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Dragonfruit.cpp">
       <Filter>Source\Drawable\Mesh\Fruits</Filter>
     </ClCompile>
+    <ClCompile Include="Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -383,6 +384,7 @@
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Dragonfruit.h">
       <Filter>Source\Drawable\Mesh\Fruits</Filter>
     </ClInclude>
+    <ClInclude Include="Scene.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />

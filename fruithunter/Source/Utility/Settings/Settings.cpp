@@ -102,8 +102,11 @@ void Settings::setEffectsVolume(float value) {
 }
 
 void Settings::setResolution(int width, int height) {
-	m_resolution = XMINT2(width, height);
-	Renderer::getInstance()->changeResolution(width, height);
+	XMINT2 desiredResolution(width, height);
+	if (desiredResolution.x != m_resolution.x || desiredResolution.y != m_resolution.y) {
+		m_resolution = desiredResolution;
+		Renderer::getInstance()->changeResolution(width, height);
+	}
 }
 
 void Settings::setShadowResolution(int res) {

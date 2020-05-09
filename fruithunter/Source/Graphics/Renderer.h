@@ -39,6 +39,9 @@ public:
 	void copyDepthToSRV();
 	void copyTargetToSRV();
 
+	void bindRenderAndDepthTarget();
+	void bindRenderTarget();
+
 	void captureFrame();
 
 	void drawCapturedFrame();
