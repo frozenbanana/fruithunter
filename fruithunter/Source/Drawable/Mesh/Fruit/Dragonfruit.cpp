@@ -1,6 +1,6 @@
 #include "DragonFruit.h"
 #include "PathFindingThread.h"
-#include "TerrainManager.h"
+#include "SceneManager.h"
 
 bool DragonFruit::isFalling() { return m_velocity.y < 0.f && !m_onGround; }
 
@@ -36,7 +36,7 @@ void DragonFruit::pathfinding(float3 start, std::vector<float4>* animals) {}
 
 float3 DragonFruit::getRandomTarget() {
 	float3 targetXZ = float3(RandomFloat(100.f, 200.f), 0.f, RandomFloat(100.f, 200.f));
-	float height = TerrainManager::getInstance()->getHeightFromPosition(targetXZ);
+	float height = SceneManager::getScene()->m_terrains.getHeightFromPosition(targetXZ);
 	height = max(20.f, height);
 	return float3(targetXZ.x, RandomFloat(height, height + 25.f), targetXZ.z);
 }
@@ -56,8 +56,8 @@ void DragonFruit::behaviorPassive(float3 playerPosition) {
 		// set new target
 		m_target = getRandomTarget();
 	}
-	float terrainHeight = TerrainManager::getInstance()->getHeightFromPosition(m_position);
-	float3 terrainPos = float3(m_position.x, terrainHeight, m_position.z);
+	float terrainHeight = SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition());
+	float3 terrainPos = float3(getPosition().x, terrainHeight, getPosition().z);
 	if (withinDistanceTo(terrainPos, 1.0f)) {
 		jump(float3(0.0f, 1.0f, 0.0f), 15.f);
 		m_target = getRandomTarget();
@@ -67,8 +67,8 @@ void DragonFruit::behaviorPassive(float3 playerPosition) {
 	}
 
 
-	m_direction = float3(m_target - m_position);
-	lookToDir(m_velocity);
+	m_direction = float3(m_target - getPosition());
+	lookTo(m_velocity * float3(1, 0, 1));
 	m_speed = m_passive_speed;
 }
 
@@ -78,17 +78,17 @@ void DragonFruit::behaviorActive(float3 playerPosition) {
 		changeState(PASSIVE);
 		return;
 	}
-	m_target = m_position + (m_position - playerPosition);
-	m_velocity = float3(m_target - m_position);
+	m_target = getPosition() + (getPosition() - playerPosition);
+	m_velocity = float3(m_target - getPosition());
 	m_velocity.Normalize();
-	lookToDir(m_velocity);
+	lookTo(m_velocity * float3(1, 0, 1));
 	m_speed = m_active_speed;
 }
 
 void DragonFruit::behaviorCaught(float3 playerPosition) {
 	// just go to player
-	m_direction = playerPosition - m_position;
-	lookToDir(m_direction);
+	m_direction = playerPosition - getPosition();
+	lookTo(m_direction * float3(1, 0, 1));
 	m_gravity = float3(0.f);
 	m_speed = m_caught_speed;
 	if (!m_ascend) {
