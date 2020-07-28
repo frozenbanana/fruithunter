@@ -15,17 +15,14 @@ private:
 	const vector<string> m_nonCollidables = { "DeadBush", "Grass1", "Grass2", "Grass3", "Grass4" };
 
 	struct EntityInstance {
-		float3 position, scale;
-		float4x4 matRotation;
+		float3 position, scale, rotation;
 		bool operator==(const EntityInstance& other) {
-			return (position == other.position && scale == other.scale &&
-					matRotation == other.matRotation);
+			return (position == other.position && scale == other.scale && rotation == other.rotation);
 		}
-		EntityInstance(float3 _position = float3(0, 0, 0), float3 _scale = float3(1, 1, 1),
-			float4x4 _matRotation = XMMatrixIdentity()) {
+		EntityInstance(float3 _position = float3(0.), float3 _scale = float3(1.), float3 _rotation = float3(0.)) {
 			position = _position;
 			scale = _scale;
-			matRotation = _matRotation;
+			rotation = _rotation;
 		}
 	};
 	struct EntityInstances {
@@ -63,14 +60,14 @@ private:
 	Input::MouseButton m_placeKey = Input::MouseButton::LEFT; // place entity
 	Keyboard::Keys m_deleteKey = Keyboard::Back;			  // delete entity
 	Keyboard::Keys m_randomizeKey = Keyboard::NumPad0;		  // randomize values of entity
-	Keyboard::Keys m_saveKey = Keyboard::NumPad9;			  // randomize values of entity
+	Keyboard::Keys m_saveKey = Keyboard::NumPad9;			  // save repository to file key activator
 
 	//culling
 	bool m_useCulling = false;
 	vector<Entity**> m_culledEntities;
 
 	//-- Functions --
-	void clear();
+	void clearRepository();
 
 	void fillEntitiesFromRepository();
 
@@ -108,6 +105,8 @@ public:
 
 	void draw();
 	void draw_onlyMesh();
+
+	void clear();
 
 	EntityRepository(string filename = "");
 	~EntityRepository();

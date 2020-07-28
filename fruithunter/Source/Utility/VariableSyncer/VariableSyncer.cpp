@@ -10,10 +10,20 @@ FileSyncer::FileSyncer(string path, SyncType type, void (*onLoad)(void)) {
 	function_onLoad = onLoad;
 }
 
-void FileSyncer::readFile() {
+void FileSyncer::clear() {
+	m_description.clear();
+	m_timestamp = time_t();
+	m_path = "";
+	m_fileCreated = false;
+}
+
+void FileSyncer::readFile(string overridePath) {
+	string path = m_prePath + m_path;
 	if (valid()) {
 		fstream file;
-		file.open(m_prePath + m_path, ios::in);
+		if (overridePath != "")
+			path = overridePath;
+		file.open(path, ios::in);
 		if (file.is_open()) {
 			string str = "";
 			const size_t count = 100;
@@ -50,13 +60,13 @@ void FileSyncer::readFile() {
 						// corrupt line
 						// ignore line
 						ErrorLogger::logWarning(
-							"(VariableSyncer) At file: " + m_path + "\nCorrupt line!");
+							"(VariableSyncer) At file: " + path + "\nCorrupt line!");
 					}
 				}
 				else {
 					// variable was not found
 					// ignore line
-					ErrorLogger::logWarning("(VariableSyncer) At file: " + m_path +
+					ErrorLogger::logWarning("(VariableSyncer) At file: " + path +
 											"\nLine in wrong format! (VarName:VarType)");
 				}
 			}
@@ -69,14 +79,17 @@ void FileSyncer::readFile() {
 	}
 	else {
 		ErrorLogger::logWarning(
-			"(VariableSyncer) Failed opening unvalid struct for file: " + m_path);
+			"(VariableSyncer) Failed opening unvalid struct for file: " + path);
 	}
 }
 
-void FileSyncer::writeFile() {
+void FileSyncer::writeFile(string overridePath) {
+	string path = m_prePath + m_path;
 	if (valid()) {
 		fstream file;
-		file.open(m_prePath + m_path, ios::out);
+		if (overridePath != "")
+			path = overridePath;
+		file.open(path, ios::out);
 		if (file.is_open()) {
 			for (size_t i = 0; i < m_description.size(); i++) {
 				file << m_description[i].m_varName << ":";
@@ -88,11 +101,11 @@ void FileSyncer::writeFile() {
 			m_timestamp = getModificationTime();
 		}
 		else {
-			ErrorLogger::logWarning("(VariableSyncer) Failed at opening file: " + m_path);
+			ErrorLogger::logWarning("(VariableSyncer) Failed at opening file: " + path);
 		}
 	}
 	else {
-		ErrorLogger::logWarning("(VariableSyncer) Failed opening unvalid file: " + m_path);
+		ErrorLogger::logWarning("(VariableSyncer) Failed opening unvalid file: " + path);
 	}
 }
 
@@ -167,7 +180,7 @@ void FileSyncer::bind(string description, void* ptr) {
 				m_description.push_back(FileVariable(str_temp));
 				str_temp = "";
 			}
-			else if (c == '&' || i == length - 1) {
+			else if (c == ',' || i == length - 1) {
 				if (i == length - 1)
 					str_temp += c;
 				VarTypes type = getTypeFromString(str_temp);
@@ -181,6 +194,22 @@ void FileSyncer::bind(string description, void* ptr) {
 				str_temp += c;
 			}
 		}
+	}
+}
+
+void FileSyncer::connect(string path) { 
+	m_path = path;
+}
+
+bool FileSyncer::fileExists(string path) { 
+	fstream file;
+	file.open(path, ios::in);
+	if (file.is_open()) {
+		file.close();
+		return true;
+	}
+	else {
+		return false;
 	}
 }
 
@@ -238,7 +267,8 @@ void FileSyncer::parseToPointer(string str, VarTypes type, void* ptr_data) {
 		*((int*)data) = std::stoi(str);
 		break;
 	case FileSyncer::type_string:
-		*((string*)data) = str;
+		string* strData = (string*)data;
+		(*strData) = string(str);
 		break;
 	}
 }

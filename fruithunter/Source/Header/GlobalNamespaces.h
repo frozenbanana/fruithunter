@@ -8,6 +8,10 @@
 #include <WRL/client.h>
 #include <SimpleMath.h>
 
+#include "imgui.h"
+#include "imgui_impl_dx11.h"
+#include "imgui_impl_win32.h"
+
 using namespace std;
 using namespace DirectX;
 using namespace SimpleMath;
@@ -19,16 +23,84 @@ using float4x4 = DirectX::SimpleMath::Matrix;
 
 #define DEBUG true
 
-enum AreaTag { Forest, Plains, Desert, Volcano, NR_OF_AREAS };
+enum AreaTag { Forest, Plains, Desert, Volcano, LevelIsland, NR_OF_AREAS };
 enum FruitType { APPLE, BANANA, MELON, DRAGON, NR_OF_FRUITS };
 enum TimeTargets { GOLD, SILVER, BRONZE, NR_OF_TIME_TARGETS };
 enum Skillshot { SS_NOTHING, SS_BRONZE, SS_SILVER, SS_GOLD };
+
+static string AreaTagToString(AreaTag tag) {
+	static string str[AreaTag::NR_OF_AREAS] = { "Forest", "Plains", "Desert", "Volcano",
+		"LevelIsland" };
+	return str[tag];
+}
+static string FruitTypeToString(FruitType type) {
+	static string str[FruitType::NR_OF_FRUITS] = { "Apple", "Banana", "Melon", "Dragon" };
+	return str[type];
+}
+
+static std::wstring s2ws(const std::string& s) {
+	int len;
+	int slength = (int)s.length() + 1;
+	len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
+	wchar_t* buf = new wchar_t[len];
+	MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
+	std::wstring r(buf);
+	delete[] buf;
+	return r;
+}
+static string LPWSTR_to_STRING(LPWSTR str) {
+	wstring ws(str);
+
+	// convert from wide char to narrow char array
+	char ch[256];
+	char DefChar = ' ';
+	WideCharToMultiByte(CP_ACP, 0, str, -1, ch, 256, &DefChar, NULL); // No error checking
+
+	std::string sbuff = std::string(ch);
+
+	return sbuff;
+}
+
+/* Create Pitch Yaw Roll matrix */
+static float4x4 CreatePYRMatrix(float3 rotation) {
+	return float4x4::CreateRotationZ(rotation.z) * float4x4::CreateRotationX(rotation.x) *
+		   float4x4::CreateRotationY(rotation.y);
+}
+
+static string Time2DisplayableString(size_t time) { 
+	size_t total = time;
+	size_t minutes = total / 60;
+	size_t seconds = total % 60;
+	return (minutes < 10 ? "0" : "") + to_string(minutes) + "." + (seconds < 10 ? "0" : "") +
+		   to_string(seconds);
+}
 
 // Helper Math functions
 /* Generate a random float between low to high */
 static float RandomFloat(float low = 0.f, float high = 1.f) {
 	float randomCoefficent = (float)(rand() % (int)100.f) / 100.f; // normalize
 	return low + randomCoefficent * (high - low);
+}
+
+/* Rotate float2 value */
+static float2 rotate(float2 v, float rad) {
+	float c = cos(rad), s = sin(rad);
+	return float2(v.x * c - v.y * s, v.x * s + v.y * c);
+}
+
+/* Return length of direction until collision. Return 0 if no collision */
+static float RayPlaneIntersection(float3 rayPoint, float3 rayDirection, float3 planePosition, float3 planeNormal) {
+	float distanceTowardsNormal = rayDirection.Dot(planeNormal);
+	if (distanceTowardsNormal == 0)
+		return 0; // no intersection
+	float distanceToPlane = planeNormal.Dot(planePosition - rayPoint);
+	return distanceToPlane / distanceTowardsNormal;
+}
+
+/*  */
+template <typename TYPE> static TYPE Normalize(TYPE v) { 
+	v.Normalize();
+	return v; 
 }
 
 /* Map value from interval [low, high] to new value corresponding to interval [newLow, newHigh] */
@@ -38,7 +110,29 @@ static float Map(float low, float high, float newLow, float newHigh, float value
 	return oldCoefficient * newRange;
 }
 
-static float Clamp(float val, float low, float high) { return min(max(val, low), high); }
+//static float Clamp(float val, float low, float high) { return min(max(val, low), high); }
+
+template <typename TYPE> static TYPE Clamp(TYPE v, TYPE min, TYPE max) {
+	return (v > max ? max : (v < min ? min : v));
+}
+
+/* Lerp between two values. Parameters require addition and multiplication operators! */
+template <typename VARTYPE> static VARTYPE lerp(VARTYPE t1, VARTYPE t2, float mix) {
+	return t1 * (1 - mix) + t2 * mix;
+}
+
+static float3 vector2Rotation(float3 direction) {
+	float3 dir = direction;
+	dir.Normalize();
+
+	float2 mapY(dir.z, dir.x);
+	float2 mapX(float2(dir.x, dir.z).Length(), dir.y);
+	mapY.Normalize();
+	mapX.Normalize();
+	float rotY = (mapY.y >= 0) ? (acos(mapY.x)) : (-acos(mapY.x));
+	float rotX = -((mapX.y >= 0) ? (acos(mapX.x)) : (-acos(mapX.x)));
+	return float3(rotX, rotY, 0);
+}
 
 struct FrustumPlane {
 	float3 m_position, m_normal;

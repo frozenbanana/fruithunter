@@ -4,120 +4,62 @@
 #include "Statehandler.h"
 #include "PlayState.h"
 #include "SaveManager.h"
+#include "Scene.h"
 
 void LevelSelectState::initialize() {
 	m_name = "Level select state";
-
-	// Initiate player
-	m_player.setPosition(m_spawnPosition);
-	// Initiate terrain
-	// m_maps = vector<string> maps(4);
-	m_maps.push_back("texture_grass.jpg");
-	m_maps.push_back("texture_rock6.jpg");
-	m_maps.push_back("texture_rock4.jpg");
-	m_maps.push_back("texture_rock6.jpg");
-
-	// Initiate water
-	m_waterEffect.initilize(SeaEffect::SeaEffectTypes::water, XMINT2(400, 400), XMINT2(1, 1),
-		float3(0.f, 1.f, 0.f) - float3(100.f, 0.f, 100.f), float3(400.f, 2.f, 400.f));
-
-	// Initiate entity repos
-	m_terrainProps.addPlaceableEntity("treeMedium1");
-	m_terrainProps.addPlaceableEntity("treeMedium2");
-	m_terrainProps.addPlaceableEntity("treeMedium3");
-	m_terrainProps.addPlaceableEntity("stone1");
-	m_terrainProps.addPlaceableEntity("stone2");
-	m_terrainProps.addPlaceableEntity("stone3");
-	m_terrainProps.addPlaceableEntity("bush1");
-	m_terrainProps.addPlaceableEntity("bush2");
-	m_terrainProps.addPlaceableEntity("DeadBush");
-	m_terrainProps.addPlaceableEntity("BurnedTree1");
-	m_terrainProps.addPlaceableEntity("BurnedTree2");
-	m_terrainProps.addPlaceableEntity("BurnedTree3");
-	m_terrainProps.addPlaceableEntity("Cactus_tall");
-	m_terrainProps.addPlaceableEntity("Cactus_small");
-	m_terrainProps.addPlaceableEntity("Grass1");
-	m_terrainProps.addPlaceableEntity("Grass2");
-	m_terrainProps.addPlaceableEntity("Grass3");
-	m_terrainProps.addPlaceableEntity("Grass4");
-	m_terrainProps.addPlaceableEntity("RopeBridgeFloor");
-	m_terrainProps.addPlaceableEntity("RopeBridgeRailing1");
-	m_terrainProps.addPlaceableEntity("RopeBridgeRailing2");
-
-	m_terrainProps.load("levelSelection");
 }
 
 void LevelSelectState::update() {
 	Input::getInstance()->setMouseModeRelative();
 
+	sceneManager.update();
+
 	m_timer.update();
 	float dt = m_timer.getDt();
-
-	// Update terrainprops
-	m_terrainProps.update(dt, m_player.getCameraPosition(), m_player.getForward());
-
-	// update player
-	m_player.update(dt);
-
-	for (int i = 0; i < m_terrainProps.getEntities()->size(); i++) {
-		m_player.collideObject(*m_terrainProps.getEntities()->at(i));
-	}
-
-	// Update Skybox
-	m_skyBox.update(dt);
-	m_skyBox.switchLight(AreaTag::Plains);
-
-	// update water
-	m_waterEffect.update(dt);
+	Player* player = SceneManager::getScene()->m_player.get();
 
 	// Update bowls
 	for (int i = 0; i < m_levelSelectors.size(); i++) {
 		// if index inside array and previous level is completed, then allow to play level
 		if (i == 0 || SaveManager::getInstance()->getActiveSave()[i - 1].isCompleted) {
 			// Check collision
-			if (m_player.getArrow().checkCollision(m_levelSelectors[i].m_bowl)) {
-				m_player.getArrow().setPosition(float3(-1000.f));
-				m_player.setPosition(m_spawnPosition);
-				TerrainManager::getInstance()->removeAll();
-				draw(); // Updates hitboxes and prepares state for next time.
-				setLevel(i);
-				StateHandler::getInstance()->changeState(StateHandler::PLAY);
+			vector<shared_ptr<Arrow>> *arrows = &SceneManager::getScene()->m_arrows;
+			for (size_t j = 0; j < arrows->size(); j++) {
+				if ((*arrows)[j]->isActive() &&
+					(*arrows)[j]->collide_entity(dt, m_levelSelectors[i].m_bowl)) {
+					// start level
+					setLevel(i);
+					StateHandler::getInstance()->changeState(StateHandler::PLAY);
+				}
 			}
 		}
 	}
 
 	// Update animals
-	// for all animals
 	for (size_t i = 0; i < m_animal.size(); ++i) {
-		m_animal[i]->checkLookedAt(m_player.getCameraPosition(), m_player.getForward());
+		m_animal[i]->checkLookedAt(player->getCameraPosition(), player->getForward());
 		if (m_animal[i]->notBribed()) {
-			bool getsThrown = m_player.checkAnimal(m_animal[i]->getPosition(),
+			bool getsThrown = player->checkAnimal(m_animal[i]->getPosition(),
 				m_animal[i]->getPlayerRange(), m_animal[i]->getThrowStrength());
 			if (getsThrown) {
 				m_animal[i]->makeAngrySound();
-				m_animal[i]->beginWalk(m_player.getPosition());
+				m_animal[i]->beginWalk(player->getPosition());
 			}
 			else {
 				m_animal[i]->setAttacked(false);
 			}
 		}
-		m_animal[i]->update(dt, m_player.getPosition());
+		m_animal[i]->update(dt, player->getPosition());
 	}
-
-	// Check entity - arrow
-	vector<Entity**> entitiesAroundArrow =
-		m_terrainProps.getCulledEntitiesByPosition(m_player.getArrow().getPosition());
-	for (size_t i = 0; i < entitiesAroundArrow.size(); i++) {
-		if ((*entitiesAroundArrow[i])->getIsCollidable()) {
-			m_player.arrowCollideToEntity(**entitiesAroundArrow[i], dt);
-		}
-	}
-
 }
 
 void LevelSelectState::handleEvent() {
 	if (Input::getInstance()->keyPressed(Keyboard::Keys::Escape)) {
 		StateHandler::getInstance()->changeState(StateHandler::PAUSE);
+	}
+	if (Input::getInstance()->keyPressed(Keyboard::M)) {
+		StateHandler::getInstance()->changeState(StateHandler::EDITOR);
 	}
 }
 
@@ -126,58 +68,49 @@ void LevelSelectState::pause() { ErrorLogger::log(m_name + " pause() called."); 
 void LevelSelectState::play() {
 	Input::getInstance()->setMouseModeRelative();
 	ErrorLogger::log(m_name + " play() called.");
-	AudioHandler::getInstance()->changeMusicTo(AudioHandler::ELEVATOR, 0.f); // dt not used. Lazy...
-	State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
-	dynamic_cast<PlayState*>(tempPointer)->destroyLevel(); // reset if there is an old level
-	TerrainManager::getInstance()->removeAll();
-	TerrainManager::getInstance()->add(float3(0.f), float3(100.f, 25.f, 100.f), "tutorial.png",
-		m_maps, XMINT2(210, 210), XMINT2(1, 1), float3(0.f, 0.f, 0.f));
+
+	sceneManager.load("levelSelect");
 
 	initializeLevelSelectors();
+
+	//State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
+	//dynamic_cast<PlayState*>(tempPointer)->destroyLevel(); // reset if there is an old level
+
+	//AudioHandler::getInstance()->changeMusicTo(AudioHandler::ELEVATOR, 0.f); // dt not used. Lazy...
+	//State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
+	//dynamic_cast<PlayState*>(tempPointer)->destroyLevel(); // reset if there is an old level
+	//TerrainManager::getInstance()->removeAll();
+	//TerrainManager::getInstance()->add(float3(0.f), float3(100.f, 25.f, 100.f), "tutorial.png",
+	//	m_maps, XMINT2(210, 210), XMINT2(1, 1), float3(0.f, 0.f, 0.f));
+
 }
 
 void LevelSelectState::draw() {
-	ShadowMapper* shadowMap = Renderer::getInstance()->getShadowMapper();
-	shadowMap->mapShadowToFrustum(m_player.getFrustumPoints(0.4f));
-	shadowMap->setup_depthRendering();
-
+	//	__SHADOWS__
+	sceneManager.setup_shadow();
+	sceneManager.draw_shadow();
+	// custom drawing (shadow mode)
 	for (int i = 0; i < m_levelSelectors.size(); i++) {
-		m_levelSelectors[i].m_bowl.draw_onlyMesh(float3(0, 0, 0));
-		m_levelSelectors[i].m_content.draw_onlyMesh(float3(0, 0, 0));
+		m_levelSelectors[i].m_bowl.draw_onlyMesh(float3(0.));
+		m_levelSelectors[i].m_content.draw_onlyMesh(float3(0.));
 	}
-	// draw terrain
-	TerrainManager::getInstance()->draw_onlyMesh();
-	// draw terrain props
-	m_terrainProps.draw_onlyMesh();
 	// draw animals
 	for (int i = 0; i < m_animal.size(); i++) {
 		m_animal[i]->draw_onlyAnimal();
 	}
 
-	// Set first person info
-	Renderer::getInstance()->beginFrame();
-	shadowMap->setup_shadowRendering();
-
-	// draw first person
-	m_skyBox.bindLightBuffer();
-	m_player.bindMatrix();
-	//draw bow
-	m_player.draw();
+	//	__COLOR__
+	sceneManager.setup_color();
+	// custom color drawing (with darkedges)
 	// draw bowls
 	for (int i = 0; i < m_levelSelectors.size(); i++) {
 		m_levelSelectors[i].m_bowl.draw();
 		m_levelSelectors[i].m_content.draw();
 	}
-	// draw terrain entities
-	m_terrainProps.draw();
 	// draw animals
 	for (int i = 0; i < m_animal.size(); i++) {
 		m_animal[i]->draw_onlyAnimal();
 	}
-	TerrainManager::getInstance()->draw();
-	Renderer::getInstance()->copyDepthToSRV();
-	m_waterEffect.draw();
-
 	// text above bowls
 	for (int i = 0; i < m_levelSelectors.size(); i++) {
 		LevelData levelData = SaveManager::getInstance()->getActiveSave()[i];
@@ -193,22 +126,22 @@ void LevelSelectState::draw() {
 		str += "\nBest Time: " + strMinutes + "." + strSeconds + " Minutes";
 		m_textRenderer.drawTextInWorld(str,
 			m_levelSelectors[i].m_bowl.getPosition() + float3(0, 1.5f, 0),
-			m_levelSelectors[i].m_bowl.getPosition() + float3(0, 1.5f, 0) - m_player.getForward(),
+			m_levelSelectors[i].m_bowl.getPosition() + float3(0, 1.5f, 0) -
+				SceneManager::getScene()->m_player->getForward(),
 			float2(1.f) * 4.f);
 	}
-	// skybox
-	m_skyBox.draw();
-	// dark edges
-	Renderer::getInstance()->draw_darkEdges();
-	m_player.getBow().getTrailEffect().draw();
+	// standard drawing
+	sceneManager.draw_color();
+	// custom drawing (without darkedges)
+
+
 }
 
 LevelSelectState::~LevelSelectState() {}
 
 void LevelSelectState::setLevel(int newLevel) {
-
 	State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
-	dynamic_cast<PlayState*>(tempPointer)->setLevel(newLevel);
+	dynamic_cast<PlayState*>(tempPointer)->changeScene("scene"+to_string(newLevel));
 }
 
 void LevelSelectState::initializeLevelSelectors() {

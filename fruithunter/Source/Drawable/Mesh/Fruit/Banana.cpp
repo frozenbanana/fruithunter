@@ -1,6 +1,7 @@
 #include "Banana.h"
 #include "Renderer.h"
 #include "ErrorLogger.h"
+#include "SceneManager.h"
 
 #define PASSIVE_JUMP_POWER 15.f
 #define ACTIVE_JUMP_POWER 25.f
@@ -21,7 +22,7 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 	rotRandom();
 	setScale(2.f);
 	m_currentState = PASSIVE;
-	m_worldHome = m_position;
+	m_worldHome = getPosition();
 	setCollisionDataOBB();
 	m_speed = 1.f;
 	m_activeRadius = 5.f;
@@ -31,10 +32,8 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 }
 
 void Banana::behaviorPassive(float3 playerPosition) {
-	TerrainManager* terrainManger = TerrainManager::getInstance();
-
-	if (m_position.y <= 1.f) {
-		float3 target = m_worldHome - m_position;
+	if (getPosition().y <= 1.f) {
+		float3 target = m_worldHome - getPosition();
 		target.Normalize();
 		target.y = 1.f;
 		jump(target, 10.f);
@@ -44,13 +43,13 @@ void Banana::behaviorPassive(float3 playerPosition) {
 	if (m_onGround) {
 		float3 direction = float3(0.f);
 		if (!withinDistanceTo(m_worldHome, ARRIVAL_RADIUS)) {
-			float3 toHome = m_worldHome - m_position;
+			float3 toHome = m_worldHome - getPosition();
 			toHome.Normalize();
 			toHome.y = 1.0f;
 			direction = toHome;
 		}
 		else {
-			float3 terrainNormal = terrainManger->getNormalFromPosition(m_position);
+			float3 terrainNormal = SceneManager::getScene()->m_terrains.getNormalFromPosition(getPosition());
 			terrainNormal.Normalize();
 			direction = terrainNormal;
 		}
@@ -68,10 +67,10 @@ void Banana::behaviorActive(float3 playerPosition) {
 	if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
 		changeState(PASSIVE);
 	}
-	TerrainManager* terrainManger = TerrainManager::getInstance();
 	// Only decide what to do on ground
 	if (m_onGround) {
-		float3 terrainNormal = terrainManger->getNormalFromPosition(m_position);
+		float3 terrainNormal =
+			SceneManager::getScene()->m_terrains.getNormalFromPosition(getPosition());
 		// Go bananas!
 		terrainNormal.x += RandomFloat(-1.f, 1.f);
 		terrainNormal.z += RandomFloat(-1.f, 1.f);
@@ -81,7 +80,7 @@ void Banana::behaviorActive(float3 playerPosition) {
 }
 void Banana::behaviorCaught(float3 playerPosition) {
 	if (m_onGround) {
-		float3 toPlayer = playerPosition - m_position;
+		float3 toPlayer = playerPosition - getPosition();
 		toPlayer.Normalize();
 		toPlayer.y = 1.0f;
 		jump(toPlayer, 8.0f);

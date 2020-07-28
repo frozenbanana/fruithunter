@@ -16,7 +16,6 @@ public:
 	void bindMatrix();
 
 	void collideObject(Entity& obj);
-	bool arrowCollideToEntity(Entity& entity, float dt);
 	bool checkAnimal(float3 animalPos, float range, float throwStrength);
 
 	// GETS
@@ -27,7 +26,6 @@ public:
 	vector<FrustumPlane> getFrustumPlanes() const;
 	CubeBoundingBox getCameraBoundingBox() const;
 	vector<float3> getFrustumPoints(float scaleBetweenNearAndFarPlane) const;
-	Entity& getArrow();
 	Bow& getBow();
 	float getStamina() const;
 	void getStaminaBySkillshot(Skillshot skillShot);
@@ -36,7 +34,6 @@ public:
 	void setPosition(float3 position);
 
 	//States
-	bool isShooting() const;
 	bool inHuntermode() const;
 
 	void standsOnObject();
@@ -138,8 +135,8 @@ private:
 	float getPlayerMovementSpeed() const;
 
 	/*
-	 * consumes stamina and next time restoreStamina() is called it will fail. Making so that the
-	 * stamina only restores when not being used
+	 * consumes stamina and next time restoreStamina() is called it will fail. Doing so that the
+	 * stamina only restores when not being used.
 	 */
 	void consumeStamina(float amount);
 	void restoreStamina(float amount);

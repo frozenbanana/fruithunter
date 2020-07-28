@@ -5,6 +5,7 @@
 #include "PauseState.h"
 #include "EndRoundState.h"
 #include "SettingsState.h"
+#include "EditorState.h"
 #include "ErrorLogger.h"
 
 StateHandler StateHandler::m_this;
@@ -56,6 +57,7 @@ void StateHandler::initialize() {
 	m_states[SETTINGS] = make_unique<SettingsState>();
 	m_states[LEVEL_SELECT] = make_unique<LevelSelectState>();
 	m_states[ENDROUND] = make_unique<EndRoundState>();
+	m_states[EDITOR] = make_unique<EditorState>();
 	play();
 }
 

@@ -1,7 +1,7 @@
 #include "AudioHandler.h"
 #include "ErrorLogger.h"
 #include "Settings.h"
-//#include <thread> // std::thread
+
 AudioHandler AudioHandler::m_this;
 
 
@@ -16,6 +16,7 @@ bool AudioHandler::isPlaying(AudioHandler::Sounds sound) {
 }
 
 void AudioHandler::initalize() {
+	AudioHandler* ah = AudioHandler::getInstance();
 	// Needed to be able to load textures and possibly other things.
 	auto hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 	if (FAILED(hr)) {
@@ -24,81 +25,41 @@ void AudioHandler::initalize() {
 	}
 
 	// Can add flags to parameters
-	m_this.m_audioEngine = std::make_unique<DirectX::AudioEngine>();
+	ah->m_audioEngine = std::make_unique<DirectX::AudioEngine>();
 	// One time sound effects
-	m_this.m_soundEffects[APPLAUSE] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/applause.wav");
-	m_this.m_soundEffects[SLOW_MOTION] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/slowmotion.wav");
-	m_this.m_soundEffects[SLOW_MOTION_REVERSED] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/slowmotion-reversed.wav");
-	m_this.m_soundEffects[DING_1] =
-		std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), L"assets/sounds/ding1.wav");
-	m_this.m_soundEffects[DING_2] =
-		std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), L"assets/sounds/ding2.wav");
-	m_this.m_soundEffects[DING_3] =
-		std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), L"assets/sounds/ding3.wav");
-	m_this.m_soundEffects[LIGHT_ARROW] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/light-arrow-release.wav");
-	m_this.m_soundEffects[HEAVY_ARROW] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/heavy-arrow-release.wav");
-	m_this.m_soundEffects[STRETCH_BOW] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/stretch-bow.wav");
-	m_this.m_soundEffects[HIT_WOOD] =
-		std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), L"assets/sounds/hit-wood.wav");
-	m_this.m_soundEffects[HIT_FRUIT] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/fruit-impact-wet.wav");
-	m_this.m_soundEffects[COLLECT] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/collected-item.wav");
-	m_this.m_soundEffects[BEAR_EATING] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/bear-eating.wav");
-	m_this.m_soundEffects[BEAR_HAPPY] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/bear-happy.wav");
-	m_this.m_soundEffects[BEAR_PUSH] =
-		std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), L"assets/sounds/bear-push.wav");
-	m_this.m_soundEffects[GOAT_EATING] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/goat-eating.wav");
-	m_this.m_soundEffects[GOAT_HAPPY] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/goat-happy.wav");
-	m_this.m_soundEffects[GOAT_PUSH] =
-		std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), L"assets/sounds/goat-push.wav");
-	m_this.m_soundEffects[GORILLA_EATING] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/gorilla-eating.wav");
-	m_this.m_soundEffects[GORILLA_HAPPY] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/gorilla-happy.wav");
-	m_this.m_soundEffects[GORILLA_PUSH] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/gorilla-push.wav");
-	m_this.m_soundEffects[SLEEPING] =
-		std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), L"assets/sounds/snooring.wav");
+	string files_effect_wav[Sounds::SOUNDS_LENGTH] = { "assets/sounds/applause.wav",
+		"assets/sounds/slowmotion.wav", "assets/sounds/slowmotion-reversed.wav",
+		"assets/sounds/ding1.wav", "assets/sounds/ding2.wav", "assets/sounds/ding3.wav",
+		"assets/sounds/light-arrow-release.wav", "assets/sounds/heavy-arrow-release.wav",
+		"assets/sounds/stretch-bow.wav", "assets/sounds/hit-wood.wav",
+		"assets/sounds/fruit-impact-wet.wav", "assets/sounds/collected-item.wav",
+		"assets/sounds/bear-push.wav", "assets/sounds/bear-happy.wav",
+		"assets/sounds/bear-eating.wav", "assets/sounds/goat-push.wav",
+		"assets/sounds/goat-happy.wav", "assets/sounds/goat-eating.wav",
+		"assets/sounds/gorilla-push.wav", "assets/sounds/gorilla-happy.wav",
+		"assets/sounds/gorilla-eating.wav", "assets/sounds/snooring.wav" };
+	for (size_t i = 0; i < Sounds::SOUNDS_LENGTH; i++) {
+		std::wstring widestr = std::wstring(files_effect_wav[i].begin(), files_effect_wav[i].end());
+		const wchar_t* widecstr = widestr.c_str();
+		ah->m_soundEffects[i] =
+			std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), widecstr);
+	}
 	// Some effect require instances for more control
-	m_this.m_soundEffectsInstance[STRETCH_BOW] =
-		m_this.m_soundEffects[STRETCH_BOW]->CreateInstance();
+	ah->m_soundEffectsInstance[STRETCH_BOW] =
+		ah->m_soundEffects[STRETCH_BOW]->CreateInstance();
 
 	// Ambient sounds
-	m_this.m_music[JINGLE_GUITAR] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/jingle-guitar.wav");
-	m_this.m_music[SPANISH_GUITAR] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/spanish-guitar.wav");
-	m_this.m_music[KETAPOP] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/ketapop-nudia-short.wav");
-	m_this.m_music[KETAPOP_DARK] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/ketapop-dark-short.wav");
-	m_this.m_music[ELEVATOR] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/elevator-music.wav");
-	m_this.m_music[OCEAN] = std::make_unique<DirectX::SoundEffect>(
-		m_audioEngine.get(), L"assets/sounds/ocean-music.wav");
-	m_this.m_musicInstances[JINGLE_GUITAR] = m_this.m_music[JINGLE_GUITAR]->CreateInstance();
-	m_this.m_musicInstances[SPANISH_GUITAR] = m_this.m_music[SPANISH_GUITAR]->CreateInstance();
-	m_this.m_musicInstances[KETAPOP] = m_this.m_music[KETAPOP]->CreateInstance();
-	m_this.m_musicInstances[KETAPOP_DARK] = m_this.m_music[KETAPOP_DARK]->CreateInstance();
-	m_this.m_musicInstances[ELEVATOR] = m_this.m_music[ELEVATOR]->CreateInstance();
-	m_this.m_musicInstances[JINGLE_GUITAR]->SetVolume(m_musicVolume);
-	m_this.m_musicInstances[SPANISH_GUITAR]->SetVolume(m_musicVolume);
-	m_this.m_musicInstances[KETAPOP]->SetVolume(m_musicVolume);
-	m_this.m_musicInstances[KETAPOP_DARK]->SetVolume(m_musicVolume);
-	m_this.m_musicInstances[ELEVATOR]->SetVolume(m_musicVolume);
-	m_this.m_musicInstances[OCEAN] = m_this.m_music[OCEAN]->CreateInstance();
-
+	string wavFiles[Music::MUSIC_LENGTH] = { "assets/sounds/jingle-guitar.wav ",
+		"assets/sounds/spanish-guitar.wav", "assets/sounds/ketapop-nudia-short.wav",
+		"assets/sounds/ketapop-dark-short.wav", "assets/sounds/elevator-music.wav",
+		"assets/sounds/ocean-music.wav" };
+	for (size_t i = 0; i < Music::MUSIC_LENGTH; i++) {
+		std::wstring widestr = std::wstring(wavFiles[i].begin(), wavFiles[i].end());
+		const wchar_t* widecstr = widestr.c_str();
+		ah->m_music[i] = std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), widecstr);
+		ah->m_musicInstances[i] = ah->m_music[i]->CreateInstance();
+		ah->m_musicInstances[i]->SetVolume(m_musicVolume);
+	}
 
 	m_oldMusic = Music::MUSIC_LENGTH;
 }
@@ -116,72 +77,61 @@ void AudioHandler::pauseAllMusic() {
 
 // This is causing the game to freeze, should make music transition smooth.
 void AudioHandler::doTransition(AudioHandler::Music newMusic) {
-	m_this.m_musicInstances[newMusic]->Play(true);
+	AudioHandler* ah = AudioHandler::getInstance();
+	ah->m_musicInstances[newMusic]->Play(true);
 	m_timer.reset();
 	float coefficient;
 	float timeLimit = 3.0f;
 	while (m_timer.getTimePassed() < timeLimit) {
 		m_timer.update();
 		coefficient = max(m_timer.getTimePassed() / timeLimit, m_musicVolume);
-		m_this.m_musicInstances[m_currentMusic]->SetVolume(m_musicVolume - coefficient);
-		m_this.m_musicInstances[newMusic]->SetVolume(coefficient);
+		ah->m_musicInstances[m_currentMusic]->SetVolume(m_musicVolume - coefficient);
+		ah->m_musicInstances[newMusic]->SetVolume(coefficient);
 	}
-	m_this.m_musicInstances[m_currentMusic]->Pause();
+	ah->m_musicInstances[m_currentMusic]->Pause();
 	m_currentMusic = newMusic;
 }
 
 void AudioHandler::changeMusicTo(AudioHandler::Music newMusic, float dt) {
+	AudioHandler* ah = AudioHandler::getInstance();
 	if (newMusic != m_currentMusic) {
-		/*thread td([this, newMusic] { this->AudioHandler::doTransition(newMusic); });
-		td.detach();*/
-
 		// Simple transition
-		m_this.m_musicInstances[m_currentMusic]->Pause();
-		m_this.m_musicInstances[newMusic]->SetVolume(m_musicVolume * m_masterVolume);
-		m_this.m_musicInstances[newMusic]->Play(true);
+		ah->m_musicInstances[m_currentMusic]->Pause();
+		ah->m_musicInstances[newMusic]->SetVolume(m_musicVolume * m_masterVolume);
+		ah->m_musicInstances[newMusic]->Play(true);
 		m_currentMusic = newMusic;
 	}
 }
 
-void AudioHandler::changeMusicByTag(int tag, float dt) {
-	switch (tag) {
-	case 0:
-		changeMusicTo(AudioHandler::Music::KETAPOP, dt);
-		break;
-	case 1:
-		changeMusicTo(AudioHandler::Music::SPANISH_GUITAR, dt);
-		break;
-	case 2:
-		changeMusicTo(AudioHandler::Music::JINGLE_GUITAR, dt);
-		break;
-	case 3:
-		changeMusicTo(AudioHandler::Music::KETAPOP_DARK, dt);
-		break;
-	default:
-		ErrorLogger::log("No known terrain tag");
-		changeMusicTo(AudioHandler::Music::ELEVATOR, dt);
-	}
+void AudioHandler::changeMusicByTag(AreaTag tag, float dt) {
+	static Music mapping[AreaTag::NR_OF_AREAS] = { Music::KETAPOP, Music::JINGLE_GUITAR,
+		Music::SPANISH_GUITAR, Music::KETAPOP_DARK, Music::ELEVATOR };
+	changeMusicTo(mapping[tag], dt);
 }
 
 void AudioHandler::pauseInstance(AudioHandler::Sounds sound) {
-	m_this.m_soundEffectsInstance[sound]->Stop(true); // Play one time
+	AudioHandler* ah = AudioHandler::getInstance();
+	ah->m_soundEffectsInstance[sound]->Stop(true); // Play one time
 }
 
 void AudioHandler::playOnce(AudioHandler::Sounds sound) {
-	m_this.m_soundEffects[sound]->Play(m_effectsVolume * m_masterVolume, 0.f, 0.f); // Play one time
+	AudioHandler* ah = AudioHandler::getInstance();
+	ah->m_soundEffects[sound]->Play(m_effectsVolume * m_masterVolume, 0.f, 0.f); // Play one time
 }
 
 void AudioHandler::playInstance(AudioHandler::Sounds sound) {
-	if (m_this.m_soundEffectsInstance[sound]->GetState() != SoundState::PLAYING) {
-		m_this.m_soundEffectsInstance[sound]->SetVolume(m_effectsVolume * m_masterVolume);
-		m_this.m_soundEffectsInstance[sound]->Play();
+	AudioHandler* ah = AudioHandler::getInstance();
+	if (ah->m_soundEffectsInstance[sound]->GetState() != SoundState::PLAYING) {
+		ah->m_soundEffectsInstance[sound]->SetVolume(m_effectsVolume * m_masterVolume);
+		ah->m_soundEffectsInstance[sound]->Play();
 	}
 }
 void AudioHandler::playInstance(AudioHandler::Sounds sound, float coefficient) {
-	if (m_this.m_soundEffectsInstance[sound]->GetState() != SoundState::PLAYING &&
+	AudioHandler* ah = AudioHandler::getInstance();
+	if (ah->m_soundEffectsInstance[sound]->GetState() != SoundState::PLAYING &&
 		coefficient < 0.99f) {
-		m_this.m_soundEffectsInstance[sound]->SetVolume(m_effectsVolume * m_masterVolume);
-		m_this.m_soundEffectsInstance[sound]->Play();
+		ah->m_soundEffectsInstance[sound]->SetVolume(m_effectsVolume * m_masterVolume);
+		ah->m_soundEffectsInstance[sound]->Play();
 	}
 }
 
@@ -191,11 +141,13 @@ void AudioHandler::playOnceByDistance(
 	float volume = 1.f - map(0.f, m_maxHearingDistance, 0.f, 1.f, distance);
 	// Tweak to volume change more realistic
 	volume *= volume;
-	m_this.m_soundEffects[sound]->Play(volume * m_effectsVolume * m_masterVolume, 0.f, 0.f);
+	AudioHandler::getInstance()->m_soundEffects[sound]->Play(
+		volume * m_effectsVolume * m_masterVolume, 0.f, 0.f);
 }
 
 void AudioHandler::logStats() {
-	auto stats = m_this.m_audioEngine->GetStatistics();
+	AudioHandler* ah = AudioHandler::getInstance();
+	auto stats = ah->m_audioEngine->GetStatistics();
 
 	wchar_t buff[256] = {};
 	swprintf_s(buff,
@@ -204,8 +156,8 @@ void AudioHandler::logStats() {
 		L"Channels: %d; Audio Device present: %d",
 		stats.playingOneShots, stats.playingInstances, stats.allocatedInstances,
 		stats.allocatedVoices, stats.allocatedVoices3d, stats.allocatedVoicesOneShot,
-		stats.allocatedVoicesIdle, stats.audioBytes, m_this.m_audioEngine->GetOutputChannels(),
-		m_this.m_audioEngine->IsAudioDevicePresent());
+		stats.allocatedVoicesIdle, stats.audioBytes, ah->m_audioEngine->GetOutputChannels(),
+		ah->m_audioEngine->IsAudioDevicePresent());
 
 
 	// convert from wide char to narrow char array
@@ -221,12 +173,14 @@ AudioHandler* AudioHandler::getInstance() { return &m_this; }
 
 void AudioHandler::setMasterVolume(float value) {
 	m_masterVolume = value;
-	m_this.m_musicInstances[m_currentMusic]->SetVolume(m_musicVolume * m_masterVolume);
+	AudioHandler::getInstance()->m_musicInstances[m_currentMusic]->SetVolume(
+		m_musicVolume * m_masterVolume);
 }
 
 void AudioHandler::setMusicVolume(float value) {
 	m_musicVolume = value;
-	m_this.m_musicInstances[m_currentMusic]->SetVolume(m_musicVolume * m_masterVolume);
+	AudioHandler::getInstance()->m_musicInstances[m_currentMusic]->SetVolume(
+		m_musicVolume * m_masterVolume);
 }
 
 void AudioHandler::setEffectsVolume(float value) { m_effectsVolume = value; }

@@ -2,6 +2,7 @@
 #include "ShaderSet.h"
 #include "GlobalNamespaces.h"
 #include "Mesh.h"
+#include "TextureRepository.h"
 
 struct lightInfo {
 	float4 ambient;
@@ -22,8 +23,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_interpolationBuffer;
 
 	//textures
-	const string m_prePath = "assets/Meshes/Textures/"; 
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textures[AreaTag::NR_OF_AREAS];
+	//const string m_prePath = "assets/Meshes/Textures/"; 
+	//Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textures[AreaTag::NR_OF_AREAS];
+	shared_ptr<TextureSet> m_textures[AreaTag::NR_OF_AREAS];
 
 	//light
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightBuffer;
@@ -32,9 +34,7 @@ private:
 
 	// -- Functions --
 
-	bool createResourceBuffer(string path, ID3D11ShaderResourceView** buffer);
 	bool createConstantBuffer();
-	wstring s2ws(const std::string& s);
 	bool bindTextures();
 	bool bindTexture(AreaTag tag);
 

@@ -8,33 +8,33 @@
 
 
 class PathFindingThread {
+private:
+	static PathFindingThread m_this;
+	thread* m_thread = nullptr; // rawptr because problem with smartptr
+	mutex m_mutex;
+
+	std::vector<shared_ptr<Fruit>>* m_batch = nullptr;
+	bool m_active = true;	// is true when thread exists and should run.
+	bool m_running = false; // is true when all data is set
+	std::vector<float4> m_animals;
+
+	void run();
+	void exitThread();
+
+	bool isActive();
+	bool isRunning();
+
+	PathFindingThread();
+	~PathFindingThread();
 
 public:
 	static PathFindingThread* getInstance();
 
-	// rawptr because problem with smartptr
-	thread* m_thread = nullptr;
-	mutex m_mutex;
-	//std::vector<shared_ptr<Entity>> m_collidables;
-	void initialize(std::vector<shared_ptr<Fruit>>& batch, shared_ptr<size_t> currentFrame,
-		EntityRepository& collidables, std::vector<float4> animals);
-	~PathFindingThread();
+	void pause();
 
-	void exitThread();
+	static void lock();
+	static void unlock();
 
-	EntityRepository* m_collidables;
-private:
-	PathFindingThread();
-	std::shared_ptr<size_t> m_currentFrame;
-	std::vector<shared_ptr<Fruit>>* m_batch;
-	static PathFindingThread m_this;
-	bool m_ready, m_running;
-	std::vector<float4> m_animals;
+	void initialize(std::vector<shared_ptr<Fruit>>& batch, std::vector<float4> animals);
 
-
-	bool checkVolatile(bool& statement);
-
-
-
-	void run();
 };

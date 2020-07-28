@@ -1,11 +1,11 @@
 
 struct PS_IN {
 	float3 PosW : POSITION0;
-	// float3 PosV : POSITION1;
 	float4 PosH : SV_POSITION;
 	float2 TexCoord : TEXCOORD;
 	float3 Normal : NORMAL;
 	float4 ShadowPosH : POSITION2;
+	//float3 PosV : POSITION1;
 };
 
 cbuffer materialbuffer : register(b2) {
@@ -69,6 +69,8 @@ float texSampleGrease(
 	return 1.f;
 }
 
+float shading_cell(float val, float v_min, float v_max, int divisions) { return floor((((val-v_min)/(v_max-v_min)) * divisions)) / divisions; }
+
 float4 main(PS_IN ip) : SV_TARGET {
 	float3 toLight = normalize(cb_toLight.xyz);
 
@@ -80,7 +82,12 @@ float4 main(PS_IN ip) : SV_TARGET {
 
 	// diffuse
 	float diffuseTint = max(dot(toLight, ip.Normal), 0.0);
-
+	//if (diffuseTint > 0.9)
+	//	diffuseTint = 1;
+	//else if (diffuseTint > 0.0)
+	//	diffuseTint = 0.9;
+	//else
+	//	diffuseTint = 0;
 	// specular
 	float3 specular = float3(0.0f, 0.0f, 0.0f);
 	float reflectTint = 0.0f;
@@ -91,6 +98,10 @@ float4 main(PS_IN ip) : SV_TARGET {
 			pow(max(dot(normalize(reflect(-toLight, ip.Normal)), normalize(-ip.PosW)), 0.0),
 				specular3_shininess.w * 50);
 	}
+	//if (reflectTint > 0.6)
+	//	reflectTint = 1;
+	//else
+	//	reflectTint = 0;
 
 	float shade = texSampleGrease(
 		texture_shadowMap, cb_shadowMapRes, ip.ShadowPosH.xy, ip.ShadowPosH.z, ip.PosW.xyz)
@@ -98,6 +109,7 @@ float4 main(PS_IN ip) : SV_TARGET {
 
 	// final color
 	float3 col = pixelBaseColor * ((ambientColour.xyz + diffuseTint * shade * diffuseColour.xyz) +
-									  specular * reflectTint * specularColour.xyz);
+									  specular * reflectTint * specularColour.xyz) +
+				 reflectTint * float3(1, 1, 1)*0.9*0;
 	return float4(col, 1.0);
 }

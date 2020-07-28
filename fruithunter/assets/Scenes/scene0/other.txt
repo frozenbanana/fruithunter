@@ -1,0 +1,14 @@
+entityStorageFilename:level0
+level:0
+spawn:5.6 2.5 38.7
+nrOfFruits_Apple:30
+nrOfFruits_Banana:0
+nrOfFruits_Melon:0
+nrOfFruits_Dragon:0
+winCondition_Apple:15
+winCondition_Banana:0
+winCondition_Melon:0
+winCondition_Dragon:0
+timeTarget_Gold:30
+timeTarget_Silver:40
+timeTarget_Bronze:60

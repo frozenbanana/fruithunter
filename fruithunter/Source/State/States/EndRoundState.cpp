@@ -53,8 +53,6 @@ void EndRoundState::update() {
 void EndRoundState::handleEvent() {
 	if (m_restartButton.update()) {
 		State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
-		dynamic_cast<PlayState*>(tempPointer)->destroyLevel();
-		TerrainManager::getInstance()->removeAll();
 		StateHandler::getInstance()->changeState(StateHandler::PLAY);
 	}
 	if (m_levelSelectButton.update()) {
@@ -102,7 +100,7 @@ void EndRoundState::draw() {
 	Renderer::getInstance()->clearDepth();
 
 	shadowMap->setup_shadowRendering();
-	m_camera.bindMatrix();
+	m_camera.bind();
 
 	m_particleSystem.draw();
 	m_bowl.draw();
@@ -110,7 +108,7 @@ void EndRoundState::draw() {
 	Renderer::getInstance()->clearDepth();
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
-	m_camera.bindMatrix();
+	m_camera.bind();
 	//m_background.draw();
 	m_textRenderer.draw(
 		m_timeText, float2(width / 2, height / 2 - 125), float4(1., 1.f, 1.f, 1.0f));

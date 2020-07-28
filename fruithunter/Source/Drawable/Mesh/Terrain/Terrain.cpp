@@ -31,54 +31,6 @@ void Terrain::createBuffers() {
 		if (FAILED(res))
 			ErrorLogger::logError("Failed creating sampler state in Terrain class!\n", res);
 	}
-
-	// matrix buffer
-	if (m_matrixBuffer.Get() == nullptr) {
-		D3D11_BUFFER_DESC desc;
-		memset(&desc, 0, sizeof(desc));
-		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.ByteWidth = sizeof(ModelBuffer);
-
-		HRESULT res = gDevice->CreateBuffer(&desc, nullptr, m_matrixBuffer.GetAddressOf());
-		if (FAILED(res))
-			ErrorLogger::logError("Failed creating matrix buffer in Terrain class!\n", res);
-	}
-	// textures
-	m_mapsInitilized = true;
-	for (size_t i = 0; i < m_mapCount; i++) {
-		bool state = createResourceBuffer(m_mapNames[i], m_maps[i].GetAddressOf());
-		if (state == false)
-			m_mapsInitilized = false;
-	}
-}
-
-void Terrain::updateModelMatrix() {
-	if (m_worldMatrixPropertiesChanged) {
-		m_worldMatrixPropertiesChanged = false;
-		float4x4 transform = float4x4::CreateTranslation(m_position);
-		float4x4 rotation = float4x4::CreateRotationY(m_rotation.y);
-		float4x4 scale = float4x4::CreateScale(m_scale);
-		m_worldMatrix.mWorld = scale * rotation * transform;
-		m_worldMatrix.mWorldInvTra = m_worldMatrix.mWorld.Invert().Transpose();
-	}
-}
-
-float4x4 Terrain::getModelMatrix() {
-	updateModelMatrix();
-	return m_worldMatrix.mWorld;
-}
-
-void Terrain::bindModelMatrix() {
-	// update resource
-	updateModelMatrix();
-	ModelBuffer matrix = m_worldMatrix;
-	matrix.mWorld = matrix.mWorld.Transpose();
-	matrix.mWorldInvTra = matrix.mWorldInvTra.Transpose();
-	Renderer::getDeviceContext()->UpdateSubresource(m_matrixBuffer.Get(), 0, 0, &matrix, 0, 0);
-	// bind
-	Renderer::getDeviceContext()->VSSetConstantBuffers(
-		MATRIX_BUFFER_SLOT, 1, m_matrixBuffer.GetAddressOf());
 }
 
 bool Terrain::loadHeightmap(string filePath) {
@@ -129,11 +81,12 @@ float Terrain::sampleHeightmap(float2 uv) {
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R8G8B8A8_UNORM_SRGB) {
 		unsigned char r = ((unsigned char*)m_heightmapMappedData
 							   .pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
+		v = (float)r / 255.f;
+		// spawn location
 		unsigned char g = ((unsigned char*)m_heightmapMappedData
 							   .pData)[(iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4) + 1];
 		if ((float)g > 0.0f)
-			m_spawnPoint.push_back(float2((float)iUV.x, (float)iUV.y));
-		v = (float)r / 255.f;
+			m_spawnPoint.push_back(float3(uv.x, v, uv.y));
 	}
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R16G16B16A16_UNORM) {
 		unsigned short int r =
@@ -318,30 +271,6 @@ void Terrain::fillSubMeshes() {
 	}
 }
 
-std::wstring Terrain::s2ws(const std::string& s) {
-	int len;
-	int slength = (int)s.length() + 1;
-	len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
-	wchar_t* buf = new wchar_t[len];
-	MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
-	std::wstring r(buf);
-	delete[] buf;
-	return r;
-}
-
-string Terrain::LPWSTR_to_STRING(LPWSTR str) {
-	wstring ws(str);
-
-	// convert from wide char to narrow char array
-	char ch[256];
-	char DefChar = ' ';
-	WideCharToMultiByte(CP_ACP, 0, str, -1, ch, 256, &DefChar, NULL); // No error checking
-
-	std::string sbuff = std::string(ch);
-
-	return sbuff;
-}
-
 bool Terrain::createResourceBuffer(string filename, ID3D11ShaderResourceView** buffer) {
 	auto device = Renderer::getDevice();
 	auto deviceContext = Renderer::getDeviceContext();
@@ -349,7 +278,8 @@ bool Terrain::createResourceBuffer(string filename, ID3D11ShaderResourceView** b
 	LPCWCHAR str = wstr.c_str();
 	HRESULT hrA = DirectX::CreateWICTextureFromFile(device, deviceContext, str, nullptr, buffer);
 	if (FAILED(hrA)) {
-		ErrorLogger::messageBox(hrA, "Failed creating texturebuffer from texture\n" + filename);
+		ErrorLogger::messageBox(
+			hrA, "(Terrain) Failed creating texturebuffer from texture\n" + filename);
 		return false;
 	}
 	return true;
@@ -382,7 +312,7 @@ void Terrain::tileRayIntersectionTest(
 }
 
 bool Terrain::boxInsideFrustum(float3 boxPos, float3 boxSize, const vector<FrustumPlane>& planes) {
-	float4x4 mWorld = getModelMatrix();
+	float4x4 mWorld = getMatrix();
 	// normalized box points
 	float3 boxPoints[8] = { float3(0, 0, 0), float3(1, 0, 0), float3(1, 0, 1), float3(0, 0, 1),
 		float3(0, 1, 0), float3(1, 1, 0), float3(1, 1, 1), float3(0, 1, 1) };
@@ -427,13 +357,20 @@ bool Terrain::boxInsideFrustum(float3 boxPos, float3 boxSize, const vector<Frust
 	return true;
 }
 
+void Terrain::setTextures(string textures[4]) {
+	if (textures != nullptr) {
+		for (size_t i = 0; i < 4; i++) {
+			m_textures[i] =
+				TextureRepository::get(textures[i], TextureRepository::Type::type_texture);
+			ErrorLogger::log("Terrain "+to_string(i)+": "+m_textures[i]->filename);
+		}
+		m_textureInitilized = true;
+	}
+}
+
 float3 Terrain::getRandomSpawnPoint() {
 	if (m_spawnPoint.size() > 0) {
-		size_t random = (size_t)RandomFloat(0.0f, (float)m_spawnPoint.size());
-		float3 spawnPoint = float3(m_spawnPoint[random].x, 0.0f, m_spawnPoint[random].y);
-		spawnPoint = (spawnPoint / 10) + m_position;
-		spawnPoint.y = getHeightFromPosition(spawnPoint.x, spawnPoint.z);
-		return spawnPoint;
+		return float3::Transform(m_spawnPoint[rand() % m_spawnPoint.size()], getMatrix());
 	}
 	return float3(0.f);
 }
@@ -496,16 +433,10 @@ float Terrain::triangleTest(
 		return -1;
 }
 
-void Terrain::setPosition(float3 position) { m_position = position; }
-
-void Terrain::initilize(
-	string filename, vector<string> textures, XMINT2 subsize, XMINT2 splits, float3 wind) {
+void Terrain::initilize(string filename, string textures[4], XMINT2 subsize, XMINT2 splits,
+	float3 wind, AreaTag tag) {
 	// set texture
-	if (textures.size() == 4) {
-		for (size_t i = 0; i < m_mapCount; i++) {
-			m_mapNames[i] = textures[i];
-		}
-	}
+	setTextures(textures);
 	// load terrain
 	if (filename == "" || (splits.x == 0 || splits.y == 0) || (subsize.x == 0 || subsize.y == 0)) {
 		// do nothing
@@ -514,6 +445,7 @@ void Terrain::initilize(
 		m_isInitilized = true;
 		m_tileSize = subsize;
 		m_wind = wind;
+		m_tag = tag;
 		createGrid(splits); // create space for memory
 		if (loadHeightmap(m_heightmapPath + filename)) {
 			createGridPointsFromHeightmap();
@@ -524,17 +456,9 @@ void Terrain::initilize(
 	}
 }
 
-void Terrain::rotateY(float radian) {
-	m_worldMatrixPropertiesChanged = true;
-	m_rotation.y += radian;
-}
-
-void Terrain::setScale(float3 scale) { m_scale = scale; }
-
 bool Terrain::pointInsideTerrainBoundingBox(float3 point) {
 	float3 pos = point;
-	float4x4 mTerrainWorld = getModelMatrix();
-	float4x4 mTerrainInvWorld = mTerrainWorld.Invert();
+	float4x4 mTerrainInvWorld = getMatrix().Invert();
 	pos = float3::Transform(pos, mTerrainInvWorld);
 	if (pos.x >= 0 && pos.x < 1. && pos.y >= 0 && pos.y < 1. && pos.z >= 0 && pos.z < 1.)
 		return true;
@@ -544,7 +468,7 @@ bool Terrain::pointInsideTerrainBoundingBox(float3 point) {
 
 float Terrain::getHeightFromPosition(float x, float z) {
 	float3 position(x, 0, z);
-	float4x4 mTerrainWorld = getModelMatrix();
+	float4x4 mTerrainWorld = getMatrix();
 	float4x4 mTerrainInvWorld = mTerrainWorld.Invert();
 	position = float3::Transform(position, mTerrainInvWorld);
 
@@ -586,7 +510,7 @@ float Terrain::getHeightFromPosition(float x, float z) {
 
 float3 Terrain::getNormalFromPosition(float x, float z) {
 	float3 position(x, 0, z);
-	float4x4 mTerrainWorld = getModelMatrix();
+	float4x4 mTerrainWorld = getMatrix();
 	float4x4 mTerrainInvWorld = mTerrainWorld.Invert();
 	position = float3::Transform(position, mTerrainInvWorld);
 
@@ -625,7 +549,7 @@ float3 Terrain::getNormalFromPosition(float x, float z) {
 float Terrain::castRay(float3 point, float3 direction) {
 	if (direction.Length() > 0) {
 		// convert to local space
-		float4x4 mTerrainWorld = getModelMatrix();
+		float4x4 mTerrainWorld = getMatrix();
 		float4x4 mTerrainInvWorld = mTerrainWorld.Invert();
 		float3 startPoint = float3::Transform(point, mTerrainInvWorld);
 		float3 endPoint = float3::Transform(point + direction, mTerrainInvWorld);
@@ -710,7 +634,9 @@ float Terrain::castRay(float3 point, float3 direction) {
 	return -1;
 }
 
-float3 Terrain::getWindStatic() { return m_wind; }
+float3 Terrain::getWindStatic() const { return m_wind; }
+
+AreaTag Terrain::getTag() const { return m_tag; }
 
 float3 Terrain::getWindFromPosition(float3 position) {
 	float groundHeight = getHeightFromPosition(position.x, position.z);
@@ -736,9 +662,8 @@ void Terrain::clearCulling() {
 void Terrain::quadtreeCull(vector<FrustumPlane> planes) {
 	m_useCulling = true;
 	// transform planes to local space
-	updateModelMatrix();
-	float4x4 invWorldMatrix = m_worldMatrix.mWorld.Invert();
-	float4x4 invWorldInvTraMatrix = m_worldMatrix.mWorldInvTra.Invert();
+	float4x4 invWorldMatrix = getMatrix().Invert();
+	float4x4 invWorldInvTraMatrix = getInversedTransposedMatrix().Invert();
 	for (size_t i = 0; i < planes.size(); i++) {
 		planes[i].m_position = float3::Transform(planes[i].m_position, invWorldMatrix);
 		planes[i].m_normal = float3::TransformNormal(planes[i].m_normal, invWorldInvTraMatrix);
@@ -751,29 +676,28 @@ void Terrain::quadtreeCull(vector<FrustumPlane> planes) {
 void Terrain::boundingBoxCull(CubeBoundingBox bb) {
 	m_useCulling = true;
 	// transform planes to local space
-	updateModelMatrix();
-	float4x4 invWorldMatrix = m_worldMatrix.mWorld.Invert();
-	float4x4 invWorldInvTraMatrix = m_worldMatrix.mWorldInvTra.Invert();
+	float4x4 invWorldMatrix = getMatrix().Invert();
+	float4x4 invWorldInvTraMatrix = getInversedTransposedMatrix().Invert();
 
 	bb.m_position = float3::Transform(bb.m_position, invWorldMatrix);
-	bb.m_size = bb.m_size / m_scale;
+	bb.m_size = bb.m_size / getScale();
 	// cull grids
 	m_culledGrids = m_quadtree.cullElements(bb);
 }
 
 void Terrain::draw() {
-	if (m_mapsInitilized) {
+	if (m_textureInitilized) {
 		ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 		// bind shaders
 		m_shader.bindShadersAndLayout();
 		// bind samplerstate
 		deviceContext->PSSetSamplers(SAMPLERSTATE_SLOT, 1, m_sampler.GetAddressOf());
 		// bind texture resources
-		for (int i = 0; i < m_mapCount; i++) {
-			deviceContext->PSSetShaderResources(i, 1, m_maps[i].GetAddressOf());
+		for (size_t i = 0; i < 4; i++) {
+			deviceContext->PSSetShaderResources(i, 1, m_textures[i]->view.GetAddressOf());
 		}
 		// bind world matrix
-		bindModelMatrix();
+		VSBindMatrix(MATRIX_BUFFER_SLOT);
 		// draw
 		if (m_useCulling) {
 			for (size_t i = 0; i < m_culledGrids.size(); i++) {
@@ -791,38 +715,39 @@ void Terrain::draw() {
 				}
 			}
 		}
+	}
+	else {
+		draw_onlyMesh();
 	}
 }
 
 void Terrain::draw_onlyMesh() {
-	if (m_mapsInitilized) {
-		ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
-		// bind shaders
-		m_shader_onlyMesh.bindShadersAndLayout();
-		// bind world matrix
-		bindModelMatrix();
-		// draw
-		if (m_useCulling) {
-			for (size_t i = 0; i < m_culledGrids.size(); i++) {
-				SubGrid* sub = &m_subMeshes[m_culledGrids[i]->x][m_culledGrids[i]->y];
-				sub->bind();
-				Renderer::draw(sub->getVerticeCount(), 0);
-			}
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+	// bind shaders
+	m_shader_onlyMesh.bindShadersAndLayout();
+	// bind world matrix
+	VSBindMatrix(MATRIX_BUFFER_SLOT);
+	// draw
+	if (m_useCulling) {
+		for (size_t i = 0; i < m_culledGrids.size(); i++) {
+			SubGrid* sub = &m_subMeshes[m_culledGrids[i]->x][m_culledGrids[i]->y];
+			sub->bind();
+			Renderer::draw(sub->getVerticeCount(), 0);
 		}
-		else {
-			// draw grids
-			for (int xx = 0; xx < m_gridSize.x; xx++) {
-				for (int yy = 0; yy < m_gridSize.y; yy++) {
-					m_subMeshes[xx][yy].bind();
-					Renderer::draw(m_subMeshes[xx][yy].getVerticeCount(), 0);
-				}
+	}
+	else {
+		// draw grids
+		for (int xx = 0; xx < m_gridSize.x; xx++) {
+			for (int yy = 0; yy < m_gridSize.y; yy++) {
+				m_subMeshes[xx][yy].bind();
+				Renderer::draw(m_subMeshes[xx][yy].getVerticeCount(), 0);
 			}
 		}
 	}
 }
 
-Terrain::Terrain(
-	string filename, vector<string> textures, XMINT2 subsize, XMINT2 splits, float3 wind) {
+Terrain::Terrain(string filename, string textures[4], XMINT2 subsize, XMINT2 splits,
+	float3 wind, AreaTag tag) {
 	initilize(filename, textures, subsize, splits, wind);
 	if (!m_shader.isLoaded()) {
 		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = {

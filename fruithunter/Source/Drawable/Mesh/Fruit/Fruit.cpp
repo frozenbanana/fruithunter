@@ -1,6 +1,7 @@
 #include "Fruit.h"
 #include "Input.h"
 #include "AudioHandler.h"
+#include "SceneManager.h"
 #include "PathFindingThread.h"
 
 #define LONGSHOT 25.f
@@ -26,7 +27,7 @@ Skillshot Fruit::hit(float3 playerPos) {
 	Skillshot hitType = SS_NOTHING;
 	if (m_currentState != CAUGHT) {
 		changeState(CAUGHT);
-		float dist = (playerPos - m_position).Length();
+		float dist = (playerPos - getPosition()).Length();
 		float4 colors[3];
 		int nrOf = 5;
 		if (dist > LONGSHOT) {
@@ -84,15 +85,36 @@ Skillshot Fruit::hit(float3 playerPos) {
 
 FruitType Fruit::getFruitType() { return m_fruitType; }
 
+shared_ptr<Fruit> Fruit::createFruitFromType(FruitType type) { 
+	shared_ptr<Fruit> fruit;
+	switch (type) {
+	case APPLE:
+		fruit = make_shared<Apple>();
+		break;
+	case BANANA:
+		fruit = make_shared<Banana>();
+		break;
+	case MELON:
+		fruit = make_shared<Melon>();
+		break;
+	case DRAGON:
+		fruit = make_shared<DragonFruit>();
+		break;
+	}
+	return fruit;
+}
+
 void Fruit::enforceOverTerrain() {
-	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
-		m_position.y = TerrainManager::getInstance()->getHeightFromPosition(m_position) +
-					   abs(getHalfSizes().y / 2);
+	if (atOrUnder(SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition()))) {
+		float newY = SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition()) +
+					 abs(getHalfSizes().y / 2);
+		setPosition(float3(getPosition().x, newY, getPosition().z));
 	}
 }
 
 void Fruit::checkOnGroundStatus() {
-	m_onGround = atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position));
+	m_onGround =
+		atOrUnder(SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition()));
 }
 
 void Fruit::setAnimationDestination() {
@@ -104,11 +126,11 @@ void Fruit::setAnimationDestination() {
 }
 void Fruit::setWorldHome(float3 pos) {
 	m_worldHome = pos;
-	m_worldHome.y = TerrainManager::getInstance()->getHeightFromPosition(pos);
+	m_worldHome.y = SceneManager::getScene()->m_terrains.getHeightFromPosition(pos);
 }
 
 bool Fruit::withinDistanceTo(float3 target, float treshhold) {
-	return (m_position - target).Length() < treshhold;
+	return (getPosition() - target).Length() < treshhold;
 }
 
 ParticleSystem* Fruit::getParticleSystem() { return &m_particleSystem; }
@@ -116,7 +138,7 @@ ParticleSystem* Fruit::getParticleSystem() { return &m_particleSystem; }
 void Fruit::update(float dt, float3 playerPosition) {
 	if (withinDistanceTo(playerPosition, 80.f)) {
 		m_isVisible = true;
-		m_particleSystem.setPosition(m_position);
+		m_particleSystem.setPosition(getPosition());
 		checkOnGroundStatus();
 		doBehavior(playerPosition);
 		setDirection();
@@ -124,7 +146,7 @@ void Fruit::update(float dt, float3 playerPosition) {
 		updateVelocity(dt);
 		move(dt);
 		enforceOverTerrain();
-		handleAvailablePath(m_position);
+		handleAvailablePath(getPosition());
 	}
 	else
 		m_isVisible = false;
@@ -132,9 +154,7 @@ void Fruit::update(float dt, float3 playerPosition) {
 
 void Fruit::move(float dt) {
 	// m_speed.y = 0.0f;
-
-	m_position += m_velocity * dt;
-	setPosition(m_position);
+	setPosition(getPosition() + m_velocity * dt);
 }
 
 float3 Fruit::getHomePosition() const { return m_worldHome; }
@@ -158,7 +178,7 @@ void Fruit::setDirection() {
 	// pft->m_mutex.lock();
 	if (!m_availablePath.empty() &&
 		m_onGround) {
-		m_direction = m_availablePath.back() - m_position;
+		m_direction = m_availablePath.back() - getPosition();
 		m_direction.Normalize();
 	}
 	// pft->m_mutex.unlock();
@@ -166,7 +186,7 @@ void Fruit::setDirection() {
 
 void Fruit::behaviorReleased() {
 	// TODO: Placeholder for later adding sound effects
-	auto height = TerrainManager::getInstance()->getHeightFromPosition(m_position);
+	auto height = SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition());
 
 	if (atOrUnder(height)) {
 		changeState(PASSIVE);
@@ -176,7 +196,6 @@ void Fruit::behaviorReleased() {
 }
 
 void Fruit::updateVelocity(float dt) {
-
 	float friction = m_onGround ? m_groundFriction : m_airFriction;
 	// friction = m_groundFriction;
 	m_velocity *= pow(friction / 60.f, dt);

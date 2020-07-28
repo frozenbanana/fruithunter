@@ -1,5 +1,6 @@
 #include "Melon.h"
 #include "PathFindingThread.h"
+#include "SceneManager.h"
 
 Melon::Melon(float3 pos) : Fruit(pos) {
 	loadAnimated("Melon", 1);
@@ -16,10 +17,11 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	changeState(AI::State::PASSIVE);
 	setStartPosition(pos);
 	// enforce that homes are on terrain
-	setWorldHome(m_position);
+	setWorldHome(getPosition());
 	m_secondWorldHome = m_worldHome + float3(3.f, 0.0, 3.0f);
-	m_secondWorldHome.y = TerrainManager::getInstance()->getHeightFromPosition(m_secondWorldHome);
-	m_direction = m_position - m_secondWorldHome;
+	m_secondWorldHome.y =
+		SceneManager::getScene()->m_terrains.getHeightFromPosition(m_secondWorldHome);
+	m_direction = getPosition() - m_secondWorldHome;
 
 	m_rollAnimationSpeed = 2.0f;
 	setCollisionDataOBB();
@@ -47,8 +49,8 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 
 void Melon::behaviorPassive(float3 playerPosition) {
 
-	if (m_position.y <= 1.f) {
-		float3 target = m_worldHome - m_position;
+	if (getPosition().y <= 1.f) {
+		float3 target = m_worldHome - getPosition();
 		target.Normalize();
 		target.y = 1.f;
 		jump(target, 10.f);
@@ -64,15 +66,15 @@ void Melon::behaviorPassive(float3 playerPosition) {
 		}
 
 		if (withinDistanceTo(m_worldHome, 0.75f)) {
-			m_destination = m_secondWorldHome - m_position;
+			m_destination = m_secondWorldHome - getPosition();
 			lookTo(m_secondWorldHome);
 		}
 		else if (withinDistanceTo(m_secondWorldHome, 0.75f)) {
-			m_destination = m_worldHome - m_position;
+			m_destination = m_worldHome - getPosition();
 			lookTo(m_worldHome);
 		}
 		else if (!withinDistanceTo(m_worldHome, 5.f) && !withinDistanceTo(m_secondWorldHome, 5.f)) {
-			m_destination = m_worldHome - m_position;
+			m_destination = m_worldHome - getPosition();
 			lookTo(m_worldHome);
 		}
 		m_speed = m_passive_speed;
@@ -101,8 +103,8 @@ void Melon::behaviorActive(float3 playerPosition) {
 }
 
 void Melon::behaviorCaught(float3 playerPosition) {
-	if (atOrUnder(TerrainManager::getInstance()->getHeightFromPosition(m_position))) {
-		m_direction = playerPosition - m_position; // run to player
+	if (atOrUnder(SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition()))) {
+		m_direction = playerPosition - getPosition(); // run to player
 
 		m_speed = m_caught_speed;
 		//makeReadyForPath(playerPosition);
@@ -115,7 +117,7 @@ void Melon::roll(float dt) { rotateX(dt * m_rollAnimationSpeed); }
 
 float3 Melon::circulateAround(float3 playerPosition) {
 
-	float3 toMelon = m_position - playerPosition;
+	float3 toMelon = getPosition() - playerPosition;
 	toMelon.y = playerPosition.y;
 	if (m_nrOfTriesGoHome == 100) {
 		m_angleDirection *= -1;
@@ -155,11 +157,12 @@ void Melon::pathfinding(float3 start, std::vector<float4>* animals) {
 	// ErrorLogger::log("thread starting for pathfinding");
 	auto pft = PathFindingThread::getInstance();
 
+	EntityRepository* collidables = &SceneManager::getScene()->m_repository;
+
 	if ((start - m_destination).LengthSquared() < 0.5f)
 		return;
 	if (m_readyForPath) {
-		
-			TerrainManager* tm = TerrainManager::getInstance();
+			TerrainBatch* tm = &SceneManager::getScene()->m_terrains;
 			// enforce start and m_destination to terrain
 			float3 startCopy = float3(start.x, tm->getHeightFromPosition(start), start.z);
 			float3 m_destinationCopy =
@@ -224,8 +227,7 @@ void Melon::pathfinding(float3 start, std::vector<float4>* animals) {
 						continue;
 					}
 
-					if (!isValid(
-							child->position, currentNode->position, *pft->m_collidables, 0.7f)) {
+					if (!isValid(child->position, currentNode->position, *collidables, 0.7f)) {
 						continue;
 					}
 

@@ -1,7 +1,6 @@
 #pragma once
 #include "Entity.h"
 #include "AI.h"
-#include "TerrainManager.h"
 #include "ParticleSystem.h"
 
 #define THROWVELOCITY 30.f
@@ -76,4 +75,6 @@ public:
 	Skillshot hit(float3 playerPos);
 
 	FruitType getFruitType();
+
+	static shared_ptr<Fruit> createFruitFromType(FruitType type);
 };

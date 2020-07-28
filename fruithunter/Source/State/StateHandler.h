@@ -5,7 +5,7 @@
 
 class StateHandler {
 public:
-	enum States { INTRO, PLAY, PAUSE, SETTINGS, LEVEL_SELECT, ENDROUND, LENGTH };
+	enum States { INTRO, PLAY, PAUSE, SETTINGS, LEVEL_SELECT, ENDROUND, EDITOR, LENGTH };
 	void initialize();
 	void changeState(States state);
 	State* peekState(States state);

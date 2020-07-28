@@ -68,6 +68,8 @@ private:
 	static Renderer m_this;
 	bool m_isLoaded = false;
 
+	ImGuiContext* ctx = nullptr;
+
 	HWND m_handle;
 	const LPCWSTR m_windowTitle = L"Fruit Hunter";
 

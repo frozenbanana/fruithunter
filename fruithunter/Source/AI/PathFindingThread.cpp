@@ -2,78 +2,91 @@
 
 PathFindingThread PathFindingThread::m_this;
 
-
 PathFindingThread::PathFindingThread() {
-	// auto pft = PathFindingThread::getInstance();
-
+	//start thread
+	if (m_thread == nullptr) {
+		m_active = true;
+		m_thread = new thread([this] { run(); });
+	}
 }
 
 void PathFindingThread::exitThread() {
 	auto pft = PathFindingThread::getInstance();
 	pft->m_mutex.lock();
 	pft->m_running = false;
-	pft->m_ready = true;
+	pft->m_active = false;
 	pft->m_mutex.unlock();
-	pft->m_thread->join();
 	if (pft->m_thread) {
+		pft->m_thread->join();
 		delete pft->m_thread;
+		pft->m_thread = nullptr;
 	}
-	pft->m_thread = nullptr;
 }
 
-
-PathFindingThread::~PathFindingThread() {
-	
+void PathFindingThread::pause() {
+	auto pft = PathFindingThread::getInstance();
+	pft->m_mutex.lock();
+	m_running = false;
+	pft->m_mutex.unlock();
 }
+
+void PathFindingThread::lock() { PathFindingThread::getInstance()->m_mutex.lock(); }
+
+void PathFindingThread::unlock() { PathFindingThread::getInstance()->m_mutex.unlock(); }
+
+PathFindingThread::~PathFindingThread() { exitThread(); }
 
 PathFindingThread* PathFindingThread::getInstance() { return &m_this; }
-
-
 
 void PathFindingThread::run() {
 	// Do not print anything in this function.
 
 	auto pft = PathFindingThread::getInstance();
-	size_t counter = 0;
-	int index = 0;
+	int index = 0; // index on fruit array to process
 
 	// wait until initialized.
-	while (!checkVolatile(pft->m_ready)) {}
+	//while (!checkVolatile(pft->m_ready)) {}
 	// Thread updateLoop
-	while (checkVolatile(pft->m_running)) {
-
-		pft->m_mutex.lock();
-		index = (index < m_batch->size() - 1) ? index + 1 : 0;
-		if (pft->m_batch->size() > 0) {
-
-			auto object = pft->m_batch->at(index);
-			object->pathfinding(object->getPosition(), &m_animals);
+	while (isActive()) {
+		while (isRunning()) {
+			pft->m_mutex.lock();
+			index = (index < m_batch->size() - 1) ? index + 1 : 0; // fruit index
+			if (pft->m_batch->size() > 0) {
+				auto object = pft->m_batch->at(index);
+				if (object.get() != nullptr)
+					object->pathfinding(object->getPosition(), &m_animals);
+			}
+			pft->m_mutex.unlock();
 		}
-		pft->m_mutex.unlock();
 	}
 }
 
-bool PathFindingThread::checkVolatile(bool& statement) {
+bool PathFindingThread::isActive() { 
 	auto pft = PathFindingThread::getInstance();
-	bool rtn;
-	pft->m_mutex.lock();
-	rtn = statement;
-	pft->m_mutex.unlock();
-
-	return rtn;
+	bool ret;
+	pft->m_mutex.lock(); 
+	ret = m_active;
+	pft->m_mutex.unlock(); 
+	return ret;
 }
 
-void PathFindingThread::initialize(std::vector<shared_ptr<Fruit>>& batch,
-	shared_ptr<size_t> currentFrame, EntityRepository &collidables, std::vector<float4> animals) {
+bool PathFindingThread::isRunning() {
 	auto pft = PathFindingThread::getInstance();
-	pft->m_ready = false;
-	pft->m_running = true;
-	pft->m_thread = new thread([this] { run(); });
+	bool ret;
 	pft->m_mutex.lock();
+	ret = m_running;
+	pft->m_mutex.unlock();
+	return ret;
+}
+
+void PathFindingThread::initialize(std::vector<shared_ptr<Fruit>>& batch, std::vector<float4> animals) {
+
+	auto pft = PathFindingThread::getInstance();
+	pft->m_mutex.lock();
+	//set data
 	pft->m_batch = &batch;
-	pft->m_currentFrame = currentFrame;
-	pft->m_collidables = &collidables;
-	pft->m_ready = true;
 	pft->m_animals = animals;
+	// make available for processing
+	pft->m_running = true;
 	pft->m_mutex.unlock();
 }

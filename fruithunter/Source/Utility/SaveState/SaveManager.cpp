@@ -89,18 +89,23 @@ vector<LevelData*> SaveManager::getAllSaveStates() const {
 }
 
 void SaveManager::setLevelCompletion(size_t index, size_t timeOfCompletion, TimeTargets grade) { 
-	if (m_activeState[index].isCompleted) {
-		//already completed
-		if (timeOfCompletion < m_activeState[index].timeOfCompletion) {
+	if (index >= 0 && index < NR_OF_LEVELS) {
+		if (m_activeState[index].isCompleted) {
+			// already completed
+			if (timeOfCompletion < m_activeState[index].timeOfCompletion) {
+				m_activeState[index].timeOfCompletion = timeOfCompletion;
+				m_activeState[index].grade = grade;
+			}
+		}
+		else {
+			// completed level
+			m_activeState[index].isCompleted = true;
 			m_activeState[index].timeOfCompletion = timeOfCompletion;
 			m_activeState[index].grade = grade;
 		}
 	}
 	else {
-		//completed level
-		m_activeState[index].isCompleted = true;
-		m_activeState[index].timeOfCompletion = timeOfCompletion;
-		m_activeState[index].grade = grade;
+		ErrorLogger::logWarning("(SaveManager) Couldnt set level completion! Bad index value: " + to_string(index),HRESULT());
 	}
 }
 

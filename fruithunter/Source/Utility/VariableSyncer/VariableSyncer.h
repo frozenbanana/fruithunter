@@ -60,10 +60,14 @@ public:
 	string getPath() const;
 	SyncType getType() const;
 
-	void readFile();
-	void writeFile();
+	void clear();
+	void readFile(string overridePath = "");
+	void writeFile(string overridePath = "");
 	bool sync();
 	void bind(string description, void* ptr);
+	void connect(string path);
+
+	static bool fileExists(string path);
 
 	FileSyncer(
 		string path = "", SyncType type = SyncType::state_liveFile, void (*onLoad)(void) = nullptr);

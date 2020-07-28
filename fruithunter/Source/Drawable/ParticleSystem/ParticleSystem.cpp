@@ -3,7 +3,7 @@
 #include "ErrorLogger.h"
 #include "time.h"
 #include "VariableSyncer.h"
-#include "TerrainManager.h"
+#include "SceneManager.h"
 
 ShaderSet ParticleSystem::m_shaderSetCircle;
 ShaderSet ParticleSystem::m_shaderSetStar;
@@ -120,7 +120,7 @@ void ParticleSystem::updateEmits(float dt) {
 
 void ParticleSystem::updateParticles(float dt) {
 	size_t nrOfActive = 0;
-	Terrain* terrain = TerrainManager::getInstance()->getTerrainFromPosition(m_spawnPoint);
+	Terrain* terrain = SceneManager::getScene()->m_terrains.getTerrainFromPosition(m_spawnPoint);
 	for (size_t i = 0; i < m_particles.size(); i++) {
 		if (m_particles[i].getActiveValue() == 1.0f) {
 			nrOfActive++;

@@ -4,7 +4,7 @@
 #include "Timer.h"
 #include "TextRenderer.h"
 #include "AudioHandler.h"
-#include "LevelHandler.h"
+#include "SceneManager.h"
 
 class PlayState : public State {
 public:
@@ -14,14 +14,13 @@ public:
 	void pause();
 	void play();
 	void draw();
-	void setLevel(int);
-	void destroyLevel();
+
+	void changeScene(string sceneName);
+	void restart();
 
 	PlayState() { initialize(); }
 
 private:
-	Timer m_timer;
-	Quad m_quad;
-	unique_ptr<LevelHandler> m_levelHandler;
-	int m_currentLevel;
+
+	SceneManager sceneManager;
 };

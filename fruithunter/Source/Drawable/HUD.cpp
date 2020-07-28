@@ -2,87 +2,36 @@
 #include "Renderer.h"
 #include "WICTextureLoader.h"
 #include "ErrorLogger.h"
-#include "SaveManager.h"
-
-#include <iomanip>
-#include <sstream>
-
-string HUD::getTimePassed() { return getMinutes() + ":" + getSeconds(); }
-
-void HUD::atWin() {
-	m_victory = true;
-	if (m_levelIndex != -1) {
-		size_t time = (size_t)m_minutesPassed * 60 + (size_t)m_secondsPassed;
-		TimeTargets grade = TimeTargets::BRONZE;
-		for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++) {
-			if (time < m_timeTargets[i]) {
-				grade = (TimeTargets)i;
-				break;
-			}
-		}
-		SaveManager::getInstance()->setLevelCompletion(m_levelIndex, time, grade);
-	}
-}
-
-string HUD::getMinutes() {
-	if (m_secondsPassed > 60.0f) {
-		m_secondsPassed -= 60.0f;
-		m_minutesPassed++;
-	}
-
-	return (m_minutesPassed < 10 ? "0" : "") + to_string(m_minutesPassed);
-}
-
-string HUD::getSeconds() {
-	// Float to string with 2 decimals
-	stringstream tempStream;
-	tempStream << std::fixed << setprecision(2) << m_secondsPassed;
-	string seconds = tempStream.str();
-
-	return (m_secondsPassed < 10.0f ? "0" : "") + seconds;
-}
-
-TimeTargets HUD::getPrize() const { return m_price; }
+#include "SceneManager.h"
 
 void HUD::drawTargetTime() {
 	// Get time passed in seconds
-	float timePassed = m_minutesPassed * 60.0f + m_secondsPassed;
+	float timePassed = SceneManager::getScene()->m_timer.getTimePassed();
 
-	int goldTarget = m_timeTargets[GOLD];
-	int silverTarget = m_timeTargets[SILVER];
-	int bronzeTarget = m_timeTargets[BRONZE];
-
-	string timeString;
-	float4 color;
-
-	if (timePassed < goldTarget) {
-		timeString = "Target: 0" + to_string(goldTarget / 60) + ":" +
-					 (goldTarget % 60 < 10 ? "0" : "") + to_string(goldTarget % 60) + ".00";
-		color = float4(1.0f, 0.85f, 0.0f, 1.0f);
-		m_price = GOLD;
+	int* timeTargets = SceneManager::getScene()->m_utility.timeTargets;
+	//find index of achieved target
+	int index = NR_OF_TIME_TARGETS; // holds index for timeTargets. If no targetTime is achieved then nr_of_targets is defined as null. 
+	for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++) {
+		if (timePassed < timeTargets[i]) {
+			index = i;
+			break;
+		}
 	}
-	else if (timePassed < silverTarget) {
-		timeString = "Target: 0" + to_string(silverTarget / 60) + ":" +
-					 (silverTarget % 60 < 10 ? "0" : "") + to_string(silverTarget % 60) + ".00";
-		color = float4(0.8f, 0.8f, 0.8f, 1.0f);
-		m_price = SILVER;
-	}
-	else if (timePassed < bronzeTarget) {
-		timeString = "Target: 0" + to_string(bronzeTarget / 60) + ":" +
-					 (bronzeTarget % 60 < 10 ? "0" : "") + to_string(bronzeTarget % 60) + ".00";
-		color = float4(0.85f, 0.55f, 0.25f, 1.0f);
-		m_price = BRONZE;
-	}
-	else {
-		timeString = "Target: 0" + to_string(bronzeTarget / 60) + ":" +
-					 (bronzeTarget % 60 < 10 ? "0" : "") + to_string(bronzeTarget % 60) + ".00";
-		color = float4(1.0f, 0.0f, 0.0f, 1.0f);
-		m_price = NR_OF_TIME_TARGETS;
-	}
-
-	wstring wText = std::wstring(timeString.begin(), timeString.end());
-	m_spriteFont->DrawString(
-		m_spriteBatch.get(), wText.c_str(), float2(30.0f, SCREEN_HEIGHT - 130.0f), color);
+	//set color and time target
+	float4 targetColors[NR_OF_TIME_TARGETS + 1] = {
+		float4(1.0f, 0.85f, 0.0f, 1.0f),   // gold
+		float4(0.8f, 0.8f, 0.8f, 1.0f),	   // silver
+		float4(0.85f, 0.55f, 0.25f, 1.0f), // bronze
+		float4(1.0f, 0.0f, 0.0f, 1.0f)	   // no target (color)
+	};
+	float4 color = targetColors[index];
+	int target = timeTargets[BRONZE]; // no target (time)
+	if (index != NR_OF_TIME_TARGETS)
+		target = timeTargets[index];
+	string timeString = "Target: " + Time2DisplayableString(target) + ".00";
+	//draw target time
+	wstring w_timeString = std::wstring(timeString.begin(), timeString.end());
+	m_spriteFont->DrawString(m_spriteBatch.get(), w_timeString.c_str(), float2(30.0f, SCREEN_HEIGHT - 130.0f), color);
 }
 
 void HUD::setDepthStateToNull() {
@@ -126,6 +75,12 @@ HUD::HUD() {
 		resource.GetAddressOf(), m_staminaFrame.ReleaseAndGetAddressOf());
 	if (FAILED(t))
 		ErrorLogger::logError("Failed to create stamina frame texture", t);
+
+	// create on screen fruit items
+	initilizeFruitItem(m_fruitSprites[APPLE], "apple.png", float4(1.f, 0.f, 0.f, 1.f));
+	initilizeFruitItem(m_fruitSprites[BANANA], "banana.png", float4(0.9f, 0.7f, 0.2f, 1.f));
+	initilizeFruitItem(m_fruitSprites[MELON], "melon.png", float4(0.4f, 0.7f, 0.3f, 1.f));
+	initilizeFruitItem(m_fruitSprites[DRAGON], "dragonfruit.png", float4(1.0f, 0.3f, 0.3f, 1.f));
 }
 
 HUD::~HUD() {
@@ -133,18 +88,15 @@ HUD::~HUD() {
 	m_states.reset();
 }
 
-bool HUD::hasWon() { return m_victory; }
-
-void HUD::createFruitSprite(string fruitName) {
-	Sprite sprite;
+void HUD::initilizeFruitItem(OnScreenFruitItem& item, string imageFilename, float4 textColor) {
+	
 	Microsoft::WRL::ComPtr<ID3D11Resource> resource;
 
-	wstring fileName = wstring(fruitName.begin(), fruitName.end());
-	wstring filePath = L"assets/sprites/" + fileName + L".png";
+	wstring fileName = wstring(imageFilename.begin(), imageFilename.end());
+	wstring filePath = L"assets/sprites/" + fileName;
 
 	HRESULT t = CreateWICTextureFromFile(Renderer::getDevice(), filePath.c_str(),
-		resource.GetAddressOf(), sprite.texture.ReleaseAndGetAddressOf());
-
+		resource.GetAddressOf(), item.texture.ReleaseAndGetAddressOf());
 	if (FAILED(t))
 		ErrorLogger::logError("Failed to create fruit sprite texture", t);
 
@@ -153,67 +105,10 @@ void HUD::createFruitSprite(string fruitName) {
 	CD3D11_TEXTURE2D_DESC texDesc;
 	tex->GetDesc(&texDesc);
 
-	if (fruitName == "apple")
-		sprite.fruitType = APPLE;
-	else if (fruitName == "banana")
-		sprite.fruitType = BANANA;
-	else if (fruitName == "melon")
-		sprite.fruitType = MELON;
-	else if (fruitName == "dragonfruit")
-		sprite.fruitType = DRAGON;
-
-	// Set all sprites to the same size with equal spacing
-	sprite.scale = 75.0f / (float)texDesc.Height;
-	sprite.screenPos.x = 25.0f;
-	sprite.screenPos.y = 25.0f + 100.0f * m_sprites.size();
-	sprite.pickUp = 0.f;
-
-	m_sprites.push_back(sprite);
-}
-
-void HUD::setTimeTargets(int targets[]) {
-	for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++) {
-		m_timeTargets[i] = targets[i];
-	}
-}
-
-void HUD::setWinCondition(int winCons[]) {
-	for (size_t i = 0; i < NR_OF_FRUITS; i++) {
-		m_winCondition[i] = winCons[i];
-	}
-}
-
-void HUD::setLevelIndex(size_t levelIndex) { m_levelIndex = levelIndex; }
-
-void HUD::addFruit(FruitType fruitType) {
-	m_inventory[fruitType]++;
-	for (size_t i = 0; i < m_sprites.size(); i++) {
-		if (m_sprites[i].fruitType == fruitType)
-			m_sprites[i].pickUp = 0.5f;
-	}
-
-	bool completed = true;
-	for (size_t i = 0; i < NR_OF_FRUITS; i++) {
-		if (m_inventory[i] < m_winCondition[i])
-			completed = false;
-	}
-
-	if (completed) {
-		atWin();
-	}
-}
-
-void HUD::removeFruit(int fruitType) { m_inventory[fruitType]--; }
-
-void HUD::update(float dt, float playerStamina) {
-	m_stamina = playerStamina;
-
-	for (size_t i = 0; i < m_sprites.size(); i++) {
-		m_sprites[i].pickUp = max(0.f, m_sprites[i].pickUp - dt);
-	}
-
-	if (!m_victory)
-		m_secondsPassed += dt;
+	// Set all sprites to the same size
+	item.scale = 75.0f / (float)texDesc.Height;
+	// color
+	item.textColor = textColor;
 }
 
 void HUD::draw() {
@@ -221,17 +116,11 @@ void HUD::draw() {
 	m_backgroundPos = float2(20.0f, SCREEN_HEIGHT - 130.0f);
 	m_staminaPos = float2(SCREEN_WIDTH - 230.0f, SCREEN_HEIGHT - 60.0f);
 
-	// Draw fruit icons
-	for (size_t i = 0; i < m_sprites.size(); i++) {
-		m_spriteBatch->Draw(m_sprites[i].texture.Get(), m_sprites[i].screenPos, nullptr,
-			Colors::White, 0.f, float2(0.0f, 0.0f),
-			m_sprites[i].scale + 0.1f * m_sprites[i].pickUp);
-	}
-
 	// Draw text background
+	float stamina = SceneManager::getScene()->m_player->getStamina();
 	m_spriteBatch->Draw(m_backgroundTexture.Get(), m_backgroundPos);
 	m_spriteBatch->Draw(m_staminaTexture.Get(), m_staminaPos, nullptr, Colors::White, 0.0f,
-		float2(0.0f, 0.0f), float2(m_stamina + 0.05f, 0.8f));
+		float2(0.0f, 0.0f), float2(stamina + 0.05f, 0.8f));
 	m_spriteBatch->Draw(m_staminaFrame.Get(),
 		float2(m_staminaPos.x - 13.0f, m_staminaPos.y - 10.0f), nullptr, Colors::White, 0.0f,
 		float2(0.0f, 0.0f), float2(1.05f, 0.8f));
@@ -240,22 +129,35 @@ void HUD::draw() {
 
 	m_spriteBatch->Begin();
 
-	string timeString = "  Time: " + getMinutes() + ":" + getSeconds();
-	wstring wText = wstring(timeString.begin(), timeString.end());
-
 	// Draw time and target time
+	float time = SceneManager::getScene()->m_timer.getTimePassed();
+	size_t rest = int((time - int(time)) * 100);
+	string timeString = "   Time: " + Time2DisplayableString(time)+"."+(rest<10?"0":"")+to_string(rest);
+	wstring w_timeString = wstring(timeString.begin(), timeString.end());
 	m_spriteFont->DrawString(
-		m_spriteBatch.get(), wText.c_str(), float2(30.0f, SCREEN_HEIGHT - 80.0f));
+		m_spriteBatch.get(), w_timeString.c_str(), float2(30.0f, SCREEN_HEIGHT - 80.0f));
 	drawTargetTime();
 
-	// Draw inventory numbers
-	for (size_t i = 0; i < m_sprites.size(); i++) {
-		wText = to_wstring(m_inventory[m_sprites[i].fruitType]) + L"/" +
-				to_wstring(m_winCondition[m_sprites[i].fruitType]);
-		m_spriteFont->DrawString(m_spriteBatch.get(), wText.c_str(),
-			m_sprites[i].screenPos + float2(75.0f, 0.0f),
-			m_fruitTextColors[m_sprites[i].fruitType]);
+	// Draw inventory numbers and fruit sprites
+	int* gathered = SceneManager::getScene()->m_utility.gathered;		  // NR_OF_FRUITS
+	int* winCondition = SceneManager::getScene()->m_utility.winCondition; // NR_OF_FRUITS
+	float2 itemPosition = float2(25, 25);
+	float2 itemOffset = float2(0, 100);
+	for (size_t i = 0; i < NR_OF_FRUITS; i++) {
+		if (winCondition[i] > 0) {
+			//text
+			wstring displayText = to_wstring(gathered[i]) + L"/" + to_wstring(winCondition[i]);
+			m_spriteFont->DrawString(m_spriteBatch.get(), displayText.c_str(),
+				itemPosition + float2(75.0f, 0.0f), m_fruitSprites[i].textColor);
+			//image
+			m_spriteBatch->Draw(m_fruitSprites[i].texture.Get(), itemPosition, nullptr,
+				Colors::White, 0.f, float2(0.0f, 0.0f),
+				m_fruitSprites[i].scale + 0.1f * m_fruitSprites[i].extraScaling);
+			//next item preparation
+			itemPosition += itemOffset;
+		}
 	}
+
 
 	m_spriteBatch->End();
 

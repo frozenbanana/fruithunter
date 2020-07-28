@@ -6,15 +6,13 @@
 #include "StateHandler.h"
 #include "EndRoundState.h"
 #include "Settings.h"
+#include "SaveManager.h"
 
 void PlayState::initialize() { m_name = "Play State"; }
 
 void PlayState::update() {
 	Input::getInstance()->setMouseModeRelative();
-
-	m_timer.update();
-	float dt = m_timer.getDt();
-	m_levelHandler->update(dt);
+	sceneManager.update();
 }
 
 void PlayState::handleEvent() {
@@ -22,18 +20,20 @@ void PlayState::handleEvent() {
 		StateHandler::getInstance()->changeState(StateHandler::PAUSE);
 	}
 
-	if (m_levelHandler->getHUD().hasWon()) {
+	if (SceneManager::getScene()->handleWin()) {
 		ErrorLogger::log("Changing state to END ROUND.");
 		Renderer::getInstance()->captureFrame();
+		LevelData savedData = SaveManager::getInstance()->getActiveSave()[SceneManager::getScene()->m_utility.levelIndex];
 		StateHandler::getInstance()->changeState(StateHandler::ENDROUND);
 		EndRoundState* endRound =
 			dynamic_cast<EndRoundState*>(StateHandler::getInstance()->getCurrent());
-		endRound->setTimeText("Time : " + m_levelHandler->getHUD().getTimePassed());
+		endRound->setTimeText("Time : " + Time2DisplayableString(savedData.timeOfCompletion));
 		string vicText = "";
 		float4 vicColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 		float confettiEmitRate = 6.0f;
 		size_t prizeIndex = 0;
-		switch (m_levelHandler->getHUD().getPrize()) {
+		SaveManager::getInstance()->getAllSaveStates();
+		switch (savedData.grade) {
 		case GOLD:
 			vicText += "You earned GOLD";
 			vicColor = float4(1.0f, 0.85f, 0.0f, 1.0f);
@@ -45,7 +45,6 @@ void PlayState::handleEvent() {
 			vicColor = float4(0.8f, 0.8f, 0.8f, 1.0f);
 			confettiEmitRate = 18.0f;
 			prizeIndex = SILVER;
-
 			break;
 		case BRONZE:
 			vicText += "You earned BRONZE";
@@ -63,7 +62,8 @@ void PlayState::handleEvent() {
 		endRound->setVictoryText(vicText);
 		endRound->setVictoryColor(vicColor);
 		endRound->setConfettiPower(confettiEmitRate);
-		endRound->setBowlMaterial(m_currentLevel, (int)prizeIndex); // change to reflect actual level
+		endRound->setBowlMaterial(SceneManager::getScene()->m_utility.levelIndex,
+			(int)prizeIndex); // change to reflect actual level
 		endRound->setParticleColorByPrize(prizeIndex);
 	}
 }
@@ -71,36 +71,18 @@ void PlayState::handleEvent() {
 void PlayState::pause() { ErrorLogger::log(m_name + " pause() called."); }
 
 void PlayState::draw() {
-	ShadowMapper* shadowMap = Renderer::getInstance()->getShadowMapper();
-	shadowMap->mapShadowToFrustum(m_levelHandler->getPlayerFrustumPoints(0.4f));
-	shadowMap->setup_depthRendering();
-
-	m_levelHandler->drawShadowDynamic();
-
-	// Set first person info
-	Renderer::getInstance()->beginFrame();
-
-	shadowMap->setup_shadowRendering();
-
-	// draw first person
-	m_levelHandler->draw();
-
-	// Text
-	float t = m_timer.getTimePassed();
+	sceneManager.setup_shadow();
+	sceneManager.draw_shadow();
+	sceneManager.setup_color();
+	sceneManager.draw_color();
+	sceneManager.draw_hud();
 }
 
-void PlayState::setLevel(int newLevel) { m_currentLevel = newLevel; }
+void PlayState::changeScene(string sceneName) { sceneManager.load(sceneName); }
 
-void PlayState::destroyLevel() {
-	int blob = 0;
-	m_levelHandler.reset();
-}
+void PlayState::restart() { sceneManager.restart(); }
 
 void PlayState::play() {
 	Input::getInstance()->setMouseModeRelative();
 	ErrorLogger::log(m_name + " play() called.");
-	if (m_levelHandler == nullptr)
-		m_levelHandler = make_unique<LevelHandler>();
-	m_levelHandler->loadLevel(m_currentLevel);
-	// m_shadowMap->clearAllShadows();
 }

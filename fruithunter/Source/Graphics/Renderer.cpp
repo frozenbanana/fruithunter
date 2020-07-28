@@ -6,10 +6,16 @@
 #include <Mouse.h>
 #include <ScreenGrab.h>
 #include <wincodec.h>
+#include "Input.h"
 
 Renderer Renderer::m_this(1280, 720);
 
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK WinProc(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
+	// Redirect events to ImGui before standard windows event handling
+	if (ImGui_ImplWin32_WndProcHandler(handle, msg, wparam, lparam))
+		return true;
+	// Normal event handling
 	switch (msg) {
 	case WM_DESTROY:
 	case WM_CLOSE:
@@ -242,6 +248,15 @@ Renderer::Renderer(int width, int height) {
 		r->m_isLoaded = true;
 	}
 
+	//ImGui
+	IMGUI_CHECKVERSION();
+	ctx = ImGui::CreateContext();
+	ImGui::SetCurrentContext(ctx);
+	ImGuiIO& io = ImGui::GetIO();
+	ImGui_ImplWin32_Init(m_handle);
+	ImGui_ImplDX11_Init(m_device.Get(), m_deviceContext.Get());
+	ImGui::StyleColorsDark();
+
 	// compile shaders
 	if (!m_shader_darkEdges.isLoaded()) {
 		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = { {
@@ -262,7 +277,11 @@ Renderer::Renderer(int width, int height) {
 	m_capturedFrame.setPixelShaderPath("PixelShader_blur.hlsl");
 }
 
-Renderer::~Renderer() {}
+Renderer::~Renderer() {
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext(ctx);
+}
 
 Renderer* Renderer::getInstance() { return &m_this; }
 

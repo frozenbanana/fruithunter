@@ -156,14 +156,8 @@
     <ClCompile Include="Source\Utility\Repositories\MeshRepository.cpp">
       <Filter>Source\Utility\Repositories</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Drawable\Mesh\Terrain\TerrainManager.cpp">
-      <Filter>Source\Drawable\Mesh\Terrain</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Drawable\EntityCollision.cpp">
       <Filter>Source\Drawable</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Level\LevelHandler\LevelHandler.cpp">
-      <Filter>Source\Level\levelHandler</Filter>
     </ClCompile>
     <ClCompile Include="Source\Drawable\EntityRepository.cpp">
       <Filter>Source\Drawable</Filter>
@@ -222,7 +216,48 @@
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Dragonfruit.cpp">
       <Filter>Source\Drawable\Mesh\Fruits</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Source\Utility\Development\TerrainBatch.cpp">
+      <Filter>Source\Utility\Development</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\Development\Scene.cpp">
+      <Filter>Source\Utility\Development</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\Development\SceneManager.cpp">
+      <Filter>Source\Utility\Development</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Player\Arrow.cpp">
+      <Filter>Source\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Drawable\Transformation.cpp">
+      <Filter>Source\Drawable</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\Development\SceneEditorManager.cpp">
+      <Filter>Source\Utility\Development</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\Camera\RPYCamera.cpp">
+      <Filter>Source\Utility\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\State\States\EditorState.cpp">
+      <Filter>Source\State\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ImGui\imgui.cpp">
+      <Filter>Source\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ImGui\imgui_draw.cpp">
+      <Filter>Source\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ImGui\imgui_impl_dx11.cpp">
+      <Filter>Source\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ImGui\imgui_impl_win32.cpp">
+      <Filter>Source\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ImGui\imgui_widgets.cpp">
+      <Filter>Source\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\Repositories\TextureRepository.cpp">
+      <Filter>Source\Utility\Repositories</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -315,14 +350,8 @@
     <ClInclude Include="Source\Utility\Repositories\MeshRepository.h">
       <Filter>Source\Utility\Repositories</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Drawable\Mesh\Terrain\TerrainManager.h">
-      <Filter>Source\Drawable\Mesh\Terrain</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Drawable\EntityCollision.h">
       <Filter>Source\Drawable</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Level\LevelHandler\LevelHandler.h">
-      <Filter>Source\Level\levelHandler</Filter>
     </ClInclude>
     <ClInclude Include="Source\Drawable\EntityRepository.h">
       <Filter>Source\Drawable</Filter>
@@ -384,7 +413,57 @@
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Dragonfruit.h">
       <Filter>Source\Drawable\Mesh\Fruits</Filter>
     </ClInclude>
-    <ClInclude Include="Scene.h" />
+    <ClInclude Include="Source\Utility\Development\SceneManager.h">
+      <Filter>Source\Utility\Development</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\Development\TerrainBatch.h">
+      <Filter>Source\Utility\Development</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\Development\Scene.h">
+      <Filter>Source\Utility\Development</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Player\Arrow.h">
+      <Filter>Source\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\Transformation.h">
+      <Filter>Source\Drawable</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\Development\SceneEditorManager.h">
+      <Filter>Source\Utility\Development</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\Camera\RPYCamera.h">
+      <Filter>Source\Utility\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\State\States\EditorState.h">
+      <Filter>Source\State\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGui\imconfig.h">
+      <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGui\imgui.h">
+      <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGui\imgui_impl_dx11.h">
+      <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGui\imgui_impl_win32.h">
+      <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGui\imgui_internal.h">
+      <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGui\imstb_rectpack.h">
+      <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGui\imstb_textedit.h">
+      <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGui\imstb_truetype.h">
+      <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\Repositories\TextureRepository.h">
+      <Filter>Source\Utility\Repositories</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
@@ -451,12 +530,6 @@
     <Filter Include="Source\AI">
       <UniqueIdentifier>{aa548265-5486-466e-81d7-9719a546e282}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Level">
-      <UniqueIdentifier>{3618823a-86dc-4774-b499-395f206ab7e8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Level\levelHandler">
-      <UniqueIdentifier>{5d3acfd7-c907-4e84-928d-e506b0f46ea4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Utility\Repositories">
       <UniqueIdentifier>{0351c8e4-cfeb-4492-97c6-2514408dac40}</UniqueIdentifier>
     </Filter>
@@ -477,6 +550,12 @@
     </Filter>
     <Filter Include="Source\Utility\SaveState">
       <UniqueIdentifier>{756d5736-eeb1-4a7c-9e60-653aa6c01875}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Utility\Development">
+      <UniqueIdentifier>{8b97bf14-e76a-421e-a480-f354f243aadc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ImGui">
+      <UniqueIdentifier>{dd1d5fba-781e-46f3-8b69-664930394ff9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

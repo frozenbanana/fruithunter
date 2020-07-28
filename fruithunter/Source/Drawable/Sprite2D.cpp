@@ -32,6 +32,8 @@ void Sprite2D::draw() {
 			origin, scale);
 
 		m_spriteBatch->End();
+		// Reset depth state
+		Renderer::getInstance()->getDeviceContext()->OMSetDepthStencilState(nullptr, 0);
 	}
 }
 
@@ -52,6 +54,8 @@ void Sprite2D::drawNoScaling() {
 			m_rotation, origin, scale);
 
 		m_spriteBatch->End();
+		// Reset depth state
+		Renderer::getInstance()->getDeviceContext()->OMSetDepthStencilState(nullptr, 0);
 	}
 }
 

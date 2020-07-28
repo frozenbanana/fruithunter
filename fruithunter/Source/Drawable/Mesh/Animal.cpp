@@ -68,7 +68,7 @@ Animal::Animal(string modelName, float playerRange, float fruitRange, int fruitT
 	m_thoughtBubble.loadMaterials(mtlNames);
 	m_thoughtBubble.setCurrentMaterial(3 * fruitType + nrRequiredFruits - 1);
 
-	m_thoughtBubbleOffset = getBoundingBoxPos() + float3(0.f, getHalfSizes().y + 0.5f, 0.f);
+	m_thoughtBubbleOffset = (getBoundingBoxPos()-getPosition()) + float3(0.f, getHalfSizes().y + 0.5f, 0.f);
 	float3 topPos = getPosition() + m_thoughtBubbleOffset;
 	m_thoughtBubble.setPosition(topPos);
 }
@@ -199,7 +199,7 @@ void Animal::beginWalk(float3 pos) {
 }
 
 bool Animal::checkLookedAt(float3 playerPos, float3 rayDir) {
-	float3 playerToAnimal = getPosition() + getBoundingBoxPos() - playerPos;
+	float3 playerToAnimal = getBoundingBoxPos() - playerPos;
 	bool isLookedAt = false;
 	if (playerToAnimal.LengthSquared() < START_ZOOM_LENGTH) {
 		float3 vec = rayDir.Cross(playerToAnimal);

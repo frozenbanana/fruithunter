@@ -1,9 +1,9 @@
 #include "EntityRepository.h"
-#include "TerrainManager.h"
+#include "SceneManager.h"
 #include "Renderer.h"
 #include "ErrorLogger.h"
 
-void EntityRepository::clear() {
+void EntityRepository::clearRepository() {
 	m_repository.clear();
 	m_repositoryLoaded = false;
 }
@@ -32,7 +32,7 @@ void EntityRepository::fillEntitiesFromRepository() {
 				// fill quadtree
 				m_quadtree.add(m_entities[instanceIndex]->getLocalBoundingBoxPosition(),
 					m_entities[instanceIndex]->getLocalBoundingBoxSize(),
-					m_entities[instanceIndex]->getModelMatrix(), m_entities[instanceIndex].get());
+					m_entities[instanceIndex]->getMatrix(), m_entities[instanceIndex].get());
 				// increment
 				instanceIndex++;
 			}
@@ -42,7 +42,7 @@ void EntityRepository::fillEntitiesFromRepository() {
 
 void EntityRepository::loadPlacements(string filename) {
 	// reset repository to fill with new stuff
-	clear();
+	clearRepository();
 	// load repository
 	string path = m_entityPlacementFilePath + filename + m_fileEndings;
 	fstream file;
@@ -178,14 +178,14 @@ void EntityRepository::load(string filename) {
 void EntityRepository::save() {
 	if (m_repositoryLoaded) {
 		if (m_repositoryFilenameLoadedFrom != "") {
-			if (m_repositoryChangedSinceLoad) {
 				savePlacements(m_repositoryFilenameLoadedFrom);
-			}
-			else {
-				ErrorLogger::log(
-					"(EntityRepository) Attempt denied to save entity placements to file: " +
-					m_repositoryFilenameLoadedFrom + "\nFile already up to date!");
-			}
+			//if (m_repositoryChangedSinceLoad) {
+			//}
+			//else {
+			//	ErrorLogger::log(
+			//		"(EntityRepository) Attempt denied to save entity placements to file: " +
+			//		m_repositoryFilenameLoadedFrom + "\nFile already up to date!");
+			//}
 		}
 		else
 			ErrorLogger::logWarning("(EntityRepository) Loaded repository name not set when should!");
@@ -226,7 +226,7 @@ void EntityRepository::addEntity(string meshFilename, EntityInstance instance) {
 		// add to quadtree
 		Entity* entity = m_entities.back().get();
 		m_quadtree.add(entity->getLocalBoundingBoxPosition(), entity->getLocalBoundingBoxSize(),
-			entity->getModelMatrix(), entity);
+			entity->getMatrix(), entity);
 	}
 }
 
@@ -261,13 +261,14 @@ void EntityRepository::removeEntity(Entity* entity) {
 }
 
 EntityRepository::EntityInstance EntityRepository::getEntityInstance(const Entity* entity) const {
-	return EntityInstance(entity->getPosition(), entity->getScale(), entity->getRotationMatrix());
+	return EntityInstance(entity->getPosition(), entity->getScale(), entity->getRotation());
 }
 
 void EntityRepository::setEntityByInstance(Entity* entity, EntityInstance instance) {
 	entity->setPosition(instance.position);
 	entity->setScale(instance.scale);
-	entity->setRotationMatrix(instance.matRotation);
+	//entity->setRotationMatrix(instance.matRotation);
+	entity->setRotation(instance.rotation);
 
 	assignCollisionData(entity);
 }
@@ -337,7 +338,7 @@ void EntityRepository::update(float dt, float3 point, float3 direction) {
 			string meshName = m_placeable[m_activePlaceableIndex]->getModelName();
 			EntityInstance instance(m_placeable[m_activePlaceableIndex]->getPosition(),
 				m_placeable[m_activePlaceableIndex]->getScale(),
-				m_placeable[m_activePlaceableIndex]->getRotationMatrix());
+				m_placeable[m_activePlaceableIndex]->getRotation());
 			addEntity(meshName, instance);
 			// randomize properties
 			randomizeProperties(m_placeable[m_activePlaceableIndex].get());
@@ -353,7 +354,7 @@ void EntityRepository::update(float dt, float3 point, float3 direction) {
 		// placement position
 		direction.Normalize();
 		direction *= m_placingDistance;
-		float l = TerrainManager::getInstance()->castRay(point, direction);
+		float l = SceneManager::getScene()->m_terrains.castRay(point, direction);
 		if (l != -1) {
 			float3 intersection = point + direction * l;
 			m_placeable[m_activePlaceableIndex]->setPosition(intersection);
@@ -439,6 +440,24 @@ void EntityRepository::draw_onlyMesh() {
 
 	if (m_state == ModeState::state_placing && m_placeable.size() > 0)
 		m_placeable[m_activePlaceableIndex]->draw_onlyMesh(float3(0, 0, 0));
+}
+
+void EntityRepository::clear() {
+	//culling
+	m_useCulling = false;
+	m_culledEntities.clear();
+	//editor
+	m_markedEntityToRemove = nullptr;
+	m_activePlaceableIndex = 0;
+	m_state = state_inactive;
+	//drawable
+	m_entities.clear();
+	m_quadtree.reset();
+	//repository
+	m_repository.clear();
+	m_repositoryLoaded = false;
+	m_repositoryChangedSinceLoad = false;
+	m_repositoryFilenameLoadedFrom = "";
 }
 
 EntityRepository::EntityRepository(string filename) { load(filename); }

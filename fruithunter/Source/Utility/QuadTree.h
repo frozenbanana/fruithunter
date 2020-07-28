@@ -74,6 +74,8 @@ public:
 	void reset();
 	void reserve(size_t size);
 
+	Element& operator[](const size_t& index);
+
 	QuadTree(float3 position = float3(0, 0, 0), float3 size = float3(0, 0, 0), size_t layerMax = 1);
 	~QuadTree();
 };
@@ -497,6 +499,10 @@ template <typename Element> inline void QuadTree<Element>::reset() {
 
 template <typename Element> inline void QuadTree<Element>::reserve(size_t size) {
 	m_elementParts.reserve(size);
+}
+
+template <typename Element> inline Element& QuadTree<Element>::operator[](const size_t& index) {
+	return m_elementParts[index]->element;
 }
 
 template <typename Element>

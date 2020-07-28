@@ -1,0 +1,7 @@
+type:0
+position:-100.0 1.0 -100.0
+scale:400.0 2.0 400.0
+tilesX:50
+tilesY:50
+gridsX:8
+gridsY:8

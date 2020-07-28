@@ -4,19 +4,6 @@
 #include "Renderer.h"
 #include "ErrorLogger.h"
 
-bool SkyBox::createResourceBuffer(string path, ID3D11ShaderResourceView** buffer) {
-	auto device = Renderer::getDevice();
-	auto deviceContext = Renderer::getDeviceContext();
-	wstring wstr = s2ws(path);
-	LPCWCHAR str = wstr.c_str();
-	HRESULT hrA = DirectX::CreateWICTextureFromFile(device, deviceContext, str, nullptr, buffer);
-	if (FAILED(hrA)) {
-		ErrorLogger::messageBox(hrA, "Failed creating texturebuffer from texture\n" + path);
-		return false;
-	}
-	return true;
-}
-
 bool SkyBox::createConstantBuffer() {
 	auto device = Renderer::getDevice();
 	auto deviceContext = Renderer::getDeviceContext();
@@ -37,17 +24,6 @@ bool SkyBox::createConstantBuffer() {
 	return true;
 }
 
-wstring SkyBox::s2ws(const std::string& s) {
-	int len;
-	int slength = (int)s.length() + 1;
-	len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
-	wchar_t* buf = new wchar_t[len];
-	MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
-	std::wstring r(buf);
-	delete[] buf;
-	return r;
-}
-
 bool SkyBox::bindTextures() {
 	ID3D11Device* device = Renderer::getDevice();
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
@@ -58,9 +34,9 @@ bool SkyBox::bindTextures() {
 	deviceContext->PSSetConstantBuffers(0, 1, m_interpolationBuffer.GetAddressOf());
 
 	// bind texture maps
-	if (m_textures[m_oldLight].Get() != nullptr && m_textures[m_newLight].Get() != nullptr) {
-		deviceContext->PSSetShaderResources(1, 1, m_textures[m_oldLight].GetAddressOf());
-		deviceContext->PSSetShaderResources(2, 1, m_textures[m_newLight].GetAddressOf());
+	if (m_textures[m_oldLight].get() != nullptr && m_textures[m_newLight].get() != nullptr) {
+		deviceContext->PSSetShaderResources(1, 1, m_textures[m_oldLight]->view.GetAddressOf());
+		deviceContext->PSSetShaderResources(2, 1, m_textures[m_newLight]->view.GetAddressOf());
 		return true;
 	}
 	else {
@@ -79,9 +55,9 @@ bool SkyBox::bindTexture(AreaTag tag) {
 	deviceContext->PSSetConstantBuffers(0, 1, m_interpolationBuffer.GetAddressOf());
 
 	// bind texture maps
-	if (m_textures[tag].Get() != nullptr) {
-		deviceContext->PSSetShaderResources(1, 1, m_textures[tag].GetAddressOf());
-		deviceContext->PSSetShaderResources(2, 1, m_textures[tag].GetAddressOf());
+	if (m_textures[tag].get() != nullptr) {
+		deviceContext->PSSetShaderResources(1, 1, m_textures[tag]->view.GetAddressOf());
+		deviceContext->PSSetShaderResources(2, 1, m_textures[tag]->view.GetAddressOf());
 		return true;
 	}
 	else {
@@ -93,10 +69,9 @@ bool SkyBox::bindTexture(AreaTag tag) {
 void SkyBox::load(
 	string fileNames[AreaTag::NR_OF_AREAS], lightInfo lightInfos[AreaTag::NR_OF_AREAS]) {
 	
-	for (int i = 0; i < AreaTag::NR_OF_AREAS; i++) {
-		//create texture
-		string fileNamePath = m_prePath + fileNames[i];
-		createResourceBuffer(fileNamePath, m_textures[i].GetAddressOf());
+	for (size_t i = 0; i < AreaTag::NR_OF_AREAS; i++) {
+		//set texture
+		m_textures[i] = TextureRepository::get(fileNames[i], TextureRepository::Type::type_texture);
 		//set light info
 		m_lightInfo[i] = lightInfos[i];
 	}
@@ -109,6 +84,7 @@ void SkyBox::loadStandard() {
 	fileNames[AreaTag::Plains] = "PlainsSkybox.jpg";
 	fileNames[AreaTag::Desert] = "DesertSkybox.jpg";
 	fileNames[AreaTag::Volcano] = "VolcanoSkybox.jpg";
+	fileNames[AreaTag::LevelIsland] = "PlainsSkybox.jpg";
 	
 	lightInfo info[AreaTag::NR_OF_AREAS];
 	info[AreaTag::Forest] = { 
@@ -130,6 +106,11 @@ void SkyBox::loadStandard() {
 		float4(0.6f, 0.2f, 0.0f, 1.0f), 
 		float4(0.7f, 0.2f, 0.1f, 1.0f),
 		float4(1.0f, 0.2f, 0.1f, 1.0f) 
+	};
+	info[AreaTag::LevelIsland] = { 
+		float4(0.7f, 0.7f, 0.7f, 1.0f), 
+		float4(0.8f, 0.9f, 0.7f, 1.0f),
+		float4(1.0f, 1.0f, 1.0f, 1.0f)
 	};
 	load(fileNames, info);
 }
@@ -205,8 +186,7 @@ void SkyBox::updateLightInfo(AreaTag tag) {
 }
 
 void SkyBox::update(float dt) { 
-	m_interpolation = Clamp(m_interpolation + dt, 0, 1.f);
-	updateLightInfo();
+	m_interpolation = Clamp(m_interpolation + dt, 0.f, 1.f);
 }
 
 bool SkyBox::switchLight(AreaTag tag) { 
@@ -244,6 +224,7 @@ bool SkyBox::createLightBuffer() {
 }
 
 void SkyBox::bindLightBuffer() {
+	updateLightInfo();
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 	deviceContext->PSSetConstantBuffers(5, 1, m_lightBuffer.GetAddressOf());
 }

@@ -1,5 +1,6 @@
 #include "Apple.h"
 #include "Input.h"
+#include "SceneManager.h"
 #include "PathFindingThread.h"
 
 Apple::Apple(float3 pos) : Fruit(pos) {
@@ -27,10 +28,10 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 }
 
 void Apple::behaviorPassive(float3 playerPosition) {
-	float terrainHeight = TerrainManager::getInstance()->getHeightFromPosition(m_position);
+	float terrainHeight = SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition());
 	// Check if not at home
-	if (m_position.y <= 1.f) {
-		float3 target = m_worldHome - m_position;
+	if (getPosition().y <= 1.f) {
+		float3 target = m_worldHome - getPosition();
 		target.Normalize();
 		target.y = 1.f;
 		jump(target, 10.f);
@@ -51,13 +52,13 @@ void Apple::behaviorPassive(float3 playerPosition) {
 						makeReadyForPath(m_worldHome); // go home
 					}
 					else {
-						setWorldHome(m_position + float3(.0001f, 0, 0.001f));
+						setWorldHome(getPosition() + float3(.0001f, 0, 0.001f));
 						m_nrOfTriesGoHome = 0;
 					}
 					m_speed = m_passive_speed;
 				}
 				else {
-					float3 jumpTo = (m_availablePath.back() - m_position);
+					float3 jumpTo = (m_availablePath.back() - getPosition());
 					jumpTo.Normalize();
 					jumpTo.y = 1.f;
 					jump(jumpTo, 1.f);
@@ -71,7 +72,7 @@ void Apple::behaviorPassive(float3 playerPosition) {
 				if (m_nrOfJumps >= MAXNROFJUMPS) {
 					float3 newHome = m_worldHome;
 					newHome += float3(RandomFloat(-10.f, 10.f), 0.f, RandomFloat(-10.f, 10.f));
-					newHome.y = TerrainManager::getInstance()->getHeightFromPosition(newHome);
+					newHome.y = SceneManager::getScene()->m_terrains.getHeightFromPosition(newHome);
 					auto pft = PathFindingThread::getInstance();
 					if (isValid(newHome)) {
 						m_worldHome = newHome;
@@ -82,7 +83,7 @@ void Apple::behaviorPassive(float3 playerPosition) {
 			}
 		}
 	}
-	lookToDir(m_velocity);
+	lookTo(m_velocity * float3(1, 0, 1));
 }
 
 void Apple::behaviorActive(float3 playerPosition) {
@@ -93,7 +94,7 @@ void Apple::behaviorActive(float3 playerPosition) {
 	else {
 		flee(playerPosition);
 		m_speed = m_active_speed;
-		lookToDir(m_velocity);
+		lookTo(m_velocity * float3(1, 0, 1));
 	}
 }
 
@@ -103,8 +104,8 @@ void Apple::behaviorCaught(float3 playerPosition) {
 			jump(float3(0.f, 1.f, 0.f), 15.f);
 			m_hit = true;
 		}
-		m_direction = playerPosition - m_position;
-		lookToDir(m_direction);
+		m_direction = playerPosition - getPosition();
+		lookTo(m_direction * float3(1, 0, 1));
 		
 		m_speed = m_caught_speed;
 	}
@@ -112,8 +113,8 @@ void Apple::behaviorCaught(float3 playerPosition) {
 }
 
 bool Apple::isValid(float3 point) { 
-	auto collidables = PathFindingThread::getInstance()->m_collidables;
-	auto normal = TerrainManager::getInstance()->getNormalFromPosition(point);
+	EntityRepository* collidables = &SceneManager::getScene()->m_repository;
+	float3 normal = SceneManager::getScene()->m_terrains.getNormalFromPosition(point);
 	normal.Normalize();
 	// Don't you climb no walls
 	if (point.y < 1.f)
@@ -144,7 +145,7 @@ bool Apple::isValid(float3 point) {
 }
 
 void Apple::updateAnimated(float dt) {
-	m_startAnimationPosition = m_position;
+	m_startAnimationPosition = getPosition();
 	int frameOrder[] = { 0, 1, 0, 2, 0, 1 }; // Order of using keyframes
 
 	float frameSpeedOrder[] = { 4.f, 5.f, 2.0f, 1.9f, 4.f, 2.f };
@@ -169,10 +170,10 @@ void Apple::updateAnimated(float dt) {
 void Apple::flee(float3 playerPos) {
 	// Update fleeing path if ther is none
 	if (m_availablePath.empty()) {
-		float3 runTo = m_position - playerPos;
+		float3 runTo = getPosition() - playerPos;
 		runTo.Normalize();
 		runTo *= m_passiveRadius;
-		runTo += m_position;
+		runTo += getPosition();
 		makeReadyForPath(runTo);
 	}
 	// set new velocity from path
@@ -181,6 +182,7 @@ void Apple::pathfinding(float3 start, std::vector<float4>* animals) {
 	// ErrorLogger::log("thread starting for pathfinding");
 	auto pft = PathFindingThread::getInstance();
 
+	EntityRepository* collidables = &SceneManager::getScene()->m_repository;
 	
 	if (m_readyForPath) {
 
@@ -189,13 +191,13 @@ void Apple::pathfinding(float3 start, std::vector<float4>* animals) {
 			float3 newUnstuck = m_destination - start;
 			newUnstuck.Normalize();
 			newUnstuck += start;
-			if (AI::isValid(newUnstuck, newUnstuck, *pft->m_collidables, 0.7f)) {
+			if (AI::isValid(newUnstuck, newUnstuck, *collidables, 0.7f)) {
 				m_availablePath.push_back(newUnstuck);
 				m_readyForPath = false;
 				return;
 			}
 		}
-		TerrainManager* tm = TerrainManager::getInstance();
+		TerrainBatch* tm = &SceneManager::getScene()->m_terrains;
 		// enforce start and m_destination to terrain
 		float3 startCopy = float3(start.x, tm->getHeightFromPosition(start), start.z);
 		float3 m_destinationCopy =
@@ -259,7 +261,7 @@ void Apple::pathfinding(float3 start, std::vector<float4>* animals) {
 					continue;
 				}
 
-				if (!AI::isValid(child->position, currentNode->position, *pft->m_collidables, 0.7f)) {
+				if (!AI::isValid(child->position, currentNode->position, *collidables, 0.7f)) {
 					continue;
 				}
 

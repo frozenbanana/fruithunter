@@ -1,0 +1,17 @@
+tag:1
+heightmapName:PlainMap.png
+position:100.0 0.0 0.0
+scale:100.0 10.0 100.0
+subSizeX:15
+subSizeY:15
+divisionX:16
+divisionY:16
+tex0:texture_grass.jpg
+tex1:texture_rock4.jpg
+tex2:texture_rock6.jpg
+tex3:texture_rock6.jpg
+wind:0.0 0.0 7.0
+canSpawn_Apple:1
+canSpawn_Banana:1
+canSpawn_Melon:0
+canSpawn_Dragon:0

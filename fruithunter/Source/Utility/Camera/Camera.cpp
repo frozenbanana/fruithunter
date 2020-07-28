@@ -50,72 +50,73 @@ Camera::~Camera() {}
 
 void Camera::setEye(float3 camEye) {
 	m_positionEye = camEye;
-	m_viewChanged = true;
+	m_propertiesChanged = true;
 }
 
 void Camera::move(float3 movement) { setEye(m_positionEye + movement); }
 
 void Camera::setTarget(float3 camTarget) {
 	m_positionTarget = camTarget;
-	m_viewChanged = true;
+	m_propertiesChanged = true;
 }
 
 void Camera::setUp(float3 camUp) {
 	m_up = camUp;
-	m_viewChanged = true;
+	m_propertiesChanged = true;
 }
 
 void Camera::setView(float3 camEye, float3 camTarget, float3 camUp) {
 	m_positionEye = camEye;
 	m_positionTarget = camTarget;
 	m_up = camUp;
-	m_viewChanged = true;
+	m_propertiesChanged = true;
 }
 
 void Camera::setFov(float fov) {
 	m_fov = fov;
-	m_projChanged = true;
+	m_propertiesChanged = true;
 }
 
 void Camera::setNearPlane(float nearPlane) {
 	m_nearPlane = nearPlane;
-	m_projChanged = true;
+	m_propertiesChanged = true;
 }
 
 void Camera::setFarPlane(float farPlane) {
 	m_farPlane = farPlane;
-	m_projChanged = true;
+	m_propertiesChanged = true;
 }
 
 float Camera::getDefaultFov() const { return DEFAULT_FOV; }
 
-void Camera::updateBuffer() {
-	if (m_viewChanged || m_projChanged) {
+void Camera::updateResources() {
+	auto deviceContext = Renderer::getDeviceContext();
+	Matrix vpMatrixTransposed = m_vpMatrix.Transpose();
+	deviceContext->UpdateSubresource(m_matrixBuffer.Get(), 0, NULL, &vpMatrixTransposed, 0, 0);
 
-		m_viewMatrix = XMMatrixLookAtLH(m_positionEye, m_positionTarget, m_up);
-		m_projMatrix = XMMatrixPerspectiveFovLH(
-			m_fov, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, m_nearPlane, m_farPlane);
-
-		m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
-
-		auto deviceContext = Renderer::getDeviceContext();
-		Matrix vpMatrixTransposed = m_vpMatrix.Transpose();
-		deviceContext->UpdateSubresource(m_matrixBuffer.Get(), 0, NULL, &vpMatrixTransposed, 0, 0);
-
-		// Changes to make particle system work
-		ViewPerspectiveBuffer viewNPerspective;
-		viewNPerspective.mView = m_viewMatrix.Transpose();
-		viewNPerspective.mPerspective = m_projMatrix.Transpose();
-		deviceContext->UpdateSubresource(
-			m_matrixBufferViewNPerspective.Get(), 0, NULL, &viewNPerspective, 0, 0);
-
-		m_projChanged = false;
-		m_viewChanged = false;
-	}
+	// Changes to make particle system work
+	ViewPerspectiveBuffer viewNPerspective;
+	viewNPerspective.mView = m_viewMatrix.Transpose();
+	viewNPerspective.mPerspective = m_projMatrix.Transpose();
+	deviceContext->UpdateSubresource(
+		m_matrixBufferViewNPerspective.Get(), 0, NULL, &viewNPerspective, 0, 0);
 }
 
-void Camera::bindMatrix() {
-	updateBuffer();
+void Camera::updateMatrices() {
+	m_propertiesChanged = false;
+	m_viewMatrix = XMMatrixLookAtLH(m_positionEye, m_positionTarget, m_up);
+	m_projMatrix = XMMatrixPerspectiveFovLH(
+		m_fov, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, m_nearPlane, m_farPlane);
+
+	m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
+}
+
+void Camera::bind() {
+	if (m_propertiesChanged)
+		updateMatrices();
+	//update resource
+	updateResources();
+	//bind
 	auto deviceContext = Renderer::getDeviceContext();
 	deviceContext->VSSetConstantBuffers(MATRIX_SLOT, 1, m_matrixBuffer.GetAddressOf());
 	deviceContext->VSSetConstantBuffers(
@@ -126,9 +127,17 @@ void Camera::bindMatrix() {
 		MATRIX_VP_SLOT, 1, m_matrixBufferViewNPerspective.GetAddressOf());
 }
 
-float4x4 Camera::getViewMatrix() const { return m_viewMatrix; }
+float4x4 Camera::getViewMatrix() { 
+	if (m_propertiesChanged)
+		updateMatrices();
+	return m_viewMatrix; 
+}
 
-float4x4 Camera::getViewProjMatrix() const { return m_vpMatrix; }
+float4x4 Camera::getViewProjMatrix() {
+	if (m_propertiesChanged)
+		updateMatrices();
+	return m_vpMatrix;
+}
 
 float3 Camera::getPosition() const { return m_positionEye; }
 
@@ -200,4 +209,30 @@ vector<float3> Camera::getFrustumPoints(float scaleBetweenNearAndFarPlane) const
 	points.push_back(bottomRight);
 
 	return points;
+}
+
+float3 Camera::getMousePickVector(float2 mousePos) const { 
+	vector<float3> points = getFrustumPoints(1);
+	float3 topLeft = points[1] - points[0];
+	float3 topRight = points[2] - points[0];
+	float3 bottomLeft = points[3] - points[0];
+	float3 bottomRight = points[4] - points[0];
+	float3 topLerp = lerp(topLeft, topRight, mousePos.x);
+	float3 bottomLerp = lerp(bottomLeft, bottomRight, mousePos.x);
+	float3 middleLerp = lerp(topLerp, bottomLerp, mousePos.y);
+	middleLerp.Normalize();
+	return middleLerp;
+}
+
+float3 Camera::getForward() const { 
+	float3 forward = m_positionTarget - m_positionEye;
+	forward.Normalize();
+	return forward; 
+}
+
+float3 Camera::getUp() const { return m_up; }
+
+float3 Camera::getRight() const {
+	return getUp().Cross(getForward());
+	//getForward().Cross(getUp());
 }

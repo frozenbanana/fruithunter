@@ -12,7 +12,7 @@ public:
 	~Input();
 	static void initilize(HWND window);
 	void update();
-
+	void setMouseMovement(int x, int y);
 	// Input for keyboard
 	bool keyPressed(DirectX::Keyboard::Keys key);
 	bool keyReleased(DirectX::Keyboard::Keys key);
@@ -26,6 +26,7 @@ public:
 	bool mouseUp(MouseButton button);
 	int mouseX();
 	int mouseY();
+	float2 getMouseMovement() const;
 	int scrollWheelValue();
 	bool scrolledUp();
 	bool scrolledDown();
@@ -57,6 +58,7 @@ private:
 	ScrollTracking m_scrollDirection;
 
 	// Mouse move tracker
+	int m_mouseMovementX = 0, m_mouseMovementY = 0;
 	int m_oldX;
 	int m_oldY;
 };

@@ -1,16 +1,12 @@
 #pragma once
 #include "State.h"
 #include "TextRenderer.h"
-#include "Entity.h"
 #include "Button.h"
-#include "SkyBox.h"
-#include "Camera.h"
-#include "SeaEffect.h"
-#include "EntityRepository.h"
 #include "Timer.h"
 #include "Apple.h"
 #include "Bow.h"
 #include "Sprite2D.h"
+#include "SceneManager.h"
 
 class IntroState : public State {
 public:
@@ -29,22 +25,19 @@ private:
 	Button m_startButton;
 	Button m_settingsButton;
 	Button m_exitButton;
-	Entity m_entity;
 
 	// Scene variables
 	Camera m_camera;
-	SkyBox m_skybox;
-	std::vector<string> m_maps;
-	SeaEffect m_waterEffect;
-	EntityRepository m_terrainProps;
-	unique_ptr<Apple> m_apple;
 	float m_totalDelta = 0.f;
-	float m_shootTime = 0.f;
-	float m_chargeThreshold = RandomFloat(2.4f, 4.f);
-	float m_shootDelay = 0.5f;
-	float m_shootThreshold = m_chargeThreshold + m_shootDelay;
+	shared_ptr<Apple> m_apple;
+
+	float m_totalDelta_forBow = 0.f;
+	float m_bowHoldTime = 2; // bow holds in x seconds before firing
+	float m_shootDelay = 2.5;  // wait x seconds after shot
 	Bow m_bow;
-	std::vector<shared_ptr<Entity>> m_arrows;
+	vector<shared_ptr<Arrow>> m_arrows;
+
+	SceneManager sceneManager;
 
 	// Logo
 	struct LogoLetter {

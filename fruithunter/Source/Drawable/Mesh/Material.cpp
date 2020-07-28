@@ -41,7 +41,7 @@ bool Material::createResourceBuffer(int textureIndex, string textureName) {
 		HRESULT hrA = DirectX::CreateWICTextureFromFile(
 			device, deviceContext, str, nullptr, m_maps[textureIndex].GetAddressOf());
 		if (FAILED(hrA)) {
-			ErrorLogger::messageBox(hrA, "Failed creating texturebuffer from texture\n" + path);
+			ErrorLogger::messageBox(hrA, "(Material) Failed creating texturebuffer from texture\n" + path);
 			m_maps[textureIndex].Reset();
 			return false;
 		}

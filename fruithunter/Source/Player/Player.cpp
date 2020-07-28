@@ -4,7 +4,7 @@
 #include "VariableSyncer.h"
 #include "AudioHandler.h"
 #include "Settings.h"
-#include "TerrainManager.h"
+#include "SceneManager.h"
 
 Player::Player() {}
 
@@ -14,7 +14,7 @@ void Player::update(float dt) {
 
 	float delta = dt;
 
-	Terrain* terrain = TerrainManager::getInstance()->getTerrainFromPosition(m_position);
+	Terrain* terrain = SceneManager::getScene()->m_terrains.getTerrainFromPosition(m_position);
 
 	if (m_hunterMode) {
 		delta *= 0.1f;
@@ -88,7 +88,7 @@ void Player::draw() {
 }
 
 void Player::bindMatrix() { 
-	m_camera.bindMatrix();
+	m_camera.bind();
 }
 
 void Player::collideObject(Entity& obj) {
@@ -127,7 +127,7 @@ void Player::collideObject(Entity& obj) {
 			objToPlayer = m_position - pointOnOBBClosestToPlayer;
 		}
 		else {
-			objToPlayer = m_position - (obj.getBoundingBoxPos() + obj.getPosition());
+			objToPlayer = m_position - obj.getBoundingBoxPos();
 		}
 		if (objToPlayer.Dot(m_velocity) < 0.f) {
 			objToPlayer.Normalize();
@@ -138,21 +138,6 @@ void Player::collideObject(Entity& obj) {
 			m_velocity *= 0.5f;
 		}
 	}
-}
-
-bool Player::arrowCollideToEntity(Entity& entity, float dt) { 
-	float3 arrowPosition = m_bow.getArrow().getPosition();
-	float3 arrowVelocity = m_bow.getArrowVelocity() * dt;
-	if (isShooting() && !m_bow.getArrowHitObject()) {
-		float castray = entity.castRay(arrowPosition, arrowVelocity);
-		if (castray != -1.f && castray < 1.f) {
-			// Arrow is hitting object
-			float3 target = arrowPosition + arrowVelocity * castray;
-			m_bow.arrowHitObject(target);
-			return true;
-		}
-	}
-	return false;
 }
 
 bool Player::checkAnimal(float3 animalPos, float range, float throwStrength) {
@@ -195,8 +180,6 @@ void Player::getStaminaBySkillshot(Skillshot skillShot) {
 	m_stamina = min(m_stamina, 1.0f);
 }
 
-bool Player::isShooting() const { return m_bow.isShooting(); }
-
 void Player::setPosition(float3 position) {
 	m_position = position;
 	m_lastSafePosition = position;
@@ -209,21 +192,17 @@ bool Player::inHuntermode() const { return m_hunterMode; }
 void Player::activateHunterMode() { m_hunterMode = true; }
 
 void Player::updateBow(float dt, Terrain* terrain) {
-	Input* input = Input::getInstance();
-
-	if (input->mousePressed(Input::MouseButton::LEFT)) {
-		m_chargingBow = true;
-	}
-	if (input->mouseDown(Input::MouseButton::LEFT) && m_chargingBow) {
-		m_bow.charge();
-	}
-	else if (input->mouseUp(Input::MouseButton::LEFT)) {
-		m_chargingBow = false;
-		m_bow.shoot(m_playerForward, m_velocity, m_cameraPitch, m_cameraYaw);
-	}
-
-	m_bow.rotate(m_cameraPitch, m_cameraYaw);
-	m_bow.update(dt, getCameraPosition(), m_playerForward, m_playerRight, terrain);
+	//update bow behavior and handle spawning of arrows
+	shared_ptr<Arrow> arrow = m_bow.update_bow(
+		dt, 
+		Input::getInstance()->mouseDown(Input::MouseButton::LEFT)
+	);
+	if (arrow.get() != nullptr)
+		SceneManager::getScene()->m_arrows.push_back(arrow);
+	//update rotation
+	m_bow.update_rotation(m_cameraPitch, m_cameraYaw);
+	//update positioning
+	m_bow.update_positioning(dt, getCameraPosition(), m_playerForward, m_playerRight);
 }
 
 void Player::updateCamera() {
@@ -367,8 +346,6 @@ CubeBoundingBox Player::getCameraBoundingBox() const { return m_camera.getFrustu
 vector<float3> Player::getFrustumPoints(float scaleBetweenNearAndFarPlane) const {
 	return m_camera.getFrustumPoints(scaleBetweenNearAndFarPlane);
 }
-
-Entity& Player::getArrow() { return m_bow.getArrow(); }
 
 Bow& Player::getBow() { return m_bow; }
 

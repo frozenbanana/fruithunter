@@ -4,32 +4,24 @@
 #include "Animated.h"
 #include "EntityCollision.h"
 #include "MeshRepository.h"
+#include "Transformation.h"
 
 #define MODEL_MATRIX_BUFFER_SLOT 0
 
-class Entity {
+class Entity : public Transformation {
 private:
-	float3 m_scale;
-	float4x4 m_matRotation;
-	bool m_transformPropertiesChanged = false; // if position, rotation or scale is changed then the
-											   // model matrix is updated when it is fetched
 	shared_ptr<Mesh> m_mesh;
+	bool m_visible = true;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_modelMatrixBuffer;
 
 	EntityCollision m_collisionData;
 
-	struct MatrixBuffer {
-		float4x4 matWorld, matInvTraWorld;
-	} m_matrixBufferData; // matrix for translation, rotation and scale
+	//-- Private Functions --
 
-	void updateMatrix();
-	void bindModelMatrixBuffer();
-	void createBuffers();
 	bool isMeshInitialized() const;
 
 protected:
-	float3 m_position;
 	Animated m_meshAnim;
 	int m_currentMaterial;
 	bool atOrUnder(float terrainHeight) const;
@@ -37,32 +29,15 @@ protected:
 
 public:
 	string getModelName() const;
-	float4x4 getModelMatrix();
-	float4x4 getRotationMatrix() const;
-	float3 getPosition() const;
-	float3 getScale() const;
 	float3 getLocalBoundingBoxPosition() const;
 	float3 getLocalBoundingBoxSize() const;
 
 	// Transformations
 	void setPosition(float3 position);
-	void move(float3 movement);
-	void setRotationMatrix(float4x4 matrix);
-	void setRotationByAxis(float3 axis, float angle);
-	void rotateByAxis(float3 axis, float angle);
-	/* order ZXY*/
 	void setRotation(float3 rotation);
-	/* order ZXY*/
-	void rotate(float3 rotation);
-	void rotateX(float val);
-	void rotateY(float val);
-	void rotateZ(float val);
 	void setScale(float3 scale);
 	void setScale(float scale);
-	void scaleBoundingBoxHalfSizes(float3 scale);
-	void lookAt(float3 position);
-	void lookTo(float3 lookAt);
-	void lookToDir(float3 dir);
+	void isVisible(bool state);
 
 	// Drawing
 	virtual void draw();

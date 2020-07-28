@@ -26,7 +26,7 @@ void Input::initilize(HWND window) {
 
 // Updates states and trackers
 void Input::update() {
-	// Get old mouse coordinated before updateing states
+	// Get old mouse coordinated before updating states
 	m_oldX = m_mouseState.x;
 	m_oldY = m_mouseState.y;
 
@@ -46,6 +46,11 @@ void Input::update() {
 	m_kbTracker.Update(m_keyboardState);
 	m_mouseTracker.Update(m_mouseState);
 	m_scrollWheelTracker = m_mouseState.scrollWheelValue;
+}
+
+void Input::setMouseMovement(int x, int y) {
+	m_mouseMovementX = x;
+	m_mouseMovementY = y;
 }
 
 bool Input::keyPressed(DirectX::Keyboard::Keys key) { return m_kbTracker.IsKeyPressed(key); }
@@ -98,9 +103,15 @@ bool Input::mouseUp(MouseButton button) {
 	return false;
 }
 
-int Input::mouseX() { return m_mouseState.x; }
+int Input::mouseX() { 
+	return m_mouseState.x; 
+}
 
-int Input::mouseY() { return m_mouseState.y; }
+int Input::mouseY() { 
+	return m_mouseState.y; 
+}
+
+float2 Input::getMouseMovement() const { return float2(m_mouseMovementX,m_mouseMovementY); }
 
 int Input::scrollWheelValue() { return m_mouseState.scrollWheelValue; }
 

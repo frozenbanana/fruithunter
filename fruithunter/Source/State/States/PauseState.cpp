@@ -4,7 +4,6 @@
 #include "StateHandler.h"
 #include "Input.h"
 #include "AudioHandler.h"
-#include "TerrainManager.h"
 #include "PlayState.h"
 
 PauseState::PauseState() { initialize(); }
@@ -114,8 +113,7 @@ void PauseState::handleEvent() {
 	if (StateHandler::getInstance()->getPreviousState() == StateHandler::PLAY &&
 		m_restartButton.update()) {
 		State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
-		dynamic_cast<PlayState*>(tempPointer)->destroyLevel();
-		TerrainManager::getInstance()->removeAll();
+		dynamic_cast<PlayState*>(tempPointer)->restart();
 		StateHandler::getInstance()->changeState(StateHandler::PLAY);
 	}
 	if (m_settingsButton.update()) {
