@@ -413,8 +413,6 @@ void SceneEditorManager::update_imgui() {
 	}
 }
 SceneEditorManager::SceneEditorManager() { 
-	m_animationTest.load("apple_smooth");
-	m_anim_face_obj.load("FruitFace");
 	TextureRepository* tr = TextureRepository::getInstance();
 	// terrain heightmap textures
 	TextureRepository::Type type = TextureRepository::Type::type_heightmap;
@@ -544,84 +542,7 @@ void SceneEditorManager::update() {
 		float t = scene->m_terrains.castRay(position, forward);
 		if (t > 0) {
 			m_pointer = position + forward * t;
-			m_anim_position = m_pointer + float3(0, m_anim_heightAboveGround+0.1, 0);
-			m_anim_velocity = float3(0.);
 		}
-	}
-
-	if (ImGui::Begin("Animation Test")) {
-		ImGui::Text(
-			"Position: %.1f %.1f %.1f", m_anim_position.x, m_anim_position.y, m_anim_position.z);
-		ImGui::Text(
-			"Velocity: %.1f %.1f %.1f", m_anim_velocity.x, m_anim_velocity.y, m_anim_velocity.z);
-		string state = (m_anim_state == AnimationState::bouncing ? "Bounce" : "OnGround");
-		ImGui::Text(("State: "+state).c_str());
-		ImGui::Text("bounce pos: %.1f", m_anim_bounce_pos);
-		ImGui::Text("bounce vel: %.1f", m_anim_bounce_vel);
-		ImGui::InputFloat("Height above ground", &m_anim_heightAboveGround);
-		ImGui::InputFloat("Gravity Strength", &m_anim_gravity_strength);
-		ImGui::InputFloat("Jump Strength", &m_anim_jump_strength);
-		ImGui::InputFloat("Collision slowdown", &m_anim_groundHitSlowdown);
-		ImGui::InputFloat("Bounce slowdown", &m_anim_bounce_slowdown);
-		ImGui::InputFloat("Bounce on jump effect strength", &m_anim_bounce_onJumpEffect);
-		ImGui::InputFloat("Bounce on hit effect strength", &m_anim_bounce_onHitEffect);
-		ImGui::InputFloat("Bounce visual speed", &m_anim_bounce_speed);
-		ImGui::InputFloat("LookAt Speed", &m_anim_lookat_speed);
-		ImGui::InputFloat("Face Distance", &m_faceDistance);
-		ImGui::End();
-	}
-
-	// test animation
-	if (m_anim_state == bouncing) {
-		// bounce physics
-		float3 movement = m_anim_velocity * dt;
-		float t = getScene()->m_terrains.castRay(
-			m_anim_position + float3(0, -m_anim_heightAboveGround, 0), movement);
-		if (t >= 0) {
-			float3 collision =
-				m_anim_position + float3(0, -m_anim_heightAboveGround, 0) + movement * t;
-			float3 collision_normal = getScene()->m_terrains.getNormalFromPosition(collision);
-			if (rand() % 2 == 0 && collision_normal.Dot(float3(0, 1, 0)) > 0.5) {
-				m_anim_bounce_vel = m_anim_bounce_onJumpEffect;
-				float deg = RandomFloat() * 2 * 3.1415;
-				m_anim_velocity = Normalize(float3(cos(deg), 1, sin(deg))) * m_anim_jump_strength;
-				m_anim_state = bouncing;
-			}
-			else {
-				float3 normVel = Normalize(m_anim_velocity);
-				// bounce
-				m_anim_bounce_vel += -m_anim_velocity.Length() * m_anim_bounce_onHitEffect *
-									 normVel.Dot(collision_normal);
-
-				float3 reflected = -m_anim_velocity + 2 * (-m_anim_velocity.Dot(collision_normal) * collision_normal -
-										  -m_anim_velocity);
-				m_anim_velocity = reflected;
-
-				//m_anim_velocity.y *= -1;
-				m_anim_velocity *= m_anim_groundHitSlowdown;
-			}
-		}
-
-		//update movement
-		m_anim_position += m_anim_velocity * dt;
-		m_anim_velocity += m_anim_gravity_dir * m_anim_gravity_strength * dt;
-		//update bounce visual
-		m_anim_bounce_pos += m_anim_bounce_vel * dt;
-		m_anim_bounce_vel += (m_anim_bounce_des - m_anim_bounce_pos) * m_anim_bounce_speed * dt;
-		m_anim_bounce_vel *= pow(m_anim_bounce_slowdown, dt);
-
-		float3 desPos = Normalize(m_anim_velocity * float3(1, 0, 1));
-		m_lookPosition += (desPos - m_lookPosition) * m_anim_lookat_speed * dt;
-
-		if (m_anim_velocity.Length() < 0.1) {
-			//m_anim_state = onGround;
-		}
-	}
-	else if (m_anim_state == onGround) {
-		//m_anim_bounce_vel = m_anim_bounce_onJumpEffect;
-		//m_anim_velocity = Normalize(float3(1, 1, 0)) * m_anim_jump_strength;
-		//m_anim_state = bouncing;
-		m_anim_state = bouncing;
 	}
 
 	update_transformation(dt);
@@ -641,21 +562,9 @@ void SceneEditorManager::draw_shadow() { 	// terrain manager
 	// terrain entities
 	scene->m_repository.quadtreeCull(planes);
 	scene->m_repository.draw_onlyMesh();
-
-	m_animationTest.draw_onlyMesh(float3(0.));
 }
 
 void SceneEditorManager::draw_color() { 
-	m_animationTest.setPosition(m_anim_position);
-	float3 scale = float3(1.) * 0.35;
-	scale.y *= m_anim_bounce_pos;
-	scale.x *= 1.f/m_anim_bounce_pos;
-	scale.z *= 1.f/m_anim_bounce_pos;
-	m_animationTest.setScale(scale);
-	if (m_lookPosition.Length() > 0.001)
-		m_animationTest.lookTo(m_lookPosition);
-	m_animationTest.draw();
-
 	// Animals
 	for (size_t i = 0; i < scene->m_animals.size(); ++i) {
 		scene->m_animals[i].draw();
@@ -683,14 +592,6 @@ void SceneEditorManager::draw_color() {
 	Renderer::getInstance()->draw_darkEdges();
 
 	/* --- Things to be drawn without dark edges --- */
-
-	Renderer::getInstance()->enableAlphaBlending();
-	m_anim_face_obj.setPosition(
-		m_anim_position + m_lookPosition * m_faceDistance * (1.f / m_anim_bounce_pos));
-	m_anim_face_obj.lookTo(m_lookPosition);
-	m_anim_face_obj.setScale(float3(1, 0.4, 1)*1.5);
-	m_anim_face_obj.draw();
-	Renderer::getInstance()->disableAlphaBlending();
 
 	// Particle Systems
 	for (size_t i = 0; i < scene->m_particleSystems.size(); i++) {
