@@ -70,12 +70,13 @@ private:
 
 	vector<string> m_loadable_entity;
 
+	Entity m_anim_face_obj;
 	Entity m_animationTest;
 	enum AnimationState {
 		bouncing,
 		onGround
 	} m_anim_state = onGround;
-	float3 m_anim_position, m_anim_velocity, m_lookPosition;
+	float3 m_anim_position, m_anim_velocity, m_lookPosition = float3(1,0,0);
 	float m_anim_heightAboveGround = 0.5;
 	float3 m_anim_gravity_dir = float3(0, -1, 0);
 	float m_anim_gravity_strength = 20;
@@ -89,6 +90,7 @@ private:
 	float m_anim_bounce_onJumpEffect = 5;
 	float m_anim_bounce_onHitEffect = 0.5;
 	float m_anim_lookat_speed = 6;
+	float m_faceDistance = 0.7;
 
 	//-- Private Functions --
 

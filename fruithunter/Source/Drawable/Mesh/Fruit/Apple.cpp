@@ -153,11 +153,7 @@ void Apple::updateAnimated(float dt) {
 	// Maybe change keyframes
 	if (m_frameTime > 1) {
 		m_frameTime -= 1;
-		m_currentFramePhase = m_currentFramePhase + 1;
-
-		if (m_currentFramePhase == m_nrOfFramePhases) {
-			m_currentFramePhase = 0;
-		}
+		m_currentFramePhase = (m_currentFramePhase + 1) % m_nrOfFramePhases;
 
 		m_meshAnim.setFrameTargets(frameOrder[m_currentFramePhase],
 			frameOrder[(m_currentFramePhase + 1) % (m_nrOfFramePhases)]);

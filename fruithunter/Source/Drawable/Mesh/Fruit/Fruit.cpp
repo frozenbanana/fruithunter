@@ -139,14 +139,23 @@ void Fruit::update(float dt, float3 playerPosition) {
 	if (withinDistanceTo(playerPosition, 80.f)) {
 		m_isVisible = true;
 		m_particleSystem.setPosition(getPosition());
-		checkOnGroundStatus();
+		checkOnGroundStatus(); // checks if on ground
+		/*
+		 * Flee: move towards edge of passive zone, away from player
+		 * Passive: 
+		        - If at water level, then jump towards home blindly
+				- If not at home, then set AI to home
+				- If failed to go home then set new home at current location
+				- If at home, then just jump straight up. But after 2 jumps move home
+		 * Caught: Jump straight up. Move straight to player
+		*/
 		doBehavior(playerPosition);
-		setDirection();
-		updateAnimated(dt);
-		updateVelocity(dt);
-		move(dt);
-		enforceOverTerrain();
-		handleAvailablePath(getPosition());
+		setDirection(); // walk towards AI walk node
+		updateAnimated(dt); // animation stuff
+		updateVelocity(dt); // update velocity (slowdown and apply accelration)
+		move(dt);			// update position from velocity
+		enforceOverTerrain();// force fruit above ground
+		handleAvailablePath(getPosition()); // Keeps track of next AI node to go to (discards nodes if to close)
 	}
 	else
 		m_isVisible = false;

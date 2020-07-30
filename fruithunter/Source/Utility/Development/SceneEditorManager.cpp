@@ -414,7 +414,7 @@ void SceneEditorManager::update_imgui() {
 }
 SceneEditorManager::SceneEditorManager() { 
 	m_animationTest.load("apple_smooth");
-
+	m_anim_face_obj.load("FruitFace");
 	TextureRepository* tr = TextureRepository::getInstance();
 	// terrain heightmap textures
 	TextureRepository::Type type = TextureRepository::Type::type_heightmap;
@@ -567,6 +567,7 @@ void SceneEditorManager::update() {
 		ImGui::InputFloat("Bounce on hit effect strength", &m_anim_bounce_onHitEffect);
 		ImGui::InputFloat("Bounce visual speed", &m_anim_bounce_speed);
 		ImGui::InputFloat("LookAt Speed", &m_anim_lookat_speed);
+		ImGui::InputFloat("Face Distance", &m_faceDistance);
 		ImGui::End();
 	}
 
@@ -682,6 +683,14 @@ void SceneEditorManager::draw_color() {
 	Renderer::getInstance()->draw_darkEdges();
 
 	/* --- Things to be drawn without dark edges --- */
+
+	Renderer::getInstance()->enableAlphaBlending();
+	m_anim_face_obj.setPosition(
+		m_anim_position + m_lookPosition * m_faceDistance * (1.f / m_anim_bounce_pos));
+	m_anim_face_obj.lookTo(m_lookPosition);
+	m_anim_face_obj.setScale(float3(1, 0.4, 1)*1.5);
+	m_anim_face_obj.draw();
+	Renderer::getInstance()->disableAlphaBlending();
 
 	// Particle Systems
 	for (size_t i = 0; i < scene->m_particleSystems.size(); i++) {
