@@ -170,6 +170,7 @@ public:
 
 	size_t find_parentIndex(Fragment* fragment);
 	bool remove_fragment(Fragment* fragment);
+	void updated_fragment(Fragment* fragment);
 
 	void pickUpFruit(FruitType fruitType);
 	void dropFruit(FruitType fruitType);

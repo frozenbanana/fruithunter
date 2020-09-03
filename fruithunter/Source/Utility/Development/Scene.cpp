@@ -145,6 +145,29 @@ bool Scene::remove_fragment(Fragment* fragment) {
 	
 }
 
+void Scene::updated_fragment(Fragment* fragment) {
+	switch (fragment->getType()) {
+	case Fragment::Type::animal:
+		break;
+	case Fragment::Type::entity:
+		for (size_t i = 0; i < m_entities.size(); i++) {
+			if (m_entities[i]->getID() == fragment->getID()) {
+				shared_ptr<Entity> ptr = m_entities[i];
+				m_entities.remove(i);
+				m_entities.add(ptr->getLocalBoundingBoxPosition(), ptr->getLocalBoundingBoxSize(),
+					ptr->getMatrix(), ptr);
+			}
+		}
+		break;
+	case Fragment::Type::particleSystem:
+		break;
+	case Fragment::Type::sea:
+		break;
+	case Fragment::Type::terrain:
+		break;
+	}
+}
+
 void Scene::pickUpFruit(FruitType fruitType) { m_gatheredFruits[fruitType]++; }
 
 void Scene::dropFruit(FruitType fruitType) {

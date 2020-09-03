@@ -31,12 +31,18 @@ bool SceneEditorManager::update_panel_terrain(Terrain* selection, bool update) {
 			fruitSpawns[i] = scene->m_fruitSpawns[index].quantity[i];
 	}
 
-	if (ImGui::InputFloat3("Position", (float*)&position, 2) && isValid)
-			selection->setPosition(position);
-	if (ImGui::InputFloat3("Rotation", (float*)&rotation, 2) && isValid)
-			selection->setRotation(rotation);
-	if (ImGui::InputFloat3("Scale", (float*)&scale, 2) && isValid)
-			selection->setScale(scale);
+	if (ImGui::InputFloat3("Position", (float*)&position, 2) && isValid) {
+		selection->setPosition(position);
+		updated = true;
+	}
+	if (ImGui::InputFloat3("Rotation", (float*)&rotation, 2) && isValid) {
+		selection->setRotation(rotation);
+		updated = true;
+	}
+	if (ImGui::InputFloat3("Scale", (float*)&scale, 2) && isValid) {
+		selection->setScale(scale);
+		updated = true;
+	}
 	if (ImGui::InputInt2("SubSize", (int*)&subSize)) {
 		subSize = XMINT2(Clamp<int>(subSize.x,0,subSize.x),Clamp<int>(subSize.y,0,subSize.y));
 	}
@@ -44,14 +50,18 @@ bool SceneEditorManager::update_panel_terrain(Terrain* selection, bool update) {
 		divisions = XMINT2(
 			Clamp<int>(divisions.x, 0, divisions.x), Clamp<int>(divisions.y, 0, divisions.y));
 	}
-	if (ImGui::InputFloat3("Wind", (float*)&wind) && isValid)
-			selection->setWind(wind);
+	if (ImGui::InputFloat3("Wind", (float*)&wind) && isValid) {
+		selection->setWind(wind);
+		updated = true;
+	}
 	if (ImGui::BeginCombo("AreaTag", AreaTagToString(tag).c_str())) {
 		for (size_t i = 0; i < AreaTag::NR_OF_AREAS; i++) {
 			if (ImGui::MenuItem(AreaTagToString((AreaTag)i).c_str())) {
 				tag = (AreaTag)i;
-				if (isValid)
+				if (isValid) {
 					selection->setTag(tag);
+					updated = true;
+				}
 			}
 		}
 		ImGui::EndCombo();
@@ -83,8 +93,10 @@ bool SceneEditorManager::update_panel_terrain(Terrain* selection, bool update) {
 				if (ImGui::ImageButton(m_terrain_textures[j]->view.Get(),
 						ImVec2(cWidth / itemCountOnWidth, cWidth / itemCountOnWidth))) {
 					textures[i] = m_terrain_textures[j]->filename;
-					if (isValid)
+					if (isValid) {
 						selection->setTextures(textures);
+						updated = true;
+					}
 				}
 				ImGui::EndGroup();
 				if ((j + 1) % itemCountOnWidth != 0)
@@ -111,6 +123,7 @@ bool SceneEditorManager::update_panel_terrain(Terrain* selection, bool update) {
 	} else {
 		if (ImGui::Button("Rebuild")) {
 			selection->build(heightmap, subSize, divisions);
+			updated = true;
 		}
 	}
 	return updated;
@@ -137,26 +150,38 @@ bool SceneEditorManager::update_panel_entity(Entity* selection, bool update) {
 		for (size_t i = 0; i < m_loadable_entity.size(); i++) {
 			if (ImGui::MenuItem(m_loadable_entity[i].c_str())) {
 				mesh = m_loadable_entity[i];
-				if (isValid)
+				if (isValid) {
 					selection->load(mesh);
+					updated = true;
+				}
 			}
 		}
 		ImGui::EndCombo();
 	}
 	if (ImGui::Button("Point")) {
 		position = m_pointer;
-		if (isValid)
+		if (isValid) {
 			selection->setPosition(position);
+			updated = true;
+		}
 	}
 	ImGui::SameLine();
-	if (ImGui::InputFloat3("Position", (float*)&position) && isValid)
+	if (ImGui::InputFloat3("Position", (float*)&position) && isValid) {
 		selection->setPosition(position);
-	if (ImGui::InputFloat3("Rotation", (float*)&rotation) && isValid)
+		updated = true;
+	}
+	if (ImGui::InputFloat3("Rotation", (float*)&rotation) && isValid) {
 		selection->setRotation(rotation);
-	if (ImGui::InputFloat3("Scale", (float*)&scale) && isValid)
+		updated = true;
+	}
+	if (ImGui::InputFloat3("Scale", (float*)&scale) && isValid) {
 		selection->setScale(scale);
-	if (ImGui::Checkbox("Collidable", &collision) && isValid)
+		updated = true;
+	}
+	if (ImGui::Checkbox("Collidable", &collision) && isValid) {
 		selection->setCollidable(collision);
+		updated = true;
+	}
 	if (!isValid) {
 		if (ImGui::Button("Create")) {
 			updated = true;
@@ -191,28 +216,40 @@ bool SceneEditorManager::update_panel_animal(Animal* selection, bool update) {
 	}
 	if (ImGui::Button("UpdateP")) {
 		position = m_pointer;
-		if (isValid)
+		if (isValid) {
 			selection->setPosition(position);
+			updated = true;
+		}
 	}
 	ImGui::SameLine();
-	if (ImGui::InputFloat3("Position", (float*)&position, 2) && isValid)
+	if (ImGui::InputFloat3("Position", (float*)&position, 2) && isValid) {
 		selection->setPosition(position);
-	if (ImGui::InputFloat("Rotation", (float*)&rotationY, 2) && isValid)
+		updated = true;
+	}
+	if (ImGui::InputFloat("Rotation", (float*)&rotationY, 2) && isValid) {
 		selection->setRotation(float3(0, rotationY, 0));
+		updated = true;
+	}
 	if (ImGui::Button("UpdateSP")) {
 		sleepPosition = m_pointer;
-		if (isValid)
+		if (isValid) {
 			selection->setSleepPosition(sleepPosition);
+			updated = true;
+		}
 	}
 	ImGui::SameLine();
-	if (ImGui::InputFloat3("Sleep Position", (float*)&sleepPosition, 2) && isValid)
+	if (ImGui::InputFloat3("Sleep Position", (float*)&sleepPosition, 2) && isValid) {
 		selection->setSleepPosition(sleepPosition);
+		updated = true;
+	}
 	if (ImGui::BeginCombo("Model", types[type].c_str())) {
 		for (size_t i = 0; i < Animal::Type::Length; i++) {
 			if (ImGui::MenuItem(types[i].c_str())) {
 				type = (Animal::Type)i;
-				if (isValid)
+				if (isValid) {
 					selection->setType(type);
+					updated = true;
+				}
 			}
 		}
 		ImGui::EndCombo();
@@ -221,16 +258,20 @@ bool SceneEditorManager::update_panel_animal(Animal* selection, bool update) {
 		for (size_t i = 0; i < FruitType::NR_OF_FRUITS; i++) {
 			if (ImGui::MenuItem(FruitTypeToString((FruitType)i).c_str())) {
 				fruitType = (FruitType)i;
-				if (isValid)
+				if (isValid) {
 					selection->setFruitType(fruitType);
+					updated = true;
+				}
 			}
 		}
 		ImGui::EndCombo();
 	}
 	if (ImGui::InputInt("Fruit Count", &fruitCount)) {
 		fruitCount = Clamp<int>(fruitCount, 0, 3);
-		if (isValid)
+		if (isValid) {
 			selection->setRequiredFruitCount(fruitCount);
+			updated = true;
+		}
 	}
 	if (!isValid) {
 		if (ImGui::Button("Create")) {
@@ -259,18 +300,26 @@ bool SceneEditorManager::update_panel_sea(SeaEffect* selection, bool update) {
 		tiles = selection->getTileSize();
 		grids = selection->getGridSize();
 	}
-	if (ImGui::InputFloat3("Position", (float*)&position) && isValid)
+	if (ImGui::InputFloat3("Position", (float*)&position) && isValid) {
 		selection->setPosition(position);
-	if (ImGui::InputFloat3("Rotation", (float*)&rotation) && isValid)
+		updated = true;
+	}
+	if (ImGui::InputFloat3("Rotation", (float*)&rotation) && isValid) {
 		selection->setRotation(rotation);
-	if (ImGui::InputFloat3("Scale", (float*)&scale) && isValid)
+		updated = true;
+	}
+	if (ImGui::InputFloat3("Scale", (float*)&scale) && isValid) {
 		selection->setScale(scale);
+		updated = true;
+	}
 	if (ImGui::BeginCombo("Type", typeAsString[type].c_str())) {
 		for (size_t i = 0; i < SeaEffect::SeaEffectTypes::Count; i++) {
 			if (ImGui::MenuItem(typeAsString[i].c_str())) {
 				type = (SeaEffect::SeaEffectTypes)i;
-				if (isValid)
+				if (isValid) {
 					selection->setType(type);
+					updated = true;
+				}
 			}
 		}
 		ImGui::EndCombo();
@@ -290,6 +339,7 @@ bool SceneEditorManager::update_panel_sea(SeaEffect* selection, bool update) {
 		if (ImGui::Button("Rebuild")) {
 			size_t index = scene->find_parentIndex(selection);
 			scene->m_seaEffects[index]->build(tiles, grids);
+			updated = true;
 		}
 	}
 	return updated;
@@ -318,16 +368,22 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 	}
 	if (ImGui::Button("UpdateP")) {
 		position = m_pointer;
-		if (isValid)
+		if (isValid) {
 			selection->setPosition(position);
+			updated = true;
+		}
 	}
 	ImGui::SameLine();
-	if (ImGui::InputFloat3("Position", (float*)&position, 2) && isValid)
+	if (ImGui::InputFloat3("Position", (float*)&position, 2) && isValid) {
 		selection->setPosition(position);
+		updated = true;
+	}
 	if (ImGui::InputFloat3("Size", (float*)&size, 2)) {
 		size = float3(abs(size.x), abs(size.y), abs(size.z));
-		if (isValid)
+		if (isValid) {
 			selection->setScale(size);
+			updated = true;
+		}
 	}
 	static string ps_typeAsString[ParticleSystem::Type::TYPE_LENGTH] = { "None",
 		"ForestBubble", "GroundDust", "VolcanoFire", "VolcanoSmoke", "LavaBubble", "ArrowGlitter",
@@ -336,24 +392,32 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 		for (size_t i = 1; i < ParticleSystem::Type::TYPE_LENGTH; i++) {
 			if (ImGui::MenuItem(ps_typeAsString[i].c_str())) {
 				type = (ParticleSystem::Type)i;
-				if (isValid)
+				if (isValid) {
 					selection->setType(type);
+					updated = true;
+				}
 			}
 		}
 		ImGui::EndCombo();
 	}
 	if (ImGui::InputInt("Emit Rate", &emitRate)) {
 		emitRate = Clamp<int>(emitRate, 0, emitRate);
-		if (isValid)
+		if (isValid) {
 			selection->setEmitRate(emitRate);
+			updated = true;
+		}
 	}
 	if (ImGui::InputInt("Capacity", &capacity)) {
 		capacity = Clamp<int>(capacity, 0, capacity);
-		if (isValid)
+		if (isValid) {
 			selection->setCapacity(capacity);
+			updated = true;
+		}
 	}
-	if (ImGui::Checkbox("Wind", &affectedByWind) && isValid)
+	if (ImGui::Checkbox("Wind", &affectedByWind) && isValid) {
 		selection->affectedByWindState(affectedByWind);
+		updated = true;
+	}
 	if (!isValid) {
 		if (ImGui::Button("Create")) {
 			updated = true;
@@ -376,7 +440,7 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 	//Custom testing
 	if (isValid) {
 		ImGui::Separator();
-		ImGui::Text("CUSTOM TESTING");
+		ImGui::Text("CUSTOM TESTING (Temporary panel)");
 		ImGui::ColorEdit4("Color0", (float*)&pd.colorVariety[0]);
 		ImGui::ColorEdit4("Color1", (float*)&pd.colorVariety[1]);
 		ImGui::ColorEdit4("Color2", (float*)&pd.colorVariety[2]);
@@ -567,6 +631,10 @@ void SceneEditorManager::update_transformation(float dt) {
 							  (m_transformable->getPosition() - oldPoint).Length();
 				m_transformable->rescale(scale);
 			}
+			// if entity, then need to update quadtree
+			Fragment* f = dynamic_cast<Fragment*>(m_transformable);
+			if (f != nullptr)
+				scene->updated_fragment(f);
 		}
 		else {
 			m_target = -1;
@@ -742,7 +810,8 @@ void SceneEditorManager::update_imgui() {
 						updated = update_panel_entity(dynamic_cast<Entity*>(f), m_selectedThisFrame);
 						break;
 					case Fragment::animal:
-						updated = update_panel_animal(dynamic_cast<Animal*>(f), m_selectedThisFrame);
+						updated =
+							update_panel_animal(dynamic_cast<Animal*>(f), m_selectedThisFrame);
 						break;
 					case Fragment::terrain:
 						updated =
@@ -753,14 +822,15 @@ void SceneEditorManager::update_imgui() {
 							dynamic_cast<ParticleSystem*>(f), m_selectedThisFrame);
 						break;
 					case Fragment::sea:
-						updated = update_panel_sea(dynamic_cast<SeaEffect*>(f), m_selectedThisFrame);
+						updated =
+							update_panel_sea(dynamic_cast<SeaEffect*>(f), m_selectedThisFrame);
 						break;
 					}
 					if (updated)
-						refreshLibrary();
+						scene->updated_fragment(f);
 				}
 				else {
-					bool updated = false;
+					bool updated = false; // tells if a new fragment has been created
 					if (ImGui::BeginTabBar("fragmentCreator")) {
 						if (ImGui::BeginTabItem("Terrain")) {
 							updated = update_panel_terrain(nullptr);
