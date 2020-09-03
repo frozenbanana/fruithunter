@@ -11,7 +11,7 @@ void HUD::drawTargetTime() {
 	int* timeTargets = SceneManager::getScene()->m_utility.timeTargets;
 	//find index of achieved target
 	int index = NR_OF_TIME_TARGETS; // holds index for timeTargets. If no targetTime is achieved then nr_of_targets is defined as null. 
-	for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++) {
+	for (int i = 0; i < NR_OF_TIME_TARGETS; i++) {
 		if (timePassed < timeTargets[i]) {
 			index = i;
 			break;
@@ -132,14 +132,14 @@ void HUD::draw() {
 	// Draw time and target time
 	float time = SceneManager::getScene()->m_timer.getTimePassed();
 	size_t rest = int((time - int(time)) * 100);
-	string timeString = "   Time: " + Time2DisplayableString(time)+"."+(rest<10?"0":"")+to_string(rest);
+	string timeString = "   Time: " + Time2DisplayableString((size_t)time)+"."+(rest<10?"0":"")+to_string(rest);
 	wstring w_timeString = wstring(timeString.begin(), timeString.end());
 	m_spriteFont->DrawString(
 		m_spriteBatch.get(), w_timeString.c_str(), float2(30.0f, SCREEN_HEIGHT - 80.0f));
 	drawTargetTime();
 
 	// Draw inventory numbers and fruit sprites
-	int* gathered = SceneManager::getScene()->m_utility.gathered;		  // NR_OF_FRUITS
+	int* gathered = SceneManager::getScene()->m_gatheredFruits;		  // NR_OF_FRUITS
 	int* winCondition = SceneManager::getScene()->m_utility.winCondition; // NR_OF_FRUITS
 	float2 itemPosition = float2(25, 25);
 	float2 itemOffset = float2(0, 100);

@@ -58,9 +58,6 @@ void LevelSelectState::handleEvent() {
 	if (Input::getInstance()->keyPressed(Keyboard::Keys::Escape)) {
 		StateHandler::getInstance()->changeState(StateHandler::PAUSE);
 	}
-	if (Input::getInstance()->keyPressed(Keyboard::M)) {
-		StateHandler::getInstance()->changeState(StateHandler::EDITOR);
-	}
 }
 
 void LevelSelectState::pause() { ErrorLogger::log(m_name + " pause() called."); }
@@ -175,13 +172,13 @@ void LevelSelectState::initializeLevelSelectors() {
 
 	// Initiate animals
 	m_animal.clear();
-	shared_ptr<Animal> animal = make_shared<Animal>("Bear", 10.f, 7.5f, APPLE, 2, 10.f,
-		float3(41.369f, 2.746f, 50.425f), float3(20.f, 3.7f, 90.f), 0.f);
+	shared_ptr<Animal> animal = make_shared<Animal>(float3(41.369f, 2.746f, 50.425f),
+		float3(20.f, 3.7f, 90.f), Animal::Type::Bear, FruitType::APPLE, 1, 0);
 	if (!SaveManager::getInstance()->getActiveSave()[0].isCompleted)
 		m_animal.push_back(animal);
 
-	animal = make_shared<Animal>("Goat", 5.f, 3.5f, APPLE, 2, 5.f, float3(52.956f, 2.752f, 65.128f),
-		float3(87.f, 8.8f, 156.f), XM_PI * 0.5f);
+	animal = make_shared<Animal>(float3(52.956f, 2.752f, 65.128f), float3(87.f, 8.8f, 156.f),
+		Animal::Type::Goat, FruitType::APPLE, 1, XM_PI * 0.5f);
 	if (!SaveManager::getInstance()->getActiveSave()[1].isCompleted)
 		m_animal.push_back(animal);
 }

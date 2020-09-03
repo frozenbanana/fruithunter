@@ -95,6 +95,6 @@ void TerrainBatch::draw_onlyMesh() {
 		m_terrains[i]->draw_onlyMesh();
 }
 
-float3 TerrainBatch::getSpawnpoint(int terrainIndex) {
+float3 TerrainBatch::getSpawnpoint(size_t terrainIndex) {
 	return m_terrains[terrainIndex]->getRandomSpawnPoint();
 }

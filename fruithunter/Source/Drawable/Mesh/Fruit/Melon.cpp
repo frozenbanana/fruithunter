@@ -157,8 +157,6 @@ void Melon::pathfinding(float3 start, std::vector<float4>* animals) {
 	// ErrorLogger::log("thread starting for pathfinding");
 	auto pft = PathFindingThread::getInstance();
 
-	EntityRepository* collidables = &SceneManager::getScene()->m_repository;
-
 	if ((start - m_destination).LengthSquared() < 0.5f)
 		return;
 	if (m_readyForPath) {
@@ -227,7 +225,7 @@ void Melon::pathfinding(float3 start, std::vector<float4>* animals) {
 						continue;
 					}
 
-					if (!isValid(child->position, currentNode->position, *collidables, 0.7f)) {
+					if (!isValid(child->position, currentNode->position, 0.7f)) {
 						continue;
 					}
 

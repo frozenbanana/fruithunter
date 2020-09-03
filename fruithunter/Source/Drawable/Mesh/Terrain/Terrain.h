@@ -4,10 +4,12 @@
 #include "QuadTree.h"
 #include "Transformation.h"
 #include "TextureRepository.h"
+#include "Fragment.h"
+
 #define MATRIX_BUFFER_SLOT 0
 #define SAMPLERSTATE_SLOT 0
 
-class Terrain : public Transformation {
+class Terrain : public Transformation, public Fragment {
 private:
 	struct SubGrid {
 	private:
@@ -36,6 +38,7 @@ private:
 	D3D11_TEXTURE2D_DESC m_heightmapDescription;
 	D3D11_MAPPED_SUBRESOURCE m_heightmapMappedData;
 	const int SMOOTH_STEPS = 1;
+	string m_heightmapFilename = "";
 
 	// grid
 	XMINT2 m_tileSize;
@@ -77,7 +80,7 @@ private:
 	AreaTag m_tag;
 
 	// Culling
-	vector<XMINT2*> m_culledGrids;
+	vector<XMINT2> m_culledGrids;
 	bool m_useCulling = false;
 
 	//	--Functions--
@@ -107,6 +110,14 @@ private:
 public:
 	// settings
 	void setTextures(string textures[4]);
+	void setWind(float3 wind);
+	void setTag(AreaTag tag);
+
+	// get settings
+	void getTextures(string textures[4]) const;
+	XMINT2 getSplits() const;
+	XMINT2 getSubSize() const;
+	string getLoadedHeightmapFilename() const;
 
 	// convenable functions
 	float3 getRandomSpawnPoint();
@@ -138,6 +149,7 @@ public:
 	void initilize(string filename, string textures[4], XMINT2 subsize,
 		XMINT2 splits = XMINT2(1, 1), float3 wind = float3(0.f, 0.f, 0.f),
 		AreaTag tag = AreaTag::Plains);
+	void build(string heightmapName, XMINT2 subSize, XMINT2 splits);
 
 	Terrain(string filename = "", string textures[4] = nullptr, XMINT2 subsize = XMINT2(0, 0),
 		XMINT2 splits = XMINT2(1, 1), float3 wind = float3(0.f, 0.f, 0.f),

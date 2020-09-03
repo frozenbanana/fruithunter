@@ -8,6 +8,8 @@ ShaderSet SeaEffect::m_shader;
 ShaderSet SeaEffect::m_shader_onlyMesh;
 
 void SeaEffect::createVertices(XMINT2 tiles, XMINT2 gridSize) {
+	m_tileSize = tiles;
+	m_gridSize = gridSize;
 	size_t layers = (size_t)round(log2(max(gridSize.x, gridSize.y)));
 	m_quadtree.initilize(float3(0, 0, 0), float3(1.f, 1.f, 1.f), layers);
 	m_quadtree.reserve((size_t)gridSize.x * (size_t)gridSize.y);
@@ -17,23 +19,24 @@ void SeaEffect::createVertices(XMINT2 tiles, XMINT2 gridSize) {
 		// tri2
 		XMINT2(0, 0), XMINT2(1, 1), XMINT2(1, 0)
 	};
+	m_grids.clear();
 	m_grids.resize(gridSize.x);
+	float2 uvLength(1.f / (gridSize.x), 1.f / (gridSize.y));
+	float2 uvSubLength(uvLength.x / tiles.x, uvLength.y / tiles.y);
 	for (size_t gx = 0; gx < gridSize.x; gx++) {
 		m_grids[gx].resize(gridSize.y);
 		for (size_t gy = 0; gy < gridSize.y; gy++) {
 			SubWaterGrid* sub = &m_grids[gx][gy];
 			sub->getPtr()->reserve(tiles.x * tiles.y * 6);
-			float2 uvLength(1.f / (gridSize.x), 1.f / (gridSize.y));
 			float2 uvBase(gx * uvLength.x, gy * uvLength.y);
-			for (size_t xx = 0; xx < tiles.x + 1; xx++) {
-				for (size_t yy = 0; yy < tiles.y + 1; yy++) {
+			for (size_t xx = 0; xx < tiles.x; xx++) {
+				for (size_t yy = 0; yy < tiles.y; yy++) {
+					float2 uvSubBase = uvBase + float2(xx, yy) * uvSubLength;
 					// create triangles
 					for (int i = 0; i < 6; i++) {
-						XMINT2 index((int32_t)xx + order[i].x, (int32_t)yy + order[i].y);
-						float2 uv((float)index.x / tiles.x, (float)index.y / tiles.y);
-						float2 globalUV = uvBase + float2(uv.x * uvLength.x, uv.y * uvLength.y);
+						float2 uv = uvSubBase + float2(order[i].x, order[i].y) * uvSubLength;
 						sub->getPtr()->push_back(
-							Vertex(float3(globalUV.x, 0, globalUV.y), globalUV, float3(0, 1, 0)));
+							Vertex(float3(uv.x, 0, uv.y), uv, float3(0, 1, 0)));
 					}
 				}
 			}
@@ -187,6 +190,48 @@ bool SeaEffect::boxInsideFrustum(
 	}
 	return true;
 }
+
+void SeaEffect::setType(SeaEffectTypes type) {
+	WaterShaderProperties properties;
+	switch (type) {
+	case SeaEffect::water:
+		properties.distortionStrength = 0.001f;
+		properties.whiteDepthDifferenceThreshold = 0.1f;
+		properties.timeSpeed = 0.05f;
+		properties.waterShadingLevels = 10;
+		properties.depthDifferenceStrength = 0.4f;
+		properties.color_edge = float3(0.8f, 0.8f, 1.f);
+		properties.color_shallow = float4(12.f / 255.f, 164.f / 255.f, 255.f / 255.f, 1.f);
+		properties.color_deep = float4(0.f / 255.f, 71.f / 255.f, 114.f / 255.f, 1.f);
+		properties.heightThreshold_edge = float2(0.46f, 0.48f);
+		properties.tideHeightScaling = float2(0.3f, 1.f);
+		properties.tideHeightStrength = 2.f;
+		break;
+	case SeaEffect::lava:
+		properties.distortionStrength = 0.03f;
+		properties.whiteDepthDifferenceThreshold = 0.1f;
+		properties.timeSpeed = 0.02f;
+		properties.waterShadingLevels = 10;
+		properties.depthDifferenceStrength = 0.3f;
+		properties.color_edge = float3(0.5f, 0.0f, 0.0f);
+		properties.color_shallow = float4(0.6f, 0.0f, 0.0f, 1.0f);
+		properties.color_deep = float4(0.9f, 0.3f, 0.0f, 1.f);
+		properties.heightThreshold_edge = float2(0.50f, 0.52f);
+		properties.tideHeightScaling = float2(1.0f, 1.f);
+		properties.tideHeightStrength = 1.f;
+		break;
+	default:
+		break;
+	}
+	m_properties = properties;
+	m_type = type;
+}
+
+SeaEffect::SeaEffectTypes SeaEffect::getType() const { return m_type; }
+
+XMINT2 SeaEffect::getTileSize() const { return m_tileSize; }
+
+XMINT2 SeaEffect::getGridSize() const { return m_gridSize; }
 
 void SeaEffect::update(float dt) { m_time.x += dt; }
 
@@ -405,41 +450,12 @@ void SeaEffect::draw_quadtreeBBCulling(CubeBoundingBox bb) {
 	}
 }
 
+void SeaEffect::build(XMINT2 tiles, XMINT2 gridSize) { createVertices(tiles, gridSize); }
+
 void SeaEffect::initilize(SeaEffectTypes type, XMINT2 tiles, XMINT2 gridSize, float3 position,
 	float3 scale, float3 rotation) {
 
-	WaterShaderProperties properties;
-	switch (type) {
-	case SeaEffect::water:
-		properties.distortionStrength = 0.001f;
-		properties.whiteDepthDifferenceThreshold = 0.1f;
-		properties.timeSpeed = 0.05f;
-		properties.waterShadingLevels = 10;
-		properties.depthDifferenceStrength = 0.4f;
-		properties.color_edge = float3(0.8f, 0.8f, 1.f);
-		properties.color_shallow = float4(12.f / 255.f, 164.f / 255.f, 255.f / 255.f, 1.f);
-		properties.color_deep = float4(0.f / 255.f, 71.f / 255.f, 114.f / 255.f, 1.f);
-		properties.heightThreshold_edge = float2(0.46f, 0.48f);
-		properties.tideHeightScaling = float2(0.3f, 1.f);
-		properties.tideHeightStrength = 2.f;
-		break;
-	case SeaEffect::lava:
-		properties.distortionStrength = 0.03f;
-		properties.whiteDepthDifferenceThreshold = 0.1f;
-		properties.timeSpeed = 0.02f;
-		properties.waterShadingLevels = 10;
-		properties.depthDifferenceStrength = 0.3f;
-		properties.color_edge = float3(0.5f, 0.0f, 0.0f);
-		properties.color_shallow = float4(0.6f, 0.0f, 0.0f, 1.0f);
-		properties.color_deep = float4(0.9f, 0.3f, 0.0f, 1.f);
-		properties.heightThreshold_edge = float2(0.50f, 0.52f);
-		properties.tideHeightScaling = float2(1.0f, 1.f);
-		properties.tideHeightStrength = 1.f;
-		break;
-	default:
-		break;
-	}
-	m_properties = properties;
+	setType(type);
 
 	setPosition(position);
 	setScale(scale);
@@ -449,7 +465,7 @@ void SeaEffect::initilize(SeaEffectTypes type, XMINT2 tiles, XMINT2 gridSize, fl
 	createBuffers();
 }
 
-SeaEffect::SeaEffect() : Transformation() {
+SeaEffect::SeaEffect() : Transformation(), Fragment(Fragment::Type::sea) {
 	// static shader stuff
 	if (!m_shader.isLoaded()) {
 		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = {

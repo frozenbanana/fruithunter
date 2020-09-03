@@ -258,6 +258,9 @@
     <ClCompile Include="Source\Utility\Repositories\TextureRepository.cpp">
       <Filter>Source\Utility\Repositories</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Utility\Fragment.cpp">
+      <Filter>Source\Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -463,6 +466,12 @@
     </ClInclude>
     <ClInclude Include="Source\Utility\Repositories\TextureRepository.h">
       <Filter>Source\Utility\Repositories</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\filesystemHelper.h">
+      <Filter>Source\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\Fragment.h">
+      <Filter>Source\Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

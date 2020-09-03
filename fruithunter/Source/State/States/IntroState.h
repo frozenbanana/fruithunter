@@ -25,6 +25,7 @@ private:
 	Button m_startButton;
 	Button m_settingsButton;
 	Button m_exitButton;
+	Button m_editorButton;
 
 	// Scene variables
 	Camera m_camera;

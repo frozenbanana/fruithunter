@@ -80,7 +80,7 @@ void PlayState::draw() {
 
 void PlayState::changeScene(string sceneName) { sceneManager.load(sceneName); }
 
-void PlayState::restart() { sceneManager.restart(); }
+void PlayState::restart() { sceneManager.reset(); }
 
 void PlayState::play() {
 	Input::getInstance()->setMouseModeRelative();

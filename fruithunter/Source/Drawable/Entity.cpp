@@ -5,6 +5,25 @@
 
 bool Entity::isMeshInitialized() const { return (m_mesh.get() != nullptr); }
 
+void Entity::setCollisionForMesh(string meshName) {
+	static vector<string> m_treeNames = { "treeMedium1", "treeMedium2", "treeMedium3", "BurnedTree1",
+		"BurnedTree2", "BurnedTree3" };
+	static vector<string> m_nonCollidables = { "DeadBush", "Grass1", "Grass2", "Grass3", "Grass4" };
+	for (size_t i = 0; i < m_treeNames.size(); i++) {
+		if (meshName == m_treeNames[i]) {
+			setCollisionDataTree();
+			return;
+		}
+	}
+	for (size_t i = 0; i < m_nonCollidables.size(); i++) {
+		if (meshName == m_nonCollidables[i]) {
+			setCollidable(false);
+			return;
+		}
+	}
+	setCollisionDataOBB();
+}
+
 bool Entity::atOrUnder(float terrainHeight) const {
 	return getPosition().y <= (terrainHeight + getHalfSizes().y / 2.f);
 }
@@ -94,6 +113,7 @@ bool Entity::load(string filename) {
 	shared_ptr<Mesh> m = MeshRepository::get(filename);
 	if (m.get() != nullptr) {
 		m_mesh = m;
+		setCollisionForMesh(getModelName());
 		return true;
 	}
 	else {
@@ -102,7 +122,11 @@ bool Entity::load(string filename) {
 }
 
 bool Entity::loadAnimated(string filename, int nrOfFrames) {
-	return m_meshAnim.load(filename, nrOfFrames);
+	if (m_meshAnim.load(filename, nrOfFrames)) {
+		setCollisionForMesh(getModelName());
+		return true;
+	}
+	return false;
 }
 
 void Entity::setCurrentMaterial(int materialIndex) { m_currentMaterial = materialIndex; }
@@ -214,7 +238,7 @@ float3 Entity::getPointOnOBB(float3 point) const {
 
 bool Entity::getIsCollidable() const { return m_collisionData.getIsCollidable(); }
 
-Entity::Entity(string filename, float3 position, float3 scale) {
+Entity::Entity(string filename, float3 position, float3 scale) : Fragment(Fragment::Type::entity) {
 	load(filename);
 	setPosition(position);
 	setScale(scale);

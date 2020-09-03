@@ -5,10 +5,11 @@
 #include "EntityCollision.h"
 #include "MeshRepository.h"
 #include "Transformation.h"
+#include "Fragment.h"
 
 #define MODEL_MATRIX_BUFFER_SLOT 0
 
-class Entity : public Transformation {
+class Entity : public Transformation, public Fragment {
 private:
 	shared_ptr<Mesh> m_mesh;
 	bool m_visible = true;
@@ -20,6 +21,7 @@ private:
 	//-- Private Functions --
 
 	bool isMeshInitialized() const;
+	void setCollisionForMesh(string meshName);
 
 protected:
 	Animated m_meshAnim;

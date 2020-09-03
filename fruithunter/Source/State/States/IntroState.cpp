@@ -18,6 +18,7 @@ void IntroState::initialize() {
 	m_startButton.initialize("Start", float2(106, height * 0.75f - 60.f));
 	m_settingsButton.initialize("Settings", float2(132, height * 0.75f));
 	m_exitButton.initialize("Exit", float2(92, height * 0.75f + 60.f));
+	m_editorButton.initialize("Editor", float2(115, height * 0.75f + 120));
 
 	m_bow.setRecoveryTime(0);
 
@@ -83,7 +84,7 @@ void IntroState::update() {
 		m_arrows.push_back(arrow);// add shot arrow to array
 
 	// arrow collision
-	vector<unique_ptr<Entity>>* entities = SceneManager::getScene()->m_repository.getEntities();
+	QuadTree<shared_ptr<Entity>>* entities = &SceneManager::getScene()->m_entities;
 	for (size_t i = 0; i < m_arrows.size(); i++) {
 		if (m_arrows[i]->isActive()) {
 			// !! if arrow collides with anything, then the arrow handles the behavior !!
@@ -128,6 +129,9 @@ void IntroState::handleEvent() {
 	if (m_exitButton.update()) {
 		StateHandler::getInstance()->quit();
 	}
+	if (DEBUG && m_editorButton.update()) {
+		StateHandler::getInstance()->changeState(StateHandler::EDITOR);
+	}
 }
 
 void IntroState::pause() {
@@ -169,6 +173,8 @@ void IntroState::draw() {
 	m_startButton.draw();
 	m_settingsButton.draw();
 	m_exitButton.draw();
+	if (DEBUG)
+		m_editorButton.draw();
 }
 
 

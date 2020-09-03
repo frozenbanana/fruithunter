@@ -82,8 +82,8 @@ void Arrow::collide_scene(float dt) {
 	//collide terrainBatch
 	collide_terrainBatch(dt, SceneManager::getScene()->m_terrains);
 	//collide entities (culled by position)
-	vector<Entity**> entities =
-		SceneManager::getScene()->m_repository.getCulledEntitiesByPosition(getPosition());
+	vector<shared_ptr<Entity>*> entities =
+		SceneManager::getScene()->m_entities.getElementsByPosition(getPosition());
 	for (size_t i = 0; i < entities.size(); i++) {
 		collide_entity(dt, **(entities[i]));
 	}
@@ -145,15 +145,15 @@ void Arrow::initilize(float3 frontPosition, float3 velocity) {
 	setPosition_front(frontPosition);
 	m_velocity = velocity;
 	m_active = true;
-	m_trailEffect.startEmiting();
+	m_trailEffect.emitingState(true);
 }
 
 void Arrow::changeState(bool state) {
 	m_active = state;
-	m_trailEffect.stopEmiting();
+	m_trailEffect.emitingState(false);
 }
 
 Arrow::Arrow() : Entity(m_model, float3(0.), float3(0.5, 0.5, 0.5)) { 
-	m_trailEffect.load(ParticleSystem::PARTICLE_TYPE::ARROW_GLITTER);
-	m_trailEffect.setWind(ParticleSystem::WindState::Dynamic);
+	m_trailEffect.load(ParticleSystem::Type::ARROW_GLITTER, 25);
+	m_trailEffect.affectedByWindState(true);
 }

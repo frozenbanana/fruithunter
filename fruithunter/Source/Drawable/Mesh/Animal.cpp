@@ -35,25 +35,16 @@ void Animal::walkToSleep(float dt) {
 	}
 }
 
-Animal::Animal(string modelName, float playerRange, float fruitRange, int fruitType,
-	int nrRequiredFruits, float throwStrength, float3 position, float3 sleepPos, float rotation)
-	: Entity(modelName, position) {
-	m_playerRange = playerRange;
-	m_fruitRange = fruitRange;
+Animal::Animal(float3 position, float3 sleepPosition, Type type, FruitType fruitType, size_t nrRequiredFruits, float rotationY) : Entity("", position) {
+	changeType(Fragment::Type::animal);
+	m_type = type;
+	m_origin = position;
+	m_sleepPos = sleepPosition;
+	m_startRotation = rotationY;
 	m_fruitType = fruitType;
 	m_nrRequiredFruits = nrRequiredFruits;
-	m_nrFruitsTaken = 0;
-	m_throwStrength = throwStrength;
-	m_origin = position;
-	m_sleepPos = sleepPos;
-	m_walkTimeTracker = 3;
-	m_chargeSpeed = 6;
-	m_returnSpeed = 1;
-	m_hasAttacked = false; // for triggering angry sound once when inside attack radius
-	m_isSatisfied = false; // for triggering happy sound once when briebed.
-	m_isLookedAt = false;
-	rotateY(rotation);
-	m_startRotation = rotation;
+	rotateY(rotationY);
+	setType(type);
 
 	// Thought bubble
 	m_thoughtBubble.load("Quad");
@@ -68,7 +59,8 @@ Animal::Animal(string modelName, float playerRange, float fruitRange, int fruitT
 	m_thoughtBubble.loadMaterials(mtlNames);
 	m_thoughtBubble.setCurrentMaterial(3 * fruitType + nrRequiredFruits - 1);
 
-	m_thoughtBubbleOffset = (getBoundingBoxPos()-getPosition()) + float3(0.f, getHalfSizes().y + 0.5f, 0.f);
+	m_thoughtBubbleOffset =
+		(getBoundingBoxPos() - getPosition()) + float3(0.f, getHalfSizes().y + 0.5f, 0.f);
 	float3 topPos = getPosition() + m_thoughtBubbleOffset;
 	m_thoughtBubble.setPosition(topPos);
 }
@@ -81,7 +73,39 @@ float Animal::getPlayerRange() const { return m_playerRange; }
 
 float Animal::getFruitRange() const { return m_fruitRange; }
 
-int Animal::getfruitType() const { return m_fruitType; }
+FruitType Animal::getfruitType() const { return m_fruitType; }
+
+int Animal::getRequiredFruitCount() const { return m_nrRequiredFruits; }
+
+float3 Animal::getSleepPosition() const { return m_sleepPos; }
+
+Animal::Type Animal::getType() const { return m_type; }
+
+void Animal::setThrowStrength(float strength) { m_throwStrength = strength; }
+
+void Animal::setPlayerRange(float range) { m_playerRange = range; }
+
+void Animal::setFruitRange(float range) { m_fruitRange = range; }
+
+void Animal::setFruitType(FruitType type) { m_fruitType = type; }
+
+void Animal::setRequiredFruitCount(int count) { m_nrRequiredFruits = count; }
+
+void Animal::setSleepPosition(float3 position) { m_sleepPos = position; }
+
+void Animal::setType(Animal::Type type) {
+	switch (type) {
+	case Animal::Bear:
+		load("Bear");
+		break;
+	case Animal::Goat:
+		load("Goat");
+		break;
+	case Animal::Gorilla:
+		load("Gorilla");
+		break;
+	}
+}
 
 bool Animal::notBribed() const { return m_nrFruitsTaken < m_nrRequiredFruits; }
 
@@ -163,6 +187,21 @@ void Animal::draw() {
 
 void Animal::draw_onlyAnimal() {
 	Entity::draw(); // Draw the animal
+}
+
+void Animal::reset() { 
+	setPosition(m_origin);
+	setRotation(float3(0, m_startRotation, 0));
+	m_walkTimeTracker = 3;
+	m_walkToPos = float3(0.);
+	m_nrFruitsTaken = 0;
+
+	//bubble
+	m_thoughtBubble.setCurrentMaterial(3 * m_fruitType + m_nrRequiredFruits - 1);
+	m_thoughtBubbleOffset =
+		(getBoundingBoxPos() - getPosition()) + float3(0.f, getHalfSizes().y + 0.5f, 0.f);
+	float3 topPos = getPosition() + m_thoughtBubbleOffset;
+	m_thoughtBubble.setPosition(topPos);
 }
 
 void Animal::update(float dt, float3 playerPos) {

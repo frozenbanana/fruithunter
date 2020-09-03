@@ -10,7 +10,6 @@ protected:
 	static shared_ptr<Scene> scene; //current active scene, is static so that other classes can fetch this information.
 	HUD m_hud;
 	bool m_manualCamera = false;
-	string m_loadedScene = "";
 	
 	//-- Private Functions --
 
@@ -29,6 +28,6 @@ public:
 	void draw_hud();
 
 	void load(string folder);
-	void restart();
+	void reset();
 
 };

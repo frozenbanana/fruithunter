@@ -3,15 +3,16 @@
 #include "RPYCamera.h"
 #include "Sprite2D.h"
 #include "TextureRepository.h"
+#include "filesystemHelper.h"
 
 /* Handles editing and drawing of scene data */
 class SceneEditorManager : public SceneManager {
 private:
 	RPYCamera m_camera;
 	float3 m_cam_velocity;
-	float m_cam_friction = 0.7;
-	float m_highSpeed = 60;
-	float m_lowSpeed = 25;
+	float m_cam_friction = 0.7f;
+	float m_highSpeed = 60.f;
+	float m_lowSpeed = 25.f;
 
 	//Edit Transform
 	Transformation* m_transformable = nullptr;
@@ -27,7 +28,7 @@ private:
 	const Input::MouseButton m_key_target = Input::LEFT;// btn for targeting transformation options
 	const Input::MouseButton m_key_select = Input::MIDDLE; // btn for selecting entity
 	const Keyboard::Keys m_key_switchState = Keyboard::Tab; // btn for selecting entity
-	const Keyboard::Keys m_key_resetTransform = Keyboard::R; // btn for nulling transform
+	const Keyboard::Keys m_key_copy = Keyboard::C; // btn for copying fragment
 
 	const Keyboard::Keys KEY_FORWARD = Keyboard::W;
 	const Keyboard::Keys KEY_BACKWARD = Keyboard::S;
@@ -58,8 +59,6 @@ private:
 	float3 m_target_forward;
 	float m_target_rayDist;
 
-	ImTextureID m_image;
-
 	const float m_pointer_range = 100;
 	float3 m_pointer;
 	Entity m_pointer_obj;
@@ -70,7 +69,20 @@ private:
 
 	vector<string> m_loadable_entity;
 
+	vector<string> m_loadable_scenes;
+
+	vector<Fragment*> m_library;
+	size_t m_selectedIndex = -1;
+	bool m_selectedThisFrame = false;
+
 	//-- Private Functions --
+
+	bool update_panel_terrain(Terrain* selection, bool update = false);
+	bool update_panel_entity(Entity* selection, bool update = false);
+	bool update_panel_animal(Animal* selection, bool update = false);
+	bool update_panel_sea(SeaEffect* selection, bool update = false);
+	bool update_panel_effect(ParticleSystem* selection, bool update = false);
+	void refreshLibrary();
 
 	void updateCameraMovement(float dt);
 
@@ -78,6 +90,10 @@ private:
 	void draw_transformationVisuals();
 
 	void update_imgui();
+	void select_fragment(size_t index);
+	void deselect_fragment();
+
+	void readSceneDirectory();
 
 public:
 	SceneEditorManager();
@@ -90,5 +106,6 @@ public:
 	void draw();
 
 	void load(string folder);
-
+	void reset();
+	void clear();
 };

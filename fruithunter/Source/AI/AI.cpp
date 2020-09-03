@@ -69,7 +69,7 @@ bool AI::beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>>
 }
 
 bool AI::isValid(
-	float3 childPos, float3 currentNodePos, EntityRepository& collidables, float radius) {
+	float3 childPos, float3 currentNodePos, float radius) {
 
 	
 
@@ -87,7 +87,7 @@ bool AI::isValid(
 	if (abs(float3(0.0f, 1.0f, 0.0f).Dot(normal)) < 0.87f)
 		return false;
 
-	vector<Entity**> objects = collidables.getCulledEntitiesByPosition(childPos);
+	vector<shared_ptr<Entity>*> objects = SceneManager::getScene()->m_entities.getElementsByPosition(childPos);
 	for (size_t i = 0; i < objects.size(); ++i) {
 		if (!(*objects[i])->getIsCollidable())
 			continue;
@@ -199,7 +199,7 @@ void AI::pathfinding(float3 start, std::vector<float4> *animals) {
 					continue;
 				}
 
-				if (!isValid(child->position, currentNode->position, SceneManager::getScene()->m_repository, 0.7f)) {
+				if (!isValid(child->position, currentNode->position, 0.7f)) {
 					continue;
 				}
 

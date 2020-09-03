@@ -362,11 +362,28 @@ void Terrain::setTextures(string textures[4]) {
 		for (size_t i = 0; i < 4; i++) {
 			m_textures[i] =
 				TextureRepository::get(textures[i], TextureRepository::Type::type_texture);
-			ErrorLogger::log("Terrain "+to_string(i)+": "+m_textures[i]->filename);
 		}
 		m_textureInitilized = true;
 	}
 }
+
+void Terrain::setWind(float3 wind) { m_wind = wind; }
+
+void Terrain::setTag(AreaTag tag) { m_tag = tag; }
+
+void Terrain::getTextures(string textures[4]) const {
+	for (size_t i = 0; i < 4; i++) {
+		if (m_textures[i].get() != nullptr) {
+			textures[i] = m_textures[i]->filename;
+		}
+	}
+}
+
+XMINT2 Terrain::getSplits() const { return m_gridSize; }
+
+XMINT2 Terrain::getSubSize() const { return m_tileSize; }
+
+string Terrain::getLoadedHeightmapFilename() const { return m_heightmapFilename; }
 
 float3 Terrain::getRandomSpawnPoint() {
 	if (m_spawnPoint.size() > 0) {
@@ -443,16 +460,20 @@ void Terrain::initilize(string filename, string textures[4], XMINT2 subsize, XMI
 	}
 	else {
 		m_isInitilized = true;
-		m_tileSize = subsize;
 		m_wind = wind;
 		m_tag = tag;
-		createGrid(splits); // create space for memory
-		if (loadHeightmap(m_heightmapPath + filename)) {
-			createGridPointsFromHeightmap();
-			fillSubMeshes();
-			// loadGrids();
-			createBuffers();
-		}
+		build(filename, subsize, splits);
+		createBuffers();
+	}
+}
+
+void Terrain::build(string heightmapName, XMINT2 subSize, XMINT2 splits) {
+	m_tileSize = subSize;
+	m_heightmapFilename = heightmapName;
+	createGrid(splits); // create space for memory
+	if (loadHeightmap(m_heightmapPath + heightmapName)) {
+		createGridPointsFromHeightmap();
+		fillSubMeshes();
 	}
 }
 
@@ -670,7 +691,10 @@ void Terrain::quadtreeCull(vector<FrustumPlane> planes) {
 		planes[i].m_normal.Normalize();
 	}
 	// cull grids
-	m_culledGrids = m_quadtree.cullElements(planes);
+	vector<XMINT2*> copies = m_quadtree.cullElements(planes);
+	m_culledGrids.resize(copies.size());
+	for (size_t i = 0; i < copies.size(); i++)
+		m_culledGrids[i] = *copies[i];
 }
 
 void Terrain::boundingBoxCull(CubeBoundingBox bb) {
@@ -682,7 +706,10 @@ void Terrain::boundingBoxCull(CubeBoundingBox bb) {
 	bb.m_position = float3::Transform(bb.m_position, invWorldMatrix);
 	bb.m_size = bb.m_size / getScale();
 	// cull grids
-	m_culledGrids = m_quadtree.cullElements(bb);
+	vector<XMINT2*> copies = m_quadtree.cullElements(bb);
+	m_culledGrids.resize(copies.size());
+	for (size_t i = 0; i < copies.size(); i++)
+		m_culledGrids[i] = *copies[i];
 }
 
 void Terrain::draw() {
@@ -694,14 +721,14 @@ void Terrain::draw() {
 		deviceContext->PSSetSamplers(SAMPLERSTATE_SLOT, 1, m_sampler.GetAddressOf());
 		// bind texture resources
 		for (size_t i = 0; i < 4; i++) {
-			deviceContext->PSSetShaderResources(i, 1, m_textures[i]->view.GetAddressOf());
+			deviceContext->PSSetShaderResources((UINT)i, 1, m_textures[i]->view.GetAddressOf());
 		}
 		// bind world matrix
 		VSBindMatrix(MATRIX_BUFFER_SLOT);
 		// draw
 		if (m_useCulling) {
 			for (size_t i = 0; i < m_culledGrids.size(); i++) {
-				SubGrid* sub = &m_subMeshes[m_culledGrids[i]->x][m_culledGrids[i]->y];
+				SubGrid* sub = &m_subMeshes[m_culledGrids[i].x][m_culledGrids[i].y];
 				sub->bind();
 				Renderer::draw(sub->getVerticeCount(), 0);
 			}
@@ -730,7 +757,7 @@ void Terrain::draw_onlyMesh() {
 	// draw
 	if (m_useCulling) {
 		for (size_t i = 0; i < m_culledGrids.size(); i++) {
-			SubGrid* sub = &m_subMeshes[m_culledGrids[i]->x][m_culledGrids[i]->y];
+			SubGrid* sub = &m_subMeshes[m_culledGrids[i].x][m_culledGrids[i].y];
 			sub->bind();
 			Renderer::draw(sub->getVerticeCount(), 0);
 		}
@@ -747,7 +774,7 @@ void Terrain::draw_onlyMesh() {
 }
 
 Terrain::Terrain(string filename, string textures[4], XMINT2 subsize, XMINT2 splits,
-	float3 wind, AreaTag tag) {
+	float3 wind, AreaTag tag) : Fragment(Fragment::Type::terrain) {
 	initilize(filename, textures, subsize, splits, wind);
 	if (!m_shader.isLoaded()) {
 		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = {

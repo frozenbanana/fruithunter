@@ -160,6 +160,8 @@ vector<Entity**> EntityRepository::getCulledEntitiesByPosition(float3 position) 
 	return m_quadtree.getElementsByPosition(position);
 }
 
+string EntityRepository::getLoadedFilename() const { return m_repositoryFilenameLoadedFrom; }
+
 void EntityRepository::load(string filename) {
 	if (filename != "") {
 		if (fileExists(filename)) {
@@ -178,7 +180,7 @@ void EntityRepository::load(string filename) {
 void EntityRepository::save() {
 	if (m_repositoryLoaded) {
 		if (m_repositoryFilenameLoadedFrom != "") {
-				savePlacements(m_repositoryFilenameLoadedFrom);
+			savePlacements(m_repositoryFilenameLoadedFrom);
 			//if (m_repositoryChangedSinceLoad) {
 			//}
 			//else {

@@ -16,7 +16,7 @@ StateHandler::StateHandler() {}
 State* StateHandler::getCurrent() { return m_states[m_current].get(); }
 
 void StateHandler::changeState(States state) {
-	ErrorLogger::log("Current state: " + (int)state);
+	ErrorLogger::log("Current state: " + to_string((int)state));
 	getCurrent()->pause();
 	Input::getInstance()->update();
 	if (m_current == PLAY || m_current == LEVEL_SELECT)

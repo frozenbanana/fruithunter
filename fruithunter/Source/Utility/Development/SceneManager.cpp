@@ -17,8 +17,9 @@ void SceneManager::draw_shadow() {
 	scene->m_terrains.draw_onlyMesh();
 
 	// terrain entities
-	scene->m_repository.quadtreeCull(planes);
-	scene->m_repository.draw_onlyMesh();
+	vector<shared_ptr<Entity>*> culledEntities = scene->m_entities.cullElements(planes);
+	for (size_t i = 0; i < culledEntities.size(); i++)
+		(*culledEntities[i])->draw_onlyMesh(float3(0.));
 
 	// arrows
 	for (size_t i = 0; i < scene->m_arrows.size(); i++)
@@ -50,29 +51,30 @@ void SceneManager::draw_color() {
 	for (int i = 0; i < scene->m_fruits.size(); i++) {
 		if (scene->m_fruits[i]->isVisible()) {
 			scene->m_fruits[i]->draw_animate();
-			scene->m_fruits[i]->getParticleSystem()->drawNoAlpha();
+			scene->m_fruits[i]->getParticleSystem()->draw(false);
 		}
 	}
 	Renderer::getInstance()->disableAlphaBlending();
 
 	// Animals
 	for (size_t i = 0; i < scene->m_animals.size(); ++i) {
-		scene->m_animals[i].draw();
+		scene->m_animals[i]->draw();
 	}
 
 	// frustum data for culling
 	vector<FrustumPlane> frustum = scene->m_player->getFrustumPlanes();
 	// Entities
-	scene->m_repository.quadtreeCull(frustum);
-	scene->m_repository.draw();
+	vector<shared_ptr<Entity>*> culledEntities = scene->m_entities.cullElements(frustum);
+	for (size_t i = 0; i < culledEntities.size(); i++)
+		(*culledEntities[i])->draw();
 	// Terrain
 	scene->m_terrains.quadtreeCull(frustum);
 	scene->m_terrains.draw();
 	// Sea effect
 	Renderer::getInstance()->copyDepthToSRV();
 	for (size_t i = 0; i < scene->m_seaEffects.size(); i++) {
-		scene->m_seaEffects[i].quadtreeCull(frustum);
-		scene->m_seaEffects[i].draw();
+		scene->m_seaEffects[i]->quadtreeCull(frustum);
+		scene->m_seaEffects[i]->draw();
 	}
 
 	// SkyBox
@@ -124,9 +126,6 @@ void SceneManager::update(Camera* overrideCamera) {
 
 	// update player
 	if (!m_manualCamera) {
-		// reset player (debug purpose)
-		if (Input::getInstance()->keyPressed(Keyboard::R))
-			scene->resetPlayer();
 		player->update(dt);
 		// update deltatime if in huntermode
 		if (player->inHuntermode()) {
@@ -139,13 +138,10 @@ void SceneManager::update(Camera* overrideCamera) {
 		}
 		// Check entity collision
 		// player - entity
-		for (int i = 0; i < scene->m_repository.getEntities()->size(); i++) {
-			player->collideObject(*scene->m_repository.getEntities()->at(i));
+		for (int i = 0; i < scene->m_entities.size(); i++) {
+			player->collideObject(*scene->m_entities[i].get());
 		}
 	}
-
-	// Update terrainprops
-	scene->m_repository.update(dt, player->getCameraPosition(), player->getForward());
 
 	// Update Skybox
 	scene->m_skyBox.update(dt);
@@ -159,7 +155,7 @@ void SceneManager::update(Camera* overrideCamera) {
 
 	// update water
 	for (size_t i = 0; i < scene->m_seaEffects.size(); i++) {
-		scene->m_seaEffects[i].update(dt);
+		scene->m_seaEffects[i]->update(dt);
 	}
 
 	// particle system
@@ -176,7 +172,7 @@ void SceneManager::update(Camera* overrideCamera) {
 
 	// for all animals
 	for (size_t i = 0; i < scene->m_animals.size(); ++i) {
-		Animal* animal = &scene->m_animals[i];
+		Animal* animal = scene->m_animals[i].get();
 		animal->checkLookedAt(player->getCameraPosition(), player->getForward());
 		if (animal->notBribed()) {
 			// animal - player
@@ -275,27 +271,33 @@ void SceneManager::setup_shadow(Camera* overrideCamera) {
 	//ImGui::End();
 
 	if (overrideCamera == nullptr)
-		frustumPoints = scene->m_player->getFrustumPoints(0.4);
+		frustumPoints = scene->m_player->getFrustumPoints(0.4f);
 	else
-		frustumPoints = overrideCamera->getFrustumPoints(0.4);
+		frustumPoints = overrideCamera->getFrustumPoints(0.4f);
 	shadowMap->mapShadowToFrustum(frustumPoints); // optimize shadowed area
 	shadowMap->setup_depthRendering();			  // initilize depth rendering mode
 }
 
 void SceneManager::load(string folder) {
-	m_loadedScene = folder;
 	//load scene
-	PathFindingThread::lock();
 	scene->load(folder);
-	PathFindingThread::unlock();
 
 	// pathfinding thread
 	std::vector<float4> animalPos;
-	for (auto a : scene->m_animals)
+	for (shared_ptr<Animal> a : scene->m_animals)
 		animalPos.push_back(
-			float4(a.getPosition().x, a.getPosition().y, a.getPosition().z, a.getFruitRange()));
+			float4(a->getPosition().x, a->getPosition().y, a->getPosition().z, a->getFruitRange()));
 	PathFindingThread::getInstance()->initialize(scene->m_fruits, animalPos);
 
 }
 
-void SceneManager::restart() { load(m_loadedScene); }
+void SceneManager::reset() { 
+	scene->reset(); 
+	// pathfinding thread
+	std::vector<float4> animalPos;
+	for (shared_ptr<Animal> a : scene->m_animals)
+		animalPos.push_back(
+			float4(a->getPosition().x, a->getPosition().y, a->getPosition().z, a->getFruitRange()));
+	PathFindingThread::getInstance()->initialize(scene->m_fruits, animalPos);
+
+}

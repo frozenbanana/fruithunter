@@ -19,7 +19,7 @@ void EndRoundState::initialize() {
 	m_restartButton.initialize("Restart", float2(width / 2, height / 2 + 50));
 	m_levelSelectButton.initialize("Select Level", float2(width / 2, height / 2 + 120));
 	m_exitButton.initialize("Exit", float2(width / 2, height / 2 + 190));
-	m_particleSystem = ParticleSystem(ParticleSystem::STARS, 25);
+	m_particleSystem.load(ParticleSystem::STARS_GOLD, 10);
 	// m_particleSystem.setEmitRate(10.f);
 	m_particleSystem.setPosition(float3(0.0f, -1.f, 0.f));
 	m_timer.reset();
@@ -127,25 +127,17 @@ void EndRoundState::setParticleColorByPrize(size_t prize) {
 	switch (prize) {
 	case 0:
 		// gold
-		colors[0] = float4(1.00f, 0.95f, 0.00f, 1.0f);
-		colors[1] = float4(0.97f, 0.97f, 0.01f, 1.0f);
-		colors[2] = float4(0.99f, 0.98f, 0.02f, 1.0f);
+		m_particleSystem.setType(ParticleSystem::STARS_GOLD);
 		break;
 	case 1:
 		// silver
-		colors[0] = float4(0.75f, 0.75f, 0.75f, 1.0f);
-		colors[1] = float4(0.75f, 0.75f, 0.75f, 1.0f);
-		colors[2] = float4(0.75f, 0.75f, 0.75f, 1.0f);
+		m_particleSystem.setType(ParticleSystem::STARS_SILVER);
 		break;
 	default:
 		// bronze
-		colors[0] = float4(0.69f, 0.34f, 0.05f, 1.0f);
-		colors[1] = float4(0.71f, 0.36f, 0.07f, 1.0f);
-		colors[2] = float4(0.70f, 0.32f, 0.09f, 1.0f);
+		m_particleSystem.setType(ParticleSystem::STARS_BRONZE);
 		break;
 	}
-
-	m_particleSystem.setColors(colors);
 }
 
 void EndRoundState::setBowlMaterial(size_t contentIndex, int bowlMaterial) {

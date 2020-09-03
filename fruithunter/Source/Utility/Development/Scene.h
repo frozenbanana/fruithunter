@@ -14,16 +14,18 @@
 #include "DragonFruit.h"
 #include "Melon.h"
 
-#include "VariableSyncer.h"
-
 /*
  * Handles the file information structure
 */
 class SceneAbstactContent {
 private:
 	string folder = "";
-	FileSyncer file; // contains all data other than from heightmaps and sea contents
-	const string prePath = "assets/Scenes/";
+	const string path_scenes = "assets/Scenes/";
+
+	static void fileInput_string(fstream& file, string str);
+	static string fileOutput_string(fstream& file);
+	static void fileInput_ulong(fstream& file, size_t v);
+	static size_t fileOutput_ulong(fstream& file);
 
 public:
 	// Heightmaps
@@ -31,13 +33,13 @@ public:
 		int areaTag;				// AreaTag !!
 		string heightmapName;
 		float3 position;
+		float3 rotation;
 		float3 scale;
 		XMINT2 subSize;
 		XMINT2 division;
-		string texture0, texture1, texture2, texture3;
+		string textures[4];
 		float3 wind;
-		int canSpawnFruit[NR_OF_FRUITS];// boolean Value
-		FileSyncer file;
+		int spawnFruits[NR_OF_FRUITS];// boolean Value
 	};
 	vector<HeightmapContent> m_heightmapAreas;
 
@@ -45,10 +47,10 @@ public:
 	struct SeaContent {
 		int type;				//SeaEffect::SeaEffectTypes !!
 		float3 position;
+		float3 rotation;
 		float3 scale;
 		XMINT2 tiles;
 		XMINT2 grids;
-		FileSyncer file;
 	};
 	vector<SeaContent> m_seaAreas;
 
@@ -56,30 +58,54 @@ public:
 	struct ParticleSystemContent {
 		int type;				//ParticleSystem::PARTICLE_TYPE !!
 		float3 position;
-		FileSyncer file;
+		float3 size;
+		bool affectedByWind;
+		size_t emitRate;
+		size_t capacity;
 	};
 	vector<ParticleSystemContent> m_particleSystemContents;
 
 	//entities
 	string m_entityStorageFilename;
+	struct GroupInstance {
+		string model;
+		struct Instance {
+			float3 position, rotation, scale;
+			bool collidable;
+			Instance(float3 _position = float3(), float3 _rotation = float3(),
+				float3 _scale = float3(), bool _collidable = true) {
+				position = _position;
+				rotation = _rotation;
+				scale = _scale;
+				collidable = _collidable;
+			}
+		};
+		vector<Instance> instances;
+		GroupInstance(string _model = "") { model = _model; }
+	};
+	vector<GroupInstance> m_entities;
 
-	// Playerinfo
-	float3 m_playerStartPos;
+	//animals
+	struct AnimalContent {
+		float3 position;
+		float3 sleepPosition;
+		int type; //Animal::Type;
+		int fruitType; //FruitType
+		int fruitCount;
+		float rotationY;
+	};
+	vector<AnimalContent> m_animals;
 
 	// Level utility info
 	struct SceneUtilityInfo {
-		int nrOfFruits[NR_OF_FRUITS] = { 0 };
 		int winCondition[NR_OF_FRUITS] = { 0 };
 		int timeTargets[NR_OF_TIME_TARGETS] = { 0 };
 		int levelIndex = -1; // standard as -1. Will keep value if scene isnt a level.
-		// shall not be filled in load call!
-		// Is used in Scene class to handle captured fruit count.
-		int gathered[NR_OF_FRUITS] = { 0 }; 
-		//--------------------------------------
-	} utility;
+		float3 startSpawn;
+	} m_utility;
 
-	void load(string folder);
-	void save(string folder);
+	bool load_raw(string folder);
+	bool save_raw(string folder);
 
 	SceneAbstactContent();
 };
@@ -89,15 +115,14 @@ public:
 */
 class Scene {
 protected:
-	SceneAbstactContent content;
+	bool m_loaded = false;
 
 	//-- Private Functions --
-
-	void clear();
-
 	void saveWin();
 
 public:
+	string m_sceneName = "";
+
 	// Skybox
 	SkyBox m_skyBox;
 
@@ -105,10 +130,10 @@ public:
 	TerrainBatch m_terrains;
 
 	// Sea effects
-	vector<SeaEffect> m_seaEffects;
+	vector<shared_ptr<SeaEffect>> m_seaEffects;
 
 	// Static world entities
-	EntityRepository m_repository;
+	QuadTree<shared_ptr<Entity>> m_entities = QuadTree<shared_ptr<Entity>>(float3(0.), float3(200, 100, 200), 4);
 
 	// Arrows
 	vector<shared_ptr<Arrow>> m_arrows;
@@ -117,17 +142,18 @@ public:
 	vector<ParticleSystem> m_particleSystems;
 
 	// Animals
-	std::vector<Animal> m_animals;
+	std::vector<shared_ptr<Animal>> m_animals;
 
 	// Fruits
 	std::vector<shared_ptr<Fruit>> m_fruits;
 
-	// Playerinfo
-	float3 m_playerStartPos;
-
 	// Level utility info
-	vector<int> m_fruitSpawnAreas[NR_OF_FRUITS];//holds index of terrains to spawn on
+	struct FruitCombo {
+		int quantity[NR_OF_FRUITS] = { 0 };
+	};
+	vector<FruitCombo> m_fruitSpawns;
 	SceneAbstactContent::SceneUtilityInfo m_utility;
+	int m_gatheredFruits[NR_OF_FRUITS] = { 0 }; 
 
 	//timer
 	Timer m_timer;
@@ -136,18 +162,24 @@ public:
 	shared_ptr<Player> m_player;
 
 	//-- Private Functions --
-	void resetPlayer();
 	
 public:
 
 	Scene(string filename = "");
 	~Scene();
 
+	size_t find_parentIndex(Fragment* fragment);
+	bool remove_fragment(Fragment* fragment);
+
 	void pickUpFruit(FruitType fruitType);
 	void dropFruit(FruitType fruitType);
 
 	void load(string folder);
-	void save(string folder);
+	void save();
+
+	/* Make scene ready to be played. Resets all dynamic content and keeps the static. */
+	void reset();
+	void clear();
 
 	bool handleWin();
 

@@ -3,6 +3,13 @@
 #include "Input.h"
 #include "QuadTree.h"
 
+/*
+ * handles storage for static entities.
+ * Handles placement of entities.
+ * Sets which entities are collidable.
+ * Save and load entities from file.
+*/
+
 class EntityRepository {
 
 private:
@@ -92,6 +99,7 @@ private:
 public:
 	vector<unique_ptr<Entity>>* getEntities();
 	vector<Entity**> getCulledEntitiesByPosition(float3 position);
+	string getLoadedFilename() const;
 	void load(string filename);
 	void save();
 

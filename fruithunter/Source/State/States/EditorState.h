@@ -4,10 +4,11 @@
 
 class EditorState : public State {
 private:
-	SceneEditorManager editor;
-	const string m_sceneToLoad = "scene1";
+	SceneEditorManager m_editor;
+	SceneManager m_testingEnvironment;
 	Keyboard::Keys m_mouseMode_switch = Keyboard::H;
 	bool m_mouseMode = true;
+	bool m_testing = false;
 
 public:
 	EditorState();

@@ -68,7 +68,7 @@ protected:
 	void handleAvailablePath(float3 myPosition);
 
 	bool isValid(
-		float3 childPos, float3 currentNodePos, EntityRepository& collidables, float radius);
+		float3 childPos, float3 currentNodePos, float radius);
 	bool isValid(float3 point);
 	bool checkAnimals(std::vector<float4> animals, float3 childPos);
 	void makeReadyForPath(float3 destination);

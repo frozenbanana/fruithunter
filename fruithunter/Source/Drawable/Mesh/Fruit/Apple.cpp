@@ -113,7 +113,6 @@ void Apple::behaviorCaught(float3 playerPosition) {
 }
 
 bool Apple::isValid(float3 point) { 
-	EntityRepository* collidables = &SceneManager::getScene()->m_repository;
 	float3 normal = SceneManager::getScene()->m_terrains.getNormalFromPosition(point);
 	normal.Normalize();
 	// Don't you climb no walls
@@ -124,7 +123,7 @@ bool Apple::isValid(float3 point) {
 	if (abs(float3(0.0f, 1.0f, 0.0f).Dot(normal)) < 0.87f)
 		return false;
 
-	vector<Entity**> objects = collidables->getCulledEntitiesByPosition(point);
+	vector<shared_ptr<Entity>*> objects = SceneManager::getScene()->m_entities.getElementsByPosition(point);
 	for (size_t i = 0; i < objects.size(); ++i) {
 		if (!(*objects[i])->getIsCollidable())
 			continue;
@@ -177,8 +176,6 @@ void Apple::flee(float3 playerPos) {
 void Apple::pathfinding(float3 start, std::vector<float4>* animals) {
 	// ErrorLogger::log("thread starting for pathfinding");
 	auto pft = PathFindingThread::getInstance();
-
-	EntityRepository* collidables = &SceneManager::getScene()->m_repository;
 	
 	if (m_readyForPath) {
 
@@ -187,7 +184,7 @@ void Apple::pathfinding(float3 start, std::vector<float4>* animals) {
 			float3 newUnstuck = m_destination - start;
 			newUnstuck.Normalize();
 			newUnstuck += start;
-			if (AI::isValid(newUnstuck, newUnstuck, *collidables, 0.7f)) {
+			if (AI::isValid(newUnstuck, newUnstuck, 0.7f)) {
 				m_availablePath.push_back(newUnstuck);
 				m_readyForPath = false;
 				return;
@@ -257,7 +254,7 @@ void Apple::pathfinding(float3 start, std::vector<float4>* animals) {
 					continue;
 				}
 
-				if (!AI::isValid(child->position, currentNode->position, *collidables, 0.7f)) {
+				if (!AI::isValid(child->position, currentNode->position, 0.7f)) {
 					continue;
 				}
 

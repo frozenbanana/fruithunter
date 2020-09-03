@@ -10,4 +10,6 @@ public:
 	void setRotation(float3 rotation);
 	void rotate(float3 rotation);
 
+	void setTarget(float3 target);
+
 };

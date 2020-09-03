@@ -37,6 +37,10 @@ static string FruitTypeToString(FruitType type) {
 	static string str[FruitType::NR_OF_FRUITS] = { "Apple", "Banana", "Melon", "Dragon" };
 	return str[type];
 }
+static string TimeTargetToString(TimeTargets target) {
+	static string str[TimeTargets::NR_OF_TIME_TARGETS] = {"Gold", "Silver", "Bronze"};
+	return str[target];
+}
 
 static std::wstring s2ws(const std::string& s) {
 	int len;
@@ -98,7 +102,7 @@ static float RayPlaneIntersection(float3 rayPoint, float3 rayDirection, float3 p
 }
 
 /*  */
-template <typename TYPE> static TYPE Normalize(TYPE v) { 
+template <typename VECTOR> static VECTOR Normalize(VECTOR v) { 
 	v.Normalize();
 	return v; 
 }
@@ -143,6 +147,8 @@ struct FrustumPlane {
 	}
 };
 struct CubeBoundingBox {
+	// Position is the corner of the box. 
+	// Position+Size is opposite corner of the box.
 	float3 m_position, m_size;
 	float3 getCenter() const { return m_position + m_size / 2.f; }
 	CubeBoundingBox(float3 position = float3(0, 0, 0), float3 size = float3(0, 0, 0)) {

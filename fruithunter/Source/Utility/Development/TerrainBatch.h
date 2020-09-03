@@ -27,6 +27,6 @@ public:
 	void draw();
 	void draw_onlyMesh();
 
-	float3 getSpawnpoint(int terrainIndex);
+	float3 getSpawnpoint(size_t terrainIndex);
 
 };

@@ -3,10 +3,11 @@
 #include "ShaderSet.h"
 #include "Timer.h"
 #include "Terrain.h"
+#include "Fragment.h"
 
-class ParticleSystem {
+class ParticleSystem : public Fragment, public Transformation {
 public:
-	enum PARTICLE_TYPE {
+	enum Type {
 		NONE,
 		FOREST_BUBBLE,
 		GROUND_DUST,
@@ -15,51 +16,53 @@ public:
 		LAVA_BUBBLE,
 		ARROW_GLITTER,
 		CONFETTI,
-		STARS,
+		STARS_GOLD,
+		STARS_SILVER,
+		STARS_BRONZE,
 		TYPE_LENGTH
 	};
-	enum WindState { None, Static, Dynamic };
+	struct ParticleDescription {
+		float4 colorVariety[3];
+		float2 size_interval;	   // size.x (min), size.y (max)
+		float2 timeAlive_interval; // size.x (min), size.y (max)
+		float3 velocity_min,
+			velocity_max;		  // velocity inside box, between points min and max. (Normalized)
+		float2 velocity_interval; // strength of velocity
+		float3 acceleration;	  // can be used to produce gravity for particles for example
+		float slowdown;
+		enum Shape { Circle, Star } shape;
+		ParticleDescription(ParticleSystem::Type type = ParticleSystem::Type::NONE);
+	};
 
 private:
-	PARTICLE_TYPE m_type = NONE;
-	float3 m_spawnPoint = float3(0, 0, 0);
-	size_t m_size = 0;
+	Type m_type = NONE;
 
-	bool m_isRunning;
+	bool m_isActive = true;
 	bool m_isEmitting = true;
 	float m_emitTimer = 0;
-	//wind
-	WindState m_windState = None;
-	//description
-	struct Description {
-		float m_emitRate; // particles per sec
-		float3 m_acceleration;
-		float2 m_accelerationOffsetInterval;
-		float m_spawnRadius;
-		float2 m_radiusInterval;
-		float3 m_velocity;
-		float2 m_velocityOffsetInterval;
-		float2 m_sizeInterval; // min and max
-		float2 m_timeAliveInterval;
-		float4 m_color[3];
-		void load(ParticleSystem::PARTICLE_TYPE type);
-		Description(ParticleSystem::PARTICLE_TYPE type = NONE);
-	};
-	Description m_description;
-	//particle properties
+	// description
+	ParticleDescription m_particle_description;
+	bool m_affectedByWind = false;
+	float m_emitRate = 0;
+	size_t m_capacity = 0;
+	// particle properties
 	struct ParticleProperty { // not going to the GPU
-		float3 m_acceleration;
-		float3 m_velocity;
-		float m_lifeTime;
-		float m_timeLeft;
+		float3 velocity;// current velocity
+		float lifeTime = 1;
+		float timeLeft = 1;
 	};
 	vector<ParticleProperty> m_particleProperties;
+	struct Particle {
+		float3 position;
+		float4 color = float4(1.);
+		float size = 1;
+		float isActive = false;
+	};
 	vector<Particle> m_particles;
 
-	//shaders
+	// shaders
 	static ShaderSet m_shaderSetCircle;
 	static ShaderSet m_shaderSetStar;
-	ShaderSet* m_currentShaderSet = nullptr;
 
 	// vertex Buffers
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
@@ -68,32 +71,37 @@ private:
 
 	void createShaders();
 
-	void resizeVertexBuffer(size_t size);
+	void resizeBuffer();
 	void bindVertexBuffer();
 
 	void updateEmits(float dt);
+
 	void updateParticles(float dt);
 
-	void setParticle(Description desc, size_t index);
+	void setParticle(size_t index);
 
 public:
-	void setEmitRate(float emitRate);
-	void setColors(float4 colors[3]);
-	void setPosition(float3 position);
-	void setWind(WindState state);
+	void emitingState(bool state);
+	void activeState(bool state);
+	void affectedByWindState(bool state);
+	bool isActive() const;
+	bool isEmiting() const;
+	bool isAffectedByWind() const;
 
-	float3 getPosition() const;
-	PARTICLE_TYPE getType() const;
+	void setType(Type type, bool resize = true);
+	void setCustomDescription(ParticleSystem::ParticleDescription desc, bool resize = true);
+	void setEmitRate(float emitRate, bool resize = true);
+	void setCapacity(size_t capacity = 0);
+	float getEmitRate() const;
+	size_t getCapacity() const;
+	Type getType() const;
+	ParticleSystem::ParticleDescription getParticleDescription() const;
 
 	void update(float dt);
-
-	void draw();
-	void drawNoAlpha();
-
-	void stopEmiting();
-	void startEmiting();
 	void emit(size_t count);
 
-	void load(ParticleSystem::PARTICLE_TYPE type, int forceSize = -1);
-	ParticleSystem(ParticleSystem::PARTICLE_TYPE type = NONE, int forceSize = -1);
+	void draw(bool alpha = true);
+
+	void load(ParticleSystem::Type type, float emitRate, size_t capacity = 0);
+	ParticleSystem();
 };

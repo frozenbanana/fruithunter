@@ -38,6 +38,7 @@ private:
 		static int test;
 		size_t getElementCount() const;
 		void log(int level = 0);
+		void clear();
 
 		void split();
 		bool add(ElementPart* elementPart);
@@ -65,6 +66,7 @@ public:
 	void add(
 		float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix, const Element& element);
 	void remove(Element& element);
+	void remove(size_t index);
 	vector<Element*> cullElements(const vector<FrustumPlane>& planes);
 	vector<Element*> cullElements(const CubeBoundingBox& bb);
 	vector<Element*> getElementsByPosition(float3 pos);
@@ -72,9 +74,13 @@ public:
 
 	void initilize(float3 position, float3 size, size_t layerMax);
 	void reset();
+	void clear();
 	void reserve(size_t size);
 
+	size_t size() const;
+
 	Element& operator[](const size_t& index);
+	QuadTree<Element>& operator=(const QuadTree<Element>& other); 
 
 	QuadTree(float3 position = float3(0, 0, 0), float3 size = float3(0, 0, 0), size_t layerMax = 1);
 	~QuadTree();
@@ -164,6 +170,13 @@ template <typename Element> inline void QuadTree<Element>::Node::log(int level) 
 		for (size_t i = 0; i < 4; i++)
 			m_children[i]->log(level + 1);
 	}
+}
+
+template <typename Element> inline void QuadTree<Element>::Node::clear() {
+	for (size_t i = 0; i < 4; i++)
+		m_children[i].reset();
+	m_elements.clear();
+	expanded = false;
 }
 
 template <typename Element> inline void QuadTree<Element>::Node::split() {
@@ -436,14 +449,18 @@ inline void QuadTree<Element>::add(
 template <typename Element> inline void QuadTree<Element>::remove(Element& element) {
 	for (size_t i = 0; i < m_elementParts.size(); i++) {
 		if (m_elementParts[i]->element == element) {
-			m_node.remove(m_elementParts[i].get());			  // remove from children
-			m_elementParts.erase(m_elementParts.begin() + i); // remove
-			// fix indices on elementParts
-			for (size_t j = i; j < m_elementParts.size(); j++) {
-				m_elementParts[j]->index--;
-			}
+			remove(i);
 			break;
 		}
+	}
+}
+
+template <typename Element> inline void QuadTree<Element>::remove(size_t index) {
+	m_node.remove(m_elementParts[index].get());			  // remove from children
+	m_elementParts.erase(m_elementParts.begin() + index); // remove
+	// fix indices on elementParts
+	for (size_t j = index; j < m_elementParts.size(); j++) {
+		m_elementParts[j]->index--;
 	}
 }
 
@@ -497,12 +514,30 @@ template <typename Element> inline void QuadTree<Element>::reset() {
 	m_node = Node();
 }
 
+template <typename Element> inline void QuadTree<Element>::clear() { 
+	m_elementParts.clear(); 
+	m_node.clear();
+}
+
 template <typename Element> inline void QuadTree<Element>::reserve(size_t size) {
 	m_elementParts.reserve(size);
 }
 
+template <typename Element> inline size_t QuadTree<Element>::size() const { return m_elementParts.size(); }
+
 template <typename Element> inline Element& QuadTree<Element>::operator[](const size_t& index) {
 	return m_elementParts[index]->element;
+}
+
+template <typename Element>
+inline QuadTree<Element>& QuadTree<Element>::operator=(const QuadTree<Element>& other) {
+	m_node = other.m_node;
+	m_node.clear();
+	m_elementParts.resize(other.m_elementParts.size());
+	for (size_t i = 0; i < m_elementParts.size(); i++) {
+		m_elementParts[i] = make_shared<Element>(*other.m_elementParts[i].get());
+		m_node.add(m_elementParts[i].get());
+	}
 }
 
 template <typename Element>
