@@ -6,15 +6,13 @@ struct VS_IN {
 
 struct VS_OUT {
 	float3 PosW : POSITION0;
-	// float3 PosV : POSITION1;
 	float4 PosH : SV_POSITION;
 	float2 TexCoord : TEXCOORD;
 	float3 Normal : NORMAL;
 };
 
 cbuffer cb_world : register(b0) { matrix mWorld, mInvTraWorld; };
-cbuffer cb_viewPerspective : register(b1) { matrix mViewPerspective; };
-cbuffer cb_viewPerspective : register(b5) { matrix mView, mPerspective; };
+cbuffer cb_viewPerspective : register(b1) { matrix mView, mPerspective, mViewPerspective; };
 
 VS_OUT main(VS_IN input) {
 	VS_OUT output = (VS_OUT)0;

@@ -2,6 +2,9 @@
 #include "Renderer.h"
 #include "ErrorLogger.h"
 
+Microsoft::WRL::ComPtr<ID3D11Buffer> Camera::m_matrixBuffer;
+Microsoft::WRL::ComPtr<ID3D11Buffer> Camera::m_cbufferPosition;
+
 Camera::Camera() {
 	// Set initial values
 	m_positionEye = float3(0.0, 0.0, -4.0);
@@ -13,35 +16,30 @@ Camera::Camera() {
 		m_fov, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, m_nearPlane, m_farPlane);
 	m_viewMatrix = XMMatrixLookAtLH(m_positionEye, m_positionTarget, m_up);
 	m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
-	{
+	if (m_matrixBuffer.Get() == nullptr) {
 		// Create constant buffer
 		auto device = Renderer::getInstance()->getDevice();
 		D3D11_BUFFER_DESC bufferDesc;
 		memset(&bufferDesc, 0, sizeof(bufferDesc));
 		bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		bufferDesc.ByteWidth = sizeof(m_vpMatrix);
-		D3D11_SUBRESOURCE_DATA data;
-		data.pSysMem = &m_vpMatrix;
-		HRESULT res = device->CreateBuffer(&bufferDesc, &data, m_matrixBuffer.GetAddressOf());
-
+		bufferDesc.ByteWidth = sizeof(ViewPerspectiveBuffer);
+		HRESULT res = device->CreateBuffer(&bufferDesc, nullptr, m_matrixBuffer.GetAddressOf());
 		if (FAILED(res)) {
-			ErrorLogger::messageBox(res, "Camera failed to create buffer.");
+			ErrorLogger::messageBox(res, "Camera failed to create matrix constant buffer.");
 		}
 	}
-	{
-		// Create constant buffer for struct
+	if (m_cbufferPosition.Get() == nullptr) {
+		// buffer for camera position
 		auto device = Renderer::getInstance()->getDevice();
 		D3D11_BUFFER_DESC bufferDesc;
 		memset(&bufferDesc, 0, sizeof(bufferDesc));
 		bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		bufferDesc.ByteWidth = sizeof(ViewPerspectiveBuffer);
-		HRESULT res = device->CreateBuffer(
-			&bufferDesc, nullptr, m_matrixBufferViewNPerspective.GetAddressOf());
-
+		bufferDesc.ByteWidth = sizeof(float4);
+		HRESULT res = device->CreateBuffer(&bufferDesc, nullptr, m_cbufferPosition.GetAddressOf());
 		if (FAILED(res)) {
-			ErrorLogger::messageBox(res, "Camera failed to create buffer struct.");
+			ErrorLogger::messageBox(res, "Camera failed to create constant buffer for camera position.");
 		}
 	}
 }
@@ -91,15 +89,16 @@ float Camera::getDefaultFov() const { return DEFAULT_FOV; }
 
 void Camera::updateResources() {
 	auto deviceContext = Renderer::getDeviceContext();
-	Matrix vpMatrixTransposed = m_vpMatrix.Transpose();
-	deviceContext->UpdateSubresource(m_matrixBuffer.Get(), 0, NULL, &vpMatrixTransposed, 0, 0);
 
 	// Changes to make particle system work
 	ViewPerspectiveBuffer viewNPerspective;
 	viewNPerspective.mView = m_viewMatrix.Transpose();
 	viewNPerspective.mPerspective = m_projMatrix.Transpose();
-	deviceContext->UpdateSubresource(
-		m_matrixBufferViewNPerspective.Get(), 0, NULL, &viewNPerspective, 0, 0);
+	viewNPerspective.mViewPerspective = Matrix(XMMatrixMultiply(m_viewMatrix, m_projMatrix)).Transpose();
+	deviceContext->UpdateSubresource(m_matrixBuffer.Get(), 0, NULL, &viewNPerspective, 0, 0);
+
+	// update cbuffer for camera position
+	deviceContext->UpdateSubresource(m_cbufferPosition.Get(), 0, NULL, &m_positionEye, 0, 0);
 }
 
 void Camera::updateMatrices() {
@@ -119,12 +118,8 @@ void Camera::bind() {
 	//bind
 	auto deviceContext = Renderer::getDeviceContext();
 	deviceContext->VSSetConstantBuffers(MATRIX_SLOT, 1, m_matrixBuffer.GetAddressOf());
-	deviceContext->VSSetConstantBuffers(
-		MATRIX_VP_SLOT, 1, m_matrixBufferViewNPerspective.GetAddressOf());
-
 	deviceContext->GSSetConstantBuffers(MATRIX_SLOT, 1, m_matrixBuffer.GetAddressOf());
-	deviceContext->GSSetConstantBuffers(
-		MATRIX_VP_SLOT, 1, m_matrixBufferViewNPerspective.GetAddressOf());
+	deviceContext->PSSetConstantBuffers(CBUFFER_POS_SLOT, 1, m_cbufferPosition.GetAddressOf());
 }
 
 float4x4 Camera::getViewMatrix() { 

@@ -12,7 +12,7 @@ struct GSOutput {
 	float2 UV : UV;
 };
 
-cbuffer cb_viewPerspective : register(b5) { matrix mView, mPerspective; };
+cbuffer cb_viewPerspective : register(b1) { matrix mView, mPerspective, mViewPerspective; };
 
 struct Corner {
 	float4 pos;

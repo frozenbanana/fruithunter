@@ -12,7 +12,7 @@ void ShadowMapper::createCameraBuffer() {
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
 	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.ByteWidth = sizeof(m_vpMatrix_t);
+	bufferDesc.ByteWidth = sizeof(ViewPerspectiveData);
 	HRESULT res = device->CreateBuffer(&bufferDesc, nullptr, m_matrixBuffer.GetAddressOf());
 	if (FAILED(res))
 		ErrorLogger::logWarning("(ShadowMapping) Failed creating CameraVPT constant buffer!", res);
@@ -76,12 +76,12 @@ void ShadowMapper::bindVPTBuffer() {
 void ShadowMapper::bindCameraBuffer() {
 	auto deviceContext = Renderer::getDeviceContext();
 
-	// update
-	Matrix vp_matrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
-	m_vpMatrix_t = vp_matrix.Transpose();
-
-	// fill
-	deviceContext->UpdateSubresource(m_matrixBuffer.Get(), 0, 0, &m_vpMatrix_t, 0, 0);
+	// update buffer
+	ViewPerspectiveData data;
+	data.mView = m_viewMatrix.Transpose();
+	data.mPerspective = m_projMatrix.Transpose();
+	data.mViewPerspective = Matrix(XMMatrixMultiply(m_viewMatrix, m_projMatrix)).Transpose();
+	deviceContext->UpdateSubresource(m_matrixBuffer.Get(), 0, 0, &data, 0, 0);
 
 	// bind
 	deviceContext->VSSetConstantBuffers(MATRIX_CAMERA_SLOT, 1, m_matrixBuffer.GetAddressOf());

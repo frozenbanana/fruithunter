@@ -2,7 +2,7 @@
 #include "GlobalNamespaces.h"
 
 #define MATRIX_SLOT 1
-#define MATRIX_VP_SLOT 5
+#define CBUFFER_POS_SLOT 9
 
 class Camera {
 public:
@@ -40,10 +40,11 @@ protected:
 	struct ViewPerspectiveBuffer {
 		float4x4 mView;
 		float4x4 mPerspective;
+		float4x4 mViewPerspective;
 	};
 
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBufferViewNPerspective;
+	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;
+	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_cbufferPosition;
 
 	bool m_propertiesChanged = false;
 	float4x4 m_vpMatrix;

@@ -9,7 +9,7 @@ struct VS_OUT {
 	float2 TexCoord : TEXCOORD;
 };
 
-cbuffer cb_viewPerspective : register(b1) { matrix mViewPerspective; };
+cbuffer cb_viewPerspective : register(b1) { matrix mView, mPerspective, mViewPerspective; };
 
 VS_OUT main(VS_IN input) {
 	VS_OUT output = (VS_OUT)0;

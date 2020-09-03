@@ -13,7 +13,7 @@ struct VS_OUT {
 };
 
 
-cbuffer cb_viewPerspective : register(b5) { matrix mView, mPerspective; };
+cbuffer cb_viewPerspective : register(b1) { matrix mView, mPerspective, mViewPerspective; };
 
 VS_OUT main(VS_IN input) {
 	VS_OUT output;

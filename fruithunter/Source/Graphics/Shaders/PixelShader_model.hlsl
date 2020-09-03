@@ -5,7 +5,6 @@ struct PS_IN {
 	float2 TexCoord : TEXCOORD;
 	float3 Normal : NORMAL;
 	float4 ShadowPosH : POSITION2;
-	//float3 PosV : POSITION1;
 };
 
 cbuffer materialbuffer : register(b2) {
@@ -28,6 +27,8 @@ cbuffer lightInfo : register(b6) {
 	float2 cb_nearFarPlane;
 	float4 cb_toLight;
 };
+
+cbuffer cameraProperties : register(b9) { float4 camera_position; }
 
 
 SamplerState samplerAni {
@@ -82,34 +83,26 @@ float4 main(PS_IN ip) : SV_TARGET {
 
 	// diffuse
 	float diffuseTint = max(dot(toLight, ip.Normal), 0.0);
-	//if (diffuseTint > 0.9)
-	//	diffuseTint = 1;
-	//else if (diffuseTint > 0.0)
-	//	diffuseTint = 0.9;
-	//else
-	//	diffuseTint = 0;
+
 	// specular
 	float3 specular = float3(0.0f, 0.0f, 0.0f);
 	float reflectTint = 0.0f;
 	if (diffuseTint > 0.0) {
 		specular = mapUsages.z ? (textures[2].Sample(samplerAni, ip.TexCoord)).rgb
 							   : (specular3_shininess.rgb);
-		reflectTint =
-			pow(max(dot(normalize(reflect(-toLight, ip.Normal)), normalize(-ip.PosW)), 0.0),
-				specular3_shininess.w * 50);
+		float3 toCam = normalize(ip.PosW - camera_position.xyz);
+		float3 reflectedRay = normalize(reflect(toLight, ip.Normal));
+		float3 tint = max(dot(reflectedRay, toCam), 0.0);
+		reflectTint = pow(tint, specular3_shininess.w * 10);
 	}
-	//if (reflectTint > 0.6)
-	//	reflectTint = 1;
-	//else
-	//	reflectTint = 0;
 
 	float shade = texSampleGrease(
 		texture_shadowMap, cb_shadowMapRes, ip.ShadowPosH.xy, ip.ShadowPosH.z, ip.PosW.xyz)
 					  .r;
 
 	// final color
-	float3 col = pixelBaseColor * ((ambientColour.xyz + diffuseTint * shade * diffuseColour.xyz) +
-									  specular * reflectTint * specularColour.xyz) +
-				 reflectTint * float3(1, 1, 1)*0.9*0;
+	float3 col = pixelBaseColor * ambientColour.xyz; // ambient
+	col += pixelBaseColor * diffuseTint * diffuseColour.xyz * shade;//diffuse
+	col += reflectTint * specularColour.xyz * specular * shade; //specular
 	return float4(col, 1.0);
 }

@@ -13,7 +13,7 @@ struct VS_OUT {
 	float3 Normal : NORMAL;
 };
 cbuffer cb_world : register(b0) { matrix mWorld, mInvTraWorld; };
-cbuffer cb_viewPerspective : register(b1) { matrix mViewPerspective; };
+cbuffer cb_viewPerspective : register(b1) { matrix mView, mPerspective, mViewPerspective; };
 cbuffer cb_time : register(b2) { float4 time; }
 cbuffer cb_properties : register(b3) {
 	float distortionStrength;

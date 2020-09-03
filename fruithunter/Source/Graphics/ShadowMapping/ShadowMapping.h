@@ -26,9 +26,11 @@ private:
 	D3D11_VIEWPORT m_shadowPort;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_depthMap;
 	ID3D11RenderTargetView* m_nullRenderTargets[1] = { 0 };
-	Matrix m_vpMatrix_t;
 	Matrix m_viewMatrix;
 	Matrix m_projMatrix;
+	struct ViewPerspectiveData {
+		Matrix mView, mPerspective, mViewPerspective;
+	};
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixVPTBuffer;
 	struct shadowInfo {

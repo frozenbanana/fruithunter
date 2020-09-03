@@ -1,7 +1,6 @@
 
 struct PS_IN {
 	float3 PosW : POSITION0;
-	// float3 PosV : POSITION1;
 	float4 PosH : SV_POSITION;
 	float2 TexCoord : TEXCOORD;
 	float3 Normal : NORMAL;
@@ -21,6 +20,8 @@ cbuffer lightInfo : register(b6) {
 	float2 cb_nearFarPlane;
 	float4 cb_toLight;
 };
+
+cbuffer cameraProperties : register(b9) { float4 camera_position; }
 
 SamplerState samplerAni {
 	Filter = MIN_MAG_MIP_LINEAR;
@@ -73,10 +74,15 @@ float3 lighting(float3 pos, float3 normal, float3 color, float shade) {
 	float shadowTint = max(dot(toLight, normal), 0.0);
 
 	// specular
-	// float reflectTint =
-	//	pow(max(dot(normalize(reflect(-toLight, normal)), normalize(-pos)), 0.0), 20.0);
-	// return color * (0.2 + shadowTint + reflectTint);
-	return color * (ambient.xyz + shadowTint * shade * diffuse.xyz);
+	float3 toCam = normalize(pos-camera_position.xyz);
+	float3 reflectedRay = normalize(reflect(toLight, normal));
+	float3 tint = max(dot(reflectedRay, toCam), 0.0);
+	float reflectTint = pow(tint, 10);
+
+	float3 retColor = color * ambient.xyz;//ambient
+	retColor += color * shadowTint * shade * diffuse.xyz;//diffuse
+	retColor += reflectTint * specular * shade;//specular
+	return retColor;
 }
 
 float4 main(PS_IN ip) : SV_TARGET {
