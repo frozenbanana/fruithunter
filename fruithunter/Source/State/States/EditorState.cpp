@@ -6,7 +6,7 @@ EditorState::EditorState() : StateItem(State::EditorState) {}
 
 EditorState::~EditorState() {}
 
-void EditorState::init() {}
+void EditorState::init() { m_editor.clear(); }
 
 void EditorState::update() {
 	Input* ip = Input::getInstance();
