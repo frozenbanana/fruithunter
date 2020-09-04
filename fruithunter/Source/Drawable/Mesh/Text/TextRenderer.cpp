@@ -264,6 +264,8 @@ void TextRenderer::draw(std::string text, float2 pos, float4 col) {
 void TextRenderer::drawTextInWorld(string text, float3 position, float3 lookAt, float2 size) {
 	std::wstring wText = std::wstring(text.begin(), text.end());
 	Vector2 textSize = Vector2(m_spriteFont->MeasureString(wText.c_str()));
+	if (textSize.x == 0 || textSize.y == 0)
+		return;
 	float aspectRatio = textSize.y / textSize.x;
 	if (!m_initializedViews || (textSize.x > m_size.x+1 || textSize.y > m_size.y+1))
 		setViewSize(XMINT2((UINT)textSize.x, (UINT)textSize.y));

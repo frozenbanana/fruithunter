@@ -38,17 +38,16 @@ void Scene::clear() {
 }
 
 void Scene::saveWin() {
-	int level = m_utility.levelIndex;
-	if (level != -1) {
+	if (m_sceneName != "") {
 		size_t time = (size_t)round(m_timer.getTimePassed());
-		TimeTargets grade = TimeTargets::BRONZE;
+		TimeTargets grade = TimeTargets::NR_OF_TIME_TARGETS;
 		for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++) {
-			if (time < m_utility.timeTargets[i]) {
+			if (time <= m_utility.timeTargets[i]) {
 				grade = (TimeTargets)i;
 				break;
 			}
 		}
-		SaveManager::getInstance()->setLevelCompletion(level, time, grade);
+		SaveManager::setProgress(m_sceneName, time, grade);
 	}
 }
 
@@ -413,19 +412,7 @@ bool Scene::handleWin() {
 		}
 	}
 	if (hasWon) {
-		//save win
-		int level = m_utility.levelIndex;
-		if (level != -1) {
-			size_t time = (size_t)round(m_timer.getTimePassed());
-			TimeTargets grade = TimeTargets::BRONZE;
-			for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++) {
-				if (time < m_utility.timeTargets[i]) {
-					grade = (TimeTargets)i;
-					break;
-				}
-			}
-			SaveManager::getInstance()->setLevelCompletion(level, time, grade);
-		}
+		saveWin();
 	}
 	return hasWon;
 }

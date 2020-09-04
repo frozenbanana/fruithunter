@@ -1,39 +1,31 @@
 #pragma once
 #include "GlobalNameSpaces.h"
 
-#define MAX_SAVE_SLOTS 3
-#define NR_OF_LEVELS 3
-
-struct LevelData{
-	bool isCompleted = false;
-	size_t timeOfCompletion = 0;//in seconds
-	TimeTargets grade = TimeTargets::BRONZE;
+struct SceneCompletion {
+	string scene = "";
+	size_t timeToComplete = 0;// in seconds
+	TimeTargets grade = TimeTargets::NR_OF_TIME_TARGETS; // no medal
+	bool isCompleted() const { return grade != TimeTargets::NR_OF_TIME_TARGETS; }
 };
 
 class SaveManager {
 private:
 	static SaveManager m_this;
 
-	const string m_prePath = "assets/SaveStates/";
+	const string m_filename = "player_progress";
+	const string m_path_wd = "assets/"; // working directory
+	vector<SceneCompletion> m_progress;
 
-	size_t m_loadedSlot = -1;
-	LevelData m_activeState[NR_OF_LEVELS];
-
-	bool loadFile(string filename, LevelData* levels) const;
-	bool saveFile(string filename, LevelData* levels) const;
-	void saveLoaded();
+	void load();
+	void save();
 
 	SaveManager();
 	~SaveManager();
 public:
 	static SaveManager* getInstance();
 
-	const LevelData* getActiveSave() const;
-	vector<LevelData*> getAllSaveStates() const;
-
-	void setLevelCompletion(size_t index, size_t timeOfCompletion, TimeTargets grade);
-	void resetSaveState();
-
-	bool load(size_t slot);
+	static const SceneCompletion* getProgress(string scene);
+	static void setProgress(string scene, size_t timeToComplete, TimeTargets grade);
+	static void resetProgression();
 
 };

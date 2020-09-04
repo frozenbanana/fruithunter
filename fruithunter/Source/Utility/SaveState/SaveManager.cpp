@@ -1,124 +1,112 @@
 #include "SaveManager.h"
 #include <fstream>
-#include "ErrorLogger.h"
 
 SaveManager SaveManager::m_this;
 
-bool SaveManager::loadFile(string filename, LevelData* levels) const {
+void SaveManager::load() {
 	fstream file;
-	string path = m_prePath + filename;
+	string path = m_path_wd + m_filename;
 	file.open(path, ios::in | ios::binary);
 	if (file.is_open()) {
-		// nr of levels
-		size_t count = 0;
-		file.read((char*)&count, sizeof(size_t));
-		if (count == NR_OF_LEVELS) {
-			if (levels == nullptr)
-				levels = new LevelData[NR_OF_LEVELS];
-			for (size_t i = 0; i < NR_OF_LEVELS; i++) {
-				// is completed
-				file.read((char*)&levels[i].isCompleted, sizeof(bool));
-				// timeofCompleteion
-				file.read((char*)&levels[i].timeOfCompletion, sizeof(size_t));
-				// grade
-				file.read((char*)&levels[i].grade, sizeof(TimeTargets));
-			}
-		}
-		else {
-			ErrorLogger::logWarning(
-				"(SaveManager) File is corrupted! Nr of levels is incorrect!\nFile: " + path +
-				"\nIncorrectNrOfLevels: " + to_string(count));
+		m_progress.clear();
+		size_t size;
+		file.read((char*)&size, sizeof(size_t));
+		m_progress.resize(size);
+		for (size_t i = 0; i < size; i++) {
+			// scene
+			size_t length = 0;
+			file.read((char*)&length, sizeof(size_t));
+			char* text = new char[length];
+			file.read(text, length);
+			m_progress[i].scene.insert(0, text, length);
+			delete[] text;
+			// time to complete
+			file.read((char*)&m_progress[i].timeToComplete, sizeof(size_t));
+			// grade
+			int grade;
+			file.read((char*)&grade, sizeof(int));
+			m_progress[i].grade = (TimeTargets)grade;
 		}
 		file.close();
-		return true;
 	}
 	else {
-		return false;
+		//no progress has been saved
+		//do nothing
 	}
 }
 
-bool SaveManager::saveFile(string filename, LevelData *levels) const {
-	if (levels != nullptr) {
-		fstream file;
-		string path = m_prePath + filename;
-		file.open(path, ios::out | ios::binary);
-		if (file.is_open()) {
-			// nr of levels
-			size_t count = NR_OF_LEVELS;
-			file.write((char*)&count, sizeof(size_t));
-			for (size_t i = 0; i < NR_OF_LEVELS; i++) {
-				// is completed
-				file.write((char*)&levels[i].isCompleted, sizeof(bool));
-				// timeofCompleteion
-				file.write((char*)&levels[i].timeOfCompletion, sizeof(size_t));
-				// grade
-				file.write((char*)&levels[i].grade, sizeof(TimeTargets));
-			}
-
-			file.close();
-			return true;
+void SaveManager::save() {
+	fstream file;
+	string path = m_path_wd + m_filename;
+	file.open(path, ios::out | ios::binary);
+	if (file.is_open()) {
+		size_t size = m_progress.size();
+		file.write((char*)&size, sizeof(size_t));
+		for (size_t i = 0; i < m_progress.size(); i++) {
+			//scene
+			size_t length = m_progress[i].scene.length();
+			file.write((char*)&length, sizeof(size_t));
+			file.write(m_progress[i].scene.c_str(),length);
+			//time to complete
+			file.write((char*)&m_progress[i].timeToComplete, sizeof(size_t));
+			//grade
+			int grade = m_progress[i].grade;
+			file.write((char*)&grade, sizeof(int));
 		}
-		else {
-			return false;
-		}
+		file.close();
 	}
-	return false;
-}
-
-void SaveManager::saveLoaded() {
-	if (m_loadedSlot != -1) {
-		string filename = "save" + to_string(m_loadedSlot);
-		saveFile(filename, m_activeState);
+	else {
+		cout << "(SaveManager) Failed saving player progress" << endl;
 	}
 }
 
-SaveManager::SaveManager() { load(0); }
-SaveManager::~SaveManager() { saveLoaded(); }
+SaveManager::SaveManager() { load(); }
+SaveManager::~SaveManager() {}
 
 SaveManager* SaveManager::getInstance() { return &m_this; }
 
-const LevelData* SaveManager::getActiveSave() const { return m_activeState; }
-
-vector<LevelData*> SaveManager::getAllSaveStates() const { 
-	vector<LevelData*> saves;
-	saves.resize(MAX_SAVE_SLOTS);
-	for (size_t i = 0; i < saves.size(); i++) {
-		loadFile("save" + to_string(i), saves[i]);
+const SceneCompletion* SaveManager::getProgress(string scene) {
+	SaveManager* me = getInstance();
+	for (size_t i = 0; i < me->m_progress.size(); i++) {
+		if (me->m_progress[i].scene == scene) {
+			return &me->m_progress[i];
+		}
 	}
-	return saves;
+	return nullptr;
 }
 
-void SaveManager::setLevelCompletion(size_t index, size_t timeOfCompletion, TimeTargets grade) { 
-	if (index >= 0 && index < NR_OF_LEVELS) {
-		if (m_activeState[index].isCompleted) {
-			// already completed
-			if (timeOfCompletion < m_activeState[index].timeOfCompletion) {
-				m_activeState[index].timeOfCompletion = timeOfCompletion;
-				m_activeState[index].grade = grade;
+void SaveManager::setProgress(string scene, size_t timeToComplete, TimeTargets grade) {
+	if (scene != "") {
+		bool updated = false;
+		bool found = false;
+		SaveManager* me = getInstance();
+		for (size_t i = 0; i < me->m_progress.size(); i++) {
+			if (me->m_progress[i].scene == scene) {
+				found = true;
+				if (me->m_progress[i].timeToComplete > timeToComplete) {
+					updated = true;
+					// overwrite progress
+					me->m_progress[i].timeToComplete = timeToComplete;
+					me->m_progress[i].grade = grade;
+				}
 			}
 		}
-		else {
-			// completed level
-			m_activeState[index].isCompleted = true;
-			m_activeState[index].timeOfCompletion = timeOfCompletion;
-			m_activeState[index].grade = grade;
+		if (!found) {
+			updated = true;
+			// add progress
+			SceneCompletion p;
+			p.scene = scene;
+			p.timeToComplete = timeToComplete;
+			p.grade = grade;
+			me->m_progress.push_back(p);
 		}
-	}
-	else {
-		ErrorLogger::logWarning("(SaveManager) Couldnt set level completion! Bad index value: " + to_string(index),HRESULT());
-	}
-}
-
-void SaveManager::resetSaveState() {
-	for (size_t i = 0; i < NR_OF_LEVELS; i++) {
-		m_activeState[i] = LevelData();
+		if (updated)
+			me->save();
 	}
 }
 
-bool SaveManager::load(size_t slot) {
-	saveLoaded();
-
-	string filename = "save" + to_string(slot);
-	m_loadedSlot = slot;
-	return loadFile(filename, m_activeState);
+void SaveManager::resetProgression() {
+	SaveManager* me = getInstance();
+	me->m_progress.clear();
+	me->save();
 }

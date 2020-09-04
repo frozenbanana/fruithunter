@@ -21,7 +21,7 @@ private:
 	Button m_levelSelectButton;
 	Button m_restartButton;
 	ParticleSystem m_particleSystem;
-	Entity m_bowlContents[3];
+	Entity m_bowlContent;
 	Entity m_bowl;
 	size_t m_currentBowlContent;
 	Entity m_entity;
@@ -41,7 +41,7 @@ public:
 	void setParticleColorByPrize(size_t prize);
 	void setVictoryText(string text);
 	void setVictoryColor(float4 color);
-	void setBowlMaterial(size_t contentIndex, int bowlMaterial);
+	void setBowl(string bowlContentEntityName, int bowlMaterial);
 	void setTimeText(string text);
 	void setConfettiPower(float emitRate);
 

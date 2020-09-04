@@ -29,9 +29,6 @@ void EndRoundState::init() {
 	m_background.setPosition(float2((width / 2.5f), (height / 2.0f) - 10.f));
 
 	m_bowl.load("Bowl");
-	m_bowlContents[0].load("BowlContent1");
-	m_bowlContents[1].load("BowlContent2");
-	m_bowlContents[2].load("BowlContent3");
 
 	// Just ignore this. It fixes things.
 	m_entity.load("Melon_000000");
@@ -39,40 +36,41 @@ void EndRoundState::init() {
 
 	Renderer::getInstance()->captureFrame();
 
-	LevelData savedData =
-		SaveManager::getInstance()->getActiveSave()[SceneManager::getScene()->m_utility.levelIndex];
-	SaveManager::getInstance()->getAllSaveStates();
-	switch (savedData.grade) {
-	case GOLD:
-		setVictoryText("You earned GOLD");
-		setVictoryColor(float4(1.0f, 0.85f, 0.0f, 1.0f));
-		setConfettiPower(22);
-		setBowlMaterial(SceneManager::getScene()->m_utility.levelIndex, (int)GOLD);
-		setParticleColorByPrize(GOLD);
-		break;
-	case SILVER:
-		setVictoryText("You earned SILVER");
-		setVictoryColor(float4(0.8f, 0.8f, 0.8f, 1.0f));
-		setConfettiPower(18);
-		setBowlMaterial(SceneManager::getScene()->m_utility.levelIndex, (int)SILVER);
-		setParticleColorByPrize(SILVER);
-		break;
-	case BRONZE:
-		setVictoryText("You earned BRONZE");
-		setVictoryColor(float4(0.85f, 0.55f, 0.25f, 1.0f));
-		setConfettiPower(14);
-		setBowlMaterial(SceneManager::getScene()->m_utility.levelIndex, (int)BRONZE);
-		setParticleColorByPrize(BRONZE);
-		break;
-	default:
-		setVictoryText("You earned NOTHING");
-		setVictoryColor(float4(1.0f, 1.0f, 1.0f, 1.0f));
-		setConfettiPower(2);
-		setBowlMaterial(SceneManager::getScene()->m_utility.levelIndex, (int)BRONZE);
-		setParticleColorByPrize(BRONZE);
-		break;
+	string sceneName = SceneManager::getScene()->m_sceneName;
+	const SceneCompletion* savedData = SaveManager::getProgress(sceneName);
+	if (savedData != nullptr) {
+		switch (savedData->grade) {
+		case GOLD:
+			setVictoryText("You earned GOLD");
+			setVictoryColor(float4(1.0f, 0.85f, 0.0f, 1.0f));
+			setConfettiPower(22);
+			setBowl(sceneName, (int)GOLD);
+			setParticleColorByPrize(GOLD);
+			break;
+		case SILVER:
+			setVictoryText("You earned SILVER");
+			setVictoryColor(float4(0.8f, 0.8f, 0.8f, 1.0f));
+			setConfettiPower(18);
+			setBowl(sceneName, (int)SILVER);
+			setParticleColorByPrize(SILVER);
+			break;
+		case BRONZE:
+			setVictoryText("You earned BRONZE");
+			setVictoryColor(float4(0.85f, 0.55f, 0.25f, 1.0f));
+			setConfettiPower(14);
+			setBowl(sceneName, (int)BRONZE);
+			setParticleColorByPrize(BRONZE);
+			break;
+		default:
+			setVictoryText("You earned NOTHING");
+			setVictoryColor(float4(1.0f, 1.0f, 1.0f, 1.0f));
+			setConfettiPower(2);
+			setBowl(sceneName, (int)BRONZE);
+			setParticleColorByPrize(BRONZE);
+			break;
+		}
+		setTimeText("Time : " + Time2DisplayableString(savedData->timeToComplete));
 	}
-	setTimeText("Time : " + Time2DisplayableString(savedData.timeOfCompletion));
 }
 
 void EndRoundState::update() {
@@ -81,7 +79,7 @@ void EndRoundState::update() {
 	m_timer.update();
 	float dt = m_timer.getDt();
 	m_bowl.rotateY(dt * 0.5f);
-	m_bowlContents[m_currentBowlContent].rotateY(dt * 0.5f);
+	m_bowlContent.rotateY(dt * 0.5f);
 	m_particleSystem.update(dt);
 
 	if (m_restartButton.update()) {
@@ -108,7 +106,7 @@ void EndRoundState::play() {
 	// Set the correct bowl
 	// Bowl material and content are set in Playstate handleEvent(hasWon)
 	m_bowl.setPosition(float3(0.0f, 0.0f, 0.0f));
-	m_bowlContents[m_currentBowlContent].setPosition(m_bowl.getPosition());
+	m_bowlContent.setPosition(m_bowl.getPosition());
 	m_camera.setEye(m_bowl.getPosition() + float3(0.f, 0.7f, 1.0f));
 	m_camera.setTarget(m_bowl.getPosition() + float3(0.f,0.3f,0.f));
 
@@ -127,7 +125,7 @@ void EndRoundState::draw() {
 	shadowMap->mapShadowToFrustum(m_camera.getFrustumPoints(0.1f));
 	shadowMap->setup_depthRendering();
 	m_bowl.draw();
-	m_bowlContents[m_currentBowlContent].draw();
+	m_bowlContent.draw();
 	
 	Renderer::getInstance()->beginFrame();	
 	Renderer::getInstance()->drawCapturedFrame();
@@ -138,7 +136,7 @@ void EndRoundState::draw() {
 
 	m_particleSystem.draw();
 	m_bowl.draw();
-	m_bowlContents[m_currentBowlContent].draw();
+	m_bowlContent.draw();
 	Renderer::getInstance()->clearDepth();
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
@@ -174,8 +172,13 @@ void EndRoundState::setParticleColorByPrize(size_t prize) {
 	}
 }
 
-void EndRoundState::setBowlMaterial(size_t contentIndex, int bowlMaterial) {
-	m_currentBowlContent = contentIndex;
+void EndRoundState::setBowl(string bowlContentEntityName, int bowlMaterial) {
+	if (bowlContentEntityName == "scene0")
+		m_bowlContent.load("BowlContent1");
+	else if (bowlContentEntityName == "scene1")
+		m_bowlContent.load("BowlContent2");
+	else if (bowlContentEntityName == "scene2")
+		m_bowlContent.load("BowlContent3");
 	m_bowl.setCurrentMaterial((int)bowlMaterial);
 }
 

@@ -9,6 +9,7 @@ private:
 	Timer m_timer;
 
 	struct LevelSelector {
+		string timeString;
 		Entity m_bowl;
 		Entity m_content;
 	};
