@@ -1,22 +1,11 @@
 #pragma once
-#include "State.h"
+#include "StateItem.h"
 #include "TextRenderer.h"
 #include "Entity.h"
 #include "Button.h"
 #include "Sprite2D.h"
-#include "Timer.h"
 
-class PauseState : public State {
-public:
-	PauseState();
-	~PauseState();
-	void initialize();
-	void update();
-	void handleEvent();
-	void pause();
-	void play();
-	void draw();
-
+class PauseState : public StateItem {
 private:
 	TextRenderer m_textRenderer;
 	Sprite2D m_settingsBackground;
@@ -40,4 +29,17 @@ private:
 	int m_previousState;
 
 	Entity m_entity;
+
+public:
+	PauseState();
+	~PauseState();
+
+	void init();
+	void update();
+	void draw();
+
+	void pause();
+	void play();
+	void restart();
+
 };

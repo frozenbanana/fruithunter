@@ -1,17 +1,13 @@
-#include "IntroState.h"
-#include "ErrorLogger.h"
-#include "AudioHandler.h"
+#include "MainState.h"
 #include "Renderer.h"
-#include "StateHandler.h"
-#include "Input.h"
 #include "Settings.h"
+#include "AudioHandler.h"
 
-IntroState::IntroState() { initialize(); }
+MainState::MainState() : StateItem(StateItem::State::MainState) { }
 
-IntroState::~IntroState() {}
+MainState::~MainState() {}
 
-void IntroState::initialize() {
-	m_name = "Intro State";
+void MainState::init() {
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
 
@@ -21,6 +17,10 @@ void IntroState::initialize() {
 	m_editorButton.initialize("Editor", float2(115, height * 0.75f + 120));
 
 	m_bow.setRecoveryTime(0);
+
+	m_camera.setView(
+		float3(58.0f, 10.9f, 21.9f), float3(61.3f, 10.1f, -36.0f), float3(0.f, 1.f, 0.f));
+
 
 	m_letters.resize(11);
 	string logoPaths[11] = {
@@ -40,22 +40,21 @@ void IntroState::initialize() {
 		m_letters[i].letter.load(logoPaths[i]);
 		m_letters[i].letter.setScale(0.25f);
 		m_letters[i].speedOffset = float2(RandomFloat(-0.15f, 0.15f), RandomFloat(-0.5f, 0.5f));
-		m_letters[i].letter.setAlignment();//center
+		m_letters[i].letter.setAlignment(); // center
 	}
-
-	m_timer.reset();
 }
 
-void IntroState::update() {
+void MainState::update() {
+	Input::getInstance()->setMouseModeAbsolute();
+
 	float3 treePos(56.4f, 9.0f, 18.2f);
-	float3 bowPos = treePos + float3(10,1.5,5);
+	float3 bowPos = treePos + float3(10, 1.5, 5);
 
 	m_timer.update();
 	float delta = m_timer.getDt();
 	m_totalDelta = fmod((m_totalDelta + delta), (2.f * XM_PI));
 	m_totalDelta_forBow += delta;
 
-	Input::getInstance()->setMouseModeAbsolute();
 
 	// update scene
 	sceneManager.update(&m_camera);
@@ -71,17 +70,17 @@ void IntroState::update() {
 	shared_ptr<Arrow> arrow;
 	if (m_totalDelta_forBow >= m_shootDelay + m_bowHoldTime) {
 		m_totalDelta_forBow = 0; // reset timer
-		//randomize bow values
-		//m_bowHoldTime = RandomFloat(1.0, 1.5);
+								 // randomize bow values
+		// m_bowHoldTime = RandomFloat(1.0, 1.5);
 	}
 	else if (m_totalDelta_forBow >= m_bowHoldTime) {
 		arrow = m_bow.update_bow(delta, false); // release string
 	}
 	else {
-		arrow = m_bow.update_bow(delta, true);// pull string
+		arrow = m_bow.update_bow(delta, true); // pull string
 	}
 	if (arrow.get() != nullptr)
-		m_arrows.push_back(arrow);// add shot arrow to array
+		m_arrows.push_back(arrow); // add shot arrow to array
 
 	// arrow collision
 	QuadTree<shared_ptr<Entity>>* entities = &SceneManager::getScene()->m_entities;
@@ -116,38 +115,28 @@ void IntroState::update() {
 		offsetX += m_letters[i].letter.getTextureSize().x / (1.65f * 2.f);
 	}
 
-	Input::getInstance()->setMouseModeAbsolute();
-}
-
-void IntroState::handleEvent() {
 	if (m_startButton.update()) {
-		StateHandler::getInstance()->changeState(StateHandler::LEVEL_SELECT);
+		push(State::LevelSelectState);
 	}
 	if (m_settingsButton.update()) {
-		StateHandler::getInstance()->changeState(StateHandler::SETTINGS);
+		push(State::SettingState);
 	}
 	if (m_exitButton.update()) {
-		StateHandler::getInstance()->quit();
+		pop(false);
 	}
 	if (DEBUG && m_editorButton.update()) {
-		StateHandler::getInstance()->changeState(StateHandler::EDITOR);
+		push(State::EditorState);
 	}
 }
 
-void IntroState::pause() {
-	ErrorLogger::log(m_name + " pause() called.");
-	AudioHandler::getInstance()->pauseAllMusic();
-}
-
-void IntroState::draw() {
-
+void MainState::draw() {
 	//	__SHADOWS__
 	sceneManager.setup_shadow(&m_camera);
-	//custom shadow drawing
+	// custom shadow drawing
 	m_apple->draw_animate_onlyMesh();
 	for (size_t i = 0; i < m_arrows.size(); i++)
 		m_arrows[i]->draw_onlyMesh(float3(1.));
-	//standard shadow drawing
+	// standard shadow drawing
 	sceneManager.draw_shadow();
 
 	//	__COLOR__
@@ -177,17 +166,14 @@ void IntroState::draw() {
 		m_editorButton.draw();
 }
 
-
-void IntroState::play() {
-	ErrorLogger::log(m_name + " play() called.");
-
-	Settings::getInstance()->loadAllSetting();
-
-	AudioHandler::getInstance()->playMusic(AudioHandler::Music::OCEAN);
-
+void MainState::play() {
 	sceneManager.load("intro");
+	AudioHandler::getInstance()->playMusic(AudioHandler::Music::OCEAN);
 	m_apple = make_shared<Apple>(float3(58.0f, 10.1f, 16.9f));
 	m_arrows.clear();
-	m_camera.setView(
-		float3(58.0f, 10.9f, 21.9f), float3(61.3f, 10.1f, -36.0f), float3(0.f, 1.f, 0.f));
+	m_timer.reset();
 }
+
+void MainState::pause() {}
+
+void MainState::restart() {}

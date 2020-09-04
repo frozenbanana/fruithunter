@@ -108,15 +108,6 @@
     <ClCompile Include="Source\Player\Player.cpp">
       <Filter>Source\Player</Filter>
     </ClCompile>
-    <ClCompile Include="Source\State\State.cpp">
-      <Filter>Source\State</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\State\StateHandler.cpp">
-      <Filter>Source\State</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\State\States\IntroState.cpp">
-      <Filter>Source\State\States</Filter>
-    </ClCompile>
     <ClCompile Include="Source\State\States\PlayState.cpp">
       <Filter>Source\State\States</Filter>
     </ClCompile>
@@ -261,6 +252,15 @@
     <ClCompile Include="Source\Utility\Fragment.cpp">
       <Filter>Source\Utility</Filter>
     </ClCompile>
+    <ClCompile Include="Source\State\StateStack.cpp">
+      <Filter>Source\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\State\StateItem.cpp">
+      <Filter>Source\State</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\State\States\MainState.cpp">
+      <Filter>Source\State\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -307,15 +307,6 @@
     </ClInclude>
     <ClInclude Include="Source\Player\Player.h">
       <Filter>Source\Player</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\State\State.h">
-      <Filter>Source\State</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\State\StateHandler.h">
-      <Filter>Source\State</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\State\States\IntroState.h">
-      <Filter>Source\State\States</Filter>
     </ClInclude>
     <ClInclude Include="Source\State\States\PlayState.h">
       <Filter>Source\State\States</Filter>
@@ -472,6 +463,18 @@
     </ClInclude>
     <ClInclude Include="Source\Utility\Fragment.h">
       <Filter>Source\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\State\StateStack.h">
+      <Filter>Source\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\State\StateItem.h">
+      <Filter>Source\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\State\States.h">
+      <Filter>Source\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\State\States\MainState.h">
+      <Filter>Source\State\States</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,22 +1,12 @@
 #pragma once
-#include "State.h"
+#include "StateItem.h"
 #include "TextRenderer.h"
 #include "Entity.h"
 #include "Button.h"
 #include "Slider.h"
 #include "Sprite2D.h"
 
-class SettingsState : public State {
-public:
-	SettingsState();
-	~SettingsState();
-	void initialize();
-	void update();
-	void handleEvent();
-	void pause();
-	void play();
-	void draw();
-
+class SettingsState : public StateItem {
 private:
 	TextRenderer m_textRenderer;
 	Sprite2D m_settingsBackground;
@@ -37,4 +27,17 @@ private:
 	bool m_screenStateChanged = false;
 
 	Entity m_entity;
+
+public:
+	SettingsState();
+	~SettingsState();
+
+	void init();
+	void update();
+	void draw();
+
+	void pause();
+	void play();
+	void restart();
+
 };

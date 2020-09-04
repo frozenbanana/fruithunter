@@ -1,26 +1,9 @@
 #pragma once
-#include "State.h"
-#include "Timer.h"
+#include "StateItem.h"
 #include "TextRenderer.h"
-#include "AudioHandler.h"
-#include "ShadowMapping.h"
-#include "AudioHandler.h"
-#include "Entity.h"
-#include "Animal.h"
 #include "SceneManager.h"
 
-class LevelSelectState : public State {
-public:
-	void initialize();
-	void update();
-	void handleEvent();
-	void pause();
-	void play();
-	void draw();
-
-	LevelSelectState() { initialize(); }
-	~LevelSelectState();
-
+class LevelSelectState : public StateItem {
 private:
 	TextRenderer m_textRenderer;
 	Timer m_timer;
@@ -37,4 +20,17 @@ private:
 
 	void setLevel(int);
 	void initializeLevelSelectors();
+
+public:
+	LevelSelectState();
+	~LevelSelectState();
+
+	void init();
+	void update();
+	void draw();
+
+	void play();
+	void pause();
+	void restart();
+
 };

@@ -1,18 +1,13 @@
 #include "PauseState.h"
-#include "ErrorLogger.h"
 #include "Renderer.h"
-#include "StateHandler.h"
 #include "Input.h"
 #include "AudioHandler.h"
-#include "PlayState.h"
 
-PauseState::PauseState() { initialize(); }
+PauseState::PauseState() : StateItem(State::PauseState) { }
 
 PauseState::~PauseState() {}
 
-void PauseState::initialize() {
-	m_name = "Pause State";
-
+void PauseState::init() {
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
 
@@ -104,38 +99,30 @@ void PauseState::initialize() {
 
 void PauseState::update() {
 	Input::getInstance()->setMouseModeAbsolute();
-}
 
-void PauseState::handleEvent() {
 	if (m_resumeButton.update() || Input::getInstance()->keyPressed(Keyboard::Keys::Escape)) {
-		StateHandler::getInstance()->resumeState();
+		pop(false);
 	}
-	if (StateHandler::getInstance()->getPreviousState() == StateHandler::PLAY &&
-		m_restartButton.update()) {
-		State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
-		dynamic_cast<PlayState*>(tempPointer)->restart();
-		StateHandler::getInstance()->changeState(StateHandler::PLAY);
+	if (m_restartButton.update()) {
+		pop(true);
 	}
 	if (m_settingsButton.update()) {
-		StateHandler::getInstance()->changeState(StateHandler::SETTINGS);
+		push(State::SettingState);
 	}
 	if (m_mainMenuButton.update()) {
 		AudioHandler::getInstance()->pauseAllMusic();
-		StateHandler::getInstance()->changeState(StateHandler::INTRO);
+		pop(State::MainState,false);
 	}
 	if (m_exitButton.update()) {
 		AudioHandler::getInstance()->pauseAllMusic();
-		StateHandler::getInstance()->quit();
+		pop((State)-1, false); // will pop all states, resulting in an empty stack
 	}
 }
 
-void PauseState::pause() { ErrorLogger::log(m_name + " pause() called."); }
+void PauseState::pause() { }
 
 void PauseState::play() {
-	ErrorLogger::log(m_name + " play() called.");
-	int previousState = StateHandler::getInstance()->getPreviousState();
-	if (previousState == StateHandler::LEVEL_SELECT || previousState == StateHandler::PLAY)
-		Renderer::getInstance()->captureFrame();
+	Renderer::getInstance()->captureFrame();
 
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
@@ -149,14 +136,15 @@ void PauseState::play() {
 	//m_settingsBackground.setPosition(float2(width / 2.f, height / 2.f));
 }
 
+void PauseState::restart() {}
+
 
 void PauseState::draw() {
 	Renderer::getInstance()->beginFrame();
 	Renderer::getInstance()->drawCapturedFrame();
 	m_settingsBackground.drawNoScaling();
 
-	if (StateHandler::getInstance()->getPreviousState() == StateHandler::PLAY)
-		m_restartButton.draw();
+	m_restartButton.draw();
 
 	m_resumeButton.draw();
 	m_mainMenuButton.draw();

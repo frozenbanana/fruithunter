@@ -1,8 +1,8 @@
 #pragma once
-#include "State.h"
+#include "StateItem.h"
 #include "SceneEditorManager.h"
 
-class EditorState : public State {
+class EditorState : public StateItem {
 private:
 	SceneEditorManager m_editor;
 	SceneManager m_testingEnvironment;
@@ -14,10 +14,11 @@ public:
 	EditorState();
 	~EditorState();
 
-	void initialize();
+	void init();
 	void update();
-	void handleEvent();
+	void draw();
+
 	void pause();
 	void play();
-	void draw();
+	void restart();
 };

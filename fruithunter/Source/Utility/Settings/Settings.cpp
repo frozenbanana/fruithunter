@@ -9,7 +9,7 @@
 
 Settings Settings::m_this;
 
-Settings::Settings(){};
+Settings::Settings() {};
 
 string Settings::getSetting(ifstream* input) {
 	string in, word;
@@ -23,7 +23,7 @@ string Settings::getSetting(ifstream* input) {
 	return word;
 }
 
-void Settings::initialize() {}
+void Settings::initialize() { getInstance()->loadAllSetting(); }
 
 Settings* Settings::getInstance() { return &m_this; }
 

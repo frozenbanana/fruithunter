@@ -1,26 +1,22 @@
 #pragma once
-#include "State.h"
-#include "Quad.h"
-#include "Timer.h"
-#include "TextRenderer.h"
-#include "AudioHandler.h"
+#include "StateItem.h"
 #include "SceneManager.h"
 
-class PlayState : public State {
+class PlayState : public StateItem {
+private:
+	SceneManager sceneManager;
+
 public:
+	PlayState();
+
+	void init();
 	void update();
-	void initialize();
-	void handleEvent();
-	void pause();
-	void play();
 	void draw();
 
-	void changeScene(string sceneName);
+	void play();
+	void pause();
 	void restart();
 
-	PlayState() { initialize(); }
+	void changeScene(string sceneName);
 
-private:
-
-	SceneManager sceneManager;
 };

@@ -1,17 +1,15 @@
 #include "EndRoundState.h"
-#include "ErrorLogger.h"
 #include "Renderer.h"
-#include "StateHandler.h"
 #include "Input.h"
 #include "AudioHandler.h"
-#include "PlayState.h"
+#include "SceneManager.h"
+#include "SaveManager.h"
 
-EndRoundState::EndRoundState() { initialize(); }
+EndRoundState::EndRoundState() : StateItem(State::EndRoundState) { }
 
 EndRoundState::~EndRoundState() {}
 
-void EndRoundState::initialize() {
-	m_name = "End Round State";
+void EndRoundState::init() {
 	m_victoryText = "Nothing";
 
 	float width = SCREEN_WIDTH;
@@ -38,6 +36,43 @@ void EndRoundState::initialize() {
 	// Just ignore this. It fixes things.
 	m_entity.load("Melon_000000");
 	m_entity.setPosition(float3(-1000));
+
+	Renderer::getInstance()->captureFrame();
+
+	LevelData savedData =
+		SaveManager::getInstance()->getActiveSave()[SceneManager::getScene()->m_utility.levelIndex];
+	SaveManager::getInstance()->getAllSaveStates();
+	switch (savedData.grade) {
+	case GOLD:
+		setVictoryText("You earned GOLD");
+		setVictoryColor(float4(1.0f, 0.85f, 0.0f, 1.0f));
+		setConfettiPower(22);
+		setBowlMaterial(SceneManager::getScene()->m_utility.levelIndex, (int)GOLD);
+		setParticleColorByPrize(GOLD);
+		break;
+	case SILVER:
+		setVictoryText("You earned SILVER");
+		setVictoryColor(float4(0.8f, 0.8f, 0.8f, 1.0f));
+		setConfettiPower(18);
+		setBowlMaterial(SceneManager::getScene()->m_utility.levelIndex, (int)SILVER);
+		setParticleColorByPrize(SILVER);
+		break;
+	case BRONZE:
+		setVictoryText("You earned BRONZE");
+		setVictoryColor(float4(0.85f, 0.55f, 0.25f, 1.0f));
+		setConfettiPower(14);
+		setBowlMaterial(SceneManager::getScene()->m_utility.levelIndex, (int)BRONZE);
+		setParticleColorByPrize(BRONZE);
+		break;
+	default:
+		setVictoryText("You earned NOTHING");
+		setVictoryColor(float4(1.0f, 1.0f, 1.0f, 1.0f));
+		setConfettiPower(2);
+		setBowlMaterial(SceneManager::getScene()->m_utility.levelIndex, (int)BRONZE);
+		setParticleColorByPrize(BRONZE);
+		break;
+	}
+	setTimeText("Time : " + Time2DisplayableString(savedData.timeOfCompletion));
 }
 
 void EndRoundState::update() {
@@ -48,27 +83,24 @@ void EndRoundState::update() {
 	m_bowl.rotateY(dt * 0.5f);
 	m_bowlContents[m_currentBowlContent].rotateY(dt * 0.5f);
 	m_particleSystem.update(dt);
-}
 
-void EndRoundState::handleEvent() {
 	if (m_restartButton.update()) {
-		State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
-		StateHandler::getInstance()->changeState(StateHandler::PLAY);
+		SceneManager::getScene()->reset();
+		pop(true);
 	}
 	if (m_levelSelectButton.update()) {
 		AudioHandler::getInstance()->pauseAllMusic();
-		StateHandler::getInstance()->changeState(StateHandler::LEVEL_SELECT);
+		pop(State::LevelSelectState,false);
 	}
 	if (m_exitButton.update()) {
 		AudioHandler::getInstance()->pauseAllMusic();
-		StateHandler::getInstance()->quit();
+		pop((State)-1, false);
 	}
 }
 
-void EndRoundState::pause() { ErrorLogger::log(m_name + " pause() called."); }
+void EndRoundState::pause() { }
 
 void EndRoundState::play() {
-	ErrorLogger::log(m_name + " play() called.");
 	Renderer::getInstance()->captureFrame();
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
@@ -86,6 +118,8 @@ void EndRoundState::play() {
 
 	AudioHandler::getInstance()->playOnce(AudioHandler::APPLAUSE);
 }
+
+void EndRoundState::restart() {}
 
 void EndRoundState::draw() {
 	// Draw to shadowmap

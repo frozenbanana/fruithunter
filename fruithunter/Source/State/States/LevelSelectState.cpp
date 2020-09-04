@@ -1,13 +1,8 @@
 #include "LevelSelectState.h"
-#include "ErrorLogger.h"
-#include "Renderer.h"
-#include "Statehandler.h"
-#include "PlayState.h"
 #include "SaveManager.h"
 #include "Scene.h"
 
-void LevelSelectState::initialize() {
-	m_name = "Level select state";
+void LevelSelectState::init() {
 }
 
 void LevelSelectState::update() {
@@ -30,7 +25,7 @@ void LevelSelectState::update() {
 					(*arrows)[j]->collide_entity(dt, m_levelSelectors[i].m_bowl)) {
 					// start level
 					setLevel(i);
-					StateHandler::getInstance()->changeState(StateHandler::PLAY);
+					push(State::PlayState);
 				}
 			}
 		}
@@ -52,34 +47,10 @@ void LevelSelectState::update() {
 		}
 		m_animal[i]->update(dt, player->getPosition());
 	}
-}
 
-void LevelSelectState::handleEvent() {
 	if (Input::getInstance()->keyPressed(Keyboard::Keys::Escape)) {
-		StateHandler::getInstance()->changeState(StateHandler::PAUSE);
+		push(State::PauseState);
 	}
-}
-
-void LevelSelectState::pause() { ErrorLogger::log(m_name + " pause() called."); }
-
-void LevelSelectState::play() {
-	Input::getInstance()->setMouseModeRelative();
-	ErrorLogger::log(m_name + " play() called.");
-
-	sceneManager.load("levelSelect");
-
-	initializeLevelSelectors();
-
-	//State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
-	//dynamic_cast<PlayState*>(tempPointer)->destroyLevel(); // reset if there is an old level
-
-	//AudioHandler::getInstance()->changeMusicTo(AudioHandler::ELEVATOR, 0.f); // dt not used. Lazy...
-	//State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
-	//dynamic_cast<PlayState*>(tempPointer)->destroyLevel(); // reset if there is an old level
-	//TerrainManager::getInstance()->removeAll();
-	//TerrainManager::getInstance()->add(float3(0.f), float3(100.f, 25.f, 100.f), "tutorial.png",
-	//	m_maps, XMINT2(210, 210), XMINT2(1, 1), float3(0.f, 0.f, 0.f));
-
 }
 
 void LevelSelectState::draw() {
@@ -134,11 +105,21 @@ void LevelSelectState::draw() {
 
 }
 
+void LevelSelectState::play() {
+	sceneManager.load("levelSelect");
+	initializeLevelSelectors();
+}
+
+void LevelSelectState::pause() {}
+
+void LevelSelectState::restart() {}
+
+LevelSelectState::LevelSelectState() : StateItem(State::LevelSelectState) {}
+
 LevelSelectState::~LevelSelectState() {}
 
 void LevelSelectState::setLevel(int newLevel) {
-	State* tempPointer = StateHandler::getInstance()->peekState(StateHandler::PLAY);
-	dynamic_cast<PlayState*>(tempPointer)->changeScene("scene"+to_string(newLevel));
+	SceneManager::getScene()->load("scene" + to_string(newLevel));
 }
 
 void LevelSelectState::initializeLevelSelectors() {

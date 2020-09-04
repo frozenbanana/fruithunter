@@ -1,13 +1,12 @@
 #include "EditorState.h"
 #include "Input.h"
-#include "StateHandler.h"
 #include "ErrorLogger.h"
 
-EditorState::EditorState() { initialize(); }
+EditorState::EditorState() : StateItem(State::EditorState) {}
 
 EditorState::~EditorState() {}
 
-void EditorState::initialize() { m_name = "Editor State"; }
+void EditorState::init() {}
 
 void EditorState::update() {
 	Input* ip = Input::getInstance();
@@ -46,21 +45,17 @@ void EditorState::update() {
 			ImGui::EndMainMenuBar();
 		}
 	}
-}
 
-void EditorState::handleEvent() {
 	if (Input::getInstance()->keyPressed(Keyboard::Keys::Escape)) {
-		StateHandler::getInstance()->changeState(StateHandler::PAUSE);
+		push(State::PauseState);
 	}
 }
 
-void EditorState::pause() { ErrorLogger::log(m_name + " pause() called."); }
+void EditorState::pause() { }
 
-void EditorState::play() {
-	Input::getInstance()->setMouseModeRelative();
-	ErrorLogger::log(m_name + " play() called.");
-	m_editor.clear();
-}
+void EditorState::play() {}
+
+void EditorState::restart() {}
 
 void EditorState::draw() {
 	if (m_testing) {

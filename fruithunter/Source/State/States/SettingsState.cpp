@@ -1,17 +1,13 @@
 #include "SettingsState.h"
 #include "Renderer.h"
-#include "AudioHandler.h"
 #include "Input.h"
-#include "Statehandler.h"
-#include "ErrorLogger.h"
 #include "Settings.h"
 
-SettingsState::SettingsState() { initialize(); }
+SettingsState::SettingsState() : StateItem(State::SettingState) {}
 
 SettingsState::~SettingsState() {}
 
-void SettingsState::initialize() {
-	m_name = "Settings State";
+void SettingsState::init() {
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
 
@@ -46,9 +42,9 @@ void SettingsState::initialize() {
 	m_entity.setPosition(float3(-1000));
 }
 
-void SettingsState::update() { Input::getInstance()->setMouseModeAbsolute(); }
+void SettingsState::update() { 
+	Input::getInstance()->setMouseModeAbsolute();
 
-void SettingsState::handleEvent() {
 	Settings* settings = Settings::getInstance();
 
 	if (m_masterVolume.update()) {
@@ -120,14 +116,13 @@ void SettingsState::handleEvent() {
 	}
 
 	if (m_backButton.update() || Input::getInstance()->keyDown(Keyboard::Keys::Escape)) {
-		StateHandler::getInstance()->resumeMenuState();
+		pop(false);
 	}
 }
 
 void SettingsState::pause() { Settings::getInstance()->saveAllSetting(); }
 
 void SettingsState::play() {
-	ErrorLogger::log(m_name + " play() called.");
 	Settings* settings = Settings::getInstance();
 
 	float width = SCREEN_WIDTH;
@@ -176,6 +171,8 @@ void SettingsState::play() {
 
 	m_screenStateChanged = false;
 }
+
+void SettingsState::restart() {}
 
 void SettingsState::draw() {
 	Renderer::getInstance()->beginFrame();

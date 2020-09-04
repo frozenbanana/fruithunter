@@ -1,5 +1,5 @@
 #pragma once
-#include "State.h"
+#include "StateItem.h"
 #include "TextRenderer.h"
 #include "Entity.h"
 #include "Button.h"
@@ -8,23 +8,7 @@
 #include "Camera.h"
 #include "Sprite2D.h"
 
-class EndRoundState : public State {
-public:
-	EndRoundState();
-	~EndRoundState();
-	void initialize();
-	void update();
-	void handleEvent();
-	void pause();
-	void play();
-	void draw();
-	void setParticleColorByPrize(size_t prize);
-	void setVictoryText(string text);
-	void setVictoryColor(float4 color);
-	void setBowlMaterial(size_t contentIndex, int bowlMaterial);
-	void setTimeText(string text);
-	void setConfettiPower(float emitRate);
-
+class EndRoundState : public StateItem {
 private:
 	Camera m_camera;
 	Timer m_timer;
@@ -40,7 +24,25 @@ private:
 	Entity m_bowlContents[3];
 	Entity m_bowl;
 	size_t m_currentBowlContent;
-
-
 	Entity m_entity;
+
+public:
+	EndRoundState();
+	~EndRoundState();
+
+	void init();
+	void update();
+	void draw();
+
+	void pause();
+	void play();
+	void restart();
+
+	void setParticleColorByPrize(size_t prize);
+	void setVictoryText(string text);
+	void setVictoryColor(float4 color);
+	void setBowlMaterial(size_t contentIndex, int bowlMaterial);
+	void setTimeText(string text);
+	void setConfettiPower(float emitRate);
+
 };

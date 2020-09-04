@@ -1,13 +1,13 @@
+#include <iostream>
 #include "ErrorLogger.h"
 #include "Quad.h"
 #include "Renderer.h"
 #include "Input.h"
 #include <Windows.h>
-#include <stdio.h>
-#include "StateHandler.h"
 #include "VariableSyncer.h"
 #include "Settings.h"
 #include "PathFindingThread.h"
+#include "StateStack.h"
 
 int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
 	_In_ int cmdCount) {
@@ -16,17 +16,19 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	Input::initilize(Renderer::getInstance()->getHandle());
 
 	ErrorLogger errorLogger;
-	StateHandler* stateHandler = StateHandler::getInstance();
 	Input* input = Input::getInstance();
 	Renderer* renderer = Renderer::getInstance();
+	Settings::initialize();
 	PathFindingThread* extraThread = PathFindingThread::getInstance();
 	MSG msg = { 0 };
-	stateHandler->initialize();
+
+	StateStack stateStack;
+	stateStack.push(StateItem::State::MainState);
 
 	// random seed
 	srand((unsigned int)time(NULL));
 
-	while (StateHandler::getInstance()->isRunning()) {
+	while (stateStack.isEmpty() == false) {
 		VariableSyncer::getInstance()->sync();
 		input->update();
 		
@@ -36,10 +38,10 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 		ImGui::NewFrame();
 
 		// Main loop
-		stateHandler->handleEvent();
-		stateHandler->update();
+		stateStack.update();
 		renderer->beginFrame();
-		stateHandler->draw();
+		stateStack.draw();
+		stateStack.handleRequest();
 
 		// imgui assemble draw data
 		ImGui::Render();
@@ -53,7 +55,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 			DispatchMessage(&msg);
 			switch (msg.message) {
 				case WM_QUIT: {
-					stateHandler->quit();
+					stateStack.pop((StateItem::State)-1, false);//pop all states
 					break;
 				}
 			}
