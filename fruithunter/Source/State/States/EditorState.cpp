@@ -11,7 +11,6 @@ void EditorState::init() { m_editor.clear(); }
 void EditorState::update() {
 	Input* ip = Input::getInstance();
 
-	// Input::getInstance()->setMouseModeRelative();
 	if (Input::getInstance()->keyPressed(m_mouseMode_switch))
 		m_mouseMode = !m_mouseMode;
 	if (m_mouseMode)

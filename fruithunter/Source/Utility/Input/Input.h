@@ -8,25 +8,23 @@ class Input {
 public:
 	enum ScrollTracking { DOWN, STILL, UP };
 	enum MouseButton { LEFT, MIDDLE, RIGHT };
-
+	
 	~Input();
 	static void initilize(HWND window);
 	void update();
-	void setMouseMovement(int x, int y);
 	// Input for keyboard
-	bool keyPressed(DirectX::Keyboard::Keys key);
-	bool keyReleased(DirectX::Keyboard::Keys key);
-	bool keyDown(DirectX::Keyboard::Keys key);
-	bool keyUp(DirectX::Keyboard::Keys key);
+	bool keyPressed(DirectX::Keyboard::Keys key, bool filterImgui = true);
+	bool keyReleased(DirectX::Keyboard::Keys key, bool filterImgui = true);
+	bool keyDown(DirectX::Keyboard::Keys key, bool filterImgui = true);
+	bool keyUp(DirectX::Keyboard::Keys key, bool filterImgui = true);
 
 	// Input for mouse
-	bool mousePressed(MouseButton button);
-	bool mouseReleased(MouseButton button);
-	bool mouseDown(MouseButton button);
-	bool mouseUp(MouseButton button);
+	bool mousePressed(MouseButton button, bool filterImgui = true);
+	bool mouseReleased(MouseButton button, bool filterImgui = true);
+	bool mouseDown(MouseButton button, bool filterImgui = true);
+	bool mouseUp(MouseButton button, bool filterImgui = true);
 	int mouseX();
 	int mouseY();
-	float2 getMouseMovement() const;
 	int scrollWheelValue();
 	bool scrolledUp();
 	bool scrolledDown();
@@ -58,7 +56,6 @@ private:
 	ScrollTracking m_scrollDirection;
 
 	// Mouse move tracker
-	int m_mouseMovementX = 0, m_mouseMovementY = 0;
 	int m_oldX;
 	int m_oldY;
 };

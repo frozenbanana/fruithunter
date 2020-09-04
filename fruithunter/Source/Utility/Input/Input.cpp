@@ -42,23 +42,35 @@ void Input::update() {
 	else
 		m_scrollDirection = ScrollTracking::UP;
 
-
 	m_kbTracker.Update(m_keyboardState);
 	m_mouseTracker.Update(m_mouseState);
 	m_scrollWheelTracker = m_mouseState.scrollWheelValue;
 }
 
-void Input::setMouseMovement(int x, int y) {
-	m_mouseMovementX = x;
-	m_mouseMovementY = y;
+bool Input::keyPressed(DirectX::Keyboard::Keys key, bool filterImgui) {
+	if (filterImgui && ImGui::GetIO().WantCaptureKeyboard)
+		return false;
+	return m_kbTracker.IsKeyPressed(key);
+}
+bool Input::keyReleased(DirectX::Keyboard::Keys key, bool filterImgui) {
+	if (filterImgui && ImGui::GetIO().WantCaptureKeyboard)
+		return false;
+	return m_kbTracker.IsKeyReleased(key);
+}
+bool Input::keyUp(DirectX::Keyboard::Keys key, bool filterImgui) {
+	if (filterImgui && ImGui::GetIO().WantCaptureKeyboard)
+		return false;
+	return m_keyboardState.IsKeyUp(key);
+}
+bool Input::keyDown(DirectX::Keyboard::Keys key, bool filterImgui) {
+	if (filterImgui && ImGui::GetIO().WantCaptureKeyboard)
+		return false;
+	return m_keyboardState.IsKeyDown(key);
 }
 
-bool Input::keyPressed(DirectX::Keyboard::Keys key) { return m_kbTracker.IsKeyPressed(key); }
-bool Input::keyReleased(DirectX::Keyboard::Keys key) { return m_kbTracker.IsKeyReleased(key); }
-bool Input::keyUp(DirectX::Keyboard::Keys key) { return m_keyboardState.IsKeyUp(key); }
-bool Input::keyDown(DirectX::Keyboard::Keys key) { return m_keyboardState.IsKeyDown(key); }
-
-bool Input::mousePressed(MouseButton button) {
+bool Input::mousePressed(MouseButton button, bool filterImgui) {
+	if (filterImgui && ImGui::GetIO().WantCaptureMouse)
+		return false;
 	switch (button) {
 	case LEFT:
 		return m_mouseTracker.leftButton == DirectX::Mouse::ButtonStateTracker::PRESSED;
@@ -69,7 +81,9 @@ bool Input::mousePressed(MouseButton button) {
 	}
 	return false;
 }
-bool Input::mouseReleased(MouseButton button) {
+bool Input::mouseReleased(MouseButton button, bool filterImgui) {
+	if (filterImgui && ImGui::GetIO().WantCaptureMouse)
+		return false;
 	switch (button) {
 	case LEFT:
 		return m_mouseTracker.leftButton == DirectX::Mouse::ButtonStateTracker::RELEASED;
@@ -80,7 +94,9 @@ bool Input::mouseReleased(MouseButton button) {
 	}
 	return false;
 }
-bool Input::mouseDown(MouseButton button) {
+bool Input::mouseDown(MouseButton button, bool filterImgui) {
+	if (filterImgui && ImGui::GetIO().WantCaptureMouse)
+		return false;
 	switch (button) {
 	case LEFT:
 		return m_mouseTracker.leftButton == DirectX::Mouse::ButtonStateTracker::HELD;
@@ -91,7 +107,9 @@ bool Input::mouseDown(MouseButton button) {
 	}
 	return false;
 }
-bool Input::mouseUp(MouseButton button) {
+bool Input::mouseUp(MouseButton button, bool filterImgui) {
+	if (filterImgui && ImGui::GetIO().WantCaptureMouse)
+		return false;
 	switch (button) {
 	case LEFT:
 		return m_mouseTracker.leftButton == DirectX::Mouse::ButtonStateTracker::UP;
@@ -110,8 +128,6 @@ int Input::mouseX() {
 int Input::mouseY() { 
 	return m_mouseState.y; 
 }
-
-float2 Input::getMouseMovement() const { return float2(m_mouseMovementX,m_mouseMovementY); }
 
 int Input::scrollWheelValue() { return m_mouseState.scrollWheelValue; }
 
