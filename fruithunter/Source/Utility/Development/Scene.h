@@ -100,7 +100,6 @@ public:
 	struct SceneUtilityInfo {
 		int winCondition[NR_OF_FRUITS] = { 0 };
 		int timeTargets[NR_OF_TIME_TARGETS] = { 0 };
-		int levelIndex = -1; // standard as -1. Will keep value if scene isnt a level.
 		float3 startSpawn;
 	} m_utility;
 

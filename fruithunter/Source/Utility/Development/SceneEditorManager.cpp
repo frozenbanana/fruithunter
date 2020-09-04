@@ -884,7 +884,6 @@ void SceneEditorManager::update_imgui() {
 				scene->m_utility.startSpawn = m_pointer;
 			ImGui::SameLine();
 			ImGui::InputFloat3("Start Spawn", (float*)&scene->m_utility.startSpawn);
-			ImGui::InputInt("Level Index (-1 if no level)", &scene->m_utility.levelIndex);
 
 		}
 		ImGui::End();
