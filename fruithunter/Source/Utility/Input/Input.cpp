@@ -141,10 +141,17 @@ int Input::getMouseMovementY() { return m_mouseState.y - m_oldY; }
 
 DirectX::Mouse::Mode Input::getMouseMode() { return m_mouseState.positionMode; }
 
+void Input::enableImguiInput() { m_imguiInput = true; }
+
+void Input::disableImguiInput() { m_imguiInput = false; }
+
+bool Input::isImguiReceivingInput() { return m_imguiInput; }
+
 Input* Input::getInstance() { return &m_this; }
 
 
 void Input::setMouseModeRelative() {
+	disableImguiInput();
 	if (m_mouseState.positionMode == DirectX::Mouse::MODE_ABSOLUTE)
 		m_mouse.get()->SetMode(DirectX::Mouse::MODE_RELATIVE);
 
@@ -153,6 +160,7 @@ void Input::setMouseModeRelative() {
 }
 
 void Input::setMouseModeAbsolute() {
+	enableImguiInput();
 	if (m_mouseState.positionMode != DirectX::Mouse::MODE_ABSOLUTE)
 		m_mouse.get()->SetMode(DirectX::Mouse::MODE_ABSOLUTE);
 

@@ -13,8 +13,9 @@ Renderer Renderer::m_this(1280, 720);
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK WinProc(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
 	// Redirect events to ImGui before standard windows event handling
-	if (ImGui_ImplWin32_WndProcHandler(handle, msg, wparam, lparam))
-		return true;
+	if (Input::getInstance()->isImguiReceivingInput())
+		if (ImGui_ImplWin32_WndProcHandler(handle, msg, wparam, lparam))
+			return true;
 	// Normal event handling
 	switch (msg) {
 	case WM_DESTROY:
