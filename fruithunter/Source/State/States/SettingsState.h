@@ -23,6 +23,7 @@ private:
 	Slider m_masterVolume;
 	Slider m_musicVolume;
 	Slider m_effectsVolume;
+	Slider m_sensitivity;
 
 	bool m_screenStateChanged = false;
 

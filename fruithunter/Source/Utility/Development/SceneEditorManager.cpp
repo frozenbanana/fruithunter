@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "AudioHandler.h"
 #include "PathFindingThread.h"
+#include "Settings.h"
 
 bool SceneEditorManager::update_panel_terrain(Terrain* selection, bool update) {
 	bool isValid = (selection != nullptr);
@@ -507,7 +508,7 @@ void SceneEditorManager::updateCameraMovement(float dt) {
 	if (ip->getMouseMode() == DirectX::Mouse::MODE_RELATIVE) {
 		mouseMovement = float2((float)ip->mouseY(), (float)ip->mouseX());
 	}
-	float rotationSpeed = 0.5*0.6f/60.f;
+	float rotationSpeed = (0.001) + Settings::getInstance()->getSensitivity() * 0.01;
 	mouseMovement *= rotationSpeed;
 	m_camera.rotate(float3(mouseMovement.x, mouseMovement.y, 0));
 }

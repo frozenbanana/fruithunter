@@ -49,6 +49,8 @@ void Settings::loadAllSetting() {
 
 		setResolution(x, y);
 		setShadowResolution(stoi(getSetting(&file)));
+
+		setSensitivity(stof(getSetting(&file)));
 	}
 	file.close();
 }
@@ -70,6 +72,7 @@ void Settings::saveAllSetting() {
 		file << "ResolutionX\t" << m_resolution.x << "\n";
 		file << "ResolutionY\t" << m_resolution.y << "\n";
 		file << "ShadowRes\t" << m_shadowResolution.x << "\n";
+		file << "Sensitivity\t" << m_sensitivity << "\n";
 
 		file.close();
 	}
@@ -101,6 +104,8 @@ void Settings::setEffectsVolume(float value) {
 	AudioHandler::getInstance()->setEffectsVolume(m_effectsVolume);
 }
 
+void Settings::setSensitivity(float value) { m_sensitivity = value; }
+
 void Settings::setResolution(int width, int height) {
 	XMINT2 desiredResolution(width, height);
 	if (desiredResolution.x != m_resolution.x || desiredResolution.y != m_resolution.y) {
@@ -129,6 +134,8 @@ float Settings::getMasterVolume() { return m_masterVolume; }
 float Settings::getMusicVolume() { return m_musicVolume; }
 
 float Settings::getEffectsVolume() { return m_effectsVolume; }
+
+float Settings::getSensitivity() { return m_sensitivity; }
 
 XMINT2 Settings::getResolution() { return m_resolution; }
 
