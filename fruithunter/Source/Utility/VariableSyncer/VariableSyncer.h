@@ -48,7 +48,6 @@ private:
 	size_t getByteSizeFromType(VarTypes type) const;
 
 	bool valid();
-	bool fileCreated() const;
 
 	void parseToPointer(string str, VarTypes type, void* ptr_data);
 	string typeToString(VarTypes type, void* ptr_data);
@@ -59,6 +58,7 @@ private:
 public:
 	string getPath() const;
 	SyncType getType() const;
+	bool fileCreated() const;
 
 	void clear();
 	void readFile(string overridePath = "");

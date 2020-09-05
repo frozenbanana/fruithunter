@@ -166,6 +166,7 @@
     <ClCompile Include="Source\AI\AI.cpp" />
     <ClCompile Include="Source\AI\PathFindingThread.cpp" />
     <ClCompile Include="Source\Drawable\Animated.cpp" />
+    <ClCompile Include="Source\Drawable\CollectionPoint.cpp" />
     <ClCompile Include="Source\Drawable\Entity.cpp" />
     <ClCompile Include="Source\Drawable\EntityCollision.cpp" />
     <ClCompile Include="Source\Drawable\EntityRepository.cpp" />
@@ -232,6 +233,7 @@
     <ClInclude Include="Source\AI\AI.h" />
     <ClInclude Include="Source\AI\PathFindingThread.h" />
     <ClInclude Include="Source\Drawable\Animated.h" />
+    <ClInclude Include="Source\Drawable\CollectionPoint.h" />
     <ClInclude Include="Source\Drawable\Entity.h" />
     <ClInclude Include="Source\Drawable\EntityCollision.h" />
     <ClInclude Include="Source\Drawable\EntityRepository.h" />

@@ -153,16 +153,18 @@ void ParticleSystem::resizeBuffer() {
 
 		//  Buffer for particle data
 		m_vertexBuffer.Reset();
-		D3D11_BUFFER_DESC buffDesc;
-		memset(&buffDesc, 0, sizeof(buffDesc));
-		buffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		buffDesc.Usage = D3D11_USAGE_DEFAULT;
-		buffDesc.ByteWidth = (UINT)(sizeof(Particle) * size);
+		if (size != 0) {
+			D3D11_BUFFER_DESC buffDesc;
+			memset(&buffDesc, 0, sizeof(buffDesc));
+			buffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+			buffDesc.Usage = D3D11_USAGE_DEFAULT;
+			buffDesc.ByteWidth = (UINT)(sizeof(Particle) * size);
 
-		HRESULT check = device->CreateBuffer(&buffDesc, NULL, m_vertexBuffer.GetAddressOf());
+			HRESULT check = device->CreateBuffer(&buffDesc, NULL, m_vertexBuffer.GetAddressOf());
 
-		if (FAILED(check))
-			ErrorLogger::logError("(ParticleSystem) Failed creating vertex buffer!\n", check);
+			if (FAILED(check))
+				ErrorLogger::logError("(ParticleSystem) Failed creating vertex buffer!\n", check);
+		}
 	}
 	else {
 		// already the correct size
@@ -229,6 +231,14 @@ void ParticleSystem::setCustomDescription(ParticleSystem::ParticleDescription de
 void ParticleSystem::affectedByWindState(bool state) { m_affectedByWind = state; }
 
 bool ParticleSystem::isActive() const { return m_isActive; }
+
+size_t ParticleSystem::activeParticleCount() const {
+	size_t sum = 0;
+	for (size_t i = 0; i < m_particles.size(); i++) {
+		sum += (m_particles[i].isActive == 1);
+	}
+	return sum;
+}
 
 bool ParticleSystem::isEmiting() const { return m_isEmitting; }
 
@@ -356,7 +366,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		timeAlive_interval = float2(0.6f, .65f);
 		velocity_max = float3(1.);
 		velocity_min = float3(-1, 0.5, -1);
-		velocity_interval = float2(0.5, 0.6);
+		velocity_interval = float2(1.5, 3.5);
 		acceleration = float3(0.);
 		slowdown = 0.1;
 		shape = Shape::Star;
@@ -369,7 +379,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		timeAlive_interval = float2(0.6f, .65f);
 		velocity_max = float3(1.);
 		velocity_min = float3(-1, 0.5, -1);
-		velocity_interval = float2(0.5, 0.6);
+		velocity_interval = float2(1.5, 3.5);
 		acceleration = float3(0.);
 		slowdown = 0.1;
 		shape = Shape::Star;
@@ -382,9 +392,35 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		timeAlive_interval = float2(0.6f, .65f);
 		velocity_max = float3(1.);
 		velocity_min = float3(-1, 0.5, -1);
-		velocity_interval = float2(0.5, 0.6);
+		velocity_interval = float2(1.5, 3.5);
 		acceleration = float3(0.);
 		slowdown = 0.1;
+		shape = Shape::Star;
+		break;
+	case ParticleSystem::EXPLOSION_APPLE:
+		colorVariety[0] = float4(228 / 255.f, 83 / 255.f, 83 / 255.f, 1.f);
+		colorVariety[1] = float4(186 / 255.f, 33 / 255.f, 33 / 255.f, 1.f);
+		colorVariety[2] = float4(255 / 255.f, 150 / 255.f, 150 / 255.f, 1.f);
+		size_interval = float2(0.075, 0.1);
+		timeAlive_interval = float2(0.4, 0.7);
+		velocity_max = float3(1.);
+		velocity_min = float3(-1.);
+		velocity_interval = float2(3, 20);
+		acceleration = float3(0.);
+		slowdown = 0.0001;
+		shape = Shape::Circle;
+		break;
+	case ParticleSystem::SPARKLE_APPLE:
+		colorVariety[0] = float4(228 / 255.f, 83 / 255.f, 83 / 255.f, 1.f);
+		colorVariety[1] = float4(186 / 255.f, 33 / 255.f, 33 / 255.f, 1.f);
+		colorVariety[2] = float4(255 / 255.f, 150 / 255.f, 150 / 255.f, 1.f);
+		size_interval = float2(0.15, 0.3);
+		timeAlive_interval = float2(0.1, 1.0);
+		velocity_max = float3(-1.);
+		velocity_min = float3(1.);
+		velocity_interval = float2(0.1, 0.2);
+		acceleration = float3(0.);
+		slowdown = 1;
 		shape = Shape::Star;
 		break;
 	default:

@@ -19,6 +19,8 @@ void Scene::clear() {
 	m_animals.clear();
 	// spawn fruit
 	m_fruits.clear();
+	//collection points
+	m_collectionPoint.clear();
 
 	// utility
 	m_utility = SceneAbstactContent::SceneUtilityInfo();
@@ -394,6 +396,8 @@ void Scene::reset() {
 	//player
 	m_player = make_shared<Player>();
 	m_player->setPosition(m_utility.startSpawn);
+	//collectionPoints
+	m_collectionPoint.clear();
 	//gathered fruit
 	for (size_t i = 0; i < NR_OF_FRUITS; i++)
 		m_gatheredFruits[i] = 0;

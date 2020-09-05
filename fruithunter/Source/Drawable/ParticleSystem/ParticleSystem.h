@@ -19,6 +19,8 @@ public:
 		STARS_GOLD,
 		STARS_SILVER,
 		STARS_BRONZE,
+		EXPLOSION_APPLE,
+		SPARKLE_APPLE,
 		TYPE_LENGTH
 	};
 	struct ParticleDescription {
@@ -85,6 +87,7 @@ public:
 	void activeState(bool state);
 	void affectedByWindState(bool state);
 	bool isActive() const;
+	size_t activeParticleCount() const;
 	bool isEmiting() const;
 	bool isAffectedByWind() const;
 

@@ -60,6 +60,9 @@ void SceneManager::draw_color() {
 	for (size_t i = 0; i < scene->m_animals.size(); ++i) {
 		scene->m_animals[i]->draw();
 	}
+	// collection points
+	for (size_t i = 0; i < scene->m_collectionPoint.size(); i++)
+		scene->m_collectionPoint[i]->draw();
 
 	// frustum data for culling
 	vector<FrustumPlane> frustum = scene->m_player->getFrustumPlanes();
@@ -163,6 +166,19 @@ void SceneManager::update(Camera* overrideCamera) {
 		scene->m_particleSystems[i].update(dt);
 	}
 
+	// collection points
+	for (size_t i = 0; i < scene->m_collectionPoint.size(); i++) {
+		if (scene->m_collectionPoint[i]->update(dt,
+				(scene->m_player->getPosition() + scene->m_player->getCameraPosition()) / 2.f)) {
+			scene->pickUpFruit(scene->m_collectionPoint[i]->getFruitType());
+		}
+		if (scene->m_collectionPoint[i]->isFinished()) {
+			// remove collection point
+			 scene->m_collectionPoint.erase(scene->m_collectionPoint.begin()+i);
+			 i--;
+		}
+	}
+
 	// arrows
 	for (size_t i = 0; i < scene->m_arrows.size(); i++) {
 		if (scene->m_arrows[i]->isActive())
@@ -224,6 +240,17 @@ void SceneManager::update(Camera* overrideCamera) {
 					AudioHandler::getInstance()->playOnceByDistance(
 						AudioHandler::HIT_FRUIT, player->getPosition(), fruit->getPosition());
 					arrow->collided(arrow->getPosition_front());
+					// add collection point
+					shared_ptr<CollectionPoint> cp = make_shared<CollectionPoint>();
+					cp->load(fruit->getPosition(), float3(0,1,0), fruit->getFruitType());
+					scene->m_collectionPoint.push_back(cp);
+					// remove fruit
+					scene->m_fruits.erase(scene->m_fruits.begin() + i);
+					i--;
+					//remove arrow
+					scene->m_arrows.erase(scene->m_arrows.begin()+iArrow);
+					iArrow--;
+					break;
 				}
 			}
 		}

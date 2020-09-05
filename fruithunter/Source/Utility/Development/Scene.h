@@ -8,6 +8,7 @@
 #include "EntityRepository.h"
 #include "SkyBox.h"
 #include "Player.h"
+#include "CollectionPoint.h"
 
 #include "Apple.h"
 #include "Banana.h"
@@ -145,6 +146,9 @@ public:
 
 	// Fruits
 	std::vector<shared_ptr<Fruit>> m_fruits;
+
+	// Collection points
+	vector<shared_ptr<CollectionPoint>> m_collectionPoint;
 
 	// Level utility info
 	struct FruitCombo {

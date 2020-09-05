@@ -387,7 +387,7 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 	}
 	static string ps_typeAsString[ParticleSystem::Type::TYPE_LENGTH] = { "None",
 		"ForestBubble", "GroundDust", "VolcanoFire", "VolcanoSmoke", "LavaBubble", "ArrowGlitter",
-		"Confetti", "Stars" };
+		"Confetti", "Stars gold", "Stars silver", "Stars bronze", "ExplosionApple","SparkleApple" };
 	if (ImGui::BeginCombo("Type", ps_typeAsString[type].c_str())) {
 		for (size_t i = 1; i < ParticleSystem::Type::TYPE_LENGTH; i++) {
 			if (ImGui::MenuItem(ps_typeAsString[i].c_str())) {
@@ -435,7 +435,7 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 			selection->emit(emitCount);
 		}
 		ImGui::SameLine();
-		ImGui::InputInt("", &emitCount, 1);
+		ImGui::InputInt("Count", &emitCount, 1);
 	}
 	//Custom testing
 	if (isValid) {
@@ -450,7 +450,7 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 		ImGui::InputFloat3("Velocity max", (float*)&pd.velocity_max);
 		ImGui::InputFloat2("Velocity Interval", (float*)&pd.velocity_interval);
 		ImGui::InputFloat3("Acceleration", (float*)&pd.acceleration);
-		ImGui::InputFloat("Slowdown", &pd.slowdown);
+		ImGui::InputFloat("Slowdown", &pd.slowdown, 0, 0, 6);
 		if (ImGui::Combo("Shape", &shape, "Circle\0Star"))
 			pd.shape = (ParticleSystem::ParticleDescription::Shape)shape;
 		if (ImGui::Button("Set"))
@@ -652,7 +652,7 @@ void SceneEditorManager::update_transformation(float dt) {
 void SceneEditorManager::draw_transformationVisuals() {
 	if (m_transformable != nullptr) {
 		float scale1 = m_transformable->getScale().Length();
-		scale1 = Clamp<float>(scale1, 0, 10);
+		scale1 = Clamp<float>(scale1, 1, 10);
 		float3 scale(scale1, scale1, scale1);
 		if (m_transformState == Edit_Translate) {
 			// arrows

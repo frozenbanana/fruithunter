@@ -14,7 +14,7 @@ float4 main(GSOutput input) : SV_TARGET {
 		outColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 	else {
-		outColor.a = .75f;
+		outColor.a = 1.f;
 	}
 
 	return outColor;
