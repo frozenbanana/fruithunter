@@ -388,7 +388,7 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 	}
 	static string ps_typeAsString[ParticleSystem::Type::TYPE_LENGTH] = { "None",
 		"ForestBubble", "GroundDust", "VolcanoFire", "VolcanoSmoke", "LavaBubble", "ArrowGlitter",
-		"Confetti", "Stars" };
+		"Confetti", "Stars gold", "Stars silver", "Stars bronze" };
 	if (ImGui::BeginCombo("Type", ps_typeAsString[type].c_str())) {
 		for (size_t i = 1; i < ParticleSystem::Type::TYPE_LENGTH; i++) {
 			if (ImGui::MenuItem(ps_typeAsString[i].c_str())) {

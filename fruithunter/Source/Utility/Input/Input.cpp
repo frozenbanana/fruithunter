@@ -48,28 +48,28 @@ void Input::update() {
 }
 
 bool Input::keyPressed(DirectX::Keyboard::Keys key, bool filterImgui) {
-	if (filterImgui && ImGui::GetIO().WantCaptureKeyboard)
+	if (m_imguiInput && filterImgui && ImGui::GetIO().WantCaptureKeyboard)
 		return false;
 	return m_kbTracker.IsKeyPressed(key);
 }
 bool Input::keyReleased(DirectX::Keyboard::Keys key, bool filterImgui) {
-	if (filterImgui && ImGui::GetIO().WantCaptureKeyboard)
+	if (m_imguiInput && filterImgui && ImGui::GetIO().WantCaptureKeyboard)
 		return false;
 	return m_kbTracker.IsKeyReleased(key);
 }
 bool Input::keyUp(DirectX::Keyboard::Keys key, bool filterImgui) {
-	if (filterImgui && ImGui::GetIO().WantCaptureKeyboard)
+	if (m_imguiInput && filterImgui && ImGui::GetIO().WantCaptureKeyboard)
 		return false;
 	return m_keyboardState.IsKeyUp(key);
 }
 bool Input::keyDown(DirectX::Keyboard::Keys key, bool filterImgui) {
-	if (filterImgui && ImGui::GetIO().WantCaptureKeyboard)
+	if (m_imguiInput && filterImgui && ImGui::GetIO().WantCaptureKeyboard)
 		return false;
 	return m_keyboardState.IsKeyDown(key);
 }
 
 bool Input::mousePressed(MouseButton button, bool filterImgui) {
-	if (filterImgui && ImGui::GetIO().WantCaptureMouse)
+	if (m_imguiInput && filterImgui && ImGui::GetIO().WantCaptureMouse)
 		return false;
 	switch (button) {
 	case LEFT:
@@ -82,7 +82,7 @@ bool Input::mousePressed(MouseButton button, bool filterImgui) {
 	return false;
 }
 bool Input::mouseReleased(MouseButton button, bool filterImgui) {
-	if (filterImgui && ImGui::GetIO().WantCaptureMouse)
+	if (m_imguiInput && filterImgui && ImGui::GetIO().WantCaptureMouse)
 		return false;
 	switch (button) {
 	case LEFT:
@@ -95,7 +95,7 @@ bool Input::mouseReleased(MouseButton button, bool filterImgui) {
 	return false;
 }
 bool Input::mouseDown(MouseButton button, bool filterImgui) {
-	if (filterImgui && ImGui::GetIO().WantCaptureMouse)
+	if (m_imguiInput && filterImgui && ImGui::GetIO().WantCaptureMouse)
 		return false;
 	switch (button) {
 	case LEFT:
@@ -108,7 +108,7 @@ bool Input::mouseDown(MouseButton button, bool filterImgui) {
 	return false;
 }
 bool Input::mouseUp(MouseButton button, bool filterImgui) {
-	if (filterImgui && ImGui::GetIO().WantCaptureMouse)
+	if (m_imguiInput && filterImgui && ImGui::GetIO().WantCaptureMouse)
 		return false;
 	switch (button) {
 	case LEFT:
