@@ -3,7 +3,7 @@
 
 FileSyncer CollectionPoint::file;
 float CollectionPoint::m_distanceThreshold = 1.5;
-float CollectionPoint::m_acceleration_toPlayer = 10;
+float CollectionPoint::m_acceleration_toPlayer = 30;
 float CollectionPoint::m_startStrength = 10;
 float CollectionPoint::m_slowdown = 0.1;
 
