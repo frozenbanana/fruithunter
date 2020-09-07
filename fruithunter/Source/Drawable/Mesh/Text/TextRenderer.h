@@ -9,25 +9,28 @@
 
 class TextRenderer {
 public:
-	enum Alignment { LEFT, CENTER, RIGHT };
+	enum HorizontalAlignment { LEFT = -1, MIDDLE = 0, RIGHT = 1 };
+	enum VerticalAlignment { TOP = -1, CENTER = 0, BOTTOM = 1 };
 
 	TextRenderer();
 	~TextRenderer();
 	void setViewSize(XMINT2 size);
 
 	void draw(string text, float2 pos);
-	void draw(string text, float2 pos, Alignment al);
-	void draw(string text, float2 pos, float4 col);
 	void drawTextInWorld(string text, float3 position, float3 lookAt, float2 size);
 
-	void setColor(XMVECTORF32 color);
+	void setColor(Color color);
+	void setScale(float scale);
+	void setAlignment(HorizontalAlignment ha = MIDDLE, VerticalAlignment va = CENTER);
 
 	float2 getSize(string text);
 
 	static float3 normalToRotation(float3 normal);
 
 private:
-	XMVECTORF32 m_color = Colors::White;
+	Color m_color = Color(1, 1, 1, 1);
+	float2 m_alignment = float2(0, 0);
+	float m_scale = 1;
 	std::unique_ptr<SpriteBatch> m_spriteBatch;
 	std::unique_ptr<SpriteFont> m_spriteFont;
 	float2 m_fontPos;

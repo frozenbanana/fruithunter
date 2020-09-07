@@ -227,6 +227,7 @@
     <ClCompile Include="Source\Utility\SaveState\SaveManager.cpp" />
     <ClCompile Include="Source\Utility\Settings\Settings.cpp" />
     <ClCompile Include="Source\Utility\Timer\Timer.cpp" />
+    <ClCompile Include="Source\Utility\Translation2DStructures.cpp" />
     <ClCompile Include="Source\Utility\VariableSyncer\VariableSyncer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -301,6 +302,7 @@
     <ClInclude Include="Source\Utility\SaveState\SaveManager.h" />
     <ClInclude Include="Source\Utility\Settings\Settings.h" />
     <ClInclude Include="Source\Utility\Timer\Timer.h" />
+    <ClInclude Include="Source\Utility\Translation2DStructures.h" />
     <ClInclude Include="Source\Utility\VariableSyncer\VariableSyncer.h" />
   </ItemGroup>
   <ItemGroup>

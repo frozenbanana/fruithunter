@@ -27,7 +27,7 @@ void Sprite2D::draw() {
 							m_textures[texIndex].m_textureSize.y / 2.f) *
 						float2((float)m_horizontalAligment, (float)m_verticalAlignment);
 
-		m_spriteBatch->Draw(m_textures[texIndex].m_SRV.Get(), position, nullptr, Colors::White,
+		m_spriteBatch->Draw(m_textures[texIndex].m_SRV.Get(), position, nullptr, m_color,
 			m_rotation,
 			origin, scale);
 
@@ -50,7 +50,7 @@ void Sprite2D::drawNoScaling() {
 							m_textures[texIndex].m_textureSize.y / 2.f) *
 						float2((float)m_horizontalAligment, (float)m_verticalAlignment);
 
-		m_spriteBatch->Draw(m_textures[texIndex].m_SRV.Get(), position, nullptr, Colors::White,
+		m_spriteBatch->Draw(m_textures[texIndex].m_SRV.Get(), position, nullptr, m_color,
 			m_rotation, origin, scale);
 
 		m_spriteBatch->End();
@@ -116,11 +116,20 @@ float Sprite2D::getRotation() const { return m_rotation; }
 
 float2 Sprite2D::getScale() const { return m_scale; }
 
+Color Sprite2D::getColor() const { return m_color; }
+
 void Sprite2D::setPosition(float2 position) { m_position = position; }
 
 void Sprite2D::setScale(float2 scale) { m_scale = scale; }
 
 void Sprite2D::setScale(float scale) { m_scale = float2(scale, scale); }
+
+void Sprite2D::setSize(float2 size) {
+	if (m_textures.size() > 0) {
+		XMINT2 texSize = getTextureSize();
+		m_scale = float2(size.x / texSize.x, size.y / texSize.y);
+	}
+}
 
 void Sprite2D::setRotation(float rot) { m_rotation = rot; }
 
@@ -130,6 +139,10 @@ void Sprite2D::setAlignment(HorizontalAlignment horizontal, VerticalAlignment ve
 }
 
 void Sprite2D::setAnimationSpeed(float animationSpeed) { m_animationSpeed = animationSpeed; }
+
+void Sprite2D::setColor(Color color) { m_color = color; }
+
+void Sprite2D::setAlpha(float alpha) { m_color.w = alpha; }
 
 bool Sprite2D::SpriteTexture::load(string path) { 
 	m_path = PATH_SPRITE + path;

@@ -91,30 +91,31 @@ bool Button::update() {
 }
 
 void Button::draw() {
+	m_textRenderer.setColor(Color(m_colour.x, m_colour.y, m_colour.z, m_colour.w));
 	if (m_isToggle && m_on)
-		m_textRenderer.draw(m_label + ": On", m_position, m_colour);
+		m_textRenderer.draw(m_label + ": On", m_position);
 	else if (m_isToggle && !m_on)
-		m_textRenderer.draw(m_label + ": Off", m_position, m_colour);
+		m_textRenderer.draw(m_label + ": Off", m_position);
 	else if (m_isLowMedHighUltra) {
 		if (m_lowMedHighUltra == LOW)
-			m_textRenderer.draw(m_label + ": Low", m_position, m_colour);
+			m_textRenderer.draw(m_label + ": Low", m_position);
 		else if (m_lowMedHighUltra == MEDIUM)
-			m_textRenderer.draw(m_label + ": Medium", m_position, m_colour);
+			m_textRenderer.draw(m_label + ": Medium", m_position);
 		else if (m_lowMedHighUltra == HIGH)
-			m_textRenderer.draw(m_label + ": High", m_position, m_colour);
+			m_textRenderer.draw(m_label + ": High", m_position);
 		else if (m_lowMedHighUltra == ULTRA)
-			m_textRenderer.draw(m_label + ": Ultra", m_position, m_colour);
+			m_textRenderer.draw(m_label + ": Ultra", m_position);
 	}
 	else if (m_isResolution) {
 		if (m_resolution == HD)
-			m_textRenderer.draw(m_label + ": 1280x720", m_position, m_colour);
+			m_textRenderer.draw(m_label + ": 1280x720", m_position);
 		else if (m_resolution == FHD)
-			m_textRenderer.draw(m_label + ": 1920x1080", m_position, m_colour);
+			m_textRenderer.draw(m_label + ": 1920x1080", m_position);
 		else if (m_resolution == QHD)
-			m_textRenderer.draw(m_label + ": 2560x1440", m_position, m_colour);
+			m_textRenderer.draw(m_label + ": 2560x1440", m_position);
 		else if (m_resolution == UHD)
-			m_textRenderer.draw(m_label + ": 3840x2160", m_position, m_colour);
+			m_textRenderer.draw(m_label + ": 3840x2160", m_position);
 	}
 	else
-		m_textRenderer.draw(m_label, m_position, m_colour);
+		m_textRenderer.draw(m_label, m_position);
 }
