@@ -13,7 +13,7 @@ void CollectionPoint::setType(FruitType type) {
 	case APPLE:
 		m_explosion.load(ParticleSystem::Type::EXPLOSION_APPLE, 0, m_explosion_emitCount);
 		m_sparkle.load(ParticleSystem::Type::SPARKLE_APPLE, m_sparkle_emitRate, 0);
-		m_fruit.load("apple_smooth");
+		m_fruit.load("Apple_000000");
 		break;
 	case BANANA:
 		break;
@@ -63,7 +63,7 @@ void CollectionPoint::load(float3 position, float3 velocity, FruitType type, Ski
 	m_explosion.setScale(m_explosion_spawnSize);
 	m_stars.setScale(m_explosion_spawnSize);
 	m_sparkle.setScale(m_sparkle_spawnSize);
-	m_fruit.setScale(0.075f);
+	m_fruit.setScale(m_fruit_scale);
 	//emit explosion
 	m_explosion.setPosition(m_startPosition);//need to set position here, otherwise the particles will spawn at (0,0,0)
 	m_explosion.emit(m_explosion_emitCount);
@@ -79,10 +79,15 @@ FruitType CollectionPoint::getFruitType() const { return m_type; }
 
 bool CollectionPoint::update(float dt, float3 target) { 
 	file.sync();
+	//update effects
 	m_explosion.update(dt);
 	m_sparkle.update(dt);
 	m_stars.update(dt);
 
+	//rotate fruit
+	m_fruit.rotate(float3(1.012, 1.07, 1.03) * dt * m_fruit_rotationSpeed);
+
+	//update sparkle movement
 	if (!m_reachedDestination) {
 		float3 toTarget = Normalize(target - m_position);
 		m_velocity += toTarget * m_acceleration_toPlayer * dt;
