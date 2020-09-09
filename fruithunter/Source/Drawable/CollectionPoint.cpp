@@ -13,6 +13,7 @@ void CollectionPoint::setType(FruitType type) {
 	case APPLE:
 		m_explosion.load(ParticleSystem::Type::EXPLOSION_APPLE, 0, m_explosion_emitCount);
 		m_sparkle.load(ParticleSystem::Type::SPARKLE_APPLE, m_sparkle_emitRate, 0);
+		m_fruit.load("apple_smooth");
 		break;
 	case BANANA:
 		break;
@@ -23,6 +24,20 @@ void CollectionPoint::setType(FruitType type) {
 	case NR_OF_FRUITS:
 		break;
 	default:
+		break;
+	}
+}
+
+void CollectionPoint::setSkillType(Skillshot skillType) {
+	switch (skillType) {
+	case SS_GOLD:
+		m_stars.load(ParticleSystem::Type::EXPLOSION_GOLD, 0, m_stars_emitCount);
+		break;
+	case SS_SILVER:
+		m_stars.load(ParticleSystem::Type::EXPLOSION_SILVER, 0, m_stars_emitCount);
+		break;
+	case SS_BRONZE:
+		m_stars.load(ParticleSystem::Type::EXPLOSION_BRONZE, 0, m_stars_emitCount);
 		break;
 	}
 }
@@ -39,16 +54,21 @@ CollectionPoint::CollectionPoint() {
 
 CollectionPoint::~CollectionPoint() {}
 
-void CollectionPoint::load(float3 position, float3 velocity, FruitType type) {
+void CollectionPoint::load(float3 position, float3 velocity, FruitType type, Skillshot skillType) {
 	m_startPosition = position;
 	m_position = position;
 	m_velocity = velocity * m_startStrength;
 	setType(type);
+	setSkillType(skillType);
 	m_explosion.setScale(m_explosion_spawnSize);
+	m_stars.setScale(m_explosion_spawnSize);
 	m_sparkle.setScale(m_sparkle_spawnSize);
+	m_fruit.setScale(0.075f);
 	//emit explosion
 	m_explosion.setPosition(m_startPosition);//need to set position here, otherwise the particles will spawn at (0,0,0)
 	m_explosion.emit(m_explosion_emitCount);
+	m_stars.setPosition(m_startPosition);
+	m_stars.emit(m_stars_emitCount);
 }
 
 bool CollectionPoint::isFinished() const {
@@ -61,6 +81,7 @@ bool CollectionPoint::update(float dt, float3 target) {
 	file.sync();
 	m_explosion.update(dt);
 	m_sparkle.update(dt);
+	m_stars.update(dt);
 
 	if (!m_reachedDestination) {
 		float3 toTarget = Normalize(target - m_position);
@@ -81,6 +102,13 @@ bool CollectionPoint::update(float dt, float3 target) {
 void CollectionPoint::draw() {
 	m_explosion.draw();
 
+	m_stars.draw();
+
 	m_sparkle.setPosition(m_position);
 	m_sparkle.draw();
+
+	if (!m_reachedDestination) {
+		m_fruit.setPosition(m_position);
+		m_fruit.draw();
+	}
 }

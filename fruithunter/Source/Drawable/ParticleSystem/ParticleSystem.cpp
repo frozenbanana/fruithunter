@@ -423,6 +423,45 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		slowdown = 1;
 		shape = Shape::Star;
 		break;
+	case ParticleSystem::EXPLOSION_GOLD:
+		colorVariety[0] = float4(255 / 255.f, 240 / 255.f, 0 / 255.f, 1.f);
+		colorVariety[1] = float4(255 / 255.f, 244 / 255.f, 68 / 255.f, 1.f);
+		colorVariety[2] = float4(255 / 255.f, 255 / 255.f, 118 / 255.f, 1.f);
+		size_interval = float2(0.4,0.6);
+		timeAlive_interval = float2(0.4,2.5);
+		velocity_max = float3(-0.5,0.5,-0.5);
+		velocity_min = float3(0.5, 1, 0.5);
+		velocity_interval = float2(10,25);
+		acceleration = float3(0,-3,0);
+		slowdown = 0.05f;
+		shape = Shape::Star;
+		break;
+	case ParticleSystem::EXPLOSION_SILVER:
+		colorVariety[0] = float4(194 / 255.f, 194 / 255.f, 194 / 255.f, 1.f);
+		colorVariety[1] = float4(223 / 255.f, 223 / 255.f, 223 / 255.f, 1.f);
+		colorVariety[2] = float4(154 / 255.f, 154 / 255.f, 154 / 255.f, 1.f);
+		size_interval = float2(0.4, 0.6);
+		timeAlive_interval = float2(0.4, 2.5);
+		velocity_max = float3(-0.5, 0.5, -0.5);
+		velocity_min = float3(0.5, 1, 0.5);
+		velocity_interval = float2(10, 25);
+		acceleration = float3(0, -3, 0);
+		slowdown = 0.05f;
+		shape = Shape::Star;
+		break;
+	case ParticleSystem::EXPLOSION_BRONZE:
+		colorVariety[0] = float4(206 / 255.f, 115 / 255.f, 0 / 255.f, 1.f);
+		colorVariety[1] = float4(190 / 255.f, 84 / 255.f, 0 / 255.f, 1.f);
+		colorVariety[2] = float4(231 / 255.f, 122 / 255.f, 25 / 255.f, 1.f);
+		size_interval = float2(0.4, 0.6);
+		timeAlive_interval = float2(0.4, 2.5);
+		velocity_max = float3(-0.5, 0.5, -0.5);
+		velocity_min = float3(0.5, 1, 0.5);
+		velocity_interval = float2(10, 25);
+		acceleration = float3(0, -3, 0);
+		slowdown = 0.05f;
+		shape = Shape::Star;
+		break;
 	default:
 		colorVariety[0] = float4(1.);
 		colorVariety[1] = float4(1.);

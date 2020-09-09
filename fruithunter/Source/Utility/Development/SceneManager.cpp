@@ -235,14 +235,16 @@ void SceneManager::update(Camera* overrideCamera) {
 				// !! Which is the reason i use simpler (and quicker) collision detection.	!!
 				if (arrow->checkCollision(*fruit)) {
 					// recover stamina
-					player->getStaminaBySkillshot(fruit->hit(player->getPosition()));
+					Skillshot skillshot = fruit->hit(player->getPosition());
+					player->getStaminaBySkillshot(skillshot);
 					// play hit sound
 					AudioHandler::getInstance()->playOnceByDistance(
 						AudioHandler::HIT_FRUIT, player->getPosition(), fruit->getPosition());
 					arrow->collided(arrow->getPosition_front());
 					// add collection point
 					shared_ptr<CollectionPoint> cp = make_shared<CollectionPoint>();
-					cp->load(fruit->getPosition(), float3(0,1,0), fruit->getFruitType());
+					cp->load(
+						fruit->getPosition(), float3(0, 1, 0), fruit->getFruitType(), skillshot);
 					scene->m_collectionPoint.push_back(cp);
 					// remove fruit
 					scene->m_fruits.erase(scene->m_fruits.begin() + i);

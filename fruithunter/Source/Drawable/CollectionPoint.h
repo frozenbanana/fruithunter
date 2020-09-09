@@ -1,13 +1,17 @@
 #pragma once
+#include "Entity.h"
 #include "ParticleSystem.h"
 #include "VariableSyncer.h"
 class CollectionPoint {
 private:
 	static FileSyncer file;
 	FruitType m_type;
+	Skillshot m_skillType;
 	const size_t m_explosion_emitCount = 300;
 	const size_t m_sparkle_emitRate = 100;
-	ParticleSystem m_explosion, m_sparkle;
+	const size_t m_stars_emitCount = 15;
+	ParticleSystem m_explosion, m_sparkle, m_stars;
+	Entity m_fruit;
 
 	static float m_distanceThreshold;
 	static float m_acceleration_toPlayer;
@@ -21,12 +25,13 @@ private:
 	bool m_reachedDestination = false;
 
 	void setType(FruitType type);
+	void setSkillType(Skillshot skillType);
 
 public:
 	CollectionPoint();
 	~CollectionPoint();
 
-	void load(float3 position, float3 velocity, FruitType type);
+	void load(float3 position, float3 velocity, FruitType type, Skillshot skillType);
 
 	bool isFinished() const;
 	FruitType getFruitType() const;
