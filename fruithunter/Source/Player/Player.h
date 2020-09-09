@@ -56,7 +56,7 @@ private:
 	const float PLAYER_HEIGHT = 1.5f; // units above ground
 	const float GROUND_FRICTION =
 		0.5f; // friction on flat terrain, reduces velocity by percentage per seconds, 0-60.
-	const float GROUND_FRICTION_WEAK = 1.0f; // friction on steep terrain, 0-60.
+	const float GROUND_FRICTION_WEAK = 60.0f; // friction on steep terrain, 0-60.
 	const float STEEPNESS_BORDER =
 		0.6f; // value of dot product when flat terrain goes to steep terrain
 	const float ONGROUND_THRESHOLD =

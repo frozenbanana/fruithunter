@@ -48,28 +48,28 @@ void Input::update() {
 }
 
 bool Input::keyPressed(DirectX::Keyboard::Keys key, bool filterImgui) {
-	if (filterImgui && ImGui::GetIO().WantCaptureKeyboard)
+	if (m_imguiInput && filterImgui && ImGui::GetIO().WantCaptureKeyboard)
 		return false;
 	return m_kbTracker.IsKeyPressed(key);
 }
 bool Input::keyReleased(DirectX::Keyboard::Keys key, bool filterImgui) {
-	if (filterImgui && ImGui::GetIO().WantCaptureKeyboard)
+	if (m_imguiInput && filterImgui && ImGui::GetIO().WantCaptureKeyboard)
 		return false;
 	return m_kbTracker.IsKeyReleased(key);
 }
 bool Input::keyUp(DirectX::Keyboard::Keys key, bool filterImgui) {
-	if (filterImgui && ImGui::GetIO().WantCaptureKeyboard)
+	if (m_imguiInput && filterImgui && ImGui::GetIO().WantCaptureKeyboard)
 		return false;
 	return m_keyboardState.IsKeyUp(key);
 }
 bool Input::keyDown(DirectX::Keyboard::Keys key, bool filterImgui) {
-	if (filterImgui && ImGui::GetIO().WantCaptureKeyboard)
+	if (m_imguiInput && filterImgui && ImGui::GetIO().WantCaptureKeyboard)
 		return false;
 	return m_keyboardState.IsKeyDown(key);
 }
 
 bool Input::mousePressed(MouseButton button, bool filterImgui) {
-	if (filterImgui && ImGui::GetIO().WantCaptureMouse)
+	if (m_imguiInput && filterImgui && ImGui::GetIO().WantCaptureMouse)
 		return false;
 	switch (button) {
 	case LEFT:
@@ -82,7 +82,7 @@ bool Input::mousePressed(MouseButton button, bool filterImgui) {
 	return false;
 }
 bool Input::mouseReleased(MouseButton button, bool filterImgui) {
-	if (filterImgui && ImGui::GetIO().WantCaptureMouse)
+	if (m_imguiInput && filterImgui && ImGui::GetIO().WantCaptureMouse)
 		return false;
 	switch (button) {
 	case LEFT:
@@ -95,7 +95,7 @@ bool Input::mouseReleased(MouseButton button, bool filterImgui) {
 	return false;
 }
 bool Input::mouseDown(MouseButton button, bool filterImgui) {
-	if (filterImgui && ImGui::GetIO().WantCaptureMouse)
+	if (m_imguiInput && filterImgui && ImGui::GetIO().WantCaptureMouse)
 		return false;
 	switch (button) {
 	case LEFT:
@@ -108,7 +108,7 @@ bool Input::mouseDown(MouseButton button, bool filterImgui) {
 	return false;
 }
 bool Input::mouseUp(MouseButton button, bool filterImgui) {
-	if (filterImgui && ImGui::GetIO().WantCaptureMouse)
+	if (m_imguiInput && filterImgui && ImGui::GetIO().WantCaptureMouse)
 		return false;
 	switch (button) {
 	case LEFT:
@@ -141,10 +141,17 @@ int Input::getMouseMovementY() { return m_mouseState.y - m_oldY; }
 
 DirectX::Mouse::Mode Input::getMouseMode() { return m_mouseState.positionMode; }
 
+void Input::enableImguiInput() { m_imguiInput = true; }
+
+void Input::disableImguiInput() { m_imguiInput = false; }
+
+bool Input::isImguiReceivingInput() { return m_imguiInput; }
+
 Input* Input::getInstance() { return &m_this; }
 
 
 void Input::setMouseModeRelative() {
+	disableImguiInput();
 	if (m_mouseState.positionMode == DirectX::Mouse::MODE_ABSOLUTE)
 		m_mouse.get()->SetMode(DirectX::Mouse::MODE_RELATIVE);
 
@@ -153,6 +160,7 @@ void Input::setMouseModeRelative() {
 }
 
 void Input::setMouseModeAbsolute() {
+	enableImguiInput();
 	if (m_mouseState.positionMode != DirectX::Mouse::MODE_ABSOLUTE)
 		m_mouse.get()->SetMode(DirectX::Mouse::MODE_ABSOLUTE);
 

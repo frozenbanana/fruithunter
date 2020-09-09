@@ -13,9 +13,10 @@ void SettingsState::init() {
 
 	Settings* settings = Settings::getInstance();
 
-	m_masterVolume.initialize("Master Volume", float2(width / 2, height / 2 - 250));
-	m_musicVolume.initialize("Music Volume", float2(width / 2, height / 2 - 200));
-	m_effectsVolume.initialize("Effects Volume", float2(width / 2, height / 2 - 150));
+	m_masterVolume.initialize("Master Volume", float2(width / 2, height / 2 - 330));
+	m_musicVolume.initialize("Music Volume", float2(width / 2, height / 2 - 280));
+	m_effectsVolume.initialize("Effects Volume", float2(width / 2, height / 2 - 230));
+	m_sensitivity.initialize("Sensitivity", float2(width / 2, height / 2 - 150));
 	m_drawDistance.initialize("Draw distance", float2(width / 2, height / 2 - 70));
 	m_shadowsButton.initialize(
 		"Shadows", float2(width / 2, height / 2 - 10), Button::Setting::MEDIUM);
@@ -55,6 +56,9 @@ void SettingsState::update() {
 	}
 	if (m_effectsVolume.update()) {
 		settings->setEffectsVolume(m_effectsVolume.getValue());
+	}
+	if (m_sensitivity.update()) {
+		settings->setSensitivity(m_sensitivity.getValue());
 	}
 	if (m_drawDistance.update()) {
 		settings->setDrawDistance(m_drawDistance.getValue());
@@ -96,9 +100,10 @@ void SettingsState::update() {
 
 			float width = SCREEN_WIDTH;
 			float height = SCREEN_HEIGHT;
-			m_masterVolume.setPosition(float2(width / 2, height / 2 - 250));
-			m_musicVolume.setPosition(float2(width / 2, height / 2 - 200));
-			m_effectsVolume.setPosition(float2(width / 2, height / 2 - 150));
+			m_masterVolume.setPosition(float2(width / 2, height / 2 - 330));
+			m_musicVolume.setPosition(float2(width / 2, height / 2 - 280));
+			m_effectsVolume.setPosition(float2(width / 2, height / 2 - 230));
+			m_sensitivity.setPosition(float2(width / 2, height / 2 - 150));
 
 			m_drawDistance.setPosition(float2(width / 2, height / 2 - 70));
 			m_shadowsButton.setPosition(float2(width / 2, height / 2 - 10));
@@ -127,9 +132,10 @@ void SettingsState::play() {
 
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
-	m_masterVolume.setPosition(float2(width / 2, height / 2 - 250));
-	m_musicVolume.setPosition(float2(width / 2, height / 2 - 200));
-	m_effectsVolume.setPosition(float2(width / 2, height / 2 - 150));
+	m_masterVolume.setPosition(float2(width / 2, height / 2 - 330));
+	m_musicVolume.setPosition(float2(width / 2, height / 2 - 280));
+	m_effectsVolume.setPosition(float2(width / 2, height / 2 - 230));
+	m_sensitivity.setPosition(float2(width / 2, height / 2 - 150));
 
 	m_drawDistance.setPosition(float2(width / 2, height / 2 - 70));
 	m_shadowsButton.setPosition(float2(width / 2, height / 2 - 10));
@@ -167,6 +173,7 @@ void SettingsState::play() {
 	m_masterVolume.setValue(settings->getMasterVolume());
 	m_musicVolume.setValue(settings->getMusicVolume());
 	m_effectsVolume.setValue(settings->getEffectsVolume());
+	m_sensitivity.setValue(settings->getSensitivity());
 	m_drawDistance.setValue(settings->getDrawDistanceValue());
 
 	m_screenStateChanged = false;
@@ -188,6 +195,7 @@ void SettingsState::draw() {
 	m_masterVolume.draw();
 	m_musicVolume.draw();
 	m_effectsVolume.draw();
+	m_sensitivity.draw();
 
 	if (m_screenStateChanged) {
 		m_backButton.setPosition(float2(SCREEN_WIDTH / 2 + 100, SCREEN_HEIGHT / 2 + 300));

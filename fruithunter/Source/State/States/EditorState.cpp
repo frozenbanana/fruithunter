@@ -11,12 +11,12 @@ void EditorState::init() { m_editor.clear(); }
 void EditorState::update() {
 	Input* ip = Input::getInstance();
 
-	if (Input::getInstance()->keyPressed(m_mouseMode_switch))
+	if (ip->keyPressed(m_mouseMode_switch))
 		m_mouseMode = !m_mouseMode;
 	if (m_mouseMode)
-		Input::getInstance()->setMouseModeRelative();
+		ip->setMouseModeRelative();
 	else
-		Input::getInstance()->setMouseModeAbsolute();
+		ip->setMouseModeAbsolute();
 
 	if (m_testing) {
 		m_testingEnvironment.update();

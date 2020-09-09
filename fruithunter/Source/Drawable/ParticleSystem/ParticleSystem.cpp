@@ -90,15 +90,25 @@ void ParticleSystem::updateParticles(float dt) {
 				m_particles[i].isActive = false;
 			}
 			else {
+				float density = 1; // air
+				float dragCoefficient = 1;
+
+				float r = m_particles[i].size / 2.f;
+				float area = 3.1415f * pow(r, 2);
+				float mass = 3.1415f * (4.f / 3.f) * pow(r, 3);
 				// get wind
-				float3 wind(0, 0, 0);
+				float3 acceleration = m_particle_description.acceleration;
 				if (terrain != nullptr && m_affectedByWind) {
-					wind = terrain->getWindStatic();
+					float3 wind = terrain->getWindStatic();
+					float3 v_relative = (m_particleProperties[i].velocity - wind);//velocity relative wind
+					float v_length = v_relative.Length();
+					float Fd = 0.5 * density * pow(v_length, 2) * area * dragCoefficient; // drag from wind
+					acceleration += (-Fd/mass) * Normalize(v_relative);
 				}
 				// update velocity and position
-				m_particleProperties[i].velocity += m_particle_description.acceleration * dt;
+				m_particleProperties[i].velocity += acceleration * dt;
+				m_particles[i].position += m_particleProperties[i].velocity * dt;
 				m_particleProperties[i].velocity *= pow(m_particle_description.slowdown, dt);
-				m_particles[i].position += (m_particleProperties[i].velocity + wind) * dt;
 			}
 		}
 	}

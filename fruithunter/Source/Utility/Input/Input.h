@@ -37,10 +37,15 @@ public:
 	void setMouseModeAbsolute();
 	DirectX::Mouse::Mode getMouseMode();
 
+	void enableImguiInput();
+	void disableImguiInput();
+	bool isImguiReceivingInput();
+
 private:
 	Input();
 	static Input m_this;
 	bool m_isLoaded = false;
+	bool m_imguiInput = false;
 
 	std::unique_ptr<DirectX::Keyboard> m_keyboard = nullptr;
 	std::unique_ptr<DirectX::Mouse> m_mouse = nullptr;

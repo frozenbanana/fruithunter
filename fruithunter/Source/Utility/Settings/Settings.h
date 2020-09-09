@@ -16,6 +16,7 @@ private:
 	float m_musicVolume = 0.5f;
 	float m_effectsVolume = 0.5f;
 	float m_drawDistance = 0.5f;
+	float m_sensitivity = 0.5f;
 
 	XMINT2 m_resolution = XMINT2(1280, 720);
 	XMINT2 m_shadowResolution = XMINT2(2048, 2048);
@@ -38,6 +39,7 @@ public:
 	void setMasterVolume(float value);
 	void setMusicVolume(float value);
 	void setEffectsVolume(float value);
+	void setSensitivity(float value);
 
 	void setResolution(int width, int height);
 	void setShadowResolution(int res);
@@ -51,6 +53,7 @@ public:
 	float getMasterVolume();
 	float getMusicVolume();
 	float getEffectsVolume();
+	float getSensitivity();
 
 	XMINT2 getResolution();
 	XMINT2 getShadowResolution();
