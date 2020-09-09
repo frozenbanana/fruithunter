@@ -410,10 +410,88 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		slowdown = 0.0001;
 		shape = Shape::Circle;
 		break;
+	case ParticleSystem::EXPLOSION_BANANA:
+		colorVariety[0] = float4(249 / 255.f, 255 / 255.f, 158 / 255.f, 1.f);
+		colorVariety[1] = float4(232 / 255.f, 255 / 255.f, 58 / 255.f, 1.f);
+		colorVariety[2] = float4(225 / 255.f, 255 / 255.f, 0 / 255.f, 1.f);
+		size_interval = float2(0.075, 0.1);
+		timeAlive_interval = float2(0.4, 0.7);
+		velocity_max = float3(1.);
+		velocity_min = float3(-1.);
+		velocity_interval = float2(3, 20);
+		acceleration = float3(0.);
+		slowdown = 0.0001;
+		shape = Shape::Circle;
+		break;
+	case ParticleSystem::EXPLOSION_MELON:
+		colorVariety[0] = float4(58 / 255.f, 176 / 255.f, 60 / 255.f, 1.f);
+		colorVariety[1] = float4(72 / 255.f, 141 / 255.f, 65 / 255.f, 1.f);
+		colorVariety[2] = float4(72 / 255.f, 226 / 255.f, 39 / 255.f, 1.f);
+		size_interval = float2(0.075, 0.1);
+		timeAlive_interval = float2(0.4, 0.7);
+		velocity_max = float3(1.);
+		velocity_min = float3(-1.);
+		velocity_interval = float2(3, 20);
+		acceleration = float3(0.);
+		slowdown = 0.0001;
+		shape = Shape::Circle;
+		break;
+	case ParticleSystem::EXPLOSION_DRAGON:
+		colorVariety[0] = float4(78 / 255.f, 158 / 255.f, 80 / 255.f, 1.f);
+		colorVariety[1] = float4(235 / 255.f, 83 / 255.f, 83 / 255.f, 1.f);
+		colorVariety[2] = float4(215 / 255.f, 51 / 255.f, 51 / 255.f, 1.f);
+		size_interval = float2(0.075, 0.1);
+		timeAlive_interval = float2(0.4, 0.7);
+		velocity_max = float3(1.);
+		velocity_min = float3(-1.);
+		velocity_interval = float2(3, 20);
+		acceleration = float3(0.);
+		slowdown = 0.0001;
+		shape = Shape::Circle;
+		break;
 	case ParticleSystem::SPARKLE_APPLE:
 		colorVariety[0] = float4(228 / 255.f, 83 / 255.f, 83 / 255.f, 1.f);
 		colorVariety[1] = float4(186 / 255.f, 33 / 255.f, 33 / 255.f, 1.f);
 		colorVariety[2] = float4(255 / 255.f, 150 / 255.f, 150 / 255.f, 1.f);
+		size_interval = float2(0.15, 0.3);
+		timeAlive_interval = float2(0.1, 1.0);
+		velocity_max = float3(-1.);
+		velocity_min = float3(1.);
+		velocity_interval = float2(0.1, 0.2);
+		acceleration = float3(0.);
+		slowdown = 1;
+		shape = Shape::Star;
+		break;
+	case ParticleSystem::SPARKLE_BANANA:
+		colorVariety[0] = float4(249 / 255.f, 255 / 255.f, 158 / 255.f, 1.f);
+		colorVariety[1] = float4(232 / 255.f, 255 / 255.f, 58 / 255.f, 1.f);
+		colorVariety[2] = float4(225 / 255.f, 255 / 255.f, 0 / 255.f, 1.f);
+		size_interval = float2(0.15, 0.3);
+		timeAlive_interval = float2(0.1, 1.0);
+		velocity_max = float3(-1.);
+		velocity_min = float3(1.);
+		velocity_interval = float2(0.1, 0.2);
+		acceleration = float3(0.);
+		slowdown = 1;
+		shape = Shape::Star;
+		break;
+	case ParticleSystem::SPARKLE_MELON:
+		colorVariety[0] = float4(58 / 255.f, 176 / 255.f, 60 / 255.f, 1.f);
+		colorVariety[1] = float4(72 / 255.f, 141 / 255.f, 65 / 255.f, 1.f);
+		colorVariety[2] = float4(72 / 255.f, 226 / 255.f, 39 / 255.f, 1.f);
+		size_interval = float2(0.15, 0.3);
+		timeAlive_interval = float2(0.1, 1.0);
+		velocity_max = float3(-1.);
+		velocity_min = float3(1.);
+		velocity_interval = float2(0.1, 0.2);
+		acceleration = float3(0.);
+		slowdown = 1;
+		shape = Shape::Star;
+		break;
+	case ParticleSystem::SPARKLE_DRAGON:
+		colorVariety[0] = float4(78 / 255.f, 158 / 255.f, 80 / 255.f, 1.f);
+		colorVariety[1] = float4(235 / 255.f, 83 / 255.f, 83 / 255.f, 1.f);
+		colorVariety[2] = float4(215 / 255.f, 51 / 255.f, 51 / 255.f, 1.f);
 		size_interval = float2(0.15, 0.3);
 		timeAlive_interval = float2(0.1, 1.0);
 		velocity_max = float3(-1.);

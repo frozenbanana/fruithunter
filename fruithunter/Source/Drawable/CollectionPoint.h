@@ -12,7 +12,6 @@ private:
 	const size_t m_stars_emitCount = 15;
 	ParticleSystem m_explosion, m_sparkle, m_stars;
 	Entity m_fruit;
-	const float m_fruit_scale = 0.15;
 	const float m_fruit_rotationSpeed = 1;
 
 	static float m_distanceThreshold;

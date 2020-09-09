@@ -8,24 +8,38 @@ float CollectionPoint::m_startStrength = 10;
 float CollectionPoint::m_slowdown = 0.1;
 
 void CollectionPoint::setType(FruitType type) {
+	float fruit_scale = 1;
 	m_type = type;
 	switch (type) {
 	case APPLE:
 		m_explosion.load(ParticleSystem::Type::EXPLOSION_APPLE, 0, m_explosion_emitCount);
 		m_sparkle.load(ParticleSystem::Type::SPARKLE_APPLE, m_sparkle_emitRate, 0);
 		m_fruit.load("Apple_000000");
+		fruit_scale = 0.15;
 		break;
 	case BANANA:
+		m_explosion.load(ParticleSystem::Type::EXPLOSION_BANANA, 0, m_explosion_emitCount);
+		m_sparkle.load(ParticleSystem::Type::SPARKLE_BANANA, m_sparkle_emitRate, 0);
+		m_fruit.load("Banana_000000");
+		fruit_scale = 0.8;
 		break;
 	case MELON:
+		m_explosion.load(ParticleSystem::Type::EXPLOSION_MELON, 0, m_explosion_emitCount);
+		m_sparkle.load(ParticleSystem::Type::SPARKLE_MELON, m_sparkle_emitRate, 0);
+		m_fruit.load("Melon_000000");
+		fruit_scale = 0.15;
 		break;
 	case DRAGON:
-		break;
-	case NR_OF_FRUITS:
-		break;
-	default:
+		m_explosion.load(ParticleSystem::Type::EXPLOSION_DRAGON, 0, m_explosion_emitCount);
+		m_sparkle.load(ParticleSystem::Type::SPARKLE_DRAGON, m_sparkle_emitRate, 0);
+		m_fruit.load("Dragon_000000");
+		fruit_scale = 0.15;
 		break;
 	}
+	m_fruit.setScale(fruit_scale);
+	m_explosion.setScale(m_explosion_spawnSize);
+	m_stars.setScale(m_explosion_spawnSize);
+	m_sparkle.setScale(m_sparkle_spawnSize);
 }
 
 void CollectionPoint::setSkillType(Skillshot skillType) {
@@ -60,10 +74,6 @@ void CollectionPoint::load(float3 position, float3 velocity, FruitType type, Ski
 	m_velocity = velocity * m_startStrength;
 	setType(type);
 	setSkillType(skillType);
-	m_explosion.setScale(m_explosion_spawnSize);
-	m_stars.setScale(m_explosion_spawnSize);
-	m_sparkle.setScale(m_sparkle_spawnSize);
-	m_fruit.setScale(m_fruit_scale);
 	//emit explosion
 	m_explosion.setPosition(m_startPosition);//need to set position here, otherwise the particles will spawn at (0,0,0)
 	m_explosion.emit(m_explosion_emitCount);
