@@ -28,7 +28,7 @@ private:
 		~SubGrid();
 	};
 
-	const string m_heightmapPath = "assets/TerrainHeightmap/";
+	const string m_heightmapPath = "assets/TerrainResources/heightmaps/";
 
 	bool m_isInitilized = false;
 	static ShaderSet m_shader;
@@ -59,10 +59,14 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 
 	// resource buffer
-	const string m_texturePath = "assets/Meshes/Textures/";
+	const string m_texturePath = "assets/TerrainResources/";
 	// 0 = flat, 1 = lowFlat, 2 = tilt, 3 = lessTilt
 	bool m_textureInitilized = false;
 	shared_ptr<TextureSet> m_textures[4];
+
+	shared_ptr<TextureSet> m_texture_color[2];
+	shared_ptr<TextureSet> m_texture_occlusion[2];
+	shared_ptr<TextureSet> m_texture_roughness[2];
 
 	// World Matrix
 	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_matrixBuffer;

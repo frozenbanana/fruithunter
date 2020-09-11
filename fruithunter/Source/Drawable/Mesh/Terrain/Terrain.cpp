@@ -274,7 +274,7 @@ void Terrain::fillSubMeshes() {
 bool Terrain::createResourceBuffer(string filename, ID3D11ShaderResourceView** buffer) {
 	auto device = Renderer::getDevice();
 	auto deviceContext = Renderer::getDeviceContext();
-	wstring wstr = s2ws(m_texturePath + filename);
+	wstring wstr = s2ws(m_texturePath + filename + "/color.png");
 	LPCWCHAR str = wstr.c_str();
 	HRESULT hrA = DirectX::CreateWICTextureFromFile(device, deviceContext, str, nullptr, buffer);
 	if (FAILED(hrA)) {
@@ -452,6 +452,19 @@ float Terrain::triangleTest(
 
 void Terrain::initilize(string filename, string textures[4], XMINT2 subsize, XMINT2 splits,
 	float3 wind, AreaTag tag) {
+	m_texture_color[0] = TextureRepository::get("grass_color.png", TextureRepository::Type::type_texture);
+	m_texture_occlusion[0] =
+		TextureRepository::get("grass_occlusion.png", TextureRepository::Type::type_texture);
+	m_texture_roughness[0] =
+		TextureRepository::get("grass_roughness.png", TextureRepository::Type::type_texture);
+
+	m_texture_color[1] =
+		TextureRepository::get("dryDirt_color.png", TextureRepository::Type::type_texture);
+	m_texture_occlusion[1] =
+		TextureRepository::get("dryDirt_occlusion.png", TextureRepository::Type::type_texture);
+	m_texture_roughness[1] =
+		TextureRepository::get("dryDirt_roughness.png", TextureRepository::Type::type_texture);
+
 	// set texture
 	setTextures(textures);
 	// load terrain
@@ -723,6 +736,12 @@ void Terrain::draw() {
 		for (size_t i = 0; i < 4; i++) {
 			deviceContext->PSSetShaderResources((UINT)i, 1, m_textures[i]->view.GetAddressOf());
 		}
+		deviceContext->PSSetShaderResources(5, 1, m_texture_color[0]->view.GetAddressOf());
+		deviceContext->PSSetShaderResources(6, 1, m_texture_occlusion[0]->view.GetAddressOf());
+		deviceContext->PSSetShaderResources(7, 1, m_texture_roughness[0]->view.GetAddressOf());
+		deviceContext->PSSetShaderResources(8, 1, m_texture_color[1]->view.GetAddressOf());
+		deviceContext->PSSetShaderResources(9, 1, m_texture_occlusion[1]->view.GetAddressOf());
+		deviceContext->PSSetShaderResources(10, 1, m_texture_roughness[1]->view.GetAddressOf());
 		// bind world matrix
 		VSBindMatrix(MATRIX_BUFFER_SLOT);
 		// draw
@@ -790,7 +809,7 @@ Terrain::Terrain(string filename, string textures[4], XMINT2 subsize, XMINT2 spl
 			{ "TexCoordinate", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 		};
-		m_shader.createShaders(L"VertexShader_model_onlyMesh.hlsl", NULL,
+		m_shader.createShaders(L"VertexShader_terrain.hlsl", NULL,
 			L"PixelShader_terrain.hlsl", inputLayout_onlyMesh, 3);
 		m_shader_onlyMesh.createShaders(L"VertexShader_onlyMesh.hlsl", NULL,
 			L"PixelShader_terrain_onlyMesh.hlsl", inputLayout_onlyMesh, 3);
