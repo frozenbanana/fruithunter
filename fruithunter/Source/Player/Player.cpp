@@ -193,10 +193,8 @@ void Player::activateHunterMode() { m_hunterMode = true; }
 
 void Player::updateBow(float dt, Terrain* terrain) {
 	//update bow behavior and handle spawning of arrows
-	shared_ptr<Arrow> arrow = m_bow.update_bow(
-		dt, 
-		Input::getInstance()->mouseDown(Input::MouseButton::LEFT)
-	);
+	shared_ptr<Arrow> arrow =
+		m_bow.update_bow(dt, Input::getInstance()->mouseDown(Input::MouseButton::LEFT));
 	if (arrow.get() != nullptr)
 		SceneManager::getScene()->m_arrows.push_back(arrow);
 	//update rotation

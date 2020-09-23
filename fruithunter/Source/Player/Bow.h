@@ -16,7 +16,7 @@ private:
 	float m_bowPositioning_drawForward = 0.2f;
 	float m_bowPositioning_rotationVelocityClamp = 0.5f;
 	float m_bowPositioning_rotationSpringConstant = 30.f;
-	float m_bowPositioning_bowDrag = 3.5f;
+	float m_bowPositioning_bowDrag = 5.5f;//3.5
 	float m_bowPositioning_stringFriction = 0.0001f / 60.f;
 	float m_bowPositioning_stringSpringConstant = 800.f;
 

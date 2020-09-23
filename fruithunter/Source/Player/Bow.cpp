@@ -130,29 +130,29 @@ void Bow::update_positioning(float dt, float3 position, float3 forward, float3 r
 }
 
 shared_ptr<Arrow> Bow::update_bow(float dt, bool pulling) { 
-	bool deb = false;
+	bool debug = false;
 	shared_ptr<Arrow> spawnedArrow; // empty at start!
 	if (m_charging) {
 		if (pulling) {
-			if (deb)
+			if (debug)
 				cout << "pulling" << endl;
 			pull(dt);
 		}
 		else {
-			if (deb)
+			if (debug)
 				cout << "atRelease" << endl;
 			spawnedArrow = atLoosening();
 		}
 	}
 	else {
 		if (pulling && !m_waitingForArrowRecovery) {
-			if (deb)
+			if (debug)
 				cout << "atPull" << endl;
 			// start to pull if started to pull this call and not waiting for arrow.
 			atPull();
 		}
 		else {
-			if (deb)
+			if (debug)
 				cout << "release" << endl;
 			loosen(dt);
 		}
