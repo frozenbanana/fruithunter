@@ -46,6 +46,7 @@ private:
 	const Keyboard::Keys KEY_LEFT = Keyboard::A;
 	const Keyboard::Keys KEY_RIGHT = Keyboard::D;
 	const Keyboard::Keys KEY_DASH = Keyboard::Space;
+	const Keyboard::Keys KEY_JUMP = Keyboard::Space;
 	const Keyboard::Keys KEY_SPRINT = Keyboard::LeftShift;
 	const Keyboard::Keys KEY_HM = Keyboard::F;
 
@@ -111,6 +112,9 @@ private:
 	float3 m_playerUp = DEFAULTUP;
 	float m_cameraPitch = 0, m_cameraYaw = 0;
 
+	// Jumping
+	bool m_midairJumpActivated = false;
+
 	//- - - Functions - - -
 	void updateBow(float dt, Terrain* terrain);
 	void updateCamera();
@@ -126,6 +130,7 @@ private:
 	void checkDash(float dt);
 	void checkPlayerReset(float dt); // Resets player if below sea level
 	void checkHunterMode();
+	void checkJump(float dt);
 
 	/*
 	 * Modifies m_velocity to have a sliding effect

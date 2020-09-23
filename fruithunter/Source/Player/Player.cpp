@@ -25,7 +25,8 @@ void Player::update(float dt) {
 
 	checkSteepTerrain(terrain);
 	checkSprint(delta);
-	checkDash(delta);
+	//checkDash(delta);
+	checkJump(delta);
 	checkHunterMode();
 
 	rotatePlayer(dt);
@@ -390,6 +391,32 @@ void Player::checkHunterMode() {
 			AudioHandler::getInstance()->playOnce(AudioHandler::SLOW_MOTION_REVERSED);
 
 		m_hunterMode = 1 - m_hunterMode;
+	}
+}
+
+void Player::checkJump(float dt) {
+	Input* ip = Input::getInstance();
+	bool onWalkableTerrain = (m_onGround || m_onEntity) && !m_onSteepGround;
+	if (ip->keyPressed(KEY_JUMP)) {
+		if (onWalkableTerrain) {
+			m_midairJumpActivated = false; // mid air jump available again
+			// initial jump
+			float3 direction = float3(0, 1, 0);
+			float strength = 10;
+			m_velocity += direction * strength;
+		}
+		else if (!m_midairJumpActivated) {
+			// midair jump
+			m_midairJumpActivated = true;
+			float3 forward = Normalize(getForward() * float3(1, 0, 1));//ignore y axis
+			float3 left = Normalize(forward.Cross(float3(0, 1, 0)));
+			float3 nonYDirection =
+				Normalize(forward * (ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD)) +
+						  left * (ip->keyDown(KEY_LEFT) - ip->keyDown(KEY_RIGHT)));
+			float3 direction = Normalize(nonYDirection + float3(0, 1, 0));
+			float strength = 10;
+			m_velocity = direction * strength;
+		}
 	}
 }
 
