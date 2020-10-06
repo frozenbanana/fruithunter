@@ -62,13 +62,13 @@ private:
 		float3 velocity;// current velocity
 		float lifeTime = 1;
 		float timeLeft = 1;
-		float size = 1;
+		float size = 1; // start size
 	};
 	vector<ParticleProperty> m_particleProperties;
 	struct Particle {
 		float3 position;
 		float4 color = float4(1.);
-		float size = 1;
+		float size = 1; // size after fade scaling is applied
 		float isActive = false;
 	};
 	vector<Particle> m_particles;
