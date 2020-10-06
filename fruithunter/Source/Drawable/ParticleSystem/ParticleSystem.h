@@ -42,6 +42,8 @@ public:
 		float2 velocity_interval; // strength of velocity
 		float3 acceleration;	  // can be used to produce gravity for particles for example
 		float slowdown;
+		float fadeInterval_start; // time(start) to time(x) seconds to scale particle to real size
+		float fadeInterval_end; // time(end-x) to time(end) seconds to scale particle to nothing 
 		enum Shape { Circle, Star } shape;
 		ParticleDescription(ParticleSystem::Type type = ParticleSystem::Type::NONE);
 	};

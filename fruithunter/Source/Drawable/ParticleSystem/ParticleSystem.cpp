@@ -89,10 +89,12 @@ void ParticleSystem::updateParticles(float dt) {
 			float lifeTime = m_particleProperties[i].lifeTime;
 			float timeLeft = m_particleProperties[i].timeLeft;
 			float size = m_particleProperties[i].size;
-			if (timeLeft < 0.1)
-				m_particles[i].size = (timeLeft / 0.1) * size;
-			else if ((lifeTime-timeLeft) < 0.1)
-				m_particles[i].size = ((lifeTime - timeLeft) / 0.1) * size;
+			float fadeStart = m_particle_description.fadeInterval_start;
+			float fadeEnd = m_particle_description.fadeInterval_end;
+			if (timeLeft < fadeStart)
+				m_particles[i].size = (timeLeft / fadeStart) * size;
+			else if ((lifeTime - timeLeft) < fadeEnd)
+				m_particles[i].size = ((lifeTime - timeLeft) / fadeEnd) * size;
 			else
 				m_particles[i].size = size;
 
@@ -300,6 +302,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 1;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::GROUND_DUST:
 		colorVariety[0] = float4(0.77f, 0.35f, 0.51f, 1.0f);
@@ -313,6 +317,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 1;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::VULCANO_FIRE:
 		colorVariety[0] = float4(179 / 255.f, 0 / 255.f, 0 / 255.f, 1.0f);
@@ -326,6 +332,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0, 10, 0);
 		slowdown = 1;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::VULCANO_SMOKE:
 		colorVariety[0] = float4(0.50f, 0.40f, 0.40f, 1.0f);
@@ -339,6 +347,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0, 3, 0);
 		slowdown = 1;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::LAVA_BUBBLE:
 		colorVariety[0] = float4(0.70f, 0.20f, 0.20f, 1.0f);
@@ -352,6 +362,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 1;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::ARROW_GLITTER:
 		colorVariety[0] = float4(0.88f, 0.87f, 0.81f, 1.0f);
@@ -365,6 +377,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 1;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::CONFETTI:
 		colorVariety[0] = float4(214 / 255.f, 53 / 255.f, 53 / 255.f, 1.0f);
@@ -378,6 +392,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0, -10, 0);
 		slowdown = 1;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::STARS_GOLD:
 		colorVariety[0] = float4(1.00f, 0.95f, 0.00f, 1.0f);
@@ -391,6 +407,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 0.1;
 		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::STARS_SILVER:
 		colorVariety[0] = float4(0.75f, 0.75f, 0.75f, 1.0f);
@@ -404,6 +422,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 0.1;
 		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::STARS_BRONZE:
 		colorVariety[0] = float4(0.69f, 0.34f, 0.05f, 1.0f);
@@ -417,6 +437,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 0.1;
 		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::EXPLOSION_APPLE:
 		colorVariety[0] = float4(228 / 255.f, 83 / 255.f, 83 / 255.f, 1.f);
@@ -430,6 +452,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 0.0001;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::EXPLOSION_BANANA:
 		colorVariety[0] = float4(249 / 255.f, 255 / 255.f, 158 / 255.f, 1.f);
@@ -443,6 +467,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 0.0001;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::EXPLOSION_MELON:
 		colorVariety[0] = float4(58 / 255.f, 176 / 255.f, 60 / 255.f, 1.f);
@@ -456,6 +482,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 0.0001;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::EXPLOSION_DRAGON:
 		colorVariety[0] = float4(78 / 255.f, 158 / 255.f, 80 / 255.f, 1.f);
@@ -469,6 +497,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 0.0001;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::SPARKLE_APPLE:
 		colorVariety[0] = float4(228 / 255.f, 83 / 255.f, 83 / 255.f, 1.f);
@@ -482,6 +512,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 1;
 		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::SPARKLE_BANANA:
 		colorVariety[0] = float4(249 / 255.f, 255 / 255.f, 158 / 255.f, 1.f);
@@ -495,6 +527,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 1;
 		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::SPARKLE_MELON:
 		colorVariety[0] = float4(58 / 255.f, 176 / 255.f, 60 / 255.f, 1.f);
@@ -508,6 +542,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 1;
 		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::SPARKLE_DRAGON:
 		colorVariety[0] = float4(78 / 255.f, 158 / 255.f, 80 / 255.f, 1.f);
@@ -521,6 +557,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 1;
 		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::EXPLOSION_GOLD:
 		colorVariety[0] = float4(255 / 255.f, 240 / 255.f, 0 / 255.f, 1.f);
@@ -534,6 +572,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0,-3,0);
 		slowdown = 0.05f;
 		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::EXPLOSION_SILVER:
 		colorVariety[0] = float4(194 / 255.f, 194 / 255.f, 194 / 255.f, 1.f);
@@ -547,6 +587,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0, -3, 0);
 		slowdown = 0.05f;
 		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::EXPLOSION_BRONZE:
 		colorVariety[0] = float4(206 / 255.f, 115 / 255.f, 0 / 255.f, 1.f);
@@ -560,6 +602,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0, -3, 0);
 		slowdown = 0.05f;
 		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::JUMP_DUST:
 		colorVariety[0] = float4(203 / 255.f, 203 / 255.f, 203 / 255.f, 1.f);
@@ -573,6 +617,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0, 0, 0);
 		slowdown = 0.001f;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	default:
 		colorVariety[0] = float4(1.);
@@ -586,6 +632,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 1;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	}
 }
