@@ -40,6 +40,7 @@ void ParticleSystem::setParticle(size_t index) {
 	pp->lifeTime = RandomFloat(
 		m_particle_description.timeAlive_interval.x, m_particle_description.timeAlive_interval.y);
 	pp->timeLeft = pp->lifeTime;
+	pp->size = part->size;
 
 	// velocity
 	float randVeloX =
@@ -85,6 +86,16 @@ void ParticleSystem::updateParticles(float dt) {
 	for (size_t i = 0; i < m_particles.size(); i++) {
 		if (m_particles[i].isActive == true) {
 			m_particleProperties[i].timeLeft -= dt;
+			float lifeTime = m_particleProperties[i].lifeTime;
+			float timeLeft = m_particleProperties[i].timeLeft;
+			float size = m_particleProperties[i].size;
+			if (timeLeft < 0.1)
+				m_particles[i].size = (timeLeft / 0.1) * size;
+			else if ((lifeTime-timeLeft) < 0.1)
+				m_particles[i].size = ((lifeTime - timeLeft) / 0.1) * size;
+			else
+				m_particles[i].size = size;
+
 			if (m_particleProperties[i].timeLeft <= 0.f) {
 				// Inactivate particles when lifetime is over
 				m_particles[i].isActive = false;

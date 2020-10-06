@@ -62,6 +62,7 @@ private:
 		float3 velocity;// current velocity
 		float lifeTime = 1;
 		float timeLeft = 1;
+		float size = 1;
 	};
 	vector<ParticleProperty> m_particleProperties;
 	struct Particle {
