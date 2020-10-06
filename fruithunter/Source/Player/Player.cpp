@@ -6,7 +6,7 @@
 #include "Settings.h"
 #include "SceneManager.h"
 
-Player::Player() {}
+Player::Player() { m_jumpDust.load(ParticleSystem::Type::JUMP_DUST, 0, m_dustAmount*2); }
 
 Player::~Player() {}
 
@@ -86,6 +86,7 @@ void Player::update(float dt) {
 
 void Player::draw() {
 	m_bow.draw();
+	m_jumpDust.draw();
 }
 
 void Player::bindMatrix() { 
@@ -289,7 +290,6 @@ void Player::checkGround(Terrain* terrain) {
 			m_position.x, m_position.z); // height of terrain on current position
 		m_position.y = clamp(
 			m_position.y, m_position.y, terrainHeight); // clamp position to never go under terrain!
-
 		m_onGround = abs(m_position.y - terrainHeight) < ONGROUND_THRESHOLD;
 	}
 }
@@ -402,22 +402,28 @@ void Player::checkJump(float dt) {
 			m_midairJumpActivated = false; // mid air jump available again
 			// initial jump
 			float3 direction = float3(0, 1, 0);
-			float strength = 10;
-			m_velocity += direction * strength;
+			m_velocity += direction * m_jump_init_strength;
+			//spawn dust
+			m_jumpDust.emit(m_dustAmount);
 		}
 		else if (!m_midairJumpActivated) {
 			// midair jump
 			m_midairJumpActivated = true;
 			float3 forward = Normalize(getForward() * float3(1, 0, 1));//ignore y axis
 			float3 left = Normalize(forward.Cross(float3(0, 1, 0)));
+
 			float3 nonYDirection =
 				Normalize(forward * (ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD)) +
 						  left * (ip->keyDown(KEY_LEFT) - ip->keyDown(KEY_RIGHT)));
 			float3 direction = Normalize(nonYDirection + float3(0, 1, 0));
-			float strength = 10;
-			m_velocity = direction * strength;
+			m_velocity = direction * m_jump_dash_strength;
+			// spawn dust
+			m_jumpDust.emit(m_dustAmount);
 		}
 	}
+	//update jump dust
+	m_jumpDust.setPosition(getPosition()); // follow feet
+	m_jumpDust.update(dt);
 }
 
 void Player::slide(float dt, float3 normal, float l) {

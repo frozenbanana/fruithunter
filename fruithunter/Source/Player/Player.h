@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "Terrain.h"
 #include "Bow.h"
+#include "ParticleSystem.h"
 
 class Player {
 public:
@@ -114,6 +115,12 @@ private:
 
 	// Jumping
 	bool m_midairJumpActivated = false;
+	float m_jump_init_strength = 7.5;
+	float m_jump_dash_strength = 7.5;
+
+	// effects
+	ParticleSystem m_jumpDust;
+	const int m_dustAmount = 30;
 
 	//- - - Functions - - -
 	void updateBow(float dt, Terrain* terrain);

@@ -386,11 +386,11 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 			updated = true;
 		}
 	}
-	static string ps_typeAsString[ParticleSystem::Type::TYPE_LENGTH] = { "None",
-		"Forest Bubble", "Ground Dust", "Volcano Fire", "Volcano Smoke", "Lava Bubble", "Arrow Glitter", "Confetti",
+	static string ps_typeAsString[ParticleSystem::Type::TYPE_LENGTH] = { "None", "Forest Bubble",
+		"Ground Dust", "Volcano Fire", "Volcano Smoke", "Lava Bubble", "Arrow Glitter", "Confetti",
 		"Stars Gold", "Stars Silver", "Stars Bronze", "Explosion Apple", "Explosion Banana",
-		"Explosion Melon", "Explosion Dragon",
-		"Sparkle Apple","Sparkle Banana","Sparkle Melon","Sparkle Dragon","Explosion Gold","Explosion Silver","Explosion Bronze" };
+		"Explosion Melon", "Explosion Dragon", "Sparkle Apple", "Sparkle Banana", "Sparkle Melon",
+		"Sparkle Dragon", "Explosion Gold", "Explosion Silver", "Explosion Bronze", "Jump Dust" };
 	if (ImGui::BeginCombo("Type", ps_typeAsString[type].c_str())) {
 		for (size_t i = 1; i < ParticleSystem::Type::TYPE_LENGTH; i++) {
 			if (ImGui::MenuItem(ps_typeAsString[i].c_str())) {

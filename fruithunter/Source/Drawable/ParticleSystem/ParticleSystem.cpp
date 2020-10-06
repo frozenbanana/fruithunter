@@ -550,6 +550,19 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		slowdown = 0.05f;
 		shape = Shape::Star;
 		break;
+	case ParticleSystem::JUMP_DUST:
+		colorVariety[0] = float4(203 / 255.f, 203 / 255.f, 203 / 255.f, 1.f);
+		colorVariety[1] = float4(160 / 255.f, 160 / 255.f, 160 / 255.f, 1.f);
+		colorVariety[2] = float4(123 / 255.f, 123 / 255.f, 123 / 255.f, 1.f);
+		size_interval = float2(0.1,0.3);
+		timeAlive_interval = float2(0.3,0.5);
+		velocity_max = float3(-1, -0.05, -1);
+		velocity_min = float3(1, 0.05, 1);
+		velocity_interval = float2(5, 5.5);
+		acceleration = float3(0, 0, 0);
+		slowdown = 0.001f;
+		shape = Shape::Circle;
+		break;
 	default:
 		colorVariety[0] = float4(1.);
 		colorVariety[1] = float4(1.);

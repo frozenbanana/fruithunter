@@ -30,6 +30,7 @@ public:
 		EXPLOSION_GOLD,
 		EXPLOSION_SILVER,
 		EXPLOSION_BRONZE,
+		JUMP_DUST,
 		TYPE_LENGTH
 	};
 	struct ParticleDescription {
