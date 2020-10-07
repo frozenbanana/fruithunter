@@ -421,6 +421,10 @@ bool Scene::handleWin() {
 	return hasWon;
 }
 
+float Scene::getDeltaTime() {
+	return m_timer.getDt();
+}
+
 void SceneAbstactContent::fileInput_string(fstream& file, string str) { 
 	size_t length = str.length();
 	fileInput_ulong(file, length);

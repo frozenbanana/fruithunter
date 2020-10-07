@@ -4,9 +4,9 @@
 #define MAXNROFJUMPS 2
 class Apple : public Fruit {
 private:
-	void behaviorPassive(float3 playerPosition) override;
-	void behaviorActive(float3 playerPosition) override;
-	void behaviorCaught(float3 playerPosition) override;
+	void behaviorPassive() override;
+	void behaviorActive() override;
+	void behaviorCaught() override;
 	int m_nrOfJumps = 0;
 
 	bool isValid(float3 point);

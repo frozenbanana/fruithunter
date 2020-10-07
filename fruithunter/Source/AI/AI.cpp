@@ -224,22 +224,22 @@ AI::State AI::getState() const { return m_currentState; }
 
 bool AI::giveNewPath() const { return m_readyForPath; }
 
-void AI::doBehavior(float3 playerPosition) {
+void AI::doBehavior() {
 	auto pft = PathFindingThread::getInstance();
 
 	// pft->m_mutex.lock();
 	switch (m_currentState) {
 	case INACTIVE:
-		behaviorInactive(playerPosition);
+		behaviorInactive();
 		break;
 	case PASSIVE:
-		behaviorPassive(playerPosition);
+		behaviorPassive();
 		break;
 	case ACTIVE:
-		behaviorActive(playerPosition);
+		behaviorActive();
 		break;
 	case CAUGHT:
-		behaviorCaught(playerPosition);
+		behaviorCaught();
 		break;
 	case RELEASED:
 		behaviorReleased();

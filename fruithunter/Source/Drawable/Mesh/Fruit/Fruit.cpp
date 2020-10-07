@@ -126,7 +126,7 @@ bool Fruit::withinDistanceTo(float3 target, float treshhold) {
 ParticleSystem* Fruit::getParticleSystem() { return &m_particleSystem; }
 
 void Fruit::update(float dt, float3 playerPosition) {
-	if (withinDistanceTo(playerPosition, 80.f)) {
+	if (withinDistanceTo(playerPosition, 160.f)) {
 		m_isVisible = true;
 		m_particleSystem.setPosition(getPosition());
 		checkOnGroundStatus(); // checks if on ground
@@ -139,7 +139,7 @@ void Fruit::update(float dt, float3 playerPosition) {
 				- If at home, then just jump straight up. But after 2 jumps move home
 		 * Caught: Jump straight up. Move straight to player
 		*/
-		doBehavior(playerPosition);
+		doBehavior();
 		setDirection(); // walk towards AI walk node
 		updateAnimated(dt); // animation stuff
 		updateVelocity(dt); // update velocity (slowdown and apply accelration)
@@ -163,14 +163,14 @@ float3 Fruit::getHomePosition() const { return m_worldHome; }
 Fruit::Fruit(float3 pos) : Entity() {
 	setStartPosition(pos);
 	setPosition(pos);
-	m_worldHome = pos;
+	setWorldHome(pos);
 	m_nrOfFramePhases = 0;
 	m_currentFramePhase = 0;
 	m_frameTime = 0.0f;
 }
 
 // Perhaps a useful function later.
-void Fruit::behaviorInactive(float3 playerPosition) { return; }
+void Fruit::behaviorInactive() { return; }
 
 void Fruit::setDirection() {
 	auto pft = PathFindingThread::getInstance();

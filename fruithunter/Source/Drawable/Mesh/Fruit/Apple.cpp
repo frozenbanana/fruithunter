@@ -27,7 +27,8 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 	setCollisionDataOBB();
 }
 
-void Apple::behaviorPassive(float3 playerPosition) {
+void Apple::behaviorPassive() {
+	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
 	float terrainHeight = SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition());
 	// Check if not at home
 	if (getPosition().y <= 1.f) {
@@ -86,7 +87,8 @@ void Apple::behaviorPassive(float3 playerPosition) {
 	lookTo(m_velocity * float3(1, 0, 1));
 }
 
-void Apple::behaviorActive(float3 playerPosition) {
+void Apple::behaviorActive() {
+	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
 	if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
 		changeState(PASSIVE);
 		stopMovement();
@@ -98,7 +100,8 @@ void Apple::behaviorActive(float3 playerPosition) {
 	}
 }
 
-void Apple::behaviorCaught(float3 playerPosition) {
+void Apple::behaviorCaught() {
+	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
 	if (m_onGround) {
 		if (!m_hit) {
 			jump(float3(0.f, 1.f, 0.f), 15.f);

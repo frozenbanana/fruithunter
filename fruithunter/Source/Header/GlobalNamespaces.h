@@ -87,7 +87,7 @@ static float RandomFloat(float low = 0.f, float high = 1.f) {
 }
 
 /* Rotate float2 value */
-static float2 rotate(float2 v, float rad) {
+static float2 rotatef2(float2 v, float rad) {
 	float c = cos(rad), s = sin(rad);
 	return float2(v.x * c - v.y * s, v.x * s + v.y * c);
 }
