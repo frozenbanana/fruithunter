@@ -109,7 +109,11 @@ void DragonFruit::behaviorActive() {
 	}
 
 	// speed gain from forward tilt
-	m_velocitySpeed += Normalize(m_velocity).Dot(float3(0, -1, 0)) * m_speedGain * dt;
+	float forwardTilt = Normalize(m_velocity).Dot(float3(0, -1, 0));
+	m_velocitySpeed += forwardTilt * m_speedGain * dt;
+
+	// animation based on tilt
+	m_animationSpeed = m_animationSpeed_base - forwardTilt * m_animationSpeed_changeOnTilt;
 
 	// look in direction it is moving
 	lookTo(Normalize(m_velocity));
@@ -117,8 +121,6 @@ void DragonFruit::behaviorActive() {
 	// velocity direction change
 	float heightFromGround =
 		getPosition().y - SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition());
-	//float3 avoidFloor_force = float3(0, 1, 0) * -m_velocity.y *
-	//						  (1 - Clamp<float>(heightFromGround / m_heightFromGroundLimit, 0, 1));
 	float3 avoidFloor_force = float3(0, 1, 0) * (m_heightFromGroundLimit - heightFromGround) *
 							  (1 - Clamp<float>(heightFromGround / m_heightFromGroundLimit, 0, 1));
 
@@ -169,7 +171,7 @@ void DragonFruit::behaviorCaught() {
 
 
 void DragonFruit::updateAnimated(float dt) {
-	m_frameTime += dt * 4;
+	m_frameTime += dt * m_animationSpeed;
 	m_frameTime = fmodf(m_frameTime, 4.f);
 
 	if (m_frameTime < 1)
