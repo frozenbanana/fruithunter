@@ -18,6 +18,10 @@ private:
 	bool m_ascend = false;
 	bool updated = false;
 
+	float m_animationSpeed_base = 4;
+	float m_animationSpeed_changeOnTilt = 4;
+	float m_animationSpeed = m_animationSpeed_base;
+
 	float2 m_spawn_range = float2(5,35); // additional height above terrain height
 
 	float m_heightFromGroundLimit = 20; // If under limit, will force fruit to fly away from ground
