@@ -197,6 +197,8 @@
     <ClCompile Include="Source\ImGui\imgui_impl_dx11.cpp" />
     <ClCompile Include="Source\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Source\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="Source\ImGui\implot.cpp" />
+    <ClCompile Include="Source\ImGui\implot_items.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Player\Arrow.cpp" />
     <ClCompile Include="Source\Player\Bow.cpp" />
@@ -267,6 +269,8 @@
     <ClInclude Include="Source\ImGui\imgui_impl_dx11.h" />
     <ClInclude Include="Source\ImGui\imgui_impl_win32.h" />
     <ClInclude Include="Source\ImGui\imgui_internal.h" />
+    <ClInclude Include="Source\ImGui\implot.h" />
+    <ClInclude Include="Source\ImGui\implot_internal.h" />
     <ClInclude Include="Source\ImGui\imstb_rectpack.h" />
     <ClInclude Include="Source\ImGui\imstb_textedit.h" />
     <ClInclude Include="Source\ImGui\imstb_truetype.h" />

@@ -102,13 +102,20 @@ void SceneManager::draw_color() {
 		scene->m_arrows[i]->draw_trailEffect();
 }
 
-void SceneManager::draw_hud() { m_hud.draw(); }
+void SceneManager::draw_hud() {
+	m_hud.draw();
+	m_crosshair.draw();
+}
 
 Scene* SceneManager::getScene() { return scene.get(); }
 
 SceneManager::SceneManager() { 
 	if(scene.get() == nullptr) 
 		scene = make_shared<Scene>(); 
+
+	m_crosshair.load("crosshair.png");
+	m_crosshair.set(float2(1280. / 2, 720. / 2), float2(1. / 10));
+	m_crosshair.setAlignment(); // center - center
 }
 
 SceneManager::~SceneManager() { 
@@ -116,6 +123,9 @@ SceneManager::~SceneManager() {
 }
 
 void SceneManager::update(Camera* overrideCamera) {
+
+	monitor();
+
 	if (overrideCamera == nullptr)
 		m_manualCamera = false;
 	else
@@ -312,11 +322,11 @@ void SceneManager::load(string folder) {
 	scene->load(folder);
 
 	// pathfinding thread
-	std::vector<float4> animalPos;
-	for (shared_ptr<Animal> a : scene->m_animals)
-		animalPos.push_back(
-			float4(a->getPosition().x, a->getPosition().y, a->getPosition().z, a->getFruitRange()));
-	PathFindingThread::getInstance()->initialize(scene->m_fruits, animalPos);
+	//std::vector<float4> animalPos;
+	//for (shared_ptr<Animal> a : scene->m_animals)
+	//	animalPos.push_back(
+	//		float4(a->getPosition().x, a->getPosition().y, a->getPosition().z, a->getFruitRange()));
+	//PathFindingThread::getInstance()->initialize(scene->m_fruits, animalPos);
 
 }
 
@@ -329,4 +339,49 @@ void SceneManager::reset() {
 			float4(a->getPosition().x, a->getPosition().y, a->getPosition().z, a->getFruitRange()));
 	PathFindingThread::getInstance()->initialize(scene->m_fruits, animalPos);
 
+}
+
+void SceneManager::monitor() {
+	static vector<float> deltas;
+	static vector<float> deltasRaw;
+	static float deltaUpdateTimer = 0;
+	static float averageDelta = 0;
+	static float averageDeltaCount = 0;
+
+	float dt = scene->getDeltaTime();
+	deltaUpdateTimer += dt;
+	averageDelta += dt;
+	averageDeltaCount++;
+	if (deltaUpdateTimer > 0.5f) {
+		deltaUpdateTimer = 0;
+		if (averageDeltaCount > 0) {
+			deltas.push_back(1.f/(averageDelta / averageDeltaCount));
+			if (deltas.size() > 100)
+				deltas.erase(deltas.begin());
+			averageDelta = 0;
+			averageDeltaCount = 0;
+		}
+	}
+
+	deltasRaw.push_back(1.f/dt);
+	if (deltasRaw.size() > 60 * 5*10)
+		deltasRaw.erase(deltasRaw.begin());
+
+	Input* ip = Input::getInstance();
+	if (ip->keyPressed(m_key_monitor))
+		m_monitoring = !m_monitoring;
+	if (m_monitoring) {
+		if (ImGui::Begin("Metrics")) {
+			float max = 0;
+			for (size_t i = 0; i < deltas.size(); i++)
+				if (deltas[i] > max)
+					max = deltas[i];
+			if (ImPlot::BeginPlot("DeltaGraph")) {
+				ImPlot::PlotLine<float>("deltaTime", deltasRaw.data(), deltasRaw.size());
+				ImPlot::EndPlot();
+			}
+
+			ImGui::End();
+		}
+	}
 }

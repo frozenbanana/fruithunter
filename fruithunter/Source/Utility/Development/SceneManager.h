@@ -1,7 +1,7 @@
 #pragma once
 #include "Scene.h"
 #include "HUD.h"
-
+#include "Sprite2D.h"
 /*
  * Handles the drawing of the scene data
 */
@@ -11,6 +11,11 @@ protected:
 	HUD m_hud;
 	bool m_manualCamera = false;
 	
+	Sprite2D m_crosshair;
+
+	Keyboard::Keys m_key_monitor = Keyboard::M;
+	bool m_monitoring = false;
+
 	//-- Private Functions --
 
 public:
@@ -29,5 +34,7 @@ public:
 
 	void load(string folder);
 	void reset();
+
+	void monitor();
 
 };

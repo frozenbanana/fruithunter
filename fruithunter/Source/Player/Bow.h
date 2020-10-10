@@ -6,8 +6,12 @@ class Bow {
 private:
 	Entity m_bow;	// bow mesh
 	Arrow arrow;	// arrow mesh (not used as an arrow, only visual)
-	float3 m_rotation; // bow adn arrow rotation (Entity class can't handle rotation)
-
+	float3 m_rotation; // bow and arrow rotation (Entity class can't handle rotation)
+	float3 m_rotation_desired;
+	float3 m_position_desired;
+	float3 m_position_current;
+	float3 m_sourcePosition;
+	float3 m_sourceForward;
 	// bow positioning
 	float3 m_bowPositioning_offset0 = float3(0.05f, -0.3f, 0.5f);//holstered
 	float3 m_bowPositioning_angle0 = float3(0.4f, 0, -0.8f);
@@ -16,11 +20,13 @@ private:
 	float m_bowPositioning_drawForward = 0.2f;
 	float m_bowPositioning_rotationVelocityClamp = 0.5f;
 	float m_bowPositioning_rotationSpringConstant = 30.f;
-	float m_bowPositioning_bowDrag = 5.5f;//3.5
+	float m_bowPositioning_bowDrag = 5.5f;
+	float m_bowPositioning_timeUntilTense = 0.5;
 	float m_bowPositioning_stringFriction = 0.0001f / 60.f;
 	float m_bowPositioning_stringSpringConstant = 800.f;
 
 	// bow properties
+	float m_bowWindup = 0;
 	bool m_charging = false;
 	float m_drawFactor = 0.0f;
 	float m_stringVelocity = 0;
@@ -35,6 +41,10 @@ private:
 	bool m_waitingForArrowRecovery = false;
 	float m_arrowReturnTimer = 0.f;
 	float m_arrowTimeBeforeReturn = 1.0f;
+
+	// bow catchup, smoother experiance
+	float m_rotationCatchup = 50.f;
+	float m_positionCatchup = 150.f;
 
 	//-- Private Functions --
 

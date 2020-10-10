@@ -252,6 +252,7 @@ Renderer::Renderer(int width, int height) {
 	//ImGui
 	IMGUI_CHECKVERSION();
 	ctx = ImGui::CreateContext();
+	ImPlot::CreateContext();
 	ImGui::SetCurrentContext(ctx);
 	ImGuiIO& io = ImGui::GetIO();
 	ImGui_ImplWin32_Init(m_handle);
@@ -281,6 +282,7 @@ Renderer::Renderer(int width, int height) {
 Renderer::~Renderer() {
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
+	ImPlot::DestroyContext();
 	ImGui::DestroyContext(ctx);
 }
 

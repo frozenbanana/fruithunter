@@ -2,6 +2,7 @@
 #include "AudioHandler.h"
 #include "ErrorLogger.h"
 #include "SceneManager.h"
+#include "GlobalNamespaces.h"
 
 Bow::Bow() {
 	m_bow.loadAnimated("Bow", 3);
@@ -17,11 +18,13 @@ void Bow::draw() {
 }
 
 void Bow::update_rotation(float pitch, float yaw) {
+	float dt = SceneManager::getScene()->getDeltaTime();
+
 	float3 rotation_holstered = float3(pitch, yaw, 0) + m_bowPositioning_angle0;
 	float3 rotation_aiming = float3(pitch, yaw, 0) + m_bowPositioning_angle1;
-	m_rotation = (rotation_holstered * (1 - m_drawFactor) + rotation_aiming * m_drawFactor);
+	m_rotation_desired = (rotation_holstered * (1 - m_drawFactor) + rotation_aiming * m_drawFactor);
+	m_rotation += (m_rotation_desired - m_rotation) * Clamp<float>(dt * m_rotationCatchup, 0, 1);
 	m_bow.setRotation(m_rotation);
-	//arrow.setRotationMatrix(m_bow.getRotationMatrix());
 	arrow.setRotation(m_bow.getRotation());
 }
 
@@ -30,9 +33,11 @@ void Bow::atPull() {
 }
 
 void Bow::pull(float dt) {
+
 	AudioHandler::getInstance()->playInstance(AudioHandler::STRETCH_BOW, m_drawFactor);
-	m_drawFactor += (1.f - m_drawFactor) * m_bowPositioning_bowDrag * dt;// update draw factor to move towards 1
-	m_stringFactor = m_drawFactor;// bow animation is fixed to the draw factor
+	m_bowWindup = Clamp<float>(m_bowWindup + dt / m_bowPositioning_timeUntilTense, 0, 1);
+	m_drawFactor = 1.f - pow(m_bowWindup - 1, 2);
+	m_stringFactor = Clamp<float>(m_drawFactor,0,0.999); // bow animation is fixed to the draw factor
 	m_bow.updateAnimatedSpecific(m_stringFactor);
 	m_bow.setFrameTargets(0, 1);
 }
@@ -45,60 +50,37 @@ shared_ptr<Arrow> Bow::atLoosening() {
 	m_waitingForArrowRecovery = true;
 	m_arrowReturnTimer = m_arrowTimeBeforeReturn;
 	// spawn arrow in world
-	float bowEfficiencyConstant = 400.0f;
+	float bowEfficiencyConstant = 400.0f*3;
 	float bowMaterialConstant = 0.05f;
 	float force = pow(
 		(bowEfficiencyConstant * m_drawFactor) / (m_arrowMass + m_bowMass * bowMaterialConstant),
 		0.5f);
-	// float3 direction = SceneManager::getScene()->m_player->getForward();
 	float3 direction = getForward();
 	float3 vel = direction * force;
+
+	//set bow position and rotation to desired stats.
+	m_bow.setRotation(m_rotation_desired);
+	arrow.setRotation(m_bow.getRotation());
+	m_bow.setPosition(m_position_desired + m_sourcePosition);
+	arrow.setPosition(m_bow.getPosition() + m_sourceForward * 0.3f * (1.0f - 1.6f * m_drawFactor));
 
 	shared_ptr<Arrow> ret = make_shared<Arrow>();
 	ret->initilize(arrow.getPosition_front(), vel);
 	return ret;
-
-	// OLD SHOT CODE
-	//if (m_charging && 0) {
-	//	m_charging = false;
-	//	m_shooting = true;
-	//	m_arrowReturnTimer = m_arrowTimeBeforeReturn;
-	//	m_arrowHitObject = false;
-
-	//	float bowEfficiencyConstant = 400.0f;
-	//	float bowMaterialConstant = 0.05f;
-
-	//	float velocity = pow((bowEfficiencyConstant * m_drawFactor) /
-	//							 (m_arrowMass + m_bowMass * bowMaterialConstant),
-	//		0.5f);
-
-	//	direction.Normalize();
-
-	//	m_arrowPitch = pitch;
-	//	m_arrowYaw = yaw;
-
-	//	float3 arrowStartVelocity =
-	//		float3(abs(direction.x), 0.0f, abs(direction.z)) * startVelocity;
-
-	//	m_arrowVelocity =
-	//		arrowStartVelocity + direction * velocity; // adds player velocity and it looks okay
-	//	m_oldArrowVelocity = m_arrowVelocity;		   // Required to calc rotation
-	//	if (m_drawFactor > 0.5) {
-	//		AudioHandler::getInstance()->playOnce(AudioHandler::HEAVY_ARROW);
-	//	}
-	//	else {
-	//		AudioHandler::getInstance()->playOnce(AudioHandler::LIGHT_ARROW);
-	//	}
-	//}
 }
 
 void Bow::loosen(float dt) {
+
 	// update bow factors
 	AudioHandler::getInstance()->pauseInstance(AudioHandler::STRETCH_BOW);
-	m_drawFactor += (0.f - m_drawFactor) * m_bowPositioning_bowDrag * dt;// update draw factor to move towards 0
-	m_stringVelocity += (0.f - m_stringFactor) * m_bowPositioning_stringSpringConstant * dt;// update spring velocity
-	m_stringVelocity *= pow(m_bowPositioning_stringFriction, dt);// spring friction, reduce spring velocity
-	m_stringFactor += m_stringVelocity * dt;// update spring position
+	m_drawFactor += (0.f - m_drawFactor) * m_bowPositioning_bowDrag *
+					dt; // update draw factor to move towards 0
+	m_bowWindup = m_drawFactor;
+	m_stringVelocity += (0.f - m_stringFactor) * m_bowPositioning_stringSpringConstant *
+						dt; // update spring velocity
+	m_stringVelocity *=
+		pow(m_bowPositioning_stringFriction, dt); // spring friction, reduce spring velocity
+	m_stringFactor += m_stringVelocity * dt;	  // update spring position
 	// Update Animation
 	m_bow.updateAnimatedSpecific(m_stringFactor);
 	m_bow.setFrameTargets(0, 1);
@@ -106,24 +88,24 @@ void Bow::loosen(float dt) {
 
 void Bow::update_positioning(float dt, float3 position, float3 forward, float3 right) {
 	float3 bowForward = getForward();
+	m_sourceForward = bowForward;
+	m_sourcePosition = position;
 	// Set bow position based on player position and direction.
 	float3 up = forward.Cross(right);
+
 	float3 position_holstered =
-		position + 
-		forward * m_bowPositioning_offset0.z + 
-		right * m_bowPositioning_offset0.x +
-		up * m_bowPositioning_offset0.y + 
-		bowForward * m_drawFactor * m_bowPositioning_drawForward;
+		forward * m_bowPositioning_offset0.z + right * m_bowPositioning_offset0.x +
+		up * m_bowPositioning_offset0.y + bowForward * m_drawFactor * m_bowPositioning_drawForward;
 	float3 position_aiming =
-		position +
-		(forward * m_bowPositioning_offset1.z + 
-			right * m_bowPositioning_offset1.x +
+		(forward * m_bowPositioning_offset1.z + right * m_bowPositioning_offset1.x +
 			up * m_bowPositioning_offset1.y) +
 		bowForward * m_drawFactor * m_bowPositioning_drawForward;
 
 	float3 drawPosition =
 		(position_holstered * (1 - m_drawFactor) + position_aiming * m_drawFactor);
-	m_bow.setPosition(drawPosition);
+	m_position_desired = drawPosition;
+	m_position_current += (m_position_desired - m_position_current) * Clamp<float>(dt * m_positionCatchup,0,1);
+	m_bow.setPosition(m_position_current + position);
 
 	// update arrow transformation (is invisible when it should be)
 	arrow.setPosition(m_bow.getPosition() + bowForward * 0.3f * (1.0f - 1.6f * m_drawFactor));

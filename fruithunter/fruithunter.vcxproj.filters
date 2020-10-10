@@ -267,6 +267,12 @@
     <ClCompile Include="Source\Utility\Translation2DStructures.cpp">
       <Filter>Source\Utility</Filter>
     </ClCompile>
+    <ClCompile Include="Source\ImGui\implot.cpp">
+      <Filter>Source\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ImGui\implot_items.cpp">
+      <Filter>Source\ImGui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -487,6 +493,12 @@
     </ClInclude>
     <ClInclude Include="Source\Utility\Translation2DStructures.h">
       <Filter>Source\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGui\implot.h">
+      <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGui\implot_internal.h">
+      <Filter>Source\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
