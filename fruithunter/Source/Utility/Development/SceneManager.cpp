@@ -322,11 +322,11 @@ void SceneManager::load(string folder) {
 	scene->load(folder);
 
 	// pathfinding thread
-	//std::vector<float4> animalPos;
-	//for (shared_ptr<Animal> a : scene->m_animals)
-	//	animalPos.push_back(
-	//		float4(a->getPosition().x, a->getPosition().y, a->getPosition().z, a->getFruitRange()));
-	//PathFindingThread::getInstance()->initialize(scene->m_fruits, animalPos);
+	std::vector<float4> animalPos;
+	for (shared_ptr<Animal> a : scene->m_animals)
+		animalPos.push_back(
+			float4(a->getPosition().x, a->getPosition().y, a->getPosition().z, a->getFruitRange()));
+	PathFindingThread::getInstance()->initialize(scene->m_fruits, animalPos);
 
 }
 
