@@ -188,5 +188,6 @@ public:
 	bool handleWin();
 
 	float getDeltaTime();
+	float getDeltaTime_skipSlow();
 
 };

@@ -422,8 +422,13 @@ bool Scene::handleWin() {
 }
 
 float Scene::getDeltaTime() {
-	return m_timer.getDt();
+	float dt = m_timer.getDt();
+	if (m_player->inHuntermode())
+		dt *= 0.1;
+	return dt;
 }
+
+float Scene::getDeltaTime_skipSlow() { return m_timer.getDt(); }
 
 void SceneAbstactContent::fileInput_string(fstream& file, string str) { 
 	size_t length = str.length();

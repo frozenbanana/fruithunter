@@ -134,16 +134,12 @@ void SceneManager::update(Camera* overrideCamera) {
 	auto pft = PathFindingThread::getInstance();
 
 	scene->m_timer.update();
-	float dt = scene->m_timer.getDt();
+	float dt = scene->getDeltaTime();
 	Player* player = scene->m_player.get();
 
 	// update player
 	if (!m_manualCamera) {
 		player->update(dt);
-		// update deltatime if in huntermode
-		if (player->inHuntermode()) {
-			dt *= 0.1f;
-		}
 		// drop fruit on key press
 		for (int i = 0; i < NR_OF_FRUITS; i++) {
 			if (Input::getInstance()->keyPressed(Keyboard::Keys(Keyboard::D1 + i)))

@@ -16,10 +16,6 @@ void Player::update(float dt) {
 
 	Terrain* terrain = SceneManager::getScene()->m_terrains.getTerrainFromPosition(m_position);
 
-	if (m_hunterMode) {
-		delta *= 0.1f;
-	}
-
 	// Movement force
 	float3 force = getMovementForce();
 
@@ -527,7 +523,7 @@ void Player::updateVelocity_onSteepGround(float dt) {
 
 void Player::updateHunterMode(float dt) {
 	if (m_hunterMode)
-		consumeStamina(STAMINA_HM_COST * dt);
+		consumeStamina(STAMINA_HM_COST * dt / 0.1f);
 	if (m_stamina <= 0.f)
 		m_hunterMode = false;
 }

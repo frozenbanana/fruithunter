@@ -62,7 +62,7 @@ private:
 	const float STEEPNESS_BORDER =
 		0.6f; // value of dot product when flat terrain goes to steep terrain
 	const float ONGROUND_THRESHOLD =
-		0.03f; // extra height over terrain until player is not grounded
+		0.1f; // extra height over terrain until player is not grounded
 
 	float3 m_position = float3(0, 0, 0);
 	float3 m_velocity = float3(0, 0, 0);
