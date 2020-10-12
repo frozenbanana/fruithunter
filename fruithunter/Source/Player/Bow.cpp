@@ -19,18 +19,23 @@ void Bow::draw() {
 
 void Bow::atPull() {
 	m_charging = true; 
+	AudioHandler::getInstance()->playInstance(AudioHandler::STRETCH_BOW);
 }
 
 void Bow::pull(float dt) {
-	AudioHandler::getInstance()->playInstance(AudioHandler::STRETCH_BOW, m_drawFactor);
 	m_bowWindup = Clamp<float>(m_bowWindup + dt / m_bowPositioning_timeUntilTense, 0, 1);
 	m_drawFactor = 1.f - pow(m_bowWindup - 1, 2);
 	m_stringFactor = Clamp<float>(m_drawFactor,0,0.999); // bow animation is fixed to the draw factor
 	m_bow.updateAnimatedSpecific(m_stringFactor);
 	m_bow.setFrameTargets(0, 1);
+
+	//stop stretch sound if bow fully streched
+	if (m_bowWindup == 1)
+		AudioHandler::getInstance()->pauseInstance(AudioHandler::STRETCH_BOW);
 }
 
 shared_ptr<Arrow> Bow::atLoosening() { 
+	AudioHandler::getInstance()->pauseInstance(AudioHandler::STRETCH_BOW);
 	AudioHandler::getInstance()->playOnce(AudioHandler::HEAVY_ARROW);
 	// release
 	m_charging = false; // stop charging
