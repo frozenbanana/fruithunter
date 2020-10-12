@@ -114,7 +114,9 @@ void Renderer::changeResolution(int width, int height) {
 	// 5. Make sure other parts in program update with new screen sizes.
 }
 
-void Renderer::setFullscreen(bool value) { m_swapChain->SetFullscreenState(value, nullptr); }
+void Renderer::setFullscreen(bool value) {
+	m_swapChain->SetFullscreenState(value, nullptr);
+}
 
 void Renderer::bindConstantBuffer_ScreenSize(int slot) {
 	XMINT4 data = XMINT4(m_screenWidth, m_screenHeight, 0, 0);
