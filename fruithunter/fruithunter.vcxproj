@@ -224,6 +224,7 @@
     <ClCompile Include="Source\Utility\Input\Button.cpp" />
     <ClCompile Include="Source\Utility\Input\Input.cpp" />
     <ClCompile Include="Source\Utility\Input\Slider.cpp" />
+    <ClCompile Include="Source\Utility\MetricCollector.cpp" />
     <ClCompile Include="Source\Utility\Repositories\MeshRepository.cpp" />
     <ClCompile Include="Source\Utility\Repositories\TextureRepository.cpp" />
     <ClCompile Include="Source\Utility\SaveState\SaveManager.cpp" />
@@ -300,6 +301,7 @@
     <ClInclude Include="Source\Utility\Input\Button.h" />
     <ClInclude Include="Source\Utility\Input\Input.h" />
     <ClInclude Include="Source\Utility\Input\Slider.h" />
+    <ClInclude Include="Source\Utility\MetricCollector.h" />
     <ClInclude Include="Source\Utility\QuadTree.h" />
     <ClInclude Include="Source\Utility\Repositories\MeshRepository.h" />
     <ClInclude Include="Source\Utility\Repositories\TextureRepository.h" />

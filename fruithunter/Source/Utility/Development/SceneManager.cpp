@@ -324,6 +324,7 @@ void SceneManager::load(string folder) {
 			float4(a->getPosition().x, a->getPosition().y, a->getPosition().z, a->getFruitRange()));
 	PathFindingThread::getInstance()->initialize(scene->m_fruits, animalPos);
 
+	m_metricCollector.reset();
 }
 
 void SceneManager::reset() { 
@@ -335,49 +336,15 @@ void SceneManager::reset() {
 			float4(a->getPosition().x, a->getPosition().y, a->getPosition().z, a->getFruitRange()));
 	PathFindingThread::getInstance()->initialize(scene->m_fruits, animalPos);
 
+	m_metricCollector.reset();
 }
 
 void SceneManager::monitor() {
-	static vector<float> deltas;
-	static vector<float> deltasRaw;
-	static float deltaUpdateTimer = 0;
-	static float averageDelta = 0;
-	static float averageDeltaCount = 0;
-
-	float dt = scene->getDeltaTime();
-	deltaUpdateTimer += dt;
-	averageDelta += dt;
-	averageDeltaCount++;
-	if (deltaUpdateTimer > 0.5f) {
-		deltaUpdateTimer = 0;
-		if (averageDeltaCount > 0) {
-			deltas.push_back(1.f/(averageDelta / averageDeltaCount));
-			if (deltas.size() > 100)
-				deltas.erase(deltas.begin());
-			averageDelta = 0;
-			averageDeltaCount = 0;
-		}
-	}
-
-	deltasRaw.push_back(1.f/dt);
-	if (deltasRaw.size() > 60 * 5*10)
-		deltasRaw.erase(deltasRaw.begin());
-
+	m_metricCollector.update();
 	Input* ip = Input::getInstance();
 	if (ip->keyPressed(m_key_monitor))
 		m_monitoring = !m_monitoring;
 	if (m_monitoring) {
-		if (ImGui::Begin("Metrics")) {
-			float max = 0;
-			for (size_t i = 0; i < deltas.size(); i++)
-				if (deltas[i] > max)
-					max = deltas[i];
-			if (ImPlot::BeginPlot("DeltaGraph")) {
-				ImPlot::PlotLine<float>("deltaTime", deltasRaw.data(), deltasRaw.size());
-				ImPlot::EndPlot();
-			}
-
-			ImGui::End();
-		}
+		m_metricCollector.draw_imgui();
 	}
 }

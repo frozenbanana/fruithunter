@@ -401,6 +401,8 @@ void Scene::reset() {
 	//gathered fruit
 	for (size_t i = 0; i < NR_OF_FRUITS; i++)
 		m_gatheredFruits[i] = 0;
+	// timer
+	m_timer.reset();
 
 	PathFindingThread::unlock();
 }

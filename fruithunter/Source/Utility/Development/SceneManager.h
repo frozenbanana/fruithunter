@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include "HUD.h"
 #include "Sprite2D.h"
+#include "MetricCollector.h"
 /*
  * Handles the drawing of the scene data
 */
@@ -13,6 +14,7 @@ protected:
 	
 	Sprite2D m_crosshair;
 
+	MetricCollector m_metricCollector;
 	Keyboard::Keys m_key_monitor = Keyboard::M;
 	bool m_monitoring = false;
 
