@@ -11,7 +11,6 @@ Player::Player() { m_jumpDust.load(ParticleSystem::Type::JUMP_DUST, 0, m_dustAmo
 Player::~Player() {}
 
 void Player::update(float dt) {
-
 	float delta = dt;
 
 	Terrain* terrain = SceneManager::getScene()->m_terrains.getTerrainFromPosition(m_position);
@@ -280,7 +279,7 @@ float3 Player::getMovementForce() {
 	float3 playerStraightForward = m_playerRight.Cross(float3(0, 1, 0));
 	force += playerStraightForward * (float)(ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD));
 	force += m_playerRight * (float)(ip->keyDown(KEY_RIGHT) - ip->keyDown(KEY_LEFT));
-
+	force.Normalize();
 	return force;
 }
 
@@ -410,16 +409,17 @@ void Player::checkJump(float dt) {
 			m_jumpDust.emit(m_dustAmount);
 		}
 		else if (!m_midairJumpActivated) {
-			// midair jump
 			m_midairJumpActivated = true;
-			float3 forward = Normalize(getForward() * float3(1, 0, 1));//ignore y axis
-			float3 left = Normalize(forward.Cross(float3(0, 1, 0)));
+			// midair jump
+			//float3 forward = Normalize(getForward() * float3(1, 0, 1));//ignore y axis
+			//float3 left = Normalize(forward.Cross(float3(0, 1, 0)));
 
-			float3 nonYDirection =
-				Normalize(forward * (ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD)) +
-						  left * (ip->keyDown(KEY_LEFT) - ip->keyDown(KEY_RIGHT)));
-			float3 direction = Normalize(nonYDirection + float3(0, 1, 0));
-			m_velocity = direction * m_jump_dash_strength;
+			//float3 nonYDirection =
+			//	Normalize(forward * (ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD)) +
+			//			  left * (ip->keyDown(KEY_LEFT) - ip->keyDown(KEY_RIGHT)));
+			//float3 direction = Normalize(nonYDirection + float3(0, 1, 0));
+			//m_velocity = direction * m_jump_dash_strength;
+			m_velocity.y = m_jump_dash_strength;
 			// spawn dust
 			m_jumpDust.emit(m_dustAmount);
 		}
@@ -485,8 +485,9 @@ float Player::getPlayerMovementSpeed() const {
 		if (m_sprinting)
 			speed *= m_speedSprintMultiplier; // sprint multiplies speed
 	}
-	else
+	else {
 		speed = m_speedInAir; // in air
+	}
 	return speed;
 }
 
@@ -509,7 +510,8 @@ void Player::updateVelocity_inAir(float3 playerForce, float dt) {
 	m_onGround = false;
 
 	m_velocity += m_gravity * dt; // gravity if in air
-
+	m_velocity.x *= pow(AIR_FRICTION/60, dt);
+	m_velocity.z *= pow(AIR_FRICTION/60, dt);
 	// add forces
 	m_velocity += playerForce * getPlayerMovementSpeed() * dt;
 }

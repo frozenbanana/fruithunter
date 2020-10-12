@@ -59,6 +59,7 @@ private:
 	const float GROUND_FRICTION =
 		0.5f; // friction on flat terrain, reduces velocity by percentage per seconds, 0-60.
 	const float GROUND_FRICTION_WEAK = 60.0f; // friction on steep terrain, 0-60.
+	const float AIR_FRICTION = 10;
 	const float STEEPNESS_BORDER =
 		0.6f; // value of dot product when flat terrain goes to steep terrain
 	const float ONGROUND_THRESHOLD =
@@ -85,7 +86,7 @@ private:
 	float m_speed = 20.f;				// player movement strength
 	float m_speedSprintMultiplier = 2.f;// player movement multiplier when sprinting
 	float m_speedOnChargingDash = 10.f; // player movement when charging dash
-	float m_speedInAir = 2.5f;			// player movement in air
+	float m_speedInAir = 15;			// player movement in air
 	float m_godModeSpeed = 20.f;		// player movement in godmode
 	// stamina
 	const float STAMINA_MAX = 1.f;	// max value of sprint
