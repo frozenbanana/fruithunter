@@ -65,8 +65,7 @@ void MainState::update() {
 	float3 bowForward = target - bowPos;
 	bowForward.Normalize();
 	float3 rot = vector2Rotation(bowForward);
-	m_bow.update_rotation(rot.x, rot.y);
-	m_bow.update_positioning(delta, bowPos, bowForward, bowForward.Cross(float3(0.f, 1.0f, 0.f)));
+	m_bow.setOrientation(bowPos, rot);
 	shared_ptr<Arrow> arrow;
 	if (m_totalDelta_forBow >= m_shootDelay + m_bowHoldTime) {
 		m_totalDelta_forBow = 0; // reset timer
@@ -74,10 +73,10 @@ void MainState::update() {
 		// m_bowHoldTime = RandomFloat(1.0, 1.5);
 	}
 	else if (m_totalDelta_forBow >= m_bowHoldTime) {
-		arrow = m_bow.update_bow(delta, false); // release string
+		arrow = m_bow.update(delta, false); // release string
 	}
 	else {
-		arrow = m_bow.update_bow(delta, true); // pull string
+		arrow = m_bow.update(delta, true); // pull string
 	}
 	if (arrow.get() != nullptr)
 		m_arrows.push_back(arrow); // add shot arrow to array

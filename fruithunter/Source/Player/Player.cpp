@@ -190,15 +190,22 @@ bool Player::inHuntermode() const { return m_hunterMode; }
 void Player::activateHunterMode() { m_hunterMode = true; }
 
 void Player::updateBow(float dt, Terrain* terrain) {
+
+	m_bow.setOrientation(getCameraPosition(), float3(m_cameraPitch, m_cameraYaw, 0));
+
 	//update bow behavior and handle spawning of arrows
 	shared_ptr<Arrow> arrow =
-		m_bow.update_bow(dt, Input::getInstance()->mouseDown(Input::MouseButton::LEFT));
+		m_bow.update(dt, Input::getInstance()->mouseDown(Input::MouseButton::LEFT));
 	if (arrow.get() != nullptr)
 		SceneManager::getScene()->m_arrows.push_back(arrow);
-	//update rotation
-	m_bow.update_rotation(m_cameraPitch, m_cameraYaw);
-	//update positioning
-	m_bow.update_positioning(dt, getCameraPosition(), m_playerForward, m_playerRight);
+
+
+	////update rotation
+	//m_bow.update_rotation(m_cameraPitch, m_cameraYaw);
+	////update positioning
+	//m_bow.update_positioning(dt, getCameraPosition(), m_playerForward, m_playerRight);
+
+	
 }
 
 void Player::updateCamera() {

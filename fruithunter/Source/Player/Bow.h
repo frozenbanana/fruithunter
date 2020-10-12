@@ -6,12 +6,14 @@ class Bow {
 private:
 	Entity m_bow;	// bow mesh
 	Arrow arrow;	// arrow mesh (not used as an arrow, only visual)
-	float3 m_rotation; // bow and arrow rotation (Entity class can't handle rotation)
-	float3 m_rotation_desired;
-	float3 m_position_desired;
-	float3 m_position_current;
-	float3 m_sourcePosition;
-	float3 m_sourceForward;
+
+	// current transformation of bow and arrow
+	float3 m_position_current; // local position
+	float3 m_rotation_current; // global rotation
+	// desired transformation of bow and arrow
+	float3 m_sourcePosition; // local position
+	float3 m_sourceRotation; // global rotation
+
 	// bow positioning
 	float3 m_bowPositioning_offset0 = float3(0.05f, -0.3f, 0.5f);//holstered
 	float3 m_bowPositioning_angle0 = float3(0.4f, 0, -0.8f);
@@ -50,6 +52,7 @@ private:
 
 	/* return forward vector of bow mesh. */
 	float3 getForward() const;
+	float4x4 convertPYRtoMatrix(float3 rotation) const;
 
 	/* Pull bowstring, ramping up the force in the bow. */
 	void pull(float dt);
@@ -67,6 +70,19 @@ private:
 	/* Automatic update of recovery for arrow, return true if recovered arrow this call. */
 	bool update_recovery(float dt);
 
+	/* Set the bow and arrows position */
+	void setPosition(float3 position);
+	/* Set the bow and arrows rotation */
+	void setRotation(float3 rotation);
+	/* get desired position from draw factor */
+	float3 getDesiredLocalPosition();
+	/* get desired rotation from draw factor */
+	float3 getDesiredRotation();
+	/* update current position to move towards desired position */
+	void update_position();
+	/* update current rotation to move towards desired rotation */
+	void update_rotation();
+
 public:
 	Bow();
 	~Bow();
@@ -74,12 +90,11 @@ public:
 	/* Draw bow mesh. Draw arrow mesh (if not recovering) */
 	void draw();
 
-	/* Update rotation to bow and arrow according to drawFactor. Base rotation in the parameters. */
-	void update_rotation(float pitch, float yaw);
-	/* Updated bow and arrow position according to the drawFactor. Center around parameters. */
-	void update_positioning(float dt, float3 position, float3 forward, float3 right);
 	/* Pull or loosen bow according to parameter, returns arrow pointer if an arrow was shot! */
-	shared_ptr<Arrow> update_bow(float dt, bool pulling);
+	shared_ptr<Arrow> update(float dt, bool pulling);
+
+	/* Set base orientation for bow and arrow. (player properties) */
+	void setOrientation(float3 position, float3 rotation);
 
 	/* Returns float value on seconds until recovery */
 	float recovery() const;
