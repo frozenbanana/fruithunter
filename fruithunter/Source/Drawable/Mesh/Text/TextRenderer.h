@@ -15,12 +15,14 @@ public:
 	TextRenderer();
 	~TextRenderer();
 	void setViewSize(XMINT2 size);
+	void setFont(string font);
 
 	void draw(string text, float2 pos);
 	void drawTextInWorld(string text, float3 position, float3 lookAt, float2 size);
 
 	void setColor(Color color);
 	void setScale(float scale);
+	void setRotation(float rotation);
 	void setAlignment(HorizontalAlignment ha = MIDDLE, VerticalAlignment va = CENTER);
 
 	float2 getSize(string text);
@@ -31,6 +33,7 @@ private:
 	Color m_color = Color(1, 1, 1, 1);
 	float2 m_alignment = float2(0, 0);
 	float m_scale = 1;
+	float m_rotation = 0;
 	std::unique_ptr<SpriteBatch> m_spriteBatch;
 	std::unique_ptr<SpriteFont> m_spriteFont;
 	float2 m_fontPos;

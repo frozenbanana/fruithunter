@@ -18,6 +18,8 @@ void Transformation2D::setPosition(float2 position) { m_position = position; }
 
 void Transformation2D::setScale(float2 scale) { m_scale = scale; }
 
+void Transformation2D::setScale(float scale) { setScale(float2(1, 1) * scale); }
+
 void Transformation2D::setRotation(float rotation) { m_rotation = rotation; }
 
 void Transformation2D::move(float2 movement) { m_position += movement; }
@@ -63,3 +65,17 @@ void Projectile::update(float dt) {
 	m_rotation += m_rotationVelocity * dt;
 
 }
+
+float2 BoundingBox2D::getSize() const { return m_point_end-m_point_start; }
+
+void BoundingBox2D::set(float2 pStart, float2 pEnd) { 
+	m_point_start = pStart;
+	m_point_end = pEnd;
+}
+
+bool BoundingBox2D::isInside(float2 point) const {
+	return (point.x > m_point_start.x && point.y > m_point_start.y && point.x < m_point_end.x &&
+			point.y < m_point_end.y);
+}
+
+BoundingBox2D::BoundingBox2D(float2 pStart, float2 pEnd) { set(pStart, pEnd); }

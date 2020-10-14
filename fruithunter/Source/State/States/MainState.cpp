@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "Settings.h"
 #include "AudioHandler.h"
+#include "AudioController.h"
 
 MainState::MainState() : StateItem(StateItem::State::MainState) { }
 
@@ -10,11 +11,6 @@ MainState::~MainState() {}
 void MainState::init() {
 	float width = SCREEN_WIDTH;
 	float height = SCREEN_HEIGHT;
-
-	m_startButton.initialize("Start", float2(106, height * 0.75f - 60.f));
-	m_settingsButton.initialize("Settings", float2(132, height * 0.75f));
-	m_exitButton.initialize("Exit", float2(92, height * 0.75f + 60.f));
-	m_editorButton.initialize("Editor", float2(115, height * 0.75f + 120));
 
 	m_bow.setRecoveryTime(0);
 
@@ -51,9 +47,9 @@ void MainState::update() {
 	float3 bowPos = treePos + float3(10, 1.5, 5);
 
 	m_timer.update();
-	float delta = m_timer.getDt();
-	m_totalDelta = fmod((m_totalDelta + delta), (2.f * XM_PI));
-	m_totalDelta_forBow += delta;
+	float dt = m_timer.getDt();
+	m_totalDelta = fmod((m_totalDelta + dt), (2.f * XM_PI));
+	m_totalDelta_forBow += dt;
 
 
 	// update scene
@@ -73,10 +69,10 @@ void MainState::update() {
 		// m_bowHoldTime = RandomFloat(1.0, 1.5);
 	}
 	else if (m_totalDelta_forBow >= m_bowHoldTime) {
-		arrow = m_bow.update(delta, false); // release string
+		arrow = m_bow.update(dt, false); // release string
 	}
 	else {
-		arrow = m_bow.update(delta, true); // pull string
+		arrow = m_bow.update(dt, true); // pull string
 	}
 	if (arrow.get() != nullptr)
 		m_arrows.push_back(arrow); // add shot arrow to array
@@ -87,20 +83,20 @@ void MainState::update() {
 		if (m_arrows[i]->isActive()) {
 			// !! if arrow collides with anything, then the arrow handles the behavior !!
 			// check collision with terrains and static entities
-			m_arrows[i]->collide_terrainBatch(delta, sceneManager.getScene()->m_terrains);
+			m_arrows[i]->collide_terrainBatch(dt, sceneManager.getScene()->m_terrains);
 			for (size_t j = 0; j < entities->size(); j++) {
-				m_arrows[i]->collide_entity(delta, *(*entities)[j]);
+				m_arrows[i]->collide_entity(dt, *(*entities)[j]);
 			}
 		}
 		// update arrow
-		m_arrows[i]->update(delta);
+		m_arrows[i]->update(dt);
 	}
 
 	// update apple behavior (run around tree)
 	Fruit* fruit = m_apple.get();
 	fruit->setPosition(float3(
 		treePos.x + (cos(m_totalDelta) * 2.0f), treePos.y, treePos.z + (sin(m_totalDelta) * 2.0f)));
-	fruit->update(delta, m_camera.getPosition());
+	fruit->update(dt, m_camera.getPosition());
 	fruit->setRotation(float3(0.0f, -m_totalDelta, 0.0f));
 
 	// Logo update
@@ -114,16 +110,20 @@ void MainState::update() {
 		offsetX += m_letters[i].letter.getTextureSize().x / (1.65f * 2.f);
 	}
 
-	if (m_startButton.update()) {
+	if (m_buttons[btn_start].update_behavior(dt)) {
+		//start
 		push(State::LevelSelectState);
 	}
-	if (m_settingsButton.update()) {
+	if (m_buttons[btn_settings].update_behavior(dt)) {
+		// settings
 		push(State::SettingState);
 	}
-	if (m_exitButton.update()) {
+	if (m_buttons[btn_exit].update_behavior(dt)) {
+		// exit
 		pop(false);
 	}
-	if (DEBUG && m_editorButton.update()) {
+	if (DEBUG && m_buttons[btn_editor].update_behavior(dt)) {
+		// editor
 		push(State::EditorState);
 	}
 }
@@ -158,11 +158,11 @@ void MainState::draw() {
 		m_letters[i].letter.draw();
 
 	// Draw menu buttons
-	m_startButton.draw();
-	m_settingsButton.draw();
-	m_exitButton.draw();
+	m_buttons[btn_start].draw();
+	m_buttons[btn_settings].draw();
+	m_buttons[btn_exit].draw();
 	if (DEBUG)
-		m_editorButton.draw();
+		m_buttons[btn_editor].draw();
 }
 
 void MainState::play() {
@@ -171,8 +171,55 @@ void MainState::play() {
 	m_apple = make_shared<Apple>(float3(58.0f, 10.1f, 16.9f));
 	m_arrows.clear();
 	m_timer.reset();
+
+	// setup buttons
+	string buttonTexts[btn_length] = { "Start", "Settings", "Exit", "Editor" };
+	float2 btn_pos_start(200, 400);
+	float btn_stride_y = 85;
+	float btn_delay_stride = 0.5;
+	for (size_t i = 0; i < btn_length; i++) {
+		m_buttons[i].set(
+			btn_pos_start + float2(0, btn_stride_y) * i, buttonTexts[i], btn_delay_stride * i);
+	}
 }
 
 void MainState::pause() {}
 
 void MainState::restart() {}
+
+bool MainState::ButtonOption::update_behavior(float dt) {
+	if (timer <= delay && timer + dt > delay) {
+		SoundID id = AudioController::getInstance()->play("bubble_pop");
+	}
+	timer += dt;
+	if (timer > delay) {
+		setRotation(cos(timer - delay) * 0.1f);
+		update();
+		if (isHovering()) {
+			scale_desired = scale_desired_hovering;
+		}
+		else {
+			scale_desired = scale_desired_standard;
+		}
+		scale_velocity += (scale_desired - getScale().x) * scale_spring_speed * dt; // add force
+		scale_velocity *= pow(scale_spring_friction, dt);							// friction
+		setScale(getScale().x + scale_velocity * dt);						 // move scale as spring
+	}
+	return isClicked();
+}
+
+void MainState::ButtonOption::set(float2 position, string text, float _delay) {
+	delay = _delay;
+	timer = 0;
+	scale_velocity = 0;
+	setScale(0);
+	setPosition(position);
+
+	static const vector<string> btns = { "btn_v1.png", "btn_v2.png", "btn_v3.png" };
+	load(btns[rand() % btns.size()]);
+	setText(text);
+}
+
+MainState::ButtonOption::ButtonOption() { 
+	//setFont("Cartoony_Worldoz.ttf"); 
+}

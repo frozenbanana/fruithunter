@@ -118,6 +118,17 @@ float2 Sprite2D::getScale() const { return m_scale; }
 
 Color Sprite2D::getColor() const { return m_color; }
 
+BoundingBox2D Sprite2D::getBoundingBox() const { 
+	size_t texIndex = (size_t)((clock() / 1000.f) / m_animationSpeed) % m_textures.size();
+	float2 screenModifier = float2((SCREEN_WIDTH / 1280.f), (SCREEN_HEIGHT / 720.f));
+	float2 position = m_position * screenModifier;
+	float2 scale = m_scale * screenModifier;
+	float2 size = getSize() * screenModifier;
+	float2 origin = (size / 2.f) * float2((float)m_horizontalAligment, (float)m_verticalAlignment);
+	BoundingBox2D bb(position - origin, position - origin + size); 
+	return bb;
+}
+
 void Sprite2D::setPosition(float2 position) { m_position = position; }
 
 void Sprite2D::setScale(float2 scale) { m_scale = scale; }

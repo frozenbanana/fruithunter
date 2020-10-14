@@ -5,6 +5,7 @@
 #include <SpriteBatch.h>
 #include <CommonStates.h>
 #include <SpriteFont.h>
+#include "Translation2DStructures.h"
 
 #define PATH_SPRITE "assets/sprites/"
 
@@ -39,6 +40,7 @@ public:
 	float getRotation() const;
 	float2 getScale() const;
 	Color getColor() const;
+	BoundingBox2D getBoundingBox() const;
 
 	void setPosition(float2 position);
 	void setScale(float2 scale);

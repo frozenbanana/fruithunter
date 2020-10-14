@@ -2,7 +2,7 @@
 #include <Audio.h>
 #include "GlobalNamespaces.h"
 #include "Timer.h"
-
+typedef size_t SoundID;
 class AudioHandler {
 public:
 	enum Sounds {

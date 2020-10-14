@@ -45,8 +45,9 @@ void AudioHandler::initalize() {
 			std::make_unique<DirectX::SoundEffect>(m_audioEngine.get(), widecstr);
 	}
 	// Some effect require instances for more control
-	ah->m_soundEffectsInstance[STRETCH_BOW] =
-		ah->m_soundEffects[STRETCH_BOW]->CreateInstance();
+	for (size_t i = 0; i < Sounds::SOUNDS_LENGTH; i++) {
+		ah->m_soundEffectsInstance[i] = ah->m_soundEffects[i]->CreateInstance();
+	}
 
 	// Ambient sounds
 	string wavFiles[Music::MUSIC_LENGTH] = { "assets/sounds/jingle-guitar.wav ",

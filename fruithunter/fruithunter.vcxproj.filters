@@ -276,6 +276,12 @@
     <ClCompile Include="Source\Utility\MetricCollector.cpp">
       <Filter>Source\Utility</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Utility\UI\UI_Button.cpp">
+      <Filter>Source\Utility\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\Audio\AudioController.cpp">
+      <Filter>Source\Utility\Audio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -506,6 +512,12 @@
     <ClInclude Include="Source\Utility\MetricCollector.h">
       <Filter>Source\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Utility\UI\UI_Button.h">
+      <Filter>Source\Utility\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\Audio\AudioController.h">
+      <Filter>Source\Utility\Audio</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
@@ -598,6 +610,9 @@
     </Filter>
     <Filter Include="Source\ImGui">
       <UniqueIdentifier>{dd1d5fba-781e-46f3-8b69-664930394ff9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Utility\UI">
+      <UniqueIdentifier>{1aa22460-1ee4-4fd8-b5ff-309ea38e9837}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

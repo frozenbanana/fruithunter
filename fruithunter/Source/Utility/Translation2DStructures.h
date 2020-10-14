@@ -1,6 +1,19 @@
 #pragma once
 #include "GlobalNamespaces.h"
 
+class BoundingBox2D {
+private:
+	float2 m_point_start, m_point_end;
+
+public:
+	float2 getSize() const;
+
+	void set(float2 pStart, float2 pEnd);
+
+	bool isInside(float2 point) const;
+
+	BoundingBox2D(float2 pStart = float2(), float2 pEnd = float2());
+};
 class Transformation2D {
 protected:
 	float2 m_position;
@@ -15,6 +28,7 @@ public:
 
 	void setPosition(float2 position);
 	void setScale(float2 scale);
+	void setScale(float scale);
 	void setRotation(float rotation);
 
 	void move(float2 movement);
