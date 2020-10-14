@@ -192,9 +192,10 @@ bool MainState::ButtonOption::update_behavior(float dt) {
 		SoundID id = AudioController::getInstance()->play("bubble_pop");
 	}
 	timer += dt;
+	bool clicked = false;
 	if (timer > delay) {
 		setRotation(cos(timer - delay) * 0.1f);
-		update();
+		clicked = update();
 		if (isHovering()) {
 			scale_desired = scale_desired_hovering;
 		}
@@ -205,7 +206,7 @@ bool MainState::ButtonOption::update_behavior(float dt) {
 		scale_velocity *= pow(scale_spring_friction, dt);							// friction
 		setScale(getScale().x + scale_velocity * dt);						 // move scale as spring
 	}
-	return isClicked();
+	return clicked;
 }
 
 void MainState::ButtonOption::set(float2 position, string text, float _delay) {

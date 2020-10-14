@@ -1,33 +1,28 @@
 #include "UI_Button.h"
 #include "Renderer.h"
 
-bool UI_Button::mouseOn(float2 mp) { 
+bool UI_Button::mouseOn(float2 mp) const { 
 	return m_sprite.getBoundingBox().isInside(mp);
 }
 
-bool UI_Button::isHovering() const { return m_hovering; }
-
-bool UI_Button::isClicked() const { return m_clicked; }
+bool UI_Button::isHovering() const { 
+	Input* ip = Input::getInstance();
+	return mouseOn(float2(ip->mouseX(), ip->mouseY()));
+}
 
 void UI_Button::setText(string text) { m_text = text; }
 
 void UI_Button::setFont(string font) { m_textRenderer.setFont(font); }
 
 bool UI_Button::update() { 
-	Input* ip = Input::getInstance();
-	float2 mouse = float2(ip->mouseX(), ip->mouseY());
-	if (mouseOn(mouse)) {
+	bool clicked = false;
+	if (isHovering()) {
 		// mouse hovering
-		m_hovering = true;
-		if (ip->mousePressed(m_key_activator)) {
-			m_clicked = true;
+		if (Input::getInstance()->mousePressed(m_key_activator)) {
+			clicked = true;
 		}
 	}
-	else {
-		m_hovering = false;
-		m_clicked = false;
-	}
-	return m_clicked;
+	return clicked;
 }
 
 void UI_Button::draw() { 

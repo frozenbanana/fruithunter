@@ -12,15 +12,11 @@ private:
 
 	Input::MouseButton m_key_activator = Input::MouseButton::LEFT;
 
-	bool m_hovering = false;
-	bool m_clicked = false;
-
 	// -- Private Functions --
-	bool mouseOn(float2 mp);
+	bool mouseOn(float2 mp) const;
 
 public:
 	bool isHovering() const;
-	bool isClicked() const;
 
 	void setText(string text);
 	void setFont(string font);

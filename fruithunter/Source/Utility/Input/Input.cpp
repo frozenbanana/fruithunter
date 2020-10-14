@@ -121,11 +121,11 @@ bool Input::mouseUp(MouseButton button, bool filterImgui) {
 	return false;
 }
 
-int Input::mouseX() { 
+int Input::mouseX() const { 
 	return m_mouseState.x; 
 }
 
-int Input::mouseY() { 
+int Input::mouseY() const { 
 	return m_mouseState.y; 
 }
 
