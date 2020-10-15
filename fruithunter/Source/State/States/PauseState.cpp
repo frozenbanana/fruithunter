@@ -82,10 +82,6 @@ void PauseState::init() {
 	m_jumpKey.load(strJumpTex, animationSpeed);
 	m_jumpKey.set(float2(1070, 620), float2(0.5));
 	m_jumpKey.setAlignment();//Center
-
-	// Just ignore this. It fixes things.
-	m_entity.load("Melon_000000");
-	m_entity.setPosition(float3(-1000));
 }
 
 void PauseState::update() {
@@ -153,9 +149,6 @@ void PauseState::draw() {
 	m_charJump.draw();
 	m_mouseLeft.draw();
 	m_bow.draw();
-
-	// Just ignore this. It fixes things
-	m_entity.draw();
 
 	for (size_t i = 0; i < btn_length; i++)
 		m_buttons[i].draw();

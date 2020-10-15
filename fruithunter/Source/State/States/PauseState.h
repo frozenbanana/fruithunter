@@ -10,7 +10,6 @@
 class PauseState : public StateItem {
 private:
 	Timer m_timer;
-	TextRenderer m_textRenderer;
 	Sprite2D m_settingsBackground;
 
 	//tutorial sprites
@@ -23,10 +22,6 @@ private:
 	Sprite2D m_slowMo;
 	Sprite2D m_bow;
 	Sprite2D m_mouseLeft;
-
-	int m_previousState;
-
-	Entity m_entity;
 
 	enum MenuButtons { btn_restart, btn_resume, btn_settings, btn_mainmenu, btn_exit, btn_length };
 	Menu_PoppingButton m_buttons[btn_length];

@@ -9,9 +9,6 @@ MainState::MainState() : StateItem(StateItem::State::MainState) { }
 MainState::~MainState() {}
 
 void MainState::init() {
-	float width = SCREEN_WIDTH;
-	float height = SCREEN_HEIGHT;
-
 	m_bow.setRecoveryTime(0);
 
 	m_camera.setView(
