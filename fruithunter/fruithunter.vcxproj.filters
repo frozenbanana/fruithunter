@@ -282,6 +282,9 @@
     <ClCompile Include="Source\Utility\Audio\AudioController.cpp">
       <Filter>Source\Utility\Audio</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Utility\UI\Menu_PoppingButton.cpp">
+      <Filter>Source\Utility\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -517,6 +520,9 @@
     </ClInclude>
     <ClInclude Include="Source\Utility\Audio\AudioController.h">
       <Filter>Source\Utility\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\UI\Menu_PoppingButton.h">
+      <Filter>Source\Utility\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

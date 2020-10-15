@@ -7,7 +7,7 @@
 #include "Bow.h"
 #include "Sprite2D.h"
 #include "SceneManager.h"
-#include "UI_Button.h"
+#include "Menu_PoppingButton.h"
 
 class MainState : public StateItem {
 private:
@@ -38,23 +38,6 @@ private:
 	};
 	vector<LogoLetter> m_letters;
 
-	struct ButtonOption : UI_Button {
-		float delay = 0;
-		float timer = 0;
-
-		float scale_desired = 0;
-		const float scale_desired_hovering = 0.9;
-		const float scale_desired_standard = 0.75;
-
-		float scale_velocity = 0;
-		const float scale_spring_speed = 100;
-		const float scale_spring_friction = 0.01;
-
-		bool update_behavior(float dt);
-		void set(float2 position = float2(), string text = "", float _delay = 0);
-		ButtonOption();
-	};
-
 	enum MenuButtons {
 		btn_start,
 		btn_settings,
@@ -62,7 +45,7 @@ private:
 		btn_editor,
 		btn_length
 	};
-	ButtonOption m_buttons[btn_length];
+	Menu_PoppingButton m_buttons[btn_length];
 
 public:
 	MainState();

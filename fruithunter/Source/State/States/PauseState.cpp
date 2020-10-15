@@ -8,15 +8,6 @@ PauseState::PauseState() : StateItem(State::PauseState) { }
 PauseState::~PauseState() {}
 
 void PauseState::init() {
-	float width = SCREEN_WIDTH;
-	float height = SCREEN_HEIGHT;
-
-	m_restartButton.initialize("Restart", float2(width / 2, height / 2 - 120));
-	m_resumeButton.initialize("Resume", float2(width / 2, height / 2 - 60));
-	m_settingsButton.initialize("Settings", float2(width / 2, height / 2));
-	m_mainMenuButton.initialize("Main Menu", float2(width / 2, height / 2 + 60));
-	m_exitButton.initialize("Exit", float2(width / 2, height / 2 + 120));
-
 	m_settingsBackground.load("apple.png");
 	m_settingsBackground.setPosition(float2(1280.f / 2.f, 720.f / 2.f));
 	m_settingsBackground.setScale(1.25f);
@@ -100,22 +91,25 @@ void PauseState::init() {
 void PauseState::update() {
 	Input::getInstance()->setMouseModeAbsolute();
 
-	if (m_resumeButton.update() || Input::getInstance()->keyPressed(Keyboard::Keys::Escape)) {
-		pop(false);
-	}
-	if (m_restartButton.update()) {
+	m_timer.update();
+	float dt = m_timer.getDt();
+
+	if (m_buttons[btn_restart].update_behavior(dt)) {
 		pop(true);
 	}
-	if (m_settingsButton.update()) {
+	if (m_buttons[btn_resume].update_behavior(dt) || Input::getInstance()->keyPressed(Keyboard::Escape)) {
+		pop(false);
+	}
+	if (m_buttons[btn_settings].update_behavior(dt)) {
 		push(State::SettingState);
 	}
-	if (m_mainMenuButton.update()) {
+	if (m_buttons[btn_mainmenu].update_behavior(dt)) {
 		AudioHandler::getInstance()->pauseAllMusic();
-		pop(State::MainState,false);
+		pop(State::MainState, false);
 	}
-	if (m_exitButton.update()) {
+	if (m_buttons[btn_exit].update_behavior(dt)) {
 		AudioHandler::getInstance()->pauseAllMusic();
-		pop((State)-1, false); // will pop all states, resulting in an empty stack
+		pop((State)-1, false); // will pop all states, resulting in an empty stack}
 	}
 }
 
@@ -124,16 +118,19 @@ void PauseState::pause() { }
 void PauseState::play() {
 	Renderer::getInstance()->captureFrame();
 
-	float width = SCREEN_WIDTH;
-	float height = SCREEN_HEIGHT;
-
-	m_restartButton.setPosition(float2(width / 2, height / 2 - 60));
-	m_resumeButton.setPosition(float2(width / 2, height / 2 ));
-	m_settingsButton.setPosition(float2(width / 2, height / 2 + 60));
-	m_mainMenuButton.setPosition(float2(width / 2, height / 2 + 120));
-	m_exitButton.setPosition(float2(width / 2, height / 2 + 180));
-
 	//m_settingsBackground.setPosition(float2(width / 2.f, height / 2.f));
+
+	// setup buttons
+	string buttonTexts[btn_length] = { "Restart", "Resume", "Settings", "Main Menu", "Exit" };
+	float2 btn_pos_start(1280/2.f, 275);
+	float btn_stride_y = 80;
+	float btn_delay_stride = 0.1;
+	for (size_t i = 0; i < btn_length; i++) {
+		m_buttons[i].set(
+			btn_pos_start + float2(0, btn_stride_y) * i, buttonTexts[i], btn_delay_stride * (i+1));
+		m_buttons[i].setDesiredScale_hovering(0.8);
+		m_buttons[i].setDesiredScale_standard(0.7);
+	}
 }
 
 void PauseState::restart() {}
@@ -143,13 +140,6 @@ void PauseState::draw() {
 	Renderer::getInstance()->beginFrame();
 	Renderer::getInstance()->drawCapturedFrame();
 	m_settingsBackground.drawNoScaling();
-
-	m_restartButton.draw();
-
-	m_resumeButton.draw();
-	m_mainMenuButton.draw();
-	m_settingsButton.draw();
-	m_exitButton.draw();
 
 	for (size_t i = 0; i < 4; i++) {
 		m_dropFruits[i].draw();
@@ -166,4 +156,7 @@ void PauseState::draw() {
 
 	// Just ignore this. It fixes things
 	m_entity.draw();
+
+	for (size_t i = 0; i < btn_length; i++)
+		m_buttons[i].draw();
 }

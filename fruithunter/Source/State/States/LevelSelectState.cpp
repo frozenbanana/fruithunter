@@ -109,7 +109,9 @@ void LevelSelectState::draw() {
 }
 
 void LevelSelectState::play() {
-	sceneManager.load("levelSelect");
+	if (sceneManager.getScene()->m_sceneName != "levelSelect") {
+		sceneManager.load("levelSelect");
+	}
 	initializeLevelSelectors();
 }
 
