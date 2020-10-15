@@ -176,7 +176,7 @@ void MainState::play() {
 	string buttonTexts[btn_length] = { "Start", "Settings", "Exit", "Editor" };
 	float2 btn_pos_start(200, 400);
 	float btn_stride_y = 85;
-	float btn_delay_stride = 0.5;
+	float btn_delay_stride = 0.1;
 	for (size_t i = 0; i < btn_length; i++) {
 		m_buttons[i].set(
 			btn_pos_start + float2(0, btn_stride_y) * i, buttonTexts[i], btn_delay_stride * i);
@@ -194,7 +194,7 @@ bool MainState::ButtonOption::update_behavior(float dt) {
 	timer += dt;
 	bool clicked = false;
 	if (timer > delay) {
-		setRotation(cos(timer - delay) * 0.1f);
+		setRotation(cos(timer - delay*5) * 0.1f);
 		clicked = update();
 		if (isHovering()) {
 			scale_desired = scale_desired_hovering;
