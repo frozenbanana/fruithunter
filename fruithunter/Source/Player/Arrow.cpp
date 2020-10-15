@@ -1,6 +1,6 @@
 #include "Arrow.h"
 #include "SceneManager.h"
-#include "AudioHandler.h"
+#include "AudioController.h"
 
 const string Arrow::m_model = "ArrowV3";
 
@@ -116,8 +116,9 @@ bool Arrow::collide_terrainBatch(float dt, TerrainBatch& terrains) {
 void Arrow::collided(float3 target) {
 	setPosition_front(target);
 	changeState(false);
-	AudioHandler::getInstance()->playOnceByDistance(
-		AudioHandler::HIT_WOOD, SceneManager::getScene()->m_player->getCameraPosition(), target);
+	SoundID id = AudioController::getInstance()->play("hit-wood", AudioController::SoundType::Effect);
+	AudioController::getInstance()->scaleVolumeByDistance(
+		id, (SceneManager::getScene()->m_player->getCameraPosition() - target).Length());
 }
 
 void Arrow::draw_trailEffect() { m_trailEffect.draw(); }

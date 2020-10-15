@@ -29,6 +29,7 @@ bool AudioController::load(string sound) {
 	if (m_library[m_library.size() - 1].effect.get() == nullptr) {
 		//failed loading
 		m_library.pop_back();
+		ErrorLogger::logError("(AudioController) failed loading sound: " + path);
 		return false;
 	}
 	return true;
@@ -120,11 +121,9 @@ void AudioController::flush() { m_playlist.clear(); }
 SoundID AudioController::play(string sound, AudioController::SoundType type, bool repeat) {
 	int effectIndex = findEffect(sound);
 	if (effectIndex == -1) {
-		// not found
+		// not found in library
 		if (load(sound) == false) {
-			// failed to load
-			ErrorLogger::logError("(AudioController) failed loading sound: " + sound);
-			return NULL;
+			return NULL;// failed
 		}
 		effectIndex = m_library.size() - 1;
 	}

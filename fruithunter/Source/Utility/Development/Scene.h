@@ -1,6 +1,7 @@
 #pragma once
 #include "GlobalNamespaces.h"
 
+#include "AudioController.h"
 #include "SeaEffect.h"
 #include "Animal.h"
 #include "TerrainBatch.h"
@@ -161,6 +162,10 @@ public:
 	//timer
 	Timer m_timer;
 
+	// active terrain
+	AreaTag m_activeTerrain_tag = AreaTag::Plains;
+	SoundID m_activeTerrain_soundID = 0;
+
 	//player
 	shared_ptr<Player> m_player;
 
@@ -177,6 +182,8 @@ public:
 
 	void pickUpFruit(FruitType fruitType);
 	void dropFruit(FruitType fruitType);
+
+	void update_activeTerrain(AreaTag tag);
 
 	void load(string folder);
 	void save();

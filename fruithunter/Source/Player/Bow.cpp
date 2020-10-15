@@ -1,5 +1,5 @@
 #include "Bow.h"
-#include "AudioHandler.h"
+#include "AudioController.h"
 #include "ErrorLogger.h"
 #include "SceneManager.h"
 #include "GlobalNamespaces.h"
@@ -19,7 +19,7 @@ void Bow::draw() {
 
 void Bow::atPull() {
 	m_charging = true; 
-	AudioHandler::getInstance()->playInstance(AudioHandler::STRETCH_BOW);
+	m_soundID_stretch = AudioController::getInstance()->play("stretch-bow", AudioController::SoundType::Effect);
 }
 
 void Bow::pull(float dt) {
@@ -31,12 +31,12 @@ void Bow::pull(float dt) {
 
 	//stop stretch sound if bow fully streched
 	if (m_bowWindup == 1)
-		AudioHandler::getInstance()->pauseInstance(AudioHandler::STRETCH_BOW);
+		AudioController::getInstance()->stop(m_soundID_stretch);
 }
 
 shared_ptr<Arrow> Bow::atLoosening() { 
-	AudioHandler::getInstance()->pauseInstance(AudioHandler::STRETCH_BOW);
-	AudioHandler::getInstance()->playOnce(AudioHandler::HEAVY_ARROW);
+	AudioController::getInstance()->stop(m_soundID_stretch);
+	AudioController::getInstance()->play("heavy-arrow-release", AudioController::SoundType::Effect);
 	// release
 	m_charging = false; // stop charging
 	// start arrow recovery
@@ -64,7 +64,6 @@ shared_ptr<Arrow> Bow::atLoosening() {
 void Bow::loosen(float dt) {
 
 	// update bow factors
-	AudioHandler::getInstance()->pauseInstance(AudioHandler::STRETCH_BOW);
 	m_drawFactor += (0.f - m_drawFactor) * m_bowPositioning_bowDrag *
 					dt; // update draw factor to move towards 0
 	m_bowWindup = m_drawFactor;

@@ -1,7 +1,6 @@
 #include "MainState.h"
 #include "Renderer.h"
 #include "Settings.h"
-#include "AudioHandler.h"
 #include "AudioController.h"
 
 MainState::MainState() : StateItem(StateItem::State::MainState) { }
@@ -166,7 +165,7 @@ void MainState::draw() {
 
 void MainState::play() {
 	sceneManager.load("intro");
-	AudioHandler::getInstance()->playMusic(AudioHandler::Music::OCEAN);
+	AudioController::getInstance()->play("ocean-music", AudioController::SoundType::Music);
 	m_apple = make_shared<Apple>(float3(58.0f, 10.1f, 16.9f));
 	m_arrows.clear();
 	m_timer.reset();

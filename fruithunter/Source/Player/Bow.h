@@ -1,6 +1,7 @@
 #pragma once
 #include "Entity.h"
 #include "Arrow.h"
+#include "AudioController.h"
 
 class Bow {
 private:
@@ -47,6 +48,9 @@ private:
 	// bow catchup, smoother experiance
 	float m_rotationCatchup = 50.f;
 	float m_positionCatchup = 150.f;
+
+	// sound
+	SoundID m_soundID_stretch = 0;
 
 	//-- Private Functions --
 

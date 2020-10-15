@@ -1,7 +1,7 @@
 #include "EndRoundState.h"
 #include "Renderer.h"
 #include "Input.h"
-#include "AudioHandler.h"
+#include "AudioController.h"
 #include "SceneManager.h"
 #include "SaveManager.h"
 
@@ -87,11 +87,11 @@ void EndRoundState::update() {
 		pop(true);
 	}
 	if (m_levelSelectButton.update()) {
-		AudioHandler::getInstance()->pauseAllMusic();
+		AudioController::getInstance()->flush();
 		pop(State::LevelSelectState,false);
 	}
 	if (m_exitButton.update()) {
-		AudioHandler::getInstance()->pauseAllMusic();
+		AudioController::getInstance()->flush();
 		pop((State)-1, false);
 	}
 }
@@ -114,7 +114,7 @@ void EndRoundState::play() {
 	m_levelSelectButton.setPosition(float2(width / 2, height / 2 + 120));
 	m_exitButton.setPosition(float2(width / 2, height / 2 + 190));
 
-	AudioHandler::getInstance()->playOnce(AudioHandler::APPLAUSE);
+	AudioController::getInstance()->play("applause", AudioController::SoundType::Effect);
 }
 
 void EndRoundState::restart() {}

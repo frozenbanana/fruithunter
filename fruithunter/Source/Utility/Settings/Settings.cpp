@@ -1,6 +1,5 @@
 #include "Settings.h"
 #include "Renderer.h"
-#include "AudioHandler.h"
 #include "AudioController.h"
 #include "ErrorLogger.h"
 
@@ -92,19 +91,16 @@ void Settings::setDrawDistance(float value) { m_drawDistance = value; }
 
 void Settings::setMasterVolume(float value) {
 	m_masterVolume = value;
-	AudioHandler::getInstance()->setMasterVolume(m_masterVolume);
 	AudioController::getInstance()->setMasterVolume(m_masterVolume);
 }
 
 void Settings::setMusicVolume(float value) {
 	m_musicVolume = value;
-	AudioHandler::getInstance()->setMusicVolume(m_musicVolume);
 	AudioController::getInstance()->setMusicVolume(m_musicVolume);
 }
 
 void Settings::setEffectsVolume(float value) {
 	m_effectsVolume = value;
-	AudioHandler::getInstance()->setEffectsVolume(m_effectsVolume);
 	AudioController::getInstance()->setEffectsVolume(m_effectsVolume);
 }
 

@@ -1,7 +1,7 @@
 #include "PauseState.h"
 #include "Renderer.h"
 #include "Input.h"
-#include "AudioHandler.h"
+#include "AudioController.h"
 
 PauseState::PauseState() : StateItem(State::PauseState) { }
 
@@ -100,11 +100,11 @@ void PauseState::update() {
 		push(State::SettingState);
 	}
 	if (m_buttons[btn_mainmenu].update_behavior(dt)) {
-		AudioHandler::getInstance()->pauseAllMusic();
+		AudioController::getInstance()->flush();
 		pop(State::MainState, false);
 	}
 	if (m_buttons[btn_exit].update_behavior(dt)) {
-		AudioHandler::getInstance()->pauseAllMusic();
+		AudioController::getInstance()->flush();
 		pop((State)-1, false); // will pop all states, resulting in an empty stack}
 	}
 }

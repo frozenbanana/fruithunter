@@ -1,6 +1,5 @@
 #include "Fruit.h"
 #include "Input.h"
-#include "AudioHandler.h"
 #include "SceneManager.h"
 #include "PathFindingThread.h"
 

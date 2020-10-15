@@ -1,5 +1,5 @@
 #include "SceneManager.h"
-#include "AudioHandler.h"
+#include "AudioController.h"
 #include "PathFindingThread.h"
 #include "Renderer.h"
 
@@ -159,7 +159,7 @@ void SceneManager::update(Camera* overrideCamera) {
 		AreaTag tag = activeTerrain->getTag();
 		scene->m_skyBox.switchLight(tag);
 		if (!m_manualCamera)
-			AudioHandler::getInstance()->changeMusicByTag(tag, dt);
+			scene->update_activeTerrain(tag);
 	}
 
 	// update water
@@ -244,8 +244,9 @@ void SceneManager::update(Camera* overrideCamera) {
 					Skillshot skillshot = fruit->hit(player->getPosition());
 					player->getStaminaBySkillshot(skillshot);
 					// play hit sound
-					AudioHandler::getInstance()->playOnceByDistance(
-						AudioHandler::HIT_FRUIT, player->getPosition(), fruit->getPosition());
+					SoundID id = AudioController::getInstance()->play("fruit-impact-wet", AudioController::SoundType::Effect);
+					AudioController::getInstance()->scaleVolumeByDistance(
+						id, (player->getPosition() - fruit->getPosition()).Length());
 					arrow->collided(arrow->getPosition_front());
 					// add collection point
 					shared_ptr<CollectionPoint> cp = make_shared<CollectionPoint>();
@@ -261,23 +262,6 @@ void SceneManager::update(Camera* overrideCamera) {
 					break;
 				}
 			}
-		}
-
-		//if (player->isShooting()) {
-		//	if (player->getArrow().checkCollision(*fruit)) {
-		//		player->getStaminaBySkillshot(fruit->hit(player->getPosition()));
-		//		AudioHandler::getInstance()->playOnceByDistance(
-		//			AudioHandler::HIT_FRUIT, player->getPosition(), fruit->getPosition());
-		//		player->getArrow().setPosition(
-		//			float3(-999.f)); // temporary to disable arrow until returning
-		//	}
-		//}
-
-		// If the fruit is close to the player, then it get picked up
-		if (float3(fruit->getPosition() - player->getPosition()).Length() < 1.5f) {
-			scene->pickUpFruit(fruit->getFruitType());
-			AudioHandler::getInstance()->playOnce(AudioHandler::COLLECT);
-			scene->m_fruits.erase(scene->m_fruits.begin() + i);
 		}
 		PathFindingThread::unlock();
 	}

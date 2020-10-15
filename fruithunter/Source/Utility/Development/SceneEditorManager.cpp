@@ -1,6 +1,6 @@
 #include "SceneEditorManager.h"
 #include "Renderer.h"
-#include "AudioHandler.h"
+#include "AudioController.h"
 #include "PathFindingThread.h"
 #include "Settings.h"
 
@@ -1028,8 +1028,9 @@ void SceneEditorManager::update() {
 	if (activeTerrain != nullptr) {
 		AreaTag tag = activeTerrain->getTag();
 		scene->m_skyBox.switchLight(tag);
-		if (!m_manualCamera)
-			AudioHandler::getInstance()->changeMusicByTag(tag, dt);
+		if (!m_manualCamera) {
+			scene->update_activeTerrain(tag);
+		}
 	}
 
 	// update water

@@ -2,7 +2,7 @@
 #include "Renderer.h"
 #include "Errorlogger.h"
 #include "VariableSyncer.h"
-#include "AudioHandler.h"
+#include "AudioController.h"
 #include "Settings.h"
 #include "SceneManager.h"
 
@@ -388,9 +388,9 @@ void Player::checkPlayerReset(float dt) {
 void Player::checkHunterMode() {
 	if (Input::getInstance()->keyPressed(KEY_HM)) {
 		if (!m_hunterMode)
-			AudioHandler::getInstance()->playOnce(AudioHandler::SLOW_MOTION);
+			AudioController::getInstance()->play("slowmotion", AudioController::SoundType::Effect);
 		else
-			AudioHandler::getInstance()->playOnce(AudioHandler::SLOW_MOTION_REVERSED);
+			AudioController::getInstance()->play("slowmotion-reversed", AudioController::SoundType::Effect);
 
 		m_hunterMode = 1 - m_hunterMode;
 	}

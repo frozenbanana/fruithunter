@@ -1,5 +1,5 @@
 #include "CollectionPoint.h"
-#include "AudioHandler.h"
+#include "AudioController.h"
 
 FileSyncer CollectionPoint::file;
 float CollectionPoint::m_distanceThreshold = 1.5;
@@ -105,7 +105,7 @@ bool CollectionPoint::update(float dt, float3 target) {
 		m_position += m_velocity * dt;
 		if ((m_position - target).Length() < m_distanceThreshold) {
 			// inside threshold
-			AudioHandler::getInstance()->playOnce(AudioHandler::COLLECT);
+			AudioController::getInstance()->play("collected-item", AudioController::SoundType::Effect);
 			m_sparkle.emitingState(false);
 			m_reachedDestination = true;
 			return true;

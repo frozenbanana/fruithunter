@@ -213,7 +213,6 @@
     <ClCompile Include="Source\State\States\PlayState.cpp" />
     <ClCompile Include="Source\State\States\SettingsState.cpp" />
     <ClCompile Include="Source\Utility\Audio\AudioController.cpp" />
-    <ClCompile Include="Source\Utility\Audio\AudioHandler.cpp" />
     <ClCompile Include="Source\Utility\Camera\Camera.cpp" />
     <ClCompile Include="Source\Utility\Camera\RPYCamera.cpp" />
     <ClCompile Include="Source\Utility\Development\Scene.cpp" />
@@ -292,7 +291,6 @@
     <ClInclude Include="Source\State\States\PlayState.h" />
     <ClInclude Include="Source\State\States\SettingsState.h" />
     <ClInclude Include="Source\Utility\Audio\AudioController.h" />
-    <ClInclude Include="Source\Utility\Audio\AudioHandler.h" />
     <ClInclude Include="Source\Utility\Camera\Camera.h" />
     <ClInclude Include="Source\Utility\Camera\RPYCamera.h" />
     <ClInclude Include="Source\Utility\Development\Scene.h" />
