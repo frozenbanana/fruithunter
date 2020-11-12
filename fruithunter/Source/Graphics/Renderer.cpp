@@ -116,6 +116,12 @@ void Renderer::changeResolution(int width, int height) {
 
 void Renderer::setFullscreen(bool value) { m_swapChain->SetFullscreenState(value, nullptr); }
 
+bool Renderer::isFullscreen() const { 
+	BOOL state;
+	m_swapChain->GetFullscreenState(&state, nullptr);
+	return state; 
+}
+
 void Renderer::bindConstantBuffer_ScreenSize(int slot) {
 	XMINT4 data = XMINT4(m_screenWidth, m_screenHeight, 0, 0);
 	m_deviceContext->UpdateSubresource(m_screenSizeBuffer.Get(), 0, 0, &data, 0, 0);
@@ -295,6 +301,18 @@ ID3D11DepthStencilState* Renderer::getDepthDSS() const { return m_depthDSS.Get()
 float Renderer::getScreenWidth() const { return (float)m_screenWidth; }
 
 float Renderer::getScreenHeight() const { return (float)m_screenHeight; }
+
+LONG Renderer::getWindowWidth() const {
+	RECT rect;
+	GetWindowRect(m_handle, &rect);
+	return rect.right-rect.left;
+}
+
+LONG Renderer::getWindowHeight() const {
+	RECT rect;
+	GetWindowRect(m_handle, &rect);
+	return rect.bottom-rect.top;
+}
 
 void Renderer::initalize(HWND window) {}
 

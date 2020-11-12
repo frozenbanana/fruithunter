@@ -23,6 +23,8 @@ public:
 	ID3D11DepthStencilState* getDepthDSS() const;
 	float getScreenWidth() const;
 	float getScreenHeight() const;
+	LONG getWindowWidth() const;
+	LONG getWindowHeight() const;
 
 	void bindBackAndDepthBuffer();
 	void clearDepth();
@@ -36,6 +38,7 @@ public:
 	void disableAlphaBlending();
 	void changeResolution(int width, int height);
 	void setFullscreen(bool value);
+	bool isFullscreen() const;
 	void copyDepthToSRV();
 	void copyTargetToSRV();
 
