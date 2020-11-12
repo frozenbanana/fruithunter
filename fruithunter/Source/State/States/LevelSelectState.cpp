@@ -17,18 +17,6 @@ void LevelSelectState::update() {
 
 	sceneManager.update();
 
-
-	if (ImGui::Begin("TestWindow")) {
-		RECT rect;
-		GetWindowRect(Renderer::getInstance()->getHandle(), &rect);
-		ImGui::Text(string("Width: "+to_string(rect.right-rect.left)).c_str());
-		ImGui::Text(string("Height: "+to_string(rect.bottom-rect.top)).c_str());
-		ImGui::Text(string("MPosX: " + to_string(Input::getInstance()->mouseX())).c_str());
-		ImGui::Text(string("MPosY: " + to_string(Input::getInstance()->mouseY())).c_str());
-		ImGui::End();
-	}
-
-
 	m_timer.update();
 	float dt = m_timer.getDt();
 	Player* player = SceneManager::getScene()->m_player.get();
