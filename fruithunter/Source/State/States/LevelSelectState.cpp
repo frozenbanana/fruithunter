@@ -1,12 +1,19 @@
 #include "LevelSelectState.h"
 #include "SaveManager.h"
 #include "Scene.h"
+#include "Renderer.h"
 
 void LevelSelectState::init() {
 }
 
 void LevelSelectState::update() {
-	Input::getInstance()->setMouseModeRelative();
+	Input* ip = Input::getInstance();
+	if (ip->keyPressed(m_mouseMode_switch))
+		m_mouseMode = !m_mouseMode;
+	if (m_mouseMode)
+		ip->setMouseModeRelative();
+	else
+		ip->setMouseModeAbsolute();
 
 	sceneManager.update();
 
@@ -103,7 +110,9 @@ void LevelSelectState::draw() {
 }
 
 void LevelSelectState::play() {
-	sceneManager.load("levelSelect");
+	if (sceneManager.getScene()->m_sceneName != "levelSelect") {
+		sceneManager.load("levelSelect");
+	}
 	initializeLevelSelectors();
 }
 

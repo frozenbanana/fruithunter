@@ -12,7 +12,7 @@ private:
 	float2 m_backgroundOffset;
 	float2 m_sliderOffset;
 
-	float4 m_colour;
+	Color m_colour;
 
 	float m_radius;
 	float m_scale;

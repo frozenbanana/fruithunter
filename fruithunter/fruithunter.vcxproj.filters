@@ -111,9 +111,6 @@
     <ClCompile Include="Source\State\States\PlayState.cpp">
       <Filter>Source\State\States</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Utility\Audio\AudioHandler.cpp">
-      <Filter>Source\Utility\Audio</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Utility\Camera\Camera.cpp">
       <Filter>Source\Utility\Camera</Filter>
     </ClCompile>
@@ -261,6 +258,30 @@
     <ClCompile Include="Source\State\States\MainState.cpp">
       <Filter>Source\State\States</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Drawable\CollectionPoint.cpp">
+      <Filter>Source\Drawable</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\Translation2DStructures.cpp">
+      <Filter>Source\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ImGui\implot.cpp">
+      <Filter>Source\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ImGui\implot_items.cpp">
+      <Filter>Source\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\MetricCollector.cpp">
+      <Filter>Source\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\UI\UI_Button.cpp">
+      <Filter>Source\Utility\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\Audio\AudioController.cpp">
+      <Filter>Source\Utility\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\UI\Menu_PoppingButton.cpp">
+      <Filter>Source\Utility\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -310,9 +331,6 @@
     </ClInclude>
     <ClInclude Include="Source\State\States\PlayState.h">
       <Filter>Source\State\States</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\Audio\AudioHandler.h">
-      <Filter>Source\Utility\Audio</Filter>
     </ClInclude>
     <ClInclude Include="Source\Utility\Camera\Camera.h">
       <Filter>Source\Utility\Camera</Filter>
@@ -476,6 +494,30 @@
     <ClInclude Include="Source\State\States\MainState.h">
       <Filter>Source\State\States</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Drawable\CollectionPoint.h">
+      <Filter>Source\Drawable</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\Translation2DStructures.h">
+      <Filter>Source\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGui\implot.h">
+      <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGui\implot_internal.h">
+      <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\MetricCollector.h">
+      <Filter>Source\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\UI\UI_Button.h">
+      <Filter>Source\Utility\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\Audio\AudioController.h">
+      <Filter>Source\Utility\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\UI\Menu_PoppingButton.h">
+      <Filter>Source\Utility\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
@@ -568,6 +610,9 @@
     </Filter>
     <Filter Include="Source\ImGui">
       <UniqueIdentifier>{dd1d5fba-781e-46f3-8b69-664930394ff9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Utility\UI">
+      <UniqueIdentifier>{1aa22460-1ee4-4fd8-b5ff-309ea38e9837}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -1,8 +1,8 @@
 #pragma once
 #include "TextRenderer.h"
 
-#define COL_INACTIVE float4(1.0f, 1.0f, 1.0f, 1.0f)
-#define COL_ACTIVE float4(1.f, 0.0f, 0.0f, 1.0f)
+#define COL_INACTIVE Color(1.0f, 1.0f, 1.0f, 1.0f)
+#define COL_ACTIVE Color(1.f, 0.0f, 0.0f, 1.0f)
 
 class Button {
 private:
@@ -10,7 +10,7 @@ private:
 	string m_label;
 	float2 m_position;
 	float2 m_size;
-	float4 m_colour;
+	Color m_colour;
 	bool m_on = true;
 	bool m_isToggle = false;
 	bool m_isLowMedHighUltra = false;

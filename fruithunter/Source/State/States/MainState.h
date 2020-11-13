@@ -7,6 +7,7 @@
 #include "Bow.h"
 #include "Sprite2D.h"
 #include "SceneManager.h"
+#include "Menu_PoppingButton.h"
 
 class MainState : public StateItem {
 private:
@@ -36,6 +37,15 @@ private:
 		float2 speedOffset;
 	};
 	vector<LogoLetter> m_letters;
+
+	enum MenuButtons {
+		btn_start,
+		btn_settings,
+		btn_exit,
+		btn_editor,
+		btn_length
+	};
+	Menu_PoppingButton m_buttons[btn_length];
 
 public:
 	MainState();

@@ -40,6 +40,7 @@ void ParticleSystem::setParticle(size_t index) {
 	pp->lifeTime = RandomFloat(
 		m_particle_description.timeAlive_interval.x, m_particle_description.timeAlive_interval.y);
 	pp->timeLeft = pp->lifeTime;
+	pp->size = part->size;
 
 	// velocity
 	float randVeloX =
@@ -85,20 +86,42 @@ void ParticleSystem::updateParticles(float dt) {
 	for (size_t i = 0; i < m_particles.size(); i++) {
 		if (m_particles[i].isActive == true) {
 			m_particleProperties[i].timeLeft -= dt;
+			float lifeTime = m_particleProperties[i].lifeTime;
+			float timeLeft = m_particleProperties[i].timeLeft;
+			float size = m_particleProperties[i].size;
+			float fadeStart = m_particle_description.fadeInterval_start;
+			float fadeEnd = m_particle_description.fadeInterval_end;
+			if (timeLeft < fadeStart)
+				m_particles[i].size = (timeLeft / fadeStart) * size;
+			else if ((lifeTime - timeLeft) < fadeEnd)
+				m_particles[i].size = ((lifeTime - timeLeft) / fadeEnd) * size;
+			else
+				m_particles[i].size = size;
+
 			if (m_particleProperties[i].timeLeft <= 0.f) {
 				// Inactivate particles when lifetime is over
 				m_particles[i].isActive = false;
 			}
 			else {
+				float density = 1; // air
+				float dragCoefficient = 1;
+
+				float r = m_particles[i].size / 2.f;
+				float area = 3.1415f * pow(r, 2);
+				float mass = 3.1415f * (4.f / 3.f) * pow(r, 3);
 				// get wind
-				float3 wind(0, 0, 0);
+				float3 acceleration = m_particle_description.acceleration;
 				if (terrain != nullptr && m_affectedByWind) {
-					wind = terrain->getWindStatic();
+					float3 wind = terrain->getWindStatic();
+					float3 v_relative = (m_particleProperties[i].velocity - wind);//velocity relative wind
+					float v_length = v_relative.Length();
+					float Fd = 0.5 * density * pow(v_length, 2) * area * dragCoefficient; // drag from wind
+					acceleration += (-Fd/mass) * Normalize(v_relative);
 				}
 				// update velocity and position
-				m_particleProperties[i].velocity += m_particle_description.acceleration * dt;
+				m_particleProperties[i].velocity += acceleration * dt;
+				m_particles[i].position += m_particleProperties[i].velocity * dt;
 				m_particleProperties[i].velocity *= pow(m_particle_description.slowdown, dt);
-				m_particles[i].position += (m_particleProperties[i].velocity + wind) * dt;
 			}
 		}
 	}
@@ -153,16 +176,18 @@ void ParticleSystem::resizeBuffer() {
 
 		//  Buffer for particle data
 		m_vertexBuffer.Reset();
-		D3D11_BUFFER_DESC buffDesc;
-		memset(&buffDesc, 0, sizeof(buffDesc));
-		buffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		buffDesc.Usage = D3D11_USAGE_DEFAULT;
-		buffDesc.ByteWidth = (UINT)(sizeof(Particle) * size);
+		if (size != 0) {
+			D3D11_BUFFER_DESC buffDesc;
+			memset(&buffDesc, 0, sizeof(buffDesc));
+			buffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+			buffDesc.Usage = D3D11_USAGE_DEFAULT;
+			buffDesc.ByteWidth = (UINT)(sizeof(Particle) * size);
 
-		HRESULT check = device->CreateBuffer(&buffDesc, NULL, m_vertexBuffer.GetAddressOf());
+			HRESULT check = device->CreateBuffer(&buffDesc, NULL, m_vertexBuffer.GetAddressOf());
 
-		if (FAILED(check))
-			ErrorLogger::logError("(ParticleSystem) Failed creating vertex buffer!\n", check);
+			if (FAILED(check))
+				ErrorLogger::logError("(ParticleSystem) Failed creating vertex buffer!\n", check);
+		}
 	}
 	else {
 		// already the correct size
@@ -230,6 +255,14 @@ void ParticleSystem::affectedByWindState(bool state) { m_affectedByWind = state;
 
 bool ParticleSystem::isActive() const { return m_isActive; }
 
+size_t ParticleSystem::activeParticleCount() const {
+	size_t sum = 0;
+	for (size_t i = 0; i < m_particles.size(); i++) {
+		sum += (m_particles[i].isActive == 1);
+	}
+	return sum;
+}
+
 bool ParticleSystem::isEmiting() const { return m_isEmitting; }
 
 bool ParticleSystem::isAffectedByWind() const { return m_affectedByWind; }
@@ -269,6 +302,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 1;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::GROUND_DUST:
 		colorVariety[0] = float4(0.77f, 0.35f, 0.51f, 1.0f);
@@ -282,6 +317,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 1;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::VULCANO_FIRE:
 		colorVariety[0] = float4(179 / 255.f, 0 / 255.f, 0 / 255.f, 1.0f);
@@ -295,6 +332,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0, 10, 0);
 		slowdown = 1;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::VULCANO_SMOKE:
 		colorVariety[0] = float4(0.50f, 0.40f, 0.40f, 1.0f);
@@ -308,6 +347,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0, 3, 0);
 		slowdown = 1;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::LAVA_BUBBLE:
 		colorVariety[0] = float4(0.70f, 0.20f, 0.20f, 1.0f);
@@ -321,6 +362,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 1;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::ARROW_GLITTER:
 		colorVariety[0] = float4(0.88f, 0.87f, 0.81f, 1.0f);
@@ -334,6 +377,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 1;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::CONFETTI:
 		colorVariety[0] = float4(214 / 255.f, 53 / 255.f, 53 / 255.f, 1.0f);
@@ -347,6 +392,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0, -10, 0);
 		slowdown = 1;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::STARS_GOLD:
 		colorVariety[0] = float4(1.00f, 0.95f, 0.00f, 1.0f);
@@ -356,10 +403,12 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		timeAlive_interval = float2(0.6f, .65f);
 		velocity_max = float3(1.);
 		velocity_min = float3(-1, 0.5, -1);
-		velocity_interval = float2(0.5, 0.6);
+		velocity_interval = float2(1.5, 3.5);
 		acceleration = float3(0.);
 		slowdown = 0.1;
 		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::STARS_SILVER:
 		colorVariety[0] = float4(0.75f, 0.75f, 0.75f, 1.0f);
@@ -369,10 +418,12 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		timeAlive_interval = float2(0.6f, .65f);
 		velocity_max = float3(1.);
 		velocity_min = float3(-1, 0.5, -1);
-		velocity_interval = float2(0.5, 0.6);
+		velocity_interval = float2(1.5, 3.5);
 		acceleration = float3(0.);
 		slowdown = 0.1;
 		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::STARS_BRONZE:
 		colorVariety[0] = float4(0.69f, 0.34f, 0.05f, 1.0f);
@@ -382,10 +433,192 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		timeAlive_interval = float2(0.6f, .65f);
 		velocity_max = float3(1.);
 		velocity_min = float3(-1, 0.5, -1);
-		velocity_interval = float2(0.5, 0.6);
+		velocity_interval = float2(1.5, 3.5);
 		acceleration = float3(0.);
 		slowdown = 0.1;
 		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
+		break;
+	case ParticleSystem::EXPLOSION_APPLE:
+		colorVariety[0] = float4(228 / 255.f, 83 / 255.f, 83 / 255.f, 1.f);
+		colorVariety[1] = float4(186 / 255.f, 33 / 255.f, 33 / 255.f, 1.f);
+		colorVariety[2] = float4(255 / 255.f, 150 / 255.f, 150 / 255.f, 1.f);
+		size_interval = float2(0.075, 0.1);
+		timeAlive_interval = float2(0.4, 0.7);
+		velocity_max = float3(1.);
+		velocity_min = float3(-1.);
+		velocity_interval = float2(3, 20);
+		acceleration = float3(0.);
+		slowdown = 0.0001;
+		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
+		break;
+	case ParticleSystem::EXPLOSION_BANANA:
+		colorVariety[0] = float4(249 / 255.f, 255 / 255.f, 158 / 255.f, 1.f);
+		colorVariety[1] = float4(232 / 255.f, 255 / 255.f, 58 / 255.f, 1.f);
+		colorVariety[2] = float4(225 / 255.f, 255 / 255.f, 0 / 255.f, 1.f);
+		size_interval = float2(0.075, 0.1);
+		timeAlive_interval = float2(0.4, 0.7);
+		velocity_max = float3(1.);
+		velocity_min = float3(-1.);
+		velocity_interval = float2(3, 20);
+		acceleration = float3(0.);
+		slowdown = 0.0001;
+		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
+		break;
+	case ParticleSystem::EXPLOSION_MELON:
+		colorVariety[0] = float4(58 / 255.f, 176 / 255.f, 60 / 255.f, 1.f);
+		colorVariety[1] = float4(72 / 255.f, 141 / 255.f, 65 / 255.f, 1.f);
+		colorVariety[2] = float4(72 / 255.f, 226 / 255.f, 39 / 255.f, 1.f);
+		size_interval = float2(0.075, 0.1);
+		timeAlive_interval = float2(0.4, 0.7);
+		velocity_max = float3(1.);
+		velocity_min = float3(-1.);
+		velocity_interval = float2(3, 20);
+		acceleration = float3(0.);
+		slowdown = 0.0001;
+		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
+		break;
+	case ParticleSystem::EXPLOSION_DRAGON:
+		colorVariety[0] = float4(78 / 255.f, 158 / 255.f, 80 / 255.f, 1.f);
+		colorVariety[1] = float4(235 / 255.f, 83 / 255.f, 83 / 255.f, 1.f);
+		colorVariety[2] = float4(215 / 255.f, 51 / 255.f, 51 / 255.f, 1.f);
+		size_interval = float2(0.075, 0.1);
+		timeAlive_interval = float2(0.4, 0.7);
+		velocity_max = float3(1.);
+		velocity_min = float3(-1.);
+		velocity_interval = float2(3, 20);
+		acceleration = float3(0.);
+		slowdown = 0.0001;
+		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
+		break;
+	case ParticleSystem::SPARKLE_APPLE:
+		colorVariety[0] = float4(228 / 255.f, 83 / 255.f, 83 / 255.f, 1.f);
+		colorVariety[1] = float4(186 / 255.f, 33 / 255.f, 33 / 255.f, 1.f);
+		colorVariety[2] = float4(255 / 255.f, 150 / 255.f, 150 / 255.f, 1.f);
+		size_interval = float2(0.15, 0.3);
+		timeAlive_interval = float2(0.1, 1.0);
+		velocity_max = float3(-1.);
+		velocity_min = float3(1.);
+		velocity_interval = float2(0.1, 0.2);
+		acceleration = float3(0.);
+		slowdown = 1;
+		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
+		break;
+	case ParticleSystem::SPARKLE_BANANA:
+		colorVariety[0] = float4(249 / 255.f, 255 / 255.f, 158 / 255.f, 1.f);
+		colorVariety[1] = float4(232 / 255.f, 255 / 255.f, 58 / 255.f, 1.f);
+		colorVariety[2] = float4(225 / 255.f, 255 / 255.f, 0 / 255.f, 1.f);
+		size_interval = float2(0.15, 0.3);
+		timeAlive_interval = float2(0.1, 1.0);
+		velocity_max = float3(-1.);
+		velocity_min = float3(1.);
+		velocity_interval = float2(0.1, 0.2);
+		acceleration = float3(0.);
+		slowdown = 1;
+		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
+		break;
+	case ParticleSystem::SPARKLE_MELON:
+		colorVariety[0] = float4(58 / 255.f, 176 / 255.f, 60 / 255.f, 1.f);
+		colorVariety[1] = float4(72 / 255.f, 141 / 255.f, 65 / 255.f, 1.f);
+		colorVariety[2] = float4(72 / 255.f, 226 / 255.f, 39 / 255.f, 1.f);
+		size_interval = float2(0.15, 0.3);
+		timeAlive_interval = float2(0.1, 1.0);
+		velocity_max = float3(-1.);
+		velocity_min = float3(1.);
+		velocity_interval = float2(0.1, 0.2);
+		acceleration = float3(0.);
+		slowdown = 1;
+		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
+		break;
+	case ParticleSystem::SPARKLE_DRAGON:
+		colorVariety[0] = float4(78 / 255.f, 158 / 255.f, 80 / 255.f, 1.f);
+		colorVariety[1] = float4(235 / 255.f, 83 / 255.f, 83 / 255.f, 1.f);
+		colorVariety[2] = float4(215 / 255.f, 51 / 255.f, 51 / 255.f, 1.f);
+		size_interval = float2(0.15, 0.3);
+		timeAlive_interval = float2(0.1, 1.0);
+		velocity_max = float3(-1.);
+		velocity_min = float3(1.);
+		velocity_interval = float2(0.1, 0.2);
+		acceleration = float3(0.);
+		slowdown = 1;
+		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
+		break;
+	case ParticleSystem::EXPLOSION_GOLD:
+		colorVariety[0] = float4(255 / 255.f, 240 / 255.f, 0 / 255.f, 1.f);
+		colorVariety[1] = float4(255 / 255.f, 244 / 255.f, 68 / 255.f, 1.f);
+		colorVariety[2] = float4(255 / 255.f, 255 / 255.f, 118 / 255.f, 1.f);
+		size_interval = float2(0.4,0.6);
+		timeAlive_interval = float2(0.4,2.5);
+		velocity_max = float3(-0.5,0.5,-0.5);
+		velocity_min = float3(0.5, 1, 0.5);
+		velocity_interval = float2(10,25);
+		acceleration = float3(0,-3,0);
+		slowdown = 0.05f;
+		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
+		break;
+	case ParticleSystem::EXPLOSION_SILVER:
+		colorVariety[0] = float4(194 / 255.f, 194 / 255.f, 194 / 255.f, 1.f);
+		colorVariety[1] = float4(223 / 255.f, 223 / 255.f, 223 / 255.f, 1.f);
+		colorVariety[2] = float4(154 / 255.f, 154 / 255.f, 154 / 255.f, 1.f);
+		size_interval = float2(0.4, 0.6);
+		timeAlive_interval = float2(0.4, 2.5);
+		velocity_max = float3(-0.5, 0.5, -0.5);
+		velocity_min = float3(0.5, 1, 0.5);
+		velocity_interval = float2(10, 25);
+		acceleration = float3(0, -3, 0);
+		slowdown = 0.05f;
+		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
+		break;
+	case ParticleSystem::EXPLOSION_BRONZE:
+		colorVariety[0] = float4(206 / 255.f, 115 / 255.f, 0 / 255.f, 1.f);
+		colorVariety[1] = float4(190 / 255.f, 84 / 255.f, 0 / 255.f, 1.f);
+		colorVariety[2] = float4(231 / 255.f, 122 / 255.f, 25 / 255.f, 1.f);
+		size_interval = float2(0.4, 0.6);
+		timeAlive_interval = float2(0.4, 2.5);
+		velocity_max = float3(-0.5, 0.5, -0.5);
+		velocity_min = float3(0.5, 1, 0.5);
+		velocity_interval = float2(10, 25);
+		acceleration = float3(0, -3, 0);
+		slowdown = 0.05f;
+		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
+		break;
+	case ParticleSystem::JUMP_DUST:
+		colorVariety[0] = float4(203 / 255.f, 203 / 255.f, 203 / 255.f, 1.f);
+		colorVariety[1] = float4(160 / 255.f, 160 / 255.f, 160 / 255.f, 1.f);
+		colorVariety[2] = float4(123 / 255.f, 123 / 255.f, 123 / 255.f, 1.f);
+		size_interval = float2(0.1,0.3);
+		timeAlive_interval = float2(0.3,0.5);
+		velocity_max = float3(-1, -0.05, -1);
+		velocity_min = float3(1, 0.05, 1);
+		velocity_interval = float2(5, 5.5);
+		acceleration = float3(0, 0, 0);
+		slowdown = 0.001f;
+		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	default:
 		colorVariety[0] = float4(1.);
@@ -399,6 +632,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 1;
 		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
 		break;
 	}
 }

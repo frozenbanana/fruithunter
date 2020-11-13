@@ -1,6 +1,6 @@
 #include "SceneEditorManager.h"
 #include "Renderer.h"
-#include "AudioHandler.h"
+#include "AudioController.h"
 #include "PathFindingThread.h"
 #include "Settings.h"
 
@@ -386,9 +386,11 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 			updated = true;
 		}
 	}
-	static string ps_typeAsString[ParticleSystem::Type::TYPE_LENGTH] = { "None",
-		"ForestBubble", "GroundDust", "VolcanoFire", "VolcanoSmoke", "LavaBubble", "ArrowGlitter",
-		"Confetti", "Stars" };
+	static string ps_typeAsString[ParticleSystem::Type::TYPE_LENGTH] = { "None", "Forest Bubble",
+		"Ground Dust", "Volcano Fire", "Volcano Smoke", "Lava Bubble", "Arrow Glitter", "Confetti",
+		"Stars Gold", "Stars Silver", "Stars Bronze", "Explosion Apple", "Explosion Banana",
+		"Explosion Melon", "Explosion Dragon", "Sparkle Apple", "Sparkle Banana", "Sparkle Melon",
+		"Sparkle Dragon", "Explosion Gold", "Explosion Silver", "Explosion Bronze", "Jump Dust" };
 	if (ImGui::BeginCombo("Type", ps_typeAsString[type].c_str())) {
 		for (size_t i = 1; i < ParticleSystem::Type::TYPE_LENGTH; i++) {
 			if (ImGui::MenuItem(ps_typeAsString[i].c_str())) {
@@ -436,7 +438,7 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 			selection->emit(emitCount);
 		}
 		ImGui::SameLine();
-		ImGui::InputInt("", &emitCount, 1);
+		ImGui::InputInt("Count", &emitCount, 1);
 	}
 	//Custom testing
 	if (isValid) {
@@ -451,7 +453,7 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 		ImGui::InputFloat3("Velocity max", (float*)&pd.velocity_max);
 		ImGui::InputFloat2("Velocity Interval", (float*)&pd.velocity_interval);
 		ImGui::InputFloat3("Acceleration", (float*)&pd.acceleration);
-		ImGui::InputFloat("Slowdown", &pd.slowdown);
+		ImGui::InputFloat("Slowdown", &pd.slowdown, 0, 0, 6);
 		if (ImGui::Combo("Shape", &shape, "Circle\0Star"))
 			pd.shape = (ParticleSystem::ParticleDescription::Shape)shape;
 		if (ImGui::Button("Set"))
@@ -508,7 +510,7 @@ void SceneEditorManager::updateCameraMovement(float dt) {
 	if (ip->getMouseMode() == DirectX::Mouse::MODE_RELATIVE) {
 		mouseMovement = float2((float)ip->mouseY(), (float)ip->mouseX());
 	}
-	float rotationSpeed = (0.001) + Settings::getInstance()->getSensitivity() * 0.04;
+	float rotationSpeed = (0.001) + Settings::getInstance()->getSensitivity() * dt;
 	mouseMovement *= rotationSpeed;
 	m_camera.rotate(float3(mouseMovement.x, mouseMovement.y, 0));
 }
@@ -653,7 +655,7 @@ void SceneEditorManager::update_transformation(float dt) {
 void SceneEditorManager::draw_transformationVisuals() {
 	if (m_transformable != nullptr) {
 		float scale1 = m_transformable->getScale().Length();
-		scale1 = Clamp<float>(scale1, 0, 10);
+		scale1 = Clamp<float>(scale1, 1, 10);
 		float3 scale(scale1, scale1, scale1);
 		if (m_transformState == Edit_Translate) {
 			// arrows
@@ -1026,8 +1028,9 @@ void SceneEditorManager::update() {
 	if (activeTerrain != nullptr) {
 		AreaTag tag = activeTerrain->getTag();
 		scene->m_skyBox.switchLight(tag);
-		if (!m_manualCamera)
-			AudioHandler::getInstance()->changeMusicByTag(tag, dt);
+		if (!m_manualCamera) {
+			scene->update_activeTerrain(tag);
+		}
 	}
 
 	// update water

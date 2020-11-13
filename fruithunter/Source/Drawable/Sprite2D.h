@@ -5,6 +5,7 @@
 #include <SpriteBatch.h>
 #include <CommonStates.h>
 #include <SpriteFont.h>
+#include "Translation2DStructures.h"
 
 #define PATH_SPRITE "assets/sprites/"
 
@@ -30,6 +31,7 @@ private:
 	float2 m_scale = float2(1.f, 1.f);
 	float m_rotation = 0.0f;
 	float m_animationSpeed = 1.f; // time between frames, in seconds
+	Color m_color = Color(1, 1, 1, 1);
 
 public:
 	XMINT2 getTextureSize(size_t index = 0) const;
@@ -37,13 +39,18 @@ public:
 	float2 getPosition() const;
 	float getRotation() const;
 	float2 getScale() const;
+	Color getColor() const;
+	BoundingBox2D getBoundingBox() const;
 
 	void setPosition(float2 position);
 	void setScale(float2 scale);
 	void setScale(float scale);
+	void setSize(float2 size);
 	void setRotation(float rot);
 	void setAlignment(HorizontalAlignment horizontal = hCenter, VerticalAlignment vertical = vCenter);
 	void setAnimationSpeed(float animationSpeed);
+	void setColor(Color color);
+	void setAlpha(float alpha);
 
 	void draw();
 	void drawNoScaling();

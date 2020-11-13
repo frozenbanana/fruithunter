@@ -38,9 +38,6 @@ void SettingsState::init() {
 	m_settingsBackground.setRotation(3.1415f / 2.f);
 	m_settingsBackground.setScale(1.85f);
 	m_settingsBackground.setAlignment();//center
-	// Just ignore this. It fixes things.
-	m_entity.load("Melon_000000");
-	m_entity.setPosition(float3(-1000));
 }
 
 void SettingsState::update() { 
@@ -222,7 +219,4 @@ void SettingsState::draw() {
 		m_backButton.setPosition(float2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 300));
 		m_backButton.draw();
 	}
-
-	// Just ignore this. It fixes things
-	m_entity.draw();
 }

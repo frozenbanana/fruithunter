@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "Terrain.h"
 #include "Bow.h"
+#include "ParticleSystem.h"
 
 class Player {
 public:
@@ -46,6 +47,7 @@ private:
 	const Keyboard::Keys KEY_LEFT = Keyboard::A;
 	const Keyboard::Keys KEY_RIGHT = Keyboard::D;
 	const Keyboard::Keys KEY_DASH = Keyboard::Space;
+	const Keyboard::Keys KEY_JUMP = Keyboard::Space;
 	const Keyboard::Keys KEY_SPRINT = Keyboard::LeftShift;
 	const Keyboard::Keys KEY_HM = Keyboard::F;
 
@@ -57,10 +59,11 @@ private:
 	const float GROUND_FRICTION =
 		0.5f; // friction on flat terrain, reduces velocity by percentage per seconds, 0-60.
 	const float GROUND_FRICTION_WEAK = 60.0f; // friction on steep terrain, 0-60.
+	const float AIR_FRICTION = 10;
 	const float STEEPNESS_BORDER =
 		0.6f; // value of dot product when flat terrain goes to steep terrain
 	const float ONGROUND_THRESHOLD =
-		0.03f; // extra height over terrain until player is not grounded
+		0.1f; // extra height over terrain until player is not grounded
 
 	float3 m_position = float3(0, 0, 0);
 	float3 m_velocity = float3(0, 0, 0);
@@ -83,7 +86,7 @@ private:
 	float m_speed = 20.f;				// player movement strength
 	float m_speedSprintMultiplier = 2.f;// player movement multiplier when sprinting
 	float m_speedOnChargingDash = 10.f; // player movement when charging dash
-	float m_speedInAir = 2.5f;			// player movement in air
+	float m_speedInAir = 15;			// player movement in air
 	float m_godModeSpeed = 20.f;		// player movement in godmode
 	// stamina
 	const float STAMINA_MAX = 1.f;	// max value of sprint
@@ -111,6 +114,15 @@ private:
 	float3 m_playerUp = DEFAULTUP;
 	float m_cameraPitch = 0, m_cameraYaw = 0;
 
+	// Jumping
+	bool m_midairJumpActivated = false;
+	float m_jump_init_strength = 7.5;
+	float m_jump_dash_strength = 7.5;
+
+	// effects
+	ParticleSystem m_jumpDust;
+	const int m_dustAmount = 30;
+
 	//- - - Functions - - -
 	void updateBow(float dt, Terrain* terrain);
 	void updateCamera();
@@ -126,6 +138,7 @@ private:
 	void checkDash(float dt);
 	void checkPlayerReset(float dt); // Resets player if below sea level
 	void checkHunterMode();
+	void checkJump(float dt);
 
 	/*
 	 * Modifies m_velocity to have a sliding effect

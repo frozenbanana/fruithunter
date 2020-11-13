@@ -55,13 +55,13 @@ protected:
 	bool m_hit = false;
 	State m_currentState;
 	std::list<float3> m_availablePath;
-	virtual void behaviorInactive(float3 playerPosition){};
-	virtual void behaviorPassive(float3 playerPosition){};
-	virtual void behaviorActive(float3 playerPosition){};
-	virtual void behaviorCaught(float3 playerPosition){};
+	virtual void behaviorInactive(){};
+	virtual void behaviorPassive(){};
+	virtual void behaviorActive(){};
+	virtual void behaviorCaught(){};
 	virtual void behaviorReleased(){};
 
-	void doBehavior(float3 playerPosition);
+	void doBehavior();
 	void quickSort(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, int high);
 	int partition(std::vector<shared_ptr<AI::Node>>& unsortedVector, int low, int high);
 

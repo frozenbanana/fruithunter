@@ -11,6 +11,8 @@
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
+#include "implot.h"
+#include "implot_internal.h"
 
 using namespace std;
 using namespace DirectX;
@@ -82,12 +84,12 @@ static string Time2DisplayableString(size_t time) {
 // Helper Math functions
 /* Generate a random float between low to high */
 static float RandomFloat(float low = 0.f, float high = 1.f) {
-	float randomCoefficent = (float)(rand() % (int)100.f) / 100.f; // normalize
+	float randomCoefficent = (float)(rand() % (int)1000.f) / 1000.f; // normalize
 	return low + randomCoefficent * (high - low);
 }
 
 /* Rotate float2 value */
-static float2 rotate(float2 v, float rad) {
+static float2 rotatef2(float2 v, float rad) {
 	float c = cos(rad), s = sin(rad);
 	return float2(v.x * c - v.y * s, v.x * s + v.y * c);
 }
