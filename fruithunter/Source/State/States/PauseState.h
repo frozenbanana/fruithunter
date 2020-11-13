@@ -4,16 +4,13 @@
 #include "Entity.h"
 #include "Button.h"
 #include "Sprite2D.h"
+#include "Menu_PoppingButton.h"
+#include "Timer.h"
 
 class PauseState : public StateItem {
 private:
-	TextRenderer m_textRenderer;
+	Timer m_timer;
 	Sprite2D m_settingsBackground;
-	Button m_resumeButton;
-	Button m_settingsButton;
-	Button m_mainMenuButton;
-	Button m_exitButton;
-	Button m_restartButton;
 
 	//tutorial sprites
 	Sprite2D m_dropFruits[4];
@@ -26,9 +23,8 @@ private:
 	Sprite2D m_bow;
 	Sprite2D m_mouseLeft;
 
-	int m_previousState;
-
-	Entity m_entity;
+	enum MenuButtons { btn_restart, btn_resume, btn_settings, btn_mainmenu, btn_exit, btn_length };
+	Menu_PoppingButton m_buttons[btn_length];
 
 public:
 	PauseState();

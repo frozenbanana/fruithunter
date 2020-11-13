@@ -13,7 +13,7 @@ protected:
 	float m_speed = 0.0f;
 	float3 m_gravity = float3(0.0f, -1.0f, 0.0f) * 15.0f; // same as player
 	float3 m_direction;
-	float m_groundFriction =10.f;
+	float m_groundFriction = 10.f;
 	float m_airFriction = 5.f;
 
 	bool m_onGround = true;
@@ -48,7 +48,7 @@ protected:
 	void enforceOverTerrain();
 	Fruit(float3 pos = float3(0.f, 0.f, 0.f));
 	void behaviorReleased() override;
-	void behaviorInactive(float3 playerPosition) override;
+	void behaviorInactive() override;
 
 	virtual void setDirection();
 

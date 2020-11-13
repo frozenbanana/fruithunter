@@ -8,6 +8,7 @@
 #include "Settings.h"
 #include "PathFindingThread.h"
 #include "StateStack.h"
+#include "AudioController.h"
 
 int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
 	_In_ int cmdCount) {
@@ -31,7 +32,8 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	while (stateStack.isEmpty() == false) {
 		VariableSyncer::getInstance()->sync();
 		input->update();
-		
+		AudioController::getInstance()->update();
+
 		// start imgui frame
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();

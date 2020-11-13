@@ -47,8 +47,8 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	m_maxSteps = 16;
 }
 
-void Melon::behaviorPassive(float3 playerPosition) {
-
+void Melon::behaviorPassive() {
+	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
 	if (getPosition().y <= 1.f) {
 		float3 target = m_worldHome - getPosition();
 		target.Normalize();
@@ -83,7 +83,8 @@ void Melon::behaviorPassive(float3 playerPosition) {
 	}
 }
 
-void Melon::behaviorActive(float3 playerPosition) {
+void Melon::behaviorActive() {
+	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
 	if (m_onGround) {
 		if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
 			stopMovement();
@@ -102,7 +103,8 @@ void Melon::behaviorActive(float3 playerPosition) {
 	}
 }
 
-void Melon::behaviorCaught(float3 playerPosition) {
+void Melon::behaviorCaught() {
+	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
 	if (atOrUnder(SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition()))) {
 		m_direction = playerPosition - getPosition(); // run to player
 

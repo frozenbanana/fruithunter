@@ -1,6 +1,6 @@
 #include "Animal.h"
 #include "Renderer.h"
-#include "AudioHandler.h"
+#include "AudioController.h"
 #define START_ZOOM_LENGTH 1500
 
 void Animal::walkAndBack(float dt) {
@@ -112,51 +112,50 @@ bool Animal::notBribed() const { return m_nrFruitsTaken < m_nrRequiredFruits; }
 void Animal::setAttacked(bool attacked) { m_hasAttacked = attacked; }
 
 void Animal::makeAngrySound() {
-	auto audioHandler = AudioHandler::getInstance();
+	AudioController* ac = AudioController::getInstance();
 	string animal = getModelName();
 	if (!m_hasAttacked) {
 		if (animal == "Bear") {
-			audioHandler->playOnce(AudioHandler::BEAR_PUSH);
+			ac->play("bear-push", AudioController::SoundType::Effect);
 		}
 		if (animal == "Goat") {
-			audioHandler->playOnce(AudioHandler::GOAT_PUSH);
+			ac->play("goat-push", AudioController::SoundType::Effect);
 		}
 		if (animal == "Gorilla") {
-			audioHandler->playOnce(AudioHandler::GORILLA_PUSH);
+			ac->play("gorilla-push", AudioController::SoundType::Effect);
 		}
 		m_hasAttacked = true;
 	}
 }
 
 void Animal::makeHappySound() {
-	auto audioHandler = AudioHandler::getInstance();
+	AudioController* ac = AudioController::getInstance();
 	string animal = getModelName();
 	if (!m_isSatisfied) {
 		if (animal == "Bear") {
-			audioHandler->playOnce(AudioHandler::BEAR_HAPPY);
+			ac->play("bear-happy", AudioController::SoundType::Effect);
 		}
 		if (animal == "Goat") {
-			audioHandler->playOnce(AudioHandler::GOAT_HAPPY);
+			ac->play("goatr-happy", AudioController::SoundType::Effect);
 		}
 		if (animal == "Gorilla") {
-			audioHandler->playOnce(AudioHandler::GORILLA_HAPPY);
+			ac->play("gorilla-happy", AudioController::SoundType::Effect);
 		}
 		m_isSatisfied = true;
 	}
 }
 
 void Animal::makeEatingSound() {
-	auto audioHandler = AudioHandler::getInstance();
+	AudioController* ac = AudioController::getInstance();
 	string animal = getModelName();
-
 	if (animal == "Bear") {
-		audioHandler->playOnce(AudioHandler::BEAR_EATING);
+		ac->play("bear-eating", AudioController::SoundType::Effect);
 	}
 	if (animal == "Goat") {
-		audioHandler->playOnce(AudioHandler::GOAT_EATING);
+		ac->play("goat-eating", AudioController::SoundType::Effect);
 	}
 	if (animal == "Gorilla") {
-		audioHandler->playOnce(AudioHandler::GORILLA_EATING);
+		ac->play("gorilla-eating", AudioController::SoundType::Effect);
 	}
 }
 

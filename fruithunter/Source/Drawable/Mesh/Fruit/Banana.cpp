@@ -31,7 +31,8 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 	setFrameTargets(0, 1);
 }
 
-void Banana::behaviorPassive(float3 playerPosition) {
+void Banana::behaviorPassive() {
+	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
 	if (getPosition().y <= 1.f) {
 		float3 target = m_worldHome - getPosition();
 		target.Normalize();
@@ -62,8 +63,8 @@ void Banana::behaviorPassive(float3 playerPosition) {
 	}
 }
 
-void Banana::behaviorActive(float3 playerPosition) {
-
+void Banana::behaviorActive() {
+	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
 	if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
 		changeState(PASSIVE);
 	}
@@ -78,7 +79,8 @@ void Banana::behaviorActive(float3 playerPosition) {
 		jump(terrainNormal, ACTIVE_JUMP_POWER);
 	}
 }
-void Banana::behaviorCaught(float3 playerPosition) {
+void Banana::behaviorCaught() {
+	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
 	if (m_onGround) {
 		float3 toPlayer = playerPosition - getPosition();
 		toPlayer.Normalize();

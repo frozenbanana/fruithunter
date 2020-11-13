@@ -8,13 +8,7 @@ size_t TextRenderer::m_vertexCount;
 Microsoft::WRL::ComPtr<ID3D11Buffer> TextRenderer::m_worldMatrixBuffer;
 
 TextRenderer::TextRenderer() {
-	m_spriteFont = std::make_unique<DirectX::SpriteFont>(
-		Renderer::getDevice(), L"assets/fonts/myfile2.spritefont");
-
-	if (!m_spriteFont.get()) {
-		ErrorLogger::log("TextRenderer failed to load font.");
-		return;
-	}
+	setFont("myfile2.spritefont");
 	m_spriteBatch = std::make_unique<DirectX::SpriteBatch>(Renderer::getDeviceContext());
 
 	m_fontPos.y = (float)SCREEN_HEIGHT / 2.f;
@@ -45,8 +39,29 @@ TextRenderer::~TextRenderer() { m_spriteBatch.reset(); }
 
 void TextRenderer::setViewSize(XMINT2 size) { createViewBuffers(size); }
 
+void TextRenderer::setFont(string font) {
+	string fontPath = "assets/fonts/" + font;
+	wstring w_fontPath = wstring(fontPath.begin(), fontPath.end());
+	m_spriteFont = std::make_unique<DirectX::SpriteFont>(Renderer::getDevice(), w_fontPath.c_str());
 
-void TextRenderer::setColor(XMVECTORF32 color) { m_color = color; }
+	if (!m_spriteFont.get()) {
+		ErrorLogger::log("TextRenderer failed to load font: "+fontPath);
+		return;
+	}
+}
+
+
+void TextRenderer::setColor(Color color) { 
+	m_color = color;
+}
+
+void TextRenderer::setScale(float scale) { m_scale = scale; }
+
+void TextRenderer::setRotation(float rotation) { m_rotation = rotation; }
+
+void TextRenderer::setAlignment(HorizontalAlignment ha, VerticalAlignment va) {
+	m_alignment = float2(ha, va);
+}
 
 float2 TextRenderer::getSize(string text) {
 	wstring wText = std::wstring(text.begin(), text.end());
@@ -211,47 +226,13 @@ void TextRenderer::draw(std::string text, float2 pos) {
 	m_spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront);
 	std::wstring wText = std::wstring(text.begin(), text.end());
 
-	Vector2 origin = Vector2(m_spriteFont->MeasureString(wText.c_str())) / 2.0f;
+	float2 origin =
+		0.5f * ((float2)m_spriteFont->MeasureString(wText.c_str()) * (m_alignment + float2(1, 1)));
 
-	m_spriteFont->DrawString(m_spriteBatch.get(), wText.c_str(), pos, m_color, 0.f, origin);
+	//Vector2 origin = Vector2(m_spriteFont->MeasureString(wText.c_str())) / 2.0f;
 
-	m_spriteBatch->End();
-	setDepthStateToNull();
-}
-
-void TextRenderer::draw(string text, float2 pos, Alignment al) {
-	m_spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront);
-	std::wstring wText = std::wstring(text.begin(), text.end());
-
-	float2 origin = float2(0.f);
-
-	if (al == LEFT) {
-		float2 stringSize = m_spriteFont->MeasureString(wText.c_str());
-		origin = float2(0.f, stringSize.y / 2.f);
-	}
-	else if (al == CENTER) {
-		origin = float2(m_spriteFont->MeasureString(wText.c_str())) / 2.0f;
-	}
-	else if (al == RIGHT) {
-		float2 stringSize = m_spriteFont->MeasureString(wText.c_str());
-		origin = float2(stringSize.x, stringSize.y / 2.f);
-	}
-
-	m_spriteFont->DrawString(m_spriteBatch.get(), wText.c_str(), pos, m_color, 0.f, origin);
-
-	m_spriteBatch->End();
-	setDepthStateToNull();
-}
-
-void TextRenderer::draw(std::string text, float2 pos, float4 col) {
-	m_spriteBatch->Begin();
-	std::wstring wText = std::wstring(text.begin(), text.end());
-
-	float2 origin = float2(m_spriteFont->MeasureString(wText.c_str())) / 2.0f;
-
-	DirectX::XMVECTORF32 _col = { col.x, col.y, col.z, col.w };
-
-	m_spriteFont->DrawString(m_spriteBatch.get(), wText.c_str(), pos, _col, 0.f, origin);
+	m_spriteFont->DrawString(
+		m_spriteBatch.get(), wText.c_str(), pos, m_color, m_rotation, origin, m_scale);
 
 	m_spriteBatch->End();
 	setDepthStateToNull();
@@ -290,7 +271,7 @@ void TextRenderer::drawTextInWorld(string text, float3 position, float3 lookAt, 
 	float2 center = float2(m_size.x / 2.f, m_size.y / 2.f);
 
 	m_spriteFont->DrawString(
-		m_spriteBatch.get(), wText.c_str(), center, m_color, 0.f, textSize / 2.f);
+		m_spriteBatch.get(), wText.c_str(), center, m_color, 0.f, textSize / 2.f, m_scale);
 
 	m_spriteBatch->End();
 	setDepthStateToNull();

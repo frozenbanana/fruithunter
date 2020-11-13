@@ -78,7 +78,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)fruithunter\Source\Utility\Development;$(SolutionDir)fruithunter\Source\AI;$(SolutionDir)fruithunter\Source\Utility\Timer;$(SolutionDir)fruithunter\Source\Utility\Input;$(SolutionDir)fruithunter\Source\ImGui;$(SolutionDir)fruithunter\Source\Utility\Error;$(SolutionDir)fruithunter\Source\Utility\Camera;$(SolutionDir)fruithunter\Source\Utility\Audio;$(SolutionDir)fruithunter\Source\Utility\Repositories;$(SolutionDir)fruithunter\Source\Utility\Settings;$(SolutionDir)fruithunter\Source\Utility\PerformanceTimer;$(SolutionDir)fruithunter\Source\Utility\SaveState;$(SolutionDir)fruithunter\Source\Utility\VariableSyncer;$(SolutionDir)fruithunter\Source\Utility;$(SolutionDir)fruithunter\Source\State\States;$(SolutionDir)fruithunter\Source\State;$(SolutionDir)fruithunter\Source\Player;$(SolutionDir)fruithunter\Source\Header;$(SolutionDir)fruithunter\Source\Graphics\Shaders;$(SolutionDir)fruithunter\Source\Drawable\ParticleSystem;$(SolutionDir)fruithunter\Source\Graphics\ShadowMapping;$(SolutionDir)fruithunter\Source\Graphics;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Terrain;$(SolutionDir)fruithunter\Source\Drawable\Mesh\SkyBox;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Text;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Fruit;$(SolutionDir)fruithunter\Source\Drawable\Mesh;$(SolutionDir)fruithunter\Source\Drawable;$(SolutionDir)fruithunter\Source\Level\LevelHandler;$(SolutionDir)fruithunter\Source\Level\Levels;$(SolutionDir)fruithunter\Source\Level;$(SolutionDir)fruithunter\Source;$(SolutionDir)fruithunter\includes;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)fruithunter\Source\Utility\UI;$(SolutionDir)fruithunter\Source\Utility\Development;$(SolutionDir)fruithunter\Source\AI;$(SolutionDir)fruithunter\Source\Utility\Timer;$(SolutionDir)fruithunter\Source\Utility\Input;$(SolutionDir)fruithunter\Source\ImGui;$(SolutionDir)fruithunter\Source\Utility\Error;$(SolutionDir)fruithunter\Source\Utility\Camera;$(SolutionDir)fruithunter\Source\Utility\Audio;$(SolutionDir)fruithunter\Source\Utility\Repositories;$(SolutionDir)fruithunter\Source\Utility\Settings;$(SolutionDir)fruithunter\Source\Utility\PerformanceTimer;$(SolutionDir)fruithunter\Source\Utility\SaveState;$(SolutionDir)fruithunter\Source\Utility\VariableSyncer;$(SolutionDir)fruithunter\Source\Utility;$(SolutionDir)fruithunter\Source\State\States;$(SolutionDir)fruithunter\Source\State;$(SolutionDir)fruithunter\Source\Player;$(SolutionDir)fruithunter\Source\Header;$(SolutionDir)fruithunter\Source\Graphics\Shaders;$(SolutionDir)fruithunter\Source\Drawable\ParticleSystem;$(SolutionDir)fruithunter\Source\Graphics\ShadowMapping;$(SolutionDir)fruithunter\Source\Graphics;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Terrain;$(SolutionDir)fruithunter\Source\Drawable\Mesh\SkyBox;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Text;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Fruit;$(SolutionDir)fruithunter\Source\Drawable\Mesh;$(SolutionDir)fruithunter\Source\Drawable;$(SolutionDir)fruithunter\Source\Level\LevelHandler;$(SolutionDir)fruithunter\Source\Level\Levels;$(SolutionDir)fruithunter\Source\Level;$(SolutionDir)fruithunter\Source;$(SolutionDir)fruithunter\includes;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)fruithunter\libraries\x64\Debug;$(LibraryPath)</LibraryPath>
     <CodeAnalysisRuleSet>CppCoreCheckArithmeticRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -89,7 +89,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)fruithunter\Source\ImGui;$(SolutionDir)fruithunter\Source\AI;$(SolutionDir)fruithunter\Source\Utility\Timer;$(SolutionDir)fruithunter\Source\Utility\Input;$(SolutionDir)fruithunter\Source\Utility\Error;$(SolutionDir)fruithunter\Source\Utility\Camera;$(SolutionDir)fruithunter\Source\Utility\Audio;$(SolutionDir)fruithunter\Source\Utility\Repositories;$(SolutionDir)fruithunter\Source\Utility\Settings;$(SolutionDir)fruithunter\Source\Utility\PerformanceTimer;$(SolutionDir)fruithunter\Source\Utility\SaveState;$(SolutionDir)fruithunter\Source\Utility\VariableSyncer;$(SolutionDir)fruithunter\Source\Utility\Development;$(SolutionDir)fruithunter\Source\Utility;$(SolutionDir)fruithunter\Source\State\States;$(SolutionDir)fruithunter\Source\State;$(SolutionDir)fruithunter\Source\Player;$(SolutionDir)fruithunter\Source\Header;$(SolutionDir)fruithunter\Source\Graphics\Shaders;$(SolutionDir)fruithunter\Source\Drawable\ParticleSystem;$(SolutionDir)fruithunter\Source\Graphics\ShadowMapping;$(SolutionDir)fruithunter\Source\Graphics;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Terrain;$(SolutionDir)fruithunter\Source\Drawable\Mesh\SkyBox;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Text;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Fruit;$(SolutionDir)fruithunter\Source\Drawable\Mesh;$(SolutionDir)fruithunter\Source\Drawable;$(SolutionDir)fruithunter\Source\Level\LevelHandler;$(SolutionDir)fruithunter\Source\Level\Levels;$(SolutionDir)fruithunter\Source\Level;$(SolutionDir)fruithunter\Source;$(SolutionDir)fruithunter\includes;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)fruithunter\Source\ImGui;$(SolutionDir)fruithunter\Source\AI;$(SolutionDir)fruithunter\Source\Utility\Timer;$(SolutionDir)fruithunter\Source\Utility\Input;$(SolutionDir)fruithunter\Source\Utility\Error;$(SolutionDir)fruithunter\Source\Utility\Camera;$(SolutionDir)fruithunter\Source\Utility\Audio;$(SolutionDir)fruithunter\Source\Utility\Repositories;$(SolutionDir)fruithunter\Source\Utility\Settings;$(SolutionDir)fruithunter\Source\Utility\PerformanceTimer;$(SolutionDir)fruithunter\Source\Utility\SaveState;$(SolutionDir)fruithunter\Source\Utility\VariableSyncer;$(SolutionDir)fruithunter\Source\Utility\UI;$(SolutionDir)fruithunter\Source\Utility\Development;$(SolutionDir)fruithunter\Source\Utility;$(SolutionDir)fruithunter\Source\State\States;$(SolutionDir)fruithunter\Source\State;$(SolutionDir)fruithunter\Source\Player;$(SolutionDir)fruithunter\Source\Header;$(SolutionDir)fruithunter\Source\Graphics\Shaders;$(SolutionDir)fruithunter\Source\Drawable\ParticleSystem;$(SolutionDir)fruithunter\Source\Graphics\ShadowMapping;$(SolutionDir)fruithunter\Source\Graphics;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Terrain;$(SolutionDir)fruithunter\Source\Drawable\Mesh\SkyBox;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Text;$(SolutionDir)fruithunter\Source\Drawable\Mesh\Fruit;$(SolutionDir)fruithunter\Source\Drawable\Mesh;$(SolutionDir)fruithunter\Source\Drawable;$(SolutionDir)fruithunter\Source\Level\LevelHandler;$(SolutionDir)fruithunter\Source\Level\Levels;$(SolutionDir)fruithunter\Source\Level;$(SolutionDir)fruithunter\Source;$(SolutionDir)fruithunter\includes;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)fruithunter\libraries\x64\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -166,6 +166,7 @@
     <ClCompile Include="Source\AI\AI.cpp" />
     <ClCompile Include="Source\AI\PathFindingThread.cpp" />
     <ClCompile Include="Source\Drawable\Animated.cpp" />
+    <ClCompile Include="Source\Drawable\CollectionPoint.cpp" />
     <ClCompile Include="Source\Drawable\Entity.cpp" />
     <ClCompile Include="Source\Drawable\EntityCollision.cpp" />
     <ClCompile Include="Source\Drawable\EntityRepository.cpp" />
@@ -196,6 +197,8 @@
     <ClCompile Include="Source\ImGui\imgui_impl_dx11.cpp" />
     <ClCompile Include="Source\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Source\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="Source\ImGui\implot.cpp" />
+    <ClCompile Include="Source\ImGui\implot_items.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Player\Arrow.cpp" />
     <ClCompile Include="Source\Player\Bow.cpp" />
@@ -209,7 +212,7 @@
     <ClCompile Include="Source\State\States\PauseState.cpp" />
     <ClCompile Include="Source\State\States\PlayState.cpp" />
     <ClCompile Include="Source\State\States\SettingsState.cpp" />
-    <ClCompile Include="Source\Utility\Audio\AudioHandler.cpp" />
+    <ClCompile Include="Source\Utility\Audio\AudioController.cpp" />
     <ClCompile Include="Source\Utility\Camera\Camera.cpp" />
     <ClCompile Include="Source\Utility\Camera\RPYCamera.cpp" />
     <ClCompile Include="Source\Utility\Development\Scene.cpp" />
@@ -221,17 +224,22 @@
     <ClCompile Include="Source\Utility\Input\Button.cpp" />
     <ClCompile Include="Source\Utility\Input\Input.cpp" />
     <ClCompile Include="Source\Utility\Input\Slider.cpp" />
+    <ClCompile Include="Source\Utility\MetricCollector.cpp" />
     <ClCompile Include="Source\Utility\Repositories\MeshRepository.cpp" />
     <ClCompile Include="Source\Utility\Repositories\TextureRepository.cpp" />
     <ClCompile Include="Source\Utility\SaveState\SaveManager.cpp" />
     <ClCompile Include="Source\Utility\Settings\Settings.cpp" />
     <ClCompile Include="Source\Utility\Timer\Timer.cpp" />
+    <ClCompile Include="Source\Utility\Translation2DStructures.cpp" />
+    <ClCompile Include="Source\Utility\UI\Menu_PoppingButton.cpp" />
+    <ClCompile Include="Source\Utility\UI\UI_Button.cpp" />
     <ClCompile Include="Source\Utility\VariableSyncer\VariableSyncer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\AI\AI.h" />
     <ClInclude Include="Source\AI\PathFindingThread.h" />
     <ClInclude Include="Source\Drawable\Animated.h" />
+    <ClInclude Include="Source\Drawable\CollectionPoint.h" />
     <ClInclude Include="Source\Drawable\Entity.h" />
     <ClInclude Include="Source\Drawable\EntityCollision.h" />
     <ClInclude Include="Source\Drawable\EntityRepository.h" />
@@ -264,6 +272,8 @@
     <ClInclude Include="Source\ImGui\imgui_impl_dx11.h" />
     <ClInclude Include="Source\ImGui\imgui_impl_win32.h" />
     <ClInclude Include="Source\ImGui\imgui_internal.h" />
+    <ClInclude Include="Source\ImGui\implot.h" />
+    <ClInclude Include="Source\ImGui\implot_internal.h" />
     <ClInclude Include="Source\ImGui\imstb_rectpack.h" />
     <ClInclude Include="Source\ImGui\imstb_textedit.h" />
     <ClInclude Include="Source\ImGui\imstb_truetype.h" />
@@ -280,7 +290,7 @@
     <ClInclude Include="Source\State\States\PauseState.h" />
     <ClInclude Include="Source\State\States\PlayState.h" />
     <ClInclude Include="Source\State\States\SettingsState.h" />
-    <ClInclude Include="Source\Utility\Audio\AudioHandler.h" />
+    <ClInclude Include="Source\Utility\Audio\AudioController.h" />
     <ClInclude Include="Source\Utility\Camera\Camera.h" />
     <ClInclude Include="Source\Utility\Camera\RPYCamera.h" />
     <ClInclude Include="Source\Utility\Development\Scene.h" />
@@ -293,12 +303,16 @@
     <ClInclude Include="Source\Utility\Input\Button.h" />
     <ClInclude Include="Source\Utility\Input\Input.h" />
     <ClInclude Include="Source\Utility\Input\Slider.h" />
+    <ClInclude Include="Source\Utility\MetricCollector.h" />
     <ClInclude Include="Source\Utility\QuadTree.h" />
     <ClInclude Include="Source\Utility\Repositories\MeshRepository.h" />
     <ClInclude Include="Source\Utility\Repositories\TextureRepository.h" />
     <ClInclude Include="Source\Utility\SaveState\SaveManager.h" />
     <ClInclude Include="Source\Utility\Settings\Settings.h" />
     <ClInclude Include="Source\Utility\Timer\Timer.h" />
+    <ClInclude Include="Source\Utility\Translation2DStructures.h" />
+    <ClInclude Include="Source\Utility\UI\Menu_PoppingButton.h" />
+    <ClInclude Include="Source\Utility\UI\UI_Button.h" />
     <ClInclude Include="Source\Utility\VariableSyncer\VariableSyncer.h" />
   </ItemGroup>
   <ItemGroup>

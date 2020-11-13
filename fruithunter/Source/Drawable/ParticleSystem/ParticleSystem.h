@@ -19,6 +19,18 @@ public:
 		STARS_GOLD,
 		STARS_SILVER,
 		STARS_BRONZE,
+		EXPLOSION_APPLE,
+		EXPLOSION_BANANA,
+		EXPLOSION_MELON,
+		EXPLOSION_DRAGON,
+		SPARKLE_APPLE,
+		SPARKLE_BANANA,
+		SPARKLE_MELON,
+		SPARKLE_DRAGON,
+		EXPLOSION_GOLD,
+		EXPLOSION_SILVER,
+		EXPLOSION_BRONZE,
+		JUMP_DUST,
 		TYPE_LENGTH
 	};
 	struct ParticleDescription {
@@ -30,6 +42,8 @@ public:
 		float2 velocity_interval; // strength of velocity
 		float3 acceleration;	  // can be used to produce gravity for particles for example
 		float slowdown;
+		float fadeInterval_start; // time(start) to time(x) seconds to scale particle to real size
+		float fadeInterval_end; // time(end-x) to time(end) seconds to scale particle to nothing 
 		enum Shape { Circle, Star } shape;
 		ParticleDescription(ParticleSystem::Type type = ParticleSystem::Type::NONE);
 	};
@@ -50,12 +64,13 @@ private:
 		float3 velocity;// current velocity
 		float lifeTime = 1;
 		float timeLeft = 1;
+		float size = 1; // start size
 	};
 	vector<ParticleProperty> m_particleProperties;
 	struct Particle {
 		float3 position;
 		float4 color = float4(1.);
-		float size = 1;
+		float size = 1; // size after fade scaling is applied
 		float isActive = false;
 	};
 	vector<Particle> m_particles;
@@ -85,6 +100,7 @@ public:
 	void activeState(bool state);
 	void affectedByWindState(bool state);
 	bool isActive() const;
+	size_t activeParticleCount() const;
 	bool isEmiting() const;
 	bool isAffectedByWind() const;
 

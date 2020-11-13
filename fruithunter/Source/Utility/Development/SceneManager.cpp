@@ -1,5 +1,5 @@
 #include "SceneManager.h"
-#include "AudioHandler.h"
+#include "AudioController.h"
 #include "PathFindingThread.h"
 #include "Renderer.h"
 
@@ -60,6 +60,9 @@ void SceneManager::draw_color() {
 	for (size_t i = 0; i < scene->m_animals.size(); ++i) {
 		scene->m_animals[i]->draw();
 	}
+	// collection points
+	for (size_t i = 0; i < scene->m_collectionPoint.size(); i++)
+		scene->m_collectionPoint[i]->draw();
 
 	// frustum data for culling
 	vector<FrustumPlane> frustum = scene->m_player->getFrustumPlanes();
@@ -99,13 +102,20 @@ void SceneManager::draw_color() {
 		scene->m_arrows[i]->draw_trailEffect();
 }
 
-void SceneManager::draw_hud() { m_hud.draw(); }
+void SceneManager::draw_hud() {
+	m_hud.draw();
+	m_crosshair.draw();
+}
 
 Scene* SceneManager::getScene() { return scene.get(); }
 
 SceneManager::SceneManager() { 
 	if(scene.get() == nullptr) 
 		scene = make_shared<Scene>(); 
+
+	m_crosshair.load("crosshair.png");
+	m_crosshair.set(float2(1280. / 2, 720. / 2), float2(1. / 10));
+	m_crosshair.setAlignment(); // center - center
 }
 
 SceneManager::~SceneManager() { 
@@ -113,6 +123,9 @@ SceneManager::~SceneManager() {
 }
 
 void SceneManager::update(Camera* overrideCamera) {
+
+	monitor();
+
 	if (overrideCamera == nullptr)
 		m_manualCamera = false;
 	else
@@ -121,16 +134,12 @@ void SceneManager::update(Camera* overrideCamera) {
 	auto pft = PathFindingThread::getInstance();
 
 	scene->m_timer.update();
-	float dt = scene->m_timer.getDt();
+	float dt = scene->getDeltaTime();
 	Player* player = scene->m_player.get();
 
 	// update player
 	if (!m_manualCamera) {
 		player->update(dt);
-		// update deltatime if in huntermode
-		if (player->inHuntermode()) {
-			dt *= 0.1f;
-		}
 		// drop fruit on key press
 		for (int i = 0; i < NR_OF_FRUITS; i++) {
 			if (Input::getInstance()->keyPressed(Keyboard::Keys(Keyboard::D1 + i)))
@@ -150,7 +159,7 @@ void SceneManager::update(Camera* overrideCamera) {
 		AreaTag tag = activeTerrain->getTag();
 		scene->m_skyBox.switchLight(tag);
 		if (!m_manualCamera)
-			AudioHandler::getInstance()->changeMusicByTag(tag, dt);
+			scene->update_activeTerrain(tag);
 	}
 
 	// update water
@@ -161,6 +170,19 @@ void SceneManager::update(Camera* overrideCamera) {
 	// particle system
 	for (size_t i = 0; i < scene->m_particleSystems.size(); i++) {
 		scene->m_particleSystems[i].update(dt);
+	}
+
+	// collection points
+	for (size_t i = 0; i < scene->m_collectionPoint.size(); i++) {
+		if (scene->m_collectionPoint[i]->update(dt,
+				(scene->m_player->getPosition() + scene->m_player->getCameraPosition()) / 2.f)) {
+			scene->pickUpFruit(scene->m_collectionPoint[i]->getFruitType());
+		}
+		if (scene->m_collectionPoint[i]->isFinished()) {
+			// remove collection point
+			 scene->m_collectionPoint.erase(scene->m_collectionPoint.begin()+i);
+			 i--;
+		}
 	}
 
 	// arrows
@@ -219,30 +241,27 @@ void SceneManager::update(Camera* overrideCamera) {
 				// !! Which is the reason i use simpler (and quicker) collision detection.	!!
 				if (arrow->checkCollision(*fruit)) {
 					// recover stamina
-					player->getStaminaBySkillshot(fruit->hit(player->getPosition()));
+					Skillshot skillshot = fruit->hit(player->getPosition());
+					player->getStaminaBySkillshot(skillshot);
 					// play hit sound
-					AudioHandler::getInstance()->playOnceByDistance(
-						AudioHandler::HIT_FRUIT, player->getPosition(), fruit->getPosition());
+					SoundID id = AudioController::getInstance()->play("fruit-impact-wet", AudioController::SoundType::Effect);
+					AudioController::getInstance()->scaleVolumeByDistance(
+						id, (player->getPosition() - fruit->getPosition()).Length());
 					arrow->collided(arrow->getPosition_front());
+					// add collection point
+					shared_ptr<CollectionPoint> cp = make_shared<CollectionPoint>();
+					cp->load(
+						fruit->getPosition(), float3(0, 1, 0), fruit->getFruitType(), skillshot);
+					scene->m_collectionPoint.push_back(cp);
+					// remove fruit
+					scene->m_fruits.erase(scene->m_fruits.begin() + i);
+					i--;
+					//remove arrow
+					scene->m_arrows.erase(scene->m_arrows.begin()+iArrow);
+					iArrow--;
+					break;
 				}
 			}
-		}
-
-		//if (player->isShooting()) {
-		//	if (player->getArrow().checkCollision(*fruit)) {
-		//		player->getStaminaBySkillshot(fruit->hit(player->getPosition()));
-		//		AudioHandler::getInstance()->playOnceByDistance(
-		//			AudioHandler::HIT_FRUIT, player->getPosition(), fruit->getPosition());
-		//		player->getArrow().setPosition(
-		//			float3(-999.f)); // temporary to disable arrow until returning
-		//	}
-		//}
-
-		// If the fruit is close to the player, then it get picked up
-		if (float3(fruit->getPosition() - player->getPosition()).Length() < 1.5f) {
-			scene->pickUpFruit(fruit->getFruitType());
-			AudioHandler::getInstance()->playOnce(AudioHandler::COLLECT);
-			scene->m_fruits.erase(scene->m_fruits.begin() + i);
 		}
 		PathFindingThread::unlock();
 	}
@@ -289,6 +308,7 @@ void SceneManager::load(string folder) {
 			float4(a->getPosition().x, a->getPosition().y, a->getPosition().z, a->getFruitRange()));
 	PathFindingThread::getInstance()->initialize(scene->m_fruits, animalPos);
 
+	m_metricCollector.reset();
 }
 
 void SceneManager::reset() { 
@@ -300,4 +320,15 @@ void SceneManager::reset() {
 			float4(a->getPosition().x, a->getPosition().y, a->getPosition().z, a->getFruitRange()));
 	PathFindingThread::getInstance()->initialize(scene->m_fruits, animalPos);
 
+	m_metricCollector.reset();
+}
+
+void SceneManager::monitor() {
+	m_metricCollector.update();
+	Input* ip = Input::getInstance();
+	if (ip->keyPressed(m_key_monitor))
+		m_monitoring = !m_monitoring;
+	if (m_monitoring) {
+		m_metricCollector.draw_imgui();
+	}
 }

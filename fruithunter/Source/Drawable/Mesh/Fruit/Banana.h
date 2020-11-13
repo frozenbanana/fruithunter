@@ -20,9 +20,9 @@ private:
 			float3((float)(rand() % 100), (float)(rand() % 10), (float)(rand() % 100)) * 0.1f;
 	};
 
-	void behaviorPassive(float3 playerPosition) override;
-	void behaviorActive(float3 playerPosition) override;
-	void behaviorCaught(float3 playerPosition) override;
+	void behaviorPassive() override;
+	void behaviorActive() override;
+	void behaviorCaught() override;
 
 	float3 m_bounceDestination;
 

@@ -1,11 +1,11 @@
 #include "EndRoundState.h"
 #include "Renderer.h"
 #include "Input.h"
-#include "AudioHandler.h"
+#include "AudioController.h"
 #include "SceneManager.h"
 #include "SaveManager.h"
 
-EndRoundState::EndRoundState() : StateItem(State::EndRoundState) { }
+EndRoundState::EndRoundState() : StateItem(State::EndRoundState) {}
 
 EndRoundState::~EndRoundState() {}
 
@@ -87,11 +87,11 @@ void EndRoundState::update() {
 		pop(true);
 	}
 	if (m_levelSelectButton.update()) {
-		AudioHandler::getInstance()->pauseAllMusic();
+		AudioController::getInstance()->flush();
 		pop(State::LevelSelectState,false);
 	}
 	if (m_exitButton.update()) {
-		AudioHandler::getInstance()->pauseAllMusic();
+		AudioController::getInstance()->flush();
 		pop((State)-1, false);
 	}
 }
@@ -114,7 +114,7 @@ void EndRoundState::play() {
 	m_levelSelectButton.setPosition(float2(width / 2, height / 2 + 120));
 	m_exitButton.setPosition(float2(width / 2, height / 2 + 190));
 
-	AudioHandler::getInstance()->playOnce(AudioHandler::APPLAUSE);
+	AudioController::getInstance()->play("applause", AudioController::SoundType::Effect);
 }
 
 void EndRoundState::restart() {}
@@ -142,16 +142,14 @@ void EndRoundState::draw() {
 	float height = SCREEN_HEIGHT;
 	m_camera.bind();
 	//m_background.draw();
-	m_textRenderer.draw(
-		m_timeText, float2(width / 2, height / 2 - 125), float4(1., 1.f, 1.f, 1.0f));
-	m_textRenderer.draw(m_victoryText, float2(width / 2, height / 2 - 50), m_victoryColor);
+	m_textRenderer.setColor(Color(1., 1.f, 1.f, 1.0f));
+	m_textRenderer.draw(m_timeText, float2(width / 2, height / 2 - 125));
+	m_textRenderer.setColor(m_victoryColor);
+	m_textRenderer.draw(m_victoryText, float2(width / 2, height / 2 - 50));
 	m_restartButton.draw();
 	m_levelSelectButton.draw();
 	m_exitButton.draw();
 
-	
-	// Just ignore this. It fixes things
-	m_entity.draw();
 }
 
 void EndRoundState::setParticleColorByPrize(size_t prize) {

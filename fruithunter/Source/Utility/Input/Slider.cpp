@@ -109,5 +109,6 @@ void Slider::draw() {
 
 	m_spriteBatch->End();
 
-	m_textRenderer.draw(m_label + ":", m_position, TextRenderer::Alignment::RIGHT);
+	m_textRenderer.setAlignment(TextRenderer::HorizontalAlignment::RIGHT, TextRenderer::VerticalAlignment::CENTER);
+	m_textRenderer.draw(m_label + ":", m_position);
 }

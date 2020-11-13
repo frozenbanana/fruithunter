@@ -2,30 +2,26 @@
 #include "Renderer.h"
 #include "Errorlogger.h"
 #include "VariableSyncer.h"
-#include "AudioHandler.h"
+#include "AudioController.h"
 #include "Settings.h"
 #include "SceneManager.h"
 
-Player::Player() {}
+Player::Player() { m_jumpDust.load(ParticleSystem::Type::JUMP_DUST, 0, m_dustAmount*2); }
 
 Player::~Player() {}
 
 void Player::update(float dt) {
-
 	float delta = dt;
 
 	Terrain* terrain = SceneManager::getScene()->m_terrains.getTerrainFromPosition(m_position);
-
-	if (m_hunterMode) {
-		delta *= 0.1f;
-	}
 
 	// Movement force
 	float3 force = getMovementForce();
 
 	checkSteepTerrain(terrain);
 	checkSprint(delta);
-	checkDash(delta);
+	//checkDash(delta);
+	checkJump(delta);
 	checkHunterMode();
 
 	rotatePlayer(dt);
@@ -85,6 +81,7 @@ void Player::update(float dt) {
 
 void Player::draw() {
 	m_bow.draw();
+	m_jumpDust.draw();
 }
 
 void Player::bindMatrix() { 
@@ -192,17 +189,22 @@ bool Player::inHuntermode() const { return m_hunterMode; }
 void Player::activateHunterMode() { m_hunterMode = true; }
 
 void Player::updateBow(float dt, Terrain* terrain) {
+
+	m_bow.setOrientation(getCameraPosition(), float3(m_cameraPitch, m_cameraYaw, 0));
+
 	//update bow behavior and handle spawning of arrows
-	shared_ptr<Arrow> arrow = m_bow.update_bow(
-		dt, 
-		Input::getInstance()->mouseDown(Input::MouseButton::LEFT)
-	);
+	shared_ptr<Arrow> arrow =
+		m_bow.update(dt, Input::getInstance()->mouseDown(Input::MouseButton::LEFT));
 	if (arrow.get() != nullptr)
 		SceneManager::getScene()->m_arrows.push_back(arrow);
-	//update rotation
-	m_bow.update_rotation(m_cameraPitch, m_cameraYaw);
-	//update positioning
-	m_bow.update_positioning(dt, getCameraPosition(), m_playerForward, m_playerRight);
+
+
+	////update rotation
+	//m_bow.update_rotation(m_cameraPitch, m_cameraYaw);
+	////update positioning
+	//m_bow.update_positioning(dt, getCameraPosition(), m_playerForward, m_playerRight);
+
+	
 }
 
 void Player::updateCamera() {
@@ -224,7 +226,7 @@ void Player::rotatePlayer(float dt) {
 		deltaY = (float)ip->mouseY();
 	}
 
-	float rotationSpeed = (0.1f + Settings::getInstance()->getSensitivity() * 2) * (1.f/60);
+	float rotationSpeed = (0.1f + Settings::getInstance()->getSensitivity() * 2) * dt;
 
 	if (deltaX != 0.0f) {
 		m_cameraYaw += deltaX * rotationSpeed;
@@ -277,7 +279,7 @@ float3 Player::getMovementForce() {
 	float3 playerStraightForward = m_playerRight.Cross(float3(0, 1, 0));
 	force += playerStraightForward * (float)(ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD));
 	force += m_playerRight * (float)(ip->keyDown(KEY_RIGHT) - ip->keyDown(KEY_LEFT));
-
+	force.Normalize();
 	return force;
 }
 
@@ -290,7 +292,6 @@ void Player::checkGround(Terrain* terrain) {
 			m_position.x, m_position.z); // height of terrain on current position
 		m_position.y = clamp(
 			m_position.y, m_position.y, terrainHeight); // clamp position to never go under terrain!
-
 		m_onGround = abs(m_position.y - terrainHeight) < ONGROUND_THRESHOLD;
 	}
 }
@@ -387,12 +388,45 @@ void Player::checkPlayerReset(float dt) {
 void Player::checkHunterMode() {
 	if (Input::getInstance()->keyPressed(KEY_HM)) {
 		if (!m_hunterMode)
-			AudioHandler::getInstance()->playOnce(AudioHandler::SLOW_MOTION);
+			AudioController::getInstance()->play("slowmotion", AudioController::SoundType::Effect);
 		else
-			AudioHandler::getInstance()->playOnce(AudioHandler::SLOW_MOTION_REVERSED);
+			AudioController::getInstance()->play("slowmotion-reversed", AudioController::SoundType::Effect);
 
 		m_hunterMode = 1 - m_hunterMode;
 	}
+}
+
+void Player::checkJump(float dt) {
+	Input* ip = Input::getInstance();
+	bool onWalkableTerrain = (m_onGround || m_onEntity) && !m_onSteepGround;
+	if (ip->keyPressed(KEY_JUMP)) {
+		if (onWalkableTerrain) {
+			m_midairJumpActivated = false; // mid air jump available again
+			// initial jump
+			float3 direction = float3(0, 1, 0);
+			m_velocity += direction * m_jump_init_strength;
+			//spawn dust
+			m_jumpDust.emit(m_dustAmount);
+		}
+		else if (!m_midairJumpActivated) {
+			m_midairJumpActivated = true;
+			// midair jump
+			//float3 forward = Normalize(getForward() * float3(1, 0, 1));//ignore y axis
+			//float3 left = Normalize(forward.Cross(float3(0, 1, 0)));
+
+			//float3 nonYDirection =
+			//	Normalize(forward * (ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD)) +
+			//			  left * (ip->keyDown(KEY_LEFT) - ip->keyDown(KEY_RIGHT)));
+			//float3 direction = Normalize(nonYDirection + float3(0, 1, 0));
+			//m_velocity = direction * m_jump_dash_strength;
+			m_velocity.y = m_jump_dash_strength;
+			// spawn dust
+			m_jumpDust.emit(m_dustAmount);
+		}
+	}
+	//update jump dust
+	m_jumpDust.setPosition(getPosition()); // follow feet
+	m_jumpDust.update(dt);
 }
 
 void Player::slide(float dt, float3 normal, float l) {
@@ -451,8 +485,9 @@ float Player::getPlayerMovementSpeed() const {
 		if (m_sprinting)
 			speed *= m_speedSprintMultiplier; // sprint multiplies speed
 	}
-	else
+	else {
 		speed = m_speedInAir; // in air
+	}
 	return speed;
 }
 
@@ -475,7 +510,8 @@ void Player::updateVelocity_inAir(float3 playerForce, float dt) {
 	m_onGround = false;
 
 	m_velocity += m_gravity * dt; // gravity if in air
-
+	m_velocity.x *= pow(AIR_FRICTION/60, dt);
+	m_velocity.z *= pow(AIR_FRICTION/60, dt);
 	// add forces
 	m_velocity += playerForce * getPlayerMovementSpeed() * dt;
 }
@@ -496,7 +532,7 @@ void Player::updateVelocity_onSteepGround(float dt) {
 
 void Player::updateHunterMode(float dt) {
 	if (m_hunterMode)
-		consumeStamina(STAMINA_HM_COST * dt);
+		consumeStamina(STAMINA_HM_COST * dt / 0.1f);
 	if (m_stamina <= 0.f)
 		m_hunterMode = false;
 }

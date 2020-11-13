@@ -2,6 +2,7 @@
 #include "PathFindingThread.h"
 #include "SaveManager.h"
 #include "fileSystemHelper.h"
+#include "AudioController.h"
 
 void Scene::clear() {
 	PathFindingThread::lock();
@@ -19,6 +20,8 @@ void Scene::clear() {
 	m_animals.clear();
 	// spawn fruit
 	m_fruits.clear();
+	//collection points
+	m_collectionPoint.clear();
 
 	// utility
 	m_utility = SceneAbstactContent::SceneUtilityInfo();
@@ -30,6 +33,9 @@ void Scene::clear() {
 
 	// timer
 	m_timer.reset();
+	// active terrain
+	m_activeTerrain_tag = AreaTag::Plains;
+	m_activeTerrain_soundID = 0;
 
 	m_sceneName = "";
 	m_loaded = false;
@@ -185,6 +191,37 @@ void Scene::dropFruit(FruitType fruitType) {
 		 m_fruits.push_back(fruit);
 		 PathFindingThread::unlock();
 	 }
+}
+
+void Scene::update_activeTerrain(AreaTag tag) {
+	if (tag != m_activeTerrain_tag) {
+		const float fadeInTime = 1;
+		m_activeTerrain_tag = tag;
+		AudioController::getInstance()->fadeOut(m_activeTerrain_soundID, fadeInTime);
+		switch (tag) {
+		case Forest:
+			m_activeTerrain_soundID =
+				AudioController::getInstance()->play("ketapop-nudia-short", AudioController::SoundType::Music, true);
+			break;
+		case Plains:
+			m_activeTerrain_soundID =
+				AudioController::getInstance()->play("jingle-guitar", AudioController::SoundType::Music, true);
+			break;
+		case Desert:
+			m_activeTerrain_soundID =
+				AudioController::getInstance()->play("spanish-guitar", AudioController::SoundType::Music, true);
+			break;
+		case Volcano:
+			m_activeTerrain_soundID =
+				AudioController::getInstance()->play("ketapop-dark-short", AudioController::SoundType::Music, true);
+			break;
+		case LevelIsland:
+			m_activeTerrain_soundID =
+				AudioController::getInstance()->play("jingle-guitar", AudioController::SoundType::Music, true);
+			break;
+		}
+		AudioController::getInstance()->fadeIn(m_activeTerrain_soundID, fadeInTime);
+	}
 }
 
 void Scene::load(string folder) { 
@@ -394,11 +431,21 @@ void Scene::reset() {
 	//player
 	m_player = make_shared<Player>();
 	m_player->setPosition(m_utility.startSpawn);
+	//collectionPoints
+	m_collectionPoint.clear();
 	//gathered fruit
 	for (size_t i = 0; i < NR_OF_FRUITS; i++)
 		m_gatheredFruits[i] = 0;
+	// timer
+	m_timer.reset();
+
+	// active terrain
+	m_activeTerrain_tag = AreaTag::Plains;
+	m_activeTerrain_soundID = 0;
 
 	PathFindingThread::unlock();
+
+	AudioController::getInstance()->flush();
 }
 
 bool Scene::handleWin() {
@@ -416,6 +463,15 @@ bool Scene::handleWin() {
 	}
 	return hasWon;
 }
+
+float Scene::getDeltaTime() {
+	float dt = m_timer.getDt();
+	if (m_player->inHuntermode())
+		dt *= 0.1;
+	return dt;
+}
+
+float Scene::getDeltaTime_skipSlow() { return m_timer.getDt(); }
 
 void SceneAbstactContent::fileInput_string(fstream& file, string str) { 
 	size_t length = str.length();

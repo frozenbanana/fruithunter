@@ -8,7 +8,14 @@
 void PlayState::init() {}
 
 void PlayState::update() {
-	Input::getInstance()->setMouseModeRelative();
+	Input* ip = Input::getInstance();
+
+	if (ip->keyPressed(m_mouseMode_switch))
+		m_mouseMode = !m_mouseMode;
+	if (m_mouseMode)
+		ip->setMouseModeRelative();
+	else
+		ip->setMouseModeAbsolute();
 
 	sceneManager.update();
 

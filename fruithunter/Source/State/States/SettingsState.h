@@ -8,7 +8,6 @@
 
 class SettingsState : public StateItem {
 private:
-	TextRenderer m_textRenderer;
 	Sprite2D m_settingsBackground;
 	Button m_vsyncButton;
 	Button m_darkEdgesButton;
@@ -26,8 +25,6 @@ private:
 	Slider m_sensitivity;
 
 	bool m_screenStateChanged = false;
-
-	Entity m_entity;
 
 public:
 	SettingsState();
