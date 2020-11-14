@@ -24,19 +24,23 @@ void UI_Button::setTextStandardColor(Color color) { m_textColor_standard = color
 
 void UI_Button::setTextHoveringColor(Color color) { m_textColor_hovering = color; }
 
-bool UI_Button::update() { 
+void UI_Button::setColorChangeTime(float time) { m_colorChangeTime = time; }
+
+bool UI_Button::update(float dt) { 
 	bool clicked = false;
 	if (isHovering()) {
 		// mouse hovering
-		setColor(m_color_hovering);
-		m_textRenderer.setColor(m_textColor_hovering);
+		m_interpolation = Clamp(m_interpolation + (dt * (1.f / m_colorChangeTime)), 0.f, 1.f);
+		setColor((m_color_standard * (1-m_interpolation)) + (m_color_hovering * m_interpolation));
+		m_textRenderer.setColor((m_textColor_standard * (1 - m_interpolation)) +(m_textColor_hovering * m_interpolation));
 		if (Input::getInstance()->mousePressed(m_key_activator)) {
 			clicked = true;
 		}
 	}
 	else {
-		setColor(m_color_standard);
-		m_textRenderer.setColor(m_textColor_standard);
+		m_interpolation = Clamp(m_interpolation - (dt * (1.f / m_colorChangeTime)), 0.f, 1.f);
+		setColor((m_color_standard * (1 - m_interpolation)) + (m_color_hovering * m_interpolation));
+		m_textRenderer.setColor((m_textColor_standard * (1 - m_interpolation)) + (m_textColor_hovering * m_interpolation));
 	}
 	return clicked;
 }
