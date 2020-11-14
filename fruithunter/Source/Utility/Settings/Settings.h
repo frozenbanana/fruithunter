@@ -1,12 +1,15 @@
 #pragma once
 #include "GlobalNamespaces.h"
+#include "VariableSyncer.h"
 
 class Settings {
 private:
 	Settings();
 	static Settings m_this;
 
-	const string m_filePath = "assets/settings.txt";
+	FileSyncer m_settingFile;
+
+	const string m_filename = "settings.txt";
 
 	bool m_vsync = true;
 	bool m_fullscreen = false;
@@ -16,6 +19,9 @@ private:
 	float m_musicVolume = 0.5f;
 	float m_effectsVolume = 0.5f;
 	float m_drawDistance = 0.5f;
+	int m_resolutionX = 1280;
+	int m_resolutionY = 720;
+	int m_shadowResolutionSize = 2048;
 	float m_sensitivity = 0.5f;
 
 	XMINT2 m_resolution = XMINT2(1280, 720);
