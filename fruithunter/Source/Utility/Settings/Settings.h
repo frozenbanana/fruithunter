@@ -9,7 +9,7 @@ private:
 
 	FileSyncer m_settingFile;
 
-	const string m_filename = "settings.txt";
+	const string m_path = "assets/settings.txt";
 
 	bool m_vsync = true;
 	bool m_fullscreen = false;

@@ -19,10 +19,10 @@ void FileSyncer::clear() {
 
 void FileSyncer::readFile(string overridePath) {
 	string path = m_prePath + m_path;
-	if (valid()) {
+	if (overridePath != "")
+		path = overridePath;
+	if (valid(path)) {
 		fstream file;
-		if (overridePath != "")
-			path = overridePath;
 		file.open(path, ios::in);
 		if (file.is_open()) {
 			string str = "";
@@ -85,10 +85,10 @@ void FileSyncer::readFile(string overridePath) {
 
 void FileSyncer::writeFile(string overridePath) {
 	string path = m_prePath + m_path;
-	if (valid()) {
+	if (overridePath != "")
+		path = overridePath;
+	if (valid(path)) {
 		fstream file;
-		if (overridePath != "")
-			path = overridePath;
 		file.open(path, ios::out);
 		if (file.is_open()) {
 			for (size_t i = 0; i < m_description.size(); i++) {
@@ -110,7 +110,7 @@ void FileSyncer::writeFile(string overridePath) {
 }
 
 bool FileSyncer::sync() {
-	if (valid() && m_type == SyncType::state_liveFile) {
+	if (valid(m_path) && m_type == SyncType::state_liveFile) {
 		// create if not already created
 		if (!m_fileCreated) {
 			m_fileCreated = true;
@@ -220,7 +220,7 @@ string FileSyncer::getPath() const { return m_path; }
 
 FileSyncer::SyncType FileSyncer::getType() const { return m_type; }
 
-bool FileSyncer::valid() { return (m_description.size() > 0 && m_path != ""); }
+bool FileSyncer::valid(string path) { return (m_description.size() > 0 && path != ""); }
 
 bool FileSyncer::fileCreated() const {
 	fstream file;

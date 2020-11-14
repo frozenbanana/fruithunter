@@ -51,7 +51,7 @@ void ErrorLogger::logWarning(std::string message, HRESULT res) {
 
 		HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 		SetConsoleTextAttribute(console, 6); // 6 = Yellow
-		std::cout << output;
+		std::cout << output << std::endl;
 		SetConsoleTextAttribute(console, 15); // 15 = White
 	}
 }
@@ -60,7 +60,7 @@ void ErrorLogger::logWarning(std::string message) {
 	if (DEBUG) {
 		HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 		SetConsoleTextAttribute(console, 6); // 6 = Yellow
-		std::cout << message;
+		std::cout << message << std::endl;
 		SetConsoleTextAttribute(console, 15); // 15 = White
 	}
 }
@@ -73,7 +73,7 @@ void ErrorLogger::logError(std::string message, HRESULT res) {
 
 		HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 		SetConsoleTextAttribute(console, 4); // 4 = Red
-		std::cout << output;
+		std::cout << output << std::endl;
 		SetConsoleTextAttribute(console, 15); // 15 = White
 	}
 }
@@ -82,7 +82,7 @@ void ErrorLogger::logError(std::string message) {
 	if (DEBUG) {
 		HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 		SetConsoleTextAttribute(console, 4); // 4 = Red
-		std::cout << message;
+		std::cout << message << std::endl;
 		SetConsoleTextAttribute(console, 15); // 15 = White
 	}
 }

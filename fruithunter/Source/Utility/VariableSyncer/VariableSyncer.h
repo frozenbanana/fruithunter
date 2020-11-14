@@ -48,7 +48,7 @@ private:
 	VarTypes getTypeFromString(string str_type) const;
 	size_t getByteSizeFromType(VarTypes type) const;
 
-	bool valid();
+	bool valid(string path);
 
 	void parseToPointer(string str, VarTypes type, void* ptr_data);
 	string typeToString(VarTypes type, void* ptr_data);

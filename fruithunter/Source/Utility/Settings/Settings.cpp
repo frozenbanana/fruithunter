@@ -10,7 +10,6 @@
 Settings Settings::m_this;
 
 Settings::Settings() { 
-	m_settingFile.connect(m_filename);
 	m_settingFile.bind("Vsync:b", &m_vsync);
 	m_settingFile.bind("Fullscreen:b", &m_fullscreen);
 	m_settingFile.bind("DarkEdges:b", &m_darkEdges);
@@ -43,7 +42,7 @@ Settings* Settings::getInstance() { return &m_this; }
 Settings::~Settings() {}
 
 void Settings::loadAllSetting() {
-	m_settingFile.readFile();
+	m_settingFile.readFile(m_path);
 	setFullscreen(m_fullscreen);
 	setMasterVolume(m_masterVolume);
 	setMusicVolume(m_musicVolume);
@@ -56,7 +55,7 @@ void Settings::saveAllSetting() {
 	m_resolutionX = m_resolution.x;
 	m_resolutionY = m_resolution.y;
 	m_shadowResolutionSize = m_shadowResolution.x;
-	m_settingFile.writeFile();
+	m_settingFile.writeFile(m_path);
 }
 
 void Settings::setVsync(bool value) { m_vsync = value; }
