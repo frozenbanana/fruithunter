@@ -135,11 +135,12 @@ void SceneManager::update(Camera* overrideCamera) {
 
 	scene->m_timer.update();
 	float dt = scene->getDeltaTime();
+	float dt_nonSlow = scene->getDeltaTime_skipSlow();
 	Player* player = scene->m_player.get();
 
 	// update player
 	if (!m_manualCamera) {
-		player->update(dt);
+		player->update();
 		// drop fruit on key press
 		for (int i = 0; i < NR_OF_FRUITS; i++) {
 			if (Input::getInstance()->keyPressed(Keyboard::Keys(Keyboard::D1 + i)))
@@ -188,8 +189,8 @@ void SceneManager::update(Camera* overrideCamera) {
 	// arrows
 	for (size_t i = 0; i < scene->m_arrows.size(); i++) {
 		if (scene->m_arrows[i]->isActive())
-			scene->m_arrows[i]->collide_scene(dt);
-		scene->m_arrows[i]->update(dt);
+			scene->m_arrows[i]->collide_scene(dt_nonSlow);
+		scene->m_arrows[i]->update(dt_nonSlow);
 	}
 
 	// for all animals
@@ -240,9 +241,12 @@ void SceneManager::update(Camera* overrideCamera) {
 				// !! Arrow::collide_entity function doesnt work on Animated Entities.		!!
 				// !! Which is the reason i use simpler (and quicker) collision detection.	!!
 				if (arrow->checkCollision(*fruit)) {
-					// recover stamina
-					Skillshot skillshot = fruit->hit(player->getPosition());
-					player->getStaminaBySkillshot(skillshot);
+					Skillshot skillshot = Skillshot::SS_BRONZE;
+					if (!scene->m_player->inHuntermode()) {
+						// recover stamina
+						skillshot = fruit->hit(player->getPosition());
+						player->getStaminaBySkillshot(skillshot);
+					}
 					// play hit sound
 					SoundID id = AudioController::getInstance()->play("fruit-impact-wet", AudioController::SoundType::Effect);
 					AudioController::getInstance()->scaleVolumeByDistance(

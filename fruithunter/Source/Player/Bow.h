@@ -83,9 +83,9 @@ private:
 	/* get desired rotation from draw factor */
 	float3 getDesiredRotation();
 	/* update current position to move towards desired position */
-	void update_position();
+	void update_position(float dt);
 	/* update current rotation to move towards desired rotation */
-	void update_rotation();
+	void update_rotation(float dt);
 
 public:
 	Bow();

@@ -10,8 +10,9 @@ Player::Player() { m_jumpDust.load(ParticleSystem::Type::JUMP_DUST, 0, m_dustAmo
 
 Player::~Player() {}
 
-void Player::update(float dt) {
-	float delta = dt;
+void Player::update() {
+	float delta = SceneManager::getScene()->getDeltaTime();
+	float deltaRaw = SceneManager::getScene()->getDeltaTime_skipSlow();
 
 	Terrain* terrain = SceneManager::getScene()->m_terrains.getTerrainFromPosition(m_position);
 
@@ -22,9 +23,8 @@ void Player::update(float dt) {
 	checkSprint(delta);
 	//checkDash(delta);
 	checkJump(delta);
-	checkHunterMode();
 
-	rotatePlayer(dt);
+	rotatePlayer(deltaRaw);
 
 	if (m_onEntity) {
 		// On an object, behave like ground
@@ -70,13 +70,13 @@ void Player::update(float dt) {
 	// restoreStamina(delta);
 
 	// hunter mode
-	updateHunterMode(dt);
+	updateHunterMode(deltaRaw);
 
-	updateGodMode(delta);
+	updateGodMode(deltaRaw);
 
 	updateCamera();
 
-	updateBow(dt, terrain);
+	updateBow(deltaRaw, terrain);
 }
 
 void Player::draw() {
@@ -385,17 +385,6 @@ void Player::checkPlayerReset(float dt) {
 	}
 }
 
-void Player::checkHunterMode() {
-	if (Input::getInstance()->keyPressed(KEY_HM)) {
-		if (!m_hunterMode)
-			AudioController::getInstance()->play("slowmotion", AudioController::SoundType::Effect);
-		else
-			AudioController::getInstance()->play("slowmotion-reversed", AudioController::SoundType::Effect);
-
-		m_hunterMode = 1 - m_hunterMode;
-	}
-}
-
 void Player::checkJump(float dt) {
 	Input* ip = Input::getInstance();
 	bool onWalkableTerrain = (m_onGround || m_onEntity) && !m_onSteepGround;
@@ -531,8 +520,30 @@ void Player::updateVelocity_onSteepGround(float dt) {
 }
 
 void Player::updateHunterMode(float dt) {
-	if (m_hunterMode)
+	// activate hunter if key is pressed
+	if (Input::getInstance()->keyPressed(KEY_HM) && m_stamina > 0) {
+		hunterMode_switchState(true);
+	}
+
+	// update hunter behavior if active
+	if (m_hunterMode) {
 		consumeStamina(STAMINA_HM_COST * dt / 0.1f);
-	if (m_stamina <= 0.f)
-		m_hunterMode = false;
+		if (m_stamina <= 0.f) {
+			// turn off hunter mode
+			hunterMode_switchState(false);
+		}
+	}
+}
+
+void Player::hunterMode_switchState(bool state) { 
+	m_hunterMode = state;
+	if (state == false) {
+		// turn off
+		AudioController::getInstance()->play(
+			"slowmotion-reversed", AudioController::SoundType::Effect);
+	}
+	else {
+		// turn on
+		AudioController::getInstance()->play("slowmotion", AudioController::SoundType::Effect);
+	}
 }

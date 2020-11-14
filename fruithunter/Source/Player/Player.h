@@ -10,7 +10,7 @@ public:
 	Player();
 	~Player();
 
-	void update(float dt);
+	void update();
 
 	void draw();
 
@@ -105,7 +105,7 @@ private:
 	bool m_chargingDash = false;		  // is the player charging
 
 	// hunter mode
-	const float STAMINA_HM_COST = 0.1f;
+	const float STAMINA_HM_COST = 0.01f;
 	bool m_hunterMode = false;
 
 	// Orientation
@@ -137,7 +137,6 @@ private:
 	void checkSprint(float dt);
 	void checkDash(float dt);
 	void checkPlayerReset(float dt); // Resets player if below sea level
-	void checkHunterMode();
 	void checkJump(float dt);
 
 	/*
@@ -160,4 +159,5 @@ private:
 
 	// Ability
 	void updateHunterMode(float);
+	void hunterMode_switchState(bool state);
 };

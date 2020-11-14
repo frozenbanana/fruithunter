@@ -106,8 +106,8 @@ shared_ptr<Arrow> Bow::update(float dt, bool pulling) {
 		}
 	}
 	update_recovery(dt);
-	update_rotation();
-	update_position();
+	update_rotation(dt);
+	update_position(dt);
 	return spawnedArrow;
 }
 
@@ -159,17 +159,14 @@ float3 Bow::getDesiredRotation() {
 	return desiredRotation;
 }
 
-void Bow::update_position() {
-	float dt = SceneManager::getScene()->getDeltaTime();
-
+void Bow::update_position(float dt) {
 	float3 desiredLocalPosition = getDesiredLocalPosition();
 	m_position_current +=
 		(desiredLocalPosition - m_position_current) * Clamp<float>(dt * m_positionCatchup, 0, 1);
 	setPosition(m_position_current + m_sourcePosition);
 }
 
-void Bow::update_rotation() {
-	float dt = SceneManager::getScene()->getDeltaTime();
+void Bow::update_rotation(float dt) {
 
 	float3 desiredRotation = getDesiredRotation();
 	m_rotation_current += (desiredRotation - m_rotation_current) * Clamp<float>(dt * m_rotationCatchup, 0, 1);
