@@ -270,8 +270,7 @@ void FileSyncer::parseToPointer(string str, VarTypes type, void* ptr_data) {
 		*((int*)data) = std::stoi(str);
 		break;
 	case FileSyncer::type_string:
-		string* strData = (string*)data;
-		(*strData) = string(str);
+		(*(string*)data) = string(str);
 		break;
 	case FileSyncer::type_bool:
 		if (str == "true")

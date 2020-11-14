@@ -10,7 +10,7 @@
 Settings Settings::m_this;
 
 Settings::Settings() { 
-
+	m_settingFile.connect(m_filename);
 	m_settingFile.bind("Vsync:b", &m_vsync);
 	m_settingFile.bind("Fullscreen:b", &m_fullscreen);
 	m_settingFile.bind("DarkEdges:b", &m_darkEdges);
@@ -20,9 +20,8 @@ Settings::Settings() {
 	m_settingFile.bind("DrawDistance:f", &m_drawDistance);
 	m_settingFile.bind("ResolutionX:i", &m_resolutionX);
 	m_settingFile.bind("ResolutionY:i", &m_resolutionY);
-	m_settingFile.bind("ShadowResolution:i", &m_shadowResolution);
+	m_settingFile.bind("ShadowResolution:i", &m_shadowResolutionSize);
 	m_settingFile.bind("Sensitivity:f", &m_sensitivity);
-
 }
 
 string Settings::getSetting(ifstream* input) {
@@ -44,52 +43,20 @@ Settings* Settings::getInstance() { return &m_this; }
 Settings::~Settings() {}
 
 void Settings::loadAllSetting() {
-	ifstream file;
-
-	file.open(m_filePath);
-
-	if (file.is_open()) {
-		setVsync(stoi(getSetting(&file)));
-		setFullscreen(stoi(getSetting(&file)));
-		setDarkEdges(stoi(getSetting(&file)));
-
-		setMasterVolume(stof(getSetting(&file)));
-		setMusicVolume(stof(getSetting(&file)));
-		setEffectsVolume(stof(getSetting(&file)));
-		setDrawDistance(stof(getSetting(&file)));
-
-		int x = stoi(getSetting(&file));
-		int y = stoi(getSetting(&file));
-
-		setResolution(x, y);
-		setShadowResolution(stoi(getSetting(&file)));
-
-		setSensitivity(stof(getSetting(&file)));
-	}
-	file.close();
+	m_settingFile.readFile();
+	setFullscreen(m_fullscreen);
+	setMasterVolume(m_masterVolume);
+	setMusicVolume(m_musicVolume);
+	setEffectsVolume(m_effectsVolume);
+	setResolution(m_resolutionX, m_resolutionY);
+	setShadowResolution(m_shadowResolutionSize);
 }
 
 void Settings::saveAllSetting() {
-	ofstream file;
-	file.open(m_filePath);
-
-	if (file.is_open()) {
-		file << "VerticalSync\t" << m_vsync << "\n";
-		file << "Fullscreen\t" << m_fullscreen << "\n";
-		file << "DarkEdges\t" << m_darkEdges << "\n";
-
-		file << "MasterVolume\t" << m_masterVolume << "\n";
-		file << "MusicVolume\t" << m_musicVolume << "\n";
-		file << "EffectsVolume\t" << m_effectsVolume << "\n";
-		file << "DrawDistance\t" << m_drawDistance << "\n";
-
-		file << "ResolutionX\t" << m_resolution.x << "\n";
-		file << "ResolutionY\t" << m_resolution.y << "\n";
-		file << "ShadowRes\t" << m_shadowResolution.x << "\n";
-		file << "Sensitivity\t" << m_sensitivity << "\n";
-
-		file.close();
-	}
+	m_resolutionX = m_resolution.x;
+	m_resolutionY = m_resolution.y;
+	m_shadowResolutionSize = m_shadowResolution.x;
+	m_settingFile.writeFile();
 }
 
 void Settings::setVsync(bool value) { m_vsync = value; }
