@@ -14,13 +14,29 @@ void UI_Button::setText(string text) { m_text = text; }
 
 void UI_Button::setFont(string font) { m_textRenderer.setFont(font); }
 
+void UI_Button::setColor(Color color) { m_sprite.setColor(color); }
+
+void UI_Button::setStandardColor(Color color) { m_color_standard = color; }
+
+void UI_Button::setHoveringColor(Color color) { m_color_hovering = color; }
+
+void UI_Button::setTextStandardColor(Color color) { m_textColor_standard = color; }
+
+void UI_Button::setTextHoveringColor(Color color) { m_textColor_hovering = color; }
+
 bool UI_Button::update() { 
 	bool clicked = false;
 	if (isHovering()) {
 		// mouse hovering
+		setColor(m_color_hovering);
+		m_textRenderer.setColor(m_textColor_hovering);
 		if (Input::getInstance()->mousePressed(m_key_activator)) {
 			clicked = true;
 		}
+	}
+	else {
+		setColor(m_color_standard);
+		m_textRenderer.setColor(m_textColor_standard);
 	}
 	return clicked;
 }
