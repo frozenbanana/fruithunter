@@ -522,7 +522,7 @@ void Player::updateVelocity_onSteepGround(float dt) {
 void Player::updateHunterMode(float dt) {
 	// activate hunter if key is pressed
 	if (Input::getInstance()->keyPressed(KEY_HM) && m_stamina > 0) {
-		hunterMode_switchState(true);
+		hunterMode_switchState(!m_hunterMode);
 	}
 
 	// update hunter behavior if active
