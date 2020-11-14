@@ -9,7 +9,21 @@
 
 Settings Settings::m_this;
 
-Settings::Settings() {};
+Settings::Settings() { 
+
+	m_settingFile.bind("Vsync:b", &m_vsync);
+	m_settingFile.bind("Fullscreen:b", &m_fullscreen);
+	m_settingFile.bind("DarkEdges:b", &m_darkEdges);
+	m_settingFile.bind("MasterVolume:f", &m_masterVolume);
+	m_settingFile.bind("MusicVolume:f", &m_musicVolume);
+	m_settingFile.bind("EffectsVolume:f", &m_effectsVolume);
+	m_settingFile.bind("DrawDistance:f", &m_drawDistance);
+	m_settingFile.bind("ResolutionX:i", &m_resolutionX);
+	m_settingFile.bind("ResolutionY:i", &m_resolutionY);
+	m_settingFile.bind("ShadowResolution:i", &m_shadowResolution);
+	m_settingFile.bind("Sensitivity:f", &m_sensitivity);
+
+}
 
 string Settings::getSetting(ifstream* input) {
 	string in, word;

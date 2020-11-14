@@ -24,9 +24,10 @@ private:
 		type_vector4,
 		type_int,
 		type_string,
+		type_bool,
 		Count
 	};
-	const string m_typeInterpretations[Count] = { "0", "d", "f", "v2", "v3", "v4", "i", "s" };
+	const string m_typeInterpretations[Count] = { "0", "d", "f", "v2", "v3", "v4", "i", "s", "b" };
 	const string m_prePath = "assets/FileSyncs/";
 
 	bool m_fileCreated = false;

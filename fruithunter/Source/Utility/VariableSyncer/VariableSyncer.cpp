@@ -162,6 +162,9 @@ size_t FileSyncer::getByteSizeFromType(VarTypes type) const {
 	case FileSyncer::type_string:
 		size = sizeof(string);
 		break;
+	case FileSyncer::type_bool:
+		size = sizeof(bool);
+		break;
 	default:
 		break;
 	}
@@ -270,6 +273,12 @@ void FileSyncer::parseToPointer(string str, VarTypes type, void* ptr_data) {
 		string* strData = (string*)data;
 		(*strData) = string(str);
 		break;
+	case FileSyncer::type_bool:
+		if (str == "true")
+			*((bool*)data) = true;
+		else if (str == "false")
+			*((bool*)data) = false;
+		break;
 	}
 }
 
@@ -311,6 +320,9 @@ string FileSyncer::typeToString(VarTypes type, void* ptr_data) {
 		break;
 	case FileSyncer::type_string:
 		ret = *(string*)data;
+		break;
+	case FileSyncer::type_bool:
+		ret = (*((bool*)data) ? "true" : "false");
 		break;
 	}
 	return ret;
