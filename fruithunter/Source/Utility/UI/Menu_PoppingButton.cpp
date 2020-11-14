@@ -13,7 +13,7 @@ bool Menu_PoppingButton::update_behavior(float dt) {
 	bool clicked = false;
 	if (m_timer > m_delay) {
 		setRotation(cos(m_timer - m_delay * 5) * 0.1f);
-		clicked = update();
+		clicked = update(dt);
 		if (isHovering()) {
 			m_scale_desired = m_scale_desired_hovering;
 		}

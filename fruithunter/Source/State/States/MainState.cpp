@@ -13,6 +13,13 @@ void MainState::init() {
 	m_camera.setView(
 		float3(58.0f, 10.9f, 21.9f), float3(61.3f, 10.1f, -36.0f), float3(0.f, 1.f, 0.f));
 
+	for (size_t i = 0; i < btn_length; i++) {
+		m_buttons[i].setStandardColor(Color(0.f, 0.627f, 0.647f));
+		m_buttons[i].setHoveringColor(Color(1.f, 1.f, 0.f));
+
+		m_buttons[i].setTextStandardColor(Color(1.f, 1.f, 1.f));
+		m_buttons[i].setTextHoveringColor(Color(0.f, 0.f, 0.f));
+	}
 
 	m_letters.resize(11);
 	string logoPaths[11] = {
