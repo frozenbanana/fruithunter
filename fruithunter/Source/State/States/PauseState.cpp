@@ -49,6 +49,13 @@ void PauseState::init() {
 		m_btns[i].set(position, scale);
 		position.x += picWidth + padding;
 	}
+	for (size_t i = 0; i < btn_length; i++) {
+		m_buttons[i].setStandardColor(Color(0.f, 0.627f, 0.647f));
+		m_buttons[i].setHoveringColor(Color(1.f, 1.f, 0.f));
+
+		m_buttons[i].setTextStandardColor(Color(1.f, 1.f, 1.f));
+		m_buttons[i].setTextHoveringColor(Color(0.f, 0.f, 0.f));
+	}
 
 	//shooting
 	vector<string> strMouseLeft = { "mouse.png", "mouse_left.png" };
