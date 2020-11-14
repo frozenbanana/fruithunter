@@ -984,6 +984,10 @@ SceneEditorManager::SceneEditorManager() {
 	m_loadable_entity.push_back("treeMedium3");
 	m_loadable_entity.push_back("Cactus_tall");
 	m_loadable_entity.push_back("Cactus_small");
+	m_loadable_entity.push_back("mushroom1");
+	m_loadable_entity.push_back("mushroom2");
+	m_loadable_entity.push_back("mushroom3");
+	m_loadable_entity.push_back("mushroom4");
 
 	// pointer object
 	m_pointer_obj.load("sphere");
