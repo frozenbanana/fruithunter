@@ -106,6 +106,8 @@ private:
 	void connectPartsToMaterialsInCorrectOrder(
 		std::vector<Part>& parts, const std::vector<Material>& materials);
 
+	bool isValidRAW(string filename);
+
 	void reset();
 
 public:

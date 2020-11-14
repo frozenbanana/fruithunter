@@ -1,6 +1,12 @@
 #include "MeshHandler.h"
 #include "ErrorLogger.h"
 
+#include <ctime>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <cerrno>
+#include <cstring>
+
 Vertex MeshHandler::createVertexFromRef(const MeshHandler::VertexRef& ref) const {
 	Vertex v;
 	if (ref.position >= 0)
@@ -126,7 +132,7 @@ bool MeshHandler::load(std::string filename, std::vector<Vertex>& mesh, std::vec
 	std::vector<Material>& materials, bool excludeParts) {
 	bool success = true;
 	if (filename != "") {
-		if (loadRaw(filename, mesh) && loadRawDesc(filename, parts)) {
+		if (isValidRAW(filename) && loadRaw(filename, mesh) && loadRawDesc(filename, parts)) {
 			// success
 			if (excludeParts)
 				combineParts(mesh, parts);
@@ -181,7 +187,7 @@ bool MeshHandler::load(std::string filename, std::vector<Vertex>& mesh) {
 	bool success = true;
 	if (filename != "") {
 		std::vector<Part> parts;
-		if (loadRaw(filename, mesh)) {}
+		if (isValidRAW(filename) && loadRaw(filename, mesh)) {}
 		else if (loadOBJ(filename, parts)) {
 			mesh = createMesh();
 		}
@@ -506,6 +512,22 @@ void MeshHandler::connectPartsToMaterialsInCorrectOrder(
 			}
 		}
 	}
+}
+
+bool MeshHandler::isValidRAW(string filename) { 
+	struct stat objDesc, rawDesc;
+	//try check raw
+	if (stat((PATH_RAW + filename + ".rw").c_str(), &rawDesc) != 0) {
+		// error
+		return false;
+	}
+	// try check obj
+	if (stat((PATH_OBJ + filename + ".obj").c_str(), &objDesc) != 0) {
+		// error
+		return false;
+	}	
+	bool oldRAW = (objDesc.st_mtime > rawDesc.st_mtime);
+	return oldRAW;
 }
 
 void MeshHandler::reset() {
