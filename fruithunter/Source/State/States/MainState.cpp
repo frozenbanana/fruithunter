@@ -48,7 +48,7 @@ void MainState::init() {
 void MainState::update() {
 	Input::getInstance()->setMouseModeAbsolute();
 
-	float3 treePos(56.4f, 9.0f, 18.2f);
+	float3 treePos(56.4f, 9.5f, 18.2f);
 	float3 bowPos = treePos + float3(10, 1.5, 5);
 
 	m_timer.update();
@@ -61,8 +61,8 @@ void MainState::update() {
 	sceneManager.update(&m_camera);
 
 	// update precoded bow behavior
-	float3 target = treePos + float3(0, 2.0, 0) +
-					float3(RandomFloat(-1, 1), RandomFloat(-1, 1), RandomFloat(-1, 1));
+	float3 target = treePos + float3(0, 1.0, 0) +
+					float3(RandomFloat(-1, 1), RandomFloat(-1, 1), RandomFloat(-1, 1))*4;
 	float3 bowForward = target - bowPos;
 	bowForward.Normalize();
 	float3 rot = vector2Rotation(bowForward);
@@ -98,10 +98,13 @@ void MainState::update() {
 	}
 
 	// update apple behavior (run around tree)
+	float fruitAnimationCycle = 1 / 4.f + 1 / 5.f + 1 / 2.0f + 1 / 1.9f + 1 / 4.f + 1 / 2.f; // apple frame speeds, added together
 	Fruit* fruit = m_apple.get();
-	fruit->setPosition(float3(
-		treePos.x + (cos(m_totalDelta) * 2.0f), treePos.y, treePos.z + (sin(m_totalDelta) * 2.0f)));
-	fruit->update(dt, m_camera.getPosition());
+	float3 fruitPosition = treePos; // center fruit on tree
+	fruitPosition += float3(cos(m_totalDelta)*2, 0.4, sin(m_totalDelta)*2); // walk around center
+	fruitPosition.y += abs(sin(m_totalDelta * 4 - 0.5)) * 0.5; // fruit jump
+	fruit->setPosition(fruitPosition);
+	fruit->updateAnimated(8 * dt * fruitAnimationCycle / (2.f * XM_PI));
 	fruit->setRotation(float3(0.0f, -m_totalDelta, 0.0f));
 
 	// Logo update

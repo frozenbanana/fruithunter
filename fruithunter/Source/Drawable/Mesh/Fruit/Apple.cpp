@@ -150,19 +150,33 @@ void Apple::updateAnimated(float dt) {
 	m_startAnimationPosition = getPosition();
 	int frameOrder[] = { 0, 1, 0, 2, 0, 1 }; // Order of using keyframes
 
-	float frameSpeedOrder[] = { 4.f, 5.f, 2.0f, 1.9f, 4.f, 2.f };
-	m_frameTime += dt * frameSpeedOrder[m_currentFramePhase];
-	// Maybe change keyframes
-	if (m_frameTime > 1) {
-		m_frameTime -= 1;
-		m_currentFramePhase = (m_currentFramePhase + 1) % m_nrOfFramePhases;
+	float frameSpeedOrder[] = { 1/4.f, 1/5.f, 1/2.0f, 1/1.9f, 1/4.f, 1/2.f };
 
-		m_meshAnim.setFrameTargets(frameOrder[m_currentFramePhase],
-			frameOrder[(m_currentFramePhase + 1) % (m_nrOfFramePhases)]);
+	// calc total animation time
+	float sum = 0;
+	for (size_t i = 0; i < 6; i++)
+		sum += frameSpeedOrder[i];
+
+	// increment time
+	m_frameTime += dt;
+
+	// find frame
+	float time = fmod(m_frameTime, sum);
+	int frame = 0;
+	while (time >= frameSpeedOrder[frame]) {
+		time -= frameSpeedOrder[frame];
+		// try next frame
+		frame = (frame + 1) % m_nrOfFramePhases;
 	}
+	m_currentFramePhase = frame; // found frame
 
-	// Update mesh specificly with our frametime
-	m_meshAnim.updateSpecific(m_frameTime);
+	// set frame
+	m_meshAnim.setFrameTargets(frameOrder[m_currentFramePhase],
+		frameOrder[(m_currentFramePhase + 1) % (m_nrOfFramePhases)]);
+
+	// Update lerp value between morphing
+	float animationLerp = time / frameSpeedOrder[frame];
+	m_meshAnim.updateSpecific(animationLerp);
 }
 
 void Apple::flee(float3 playerPos) {

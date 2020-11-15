@@ -183,6 +183,4 @@ void DragonFruit::updateAnimated(float dt) {
 	else if (m_frameTime < 4)
 		setFrameTargets(1, 0);
 	m_meshAnim.updateSpecific(m_frameTime);
-
-	return;
 }
