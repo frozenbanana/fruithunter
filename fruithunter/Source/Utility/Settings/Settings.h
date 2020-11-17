@@ -11,6 +11,7 @@ private:
 
 	const string m_path = "assets/settings.txt";
 
+	// settings variables
 	bool m_vsync = true;
 	bool m_fullscreen = false;
 	bool m_darkEdges = true;
@@ -19,15 +20,10 @@ private:
 	float m_musicVolume = 0.5f;
 	float m_effectsVolume = 0.5f;
 	float m_drawDistance = 0.5f;
-	int m_resolutionX = 1280;
-	int m_resolutionY = 720;
-	int m_shadowResolutionSize = 2048;
 	float m_sensitivity = 0.5f;
 
 	XMINT2 m_resolution = XMINT2(1280, 720);
-	XMINT2 m_shadowResolution = XMINT2(2048, 2048);
-
-	string getSetting(ifstream* input);
+	int m_shadowResolution = 2048;
 
 public:
 	static void initialize();

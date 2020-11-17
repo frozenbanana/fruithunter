@@ -3,13 +3,10 @@
 #include "AudioController.h"
 #include "ErrorLogger.h"
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
-
 Settings Settings::m_this;
 
 Settings::Settings() { 
+	// bind settings variables to file
 	m_settingFile.bind("Vsync:b", &m_vsync);
 	m_settingFile.bind("Fullscreen:b", &m_fullscreen);
 	m_settingFile.bind("DarkEdges:b", &m_darkEdges);
@@ -17,22 +14,10 @@ Settings::Settings() {
 	m_settingFile.bind("MusicVolume:f", &m_musicVolume);
 	m_settingFile.bind("EffectsVolume:f", &m_effectsVolume);
 	m_settingFile.bind("DrawDistance:f", &m_drawDistance);
-	m_settingFile.bind("ResolutionX:i", &m_resolutionX);
-	m_settingFile.bind("ResolutionY:i", &m_resolutionY);
-	m_settingFile.bind("ShadowResolution:i", &m_shadowResolutionSize);
+	m_settingFile.bind("ResolutionX:i", &m_resolution.x);
+	m_settingFile.bind("ResolutionY:i", &m_resolution.y);
+	m_settingFile.bind("ShadowResolution:i", &m_shadowResolution);
 	m_settingFile.bind("Sensitivity:f", &m_sensitivity);
-}
-
-string Settings::getSetting(ifstream* input) {
-	string in, word;
-
-	getline(*input, in);
-	istringstream line(in);
-
-	getline(line, word, '\t');
-	getline(line, word, '\t');
-
-	return word;
 }
 
 void Settings::initialize() { getInstance()->loadAllSetting(); }
@@ -42,19 +27,24 @@ Settings* Settings::getInstance() { return &m_this; }
 Settings::~Settings() {}
 
 void Settings::loadAllSetting() {
+	// load from file
 	m_settingFile.readFile(m_path);
+	// Reset variables in case of overhead.
+	// Additional code may need to be executed for a variable!
+	setVsync(m_vsync);
 	setFullscreen(m_fullscreen);
+	setDarkEdges(m_darkEdges);
 	setMasterVolume(m_masterVolume);
 	setMusicVolume(m_musicVolume);
 	setEffectsVolume(m_effectsVolume);
-	setResolution(m_resolutionX, m_resolutionY);
-	setShadowResolution(m_shadowResolutionSize);
+	setDrawDistance(m_drawDistance);
+	setResolution(m_resolution.x, m_resolution.y);
+	setShadowResolution(m_shadowResolution);
+	setSensitivity(m_sensitivity);
 }
 
 void Settings::saveAllSetting() {
-	m_resolutionX = m_resolution.x;
-	m_resolutionY = m_resolution.y;
-	m_shadowResolutionSize = m_shadowResolution.x;
+	// write current settings to file
 	m_settingFile.writeFile(m_path);
 }
 
@@ -95,8 +85,9 @@ void Settings::setResolution(int width, int height) {
 }
 
 void Settings::setShadowResolution(int res) {
-	m_shadowResolution = XMINT2(res, res);
-	Renderer::getInstance()->getShadowMapper()->resizeShadowDepthViews(m_shadowResolution);
+	m_shadowResolution = res;
+	Renderer::getInstance()->getShadowMapper()->resizeShadowDepthViews(
+		XMINT2(m_shadowResolution, m_shadowResolution));
 }
 
 bool Settings::getVsync() { return m_vsync; }
@@ -119,4 +110,4 @@ float Settings::getSensitivity() { return m_sensitivity; }
 
 XMINT2 Settings::getResolution() { return m_resolution; }
 
-XMINT2 Settings::getShadowResolution() { return m_shadowResolution; }
+XMINT2 Settings::getShadowResolution() { return XMINT2(m_shadowResolution, m_shadowResolution); }
