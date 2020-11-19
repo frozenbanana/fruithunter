@@ -36,6 +36,8 @@ public:
 	void bindQuadVertexBuffer();
 	void enableAlphaBlending();
 	void disableAlphaBlending();
+	void setRasterizer_backCulling();
+	void setRasterizer_noCulling();
 	void changeResolution(int width, int height);
 	void setFullscreen(bool value);
 	bool isFullscreen() const;
@@ -67,6 +69,7 @@ private:
 	void createConstantBuffers();
 	void createQuadVertexBuffer();
 	void createBlendState();
+	void createRasterizerStates();
 
 	static Renderer m_this;
 	bool m_isLoaded = false;
@@ -95,6 +98,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthDSS;	 // Depth stencil state
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthSRV; // Depth shader resource view
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_backBufferTex;
+
+	//Rasterizer
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_rasterizer_std;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_rasterizer_noCulling;
 
 	//buffer
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_screenSizeBuffer;

@@ -4,7 +4,9 @@
 
 ShaderSet Mesh::m_shaderObject;
 ShaderSet Mesh::m_shaderObject_onlyMesh;
+ShaderSet Mesh::m_shaderObject_clip;
 Microsoft::WRL::ComPtr<ID3D11Buffer> Mesh::m_colorBuffer;
+Microsoft::WRL::ComPtr<ID3D11Buffer> Mesh::m_planeBuffer;
 
 float Mesh::triangleTest(float3 rayDir, float3 rayOrigin, float3 tri0, float3 tri1, float3 tri2) {
 	float3 normal = ((tri1 - tri0).Cross(tri2 - tri0));
@@ -186,6 +188,18 @@ void Mesh::createBuffers(bool instancing) {
 		if (FAILED(res))
 			ErrorLogger::logError("Failed creating color buffer in Mesh class!\n", res);
 	}
+	// clipping plane
+	if (m_planeBuffer.Get() == nullptr) {
+		D3D11_BUFFER_DESC desc;
+		memset(&desc, 0, sizeof(desc));
+		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.ByteWidth = sizeof(PlaneBuffer);
+
+		HRESULT res = gDevice->CreateBuffer(&desc, nullptr, m_planeBuffer.GetAddressOf());
+		if (FAILED(res))
+			ErrorLogger::logError("Failed creating clipping plane buffer in Mesh class!\n", res);
+	}
 }
 void Mesh::bindMaterial(int index) { m_materials[m_currentMaterial][index].bind(); }
 int Mesh::getVertexCount() const { return (int)m_meshVertices.size(); }
@@ -226,6 +240,25 @@ void Mesh::draw() {
 		m_shaderObject.bindShadersAndLayout();
 		bindMesh();
 		drawCall_perMaterial();
+	}
+	else
+		draw_noMaterial();
+}
+
+void Mesh::draw_clippingPlane(float3 plane_point, float3 plane_normal, float3 plane_color, float time) {
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+
+	if (m_materials[m_currentMaterial].size() > 0) {
+		m_shaderObject_clip.bindShadersAndLayout();
+		bindMesh();
+		PlaneBuffer plane = PlaneBuffer(plane_point, Normalize(plane_normal), plane_color, time);
+		deviceContext->UpdateSubresource(m_planeBuffer.Get(), 0, 0, &plane, 0, 0);
+		deviceContext->PSSetConstantBuffers(PLANE_BUFFER_SLOT, 1, m_planeBuffer.GetAddressOf());
+		Renderer::getInstance()->enableAlphaBlending();
+		Renderer::getInstance()->setRasterizer_noCulling();
+		drawCall_perMaterial();
+		Renderer::getInstance()->setRasterizer_backCulling(); // reset to standard
+		Renderer::getInstance()->disableAlphaBlending(); // reset to standard
 	}
 	else
 		draw_noMaterial();
@@ -347,6 +380,9 @@ Mesh::Mesh(std::string OBJFile) {
 	if (!m_shaderObject.isLoaded())
 		m_shaderObject.createShaders(L"VertexShader_model_onlyMesh.hlsl", nullptr,
 			L"PixelShader_model.hlsl", inputLayout_onlyMesh, 3);
+	if (!m_shaderObject_clip.isLoaded())
+		m_shaderObject_clip.createShaders(L"VertexShader_model_onlyMesh.hlsl", nullptr,
+			L"PixelShader_model_clip.hlsl", inputLayout_onlyMesh, 3);
 
 	m_currentMaterial = 0;
 	m_materials.resize(1);

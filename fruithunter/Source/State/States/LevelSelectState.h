@@ -19,6 +19,12 @@ private:
 
 	SceneManager sceneManager;
 
+	Entity m_objTest;
+	float3 plane_point = float3(32.557, 6.254, 75.833);
+	float plane_heightOffset = 0;
+	float3 plane_normal = float3(0, -1, 0);
+	float3 plane_color = float3(1, 1, 0);
+
 	Keyboard::Keys m_mouseMode_switch = Keyboard::H;
 	bool m_mouseMode = true;
 

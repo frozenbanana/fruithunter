@@ -43,6 +43,7 @@ public:
 
 	// Drawing
 	virtual void draw();
+	virtual void draw_clippingPlane(float3 plane_point, float3 plane_normal, float3 plane_color, float time);
 	void draw_onlyMesh(float3 color);
 	void draw_boundingBox();
 

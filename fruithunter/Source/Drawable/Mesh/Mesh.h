@@ -4,11 +4,13 @@
 
 #define COLOR_BUFFER_SLOT 2
 #define MATERIAL_BUFFER_SLOT 2
+#define PLANE_BUFFER_SLOT 7
 
 class Mesh {
 private:
 	static ShaderSet m_shaderObject;
 	static ShaderSet m_shaderObject_onlyMesh;
+	static ShaderSet m_shaderObject_clip;
 
 	std::string m_loadedMeshName = "";
 	MeshHandler m_handler;
@@ -29,6 +31,18 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 	// color buffer
 	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_colorBuffer;
+	// clipping plane
+	struct PlaneBuffer {
+		float4 point;
+		float4 normal;
+		float4 color;
+		PlaneBuffer(float3 _point, float3 _normal, float3 _color, float time) { 
+			point = float4(_point.x, _point.y, _point.z, time);
+			normal = float4(_normal.x, _normal.y, _normal.z, 1);
+			color = float4(_color.x, _color.y, _color.z, 1);
+		}
+	};
+	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_planeBuffer;
 
 	// FUNCTIONS
 
@@ -66,6 +80,7 @@ public:
 	void drawCall_perMaterial();
 
 	void draw();
+	void draw_clippingPlane(float3 plane_point, float3 plane_normal, float3 plane_color, float time);
 	void draw_noMaterial(float3 color = float3(1, 1, 1));
 	void draw_BoundingBox();
 

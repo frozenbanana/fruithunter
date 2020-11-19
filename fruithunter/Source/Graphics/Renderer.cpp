@@ -82,6 +82,10 @@ void Renderer::disableAlphaBlending() {
 		m_blendStateWithoutAlphaBlending.Get(), blendFactor, 0xffffffff);
 }
 
+void Renderer::setRasterizer_backCulling() { m_deviceContext->RSSetState(m_rasterizer_std.Get()); }
+
+void Renderer::setRasterizer_noCulling() { m_deviceContext->RSSetState(m_rasterizer_noCulling.Get()); }
+
 void Renderer::changeResolution(int width, int height) {
 	m_screenWidth = width;
 	m_screenHeight = height;
@@ -386,7 +390,7 @@ void Renderer::createDevice(HWND window) {
 	HRESULT swpFlag = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0,
 		nullptr, 0, D3D11_SDK_VERSION, &swapChainDesc, m_swapChain.GetAddressOf(),
 		m_device.GetAddressOf(), nullptr, m_deviceContext.GetAddressOf());
-
+	
 	if (FAILED(swpFlag)) {
 		ErrorLogger::messageBox(swpFlag, L"Error creating DX11.");
 		return;
@@ -395,6 +399,7 @@ void Renderer::createDevice(HWND window) {
 	createDepthState();
 	createDepthBuffer(swapChainDesc);
 	createBlendState();
+	createRasterizerStates();
 }
 
 void Renderer::createRenderTarget() {
@@ -592,4 +597,43 @@ void Renderer::createBlendState() {
 	HRESULT hr2 =
 		m_device->CreateBlendState(&blendStateDesc, m_blendStateAlphaBlending.GetAddressOf());
 	disableAlphaBlending();
+}
+
+void Renderer::createRasterizerStates() { 
+	// create rasterizer (standard)
+	D3D11_RASTERIZER_DESC desc_std; // standard rasterizer desc
+	desc_std.FillMode = D3D11_FILL_SOLID;
+	desc_std.CullMode = D3D11_CULL_BACK;
+	desc_std.FrontCounterClockwise = false;
+	desc_std.DepthBias = 0;
+	desc_std.DepthBiasClamp = 0;
+	desc_std.SlopeScaledDepthBias = 0;
+	desc_std.DepthClipEnable = true;
+	desc_std.ScissorEnable = false;
+	desc_std.MultisampleEnable = false;
+	desc_std.AntialiasedLineEnable = false;
+	HRESULT res = m_device->CreateRasterizerState(&desc_std, m_rasterizer_std.GetAddressOf());
+	if (FAILED(res)) {
+		ErrorLogger::logError("Failed creating rasterizer state (standard)", res);
+	}
+	// create rasterizer (no culling)
+	D3D11_RASTERIZER_DESC desc_noBackFaceCulling;
+	desc_noBackFaceCulling.FillMode = D3D11_FILL_SOLID;
+	desc_noBackFaceCulling.CullMode = D3D11_CULL_NONE;
+	desc_noBackFaceCulling.FrontCounterClockwise = false;
+	desc_noBackFaceCulling.DepthBias = 0;
+	desc_noBackFaceCulling.DepthBiasClamp = 0;
+	desc_noBackFaceCulling.SlopeScaledDepthBias = 0;
+	desc_noBackFaceCulling.DepthClipEnable = true;
+	desc_noBackFaceCulling.ScissorEnable = false;
+	desc_noBackFaceCulling.MultisampleEnable = false;
+	desc_noBackFaceCulling.AntialiasedLineEnable = false;
+	res =
+		m_device->CreateRasterizerState(&desc_noBackFaceCulling, m_rasterizer_noCulling.GetAddressOf());
+	if (FAILED(res)) {
+		ErrorLogger::logError("Failed creating rasterizer state (no backface culling)", res);
+	}
+
+	//set standard razterizer
+	setRasterizer_backCulling();
 }

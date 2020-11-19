@@ -78,6 +78,16 @@ void Entity::draw() {
 	}
 }
 
+void Entity::draw_clippingPlane(float3 plane_point, float3 plane_normal, float3 plane_color, float time) {
+	if (m_visible) {
+		if (isMeshInitialized()) {
+			VSBindMatrix(MODEL_MATRIX_BUFFER_SLOT);
+			setMaterial(m_currentMaterial);
+			m_mesh.get()->draw_clippingPlane(plane_point, plane_normal, plane_color, time);
+		}
+	}
+}
+
 void Entity::draw_onlyMesh(float3 color) {
 	if (isMeshInitialized()) {
 		VSBindMatrix(MODEL_MATRIX_BUFFER_SLOT);
