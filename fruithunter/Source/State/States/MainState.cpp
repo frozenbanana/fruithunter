@@ -109,7 +109,7 @@ void MainState::update() {
 
 	// Logo update
 	float offsetX = 1280.f / 16.f;
-	float offsetY = 720.f / 3.f;
+	float offsetY = 720.f / 6.0f;
 	float t = m_timer.getTimePassed();
 	for (size_t i = 0; i < m_letters.size(); i++) {
 		float2 movement =
