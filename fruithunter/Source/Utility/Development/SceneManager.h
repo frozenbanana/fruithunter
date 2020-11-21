@@ -31,7 +31,7 @@ public:
 	void setup_shadow(Camera* overrideCamera = nullptr);
 	void draw_shadow();
 	void setup_color(Camera* overrideCamera = nullptr);
-	void draw_color();
+	void draw_color(Camera* overrideCamera = nullptr);
 	void draw_hud();
 
 	void load(string folder);

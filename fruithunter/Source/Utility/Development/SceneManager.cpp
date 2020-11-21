@@ -41,7 +41,7 @@ void SceneManager::setup_color(Camera* overrideCamera) {
 	scene->m_skyBox.bindLightBuffer();
 }
 
-void SceneManager::draw_color() {
+void SceneManager::draw_color(Camera* overrideCamera) {
 
 	// Bow
 	scene->m_player->draw();
@@ -65,7 +65,11 @@ void SceneManager::draw_color() {
 		scene->m_collectionPoint[i]->draw();
 
 	// frustum data for culling
-	vector<FrustumPlane> frustum = scene->m_player->getFrustumPlanes();
+	vector<FrustumPlane> frustum;
+	if (overrideCamera == nullptr)
+		frustum = scene->m_player->getFrustumPlanes();
+	else
+		frustum = overrideCamera->getFrustumPlanes();
 	// Entities
 	vector<shared_ptr<Entity>*> culledEntities = scene->m_entities.cullElements(frustum);
 	for (size_t i = 0; i < culledEntities.size(); i++)

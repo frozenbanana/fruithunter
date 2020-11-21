@@ -992,6 +992,7 @@ SceneEditorManager::SceneEditorManager() {
 	m_loadable_entity.push_back("flower2");
 	m_loadable_entity.push_back("flower3");
 	m_loadable_entity.push_back("flower4");
+	m_loadable_entity.push_back("totem");
 
 	// pointer object
 	m_pointer_obj.load("sphere");

@@ -156,7 +156,7 @@ void MainState::draw() {
 	for (size_t i = 0; i < m_arrows.size(); i++)
 		m_arrows[i]->draw();
 	// standard drawing
-	sceneManager.draw_color();
+	sceneManager.draw_color(&m_camera);
 	// custom drawing (without dark outline)
 	for (size_t i = 0; i < m_arrows.size(); i++)
 		m_arrows[i]->draw_trailEffect();
