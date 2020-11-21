@@ -14,8 +14,8 @@ void MainState::init() {
 		float3(58.0f, 10.9f, 21.9f), float3(61.3f, 10.1f, -36.0f), float3(0.f, 1.f, 0.f));
 
 	for (size_t i = 0; i < btn_length; i++) {
-		m_buttons[i].setStandardColor(Color(0.f, 0.627f, 0.647f));
-		m_buttons[i].setHoveringColor(Color(1.f, 1.f, 0.f));
+		m_buttons[i].setStandardColor(Color(42.f/255.f, 165.f/255.f, 209.f/255.f));
+		m_buttons[i].setHoveringColor(Color(1.f, 210.f/255.f, 0.f));
 
 		m_buttons[i].setTextStandardColor(Color(1.f, 1.f, 1.f));
 		m_buttons[i].setTextHoveringColor(Color(0.f, 0.f, 0.f));
@@ -55,7 +55,6 @@ void MainState::update() {
 	float dt = m_timer.getDt();
 	m_totalDelta = fmod((m_totalDelta + dt), (2.f * XM_PI));
 	m_totalDelta_forBow += dt;
-
 
 	// update scene
 	sceneManager.update(&m_camera);
