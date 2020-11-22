@@ -526,7 +526,7 @@ bool MeshHandler::isValidRAW(string filename) {
 		// error
 		return false;
 	}	
-	bool oldRAW = (objDesc.st_mtime > rawDesc.st_mtime);
+	bool oldRAW = (objDesc.st_mtime < rawDesc.st_mtime); // if raw is older then obj, then no need to recreate raw
 	return oldRAW;
 }
 
