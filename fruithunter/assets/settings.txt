@@ -2,7 +2,7 @@ Vsync:false
 Fullscreen:false
 DarkEdges:true
 MasterVolume:0.500000
-MusicVolume:0.500000
+MusicVolume:0.487500
 EffectsVolume:0.500000
 DrawDistance:0.500000
 ResolutionX:1280

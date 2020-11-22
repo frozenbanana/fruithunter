@@ -55,6 +55,8 @@ void Banana::behaviorPassive() {
 			direction = terrainNormal;
 		}
 		jump(direction, PASSIVE_JUMP_POWER);
+		SoundID sid = AudioController::getInstance()->play("jump1");
+		AudioController::getInstance()->scaleVolumeByDistance(sid, (playerPosition-getPosition()).Length(), 0.2, 25);
 
 		if (withinDistanceTo(playerPosition, m_activeRadius)) {
 			changeState(ACTIVE);

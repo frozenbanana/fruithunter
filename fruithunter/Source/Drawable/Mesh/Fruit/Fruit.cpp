@@ -2,12 +2,15 @@
 #include "Input.h"
 #include "SceneManager.h"
 #include "PathFindingThread.h"
+#include "AudioController.h"
 
 #define LONGSHOT 25.f
 #define MEDIUMSHOT 15.f
 #define FASTMOVING_VELOCITY 11.f
 
-void Fruit::jump(float3 direction, float power) { m_velocity += power * direction; }
+void Fruit::jump(float3 direction, float power) { 
+	m_velocity += power * direction; 
+}
 
 void Fruit::setStartPosition(float3 pos) {
 	setPosition(pos);
