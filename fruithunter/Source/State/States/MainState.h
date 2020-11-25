@@ -8,6 +8,7 @@
 #include "Sprite2D.h"
 #include "SceneManager.h"
 #include "Menu_PoppingButton.h"
+#include "GlobalNamespaces.h"
 
 class MainState : public StateItem {
 private:

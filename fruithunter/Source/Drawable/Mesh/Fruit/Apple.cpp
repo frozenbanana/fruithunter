@@ -2,6 +2,7 @@
 #include "Input.h"
 #include "SceneManager.h"
 #include "PathFindingThread.h"
+#include "AudioController.h"
 
 Apple::Apple(float3 pos) : Fruit(pos) {
 	loadAnimated("Apple", 3);
@@ -69,6 +70,9 @@ void Apple::behaviorPassive() {
 
 				// m_speed = 0.f;
 				jump(float3(0.0f, 1.0f, 0.0), 7.f);
+				SoundID sID = AudioController::getInstance()->play("jump2");
+				AudioController::getInstance()->scaleVolumeByDistance(sID, (SceneManager::getScene()->m_player->getPosition()-getPosition()).Length(), 1, 40);
+
 				m_nrOfJumps++;
 				if (m_nrOfJumps >= MAXNROFJUMPS) {
 					float3 newHome = m_worldHome;

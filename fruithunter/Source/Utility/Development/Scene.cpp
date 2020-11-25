@@ -193,35 +193,44 @@ void Scene::dropFruit(FruitType fruitType) {
 	 }
 }
 
+SoundID Scene::playMusicByAreaTag(AreaTag tag) {
+	SoundID id = 0;
+	switch (tag) {
+	case Forest:
+		id = AudioController::getInstance()->play(
+			"ketapop-nudia-short", AudioController::SoundType::Music, true);
+		break;
+	case Plains:
+		id = AudioController::getInstance()->play(
+			"jingle-guitar", AudioController::SoundType::Music, true);
+		break;
+	case Desert:
+		id = AudioController::getInstance()->play(
+			"spanish-guitar", AudioController::SoundType::Music, true);
+		break;
+	case Volcano:
+		id = AudioController::getInstance()->play(
+			"ketapop-dark-short", AudioController::SoundType::Music, true);
+		break;
+	case LevelIsland:
+		id = AudioController::getInstance()->play(
+			"jingle-guitar", AudioController::SoundType::Music, true);
+		break;
+	}
+	return id;
+}
+
 void Scene::update_activeTerrain(AreaTag tag) {
+	AudioController* ac = AudioController::getInstance();
 	if (tag != m_activeTerrain_tag) {
 		const float fadeInTime = 1;
 		m_activeTerrain_tag = tag;
 		AudioController::getInstance()->fadeOut(m_activeTerrain_soundID, fadeInTime);
-		switch (tag) {
-		case Forest:
-			m_activeTerrain_soundID =
-				AudioController::getInstance()->play("ketapop-nudia-short", AudioController::SoundType::Music, true);
-			break;
-		case Plains:
-			m_activeTerrain_soundID =
-				AudioController::getInstance()->play("jingle-guitar", AudioController::SoundType::Music, true);
-			break;
-		case Desert:
-			m_activeTerrain_soundID =
-				AudioController::getInstance()->play("spanish-guitar", AudioController::SoundType::Music, true);
-			break;
-		case Volcano:
-			m_activeTerrain_soundID =
-				AudioController::getInstance()->play("ketapop-dark-short", AudioController::SoundType::Music, true);
-			break;
-		case LevelIsland:
-			m_activeTerrain_soundID =
-				AudioController::getInstance()->play("jingle-guitar", AudioController::SoundType::Music, true);
-			break;
-		}
+		m_activeTerrain_soundID = playMusicByAreaTag(tag);
 		AudioController::getInstance()->fadeIn(m_activeTerrain_soundID, fadeInTime);
 	}
+	else if (!ac->isListed(m_activeTerrain_soundID))
+		m_activeTerrain_soundID = playMusicByAreaTag(tag);
 }
 
 void Scene::load(string folder) { 

@@ -14,8 +14,8 @@ void MainState::init() {
 		float3(58.0f, 10.9f, 21.9f), float3(61.3f, 10.1f, -36.0f), float3(0.f, 1.f, 0.f));
 
 	for (size_t i = 0; i < btn_length; i++) {
-		m_buttons[i].setStandardColor(Color(0.f, 0.627f, 0.647f));
-		m_buttons[i].setHoveringColor(Color(1.f, 1.f, 0.f));
+		m_buttons[i].setStandardColor(Color(42.f/255.f, 165.f/255.f, 209.f/255.f));
+		m_buttons[i].setHoveringColor(Color(1.f, 210.f/255.f, 0.f));
 
 		m_buttons[i].setTextStandardColor(Color(1.f, 1.f, 1.f));
 		m_buttons[i].setTextHoveringColor(Color(0.f, 0.f, 0.f));
@@ -55,7 +55,6 @@ void MainState::update() {
 	float dt = m_timer.getDt();
 	m_totalDelta = fmod((m_totalDelta + dt), (2.f * XM_PI));
 	m_totalDelta_forBow += dt;
-
 
 	// update scene
 	sceneManager.update(&m_camera);
@@ -109,7 +108,7 @@ void MainState::update() {
 
 	// Logo update
 	float offsetX = 1280.f / 16.f;
-	float offsetY = 720.f / 3.f;
+	float offsetY = 720.f / 6.0f;
 	float t = m_timer.getTimePassed();
 	for (size_t i = 0; i < m_letters.size(); i++) {
 		float2 movement =
@@ -156,7 +155,7 @@ void MainState::draw() {
 	for (size_t i = 0; i < m_arrows.size(); i++)
 		m_arrows[i]->draw();
 	// standard drawing
-	sceneManager.draw_color();
+	sceneManager.draw_color(&m_camera);
 	// custom drawing (without dark outline)
 	for (size_t i = 0; i < m_arrows.size(); i++)
 		m_arrows[i]->draw_trailEffect();
