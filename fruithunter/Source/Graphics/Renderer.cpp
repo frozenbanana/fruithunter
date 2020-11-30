@@ -83,35 +83,48 @@ void Renderer::disableAlphaBlending() {
 }
 
 void Renderer::changeResolution(int width, int height) {
-	m_screenWidth = width;
-	m_screenHeight = height;
 
-	// 1. clear the existing references to the backbuffer
-	ID3D11RenderTargetView* nullView = nullptr;
-	m_deviceContext->OMSetRenderTargets(1, &nullView, nullptr);
-	m_renderTargetView.Reset();
-	m_depthDSV.Reset();
-	m_deviceContext->Flush(); // not quite sure necessary ?
+	m_deviceContext->OMSetRenderTargets(0, 0, 0);
 
-	// 2. Resize the existing swapchain
-	HRESULT hr =
-		m_swapChain->ResizeBuffers(2, m_screenWidth, m_screenHeight, m_backBufferDesc.Format, NULL);
-	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
+	// Release all outstanding references to the swap chain's buffers.
+	m_renderTargetView->Release();
+
+	HRESULT hr;
+	// Preserve the existing buffer count and format.
+	// Automatically choose the width and height to match the client rect for HWNDs.
+	hr = m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+
+	// Error handling
+	if (hr != S_OK)
 		ErrorLogger::log("In renderer, could not resize buffers");
-	DXGI_MODE_DESC modeDesc = { 0 };
-	modeDesc.Width = m_screenWidth;
-	modeDesc.Height = m_screenHeight;
-	// modeDesc.Format = m_swapChain->GetDesc.format;
-	m_swapChain->ResizeTarget(&modeDesc);
-	// 3. Get the new backbuffer texture to use as a render target
-	createRenderTarget();
 
-	// 4. Create a depth/stencil buffer and create the depth stencil view
-	DXGI_SWAP_CHAIN_DESC swap_desc;
-	m_swapChain->GetDesc(&swap_desc);
-	createDepthBuffer(swap_desc);
+	// Get buffer and create a render-target-view.
+	ID3D11Texture2D* pBuffer;
+	hr = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer);
 
-	// 5. Make sure other parts in program update with new screen sizes.
+	// Perform error handling here!
+	if (hr != S_OK)
+		ErrorLogger::log("In renderer, could not resize buffers");
+
+	hr = m_device->CreateRenderTargetView(pBuffer, NULL, &m_renderTargetView);
+
+	// Perform error handling here!
+	if (hr != S_OK)
+		ErrorLogger::log("In renderer, could not resize buffers");
+
+	pBuffer->Release();
+
+	m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, NULL);
+
+	// Set up the viewport.
+	D3D11_VIEWPORT vp;
+	vp.Width = width;
+	vp.Height = height;
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+	vp.TopLeftX = 0;
+	vp.TopLeftY = 0;
+	m_deviceContext->RSSetViewports(1, &vp);
 }
 
 void Renderer::setFullscreen(bool value) { m_swapChain->SetFullscreenState(value, nullptr); }

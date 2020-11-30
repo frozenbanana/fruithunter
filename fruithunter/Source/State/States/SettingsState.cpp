@@ -78,40 +78,56 @@ void SettingsState::update() {
 	}
 	if (m_fullscreenButton.update()) {
 		m_screenStateChanged = true;
+		m_resolutionButton.setOnOff(!m_fullscreenButton.getOnOff());
+		if (!m_resolutionButton.getOnOff()) {
+			RECT screen;
+			const HWND hDesktop = GetDesktopWindow();
+			GetWindowRect(hDesktop, &screen);
+			if (screen.right == long(1280)) m_resolutionButton.setResolution(Button::Resolution::HD);
+			else if (screen.right == long(1920))
+				m_resolutionButton.setResolution(Button::Resolution::FHD);
+			else if (screen.right == long(2560))
+				m_resolutionButton.setResolution(Button::Resolution::QHD);
+			else if (screen.right == long(3840))
+				m_resolutionButton.setResolution(Button::Resolution::UHD);
+		}
 	}
 	if (m_resolutionButton.update()) {
 		m_screenStateChanged = true;
 	}
 	if (m_screenStateChanged) {
 		if (m_applyButton.update() || Input::getInstance()->keyDown(Keyboard::Keys::Enter)) {
+
 			settings->setFullscreen(m_fullscreenButton.getOnOff());
 
-			if (m_resolutionButton.getResolution() == Button::Resolution::HD)
-				settings->setResolution(1280, 720);
-			else if (m_resolutionButton.getResolution() == Button::Resolution::FHD)
-				settings->setResolution(1920, 1080);
-			else if (m_resolutionButton.getResolution() == Button::Resolution::QHD)
-				settings->setResolution(2560, 1440);
-			else if (m_resolutionButton.getResolution() == Button::Resolution::UHD)
-				settings->setResolution(3840, 2160);
-
+			if (!m_fullscreenButton.getOnOff()) {
+				if (m_resolutionButton.getResolution() == Button::Resolution::HD)
+					settings->setResolution(1280, 720);
+				else if (m_resolutionButton.getResolution() == Button::Resolution::FHD)
+					settings->setResolution(1920, 1080);
+				else if (m_resolutionButton.getResolution() == Button::Resolution::QHD)
+					settings->setResolution(2560, 1440);
+				else if (m_resolutionButton.getResolution() == Button::Resolution::UHD)
+					settings->setResolution(3840, 2160);
+			}
+			
 			float width = SCREEN_WIDTH;
 			float height = SCREEN_HEIGHT;
 			m_masterVolume.setPosition(float2(width / 2, height / 2 - 330));
-			m_musicVolume.setPosition(float2(width / 2, height / 2 - 280));
-			m_effectsVolume.setPosition(float2(width / 2, height / 2 - 230));
-			m_sensitivity.setPosition(float2(width / 2, height / 2 - 150));
+			m_musicVolume.setPosition(float2(width / 2, (height / 2) - 280));
+			m_effectsVolume.setPosition(float2(width / 2, (height / 2) - 230));
+			m_sensitivity.setPosition(float2(width / 2, (height / 2) - 150));
 
-			m_drawDistance.setPosition(float2(width / 2, height / 2 - 70));
-			m_shadowsButton.setPosition(float2(width / 2, height / 2 - 10));
-			m_darkEdgesButton.setPosition(float2(width / 2, height / 2 + 50));
+			m_drawDistance.setPosition(float2(width / 2, (height / 2) - 70));
+			m_shadowsButton.setPosition(float2(width / 2, (height / 2) - 10));
+			m_darkEdgesButton.setPosition(float2(width / 2, (height / 2) + 50));
 
-			m_resolutionButton.setPosition(float2(width / 2, height / 2 + 140));
-			m_fullscreenButton.setPosition(float2(width / 2 + 150, height / 2 + 200));
-			m_vsyncButton.setPosition(float2(width / 2 - 150, height / 2 + 200));
+			m_resolutionButton.setPosition(float2(width / 2, (height / 2) + 140));
+			m_fullscreenButton.setPosition(float2(width / 2 + 150, (height / 2) + 200));
+			m_vsyncButton.setPosition(float2(width / 2 - 150, (height / 2) + 200));
 
-			m_backButton.setPosition(float2(width / 2, height / 2 + 300));
-			m_applyButton.setPosition(float2(width / 2 - 100, height / 2 + 300));
+			m_backButton.setPosition(float2(width / 2, (height / 2) + 300));
+			m_applyButton.setPosition(float2(width / 2 - 100, (height / 2) + 300));
 
 			m_screenStateChanged = false;
 		}
