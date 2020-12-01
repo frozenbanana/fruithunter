@@ -147,21 +147,21 @@ void Renderer::bindQuadVertexBuffer() {
 }
 
 void Renderer::copyDepthToSRV() {
-	ID3D11Resource *dst, *src;
+	ID3D11Resource *dst = nullptr, *src = nullptr;
 	m_depthSRV.Get()->GetResource(&dst);
 	m_depthDSV.Get()->GetResource(&src);
 	m_deviceContext->CopyResource(dst, src);
-	dst->Release();
-	src->Release();
+	if(dst)dst->Release();
+	if(src)src->Release();
 }
 
 void Renderer::copyTargetToSRV() {
-	ID3D11Resource *dst, *src;
+	ID3D11Resource *dst = nullptr, *src = nullptr;
 	m_targetSRVCopy.Get()->GetResource(&dst);
 	m_renderTargetView.Get()->GetResource(&src);
 	m_deviceContext->CopyResource(dst, src);
-	dst->Release();
-	src->Release();
+	if(dst)dst->Release();
+	if(src)src->Release();
 }
 
 void Renderer::bindRenderAndDepthTarget() {
