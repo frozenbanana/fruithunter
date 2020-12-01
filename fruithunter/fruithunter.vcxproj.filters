@@ -285,6 +285,9 @@
     <ClCompile Include="Source\Utility\UI\Menu_PoppingButton.cpp">
       <Filter>Source\Utility\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Drawable\TotemLock.cpp">
+      <Filter>Source\Drawable</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -520,6 +523,9 @@
     </ClInclude>
     <ClInclude Include="Source\Utility\UI\Menu_PoppingButton.h">
       <Filter>Source\Utility\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\TotemLock.h">
+      <Filter>Source\Drawable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -82,6 +82,7 @@ private:
 	bool update_panel_animal(Animal* selection, bool update = false);
 	bool update_panel_sea(SeaEffect* selection, bool update = false);
 	bool update_panel_effect(ParticleSystem* selection, bool update = false);
+	bool update_panel_totemLock(TotemLock* selection, bool update = false);
 	void refreshLibrary();
 
 	void updateCameraMovement(float dt);

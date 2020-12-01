@@ -31,8 +31,7 @@ cbuffer lightInfo : register(b6) {
 cbuffer cameraProperties : register(b9) { float4 camera_position; }
 
 cbuffer clipPlane : register(b7) {
-	float3 plane_point;
-	float plane_time;
+	float4 plane_point;
 	float4 plane_normal;
 	float4 plane_color;
 }
@@ -93,17 +92,10 @@ float4 main(PS_IN ip) : SV_TARGET {
 	float3 position = ip.PosW;
 	float clipAlpha = 1.f;
 
-	float time_speed = 1.f;
-	float wave_intensity = 0.1f;
-	float frequency = 10.f;
-	float waveX = position.x * frequency + plane_time * time_speed;
-	float waveY = position.z * frequency + plane_time * time_speed;
-	float wave = (cos(waveX) * sin(waveY)*0.5f-0.5) * wave_intensity;
-	float3 offset = plane_normal * wave;
 	float3 toCamera = normalize(camera_position.xyz - position);
 
 	// clip texel infront of plane
-	float3 toPlane = normalize(plane_point - (position+offset));
+	float3 toPlane = normalize(plane_point - position);
 	if (dot(-toPlane, plane_normal) > 0.f) {
 		clipAlpha = 0;
 	}

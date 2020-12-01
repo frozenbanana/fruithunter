@@ -10,6 +10,7 @@
 #include "SkyBox.h"
 #include "Player.h"
 #include "CollectionPoint.h"
+#include "TotemLock.h"
 
 #include "Apple.h"
 #include "Banana.h"
@@ -144,6 +145,9 @@ public:
 
 	// Animals
 	std::vector<shared_ptr<Animal>> m_animals;
+
+	// Totems
+	vector<shared_ptr<TotemLock>> m_totems;
 
 	// Fruits
 	std::vector<shared_ptr<Fruit>> m_fruits;

@@ -4,9 +4,6 @@
 #include "Renderer.h"
 
 void LevelSelectState::init() { 
-	m_objTest.load("treeMedium1"); 
-	m_objTest.setScale(1);
-	m_objTest.setPosition(float3(32.557, 3.745, 75.833));
 }
 
 void LevelSelectState::update() {
@@ -23,6 +20,8 @@ void LevelSelectState::update() {
 	m_timer.update();
 	float dt = m_timer.getDt();
 	Player* player = SceneManager::getScene()->m_player.get();
+
+	totem.update(dt);
 
 	// Update bowls
 	for (int i = 0; i < m_levelSelectors.size(); i++) {
@@ -84,7 +83,6 @@ void LevelSelectState::draw() {
 	for (int i = 0; i < m_animal.size(); i++) {
 		m_animal[i]->draw_onlyAnimal();
 	}
-	m_objTest.draw_onlyMesh(float3());
 
 	//	__COLOR__
 	sceneManager.setup_color();
@@ -106,15 +104,7 @@ void LevelSelectState::draw() {
 				SceneManager::getScene()->m_player->getForward(),
 			float2(1.f) * 4.f);
 	}
-	if (ImGui::Begin("PlaneClippingTest")) {
-		ImGui::InputFloat3("point", (float*)&plane_point, 2);
-		ImGui::SliderFloat("height", &plane_heightOffset, -10, 10);
-		ImGui::InputFloat3("normal", (float*)&plane_normal, 2);
-		ImGui::ColorEdit3("Color", (float*)&plane_color);
-		ImGui::End();
-	}
-	m_objTest.draw_clippingPlane(
-		plane_point + float3(0, plane_heightOffset, 0), plane_normal, plane_color, SceneManager::getScene()->m_timer.getTimePassed());
+	totem.draw();
 	// standard drawing
 	sceneManager.draw_color();
 	// custom drawing (without darkedges)

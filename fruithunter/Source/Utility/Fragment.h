@@ -3,8 +3,8 @@
 typedef size_t FragmentID;
 class Fragment {
 public:
-	enum Type { entity, animal, terrain, particleSystem, sea, size };
-	std::string m_typeAsString[Type::size] = { "Entity", "Animal", "Terrain", "ParticleSystem", "Sea" };
+	enum Type { entity, animal, terrain, particleSystem, sea, totemLock, size };
+	std::string m_typeAsString[Type::size] = { "Entity", "Animal", "Terrain", "ParticleSystem", "Sea", "TotemLock" };
 
 private:
 	static size_t m_id_counter;

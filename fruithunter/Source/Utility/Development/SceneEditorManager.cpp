@@ -462,6 +462,36 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 	return updated;
 }
 
+bool SceneEditorManager::update_panel_totemLock(TotemLock* selection, bool update) { 
+	bool updated = false;
+	bool isValid = (selection != nullptr);
+
+	static float3 position;
+	static float rotationY;
+
+	if (update && isValid) {
+		position = selection->getPosition();
+		rotationY = selection->getRotation().y;
+	}
+	if (ImGui::InputFloat3("Position", (float*)&position) && isValid) {
+		selection->setPosition(position);
+		updated = true;
+	}
+	if (ImGui::InputFloat("RotationY", &rotationY) && isValid) {
+		selection->setRotation(float3(0, rotationY, 0));
+		updated = true;
+	}
+
+	if (!isValid) {
+		if (ImGui::Button("Create")) {
+			updated = true;
+			shared_ptr<TotemLock> totem = make_shared<TotemLock>(position, rotationY);
+			scene->m_totems.push_back(totem);
+		}
+	}
+	return updated;
+}
+
 void SceneEditorManager::refreshLibrary() {
 	m_library.clear();
 	m_library.reserve(scene->m_terrains.length() + scene->m_seaEffects.size() +
@@ -828,6 +858,8 @@ void SceneEditorManager::update_imgui() {
 						updated =
 							update_panel_sea(dynamic_cast<SeaEffect*>(f), m_selectedThisFrame);
 						break;
+					case Fragment::totemLock:
+						updated = update_panel_totemLock(dynamic_cast<TotemLock*>(f), m_selectedThisFrame);
 					}
 					if (updated)
 						scene->updated_fragment(f);
@@ -853,6 +885,10 @@ void SceneEditorManager::update_imgui() {
 						}
 						if (ImGui::BeginTabItem("ParticleSystem")) {
 							updated = update_panel_effect(nullptr);
+							ImGui::EndTabItem();
+						}
+						if (ImGui::BeginTabItem("TotemLock")) {
+							updated = update_panel_totemLock(nullptr);
 							ImGui::EndTabItem();
 						}
 						ImGui::EndTabBar();

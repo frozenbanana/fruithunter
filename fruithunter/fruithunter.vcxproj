@@ -188,6 +188,7 @@
     <ClCompile Include="Source\Drawable\ParticleSystem\Particle.cpp" />
     <ClCompile Include="Source\Drawable\ParticleSystem\ParticleSystem.cpp" />
     <ClCompile Include="Source\Drawable\SeaEffect.cpp" />
+    <ClCompile Include="Source\Drawable\TotemLock.cpp" />
     <ClCompile Include="Source\Drawable\Transformation.cpp" />
     <ClCompile Include="Source\Graphics\Renderer.cpp" />
     <ClCompile Include="Source\Graphics\ShaderSet.cpp" />
@@ -261,6 +262,7 @@
     <ClInclude Include="Source\Drawable\ParticleSystem\Particle.h" />
     <ClInclude Include="Source\Drawable\ParticleSystem\ParticleSystem.h" />
     <ClInclude Include="Source\Drawable\SeaEffect.h" />
+    <ClInclude Include="Source\Drawable\TotemLock.h" />
     <ClInclude Include="Source\Drawable\Transformation.h" />
     <ClInclude Include="Source\Graphics\Renderer.h" />
     <ClInclude Include="Source\Graphics\ShaderSet.h" />
