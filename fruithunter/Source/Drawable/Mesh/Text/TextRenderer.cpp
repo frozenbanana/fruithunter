@@ -294,4 +294,8 @@ void TextRenderer::drawTextInWorld(string text, float3 position, float3 lookAt, 
 	Renderer::getInstance()->enableAlphaBlending();
 	Renderer::draw(m_vertexCount, 0);
 	Renderer::getInstance()->disableAlphaBlending();
+
+	// Release
+	holdRTV->Release();
+	holdDSV->Release();
 }

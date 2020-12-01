@@ -176,5 +176,6 @@ bool Sprite2D::SpriteTexture::load(string path) {
 		m_textureSize = XMINT2(texDesc.Width, texDesc.Height);
 		return true;
 	}
+	resource.Reset();
 
 }

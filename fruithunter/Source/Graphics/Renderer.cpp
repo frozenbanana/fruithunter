@@ -87,22 +87,32 @@ void Renderer::changeResolution(int width, int height) {
 	m_screenHeight = height;
 
 	// 1. clear the existing references to the backbuffer
-	ID3D11RenderTargetView* nullView = nullptr;
-	m_deviceContext->OMSetRenderTargets(1, &nullView, nullptr);
+	ID3D11ShaderResourceView* srvNULL[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = { nullptr };
+	m_deviceContext->PSSetShaderResources(0,ARRAYSIZE(srvNULL), srvNULL);
+	ID3D11RenderTargetView* nullView[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = { nullptr };
+	m_deviceContext->OMSetRenderTargets(ARRAYSIZE(nullView), nullView, nullptr);
 	m_renderTargetView.Reset();
 	m_depthDSV.Reset();
 	m_deviceContext->Flush(); // not quite sure necessary ?
 
 	// 2. Resize the existing swapchain
-	HRESULT hr =
-		m_swapChain->ResizeBuffers(2, m_screenWidth, m_screenHeight, m_backBufferDesc.Format, NULL);
-	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
-		ErrorLogger::log("In renderer, could not resize buffers");
+	DXGI_SWAP_CHAIN_DESC sc_desc;
+	HRESULT hr_gd = m_swapChain->GetDesc(&sc_desc);
+	if (FAILED(hr_gd))
+		ErrorLogger::logError("Failed getting swapChain description", hr_gd);
+
+	HRESULT hr = m_swapChain->ResizeBuffers(2, m_screenWidth, m_screenHeight, sc_desc.BufferDesc.Format, NULL);
+	if (FAILED(hr))
+		ErrorLogger::logError("In renderer, could not resize buffers", hr);
+
 	DXGI_MODE_DESC modeDesc = { 0 };
 	modeDesc.Width = m_screenWidth;
 	modeDesc.Height = m_screenHeight;
-	// modeDesc.Format = m_swapChain->GetDesc.format;
-	m_swapChain->ResizeTarget(&modeDesc);
+	modeDesc.Format = sc_desc.BufferDesc.Format;
+	HRESULT hr_rt = m_swapChain->ResizeTarget(&modeDesc);
+	if (FAILED(hr_rt))
+		ErrorLogger::logError("Failed resizing swapChain target", hr_rt);
+
 	// 3. Get the new backbuffer texture to use as a render target
 	createRenderTarget();
 
@@ -141,6 +151,8 @@ void Renderer::copyDepthToSRV() {
 	m_depthSRV.Get()->GetResource(&dst);
 	m_depthDSV.Get()->GetResource(&src);
 	m_deviceContext->CopyResource(dst, src);
+	dst->Release();
+	src->Release();
 }
 
 void Renderer::copyTargetToSRV() {
@@ -148,6 +160,8 @@ void Renderer::copyTargetToSRV() {
 	m_targetSRVCopy.Get()->GetResource(&dst);
 	m_renderTargetView.Get()->GetResource(&src);
 	m_deviceContext->CopyResource(dst, src);
+	dst->Release();
+	src->Release();
 }
 
 void Renderer::bindRenderAndDepthTarget() {
@@ -161,17 +175,20 @@ void Renderer::bindRenderTarget() {
 }
 
 void Renderer::captureFrame() {
-	auto hr = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&m_backBufferTex);
+	ID3D11Texture2D* tex = nullptr;
+	auto hr = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&tex);
 	if (FAILED(hr)) {
 		ErrorLogger::logError("Failed to capture backbuffer.", hr);
 	}
 	else {
 		// Write out the render target to png
-		hr = SaveWICTextureToFile(Renderer::getDeviceContext(), m_backBufferTex.Get(),
+		hr = SaveWICTextureToFile(Renderer::getDeviceContext(), tex,
 			GUID_ContainerFormatPng, L"assets/captures/backbuffer.png", nullptr, nullptr);
 		m_capturedFrame.init();
 		m_capturedFrameLoaded = true;
 	}
+	if (tex != nullptr)
+	tex->Release();
 }
 
 void Renderer::drawCapturedFrame() {
@@ -328,8 +345,8 @@ void Renderer::beginFrame() {
 	//	CD3D11_VIEWPORT(0.f, 0.f, (float)m_backBufferDesc.Width, (float)m_backBufferDesc.Height);
 	// m_deviceContext->RSSetViewports(1, &viewport);
 	D3D11_VIEWPORT vp;
-	vp.Width = (float)m_backBufferDesc.Width;
-	vp.Height = (float)m_backBufferDesc.Height;
+	vp.Width = m_screenWidth; //(float)m_backBufferDesc.Width;
+	vp.Height = m_screenHeight; //(float)m_backBufferDesc.Height;
 	vp.MinDepth = 0.0f;
 	vp.MaxDepth = 1.0f;
 	vp.TopLeftX = 0;
@@ -412,11 +429,11 @@ void Renderer::createRenderTarget() {
 		return;
 	};
 
-	backBuffer->GetDesc(&m_backBufferDesc);
 	if (backBuffer != nullptr)
 		backBuffer->Release();
 
 	// Render ShaderResourceView Copy
+	m_targetSRVCopy.Reset();
 	DXGI_SWAP_CHAIN_DESC swap_desc;
 	m_swapChain->GetDesc(&swap_desc);
 	D3D11_TEXTURE2D_DESC copyDesc;
@@ -481,6 +498,7 @@ void Renderer::createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd) {
 
 	//	DEPTH COPY
 
+	m_depthSRV.Reset();
 	// texture 2d copy
 	ID3D11Texture2D* texCopy = 0;
 	D3D11_TEXTURE2D_DESC CopyDeStDesc = DeStDesc;

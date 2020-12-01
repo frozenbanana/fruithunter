@@ -84,7 +84,6 @@ private:
 	//RenderTarget
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_targetSRVCopy;
-	D3D11_TEXTURE2D_DESC m_backBufferDesc;
 
 	//BlendState
 	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendStateAlphaBlending;
@@ -94,7 +93,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthDSV;	 // Depth stencil view
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthDSS;	 // Depth stencil state
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthSRV; // Depth shader resource view
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_backBufferTex;
 
 	//buffer
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_screenSizeBuffer;
