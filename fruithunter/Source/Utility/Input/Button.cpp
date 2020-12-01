@@ -69,13 +69,12 @@ bool Button::update() {
 				m_on = !m_on;
 			}
 			else if (m_isLowMedHighUltra) {
-				if (m_on) m_lowMedHighUltra++;
+				m_lowMedHighUltra++;
 				if (m_lowMedHighUltra > 3)
 					m_lowMedHighUltra = 0;
 			}
 			else if (m_isResolution) {
-				if (m_on)
-					m_resolution++;
+				m_resolution++;
 				if (m_resolution > 3)
 					m_resolution = 0;
 			}
