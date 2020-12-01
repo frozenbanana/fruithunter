@@ -54,12 +54,6 @@ void Settings::setDarkEdges(bool value) { m_darkEdges = value; }
 
 void Settings::setFullscreen(bool value) {
 	m_fullscreen = value;
-	if (value) {
-		RECT screen;
-		const HWND hDesktop = GetDesktopWindow();
-		GetWindowRect(hDesktop, &screen);
-		Settings::getInstance()->setResolution(screen.right, screen.bottom);
-	}
 	Renderer::getInstance()->setFullscreen(m_fullscreen);
 }
 
@@ -84,8 +78,10 @@ void Settings::setSensitivity(float value) { m_sensitivity = value; }
 
 void Settings::setResolution(int width, int height) {
 	XMINT2 desiredResolution(width, height);
-	m_resolution = desiredResolution;
-	Renderer::getInstance()->changeResolution(width, height);
+	if (desiredResolution.x != m_resolution.x || desiredResolution.y != m_resolution.y) {
+		m_resolution = desiredResolution;
+		Renderer::getInstance()->changeResolution(width, height);
+	}
 }
 
 void Settings::setShadowResolution(int res) {
