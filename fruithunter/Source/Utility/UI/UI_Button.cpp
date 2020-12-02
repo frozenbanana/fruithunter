@@ -55,7 +55,7 @@ void UI_Button::draw() {
 	m_sprite.draw();
 
 	//text
-	m_textRenderer.setScale(getScale().y * screenModifier.y * 1.4f);
+	m_textRenderer.setScale(getScale().y * screenModifier.y * 0.5f);
 	m_textRenderer.setRotation(getRotation());
 	m_textRenderer.draw(m_text, getPosition() * screenModifier);
 }
