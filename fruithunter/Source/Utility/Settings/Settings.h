@@ -12,18 +12,18 @@ private:
 	const string m_path = "assets/settings.txt";
 
 	// settings variables
-	bool m_vsync = true;
-	bool m_fullscreen = false;
-	bool m_darkEdges = true;
-
-	float m_masterVolume = 0.5f;
-	float m_musicVolume = 0.5f;
-	float m_effectsVolume = 0.5f;
-	float m_drawDistance = 0.5f;
-	float m_sensitivity = 0.5f;
-
-	XMINT2 m_resolution = XMINT2(1280, 720);
-	int m_shadowResolution = 2048;
+	struct SettingContainer {
+		bool vsync = false;
+		bool fullscreen = false;
+		bool darkEdges = true;
+		float volume_master = 0.5f;
+		float volume_music = 0.5f;
+		float volume_effect = 0.5f;
+		float drawDistance = 0.5f;
+		float sensitivity = 0.5f;
+		XMINT2 resolution = XMINT2(1280,720);
+		int resolution_shadow = 2048;
+	} m_tempContainer, m_container; // need to copy each value manually to ensure overhead(other classes) is updated correctly
 
 public:
 	static void initialize();

@@ -106,7 +106,6 @@ void LevelSelectState::draw() {
 	sceneManager.draw_color();
 	// custom drawing (without darkedges)
 
-
 }
 
 void LevelSelectState::play() {

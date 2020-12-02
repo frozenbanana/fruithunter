@@ -4,7 +4,7 @@ DarkEdges:true
 MasterVolume:0.500000
 MusicVolume:0.487500
 EffectsVolume:0.500000
-DrawDistance:0.500000
+DrawDistance:1.000000
 ResolutionX:1280
 ResolutionY:720
 ShadowResolution:8192

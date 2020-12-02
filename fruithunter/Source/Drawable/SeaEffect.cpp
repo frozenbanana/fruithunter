@@ -137,6 +137,7 @@ XMINT2 SeaEffect::getResourceSize(ID3D11ShaderResourceView* view) {
 	view->GetResource(&res);
 	ID3D11Texture2D* tex = nullptr;
 	HRESULT hr = res->QueryInterface(&tex);
+	if(res)res->Release();
 
 	D3D11_TEXTURE2D_DESC desc;
 	tex->GetDesc(&desc);

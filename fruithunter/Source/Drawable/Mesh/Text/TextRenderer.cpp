@@ -252,8 +252,8 @@ void TextRenderer::drawTextInWorld(string text, float3 position, float3 lookAt, 
 		setViewSize(XMINT2((UINT)textSize.x, (UINT)textSize.y));
 	auto deviceContext = Renderer::getDeviceContext();
 	// save settings (push)
-	ID3D11RenderTargetView* holdRTV;
-	ID3D11DepthStencilView* holdDSV;
+	ID3D11RenderTargetView* holdRTV = nullptr;
+	ID3D11DepthStencilView* holdDSV = nullptr;
 	D3D11_VIEWPORT holdVp;
 	UINT vpCount = 1;
 	deviceContext->OMGetRenderTargets(1, &holdRTV, &holdDSV);
@@ -294,4 +294,8 @@ void TextRenderer::drawTextInWorld(string text, float3 position, float3 lookAt, 
 	Renderer::getInstance()->enableAlphaBlending();
 	Renderer::draw(m_vertexCount, 0);
 	Renderer::getInstance()->disableAlphaBlending();
+
+	// Release
+	if(holdRTV)holdRTV->Release();
+	if(holdDSV)holdDSV->Release();
 }
