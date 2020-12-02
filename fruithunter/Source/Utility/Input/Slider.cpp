@@ -47,6 +47,8 @@ void Slider::initialize(string label, float2 pos) {
 
 	m_colour = float4(1.f, 1.f, 1.f, 1.f);
 	m_sliding = false;
+
+	m_textRenderer.setScale(m_scale * 8.0f);
 }
 
 float Slider::getValue() { return m_value; }
