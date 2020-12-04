@@ -25,8 +25,6 @@ void Scene::clear() {
 
 	// utility
 	m_utility = SceneAbstactContent::SceneUtilityInfo();
-	// spawn locations
-	m_fruitSpawns.clear();
 	// Gathered fruit
 	for (size_t i = 0; i < NR_OF_FRUITS; i++)
 		m_gatheredFruits[i] = 0;
@@ -246,11 +244,22 @@ void Scene::load(string folder) {
 		content.load_raw(folder);
 
 		// heightmap
-		for (size_t i = 0; i < content.m_heightmapAreas.size(); i++) {
-			SceneAbstactContent::HeightmapContent* c = &content.m_heightmapAreas[i];
-			m_terrains.add(c->position, c->scale, c->heightmapName, c->textures, c->subSize,
-				c->division, c->wind, (AreaTag)c->areaTag);
+		vector<string> files;
+		read_directory("assets/Scenes/" + m_sceneName, files);
+		files = vector<string>(files.begin() + 2, files.end());
+		for (size_t i = 0; i < files.size(); i++) {
+			size_t offset = files[i].find('.', 0);
+			if (offset != string::npos) {
+				offset++; // skip '.'
+				string ending = files[i].substr(offset, files[i].length() - offset);
+				if (ending == "env") {
+					shared_ptr<Environment> env = make_shared<Environment>();
+					env->loadFromBinFile("assets/Scenes/" + m_sceneName + "/" + files[i]);
+					m_terrains.add(env);
+				}
+			}
 		}
+
 		// sea
 		m_seaEffects.resize(content.m_seaAreas.size());
 		for (size_t i = 0; i < content.m_seaAreas.size(); i++) {
@@ -295,14 +304,7 @@ void Scene::load(string folder) {
 		}
 		// utility
 		m_utility = content.m_utility;
-		// spawn locations
-		m_fruitSpawns.resize(content.m_heightmapAreas.size());
-		for (size_t i = 0; i < content.m_heightmapAreas.size(); i++) {
-			for (size_t iFruit = 0; iFruit < NR_OF_FRUITS; iFruit++) {
-				m_fruitSpawns[i].quantity[iFruit] +=
-					content.m_heightmapAreas[i].spawnFruits[iFruit];
-			}
-		}
+
 		PathFindingThread::unlock();
 
 		reset();
@@ -314,22 +316,9 @@ void Scene::save() {
 		SceneAbstactContent content;
 
 		// terrains
-		content.m_heightmapAreas.resize(m_terrains.length());
 		for (size_t i = 0; i < m_terrains.length(); i++) {
-			SceneAbstactContent::HeightmapContent* hc = &content.m_heightmapAreas[i];
-			Terrain* t = m_terrains.getTerrainFromIndex(i).get();
-			hc->areaTag = (int)t->getTag();
-			hc->heightmapName = t->getLoadedHeightmapFilename();
-			hc->position = t->getPosition();
-			hc->rotation = t->getRotation();
-			hc->scale = t->getScale();
-			hc->subSize = t->getSubSize();
-			hc->division = t->getSplits();
-			t->getTextures(hc->textures);
-			hc->wind = t->getWindStatic();
-			for (size_t j = 0; j < NR_OF_FRUITS; j++) {
-				hc->spawnFruits[j] = m_fruitSpawns[i].quantity[j];
-			}
+			m_terrains.getTerrainFromIndex(i)->storeToBinFile(
+				"assets/Scenes/" + m_sceneName + "/terrain" + to_string(i) + ".env");
 		}
 
 		// seas
@@ -411,13 +400,13 @@ void Scene::reset() {
 	//fruits
 	m_fruits.clear();
 	size_t total = 0;
-	for (size_t i = 0; i < m_fruitSpawns.size(); i++)
+	for (size_t i = 0; i < m_terrains.length(); i++)
 		for (size_t iFruit = 0; iFruit < NR_OF_FRUITS; iFruit++)
-			total = m_fruitSpawns[i].quantity[iFruit];
+			total = m_terrains.getTerrainFromIndex(i)->getFruitCount((FruitType)iFruit);
 	m_fruits.reserve(total);
-	for (size_t i = 0; i < m_fruitSpawns.size(); i++) {
+	for (size_t i = 0; i < m_terrains.length(); i++) {
 		for (size_t iFruit = 0; iFruit < NR_OF_FRUITS; iFruit++) {
-			size_t count = m_fruitSpawns[i].quantity[iFruit];
+			size_t count = m_terrains.getTerrainFromIndex(i)->getFruitCount((FruitType)iFruit);
 			for (size_t j = 0; j < count; j++) {
 				float3 spawn = m_terrains.getSpawnpoint(i);
 				switch (iFruit) {
@@ -482,14 +471,14 @@ float Scene::getDeltaTime() {
 
 float Scene::getDeltaTime_skipSlow() { return m_timer.getDt(); }
 
-void SceneAbstactContent::fileInput_string(fstream& file, string str) { 
+void SceneAbstactContent::fileWrite_string(fstream& file, string str) { 
 	size_t length = str.length();
-	fileInput_ulong(file, length);
+	fileWrite_ulong(file, length);
 	file.write(str.c_str(),length); 
 }
 
-string SceneAbstactContent::fileOutput_string(fstream& file) { 
-	size_t length = fileOutput_ulong(file);
+string SceneAbstactContent::fileRead_string(fstream& file) { 
+	size_t length = fileRead_ulong(file);
 	char* text = new char[length];
 	file.read(text, length);
 	string ret;
@@ -498,11 +487,11 @@ string SceneAbstactContent::fileOutput_string(fstream& file) {
 	return ret;
 }
 
-void SceneAbstactContent::fileInput_ulong(fstream& file, size_t v) {
+void SceneAbstactContent::fileWrite_ulong(fstream& file, size_t v) {
 	file.write((char*)&v, sizeof(size_t));
 }
 
-size_t SceneAbstactContent::fileOutput_ulong(fstream& file) { 
+size_t SceneAbstactContent::fileRead_ulong(fstream& file) { 
 	size_t ret;
 	file.read((char*)&ret, sizeof(size_t));
 	return ret;
@@ -513,45 +502,28 @@ bool SceneAbstactContent::load_raw(string folder) {
 	fstream file;
 	file.open(path+"/scene.data", ios::in | ios::binary);
 	if (file.is_open()) {
-		// terrain
-		size_t size = fileOutput_ulong(file);
-		m_heightmapAreas.resize(size);
-		for (size_t i = 0; i < size; i++) {
-			file.read((char*)&m_heightmapAreas[i].areaTag, sizeof(int));//area tag
-			m_heightmapAreas[i].heightmapName = fileOutput_string(file);//heightmap name
-			file.read((char*)&m_heightmapAreas[i].position, sizeof(float3));//position
-			file.read((char*)&m_heightmapAreas[i].rotation, sizeof(float3));//rotation
-			file.read((char*)&m_heightmapAreas[i].scale, sizeof(float3));//scale
-			file.read((char*)&m_heightmapAreas[i].subSize, sizeof(XMINT2));//subsize
-			file.read((char*)&m_heightmapAreas[i].division, sizeof(XMINT2));//divisions
-			for (size_t itex = 0; itex < 4; itex++) 
-				m_heightmapAreas[i].textures[itex] = fileOutput_string(file);//textures
-			file.read((char*)&m_heightmapAreas[i].wind, sizeof(float3));//wind
-			for (size_t ifruit = 0; ifruit < NR_OF_FRUITS; ifruit++) 
-				file.read((char*)&m_heightmapAreas[i].spawnFruits[ifruit], sizeof(int));//fruit spawns
-		}
 		// seas
-		size = fileOutput_ulong(file);
+		size_t size = fileRead_ulong(file);
 		m_seaAreas.resize(size);
 		for (size_t i = 0; i < size; i++)
 			file.read((char*)&m_seaAreas[i], sizeof(SeaContent));
 		// particlesystems
-		size = fileOutput_ulong(file);
+		size = fileRead_ulong(file);
 		m_particleSystemContents.resize(size);
 		for (size_t i = 0; i < size; i++)
 			file.read((char*)&m_particleSystemContents[i], sizeof(ParticleSystemContent));
 		// entities
-		size = fileOutput_ulong(file);
+		size = fileRead_ulong(file);
 		m_entities.resize(size);
 		for (size_t i = 0; i < size; i++) {
-			m_entities[i].model = fileOutput_string(file);
-			size_t subSize = fileOutput_ulong(file);
+			m_entities[i].model = fileRead_string(file);
+			size_t subSize = fileRead_ulong(file);
 			m_entities[i].instances.resize(subSize);
 			file.read(
 				(char*)m_entities[i].instances.data(), sizeof(GroupInstance::Instance) * subSize);
 		}
 		//animals
-		size = fileOutput_ulong(file);
+		size = fileRead_ulong(file);
 		m_animals.resize(size);
 		for (size_t i = 0; i < size; i++) {
 			file.read((char*)&m_animals[i], sizeof(AnimalContent));
@@ -571,41 +543,24 @@ bool SceneAbstactContent::save_raw(string folder) {
 	fstream file;
 	file.open(path+"/scene.data", ios::out | ios::binary);
 	if (file.is_open()) {
-		//terrain
-		fileInput_ulong(file, m_heightmapAreas.size());
-		for (size_t i = 0; i < m_heightmapAreas.size(); i++) {
-			file.write((char*)&m_heightmapAreas[i].areaTag, sizeof(int));	 // area tag
-			fileInput_string(file, m_heightmapAreas[i].heightmapName);		  // heightmap name
-			file.write((char*)&m_heightmapAreas[i].position, sizeof(float3)); // position
-			file.write((char*)&m_heightmapAreas[i].rotation, sizeof(float3)); // rotation
-			file.write((char*)&m_heightmapAreas[i].scale, sizeof(float3));	  // scale
-			file.write((char*)&m_heightmapAreas[i].subSize, sizeof(XMINT2));  // subsize
-			file.write((char*)&m_heightmapAreas[i].division, sizeof(XMINT2)); // divisions
-			for (size_t itex = 0; itex < 4; itex++)
-				fileInput_string(file, m_heightmapAreas[i].textures[itex]); // textures
-			file.write((char*)&m_heightmapAreas[i].wind, sizeof(float3));	  // wind
-			for (size_t ifruit = 0; ifruit < NR_OF_FRUITS; ifruit++)
-				file.write(
-					(char*)&m_heightmapAreas[i].spawnFruits[ifruit], sizeof(int)); // fruit spawns
-		}
 		//seas
-		fileInput_ulong(file, m_seaAreas.size());
+		fileWrite_ulong(file, m_seaAreas.size());
 		for (size_t i = 0; i < m_seaAreas.size(); i++)
 			file.write((char*)&m_seaAreas[i], sizeof(SeaContent));
 		//particlesystems
-		fileInput_ulong(file, m_particleSystemContents.size());
+		fileWrite_ulong(file, m_particleSystemContents.size());
 		for (size_t i = 0; i < m_particleSystemContents.size(); i++)
 			file.write((char*)&m_particleSystemContents[i], sizeof(ParticleSystemContent));
 		//entities
-		fileInput_ulong(file, m_entities.size());
+		fileWrite_ulong(file, m_entities.size());
 		for (size_t i = 0; i < m_entities.size(); i++) {
-			fileInput_string(file, m_entities[i].model);
-			fileInput_ulong(file, m_entities[i].instances.size());
+			fileWrite_string(file, m_entities[i].model);
+			fileWrite_ulong(file, m_entities[i].instances.size());
 			file.write((char*)m_entities[i].instances.data(),
 				sizeof(GroupInstance::Instance) * m_entities[i].instances.size());
 		}
 		//animals
-		fileInput_ulong(file, m_animals.size());
+		fileWrite_ulong(file, m_animals.size());
 		for (size_t i = 0; i < m_animals.size(); i++) {
 			file.write((char*)&m_animals[i], sizeof(AnimalContent));
 		}

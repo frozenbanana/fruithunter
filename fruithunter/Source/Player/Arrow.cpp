@@ -127,10 +127,10 @@ void Arrow::update(float dt) {
 	if (m_active) {
 		// dont update arrow position if arrow is disabled (hitting something makes it stop!)
 		float3 wind(0.);
-		Terrain* inTerrain =
+		Environment* inEnvironment =
 			SceneManager::getScene()->m_terrains.getTerrainFromPosition(getPosition());
-		if (inTerrain != nullptr)
-			wind = inTerrain->getWindStatic();
+		if (inEnvironment != nullptr)
+			wind = inEnvironment->getWindStatic();
 		update_physics(dt, wind);
 		//update position
 		setPosition(getPosition() + m_velocity * dt);

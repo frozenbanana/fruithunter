@@ -8,7 +8,7 @@ enum bbFrustumState { State_Inside, State_Inbetween, State_Outside };
 template <typename Element> class QuadTree {
 private:
 	struct ElementPart {
-		size_t index;
+		size_t index = 0;
 		float3 position, size;
 		bool fetched = false;
 		Element element;
@@ -35,7 +35,6 @@ private:
 			float3 boxPos, float3 boxSize, const vector<FrustumPlane>& planes);
 
 	public:
-		static int test;
 		size_t getElementCount() const;
 		void log(int level = 0);
 		void clear();
@@ -535,9 +534,10 @@ inline QuadTree<Element>& QuadTree<Element>::operator=(const QuadTree<Element>& 
 	m_node.clear();
 	m_elementParts.resize(other.m_elementParts.size());
 	for (size_t i = 0; i < m_elementParts.size(); i++) {
-		m_elementParts[i] = make_shared<Element>(*other.m_elementParts[i].get());
+		m_elementParts[i] = make_shared<ElementPart>(*other.m_elementParts[i].get());
 		m_node.add(m_elementParts[i].get());
 	}
+	return *this;
 }
 
 template <typename Element>

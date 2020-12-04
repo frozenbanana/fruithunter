@@ -11,15 +11,19 @@ void TerrainBatch::remove(size_t index) {
 void TerrainBatch::add(float3 position, float3 scale, string heightmapFilename,
 	string textures[4], XMINT2 subSize, XMINT2 division, float3 wind, AreaTag tag) {
 	
-	m_terrains.push_back(make_shared<Terrain>());//create new
-	m_terrains.back()->initilize(heightmapFilename, textures, subSize, division, wind, tag);
+	m_terrains.push_back(make_shared<Environment>());//create new
+	m_terrains.back()->initilize(heightmapFilename, textures, subSize, division);
 	m_terrains.back()->setPosition(position);
 	m_terrains.back()->setScale(scale);
+	m_terrains.back()->setWind(wind);
+	m_terrains.back()->setTag(tag);
 }
+
+void TerrainBatch::add(shared_ptr<Environment> environment) { m_terrains.push_back(environment); }
 
 void TerrainBatch::clear() { m_terrains.clear(); }
 
-Terrain* TerrainBatch::getTerrainFromPosition(float3 position) {
+Environment* TerrainBatch::getTerrainFromPosition(float3 position) {
 	for (size_t i = 0; i < m_terrains.size(); i++) {
 		if (m_terrains[i]->pointInsideTerrainBoundingBox(float3(position.x, 0.0, position.z))) {
 			return m_terrains[i].get();
@@ -37,7 +41,7 @@ for (size_t i = 0; i < m_terrains.size(); i++) {
 	return -1;
 }
 
-shared_ptr<Terrain> TerrainBatch::getTerrainFromIndex(size_t index) {
+shared_ptr<Environment> TerrainBatch::getTerrainFromIndex(size_t index) {
 	return m_terrains[index];
 }
 
@@ -90,11 +94,96 @@ void TerrainBatch::draw() {
 		m_terrains[i]->draw();
 }
 
+void TerrainBatch::draw_brush(const Terrain::Brush& brush) {
+	for (size_t i = 0; i < m_terrains.size(); i++)
+		m_terrains[i]->draw_brush(brush);
+}
+
 void TerrainBatch::draw_onlyMesh() {
 	for (size_t i = 0; i < m_terrains.size(); i++)
 		m_terrains[i]->draw_onlyMesh();
 }
 
+void TerrainBatch::editMesh(const Terrain::Brush& brush, Terrain::Brush::Type type) {
+	for (size_t i = 0; i < m_terrains.size(); i++)
+		m_terrains[i]->editMesh(brush,type);
+}
+
 float3 TerrainBatch::getSpawnpoint(size_t terrainIndex) {
 	return m_terrains[terrainIndex]->getRandomSpawnPoint();
+}
+
+Environment::Environment(
+	string filename, string textures[4], XMINT2 subsize, XMINT2 splits, float3 wind, AreaTag tag) : Terrain(filename, textures, subsize, splits) {
+	setWind(wind);
+	setTag(tag);
+}
+
+void Environment::setWind(float3 wind) { m_wind = wind; }
+
+void Environment::setTag(AreaTag tag) { m_tag = tag; }
+
+void Environment::setFruitSpawns(int fruitSpawns[NR_OF_FRUITS]) {
+	memcpy(m_fruitSpawn, fruitSpawns, sizeof(int) * NR_OF_FRUITS);
+}
+
+float3 Environment::getWindStatic() const { return m_wind; }
+
+AreaTag Environment::getTag() const { return m_tag; }
+
+int Environment::getFruitCount(FruitType type) const { return m_fruitSpawn[type]; }
+
+float3 Environment::getRandomSpawnPoint() {
+	float3 point;
+	float3 normal;
+	size_t iterator = 0;
+	do {
+		point = float3::Transform(float3(RandomFloat(0, 1), 0, RandomFloat(0, 1)), getMatrix());
+		point.y = getHeightFromPosition(point.x, point.z);
+		normal = getNormalFromPosition(point.x, point.z);
+		iterator++;
+	} while (normal.Dot(float3(0, 1, 0)) < 0.75f || point.y < 0.5f || iterator > 100);
+	if (iterator > 100)
+		ErrorLogger::logError("(Environment) Failed finding a spawn point for fruit!",HRESULT());
+	return point;
+}
+
+void Environment::loadFromBinFile(string path) {
+	fstream file;
+	file.open(path, ios::in | ios::binary);
+	if (file.is_open()) {
+		// area
+		file.read((char*)&m_tag, sizeof(AreaTag));
+		// wind
+		file.read((char*)&m_wind, sizeof(float3));
+		// fruit spawns
+		file.read((char*)m_fruitSpawn, sizeof(int) * NR_OF_FRUITS);
+		// terrain
+		loadFromFile_binary(file);
+
+		file.close();
+	}
+	else
+		ErrorLogger::logError(
+			"(Environment) Failed loading environment from file! path: " + path, HRESULT());
+}
+
+void Environment::storeToBinFile(string path) {
+	fstream file;
+	file.open(path, ios::out | ios::binary);
+	if (file.is_open()) {
+		// area
+		file.write((char*)&m_tag, sizeof(AreaTag));
+		// wind
+		file.write((char*)&m_wind, sizeof(float3));
+		// fruit spawns
+		file.write((char*)m_fruitSpawn, sizeof(int)*NR_OF_FRUITS);
+		// terrain
+		storeToFile_binary(file);
+
+		file.close();
+	}
+	else
+		ErrorLogger::logError(
+			"(Environment) Failed saving environment to file! path: " + path, HRESULT());
 }

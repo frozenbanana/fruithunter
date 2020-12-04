@@ -159,9 +159,9 @@ void SceneManager::update(Camera* overrideCamera) {
 
 	// Update Skybox
 	scene->m_skyBox.update(dt);
-	const Terrain* activeTerrain = scene->m_terrains.getTerrainFromPosition(player->getPosition());
-	if (activeTerrain != nullptr) {
-		AreaTag tag = activeTerrain->getTag();
+	const Environment* activeEnvironment = scene->m_terrains.getTerrainFromPosition(player->getPosition());
+	if (activeEnvironment != nullptr) {
+		AreaTag tag = activeEnvironment->getTag();
 		scene->m_skyBox.switchLight(tag);
 		if (!m_manualCamera)
 			scene->update_activeTerrain(tag);

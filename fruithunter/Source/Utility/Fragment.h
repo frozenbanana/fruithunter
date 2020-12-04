@@ -17,7 +17,7 @@ public:
 	Fragment(const Fragment& other);
 	virtual ~Fragment();
 
-	void operator=(const Fragment& other);
+	Fragment& operator=(const Fragment& other);
 
 	void rename(std::string description);
 	void changeType(Type type);

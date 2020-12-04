@@ -16,9 +16,11 @@ Fragment::Fragment(const Fragment& other) { operator=(other); }
 
 Fragment::~Fragment() {}
 
-void Fragment::operator=(const Fragment& other) { m_type = other.m_type;
+Fragment& Fragment::operator=(const Fragment& other) {
+	m_type = other.m_type;
 	m_description = other.m_description;
 	m_id = nextID();
+	return *this;
 }
 
 void Fragment::rename(std::string description) { m_description = description; }

@@ -3,8 +3,245 @@
 #include "AudioController.h"
 #include "PathFindingThread.h"
 #include "Settings.h"
+#include <WICTextureLoader.h>
+#include <ScreenGrab.h>
+#include <wincodec.h>
 
-bool SceneEditorManager::update_panel_terrain(Terrain* selection, bool update) {
+void SceneEditorManager::update_imgui_library() {
+	Input* ip = Input::getInstance();
+	{
+		if (ImGui::BeginChild("win_fragmentDisplayer", ImVec2(200, 0), true, ImGuiWindowFlags_AlwaysAutoResize)) {
+			ImVec2 childSize = ImGui::GetWindowSize();
+			ImGui::Text("Fragments");
+			if (ImGui::ListBoxHeader("", ImVec2(200, childSize.y-70))) {
+				for (size_t i = 0; i < m_library.size(); i++) {
+					bool selected = (m_selectedIndex == i);
+					if (ImGui::Selectable(m_library[i]->getFullDescription().c_str(), selected)) {
+						if (selected) {
+							deselect_fragment();
+						}
+						else {
+							select_fragment(i);
+						}
+					}
+				}
+				ImGui::ListBoxFooter();
+			}
+			if (m_selectedIndex != -1) {
+				Fragment* f = m_library[m_selectedIndex];
+				if (ImGui::Button("Find")) {
+					Transformation* t = dynamic_cast<Transformation*>(f);
+					if (t != nullptr) {
+						m_camera.setEye(t->getPosition() + float3(1, 1, 0) * 2.f);
+						m_camera.setTarget(t->getPosition());
+					}
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Remove") || ip->keyPressed(m_key_delete)) {
+					scene->remove_fragment(f);
+					refreshLibrary();
+				}
+				if (ImGui::IsItemHovered()) {
+					ImGui::BeginTooltip();
+					ImGui::Text("QuickButton (Del)");
+					ImGui::EndTooltip();
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Copy") || ip->keyPressed(m_key_copy)) {
+					Fragment::Type type = f->getType();
+					bool anyUpdate = true;
+					if (type == Fragment::Type::animal) {
+						Animal* obj = dynamic_cast<Animal*>(f);
+						scene->m_animals.push_back(make_shared<Animal>(*obj));
+					}
+					else if (type == Fragment::Type::entity) {
+						Entity* target = dynamic_cast<Entity*>(f);
+						shared_ptr<Entity> obj = make_shared<Entity>(*target);
+						scene->m_entities.add(obj->getLocalBoundingBoxPosition(),
+							obj->getLocalBoundingBoxSize(), obj->getMatrix(), obj);
+					}
+					else if (type == Fragment::Type::particleSystem) {
+						ParticleSystem* obj = dynamic_cast<ParticleSystem*>(f);
+						scene->m_particleSystems.push_back(*obj);
+					}
+					else if (type == Fragment::Type::sea) {
+						SeaEffect* target = dynamic_cast<SeaEffect*>(f);
+						shared_ptr<SeaEffect> obj = make_shared<SeaEffect>(*target);
+						scene->m_seaEffects.push_back(obj);
+					}
+					else if (type == Fragment::Type::terrain) {
+						Environment* obj = dynamic_cast<Environment*>(f);
+						shared_ptr<Environment> sh_obj = make_shared<Environment>(*obj);
+						scene->m_terrains.add(sh_obj);
+					}
+					else
+						anyUpdate = false;
+					if (anyUpdate)
+						refreshLibrary();
+				}
+				if (ImGui::IsItemHovered()) {
+					ImGui::BeginTooltip();
+					ImGui::Text("QuickButton (C)");
+					ImGui::EndTooltip();
+				}
+			}
+			ImGui::EndChild();
+		}
+	}
+	ImGui::SameLine();
+	{
+		ImGui::PushItemWidth(150);
+		ImGui::BeginGroup();
+		if (m_selectedIndex != -1) {
+			bool updated = false;
+			Fragment* f = m_library[m_selectedIndex];
+			switch (f->getType()) {
+			case Fragment::entity:
+				updated = update_panel_entity(dynamic_cast<Entity*>(f), m_selectedThisFrame);
+				break;
+			case Fragment::animal:
+				updated = update_panel_animal(dynamic_cast<Animal*>(f), m_selectedThisFrame);
+				break;
+			case Fragment::terrain:
+				updated = update_panel_terrain(dynamic_cast<Environment*>(f), m_selectedThisFrame);
+				break;
+			case Fragment::particleSystem:
+				updated =
+					update_panel_effect(dynamic_cast<ParticleSystem*>(f), m_selectedThisFrame);
+				break;
+			case Fragment::sea:
+				updated = update_panel_sea(dynamic_cast<SeaEffect*>(f), m_selectedThisFrame);
+				break;
+			}
+			if (updated)
+				scene->updated_fragment(f);
+		}
+		else {
+			bool updated = false; // tells if a new fragment has been created
+			if (ImGui::BeginTabBar("fragmentCreator")) {
+				if (ImGui::BeginTabItem("Terrain")) {
+					updated = update_panel_terrain(nullptr);
+					ImGui::EndTabItem();
+				}
+				if (ImGui::BeginTabItem("Entity")) {
+					updated = update_panel_entity(nullptr);
+					ImGui::EndTabItem();
+				}
+				if (ImGui::BeginTabItem("Animal")) {
+					updated = update_panel_animal(nullptr);
+					ImGui::EndTabItem();
+				}
+				if (ImGui::BeginTabItem("SeaEffect")) {
+					updated = update_panel_sea(nullptr);
+					ImGui::EndTabItem();
+				}
+				if (ImGui::BeginTabItem("ParticleSystem")) {
+					updated = update_panel_effect(nullptr);
+					ImGui::EndTabItem();
+				}
+				ImGui::EndTabBar();
+			}
+			if (updated)
+				refreshLibrary();
+		}
+		ImGui::EndGroup();
+		ImGui::PopItemWidth();
+	}
+}
+
+void SceneEditorManager::update_imgui_gameRules() {
+	static char text[50];
+	memset(text, NULL, 50);
+	memcpy(text, scene->m_sceneName.c_str(), scene->m_sceneName.size());
+	ImGui::SetNextItemWidth(100);
+	if (ImGui::InputText("Scene Name", text, 50)) {
+		scene->m_sceneName = string(text);
+	}
+	for (size_t i = 0; i < NR_OF_FRUITS; i++) {
+		ImGui::SetNextItemWidth(100);
+		ImGui::InputInt(("WinCondition (" + FruitTypeToString((FruitType)i) + ")").c_str(),
+			&scene->m_utility.winCondition[i]);
+	}
+	for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++) {
+		ImGui::SetNextItemWidth(100);
+		ImGui::InputInt(("Time Target (" + TimeTargetToString((TimeTargets)i) + ")").c_str(),
+			&scene->m_utility.timeTargets[i]);
+	}
+	if (ImGui::Button("FromPoint"))
+		scene->m_utility.startSpawn = m_pointer;
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(100);
+	ImGui::InputFloat3("Start Spawn", (float*)&scene->m_utility.startSpawn);
+}
+
+void SceneEditorManager::update_imgui_terrainEditor() {
+	ImGui::SetNextItemWidth(200);
+	ImGui::SliderFloat("Radius", &m_terrainBrush.radius, 0.1, 10);
+	static float falloffPoints[25] = {-1};
+	ImGui::SetNextItemWidth(200);
+	if (ImGui::SliderFloat("Falloff", &m_terrainBrush.falloff, 0, 5) || falloffPoints[0] == -1) {
+		for (size_t i = 0; i < ARRAYSIZE(falloffPoints); i++) {
+			float x = (float)i / (ARRAYSIZE(falloffPoints) - 1);
+			falloffPoints[i] =
+				1 - pow(1 - 0.5 * (1 - cos(x * 3.1415f)),
+						1.f / m_terrainBrush.falloff);
+		}
+	}
+	ImGui::PlotLines(
+		"Falloff Visual", falloffPoints, ARRAYSIZE(falloffPoints), 0, NULL, 0, 1, ImVec2(200, 40));
+	ImGui::SetNextItemWidth(200);
+	ImGui::SliderFloat("Strength", &m_terrainBrush.strength, 0, 1);
+
+	// if (ImGui::Button("Read Folder")) {
+	//	vector<string> files;
+	//	read_directory("assets/TerrainHeightmap", files);
+	//	for (size_t i = 0; i < files.size(); i++)
+	//		ErrorLogger::log(files[i]);
+	//}
+	// static Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> imgView;
+	////static Layer imgView;
+	// static string imageName = "";
+	// ImGui::InputText("Image Name",&imageName);
+	// static XMINT2 imageSize;
+	// ImGui::InputInt2("Image Size", (int*)&imageSize);
+	// if (ImGui::Button("Create Image")) {
+	//	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> view;
+	//	imgView = view;
+	//	Microsoft::WRL::ComPtr<ID3D11Resource> resource = nullptr;
+	//	view->GetResource(resource.GetAddressOf());
+	//	string path = "assets/TerrainHeightmap/" + imageName+".png";
+	//	wstring wstr(path.begin(),path.end());
+	//	HRESULT hr = SaveWICTextureToFile(Renderer::getDeviceContext(), resource.Get(),
+	//		GUID_ContainerFormatPng, wstr.c_str(), nullptr, nullptr);
+	//}
+	// if (ImGui::BeginChild("imageEditor", ImVec2(50, 50))) {
+	//	ImVec2 windowPosition = ImGui::GetWindowPos();
+	//	ImVec2 windowSize = ImGui::GetWindowSize();
+	//	Input* ip = Input::getInstance();
+	//	ImVec2 mouseRelativeWindow(
+	//		(int)ip->mouseX() - windowPosition.x, (int)ip->mouseY() - windowPosition.y);
+	//	// show image
+	//	ImGui::PushStyleColor(
+	//		ImGuiCol_ChildBg, IM_COL32(50, 50, 50, 255)); // Set a background color
+	//	ImGui::InvisibleButton("btnCatch", windowSize);
+	//	if (imgView.Get() != nullptr) {
+	//		ImGui::Image(imgView.Get(), windowSize);
+	//		// edit image
+	//		if (ImGui::IsItemHovered()) {
+	//			if (ImGui::IsMouseClicked(0)) {
+	//				ErrorLogger::log("Clicked");
+
+	//			}
+	//			else if (ImGui::IsMouseDragging(0)) {
+	//				// ErrorLogger::log("Dragging");
+	//			}
+	//		}
+	//	}
+	//	ImGui::EndChild();
+	//}
+}
+
+bool SceneEditorManager::update_panel_terrain(Environment* selection, bool update) {
 	bool isValid = (selection != nullptr);
 	bool updated = false;
 	static float3 position, rotation, scale = float3(100, 15, 100);
@@ -22,14 +259,14 @@ bool SceneEditorManager::update_panel_terrain(Terrain* selection, bool update) {
 		rotation = selection->getRotation();
 		scale = selection->getScale();
 		tag = selection->getTag();
-		heightmap = selection->getLoadedHeightmapFilename();
+		//heightmap = selection->getLoadedHeightmapFilename();
 		selection->getTextures(textures);
 		subSize = selection->getSubSize();
 		divisions = selection->getSplits();
 		wind = selection->getWindStatic();
 		size_t index = scene->find_parentIndex(selection);
 		for (size_t i = 0; i < NR_OF_FRUITS; i++)
-			fruitSpawns[i] = scene->m_fruitSpawns[index].quantity[i];
+			fruitSpawns[i] = selection->getFruitCount((FruitType)i);
 	}
 
 	if (ImGui::InputFloat3("Position", (float*)&position, 2) && isValid) {
@@ -111,7 +348,7 @@ bool SceneEditorManager::update_panel_terrain(Terrain* selection, bool update) {
 				&fruitSpawns[i]) && isValid) {
 			fruitSpawns[i] = Clamp<int>(fruitSpawns[i], 0, fruitSpawns[i]);
 			size_t index = scene->find_parentIndex(selection);
-			scene->m_fruitSpawns[index].quantity[i] = fruitSpawns[i];
+			scene->m_terrains.getTerrainFromIndex(index)->setFruitSpawns(fruitSpawns);
 		}
 	}
 	if (!isValid) {
@@ -119,11 +356,15 @@ bool SceneEditorManager::update_panel_terrain(Terrain* selection, bool update) {
 			updated = true;
 			scene->m_terrains.add(
 				position, scale, heightmap, textures, subSize, divisions, wind, tag);
-			scene->m_fruitSpawns.push_back(Scene::FruitCombo());
 		}
 	} else {
 		if (ImGui::Button("Rebuild")) {
 			selection->build(heightmap, subSize, divisions);
+			updated = true;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Resize")) {
+			selection->changeSize(subSize, divisions);
 			updated = true;
 		}
 	}
@@ -479,12 +720,11 @@ void SceneEditorManager::refreshLibrary() {
 		m_library.push_back(scene->m_animals[i].get());
 
 	if (m_library.size() == 0) {
-		m_selectedIndex = -1;
-		m_transformable = nullptr;
+		deselect_fragment();
 	}
 	else if (m_selectedIndex != -1) {
 		m_selectedIndex = Clamp<size_t>(m_selectedIndex, 0, m_library.size() - 1);
-		m_transformable = dynamic_cast<Transformation*>(m_library[m_selectedIndex]);
+		select_fragment(m_selectedIndex);
 	}
 }
 
@@ -687,10 +927,9 @@ void SceneEditorManager::draw_transformationVisuals() {
 
 void SceneEditorManager::update_imgui() {
 	Input* ip = Input::getInstance();
-	static bool m_panel_library_show = false;
-	static bool m_panel_general_show = false;
 
 	// Main Menu Bar
+	ImVec2 menuBarSize;
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("File")) {
 			if (ImGui::BeginMenu("Load")) {
@@ -708,189 +947,42 @@ void SceneEditorManager::update_imgui() {
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Show")) {
-			if (ImGui::MenuItem("Library"))
-				m_panel_library_show = !m_panel_library_show;
-			if (ImGui::MenuItem("general"))
-				m_panel_general_show = !m_panel_general_show;
+			if (ImGui::MenuItem("Empty"))
+				;
 			ImGui::EndMenu();
 		}
+		menuBarSize = ImGui::GetWindowSize();
 		ImGui::EndMainMenuBar();
 	}
-	if (m_panel_library_show) {
-		if (ImGui::Begin("Library", &m_panel_library_show, ImGuiWindowFlags_AlwaysAutoResize)) {
-			{
-				ImGui::PushItemWidth(200);
-				ImGui::BeginGroup();
-				ImGui::Text("Fragments");
-				if (ImGui::ListBoxHeader("", ImVec2(200,400))) {
-					for (size_t i = 0; i < m_library.size(); i++) {
-						bool selected = (m_selectedIndex == i);
-						if (ImGui::Selectable(
-								m_library[i]->getFullDescription().c_str(), selected)) {
-							if (selected) {
-								deselect_fragment();
-							}
-							else {
-								select_fragment(i);
-							}
-						}
-					}
-					ImGui::ListBoxFooter();
-				}
-				if (m_selectedIndex != -1) {
-					Fragment* f = m_library[m_selectedIndex];
-					if (ImGui::Button("Move To")) {
-						Transformation* t =
-							dynamic_cast<Transformation*>(f);
-						if (t != nullptr) {
-							m_camera.setEye(t->getPosition() + float3(1, 1, 0) * 2.f);
-							m_camera.setTarget(t->getPosition());
-						}
-					}
-					ImGui::SameLine();
-					if (ImGui::Button("Remove (Del)") || ip->keyPressed(m_key_delete)) {
-						scene->remove_fragment(f);
-						refreshLibrary();
-					}
-					ImGui::SameLine();
-					if (ImGui::Button("Copy (C)") || ip->keyPressed(m_key_copy)) {
-						Fragment::Type type = f->getType();
-						bool anyUpdate = true;
-						if (type == Fragment::Type::animal) {
-							Animal* obj = dynamic_cast<Animal*>(f);
-							scene->m_animals.push_back(make_shared<Animal>(*obj));
-						}
-						else if (type == Fragment::Type::entity) {
-							Entity* target = dynamic_cast<Entity*>(f);
-							shared_ptr<Entity> obj = make_shared<Entity>(*target);
-							scene->m_entities.add(obj->getLocalBoundingBoxPosition(),
-								obj->getLocalBoundingBoxSize(), obj->getMatrix(), obj);
-						}
-						else if (type == Fragment::Type::particleSystem) {
-							ParticleSystem* obj = dynamic_cast<ParticleSystem*>(f);
-							scene->m_particleSystems.push_back(*obj);
-						}
-						else if (type == Fragment::Type::sea) {
-							SeaEffect* target = dynamic_cast<SeaEffect*>(f);
-							shared_ptr<SeaEffect> obj = make_shared<SeaEffect>(*target);
-							scene->m_seaEffects.push_back(obj);
-						}
-						else if (type == Fragment::Type::terrain) {
-							Terrain* obj = dynamic_cast<Terrain*>(f);
-							string textures[4];
-							obj->getTextures(textures);
-							scene->m_terrains.add(obj->getPosition(), obj->getScale(),
-								obj->getLoadedHeightmapFilename(), textures, obj->getSubSize(),
-								obj->getSplits(), obj->getWindStatic(), obj->getTag());
-							// rotation (missing in constructor)
-							scene->m_terrains.getTerrainFromIndex(scene->m_terrains.length() - 1)
-								->setRotation(obj->getRotation());
-							// fruit spawn
-							size_t index = scene->find_parentIndex(f);
-							scene->m_fruitSpawns.push_back(Scene::FruitCombo());
-							for (size_t i = 0; i < NR_OF_FRUITS; i++)
-								scene->m_fruitSpawns.back().quantity[i] =
-									scene->m_fruitSpawns[index].quantity[i];
-						}
-						else
-							anyUpdate = false;
-						if (anyUpdate)
-							refreshLibrary();
-					}
-				}
-				ImGui::EndGroup();
-				ImGui::PopItemWidth();
+	// Docked window
+	float windHeight = Renderer::getInstance()->getScreenHeight() - menuBarSize.y;
+	ImGui::SetNextWindowPos(ImVec2(0,menuBarSize.y));
+	ImGui::SetNextWindowSizeConstraints(
+		ImVec2(0, windHeight), ImVec2(Renderer::getInstance()->getScreenWidth(), windHeight));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	if (ImGui::Begin("Docked Window", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize)) {
+		if (ImGui::BeginTabBar("editorContent")) {
+			if (ImGui::BeginTabItem("Library")) {
+				m_editorTabActive = EditorTab::Library;
+				update_imgui_library();
+				ImGui::EndTabItem();
 			}
-			ImGui::SameLine();
-			{
-				ImGui::PushItemWidth(200);
-				ImGui::BeginGroup();
-				if (m_selectedIndex != -1) {
-					bool updated = false;
-					Fragment* f = m_library[m_selectedIndex];
-					switch (f->getType()) {
-					case Fragment::entity:
-						updated = update_panel_entity(dynamic_cast<Entity*>(f), m_selectedThisFrame);
-						break;
-					case Fragment::animal:
-						updated =
-							update_panel_animal(dynamic_cast<Animal*>(f), m_selectedThisFrame);
-						break;
-					case Fragment::terrain:
-						updated =
-							update_panel_terrain(dynamic_cast<Terrain*>(f), m_selectedThisFrame);
-						break;
-					case Fragment::particleSystem:
-						updated = update_panel_effect(
-							dynamic_cast<ParticleSystem*>(f), m_selectedThisFrame);
-						break;
-					case Fragment::sea:
-						updated =
-							update_panel_sea(dynamic_cast<SeaEffect*>(f), m_selectedThisFrame);
-						break;
-					}
-					if (updated)
-						scene->updated_fragment(f);
-				}
-				else {
-					bool updated = false; // tells if a new fragment has been created
-					if (ImGui::BeginTabBar("fragmentCreator")) {
-						if (ImGui::BeginTabItem("Terrain")) {
-							updated = update_panel_terrain(nullptr);
-							ImGui::EndTabItem();
-						}
-						if (ImGui::BeginTabItem("Entity")) {
-							updated = update_panel_entity(nullptr);
-							ImGui::EndTabItem();
-						}
-						if (ImGui::BeginTabItem("Animal")) {
-							updated = update_panel_animal(nullptr);
-							ImGui::EndTabItem();
-						}
-						if (ImGui::BeginTabItem("SeaEffect")) {
-							updated = update_panel_sea(nullptr);
-							ImGui::EndTabItem();
-						}
-						if (ImGui::BeginTabItem("ParticleSystem")) {
-							updated = update_panel_effect(nullptr);
-							ImGui::EndTabItem();
-						}
-						ImGui::EndTabBar();
-					}
-					if (updated)
-						refreshLibrary();
-				}
-				ImGui::EndGroup();
-				ImGui::PopItemWidth();
+			if (ImGui::BeginTabItem("Game Rules")) {
+				m_editorTabActive = EditorTab::GameRules;
+				update_imgui_gameRules();
+				ImGui::EndTabItem();
 			}
+			if (ImGui::BeginTabItem("Terrain Editor")) {
+				m_editorTabActive = EditorTab::TerrainEditor;
+				update_imgui_terrainEditor();
+				ImGui::EndTabItem();
+			}
+			ImGui::EndTabBar();
 		}
 		ImGui::End();
 	}
-	if (m_panel_general_show) {
-		if (ImGui::Begin("General", &m_panel_general_show)) {
-			static char text[50];
-			memset(text, NULL, 50);
-			memcpy(text, scene->m_sceneName.c_str(), scene->m_sceneName.size());
-			if (ImGui::InputText("Scene Name", text, 50)) {
-				scene->m_sceneName = string(text);
-			}
-			for (size_t i = 0; i < NR_OF_FRUITS; i++) {
-				ImGui::InputInt(("WinCondition (" + FruitTypeToString((FruitType)i) + ")").c_str(),
-					&scene->m_utility.winCondition[i]);
-			}
-			for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++) {
-				ImGui::InputInt(
-					("Time Target (" + TimeTargetToString((TimeTargets)i) + ")").c_str(),
-					&scene->m_utility.timeTargets[i]);
-			}
-			if (ImGui::Button("FromPoint"))
-				scene->m_utility.startSpawn = m_pointer;
-			ImGui::SameLine();
-			ImGui::InputFloat3("Start Spawn", (float*)&scene->m_utility.startSpawn);
+	ImGui::PopStyleVar();
 
-		}
-		ImGui::End();
-	}
 	m_selectedThisFrame = false;
 }
 
@@ -1033,9 +1125,9 @@ void SceneEditorManager::update() {
 
 	// Update Skybox
 	scene->m_skyBox.update(dt);
-	const Terrain* activeTerrain = scene->m_terrains.getTerrainFromPosition(m_camera.getPosition());
-	if (activeTerrain != nullptr) {
-		AreaTag tag = activeTerrain->getTag();
+	const Environment* activeEnvironment = scene->m_terrains.getTerrainFromPosition(m_camera.getPosition());
+	if (activeEnvironment != nullptr) {
+		AreaTag tag = activeEnvironment->getTag();
 		scene->m_skyBox.switchLight(tag);
 		if (!m_manualCamera) {
 			scene->update_activeTerrain(tag);
@@ -1053,98 +1145,142 @@ void SceneEditorManager::update() {
 	}
 
 	////////////EDITOR///////////
+
+	update_imgui();
 	
-	// pick position
-	if (ip->mousePressed(Input::RIGHT)) {
-		float3 position = m_camera.getPosition();
-		float3 forward;
-		if (ip->getMouseMode() == DirectX::Mouse::MODE_ABSOLUTE) {
-			// x coordinate is backwards!! Not because of mouse position but rather getMousePickVector return
-			float2 mpos = float2(1 - (float)ip->mouseX() / SCREEN_WIDTH, (float)ip->mouseY() / SCREEN_HEIGHT);
-			forward = m_camera.getMousePickVector(mpos) * m_pointer_range;
-		}
-		else {
-			forward = Normalize(m_camera.getForward()) * m_pointer_range;
-		}
-		//find closest collision point
-		float closest = -1;
-		//terrain
-		float t = scene->m_terrains.castRay(position, forward);
-		if (t != -1) {
-			float3 point = position + forward * t;
-			float diff = (point - position).Length();
-			if (closest == -1 || diff < closest) {
-				closest = diff;
-				m_pointer = point;
+	if (m_editorTabActive == EditorTab::Library) {
+		// pick position
+		if (ip->mousePressed(Input::RIGHT)) {
+			float3 position = m_camera.getPosition();
+			float3 forward;
+			if (ip->getMouseMode() == DirectX::Mouse::MODE_ABSOLUTE) {
+				// x coordinate is backwards!! Not because of mouse position but rather
+				// getMousePickVector return
+				float2 mpos = float2(
+					1 - (float)ip->mouseX() / SCREEN_WIDTH, (float)ip->mouseY() / SCREEN_HEIGHT);
+				forward = m_camera.getMousePickVector(mpos) * m_pointer_range;
 			}
-		}
-		//entities
-		for (size_t i = 0; i < scene->m_entities.size(); i++) {
-			t = scene->m_entities[i]->castRay(position, Normalize(forward));
+			else {
+				forward = Normalize(m_camera.getForward()) * m_pointer_range;
+			}
+			// find closest collision point
+			float closest = -1;
+			// terrain
+			float t = scene->m_terrains.castRay(position, forward);
 			if (t != -1) {
-				float3 point = position + Normalize(forward) * t;
+				float3 point = position + forward * t;
 				float diff = (point - position).Length();
 				if (closest == -1 || diff < closest) {
 					closest = diff;
 					m_pointer = point;
 				}
 			}
+			// entities
+			for (size_t i = 0; i < scene->m_entities.size(); i++) {
+				t = scene->m_entities[i]->castRay(position, Normalize(forward));
+				if (t != -1) {
+					float3 point = position + Normalize(forward) * t;
+					float diff = (point - position).Length();
+					if (closest == -1 || diff < closest) {
+						closest = diff;
+						m_pointer = point;
+					}
+				}
+			}
 		}
+		// pick fragment
+		if (ip->mousePressed(Input::MIDDLE)) {
+			float3 position = m_camera.getPosition();
+			float3 forward;
+			if (ip->getMouseMode() == DirectX::Mouse::MODE_ABSOLUTE) {
+				// x coordinate is backwards!! Not because of mouse position but rather
+				// getMousePickVector return
+				float2 mpos = float2(
+					1 - (float)ip->mouseX() / SCREEN_WIDTH, (float)ip->mouseY() / SCREEN_HEIGHT);
+				forward = m_camera.getMousePickVector(mpos) * m_pointer_range;
+			}
+			else {
+				forward = Normalize(m_camera.getForward()) * m_pointer_range;
+			}
+			Fragment* f = nullptr;
+			float closest = -1;
+			// terrain
+			for (size_t i = 0; i < scene->m_terrains.length(); i++) {
+				float t = scene->m_terrains.getTerrainFromIndex(i)->castRay(position, forward);
+				if (t != -1 && (closest == -1 || t < closest)) {
+					closest = t;
+					f = scene->m_terrains.getTerrainFromIndex(i).get();
+				}
+			}
+			// entity
+			for (size_t i = 0; i < scene->m_entities.size(); i++) {
+				float t = scene->m_entities[i]->castRay(position, forward);
+				if (t != -1 && (closest == -1 || t < closest)) {
+					closest = t;
+					f = scene->m_entities[i].get();
+				}
+			}
+			// animal
+			for (size_t i = 0; i < scene->m_animals.size(); i++) {
+				float t = scene->m_animals[i]->castRay(position, forward);
+				if (t != -1 && (closest == -1 || t < closest)) {
+					closest = t;
+					f = scene->m_animals[i].get();
+				}
+			}
+			// select in library
+			if (f != nullptr) {
+				for (size_t i = 0; i < m_library.size(); i++) {
+					if (f->getID() == m_library[i]->getID()) {
+						select_fragment(i);
+					}
+				}
+			}
+		}
+
+		update_transformation(dt);
 	}
-	//pick fragment
-	if (ip->mousePressed(Input::MIDDLE)) {
-		float3 position = m_camera.getPosition();
-		float3 forward;
+
+	// brush
+	if(m_editorTabActive == EditorTab::TerrainEditor){
+		// pick on terrain
+		float3 point = m_camera.getPosition();
+		float3 forward = m_camera.getForward() * 100; // MOUSE RELATIVE MODE
 		if (ip->getMouseMode() == DirectX::Mouse::MODE_ABSOLUTE) {
-			// x coordinate is backwards!! Not because of mouse position but rather
-			// getMousePickVector return
 			float2 mpos =
 				float2(1 - (float)ip->mouseX() / SCREEN_WIDTH, (float)ip->mouseY() / SCREEN_HEIGHT);
 			forward = m_camera.getMousePickVector(mpos) * m_pointer_range;
 		}
-		else {
-			forward = Normalize(m_camera.getForward()) * m_pointer_range;
+		float t = scene->m_terrains.castRay(point, forward);
+		if (t > 0) {
+			float3 intersection = point + t * forward;
+			m_terrainBrush.position = float2(intersection.x, intersection.z);
 		}
-		Fragment* f = nullptr;
-		float closest = -1;
-		// terrain
-		for (size_t i = 0; i < scene->m_terrains.length(); i++) {
-			float t = scene->m_terrains.getTerrainFromIndex(i)->castRay(position, forward);
-			if (t != -1 && (closest == -1 || t < closest)) {
-				closest = t;
-				f = scene->m_terrains.getTerrainFromIndex(i).get();
-			}
+		if (ip->mouseDown(m_terrainEditor_btn_raise))
+			scene->m_terrains.editMesh(m_terrainBrush, Terrain::Brush::Type::Raise);
+		if (ip->mouseDown(m_terrainEditor_btn_lower))
+			scene->m_terrains.editMesh(m_terrainBrush, Terrain::Brush::Type::Lower);
+		if (ip->mouseDown(m_terrainEditor_btn_flatten))
+			scene->m_terrains.editMesh(m_terrainBrush, Terrain::Brush::Type::Flatten);
+		// scroll values
+		float radiusChangeOnMouseWheel = 1.1;
+		if (ip->scrolledDown()) {
+			if (ip->keyDown(m_terrainEditor_btn_strengthScroll))
+				m_terrainBrush.strength = Clamp<float>(m_terrainBrush.strength*radiusChangeOnMouseWheel,0,1);
+			else
+				m_terrainBrush.radius *= radiusChangeOnMouseWheel;
 		}
-		//entity
-		for (size_t i = 0; i < scene->m_entities.size(); i++) {
-			float t = scene->m_entities[i]->castRay(position, forward);
-			if (t != -1 && (closest == -1 || t < closest)) {
-				closest = t;
-				f = scene->m_entities[i].get();
-			}
-		}
-		//animal
-		for (size_t i = 0; i < scene->m_animals.size(); i++) {
-			float t = scene->m_animals[i]->castRay(position, forward);
-			if (t != -1 && (closest == -1 || t < closest)) {
-				closest = t;
-				f = scene->m_animals[i].get();
-			}
-		}
-		// select in library
-		if (f != nullptr) {
-			for (size_t i = 0; i < m_library.size(); i++) {
-				if (f->getID() == m_library[i]->getID()) {
-					select_fragment(i);
-				}
+		else if (ip->scrolledUp()) {
+			if (ip->keyDown(m_terrainEditor_btn_strengthScroll))
+				m_terrainBrush.strength =
+					Clamp<float>(m_terrainBrush.strength / radiusChangeOnMouseWheel, 0, 1);
+			else {
+				m_terrainBrush.radius /= radiusChangeOnMouseWheel;
+				m_terrainBrush.radius =
+					Clamp<float>(m_terrainBrush.radius, 0, m_terrainBrush.radius);
 			}
 		}
 	}
-
-	update_transformation(dt);
-
-	update_imgui();
-
 }
 
 void SceneEditorManager::draw_shadow() { 	// terrain manager
@@ -1175,7 +1311,10 @@ void SceneEditorManager::draw_color() {
 		(*culledEntities[i])->draw();
 	// Terrain
 	scene->m_terrains.quadtreeCull(frustum);
-	scene->m_terrains.draw();
+	if (m_editorTabActive == EditorTab::TerrainEditor)
+		scene->m_terrains.draw_brush(m_terrainBrush);
+	else
+		scene->m_terrains.draw();
 	// Sea effect
 	Renderer::getInstance()->copyDepthToSRV();
 	for (size_t i = 0; i < scene->m_seaEffects.size(); i++) {
@@ -1198,13 +1337,15 @@ void SceneEditorManager::draw_color() {
 
 	//////////////////// -- EDITOR_STUFF -- ////////////////////
 
-	/* --- Things to be drawn without depthbuffer --- */
-	Renderer::getInstance()->bindRenderTarget();
-	draw_transformationVisuals();
-	Renderer::getInstance()->bindRenderAndDepthTarget();
-	/* ----------------------------------------------- */
-	m_pointer_obj.setPosition(m_pointer);
-	m_pointer_obj.draw_onlyMesh(float3(1,0.5,0.5));
+	if (m_editorTabActive == EditorTab::Library) {
+		/* --- Things to be drawn without depthbuffer --- */
+		Renderer::getInstance()->bindRenderTarget();
+		draw_transformationVisuals();
+		Renderer::getInstance()->bindRenderAndDepthTarget();
+		/* ----------------------------------------------- */
+		m_pointer_obj.setPosition(m_pointer);
+		m_pointer_obj.draw_onlyMesh(float3(1, 0.5, 0.5));
+	}
 }
 
 void SceneEditorManager::draw_hud() { m_crosshair.draw(); }

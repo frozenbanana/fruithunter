@@ -9,6 +9,7 @@
 #include "PathFindingThread.h"
 #include "StateStack.h"
 #include "AudioController.h"
+#include "SimpleDirectX.h"
 
 int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
 	_In_ int cmdCount) {

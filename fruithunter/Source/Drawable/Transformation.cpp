@@ -2,6 +2,8 @@
 #include "Renderer.h"
 #include "ErrorLogger.h"
 
+Microsoft::WRL::ComPtr<ID3D11Buffer> Transformation::m_modelMatrixBuffer;
+
 Transformation::Transformation(float3 position, float3 scale, float3 rotation) {
 	createBuffer();
 
@@ -140,4 +142,17 @@ void Transformation::PSBindMatrix(size_t indexRegister) {
 	updateBuffer();
 	Renderer::getDeviceContext()->PSSetConstantBuffers(
 		indexRegister, 1, m_modelMatrixBuffer.GetAddressOf());
+}
+
+void Transformation::stream_write(fstream& file) {
+	file.write((char*)&m_position, sizeof(float3));
+	file.write((char*)&m_rotation, sizeof(float3));
+	file.write((char*)&m_scale, sizeof(float3));
+}
+
+void Transformation::stream_read(fstream& file) {
+	file.read((char*)&m_position, sizeof(float3));
+	file.read((char*)&m_rotation, sizeof(float3));
+	file.read((char*)&m_scale, sizeof(float3));
+	m_propertiesChanged = true;
 }

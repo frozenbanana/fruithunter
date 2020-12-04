@@ -82,7 +82,7 @@ void ParticleSystem::updateEmits(float dt) {
 }
 
 void ParticleSystem::updateParticles(float dt) {
-	Terrain* terrain = SceneManager::getScene()->m_terrains.getTerrainFromPosition(getPosition());
+	Environment* environment = SceneManager::getScene()->m_terrains.getTerrainFromPosition(getPosition());
 	for (size_t i = 0; i < m_particles.size(); i++) {
 		if (m_particles[i].isActive == true) {
 			m_particleProperties[i].timeLeft -= dt;
@@ -111,8 +111,8 @@ void ParticleSystem::updateParticles(float dt) {
 				float mass = 3.1415f * (4.f / 3.f) * pow(r, 3);
 				// get wind
 				float3 acceleration = m_particle_description.acceleration;
-				if (terrain != nullptr && m_affectedByWind) {
-					float3 wind = terrain->getWindStatic();
+				if (environment != nullptr && m_affectedByWind) {
+					float3 wind = environment->getWindStatic();
 					float3 v_relative = (m_particleProperties[i].velocity - wind);//velocity relative wind
 					float v_length = v_relative.Length();
 					float Fd = 0.5 * density * pow(v_length, 2) * area * dragCoefficient; // drag from wind

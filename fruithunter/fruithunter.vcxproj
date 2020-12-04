@@ -196,6 +196,7 @@
     <ClCompile Include="Source\ImGui\imgui_draw.cpp" />
     <ClCompile Include="Source\ImGui\imgui_impl_dx11.cpp" />
     <ClCompile Include="Source\ImGui\imgui_impl_win32.cpp" />
+    <ClCompile Include="Source\ImGui\imgui_stdlib.cpp" />
     <ClCompile Include="Source\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Source\ImGui\implot.cpp" />
     <ClCompile Include="Source\ImGui\implot_items.cpp" />
@@ -229,6 +230,7 @@
     <ClCompile Include="Source\Utility\Repositories\TextureRepository.cpp" />
     <ClCompile Include="Source\Utility\SaveState\SaveManager.cpp" />
     <ClCompile Include="Source\Utility\Settings\Settings.cpp" />
+    <ClCompile Include="Source\Utility\SimpleDirectX.cpp" />
     <ClCompile Include="Source\Utility\Timer\Timer.cpp" />
     <ClCompile Include="Source\Utility\Translation2DStructures.cpp" />
     <ClCompile Include="Source\Utility\UI\Menu_PoppingButton.cpp" />
@@ -272,6 +274,7 @@
     <ClInclude Include="Source\ImGui\imgui_impl_dx11.h" />
     <ClInclude Include="Source\ImGui\imgui_impl_win32.h" />
     <ClInclude Include="Source\ImGui\imgui_internal.h" />
+    <ClInclude Include="Source\ImGui\imgui_stdlib.h" />
     <ClInclude Include="Source\ImGui\implot.h" />
     <ClInclude Include="Source\ImGui\implot_internal.h" />
     <ClInclude Include="Source\ImGui\imstb_rectpack.h" />
@@ -309,6 +312,7 @@
     <ClInclude Include="Source\Utility\Repositories\TextureRepository.h" />
     <ClInclude Include="Source\Utility\SaveState\SaveManager.h" />
     <ClInclude Include="Source\Utility\Settings\Settings.h" />
+    <ClInclude Include="Source\Utility\SimpleDirectX.h" />
     <ClInclude Include="Source\Utility\Timer\Timer.h" />
     <ClInclude Include="Source\Utility\Translation2DStructures.h" />
     <ClInclude Include="Source\Utility\UI\Menu_PoppingButton.h" />
@@ -353,6 +357,14 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_terrain_brush.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_textInWorld.hlsl">

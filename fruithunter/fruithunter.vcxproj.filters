@@ -67,6 +67,9 @@
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_textInWorld.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_terrain_brush.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp">
@@ -281,6 +284,12 @@
     </ClCompile>
     <ClCompile Include="Source\Utility\UI\Menu_PoppingButton.cpp">
       <Filter>Source\Utility\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ImGui\imgui_stdlib.cpp">
+      <Filter>Source\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\SimpleDirectX.cpp">
+      <Filter>Source\Utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -517,6 +526,12 @@
     </ClInclude>
     <ClInclude Include="Source\Utility\UI\Menu_PoppingButton.h">
       <Filter>Source\Utility\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImGui\imgui_stdlib.h">
+      <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\SimpleDirectX.h">
+      <Filter>Source\Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

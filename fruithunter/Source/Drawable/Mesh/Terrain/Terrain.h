@@ -5,11 +5,26 @@
 #include "Transformation.h"
 #include "TextureRepository.h"
 #include "Fragment.h"
+#include "SimpleDirectX.h"
 
 #define MATRIX_BUFFER_SLOT 0
 #define SAMPLERSTATE_SLOT 0
 
 class Terrain : public Transformation, public Fragment {
+public:
+	struct Brush {
+		float2 position;
+		float radius = 1;
+		float falloff = 1;
+		float strength = 1;
+		float3 bufferFiller;
+		enum Type {
+			Raise,
+			Lower,
+			Flatten
+		};
+	};
+
 private:
 	struct SubGrid {
 	private:
@@ -24,6 +39,8 @@ private:
 		void bind();
 		unsigned int getVerticeCount() const;
 
+		void operator=(const SubGrid& other);
+
 		SubGrid();
 		~SubGrid();
 	};
@@ -33,18 +50,18 @@ private:
 	bool m_isInitilized = false;
 	static ShaderSet m_shader;
 	static ShaderSet m_shader_onlyMesh;
+	static ShaderSet m_shader_brush;
 
 	// heightmap
 	D3D11_TEXTURE2D_DESC m_heightmapDescription;
 	D3D11_MAPPED_SUBRESOURCE m_heightmapMappedData;
 	const int SMOOTH_STEPS = 1;
-	string m_heightmapFilename = "";
 
 	// grid
-	XMINT2 m_tileSize;
-	XMINT2 m_gridSize;
+	XMINT2 m_tileSize = XMINT2(0, 0);
+	XMINT2 m_gridSize = XMINT2(0, 0);
 	vector<vector<SubGrid>> m_subMeshes;
-	const bool FLAT_SHADING = false;
+	const bool FLAT_SHADING = true;
 	const bool EDGE_SHADING = false;
 	const float EDGE_THRESHOLD = 0.3f;
 
@@ -54,9 +71,6 @@ private:
 
 	// quadtree for culling
 	QuadTree<XMINT2> m_quadtree;
-
-	// vertex buffer
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 
 	// resource buffer
 	const string m_texturePath = "assets/Meshes/Textures/";
@@ -70,18 +84,12 @@ private:
 	// Sampler description
 	static Microsoft::WRL::ComPtr<ID3D11SamplerState> m_sampler;
 
-	// Spawn point
-	vector<float3> m_spawnPoint; // local spawnpoints for fruits
-
-	// Wind
-	float3 m_wind;
-
-	// tag
-	AreaTag m_tag;
-
 	// Culling
 	vector<XMINT2> m_culledGrids;
 	bool m_useCulling = false;
+
+	// brush
+	static ConstantBuffer<Brush> m_buffer_brush;
 
 	//	--Functions--
 
@@ -93,8 +101,9 @@ private:
 	float sampleHeightmap(float2 uv);
 
 	// grids
-	void createGrid(XMINT2 size);
 	void createGridPointsFromHeightmap();
+	void createGridPointBase();
+	void setGridPointNormals();
 	void fillSubMeshes();
 
 	// resource
@@ -110,18 +119,11 @@ private:
 public:
 	// settings
 	void setTextures(string textures[4]);
-	void setWind(float3 wind);
-	void setTag(AreaTag tag);
 
 	// get settings
 	void getTextures(string textures[4]) const;
 	XMINT2 getSplits() const;
 	XMINT2 getSubSize() const;
-	string getLoadedHeightmapFilename() const;
-
-	// convenable functions
-	float3 getRandomSpawnPoint();
-	float3 getWindFromPosition(float3 position);
 
 	// intersection tests
 	static float obbTest(float3 rayOrigin, float3 rayDir, float3 boxPos, float3 boxScale);
@@ -131,11 +133,9 @@ public:
 	// terrain scanning
 	bool pointInsideTerrainBoundingBox(float3 point);
 	float getHeightFromPosition(float x, float z);
+	float getLocalHeightFromUV(float2 uv);
 	float3 getNormalFromPosition(float x, float z);
 	float castRay(float3 point, float3 direction);
-
-	float3 getWindStatic() const;
-	AreaTag getTag() const;
 
 	// culling
 	void clearCulling();
@@ -145,14 +145,21 @@ public:
 	// drawing
 	void draw();
 	void draw_onlyMesh();
+	void draw_brush(const Brush& brush);
 
-	void initilize(string filename, string textures[4], XMINT2 subsize,
-		XMINT2 splits = XMINT2(1, 1), float3 wind = float3(0.f, 0.f, 0.f),
-		AreaTag tag = AreaTag::Plains);
+	void initilize(
+		string filename, string textures[4], XMINT2 subsize, XMINT2 splits = XMINT2(1, 1));
 	void build(string heightmapName, XMINT2 subSize, XMINT2 splits);
+	void changeSize(XMINT2 tileSize, XMINT2 gridSize);
+	void loadFromFile_binary(fstream& file);
+	void storeToFile_binary(fstream& file);
 
+	void editMesh(const Terrain::Brush& brush, Terrain::Brush::Type type);
+
+	Terrain(const Terrain& other);
 	Terrain(string filename = "", string textures[4] = nullptr, XMINT2 subsize = XMINT2(0, 0),
-		XMINT2 splits = XMINT2(1, 1), float3 wind = float3(0.f, 0.f, 0.f),
-		AreaTag tag = AreaTag::Plains);
+		XMINT2 splits = XMINT2(1, 1));
 	~Terrain();
+
+	Terrain& operator=(const Terrain& other);
 };

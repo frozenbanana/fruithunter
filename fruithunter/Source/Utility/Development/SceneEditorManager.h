@@ -72,12 +72,29 @@ private:
 	vector<string> m_loadable_scenes;
 
 	vector<Fragment*> m_library;
-	size_t m_selectedIndex = -1;
+	int m_selectedIndex = -1;
 	bool m_selectedThisFrame = false;
+
+	enum EditorTab {
+		Library,
+		GameRules,
+		TerrainEditor 
+	} m_editorTabActive = EditorTab::Library;
+
+	// terrain brush
+	Terrain::Brush m_terrainBrush;
+	Keyboard::Keys m_terrainEditor_btn_strengthScroll = Keyboard::LeftShift;
+	Input::MouseButton m_terrainEditor_btn_lower = Input::MouseButton::RIGHT;
+	Input::MouseButton m_terrainEditor_btn_raise = Input::MouseButton::LEFT;
+	Input::MouseButton m_terrainEditor_btn_flatten = Input::MouseButton::MIDDLE;
 
 	//-- Private Functions --
 
-	bool update_panel_terrain(Terrain* selection, bool update = false);
+	void update_imgui_library();
+	void update_imgui_gameRules();
+	void update_imgui_terrainEditor();
+
+	bool update_panel_terrain(Environment* selection, bool update = false);
 	bool update_panel_entity(Entity* selection, bool update = false);
 	bool update_panel_animal(Animal* selection, bool update = false);
 	bool update_panel_sea(SeaEffect* selection, bool update = false);

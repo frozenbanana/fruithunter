@@ -20,31 +20,17 @@
  * Handles the file information structure
 */
 class SceneAbstactContent {
+public:
+	static void fileWrite_string(fstream& file, string str);
+	static string fileRead_string(fstream& file);
+	static void fileWrite_ulong(fstream& file, size_t v);
+	static size_t fileRead_ulong(fstream& file);
+
 private:
 	string folder = "";
 	const string path_scenes = "assets/Scenes/";
 
-	static void fileInput_string(fstream& file, string str);
-	static string fileOutput_string(fstream& file);
-	static void fileInput_ulong(fstream& file, size_t v);
-	static size_t fileOutput_ulong(fstream& file);
-
 public:
-	// Heightmaps
-	struct HeightmapContent {
-		int areaTag;				// AreaTag !!
-		string heightmapName;
-		float3 position;
-		float3 rotation;
-		float3 scale;
-		XMINT2 subSize;
-		XMINT2 division;
-		string textures[4];
-		float3 wind;
-		int spawnFruits[NR_OF_FRUITS];// boolean Value
-	};
-	vector<HeightmapContent> m_heightmapAreas;
-
 	// Seas
 	struct SeaContent {
 		int type;				//SeaEffect::SeaEffectTypes !!
@@ -68,7 +54,6 @@ public:
 	vector<ParticleSystemContent> m_particleSystemContents;
 
 	//entities
-	string m_entityStorageFilename;
 	struct GroupInstance {
 		string model;
 		struct Instance {
@@ -152,10 +137,6 @@ public:
 	vector<shared_ptr<CollectionPoint>> m_collectionPoint;
 
 	// Level utility info
-	struct FruitCombo {
-		int quantity[NR_OF_FRUITS] = { 0 };
-	};
-	vector<FruitCombo> m_fruitSpawns;
 	SceneAbstactContent::SceneUtilityInfo m_utility;
 	int m_gatheredFruits[NR_OF_FRUITS] = { 0 }; 
 

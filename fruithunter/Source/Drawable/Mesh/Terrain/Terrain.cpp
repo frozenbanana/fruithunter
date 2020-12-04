@@ -3,13 +3,16 @@
 #include "ErrorLogger.h"
 #include <WICTextureLoader.h>
 #include "Input.h"
+#include "SceneManager.h"
 
 #define MAX_HEIGHT_OFFSET 5.f
 
 ShaderSet Terrain::m_shader;
+ShaderSet Terrain::m_shader_brush;
 ShaderSet Terrain::m_shader_onlyMesh;
 Microsoft::WRL::ComPtr<ID3D11Buffer> Terrain::m_matrixBuffer;
 Microsoft::WRL::ComPtr<ID3D11SamplerState> Terrain::m_sampler;
+ConstantBuffer<Terrain::Brush> Terrain::m_buffer_brush;
 
 void Terrain::createBuffers() {
 	auto gDevice = Renderer::getDevice();
@@ -82,11 +85,6 @@ float Terrain::sampleHeightmap(float2 uv) {
 		unsigned char r = ((unsigned char*)m_heightmapMappedData
 							   .pData)[iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4];
 		v = (float)r / 255.f;
-		// spawn location
-		unsigned char g = ((unsigned char*)m_heightmapMappedData
-							   .pData)[(iUV.y * m_heightmapMappedData.RowPitch + iUV.x * 4) + 1];
-		if ((float)g > 0.0f)
-			m_spawnPoint.push_back(float3(uv.x, v, uv.y));
 	}
 	else if (m_heightmapDescription.Format == DXGI_FORMAT_R16G16B16A16_UNORM) {
 		unsigned short int r =
@@ -136,6 +134,40 @@ void Terrain::createGridPointsFromHeightmap() {
 		}
 	}
 	// map normals
+	setGridPointNormals();
+}
+
+void Terrain::createGridPointBase() {
+	const XMINT2 order[6] = { // tri1
+		XMINT2(1, 1), XMINT2(0, 0), XMINT2(0, 1),
+		// tri2
+		XMINT2(0, 0), XMINT2(1, 1), XMINT2(1, 0)
+	};
+
+	// create map for points
+	m_gridPointSize = XMINT2(m_tileSize.x * m_gridSize.x + 1, m_tileSize.y * m_gridSize.y + 1);
+	m_gridPoints.resize(m_gridPointSize.x);
+	for (int xx = 0; xx < m_gridPointSize.x; xx++) {
+		m_gridPoints[xx].resize(m_gridPointSize.y);
+	}
+	// map positions and uv
+	for (int xx = 0; xx < m_gridPointSize.x; xx++) {
+		for (int yy = 0; yy < m_gridPointSize.y; yy++) {
+			float2 uv =
+				float2((float)xx / (m_gridPointSize.x - 1), (float)yy / (m_gridPointSize.y - 1));
+			m_gridPoints[xx][yy].position = float3(uv.x, 0, uv.y);
+			m_gridPoints[xx][yy].uv = uv;
+		}
+	}
+}
+
+void Terrain::setGridPointNormals() {
+	const XMINT2 order[6] = { // tri1
+		XMINT2(1, 1), XMINT2(0, 0), XMINT2(0, 1),
+		// tri2
+		XMINT2(0, 0), XMINT2(1, 1), XMINT2(1, 0)
+	};
+	// map normals
 	for (int xx = 0; xx < m_gridPointSize.x - 1; xx++) {
 		for (int yy = 0; yy < m_gridPointSize.y - 1; yy++) {
 			float3 points[2][3];
@@ -165,19 +197,6 @@ void Terrain::createGridPointsFromHeightmap() {
 	}
 }
 
-void Terrain::createGrid(XMINT2 size) {
-	if (size.x > 0 && size.y > 0) {
-		m_gridSize = size;
-		m_subMeshes.resize(m_gridSize.x);
-		for (int x = 0; x < m_gridSize.y; x++) {
-			m_subMeshes[x].resize(m_gridSize.y);
-		}
-	}
-	else {
-		ErrorLogger::logWarning("WARNING! Tried to change a terrain to inappropriate size");
-	}
-}
-
 void Terrain::fillSubMeshes() {
 	if (m_gridPointSize.x != 0 && m_gridPointSize.y != 0) {
 		// initilize quadtree
@@ -191,7 +210,9 @@ void Terrain::fillSubMeshes() {
 			XMINT2(0, 0), XMINT2(1, 1), XMINT2(1, 0)
 		};
 		float3 quadtree_subScale = float3(1.f / m_gridSize.x, 1.f, 1.f / m_gridSize.y);
+		m_subMeshes.resize(m_gridSize.x);
 		for (int ixx = 0; ixx < m_gridSize.x; ixx++) {
+			m_subMeshes[ixx].resize(m_gridSize.y);
 			for (int iyy = 0; iyy < m_gridSize.y; iyy++) {
 				vector<Vertex>* vertices = m_subMeshes[ixx][iyy].getPtr();
 				vertices->clear();
@@ -269,6 +290,44 @@ void Terrain::fillSubMeshes() {
 	else {
 		// invalid size
 	}
+}
+
+void Terrain::loadFromFile_binary(fstream& file) {
+	// transformation
+	((Transformation*)this)->stream_read(file);
+	// textures
+	string tex[4];
+	for (size_t i = 0; i < 4; i++) {
+		tex[i] = SceneAbstactContent::fileRead_string(file);
+	}
+	setTextures(tex);
+	// tile size
+	file.read((char*)&m_tileSize, sizeof(XMINT2));
+	// grid size
+	file.read((char*)&m_gridSize, sizeof(XMINT2));
+	// heightmap points
+	createGridPointBase(); // create mem and align position and uvs (normals and y axis not set)
+	for (size_t x = 0; x < m_gridPointSize.x; x++)
+		for (size_t y = 0; y < m_gridPointSize.y; y++)
+			file.read((char*)&m_gridPoints[x][y].position.y, sizeof(float)); // set y axis
+	setGridPointNormals();													  // set normals
+	fillSubMeshes();														  // generate mesh
+}
+
+void Terrain::storeToFile_binary(fstream& file) {
+	// transformation
+	((Transformation*)this)->stream_write(file);
+	// textures
+	for (size_t i = 0; i < 4; i++)
+		SceneAbstactContent::fileWrite_string(file, m_textures[i]->filename);
+	// tile size
+	file.write((char*)&m_tileSize, sizeof(XMINT2));
+	// grid size
+	file.write((char*)&m_gridSize, sizeof(XMINT2));
+	// heightmap points
+	for (size_t x = 0; x < m_gridPointSize.x; x++)
+		for (size_t y = 0; y < m_gridPointSize.y; y++)
+			file.write((char*)&m_gridPoints[x][y].position.y, sizeof(float));
 }
 
 bool Terrain::createResourceBuffer(string filename, ID3D11ShaderResourceView** buffer) {
@@ -367,10 +426,6 @@ void Terrain::setTextures(string textures[4]) {
 	}
 }
 
-void Terrain::setWind(float3 wind) { m_wind = wind; }
-
-void Terrain::setTag(AreaTag tag) { m_tag = tag; }
-
 void Terrain::getTextures(string textures[4]) const {
 	for (size_t i = 0; i < 4; i++) {
 		if (m_textures[i].get() != nullptr) {
@@ -382,15 +437,6 @@ void Terrain::getTextures(string textures[4]) const {
 XMINT2 Terrain::getSplits() const { return m_gridSize; }
 
 XMINT2 Terrain::getSubSize() const { return m_tileSize; }
-
-string Terrain::getLoadedHeightmapFilename() const { return m_heightmapFilename; }
-
-float3 Terrain::getRandomSpawnPoint() {
-	if (m_spawnPoint.size() > 0) {
-		return float3::Transform(m_spawnPoint[rand() % m_spawnPoint.size()], getMatrix());
-	}
-	return float3(0.f);
-}
 
 float Terrain::obbTest(float3 rayOrigin, float3 rayDir, float3 boxPos, float3 boxScale) {
 	// SLABS CALULATIONS(my own)
@@ -450,8 +496,7 @@ float Terrain::triangleTest(
 		return -1;
 }
 
-void Terrain::initilize(string filename, string textures[4], XMINT2 subsize, XMINT2 splits,
-	float3 wind, AreaTag tag) {
+void Terrain::initilize(string filename, string textures[4], XMINT2 subsize, XMINT2 splits) {
 	// set texture
 	setTextures(textures);
 	// load terrain
@@ -460,19 +505,91 @@ void Terrain::initilize(string filename, string textures[4], XMINT2 subsize, XMI
 	}
 	else {
 		m_isInitilized = true;
-		m_wind = wind;
-		m_tag = tag;
 		build(filename, subsize, splits);
-		createBuffers();
 	}
+	createBuffers();
 }
 
 void Terrain::build(string heightmapName, XMINT2 subSize, XMINT2 splits) {
 	m_tileSize = subSize;
-	m_heightmapFilename = heightmapName;
-	createGrid(splits); // create space for memory
+	m_gridSize = splits;
 	if (loadHeightmap(m_heightmapPath + heightmapName)) {
 		createGridPointsFromHeightmap();
+		fillSubMeshes();
+	}
+}
+
+void Terrain::changeSize(XMINT2 tileSize, XMINT2 gridSize) {
+	m_tileSize = tileSize;
+	m_gridSize = gridSize;
+
+	const XMINT2 order[6] = { // tri1
+		XMINT2(1, 1), XMINT2(0, 0), XMINT2(0, 1),
+		// tri2
+		XMINT2(0, 0), XMINT2(1, 1), XMINT2(1, 0)
+	};
+
+	// create map for points
+	XMINT2 gridPointSize = XMINT2(m_tileSize.x * m_gridSize.x + 1, m_tileSize.y * m_gridSize.y + 1);
+	vector<vector<Vertex>> gridPoints;
+	gridPoints.resize(gridPointSize.x);
+	for (int xx = 0; xx < gridPointSize.x; xx++) {
+		gridPoints[xx].resize(gridPointSize.y);
+	}
+	// map positions and uv
+	for (int xx = 0; xx < gridPointSize.x; xx++) {
+		for (int yy = 0; yy < gridPointSize.y; yy++) {
+			float2 uv =
+				float2((float)xx / (gridPointSize.x - 1), (float)yy / (gridPointSize.y - 1));
+			gridPoints[xx][yy].position = float3(uv.x, getLocalHeightFromUV(uv), uv.y);
+			gridPoints[xx][yy].uv = uv;
+		}
+	}
+
+	m_gridPointSize = gridPointSize;
+	m_gridPoints = gridPoints;
+
+	setGridPointNormals();
+	fillSubMeshes();
+}
+
+void Terrain::editMesh(const Terrain::Brush& brush, Terrain::Brush::Type type) {
+	float localRadius = brush.radius / getScale().x;
+	float centerHeight = getHeightFromPosition(brush.position.x, brush.position.y);
+	float3 localPosition3D = float3::Transform(
+		float3(brush.position.x, centerHeight, brush.position.y), getMatrix().Invert());
+	float2 localPosition(localPosition3D.x, localPosition3D.z);
+	bool updated = false;
+	for (size_t x = 0; x < m_gridPointSize.x; x++) {
+		for (size_t y = 0; y < m_gridPointSize.y; y++) {
+			float2 point = float2(m_gridPoints[x][y].position.x, m_gridPoints[x][y].position.z);
+			float dist = (point - localPosition).Length();
+			if (dist < localRadius) {
+				float dt = SceneManager::getScene()->m_timer.getDt();
+				float effect = 1 - dist / localRadius;
+				float smoothedMix =
+					1 - pow(1 - 0.5 * (1 - cos(effect * 3.1415f)), 1.f / brush.falloff);
+				if (type == Terrain::Brush::Raise) {
+					m_gridPoints[x][y].position.y =
+						Clamp<float>(m_gridPoints[x][y].position.y + smoothedMix * brush.strength * dt, 0, 1);
+				}
+				else if (type == Terrain::Brush::Lower) {
+					m_gridPoints[x][y].position.y = Clamp<float>(
+						m_gridPoints[x][y].position.y - smoothedMix * brush.strength * dt, 0, 1);
+				}
+				else if (type == Terrain::Brush::Flatten) {
+					m_gridPoints[x][y].position.y =
+						Clamp<float>(m_gridPoints[x][y].position.y +
+										 (localPosition3D.y - m_gridPoints[x][y].position.y) *
+											 smoothedMix * brush.strength * 20.f * dt,
+							0, 1);
+				}
+				updated = true;
+			}
+		}
+	}
+	if (updated) {
+		setGridPointNormals();
 		fillSubMeshes();
 	}
 }
@@ -493,8 +610,15 @@ float Terrain::getHeightFromPosition(float x, float z) {
 	float4x4 mTerrainInvWorld = mTerrainWorld.Invert();
 	position = float3::Transform(position, mTerrainInvWorld);
 
-	float X = position.x;
-	float Y = position.z;
+	float height = getLocalHeightFromUV(float2(position.x, position.z));
+
+	float3 pos(0, height, 0);
+	return float3::Transform(pos, mTerrainWorld).y;
+}
+
+float Terrain::getLocalHeightFromUV(float2 uv) {
+	float X = uv.x;
+	float Y = uv.y;
 
 	if (X >= 0. && X < 1. && Y >= 0 && Y < 1.) {
 		float fx = X * (m_gridPointSize.x - 1);
@@ -523,8 +647,7 @@ float Terrain::getHeightFromPosition(float x, float z) {
 			height = p1234.y;
 		}
 
-		float3 pos(0, height, 0);
-		return float3::Transform(pos, mTerrainWorld).y;
+		return height;
 	}
 	return 0; // outside terrain
 }
@@ -655,26 +778,6 @@ float Terrain::castRay(float3 point, float3 direction) {
 	return -1;
 }
 
-float3 Terrain::getWindStatic() const { return m_wind; }
-
-AreaTag Terrain::getTag() const { return m_tag; }
-
-float3 Terrain::getWindFromPosition(float3 position) {
-	float groundHeight = getHeightFromPosition(position.x, position.z);
-	float distToGround = position.y - groundHeight;
-	float3 normal = getNormalFromPosition(position.x, position.z);
-	float3 wind = m_wind;
-
-	// project wind onto normal plane
-	float3 windOnGround = m_wind - wind.Dot(normal) * normal;
-
-	distToGround = Map(groundHeight, groundHeight + MAX_HEIGHT_OFFSET, 0.f, 1.f, distToGround);
-
-	// Make quadtric 'lerp' to make windOnGround arrive faster
-	distToGround *= distToGround;
-	return windOnGround * (1.f - distToGround) + m_wind * distToGround;
-}
-
 void Terrain::clearCulling() {
 	m_useCulling = false;
 	m_culledGrids.clear();
@@ -773,9 +876,50 @@ void Terrain::draw_onlyMesh() {
 	}
 }
 
-Terrain::Terrain(string filename, string textures[4], XMINT2 subsize, XMINT2 splits,
-	float3 wind, AreaTag tag) : Fragment(Fragment::Type::terrain) {
-	initilize(filename, textures, subsize, splits, wind);
+void Terrain::draw_brush(const Brush& brush) {
+	if (m_textureInitilized) {
+		ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+		// bind shaders
+		m_shader_brush.bindShadersAndLayout();
+		// bind samplerstate
+		deviceContext->PSSetSamplers(SAMPLERSTATE_SLOT, 1, m_sampler.GetAddressOf());
+		// bind texture resources
+		for (size_t i = 0; i < 4; i++) {
+			deviceContext->PSSetShaderResources((UINT)i, 1, m_textures[i]->view.GetAddressOf());
+		}
+		// bind world matrix
+		VSBindMatrix(MATRIX_BUFFER_SLOT);
+		// bind brush buffer
+		m_buffer_brush.update(brush);
+		m_buffer_brush.bindPS(7);
+		// draw
+		if (m_useCulling) {
+			for (size_t i = 0; i < m_culledGrids.size(); i++) {
+				SubGrid* sub = &m_subMeshes[m_culledGrids[i].x][m_culledGrids[i].y];
+				sub->bind();
+				Renderer::draw(sub->getVerticeCount(), 0);
+			}
+		}
+		else {
+			// draw grids
+			for (int xx = 0; xx < m_gridSize.x; xx++) {
+				for (int yy = 0; yy < m_gridSize.y; yy++) {
+					m_subMeshes[xx][yy].bind();
+					Renderer::draw(m_subMeshes[xx][yy].getVerticeCount(), 0);
+				}
+			}
+		}
+	}
+	else {
+		draw_onlyMesh();
+	}
+}
+
+Terrain::Terrain(const Terrain& other) : Transformation(other), Fragment(other) { *this = other; }
+
+Terrain::Terrain(string filename, string textures[4], XMINT2 subsize, XMINT2 splits)
+	: Fragment(Fragment::Type::terrain) {
+	initilize(filename, textures, subsize, splits);
 	if (!m_shader.isLoaded()) {
 		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = {
 			{
@@ -792,12 +936,32 @@ Terrain::Terrain(string filename, string textures[4], XMINT2 subsize, XMINT2 spl
 		};
 		m_shader.createShaders(L"VertexShader_model_onlyMesh.hlsl", NULL,
 			L"PixelShader_terrain.hlsl", inputLayout_onlyMesh, 3);
+		m_shader_brush.createShaders(L"VertexShader_model_onlyMesh.hlsl", NULL,
+			L"PixelShader_terrain_brush.hlsl", inputLayout_onlyMesh, 3);
 		m_shader_onlyMesh.createShaders(L"VertexShader_onlyMesh.hlsl", NULL,
 			L"PixelShader_terrain_onlyMesh.hlsl", inputLayout_onlyMesh, 3);
 	}
 }
 
 Terrain::~Terrain() {}
+
+Terrain& Terrain::operator=(const Terrain& other) {
+	m_isInitilized = other.m_isInitilized;
+	m_heightmapDescription = other.m_heightmapDescription;
+	m_heightmapMappedData = other.m_heightmapMappedData;
+	m_tileSize = other.m_tileSize;
+	m_gridSize = other.m_gridSize;
+	m_subMeshes = other.m_subMeshes;
+	m_gridPointSize = other.m_gridPointSize;
+	m_gridPoints = other.m_gridPoints;
+	m_quadtree = other.m_quadtree;
+	m_textureInitilized = other.m_textureInitilized;
+	for (size_t i = 0; i < 4; i++)
+		m_textures[i] = other.m_textures[i];
+	m_culledGrids = other.m_culledGrids;
+	m_useCulling = other.m_useCulling;
+	return *this;
+}
 
 vector<Vertex>* Terrain::SubGrid::getPtr() { return &m_vertices; }
 
@@ -820,6 +984,11 @@ void Terrain::SubGrid::createBuffers() {
 }
 
 unsigned int Terrain::SubGrid::getVerticeCount() const { return (unsigned int)m_vertices.size(); }
+
+void Terrain::SubGrid::operator=(const SubGrid& other) { 
+	m_vertices = other.m_vertices; 
+	createBuffers();
+}
 
 void Terrain::SubGrid::bind() {
 	auto deviceContext = Renderer::getDeviceContext();

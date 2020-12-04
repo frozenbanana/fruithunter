@@ -10,7 +10,7 @@ private:
 	struct ModelMatrix {
 		float4x4 matWorld, matInvTraWorld;
 	} m_matrixBufferData; // matrix for translation, rotation and scale
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_modelMatrixBuffer;
+	static Microsoft::WRL::ComPtr<ID3D11Buffer> m_modelMatrixBuffer;
 
 	//-- Private Functions --
 
@@ -52,6 +52,9 @@ public:
 	void GSBindMatrix(size_t indexRegister);
 	/* Bind world&invWorld matrix to Pixel Shader. */
 	void PSBindMatrix(size_t indexRegister);
+
+	void stream_write(fstream& file);
+	void stream_read(fstream& file);
 
 	Transformation(float3 position = float3(0.), float3 scale = float3(1.), float3 rotation = float3(0.));
 	virtual ~Transformation();
