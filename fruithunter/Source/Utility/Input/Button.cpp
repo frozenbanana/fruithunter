@@ -15,6 +15,7 @@ void Button::initialize(string label, float2 position) {
 	m_position = position;
 	m_colour = COL_INACTIVE;
 	m_size = m_textRenderer.getSize(m_label);
+	m_textRenderer.setScale(m_size.y * 0.01f);
 }
 
 void Button::initialize(string label, float2 position, bool on) {
@@ -24,6 +25,7 @@ void Button::initialize(string label, float2 position, bool on) {
 	m_isToggle = true;
 	m_colour = COL_INACTIVE;
 	m_size = m_textRenderer.getSize(m_label + ": On");
+	m_textRenderer.setScale(m_size.y * 0.01f);
 }
 
 void Button::initialize(string label, float2 position, Setting value) {
@@ -33,6 +35,7 @@ void Button::initialize(string label, float2 position, Setting value) {
 	m_lowMedHighUltra = value;
 	m_colour = COL_INACTIVE;
 	m_size = m_textRenderer.getSize(m_label + ": Ultra");
+	m_textRenderer.setScale(m_size.y * 0.01f);
 }
 
 void Button::initialize(string label, float2 position, Resolution value) {
@@ -42,6 +45,7 @@ void Button::initialize(string label, float2 position, Resolution value) {
 	m_resolution = value;
 	m_colour = COL_INACTIVE;
 	m_size = m_textRenderer.getSize(m_label + ": 3840x2160");
+	m_textRenderer.setScale(m_size.y * 0.01f);
 }
 
 void Button::setLowMedHighUltra(Setting value) { m_lowMedHighUltra = value; }

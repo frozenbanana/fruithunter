@@ -26,9 +26,9 @@ void SettingsState::init() {
 	m_resolutionButton.initialize(
 		"Resolution", float2(width / 2, height / 2 + 140), Button::Resolution::HD);
 	m_fullscreenButton.initialize(
-		"Fullscreen", float2(width / 2 + 150, height / 2 + 200), settings->getFullscreen());
+		"Fullscreen", float2(width / 2, height / 2 + 200), settings->getFullscreen());
 	m_vsyncButton.initialize(
-		"V-Sync", float2(width / 2 - 150, height / 2 + 200), settings->getVsync());
+		"V-Sync", float2(width / 2, height / 2 + 260), settings->getVsync());
 
 	m_backButton.initialize("Back", float2(width / 2, height - 80));
 	m_applyButton.initialize("Apply", float2(width / 2 - 100, height - 80));
@@ -36,7 +36,7 @@ void SettingsState::init() {
 	m_settingsBackground.load("melon.png");
 	m_settingsBackground.setPosition(float2(1280.f / 2.f, 720.f / 2.f));
 	m_settingsBackground.setRotation(3.1415f / 2.f);
-	m_settingsBackground.setScale(1.85f);
+	m_settingsBackground.setScale(height / 360.f);
 	m_settingsBackground.setAlignment();//center
 }
 
@@ -107,13 +107,15 @@ void SettingsState::update() {
 			m_darkEdgesButton.setPosition(float2(width / 2, height / 2 + 50));
 
 			m_resolutionButton.setPosition(float2(width / 2, height / 2 + 140));
-			m_fullscreenButton.setPosition(float2(width / 2 + 150, height / 2 + 200));
-			m_vsyncButton.setPosition(float2(width / 2 - 150, height / 2 + 200));
+			m_fullscreenButton.setPosition(float2(width / 2, height / 2 + 200));
+			m_vsyncButton.setPosition(float2(width / 2, height / 2 + 260));
 
-			m_backButton.setPosition(float2(width / 2, height / 2 + 300));
-			m_applyButton.setPosition(float2(width / 2 - 100, height / 2 + 300));
+			m_backButton.setPosition(float2(width / 2, height / 2 + 320));
+			m_applyButton.setPosition(float2(width / 2 - 100, height / 2 + 320));
 
 			m_screenStateChanged = false;
+
+			m_settingsBackground.setScale(height / 360.f);
 		}
 	}
 
@@ -139,11 +141,11 @@ void SettingsState::play() {
 	m_darkEdgesButton.setPosition(float2(width / 2, height / 2 + 50));
 
 	m_resolutionButton.setPosition(float2(width / 2, height / 2 + 140));
-	m_fullscreenButton.setPosition(float2(width / 2 + 150, height / 2 + 200));
-	m_vsyncButton.setPosition(float2(width / 2 - 150, height / 2 + 200));
+	m_fullscreenButton.setPosition(float2(width / 2, height / 2 + 200));
+	m_vsyncButton.setPosition(float2(width / 2, height / 2 + 260));
 
-	m_backButton.setPosition(float2(width / 2, height / 2 + 300));
-	m_applyButton.setPosition(float2(width / 2 - 100, height / 2 + 300));
+	m_backButton.setPosition(float2(width / 2, height / 2 + 320));
+	m_applyButton.setPosition(float2(width / 2 - 100, height / 2 + 320));
 
 	m_vsyncButton.setOnOff(settings->getVsync());
 	m_fullscreenButton.setOnOff(settings->getFullscreen());
@@ -195,12 +197,12 @@ void SettingsState::draw() {
 	m_sensitivity.draw();
 
 	if (m_screenStateChanged) {
-		m_backButton.setPosition(float2(SCREEN_WIDTH / 2 + 100, SCREEN_HEIGHT / 2 + 300));
+		m_backButton.setPosition(float2(SCREEN_WIDTH / 2 + 100, SCREEN_HEIGHT / 2 + 320));
 		m_backButton.draw();
 		m_applyButton.draw();
 	}
 	else {
-		m_backButton.setPosition(float2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 300));
+		m_backButton.setPosition(float2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 320));
 		m_backButton.draw();
 	}
 }
