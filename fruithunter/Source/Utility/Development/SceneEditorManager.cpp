@@ -13,7 +13,7 @@ void SceneEditorManager::update_imgui_library() {
 		if (ImGui::BeginChild("win_fragmentDisplayer", ImVec2(200, 0), true, ImGuiWindowFlags_AlwaysAutoResize)) {
 			ImVec2 childSize = ImGui::GetWindowSize();
 			ImGui::Text("Fragments");
-			if (ImGui::ListBoxHeader("", ImVec2(200, childSize.y-70))) {
+			if (ImGui::ListBoxHeader("", ImVec2(200, childSize.y-125))) {
 				for (size_t i = 0; i < m_library.size(); i++) {
 					bool selected = (m_selectedIndex == i);
 					if (ImGui::Selectable(m_library[i]->getFullDescription().c_str(), selected)) {
@@ -85,6 +85,22 @@ void SceneEditorManager::update_imgui_library() {
 					ImGui::EndTooltip();
 				}
 			}
+
+			// help text
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1,3));
+			ImGui::Text(" --- Buttons ---");
+			ImVec4 btnCol(0, 1, 0, 1);
+			ImGui::Text("Select object: ");
+			ImGui::SameLine();
+			ImGui::TextColored(btnCol, "MiddleClick");
+			ImGui::Text("Place pointer: ");
+			ImGui::SameLine();
+			ImGui::TextColored(btnCol, "RightClick");
+			ImGui::Text("Switch transform edit: ");
+			ImGui::SameLine();
+			ImGui::TextColored(btnCol, "Tab");
+			ImGui::PopStyleVar();
+
 			ImGui::EndChild();
 		}
 	}
@@ -191,6 +207,29 @@ void SceneEditorManager::update_imgui_terrainEditor() {
 		"Falloff Visual", falloffPoints, ARRAYSIZE(falloffPoints), 0, NULL, 0, 1, ImVec2(200, 40));
 	ImGui::SetNextItemWidth(200);
 	ImGui::SliderFloat("Strength", &m_terrainBrush.strength, 0, 1);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1, 3));
+	ImGui::Text(" --- Buttons ---");
+	ImVec4 btnCol(0, 1, 0, 1);
+	ImGui::Text("Raise: ");
+	ImGui::SameLine();
+	ImGui::TextColored(btnCol, "LeftClick");
+	ImGui::Text("Lower: ");
+	ImGui::SameLine();
+	ImGui::TextColored(btnCol, "RightClick");
+	ImGui::Text("Flatten: ");
+	ImGui::SameLine();
+	ImGui::TextColored(btnCol, "MiddleClick");
+	ImGui::Text("Undo edit: ");
+	ImGui::SameLine();
+	ImGui::TextColored(btnCol, "Z");
+	ImGui::Text("Change radius: ");
+	ImGui::SameLine();
+	ImGui::TextColored(btnCol, "ScrollWheel");
+	ImGui::Text("Change strength: ");
+	ImGui::SameLine();
+	ImGui::TextColored(btnCol, "Shift + ScrollWheel");
+	ImGui::PopStyleVar();
 }
 
 bool SceneEditorManager::update_panel_terrain(Environment* selection, bool update) {
