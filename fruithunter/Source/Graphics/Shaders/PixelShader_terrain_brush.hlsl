@@ -25,7 +25,7 @@ cbuffer lightInfo : register(b6) {
 	float4 cb_toLight;
 };
 cbuffer brush : register(b7) {
-	float2 cb_brush_position;
+	float3 cb_brush_position;
 	float cb_brush_radius;
 	float cb_brush_falloff;
 	float cb_brush_strength;
@@ -112,7 +112,7 @@ float4 main(PS_IN ip) : SV_TARGET {
 
 	float3 brush_color = float3(1, 1, 1);
 	float brush_edgeThickness = 0.1;
-	float brush_dist = length(ip.PosW.xz - cb_brush_position);
+	float brush_dist = length(ip.PosW.xz - cb_brush_position.xz);
 	if (brush_dist < cb_brush_radius) {
 		float mix = 1-brush_dist / cb_brush_radius;
 		float smoothedMix = 1-pow(1-0.5*(1-cos(mix*3.1415f)),1.f/cb_brush_falloff);

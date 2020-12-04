@@ -555,15 +555,12 @@ void Terrain::changeSize(XMINT2 tileSize, XMINT2 gridSize) {
 
 void Terrain::editMesh(const Terrain::Brush& brush, Terrain::Brush::Type type) {
 	float localRadius = brush.radius / getScale().x;
-	float centerHeight = getHeightFromPosition(brush.position.x, brush.position.y);
-	float3 localPosition3D = float3::Transform(
-		float3(brush.position.x, centerHeight, brush.position.y), getMatrix().Invert());
-	float2 localPosition(localPosition3D.x, localPosition3D.z);
+	float3 localPosition = float3::Transform(brush.position, getMatrix().Invert());
 	bool updated = false;
 	for (size_t x = 0; x < m_gridPointSize.x; x++) {
 		for (size_t y = 0; y < m_gridPointSize.y; y++) {
 			float2 point = float2(m_gridPoints[x][y].position.x, m_gridPoints[x][y].position.z);
-			float dist = (point - localPosition).Length();
+			float dist = (point - float2(localPosition.x, localPosition.z)).Length();
 			if (dist < localRadius) {
 				float dt = SceneManager::getScene()->m_timer.getDt();
 				float effect = 1 - dist / localRadius;
@@ -580,7 +577,7 @@ void Terrain::editMesh(const Terrain::Brush& brush, Terrain::Brush::Type type) {
 				else if (type == Terrain::Brush::Flatten) {
 					m_gridPoints[x][y].position.y =
 						Clamp<float>(m_gridPoints[x][y].position.y +
-										 (localPosition3D.y - m_gridPoints[x][y].position.y) *
+										 (localPosition.y - m_gridPoints[x][y].position.y) *
 											 smoothedMix * brush.strength * 20.f * dt,
 							0, 1);
 				}
@@ -593,6 +590,52 @@ void Terrain::editMesh(const Terrain::Brush& brush, Terrain::Brush::Type type) {
 		fillSubMeshes();
 	}
 }
+
+void Terrain::editMesh_push() {
+	if (m_gridPointSize.x == 0 || m_gridPointSize.y == 0) {
+		// do nothing (invalid size to push to stack)
+	}
+	else {
+		shared_ptr<vector<vector<float>>> meshSample = make_shared<vector<vector<float>>>();
+		meshSample->resize(m_gridPointSize.x);
+		for (size_t x = 0; x < m_gridPointSize.x; x++) {
+			meshSample->at(x).resize(m_gridPointSize.y);
+			for (size_t y = 0; y < m_gridPointSize.y; y++) {
+				meshSample->at(x)[y] = m_gridPoints[x][y].position.y;
+			}
+		}
+		// add to stack
+		m_editMesh_stack.push_back(meshSample);
+		if (m_editMesh_stack.size() > EDITMESH_STACKSIZE)
+			m_editMesh_stack.erase(m_editMesh_stack.begin()); // remove first if to many samples
+	}
+}
+
+void Terrain::editMesh_pop() {
+	if (m_editMesh_stack.size() > 0) {
+		// get latest sample
+		shared_ptr<vector<vector<float>>> sample = m_editMesh_stack.back();
+		m_editMesh_stack.pop_back();
+		// recreate from sample
+		if (sample->size() == m_gridPointSize.x && sample->at(0).size() == m_gridPointSize.y) {
+			// set heights
+			for (size_t x = 0; x < m_gridPointSize.x; x++) {
+				for (size_t y = 0; y < m_gridPointSize.y; y++) {
+					m_gridPoints[x][y].position.y = sample->at(x)[y];
+				}
+			}
+			// reset normal
+			setGridPointNormals();
+			// rebuild mesh
+			fillSubMeshes();
+		}
+		else {
+			// invalid sample size (doesnt match size)
+		}
+	}
+}
+
+void Terrain::editMesh_clear() { m_editMesh_stack.clear(); }
 
 bool Terrain::pointInsideTerrainBoundingBox(float3 point) {
 	float3 pos = point;
@@ -960,6 +1003,9 @@ Terrain& Terrain::operator=(const Terrain& other) {
 		m_textures[i] = other.m_textures[i];
 	m_culledGrids = other.m_culledGrids;
 	m_useCulling = other.m_useCulling;
+	m_editMesh_stack.resize(other.m_editMesh_stack.size());
+	for (size_t i = 0; i < m_editMesh_stack.size(); i++)
+		m_editMesh_stack[i] = make_shared<vector<vector<float>>>(*other.m_editMesh_stack[i].get());
 	return *this;
 }
 

@@ -10,14 +10,16 @@
 #define MATRIX_BUFFER_SLOT 0
 #define SAMPLERSTATE_SLOT 0
 
+#define EDITMESH_STACKSIZE 30
+
 class Terrain : public Transformation, public Fragment {
 public:
 	struct Brush {
-		float2 position;
+		float3 position;
 		float radius = 1;
 		float falloff = 1;
 		float strength = 1;
-		float3 bufferFiller;
+		float2 bufferFiller;
 		enum Type {
 			Raise,
 			Lower,
@@ -91,6 +93,9 @@ private:
 	// brush
 	static ConstantBuffer<Brush> m_buffer_brush;
 
+	// editMesh
+	vector<shared_ptr<vector<vector<float>>>> m_editMesh_stack; // used to undo modifications 
+
 	//	--Functions--
 
 	// buffers
@@ -155,6 +160,9 @@ public:
 	void storeToFile_binary(fstream& file);
 
 	void editMesh(const Terrain::Brush& brush, Terrain::Brush::Type type);
+	void editMesh_push();
+	void editMesh_pop();
+	void editMesh_clear();
 
 	Terrain(const Terrain& other);
 	Terrain(string filename = "", string textures[4] = nullptr, XMINT2 subsize = XMINT2(0, 0),

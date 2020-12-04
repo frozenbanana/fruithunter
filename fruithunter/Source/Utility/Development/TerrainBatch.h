@@ -59,6 +59,8 @@ public:
 	void draw_onlyMesh();
 
 	void editMesh(const Terrain::Brush& brush, Terrain::Brush::Type type);
+	void editMesh_pop();
+	void editMesh_push();
 
 	float3 getSpawnpoint(size_t terrainIndex);
 

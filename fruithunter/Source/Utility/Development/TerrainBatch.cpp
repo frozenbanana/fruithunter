@@ -109,6 +109,16 @@ void TerrainBatch::editMesh(const Terrain::Brush& brush, Terrain::Brush::Type ty
 		m_terrains[i]->editMesh(brush,type);
 }
 
+void TerrainBatch::editMesh_pop() {
+	for (size_t i = 0; i < m_terrains.size(); i++)
+		m_terrains[i]->editMesh_pop();
+}
+
+void TerrainBatch::editMesh_push() {
+	for (size_t i = 0; i < m_terrains.size(); i++)
+		m_terrains[i]->editMesh_push();
+}
+
 float3 TerrainBatch::getSpawnpoint(size_t terrainIndex) {
 	return m_terrains[terrainIndex]->getRandomSpawnPoint();
 }

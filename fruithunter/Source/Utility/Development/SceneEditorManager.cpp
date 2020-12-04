@@ -191,54 +191,6 @@ void SceneEditorManager::update_imgui_terrainEditor() {
 		"Falloff Visual", falloffPoints, ARRAYSIZE(falloffPoints), 0, NULL, 0, 1, ImVec2(200, 40));
 	ImGui::SetNextItemWidth(200);
 	ImGui::SliderFloat("Strength", &m_terrainBrush.strength, 0, 1);
-
-	// if (ImGui::Button("Read Folder")) {
-	//	vector<string> files;
-	//	read_directory("assets/TerrainHeightmap", files);
-	//	for (size_t i = 0; i < files.size(); i++)
-	//		ErrorLogger::log(files[i]);
-	//}
-	// static Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> imgView;
-	////static Layer imgView;
-	// static string imageName = "";
-	// ImGui::InputText("Image Name",&imageName);
-	// static XMINT2 imageSize;
-	// ImGui::InputInt2("Image Size", (int*)&imageSize);
-	// if (ImGui::Button("Create Image")) {
-	//	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> view;
-	//	imgView = view;
-	//	Microsoft::WRL::ComPtr<ID3D11Resource> resource = nullptr;
-	//	view->GetResource(resource.GetAddressOf());
-	//	string path = "assets/TerrainHeightmap/" + imageName+".png";
-	//	wstring wstr(path.begin(),path.end());
-	//	HRESULT hr = SaveWICTextureToFile(Renderer::getDeviceContext(), resource.Get(),
-	//		GUID_ContainerFormatPng, wstr.c_str(), nullptr, nullptr);
-	//}
-	// if (ImGui::BeginChild("imageEditor", ImVec2(50, 50))) {
-	//	ImVec2 windowPosition = ImGui::GetWindowPos();
-	//	ImVec2 windowSize = ImGui::GetWindowSize();
-	//	Input* ip = Input::getInstance();
-	//	ImVec2 mouseRelativeWindow(
-	//		(int)ip->mouseX() - windowPosition.x, (int)ip->mouseY() - windowPosition.y);
-	//	// show image
-	//	ImGui::PushStyleColor(
-	//		ImGuiCol_ChildBg, IM_COL32(50, 50, 50, 255)); // Set a background color
-	//	ImGui::InvisibleButton("btnCatch", windowSize);
-	//	if (imgView.Get() != nullptr) {
-	//		ImGui::Image(imgView.Get(), windowSize);
-	//		// edit image
-	//		if (ImGui::IsItemHovered()) {
-	//			if (ImGui::IsMouseClicked(0)) {
-	//				ErrorLogger::log("Clicked");
-
-	//			}
-	//			else if (ImGui::IsMouseDragging(0)) {
-	//				// ErrorLogger::log("Dragging");
-	//			}
-	//		}
-	//	}
-	//	ImGui::EndChild();
-	//}
 }
 
 bool SceneEditorManager::update_panel_terrain(Environment* selection, bool update) {
@@ -1242,7 +1194,7 @@ void SceneEditorManager::update() {
 	}
 
 	// brush
-	if(m_editorTabActive == EditorTab::TerrainEditor){
+	if (m_editorTabActive == EditorTab::TerrainEditor) {
 		// pick on terrain
 		float3 point = m_camera.getPosition();
 		float3 forward = m_camera.getForward() * 100; // MOUSE RELATIVE MODE
@@ -1254,7 +1206,13 @@ void SceneEditorManager::update() {
 		float t = scene->m_terrains.castRay(point, forward);
 		if (t > 0) {
 			float3 intersection = point + t * forward;
-			m_terrainBrush.position = float2(intersection.x, intersection.z);
+			m_terrainBrush.position = intersection;
+		}
+		// edit mesh
+		if (ip->mousePressed(m_terrainEditor_btn_raise) ||
+			ip->mousePressed(m_terrainEditor_btn_lower) ||
+			ip->mousePressed(m_terrainEditor_btn_flatten)) {
+			scene->m_terrains.editMesh_push(); // autosave before editing
 		}
 		if (ip->mouseDown(m_terrainEditor_btn_raise))
 			scene->m_terrains.editMesh(m_terrainBrush, Terrain::Brush::Type::Raise);
@@ -1262,6 +1220,10 @@ void SceneEditorManager::update() {
 			scene->m_terrains.editMesh(m_terrainBrush, Terrain::Brush::Type::Lower);
 		if (ip->mouseDown(m_terrainEditor_btn_flatten))
 			scene->m_terrains.editMesh(m_terrainBrush, Terrain::Brush::Type::Flatten);
+		// undo mesh
+		if (ip->keyPressed(m_terrainEditor_btn_undo)) {
+			scene->m_terrains.editMesh_pop();
+		}
 		// scroll values
 		float radiusChangeOnMouseWheel = 1.1;
 		if (ip->scrolledDown()) {

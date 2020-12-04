@@ -84,6 +84,7 @@ private:
 	// terrain brush
 	Terrain::Brush m_terrainBrush;
 	Keyboard::Keys m_terrainEditor_btn_strengthScroll = Keyboard::LeftShift;
+	Keyboard::Keys m_terrainEditor_btn_undo = Keyboard::Z;
 	Input::MouseButton m_terrainEditor_btn_lower = Input::MouseButton::RIGHT;
 	Input::MouseButton m_terrainEditor_btn_raise = Input::MouseButton::LEFT;
 	Input::MouseButton m_terrainEditor_btn_flatten = Input::MouseButton::MIDDLE;
