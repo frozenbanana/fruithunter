@@ -937,11 +937,6 @@ void SceneEditorManager::update_imgui() {
 			}
 			ImGui::EndMenu();
 		}
-		if (ImGui::BeginMenu("Show")) {
-			if (ImGui::MenuItem("Empty"))
-				;
-			ImGui::EndMenu();
-		}
 		menuBarSize = ImGui::GetWindowSize();
 		ImGui::EndMainMenuBar();
 	}

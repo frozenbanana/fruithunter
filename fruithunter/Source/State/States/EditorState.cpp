@@ -25,7 +25,7 @@ void EditorState::update() {
 				m_testingEnvironment.reset();
 				m_mouseMode = true;
 			}
-			if (ImGui::MenuItem("Stop")) {
+			if (ImGui::MenuItem("Stop(F5)") || ip->keyPressed(Keyboard::F5)) {
 				m_editor.reset();
 				m_testing = false;
 				m_mouseMode = false;
