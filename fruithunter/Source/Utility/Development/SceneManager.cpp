@@ -52,6 +52,9 @@ void SceneManager::draw_color(Camera* overrideCamera) {
 		if (scene->m_fruits[i]->isVisible()) {
 			scene->m_fruits[i]->draw_animate();
 			scene->m_fruits[i]->getParticleSystem()->draw(false);
+			if (scene->m_fruits[i]->getFruitType() == FruitType::MELON) {
+				dynamic_cast<Melon*>(scene->m_fruits[i].get())->draw_sensors();
+			}
 		}
 	}
 	Renderer::getInstance()->disableAlphaBlending();
@@ -237,7 +240,10 @@ void SceneManager::update(Camera* overrideCamera) {
 
 		fruit->getParticleSystem()->update(dt);
 		PathFindingThread::lock();
-		fruit->update(dt, player->getPosition());
+		if (fruit->getFruitType() == FruitType::MELON)
+			fruit->update_melon(dt);
+		else
+			fruit->update(dt, player->getPosition());
 		// collision arrow - fruit
 		for (size_t iArrow = 0; iArrow < scene->m_arrows.size(); iArrow++) {
 			Arrow* arrow = scene->m_arrows[iArrow].get();

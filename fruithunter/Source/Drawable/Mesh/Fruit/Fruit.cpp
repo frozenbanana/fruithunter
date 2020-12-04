@@ -153,6 +153,76 @@ void Fruit::update(float dt, float3 playerPosition) {
 		m_isVisible = false;
 }
 
+void Fruit::update_melon(float dt) {
+	m_isVisible = true;
+	m_particleSystem.setPosition(getPosition());
+	//updateAnimated(dt); // animation stuff
+	//checkOnGroundStatus(); // checks if on ground
+
+	if (Input::getInstance()->keyPressed(Keyboard::V)) {
+		Player* pl = SceneManager::getScene()->m_player.get();
+		float3 pp = pl->getCameraPosition();
+		float3 dd = Normalize(pl->getForward())*100;
+		float t = SceneManager::getScene()->m_terrains.castRay(pp,dd);
+		float3 intersection = pp + dd * t;
+		float3 pos = intersection;
+		pos.y = SceneManager::getScene()->m_terrains.getHeightFromPosition(pos) + 1 + getHalfSizes().y;
+		setPosition(pos);
+		m_velocity *= 0;
+	}
+
+	doBehavior();
+
+	static float gravStrength = 15;
+	static float collideOffset = 0.01;
+	if (ImGui::Begin("TestingWindow")) {
+		ImGui::InputFloat("gravity strnegth", (float*)&gravStrength);
+		ImGui::InputFloat("offset", (float*)&collideOffset);
+		ImGui::End();
+	}
+
+	//update velocity
+	m_velocity += (float3(0, -1, 0) * gravStrength) * dt; // gravity
+	m_velocity *= pow(1, dt); // friction
+	float3 movementSum;
+	//collision
+	float radius = getHalfSizes().y;
+	float3 point = getPosition() - float3(0,1,0)*getHalfSizes().y;
+	float3 forward = m_velocity * dt;
+	m_onGround = false;
+	while (true) {
+		float t = SceneManager::getScene()->m_terrains.castRay(point, forward);
+		if (t > -1) {
+			float3 intersection = point + forward * t;
+			float3 normal =
+				SceneManager::getScene()->m_terrains.getNormalFromPosition(intersection);
+			//intersection = intersection + (-forward * t) / normal.Dot(-forward * t) * 0.01;
+			intersection += normal * collideOffset;
+
+			movementSum += intersection-point;
+			float3 leftover = forward * (1 - t);
+			forward = leftover - normal.Dot(leftover) * normal;
+			m_velocity = m_velocity - normal.Dot(m_velocity) * normal;
+			point = intersection;
+			m_onGround = true;
+		}
+		else {
+			movementSum += forward;
+			break;
+		}
+	}
+	//movement
+	setPosition(getPosition() + movementSum);
+
+	// place over terrain if fall under
+	float3 pos = getPosition() - float3(0,1,0)*getHalfSizes().y;
+	float tHeight = SceneManager::getScene()->m_terrains.getHeightFromPosition(pos);
+	if (pos.y < tHeight) {
+		pos.y = tHeight + getHalfSizes().y + 0.1;
+		setPosition(pos);
+	}
+}
+
 void Fruit::move(float dt) {
 	// m_speed.y = 0.0f;
 	setPosition(getPosition() + m_velocity * dt);

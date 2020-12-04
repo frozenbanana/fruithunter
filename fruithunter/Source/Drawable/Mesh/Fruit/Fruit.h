@@ -63,6 +63,7 @@ public:
 	virtual void release(float3 direction);
 	void move(float dt);
 	void update(float dt, float3 playerPosition);
+	void update_melon(float dt);
 	virtual void updateAnimated(float dt) = 0;
 	void jump(float3 direction, float power);
 	void setStartPosition(float3 pos);
