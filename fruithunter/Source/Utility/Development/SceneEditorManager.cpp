@@ -1057,6 +1057,9 @@ SceneEditorManager::SceneEditorManager() {
 	m_loadable_entity.push_back("stone1");
 	m_loadable_entity.push_back("stone2");
 	m_loadable_entity.push_back("stone3");
+	m_loadable_entity.push_back("stone4");
+	m_loadable_entity.push_back("stone5");
+	m_loadable_entity.push_back("stone6");
 	m_loadable_entity.push_back("treeMedium1");
 	m_loadable_entity.push_back("treeMedium2");
 	m_loadable_entity.push_back("treeMedium3");
