@@ -42,3 +42,5 @@ flower2
 flower3
 flower4
 totem
+FenceNoEnd
+Fence
