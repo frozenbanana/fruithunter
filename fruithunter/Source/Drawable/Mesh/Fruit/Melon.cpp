@@ -21,6 +21,9 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	m_ball.load("Sphere");
 	m_ball.setScale(0.1);
 
+	m_rollTrail.setScale(float3(1, 0.1, 1));
+	m_rollTrail.setType(ParticleSystem::Type::MELON_TRAIL, false);
+	m_rollTrail.setEmitRate(200, true);
 }
 
 void Melon::behaviorPassive() {
@@ -214,6 +217,9 @@ void Melon::update() {
 	Scene* scene = SceneManager::getScene();
 	float dt = scene->getDeltaTime();
 
+	m_rollTrail.update(dt);
+	m_rollTrail.emitingState(m_onGround); // emit if on ground
+
 	m_isVisible = true;
 	m_particleSystem.setPosition(getPosition());
 	// updateAnimated(dt); // animation stuff
@@ -296,6 +302,11 @@ void Melon::update_imgui_changeParams() {
 	}
 }
 
+void Melon::draw_rollTrail() { 
+	m_rollTrail.setPosition(getPosition() - float3(0, 1, 0) * getHalfSizes().y);
+	m_rollTrail.draw();
+}
+
 void Melon::draw_sensors() {
 	if (m_showSensors) {
 		float3 badColor(1, 0, 0), goodColor(1, 1, 1);
@@ -303,5 +314,16 @@ void Melon::draw_sensors() {
 			m_ball.setPosition(m_sensors[i]);
 			m_ball.draw_onlyMesh(m_sensorState[i] ? badColor : goodColor);
 		}
+	}
+}
+
+void Melon::draw_fruit() {
+	if (m_isVisible) {
+		Renderer::getInstance()->enableAlphaBlending();
+		draw_animate();
+		Renderer::getInstance()->disableAlphaBlending();
+		m_particleSystem.draw(true);
+		draw_sensors();
+		draw_rollTrail();
 	}
 }

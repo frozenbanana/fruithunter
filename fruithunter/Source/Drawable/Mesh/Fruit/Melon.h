@@ -8,6 +8,8 @@ private:
 	void behaviorActive() override;
 	void behaviorCaught() override;
 
+	ParticleSystem m_rollTrail;
+
 	// Sensors
 	Entity m_ball;
 	float3 m_sensors[9];
@@ -35,5 +37,8 @@ public:
 	void update();
 	void update_imgui_changeParams();
 
+	void draw_rollTrail();
 	void draw_sensors();
+
+	void draw_fruit();
 };

@@ -8,6 +8,17 @@
 #define MEDIUMSHOT 15.f
 #define FASTMOVING_VELOCITY 11.f
 
+void Fruit::draw_fruit() {
+	if (m_isVisible) {
+		Renderer::getInstance()->enableAlphaBlending();
+		draw_animate();
+		Renderer::getInstance()->disableAlphaBlending();
+		m_particleSystem.draw(true);
+	}
+}
+
+void Fruit::draw_fruit_shadow() { draw_animate_onlyMesh(float3(0, 0, 0)); }
+
 void Fruit::jump(float3 direction, float power) { 
 	m_velocity += power * direction; 
 }

@@ -71,6 +71,8 @@ public:
 	void move(float dt);
 	virtual void update();
 	virtual void updateAnimated(float dt) = 0;
+	virtual void draw_fruit();
+	virtual void draw_fruit_shadow();
 	void jump(float3 direction, float power);
 	void setStartPosition(float3 pos);
 	void setNextDestination(float3 nextDest);
