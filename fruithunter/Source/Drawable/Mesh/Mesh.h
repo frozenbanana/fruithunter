@@ -6,6 +6,9 @@
 #define MATERIAL_BUFFER_SLOT 2
 
 class Mesh {
+public:
+	enum BoxIntersection { OutsideMiss = 0, OutsideHit = 1, InsideHit = 2 };
+
 private:
 	static ShaderSet m_shaderObject;
 	static ShaderSet m_shaderObject_onlyMesh;
@@ -41,7 +44,8 @@ private:
 	// intersection
 	static float triangleTest(
 		float3 rayDir, float3 rayOrigin, float3 tri0, float3 tri1, float3 tri2);
-	static float obbTest(float3 rayDir, float3 rayOrigin, float3 boxPos, float3 boxScale);
+	static BoxIntersection obbTest(
+		float3 rayDir, float3 rayOrigin, float3 boxPos, float3 boxScale, float& t);
 
 public:
 	// -- GETS --
@@ -71,6 +75,8 @@ public:
 
 	// -- ANALYSE --
 	float castRayOnMesh(float3 rayPos, float3 rayDir);
+	bool castRayOnMeshEx(float3 rayPos, float3 rayDir, float3& intersection, float3& normal);
+	bool castRayOnMeshEx_limitDistance(float3 rayPos, float3 rayDir, float3& intersection, float3& normal);
 
 	// -- INITILIZE --
 	bool load(std::string filename, bool combineParts = true);

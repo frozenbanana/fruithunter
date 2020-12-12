@@ -174,6 +174,53 @@ float Entity::castRay(float3 rayPos, float3 rayDir) {
 	return -1;
 }
 
+bool Entity::castRayEx(float3 rayPos, float3 rayDir, float3& intersection, float3& normal) {
+	if (m_mesh.get() != nullptr) {
+		float4x4 mWorld = getMatrix();
+		float4x4 mInvWorld = mWorld.Invert();
+		float4x4 mInvTraWorld = mInvWorld.Transpose();
+		float4x4 mInvTraInvWorld = mInvTraWorld.Invert();
+		float3 lrayPos = float3::Transform(rayPos, mInvWorld);
+		float3 lrayDir = float3::TransformNormal(rayDir, mInvTraInvWorld);
+		lrayDir.Normalize();
+
+		float3 cast_target, cast_normal;
+		if (m_mesh->castRayOnMeshEx(lrayPos, lrayDir, cast_target, cast_normal)) {
+			intersection = XMVector3Transform(cast_target, mWorld);
+			normal = XMVector3Transform(cast_normal, mInvTraWorld);
+			normal.Normalize();
+			return true;
+		}
+		else
+			return false;
+	}
+	return false;
+}
+
+bool Entity::castRayEx_limitDistance(
+	float3 point, float3 direction, float3& intersection, float3& normal) {
+	if (m_mesh.get() != nullptr) {
+		float4x4 mWorld = getMatrix();
+		float4x4 mInvWorld = mWorld.Invert();
+		float4x4 mInvTraWorld = mInvWorld.Transpose();
+		float4x4 mInvTraInvWorld = mInvTraWorld.Invert();
+		float3 lrayPos = float3::Transform(point, mInvWorld);
+		float3 lrayPosDest = float3::Transform(point + direction, mInvWorld);
+		float3 lrayDir = (lrayPosDest - lrayPos);
+
+		float3 cast_target, cast_normal;
+		if (m_mesh->castRayOnMeshEx_limitDistance(lrayPos, lrayDir, cast_target, cast_normal)) {
+			intersection = XMVector3Transform(cast_target, mWorld);
+			normal = XMVector3Transform(cast_normal, mInvTraWorld);
+			normal.Normalize();
+			return true;
+		}
+		else
+			return false;
+	}
+	return false;
+}
+
 void Entity::setCollisionDataTree() {
 	// Scales the OBB down to only encompass the trunk
 	if (m_mesh.get() != nullptr) {

@@ -60,7 +60,7 @@ private:
 	float m_target_rayDist;
 
 	const float m_pointer_range = 100;
-	float3 m_pointer;
+	float3 m_pointer, m_pointer_normal;
 	Entity m_pointer_obj;
 
 	// Resources

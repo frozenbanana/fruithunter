@@ -240,10 +240,7 @@ void SceneManager::update(Camera* overrideCamera) {
 
 		fruit->getParticleSystem()->update(dt);
 		PathFindingThread::lock();
-		if (fruit->getFruitType() == FruitType::MELON)
-			fruit->update_melon(dt);
-		else
-			fruit->update(dt, player->getPosition());
+		fruit->update();
 		// collision arrow - fruit
 		for (size_t iArrow = 0; iArrow < scene->m_arrows.size(); iArrow++) {
 			Arrow* arrow = scene->m_arrows[iArrow].get();

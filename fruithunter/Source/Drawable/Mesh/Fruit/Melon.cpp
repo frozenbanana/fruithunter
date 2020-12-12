@@ -10,67 +10,63 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	loadMaterials(names);
 
 	m_meshAnim.setFrameTargets(0, 0);
-	m_rollSpeed = 5.f;
 	m_fruitType = MELON;
 
 	setScale(0.5);
 	changeState(AI::State::PASSIVE);
 	setStartPosition(pos);
-	// enforce that homes are on terrain
-	setWorldHome(getPosition());
-	m_secondWorldHome = m_worldHome + float3(3.f, 0.0, 3.0f);
-	m_secondWorldHome.y =
-		SceneManager::getScene()->m_terrains.getHeightFromPosition(m_secondWorldHome);
-	m_direction = getPosition() - m_secondWorldHome;
 
-	m_rollAnimationSpeed = 2.0f;
 	setCollisionDataOBB();
-
-
-	m_passiveRadius = 15.f;
-	m_activeRadius = 15.f;
-	m_maxSteps = 10;
-
-	m_passive_speed = 8.f;
-	m_active_speed = 15.f;
-	m_caught_speed = 15.f;
-
-	int rand = 0;
-	rand = std::rand();
-	if (rand % 2 == 0) {
-		m_angleDirection = 1;
-	}
-	else {
-		m_angleDirection = -1;
-	}
-	m_triesToGoHome = 0;
-	m_maxSteps = 16;
 
 	m_ball.load("Sphere");
 	m_ball.setScale(0.1);
+
 }
 
 void Melon::behaviorPassive() {
-	if (ImGui::Begin("TestingWindow")) {
-		ImGui::InputFloat("speed", &m_topSpeed);
-		ImGui::InputFloat("acc", &m_acceleration);
-		ImGui::InputFloat("back acc", &m_deacceleration);
-		ImGui::InputFloat("heightTrigger", &m_sensorHeightTrigger);
-		ImGui::End();
-	}
-
 	float dt = SceneManager::getScene()->getDeltaTime();
 	TerrainBatch* tr = &SceneManager::getScene()->m_terrains;
 
+	// init velocity
+	if (float2(m_velocity.x, m_velocity.z).Length() == 0) {
+		float r = RandomFloat(0,1)*2*3.1415f;
+		m_velocity += float3(cos(r), 0, sin(r)) * 0.1;
+	}
+
+	// animation
+	float3 lookAtVel = vector2Rotation(m_velocity);
+	float3 rot = getRotation();
+	rot.y = lookAtVel.y;
+	float radie = getHalfSizes().y;
+	float rotSpeed = m_velocity.Length() / radie;
+	rot.x += rotSpeed * dt;
+	setRotation(rot);
+
+	// sensors
 	float3 sensorAvg;
 	size_t counter = 0;
 	float3 feet = getPosition() - getHalfSizes();
 	for (size_t i = 0; i < 8; i++) {
-		float rot = (3.1415 * 2 / 8) * i;
-		m_sensors[i] = float3(cos(rot), 0, sin(rot)) * m_velocity.Length() + getPosition();
-		float height = tr->getHeightFromPosition(m_sensors[i]);
-		m_sensorState[i] = (abs(feet.y - height) > m_sensorHeightTrigger) || (height < 0.5);
-		if (!m_sensorState[i]) {
+		if (i < 8) {
+			float rot = (3.1415 * 2 / 8) * i;
+			m_sensors[i] = float3(cos(rot), 0, sin(rot)) *
+							   (m_velocity.Length() * !m_fixedSensors + m_fixedSensors) *
+							   m_sensorWidthScale +
+						   getPosition();
+			float height = tr->getHeightFromPosition(m_sensors[i]);
+			m_sensorState[i] = (abs(feet.y - height) > m_sensorHeightTrigger) || (height < 0.5);
+		}
+		else {
+			float3 playerPos = SceneManager::getScene()->m_player->getPosition();
+			float3 toPlayer = (playerPos - getPosition()) * float3(1, 0, 1);
+			// player sensor
+			m_sensors[i] = Normalize(toPlayer) *
+							   (m_velocity.Length() * !m_fixedSensors + m_fixedSensors) *
+							   m_sensorWidthScale +
+						   getPosition();
+			m_sensorState[i] = (toPlayer.Length() < (m_sensors[i] - getPosition()).Length());
+		}
+		if (m_sensorState[i]) {
 			sensorAvg += m_sensors[i];
 			counter++;
 		}
@@ -79,80 +75,35 @@ void Melon::behaviorPassive() {
 		sensorAvg /= counter;
 
 	if (!m_onGround) {
+		// do nothing
 		// fall to ground
 	}
 	else {
 		float3 normal = tr->getNormalFromPosition(getPosition());
-		float3 direction = float3(m_topSpeed, 0, 0);
+		float3 direction = float3(1, 0, 0);
 		if (m_velocity.Length() != 0)
 			direction = Normalize(m_velocity);
 
-		if (counter == 8) {
-			m_velocity += direction * (m_topSpeed - m_velocity.Length()) * m_acceleration * dt;
+		if (counter == 0) {
+			m_accumulatedTime += dt;
+			// move straight forward (add a bit randomness)
+			m_velocity += rotatef2Y(direction, cos(m_accumulatedTime * m_forwardAngleSpeed) *
+												   m_varyingForwardAngle) *
+						  (m_topSpeed - m_velocity.Length()) * (1 - pow(m_acceleration, dt));
+
 		}
-		else if (counter == 0) {
-			m_velocity += direction * (0 - m_velocity.Length()) * m_deacceleration * dt;
+		else if (counter >= 8) {
+			m_velocity += direction * (0 - m_velocity.Length()) * (1 - pow(m_acceleration, dt));
 		}
 		else {
-			float3 desired = Normalize(sensorAvg - getPosition()) * m_topSpeed;
-			m_velocity += (desired - m_velocity) * m_acceleration * dt;
+			float3 desired = -Normalize(sensorAvg - getPosition()) * m_topSpeed;
+			m_velocity += (desired - m_velocity) * (1 - pow(m_acceleration, dt));
 		}
-
-
-
-		//float3 futurePointF = getPosition() + direction * m_velocity.Length();
-		//float3 futurePointL =
-		//	getPosition() + rotatef2Y(direction, sensorWidth) * m_velocity.Length();
-		//float3 futurePointR =
-		//	getPosition() + rotatef2Y(direction, -sensorWidth) * m_velocity.Length();
-		//bool checkF = abs(getPosition().y-tr->getHeightFromPosition(futurePointF)) > 1;
-		//bool checkL = abs(getPosition().y-tr->getHeightFromPosition(futurePointL)) > 1;
-		//bool checkR = abs(getPosition().y-tr->getHeightFromPosition(futurePointR)) > 1;
-		//bool increaseSpeed = true;
-		//if (checkF) {
-		//	if (checkR && checkL) {
-		//		// decrease speed
-		//		increaseSpeed = false;
-		//	}
-		//	else if (checkR) {
-		//		// turn left
-		//		m_velocity = rotatef2Y(m_velocity, sensorWidth * m_rotSpeed * dt);
-		//	}
-		//	else if(checkL) {
-		//		// turn right
-		//		m_velocity = rotatef2Y(m_velocity, -sensorWidth * m_rotSpeed * dt);
-		//	}
-		//	else {
-		//		// turn left
-		//		m_velocity = rotatef2Y(m_velocity, sensorWidth * m_rotSpeed * dt);
-		//	}
-		//}
-		//m_velocity += direction * ((int)increaseSpeed * m_topSpeed - m_velocity.Length()) *
-		//			  (m_acceleration * increaseSpeed+m_deacceleration*(!increaseSpeed)) * dt;
 	}
 }
 
 void Melon::behaviorActive() {
 	changeState(ACTIVE);
-	return;
-
-	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
-	if (m_onGround) {
-		if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
-			stopMovement();
-			changeState(PASSIVE);
-			return;
-		}
-		if (m_availablePath.empty()) {
-			float3 target = circulateAround(playerPosition);
-			makeReadyForPath(target);
-		}
-
-		lookTo(playerPosition);
-		m_speed = m_active_speed;
-
-		
-	}
 }
 
 void Melon::behaviorCaught() {
@@ -167,45 +118,9 @@ void Melon::behaviorCaught() {
 	lookTo(playerPosition);
 }
 
-void Melon::roll(float dt) { rotateX(dt * m_rollAnimationSpeed); }
-
-float3 Melon::circulateAround(float3 playerPosition) {
-
-	float3 toMelon = getPosition() - playerPosition;
-	toMelon.y = playerPosition.y;
-	if (m_nrOfTriesGoHome == 100) {
-		m_angleDirection *= -1;
-		m_nrOfTriesGoHome = 0;
-	}
-	float angle = XM_PI / 8;
-	angle *= m_angleDirection;
-	Matrix rotate = Matrix(cos(angle), 0.f, -sin(angle), 0.f, 0.f, 1.f, 0.f, 0.f, sin(angle), 0.f,
-		cos(angle), 0.f, 0.f, 0.f, 0.f, 1.f);
-
-
-	float3 target = target.Transform(toMelon, rotate);
-	target.Normalize();
-	target *= 10.f;
-
-	target += playerPosition;
-	target.y = playerPosition.y;
-
-	return target;
-}
-
 void Melon::updateAnimated(float dt) {
-	m_frameTime += dt;
-	if (m_frameTime > 2) {
-		m_frameTime = 0.f;
-		setAnimationDestination();
-		lookTo(m_destinationAnimationPosition);
-	}
-	float3 tempDir(m_destinationAnimationPosition - getPosition());
-	tempDir.Normalize();
-	roll(dt);
+	// static mesh (no animation)
 }
-
-void Melon::setRollSpeed(float rollSpeed) { m_rollAnimationSpeed = rollSpeed; }
 
 void Melon::pathfinding(float3 start, std::vector<float4>* animals) {
 	// ErrorLogger::log("thread starting for pathfinding");
@@ -295,10 +210,98 @@ void Melon::pathfinding(float3 start, std::vector<float4>* animals) {
 		}
 }
 
+void Melon::update() {
+	Scene* scene = SceneManager::getScene();
+	float dt = scene->getDeltaTime();
+
+	m_isVisible = true;
+	m_particleSystem.setPosition(getPosition());
+	// updateAnimated(dt); // animation stuff
+	// checkOnGroundStatus(); // checks if on ground
+
+	// DEBUGGING CODE (Remove if old)
+	//if (Input::getInstance()->keyPressed(Keyboard::V)) {
+	//	Player* pl = SceneManager::getScene()->m_player.get();
+	//	float3 pp = pl->getCameraPosition();
+	//	float3 dd = Normalize(pl->getForward()) * 100;
+	//	float t = SceneManager::getScene()->m_terrains.castRay(pp, dd);
+	//	float3 intersection = pp + dd * t;
+	//	float3 pos = intersection;
+	//	pos.y =
+	//		SceneManager::getScene()->m_terrains.getHeightFromPosition(pos) + 1 + getHalfSizes().y;
+	//	setPosition(pos);
+	//	m_velocity *= 0;
+	//}
+
+	doBehavior();
+
+	// update velocity
+	m_velocity += (float3(0, -1, 0) * m_gravityStrength) * dt; // gravity
+	m_velocity *= pow(1, dt);							  // friction
+	// collision
+	float radius = getHalfSizes().y;
+	float3 point = getPosition() - float3(0, 1, 0) * getHalfSizes().y;
+	float3 forward = m_velocity * dt;
+	size_t iterations = 5;
+	float3 velCopy = m_velocity;
+	while (true) {
+		forward = m_velocity * dt;
+		float3 intersection, normal;
+		if (rayCastWorld(point, forward, intersection, normal)) {
+			float3 longVel = forward; // full velocity this frame (called long velocity)
+			float3 shortVel =
+				intersection - point; // velocity until collision (called short velocity)
+			m_velocity =
+				(longVel - (longVel.Dot(normal) - shortVel.Dot(normal) - 0.001f) * normal) / dt;
+		}
+		else
+			break;
+
+		iterations--;
+		if (iterations <= 0) {
+			// stuck
+			m_velocity = -velCopy * 0.5f; // bounce
+			break;
+		}
+	}
+	// movement
+	setPosition(getPosition() + m_velocity * dt);
+
+	// place self over terrain if fall under
+	float3 pos = getPosition() - float3(0, 1, 0) * getHalfSizes().y;
+	float tHeight = SceneManager::getScene()->m_terrains.getHeightFromPosition(pos);
+	if (pos.y < tHeight) {
+		pos.y = tHeight + getHalfSizes().y + 0.1;
+		setPosition(pos);
+	}
+
+	// check if on ground
+	m_onGround = isOnGround(point, m_aboveGroundThreshold);
+}
+
+void Melon::update_imgui_changeParams() {
+	if (ImGui::Begin("TestingWindow")) {
+		ImGui::Checkbox("Show Sensors", &m_showSensors);
+		ImGui::InputFloat("speed", &m_topSpeed);
+		ImGui::SliderFloat("acc", &m_acceleration, 0, 1);
+		ImGui::InputFloat("heightTrigger", &m_sensorHeightTrigger);
+		ImGui::InputFloat("sensor width", &m_sensorWidthScale);
+		ImGui::Checkbox("fixed sensors", &m_fixedSensors);
+		ImGui::InputFloat("varying forward angle", &m_varyingForwardAngle);
+		ImGui::InputFloat("varying forward angle speed", &m_forwardAngleSpeed);
+		ImGui::Text("forwardAngle: %f", cos(m_accumulatedTime * m_forwardAngleSpeed));
+		ImGui::InputFloat("ground threshold", &m_aboveGroundThreshold);
+		ImGui::InputFloat("gravity strength", (float*)&m_gravityStrength);
+		ImGui::End();
+	}
+}
+
 void Melon::draw_sensors() {
-	float3 badColor(1, 0, 0), goodColor(1, 1, 1);
-	for (size_t i = 0; i < 8; i++) {
-		m_ball.setPosition(m_sensors[i]);
-		m_ball.draw_onlyMesh(m_sensorState[i]?badColor:goodColor);
+	if (m_showSensors) {
+		float3 badColor(1, 0, 0), goodColor(1, 1, 1);
+		for (size_t i = 0; i < 8; i++) {
+			m_ball.setPosition(m_sensors[i]);
+			m_ball.draw_onlyMesh(m_sensorState[i] ? badColor : goodColor);
+		}
 	}
 }
