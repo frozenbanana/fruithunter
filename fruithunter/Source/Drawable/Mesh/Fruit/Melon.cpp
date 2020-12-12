@@ -46,7 +46,7 @@ void Melon::behaviorPassive() {
 	float3 sensorAvg;
 	size_t counter = 0;
 	float3 feet = getPosition() - getHalfSizes();
-	for (size_t i = 0; i < 8; i++) {
+	for (size_t i = 0; i < 8 + (int)m_avoidPlayer; i++) {
 		if (i < 8) {
 			float rot = (3.1415 * 2 / 8) * i;
 			m_sensors[i] = float3(cos(rot), 0, sin(rot)) *
@@ -299,7 +299,7 @@ void Melon::update_imgui_changeParams() {
 void Melon::draw_sensors() {
 	if (m_showSensors) {
 		float3 badColor(1, 0, 0), goodColor(1, 1, 1);
-		for (size_t i = 0; i < 8; i++) {
+		for (size_t i = 0; i < 8 + (int)m_avoidPlayer; i++) {
 			m_ball.setPosition(m_sensors[i]);
 			m_ball.draw_onlyMesh(m_sensorState[i] ? badColor : goodColor);
 		}
