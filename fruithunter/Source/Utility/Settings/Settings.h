@@ -16,6 +16,7 @@ private:
 		bool vsync = false;
 		bool fullscreen = false;
 		bool darkEdges = true;
+		bool FXAA = true;
 		float volume_master = 0.5f;
 		float volume_music = 0.5f;
 		float volume_effect = 0.5f;
@@ -35,6 +36,7 @@ public:
 
 	void setVsync(bool value);
 	void setDarkEdges(bool value);
+	void setFXAA(bool value);
 	void setFullscreen(bool value);
 
 	void setDrawDistance(float value);
@@ -47,6 +49,7 @@ public:
 	void setShadowResolution(int res);
 
 	bool getVsync();
+	bool getFXAA();
 	bool getDarkEdges();
 	bool getFullscreen();
 

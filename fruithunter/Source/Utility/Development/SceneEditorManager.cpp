@@ -6,6 +6,7 @@
 #include <WICTextureLoader.h>
 #include <ScreenGrab.h>
 #include <wincodec.h>
+#include <fstream>
 
 void SceneEditorManager::update_imgui_library() {
 	Input* ip = Input::getInstance();
@@ -1029,48 +1030,20 @@ SceneEditorManager::SceneEditorManager() {
 	m_terrain_textures.push_back(tr->get("texture_sand1.jpg", type));
 	m_terrain_textures.push_back(tr->get("texture_sand3.jpg", type));
 
-	// loadable entities
-	m_loadable_entity.push_back("Block");
-	m_loadable_entity.push_back("Bowl");
-	m_loadable_entity.push_back("BowlContent1");
-	m_loadable_entity.push_back("BowlContent2");
-	m_loadable_entity.push_back("BowlContent3");
-	m_loadable_entity.push_back("BurnedTree1");
-	m_loadable_entity.push_back("BurnedTree2");
-	m_loadable_entity.push_back("BurnedTree3");
-	m_loadable_entity.push_back("bush1");
-	m_loadable_entity.push_back("bush2");
-	m_loadable_entity.push_back("DeadBush");
-	m_loadable_entity.push_back("Grass1");
-	m_loadable_entity.push_back("Grass2");
-	m_loadable_entity.push_back("Grass3");
-	m_loadable_entity.push_back("Grass4");
-	m_loadable_entity.push_back("Quad");
-	m_loadable_entity.push_back("RopeBridgeFloor");
-	m_loadable_entity.push_back("RopeBridgeRailing1");
-	m_loadable_entity.push_back("RopeBridgeRailing2");
-	m_loadable_entity.push_back("SignHorizontal");
-	m_loadable_entity.push_back("SignHorizontal2");
-	m_loadable_entity.push_back("SignSlanted");
-	m_loadable_entity.push_back("SignSlanted2");
-	m_loadable_entity.push_back("Sphere");
-	m_loadable_entity.push_back("stone1");
-	m_loadable_entity.push_back("stone2");
-	m_loadable_entity.push_back("stone3");
-	m_loadable_entity.push_back("treeMedium1");
-	m_loadable_entity.push_back("treeMedium2");
-	m_loadable_entity.push_back("treeMedium3");
-	m_loadable_entity.push_back("Cactus_tall");
-	m_loadable_entity.push_back("Cactus_small");
-	m_loadable_entity.push_back("mushroom1");
-	m_loadable_entity.push_back("mushroom2");
-	m_loadable_entity.push_back("mushroom3");
-	m_loadable_entity.push_back("mushroom4");
-	m_loadable_entity.push_back("flower1");
-	m_loadable_entity.push_back("flower2");
-	m_loadable_entity.push_back("flower3");
-	m_loadable_entity.push_back("flower4");
-	m_loadable_entity.push_back("totem");
+	// loadable entities from name file
+
+	ifstream nameFile;
+	nameFile.open("assets/meshNames.txt", ios::in);
+	if (nameFile.is_open()) 
+	{
+		string line;
+		while (getline(nameFile, line)) 
+		{
+			m_loadable_entity.push_back(line);
+		}
+	}
+	nameFile.close();
+
 
 	// pointer object
 	m_pointer_obj.load("arrow");

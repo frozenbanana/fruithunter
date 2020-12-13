@@ -78,7 +78,7 @@ float texSampleGrease(
 
 float4 main(PS_IN ip) : SV_TARGET {
 	// Texture sampling
-	float3 aboveFlat = texture_aboveFlat.Sample(samplerAni, (ip.TexCoord * 50.)).rgb;
+	float3 aboveFlat = texture_aboveFlat.Sample(samplerAni, (ip.TexCoord * 50.f/3.f)).rgb;
 	float3 beneathFlat = texture_beneathFlat.Sample(samplerAni, (ip.TexCoord * 50.)).rgb;
 	float3 aboveTilt = texture_aboveTilt.Sample(samplerAni, (ip.TexCoord * 50.f)).rgb;
 	float3 betweenTiltAndFlat =
