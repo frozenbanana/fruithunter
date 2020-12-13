@@ -104,6 +104,9 @@ void SceneManager::draw_color(Camera* overrideCamera) {
 	// arrows particleSystem
 	for (size_t i = 0; i < scene->m_arrows.size(); i++)
 		scene->m_arrows[i]->draw_trailEffect();
+
+	//FXAA
+	Renderer::getInstance()->draw_FXAA();
 }
 
 void SceneManager::draw_hud() {

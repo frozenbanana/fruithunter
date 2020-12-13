@@ -133,6 +133,9 @@ void MainState::update() {
 		// editor
 		push(State::EditorState);
 	}
+	if (Input::getInstance()->keyPressed(Keyboard::O)) {
+		Settings::getInstance()->setFXAA(1 - Settings::getInstance()->getFXAA());
+	}
 }
 
 void MainState::draw() {
