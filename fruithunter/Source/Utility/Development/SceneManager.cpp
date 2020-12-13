@@ -277,9 +277,6 @@ void SceneManager::update(Camera* overrideCamera) {
 		}
 		PathFindingThread::unlock();
 	}
-	if (Input::getInstance()->keyPressed(Keyboard::O)) {
-		Settings::getInstance()->setFXAA(1 - Settings::getInstance()->getFXAA());
-	}
 }
 
 void SceneManager::setup_shadow(Camera* overrideCamera) {
