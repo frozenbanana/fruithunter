@@ -12,7 +12,7 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	m_meshAnim.setFrameTargets(0, 0);
 	m_fruitType = MELON;
 
-	setScale(0.5);
+	setScale(m_startScale);
 	changeState(AI::State::ACTIVE);
 	setStartPosition(pos);
 
@@ -27,17 +27,43 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 }
 
 void Melon::behaviorPassive() { 
+	// -- FRUIT RESPAWNING -- // 
+	// Change into passive mode to automaticly respawn melon
+
 	if (!isRespawning()) {
+		// start of respawn
 		// init
 		m_respawn_timer = m_respawn_max;
 	}
 	else {
 		// update
 		float dt = SceneManager::getScene()->getDeltaTime();
-		m_respawn_timer = Clamp<float>(m_respawn_timer-dt, 0, m_respawn_max);
-	}
 
-	//changeState(ACTIVE); 
+		float th = m_respawn_max / 2;
+		if (m_respawn_timer >= th && m_respawn_timer - dt < th) {
+			// find new respawn point
+			int tIndex = SceneManager::getScene()->m_terrains.getTerrainIndexFromPosition(getPosition());
+			if (tIndex == -1) {
+				// pick random terrain if not on a terrain (Plan B)
+				tIndex = rand()%SceneManager::getScene()->m_terrains.length();
+			}
+			if (tIndex != -1) {
+				float3 sp = SceneManager::getScene()->m_terrains.getSpawnpoint(tIndex);
+				setPosition(sp + float3(0, 1, 0) * (getHalfSizes().y + 0.1));
+			}
+			else {
+				// this should never happen as fruits only can spawn if there is a terrain to spawn from
+				ErrorLogger::logError("(Melon) Melon cant respawn. No terrains exists!", HRESULT());
+			}
+			m_velocity *= 0;
+		}
+		m_respawn_timer = Clamp<float>(m_respawn_timer-dt, 0, m_respawn_max);
+		if (m_respawn_timer == 0) {
+			// end of respawn
+			// switch to active mode
+			changeState(ACTIVE);
+		}
+	}
 }
 
 void Melon::behaviorActive() {
@@ -236,27 +262,12 @@ void Melon::update() {
 	// updateAnimated(dt); // animation stuff
 	// checkOnGroundStatus(); // checks if on ground
 
-	// DEBUGGING CODE (Remove if old)
-	//if (Input::getInstance()->keyPressed(Keyboard::V)) {
-	//	Player* pl = SceneManager::getScene()->m_player.get();
-	//	float3 pp = pl->getCameraPosition();
-	//	float3 dd = Normalize(pl->getForward()) * 100;
-	//	float t = SceneManager::getScene()->m_terrains.castRay(pp, dd);
-	//	float3 intersection = pp + dd * t;
-	//	float3 pos = intersection;
-	//	pos.y =
-	//		SceneManager::getScene()->m_terrains.getHeightFromPosition(pos) + 1 + getHalfSizes().y;
-	//	setPosition(pos);
-	//	m_velocity *= 0;
-	//}
-
 	doBehavior();
 
 	// update velocity
 	m_velocity += (float3(0, -1, 0) * m_gravityStrength) * dt; // gravity
-	m_velocity *= pow(1, dt);							  // friction
+	m_velocity *= pow(1, dt);								   // friction
 	// collision
-	float radius = getHalfSizes().y;
 	float3 point = getPosition() - float3(0, 1, 0) * getHalfSizes().y;
 	float3 forward = m_velocity * dt;
 	size_t iterations = 5;
@@ -335,6 +346,12 @@ void Melon::draw_sensors() {
 
 void Melon::draw_fruit() {
 	if (m_isVisible) {
+		if (isRespawning()) {
+			float factor = abs((m_respawn_max / 2) - m_respawn_timer) / (m_respawn_max / 2);
+			setScale(m_startScale * factor);
+		}
+		else
+			setScale(m_startScale);
 		Renderer::getInstance()->enableAlphaBlending();
 		draw_animate();
 		Renderer::getInstance()->disableAlphaBlending();
