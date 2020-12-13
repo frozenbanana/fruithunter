@@ -10,6 +10,7 @@ Settings::Settings() {
 	m_settingFile.bind("Vsync:b", &m_tempContainer.vsync);
 	m_settingFile.bind("Fullscreen:b", &m_tempContainer.fullscreen);
 	m_settingFile.bind("DarkEdges:b", &m_tempContainer.darkEdges);
+	m_settingFile.bind("FXAA:b", &m_tempContainer.FXAA);
 	m_settingFile.bind("MasterVolume:f", &m_tempContainer.volume_master);
 	m_settingFile.bind("MusicVolume:f", &m_tempContainer.volume_music);
 	m_settingFile.bind("EffectsVolume:f", &m_tempContainer.volume_effect);
@@ -34,6 +35,7 @@ void Settings::loadAllSetting() {
 	setVsync(m_tempContainer.vsync);
 	setFullscreen(m_tempContainer.fullscreen);
 	setDarkEdges(m_tempContainer.darkEdges);
+	setFXAA(m_tempContainer.FXAA);
 	setMasterVolume(m_tempContainer.volume_master);
 	setMusicVolume(m_tempContainer.volume_music);
 	setEffectsVolume(m_tempContainer.volume_effect);
@@ -58,6 +60,12 @@ void Settings::setVsync(bool value) {
 void Settings::setDarkEdges(bool value) { 
 	if (m_container.darkEdges != value) {
 		m_container.darkEdges = value;
+	}
+}
+
+void Settings::setFXAA(bool value) {
+	if (m_container.FXAA != value) {
+		m_container.FXAA = value;
 	}
 }
 
@@ -117,6 +125,8 @@ void Settings::setShadowResolution(int res) {
 }
 
 bool Settings::getVsync() { return m_container.vsync; }
+
+bool Settings::getFXAA() { return m_container.FXAA; }
 
 bool Settings::getDarkEdges() { return m_container.darkEdges; }
 

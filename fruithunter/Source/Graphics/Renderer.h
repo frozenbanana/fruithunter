@@ -55,6 +55,8 @@ public:
 
 	void drawLoading();
 
+	void draw_FXAA();
+
 	void setDrawState(DrawingState state);
 	ShadowMapper* getShadowMapper();
 	static void draw(size_t vertexCount, size_t vertexOffset);
@@ -102,6 +104,9 @@ private:
 	// post process dark edges variables
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexQuadBuffer;
 	ShaderSet m_shader_darkEdges;
+
+	// post process FXAA variables
+	ShaderSet m_shader_FXAA;
 
 	// Loading screen
 	Quad m_loadingScreen;
