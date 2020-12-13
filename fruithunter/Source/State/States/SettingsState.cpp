@@ -16,23 +16,23 @@ void SettingsState::init() {
 	m_masterVolume.initialize("Master Volume", float2(width / 2, height / 2 - 330));
 	m_musicVolume.initialize("Music Volume", float2(width / 2, height / 2 - 280));
 	m_effectsVolume.initialize("Effects Volume", float2(width / 2, height / 2 - 230));
-	m_sensitivity.initialize("Sensitivity", float2(width / 2, height / 2 - 150));
-	m_drawDistance.initialize("Draw distance", float2(width / 2, height / 2 - 70));
+	m_sensitivity.initialize("Sensitivity", float2(width / 2, height / 2 - 180));
+	m_drawDistance.initialize("Draw distance", float2(width / 2, height / 2 - 130));
 	m_shadowsButton.initialize(
-		"Shadows", float2(width / 2, height / 2 - 10), Button::Setting::MEDIUM);
+		"Shadows", float2(width / 2, height / 2 - 80), Button::Setting::MEDIUM);
 	m_darkEdgesButton.initialize(
-		"Dark Edges", float2(width / 2, height / 2 + 50), settings->getDarkEdges());
+		"Dark Edges", float2(width / 2, height / 2 - 30), settings->getDarkEdges());
 
 	m_resolutionButton.initialize(
-		"Resolution", float2(width / 2, height / 2 + 140), Button::Resolution::HD);
+		"Resolution", float2(width / 2, height / 2 + 20), Button::Resolution::HD);
 	m_fullscreenButton.initialize(
-		"Fullscreen", float2(width / 2, height / 2 + 200), settings->getFullscreen());
+		"Fullscreen", float2(width / 2, height / 2 + 70), settings->getFullscreen());
 	m_vsyncButton.initialize(
-		"V-Sync", float2(width / 2, height / 2 + 260), settings->getVsync());
-	m_FXAAButton.initialize("FXAA", float2(width / 2, height / 2 + 320), settings->getFXAA());
+		"V-Sync", float2(width / 2, height / 2 + 130), settings->getVsync());
+	m_FXAAButton.initialize("FXAA", float2(width / 2, height / 2 + 180), settings->getFXAA());
 
-	m_backButton.initialize("Back", float2(width / 2, height - 80));
-	m_applyButton.initialize("Apply", float2(width / 2 - 100, height - 80));
+	m_backButton.initialize("Back", float2(width / 2, height / 2 + 230));
+	m_applyButton.initialize("Apply", float2(width / 2 - 100, height / 2 + 230));
 
 	m_settingsBackground.load("melon.png");
 	m_settingsBackground.setPosition(float2(1280.f / 2.f, 720.f / 2.f));
@@ -104,19 +104,19 @@ void SettingsState::update() {
 			m_masterVolume.setPosition(float2(width / 2, height / 2 - 330));
 			m_musicVolume.setPosition(float2(width / 2, height / 2 - 280));
 			m_effectsVolume.setPosition(float2(width / 2, height / 2 - 230));
-			m_sensitivity.setPosition(float2(width / 2, height / 2 - 150));
+			m_sensitivity.setPosition(float2(width / 2, height / 2 - 180));
+			m_drawDistance.setPosition(float2(width / 2, height / 2 - 130));
 
-			m_drawDistance.setPosition(float2(width / 2, height / 2 - 70));
-			m_shadowsButton.setPosition(float2(width / 2, height / 2 - 10));
-			m_darkEdgesButton.setPosition(float2(width / 2, height / 2 + 50));
+			m_shadowsButton.setPosition(float2(width / 2, height / 2 - 80));
+			m_darkEdgesButton.setPosition(float2(width / 2, height / 2 - 30));
 
-			m_resolutionButton.setPosition(float2(width / 2, height / 2 + 140));
-			m_fullscreenButton.setPosition(float2(width / 2, height / 2 + 200));
-			m_vsyncButton.setPosition(float2(width / 2, height / 2 + 260));
-			m_FXAAButton.setPosition(float2(width / 2, height / 2 + 320));
+			m_resolutionButton.setPosition(float2(width / 2, height / 2 + 20));
+			m_fullscreenButton.setPosition(float2(width / 2, height / 2 + 70));
+			m_vsyncButton.setPosition(float2(width / 2, height / 2 + 130));
+			m_FXAAButton.setPosition(float2(width / 2, height / 2 + 180));
 
-			m_backButton.setPosition(float2(width / 2, height / 2 + 380));
-			m_applyButton.setPosition(float2(width / 2 - 100, height / 2 + 380));
+			m_backButton.setPosition(float2(width / 2, height / 2 + 230));
+			m_applyButton.setPosition(float2(width / 2 - 100, height / 2 + 230));
 
 			m_screenStateChanged = false;
 
@@ -139,19 +139,19 @@ void SettingsState::play() {
 	m_masterVolume.setPosition(float2(width / 2, height / 2 - 330));
 	m_musicVolume.setPosition(float2(width / 2, height / 2 - 280));
 	m_effectsVolume.setPosition(float2(width / 2, height / 2 - 230));
-	m_sensitivity.setPosition(float2(width / 2, height / 2 - 150));
+	m_sensitivity.setPosition(float2(width / 2, height / 2 - 180));
+	m_drawDistance.setPosition(float2(width / 2, height / 2 - 130));
 
-	m_drawDistance.setPosition(float2(width / 2, height / 2 - 70));
-	m_shadowsButton.setPosition(float2(width / 2, height / 2 - 10));
-	m_darkEdgesButton.setPosition(float2(width / 2, height / 2 + 50));
+	m_shadowsButton.setPosition(float2(width / 2, height / 2 - 80));
+	m_darkEdgesButton.setPosition(float2(width / 2, height / 2 - 30));
 
-	m_resolutionButton.setPosition(float2(width / 2, height / 2 + 140));
-	m_fullscreenButton.setPosition(float2(width / 2, height / 2 + 200));
-	m_vsyncButton.setPosition(float2(width / 2, height / 2 + 260));
-	m_FXAAButton.setPosition(float2(width / 2, height / 2 + 320));
+	m_resolutionButton.setPosition(float2(width / 2, height / 2 + 20));
+	m_fullscreenButton.setPosition(float2(width / 2, height / 2 + 70));
+	m_vsyncButton.setPosition(float2(width / 2, height / 2 + 130));
+	m_FXAAButton.setPosition(float2(width / 2, height / 2 + 180));
 
-	m_backButton.setPosition(float2(width / 2, height / 2 + 380));
-	m_applyButton.setPosition(float2(width / 2 - 100, height / 2 + 380));
+	m_backButton.setPosition(float2(width / 2, height / 2 + 230));
+	m_applyButton.setPosition(float2(width / 2 - 100, height / 2 + 230));
 
 	m_vsyncButton.setOnOff(settings->getVsync());
 	m_FXAAButton.setOnOff(settings->getFXAA());
@@ -205,12 +205,12 @@ void SettingsState::draw() {
 	m_sensitivity.draw();
 
 	if (m_screenStateChanged) {
-		m_backButton.setPosition(float2(SCREEN_WIDTH / 2 + 100, SCREEN_HEIGHT / 2 + 380));
+		m_backButton.setPosition(float2(SCREEN_WIDTH / 2 + 100, SCREEN_HEIGHT / 2 + 230));
 		m_backButton.draw();
 		m_applyButton.draw();
 	}
 	else {
-		m_backButton.setPosition(float2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 380));
+		m_backButton.setPosition(float2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 230));
 		m_backButton.draw();
 	}
 }
