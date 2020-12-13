@@ -2,6 +2,7 @@
 #include "AudioController.h"
 #include "PathFindingThread.h"
 #include "Renderer.h"
+#include "Settings.h"
 
 shared_ptr<Scene> SceneManager::scene;
 
@@ -275,6 +276,9 @@ void SceneManager::update(Camera* overrideCamera) {
 			}
 		}
 		PathFindingThread::unlock();
+	}
+	if (Input::getInstance()->keyPressed(Keyboard::O)) {
+		Settings::getInstance()->setFXAA(1 - Settings::getInstance()->getFXAA());
 	}
 }
 
