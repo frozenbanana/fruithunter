@@ -13,7 +13,7 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	m_fruitType = MELON;
 
 	setScale(0.5);
-	changeState(AI::State::PASSIVE);
+	changeState(AI::State::ACTIVE);
 	setStartPosition(pos);
 
 	setCollisionDataOBB();
@@ -26,13 +26,27 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	m_rollTrail.setEmitRate(200, true);
 }
 
-void Melon::behaviorPassive() {
+void Melon::behaviorPassive() { 
+	if (!isRespawning()) {
+		// init
+		m_respawn_timer = m_respawn_max;
+	}
+	else {
+		// update
+		float dt = SceneManager::getScene()->getDeltaTime();
+		m_respawn_timer = Clamp<float>(m_respawn_timer-dt, 0, m_respawn_max);
+	}
+
+	//changeState(ACTIVE); 
+}
+
+void Melon::behaviorActive() {
 	float dt = SceneManager::getScene()->getDeltaTime();
 	TerrainBatch* tr = &SceneManager::getScene()->m_terrains;
 
 	// init velocity
 	if (float2(m_velocity.x, m_velocity.z).Length() == 0) {
-		float r = RandomFloat(0,1)*2*3.1415f;
+		float r = RandomFloat(0, 1) * 2 * 3.1415f;
 		m_velocity += float3(cos(r), 0, sin(r)) * 0.1;
 	}
 
@@ -93,7 +107,6 @@ void Melon::behaviorPassive() {
 			m_velocity += rotatef2Y(direction, cos(m_accumulatedTime * m_forwardAngleSpeed) *
 												   m_varyingForwardAngle) *
 						  (m_topSpeed - m_velocity.Length()) * (1 - pow(m_acceleration, dt));
-
 		}
 		else if (counter >= 8) {
 			m_velocity += direction * (0 - m_velocity.Length()) * (1 - pow(m_acceleration, dt));
@@ -103,10 +116,6 @@ void Melon::behaviorPassive() {
 			m_velocity += (desired - m_velocity) * (1 - pow(m_acceleration, dt));
 		}
 	}
-}
-
-void Melon::behaviorActive() {
-	changeState(ACTIVE);
 }
 
 void Melon::behaviorCaught() {
@@ -213,6 +222,8 @@ void Melon::pathfinding(float3 start, std::vector<float4>* animals) {
 		}
 }
 
+bool Melon::isRespawning() const { return m_respawn_timer != 0; }
+
 void Melon::update() {
 	Scene* scene = SceneManager::getScene();
 	float dt = scene->getDeltaTime();
@@ -283,6 +294,11 @@ void Melon::update() {
 
 	// check if on ground
 	m_onGround = isOnGround(point, m_aboveGroundThreshold);
+
+	// respawn if fall into water
+	if (getPosition().y < 1 && getState() == State::ACTIVE) {
+		changeState(State::PASSIVE);
+	}
 }
 
 void Melon::update_imgui_changeParams() {
