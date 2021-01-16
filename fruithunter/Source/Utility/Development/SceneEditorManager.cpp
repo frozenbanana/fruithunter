@@ -22,7 +22,7 @@ void SceneEditorManager::update_imgui_library() {
 							deselect_fragment();
 						}
 						else {
-							select_fragment(i);
+							select_index(i);
 						}
 					}
 				}
@@ -50,35 +50,44 @@ void SceneEditorManager::update_imgui_library() {
 				ImGui::SameLine();
 				if (ImGui::Button("Copy") || ip->keyPressed(m_key_copy)) {
 					Fragment::Type type = f->getType();
+					Fragment* fCopy = nullptr;
 					bool anyUpdate = true;
 					if (type == Fragment::Type::animal) {
 						Animal* obj = dynamic_cast<Animal*>(f);
-						scene->m_animals.push_back(make_shared<Animal>(*obj));
+						shared_ptr<Animal> copy = make_shared<Animal>(*obj);
+						scene->m_animals.push_back(copy);
+						fCopy = copy.get();
 					}
 					else if (type == Fragment::Type::entity) {
 						Entity* target = dynamic_cast<Entity*>(f);
 						shared_ptr<Entity> obj = make_shared<Entity>(*target);
 						scene->m_entities.add(obj->getLocalBoundingBoxPosition(),
 							obj->getLocalBoundingBoxSize(), obj->getMatrix(), obj);
+						fCopy = obj.get();
 					}
 					else if (type == Fragment::Type::particleSystem) {
 						ParticleSystem* obj = dynamic_cast<ParticleSystem*>(f);
 						scene->m_particleSystems.push_back(*obj);
+						fCopy = &scene->m_particleSystems.back();
 					}
 					else if (type == Fragment::Type::sea) {
 						SeaEffect* target = dynamic_cast<SeaEffect*>(f);
 						shared_ptr<SeaEffect> obj = make_shared<SeaEffect>(*target);
 						scene->m_seaEffects.push_back(obj);
+						fCopy = obj.get();
 					}
 					else if (type == Fragment::Type::terrain) {
 						Environment* obj = dynamic_cast<Environment*>(f);
 						shared_ptr<Environment> sh_obj = make_shared<Environment>(*obj);
 						scene->m_terrains.add(sh_obj);
+						fCopy = sh_obj.get();
 					}
 					else
 						anyUpdate = false;
-					if (anyUpdate)
+					if (anyUpdate) {
 						refreshLibrary();
+						select_fragment(fCopy->getID());
+					}
 				}
 				if (ImGui::IsItemHovered()) {
 					ImGui::BeginTooltip();
@@ -392,7 +401,7 @@ bool SceneEditorManager::update_panel_entity(Entity* selection, bool update) {
 		}
 		ImGui::EndCombo();
 	}
-	if (ImGui::Button("Point")) {
+	if (ImGui::Button("Point") || Input::getInstance()->keyPressed(m_key_setPosition)) {
 		position = m_pointer;
 		if (isValid) {
 			selection->setPosition(position);
@@ -448,7 +457,7 @@ bool SceneEditorManager::update_panel_animal(Animal* selection, bool update) {
 		fruitCount = selection->getRequiredFruitCount();
 		sleepPosition = selection->getSleepPosition();
 	}
-	if (ImGui::Button("UpdateP")) {
+	if (ImGui::Button("UpdateP") || Input::getInstance()->keyPressed(m_key_setPosition)) {
 		position = m_pointer;
 		if (isValid) {
 			selection->setPosition(position);
@@ -600,7 +609,7 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 		affectedByWind = selection->isAffectedByWind();
 		pd = selection->getParticleDescription();
 	}
-	if (ImGui::Button("UpdateP")) {
+	if (ImGui::Button("UpdateP") || Input::getInstance()->keyPressed(m_key_setPosition)) {
 		position = m_pointer;
 		if (isValid) {
 			selection->setPosition(position);
@@ -716,7 +725,7 @@ void SceneEditorManager::refreshLibrary() {
 	}
 	else if (m_selectedIndex != -1) {
 		m_selectedIndex = Clamp<size_t>(m_selectedIndex, 0, m_library.size() - 1);
-		select_fragment(m_selectedIndex);
+		select_index(m_selectedIndex);
 	}
 }
 
@@ -973,7 +982,7 @@ void SceneEditorManager::update_imgui() {
 	m_selectedThisFrame = false;
 }
 
-void SceneEditorManager::select_fragment(size_t index) { 
+void SceneEditorManager::select_index(size_t index) { 
 	m_selectedIndex = index;
 	m_selectedThisFrame = true;
 
@@ -989,6 +998,25 @@ void SceneEditorManager::select_fragment(size_t index) {
 	}
 	if (!found)
 		m_transformable = nullptr;
+}
+
+void SceneEditorManager::select_fragment(FragmentID id) {
+	for (size_t i = 0; i < m_library.size(); i++) {
+		if (m_library[i]->getID() == id) {
+			m_selectedIndex = i;
+			m_selectedThisFrame = true;
+
+			static const Fragment::Type validTypes[3] = { Fragment::Type::animal,
+				Fragment::Type::entity, Fragment::Type::particleSystem };
+			m_transformable = nullptr;
+			for (size_t j = 0; j < 3; j++) {
+				if (m_library[i]->getType() == validTypes[j]) {
+					m_transformable = dynamic_cast<Transformation*>(m_library[i]);
+					break;
+				}
+			}
+		}
+	}
 }
 
 void SceneEditorManager::deselect_fragment() {
@@ -1193,7 +1221,7 @@ void SceneEditorManager::update() {
 			if (f != nullptr) {
 				for (size_t i = 0; i < m_library.size(); i++) {
 					if (f->getID() == m_library[i]->getID()) {
-						select_fragment(i);
+						select_index(i);
 					}
 				}
 			}

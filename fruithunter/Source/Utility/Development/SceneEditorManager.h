@@ -29,6 +29,7 @@ private:
 	const Input::MouseButton m_key_select = Input::MIDDLE; // btn for selecting entity
 	const Keyboard::Keys m_key_switchState = Keyboard::Tab; // btn for selecting entity
 	const Keyboard::Keys m_key_copy = Keyboard::C; // btn for copying fragment
+	const Keyboard::Keys m_key_setPosition = Keyboard::V; // btn for overwriting position to poiner pos
 
 	const Keyboard::Keys KEY_FORWARD = Keyboard::W;
 	const Keyboard::Keys KEY_BACKWARD = Keyboard::S;
@@ -108,7 +109,8 @@ private:
 	void draw_transformationVisuals();
 
 	void update_imgui();
-	void select_fragment(size_t index);
+	void select_index(size_t index);
+	void select_fragment(FragmentID id);
 	void deselect_fragment();
 
 	void readSceneDirectory();
