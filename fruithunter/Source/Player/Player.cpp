@@ -320,7 +320,9 @@ void Player::calculateTerrainCollision(Terrain* terrain, float dt) {
 			break; // break of no intersection was found!
 		float3 collisionPoint = m_position + movement * l;
 		float3 collisionNormal = terrain->getNormalFromPosition(collisionPoint.x, collisionPoint.z);
+		
 		slide(dt, collisionNormal, l);
+		
 		loopCount--;
 		if (loopCount <= 0) {
 			ErrorLogger::logWarning("WARNING! Player collision with terrain calculated "

@@ -8,6 +8,17 @@
 #define MEDIUMSHOT 15.f
 #define FASTMOVING_VELOCITY 11.f
 
+void Fruit::draw_fruit() {
+	if (m_isVisible) {
+		Renderer::getInstance()->enableAlphaBlending();
+		draw_animate();
+		Renderer::getInstance()->disableAlphaBlending();
+		m_particleSystem.draw(true);
+	}
+}
+
+void Fruit::draw_fruit_shadow() { draw_animate_onlyMesh(float3(0, 0, 0)); }
+
 void Fruit::jump(float3 direction, float power) { 
 	m_velocity += power * direction; 
 }
@@ -127,8 +138,11 @@ bool Fruit::withinDistanceTo(float3 target, float treshhold) {
 
 ParticleSystem* Fruit::getParticleSystem() { return &m_particleSystem; }
 
-void Fruit::update(float dt, float3 playerPosition) {
-	if (withinDistanceTo(playerPosition, 160.f)) {
+void Fruit::update() {
+	Scene* scene = SceneManager::getScene();
+	float dt = scene->getDeltaTime();
+
+	if (withinDistanceTo(scene->m_player->getPosition(), 160.f)) {
 		m_isVisible = true;
 		m_particleSystem.setPosition(getPosition());
 		checkOnGroundStatus(); // checks if on ground
@@ -209,6 +223,58 @@ void Fruit::stopMovement() {
 	m_velocity = float3(0.f);
 	m_speed = 0.f;
 	m_availablePath.clear();
+}
+
+bool Fruit::rayCastWorld(float3 point, float3 forward, float3& intersection, float3& normal) {
+	Scene* scene = SceneManager::getScene();
+
+	float t = -1;
+	// find terrain collision
+	t = scene->m_terrains.castRay(point, forward);
+	if (t > -1) {
+		intersection = point + forward * t;
+		normal = scene->m_terrains.getNormalFromPosition(intersection);
+	}
+	// object collisions
+	CubeBoundingBox bb(vector<float3>({ point, point + forward }));
+	vector<shared_ptr<Entity>*> entities = scene->m_entities.cullElements(bb);
+	for (size_t i = 0; i < entities.size(); i++) {
+		float3 cast_target, cast_normal;
+		if ((*entities[i])->getIsCollidable()) {
+			if ((*entities[i])->castRayEx_limitDistance(point, forward, cast_target, cast_normal)) {
+				float tt = (cast_target - point).Length() / forward.Length();
+				if (tt <= 1 && (t == -1 || tt < t)) {
+					t = tt;
+					intersection = cast_target;
+					normal = cast_normal;
+				}
+			}
+		}
+	}
+	return (t > -1);
+}
+
+bool Fruit::isOnGround(float3 position, float heightThreshold) {
+	Scene* scene = SceneManager::getScene();
+	float3 forward = float3(0, -1, 0) * heightThreshold;
+	float t = -1;
+	// find terrain height
+	float h = scene->m_terrains.getHeightFromPosition(position);
+	if (abs(position.y - h) < heightThreshold)
+		return true;
+	// object collisions
+	vector<shared_ptr<Entity>*> entities = scene->m_entities.getElementsByPosition(position);
+	for (size_t i = 0; i < entities.size(); i++) {
+		float3 cast_target, cast_normal;
+		if ((*entities[i])->getIsCollidable()) {
+			if ((*entities[i])
+					->castRayEx_limitDistance(position, forward, cast_target, cast_normal)) {
+				// hit
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 bool Fruit::isVisible() const { return m_isVisible; }

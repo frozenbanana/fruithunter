@@ -26,7 +26,8 @@ float Mesh::triangleTest(float3 rayDir, float3 rayOrigin, float3 tri0, float3 tr
 		return -1;
 }
 
-float Mesh::obbTest(float3 rayDir, float3 rayOrigin, float3 boxPos, float3 boxScale) {
+Mesh::BoxIntersection Mesh::obbTest(
+	float3 rayDir, float3 rayOrigin, float3 boxPos, float3 boxScale, float& t) {
 	// SLABS CALULATIONS(my own)
 	float4 data[3] = { float4(1, 0, 0, boxScale.x), float4(0, 1, 0, boxScale.y),
 		float4(0, 0, 1, boxScale.z) }; //{o.u_hu,o.v_hv,o.w_hw};
@@ -50,13 +51,15 @@ float Mesh::obbTest(float3 rayDir, float3 rayOrigin, float3 boxPos, float3 boxSc
 			if (t2 < Tmax)
 				Tmax = t2;
 		}
-		else
-			return -1;
 	}
-	if (Tmin < Tmax)
-		return Tmin;
+	if (Tmin < Tmax) {
+		t = Tmin;
+		if (Tmin < 0 && Tmax > 0)
+			return BoxIntersection::InsideHit;
+		return BoxIntersection::OutsideHit;
+	}
 	else
-		return -1;
+		return BoxIntersection::OutsideMiss;
 }
 bool Mesh::findMinMaxValues() {
 	if (m_meshVertices.size() > 0) {
@@ -302,7 +305,8 @@ float Mesh::castRayOnMesh(float3 rayPos, float3 rayDir) {
 	float3 bPos = getBoundingBoxPos();
 	float3 bScale = getBoundingBoxSize();
 	// check if close
-	if (obbTest(rayDir, rayPos, bPos, bScale) != -1) {
+	float bbt;
+	if (obbTest(rayDir, rayPos, bPos, bScale, bbt)) {
 		// find the exact point
 		float closest = -1;
 		int length = (int)m_meshVertices.size() / 3;
@@ -312,12 +316,83 @@ float Mesh::castRayOnMesh(float3 rayPos, float3 rayDir) {
 			float3 v1 = m_meshVertices[(int)index + (int)1].position;
 			float3 v2 = m_meshVertices[(int)index + (int)2].position;
 			float t = triangleTest(rayDir, rayPos, v0, v1, v2);
-			if ((t > 0 && t < closest) || closest < 0)
+			if (t >= 0 && (closest < 0 || t < closest))
 				closest = t;
 		}
 		return closest;
 	}
 	return -1;
+}
+
+bool Mesh::castRayOnMeshEx(float3 rayPos, float3 rayDir, float3& intersection, float3& normal) {
+	// get bounding box in local space
+	float3 bPos = getBoundingBoxPos();
+	float3 bScale = getBoundingBoxSize();
+	// check if close
+	float bbt;
+	if (obbTest(rayDir, rayPos, bPos, bScale, bbt)) {
+		// find the exact point
+		float3 closest_normal;
+		float closest = -1;
+		int length = (int)m_meshVertices.size() / 3;
+		for (int i = 0; i < length; i++) {
+			int index = i * 3;
+			float3 v0 = m_meshVertices[(int)index + (int)0].position;
+			float3 v1 = m_meshVertices[(int)index + (int)1].position;
+			float3 v2 = m_meshVertices[(int)index + (int)2].position;
+			float t = triangleTest(rayDir, rayPos, v0, v1, v2);
+			if (t >= 0 && (closest < 0 || t < closest)) {
+				closest = t;
+				closest_normal = ((v1 - v0).Cross(v2 - v0));
+			}
+		}
+		if (closest >= 0) {
+			intersection = rayPos + rayDir * closest;
+			normal = closest_normal;
+			return true;
+		}
+		else
+			return false;
+	}
+	return false;
+}
+
+bool Mesh::castRayOnMeshEx_limitDistance(
+	float3 rayPos, float3 rayDir, float3& intersection, float3& normal) {
+	float length = rayDir.Length();
+	rayDir.Normalize();
+	// get bounding box in local space
+	float3 bPos = getBoundingBoxPos();
+	float3 bScale = getBoundingBoxSize();
+	// check if close
+	float bbt = 0;
+	Mesh::BoxIntersection bInter = obbTest(rayDir, rayPos, bPos, bScale, bbt);
+	if (bInter == Mesh::BoxIntersection::InsideHit || (bInter == Mesh::BoxIntersection::OutsideHit &&
+		bbt > 0 && bbt < length)) {
+		// find the exact point
+		float3 closest_normal;
+		float closest = -1;
+		int length = (int)m_meshVertices.size() / 3;
+		for (int i = 0; i < length; i++) {
+			int index = i * 3;
+			float3 v0 = m_meshVertices[(int)index + (int)0].position;
+			float3 v1 = m_meshVertices[(int)index + (int)1].position;
+			float3 v2 = m_meshVertices[(int)index + (int)2].position;
+			float t = triangleTest(rayDir, rayPos, v0, v1, v2);
+			if ((t >= 0 && t < length) && (closest < 0 || t < closest)) {
+				closest = t;
+				closest_normal = ((v1 - v0).Cross(v2 - v0));
+			}
+		}
+		if (closest >= 0) {
+			intersection = rayPos + rayDir * closest;
+			normal = closest_normal;
+			return true;
+		}
+		else
+			return false;
+	}
+	return false;
 }
 
 float3 Mesh::getBoundingBoxHalfSizes() const {

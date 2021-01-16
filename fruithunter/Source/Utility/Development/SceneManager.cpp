@@ -2,6 +2,7 @@
 #include "AudioController.h"
 #include "PathFindingThread.h"
 #include "Renderer.h"
+#include "Settings.h"
 
 shared_ptr<Scene> SceneManager::scene;
 
@@ -9,7 +10,7 @@ void SceneManager::draw_shadow() {
 	ShadowMapper* shadowMap = Renderer::getInstance()->getShadowMapper();
 	vector<FrustumPlane> planes = shadowMap->getFrustumPlanes();
 	for (int i = 0; i < scene->m_fruits.size(); i++) {
-		scene->m_fruits[i]->draw_animate_onlyMesh(float3(0, 0, 0));
+		scene->m_fruits[i]->draw_fruit_shadow();
 	}
 
 	// terrain manager
@@ -47,14 +48,9 @@ void SceneManager::draw_color(Camera* overrideCamera) {
 	scene->m_player->draw();
 
 	// Fruits
-	Renderer::getInstance()->enableAlphaBlending();
 	for (int i = 0; i < scene->m_fruits.size(); i++) {
-		if (scene->m_fruits[i]->isVisible()) {
-			scene->m_fruits[i]->draw_animate();
-			scene->m_fruits[i]->getParticleSystem()->draw(false);
-		}
+		scene->m_fruits[i]->draw_fruit();
 	}
-	Renderer::getInstance()->disableAlphaBlending();
 
 	// Animals
 	for (size_t i = 0; i < scene->m_animals.size(); ++i) {
@@ -104,6 +100,9 @@ void SceneManager::draw_color(Camera* overrideCamera) {
 	// arrows particleSystem
 	for (size_t i = 0; i < scene->m_arrows.size(); i++)
 		scene->m_arrows[i]->draw_trailEffect();
+
+	//FXAA
+	Renderer::getInstance()->draw_FXAA();
 }
 
 void SceneManager::draw_hud() {
@@ -237,7 +236,7 @@ void SceneManager::update(Camera* overrideCamera) {
 
 		fruit->getParticleSystem()->update(dt);
 		PathFindingThread::lock();
-		fruit->update(dt, player->getPosition());
+		fruit->update();
 		// collision arrow - fruit
 		for (size_t iArrow = 0; iArrow < scene->m_arrows.size(); iArrow++) {
 			Arrow* arrow = scene->m_arrows[iArrow].get();

@@ -55,15 +55,24 @@ protected:
 
 	bool m_afterRealease = false;
 
+	float m_aboveGroundThreshold = 0.2f;
+
 	void updateVelocity(float dt);
 	void stopMovement();
+
+	/* Intersects with Terrain and collidable Entitites. */
+	bool rayCastWorld(float3 point, float3 forward, float3& intersection, float3& normal);
+	/* Checks Terrain and Entity distance from feet and returns true if distance is less than specified threshold. */
+	bool isOnGround(float3 position, float heightThreshold);
 
 public:
 	bool isVisible() const;
 	virtual void release(float3 direction);
 	void move(float dt);
-	void update(float dt, float3 playerPosition);
+	virtual void update();
 	virtual void updateAnimated(float dt) = 0;
+	virtual void draw_fruit();
+	virtual void draw_fruit_shadow();
 	void jump(float3 direction, float power);
 	void setStartPosition(float3 pos);
 	void setNextDestination(float3 nextDest);

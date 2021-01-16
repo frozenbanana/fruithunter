@@ -58,6 +58,9 @@ public:
 	void loadMaterials(std::vector<string> fileNames);
 
 	float castRay(float3 point, float3 direction);
+	bool castRayEx(float3 point, float3 direction, float3& intersection, float3& normal);
+	bool castRayEx_limitDistance(
+		float3 point, float3 direction, float3& intersection, float3& normal);
 
 	// Collisions
 	bool checkCollision(float3 point);

@@ -623,7 +623,7 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 		"Ground Dust", "Volcano Fire", "Volcano Smoke", "Lava Bubble", "Arrow Glitter", "Confetti",
 		"Stars Gold", "Stars Silver", "Stars Bronze", "Explosion Apple", "Explosion Banana",
 		"Explosion Melon", "Explosion Dragon", "Sparkle Apple", "Sparkle Banana", "Sparkle Melon",
-		"Sparkle Dragon", "Explosion Gold", "Explosion Silver", "Explosion Bronze", "Jump Dust" };
+		"Sparkle Dragon", "Explosion Gold", "Explosion Silver", "Explosion Bronze", "Jump Dust", "Melon Trail" };
 	if (ImGui::BeginCombo("Type", ps_typeAsString[type].c_str())) {
 		for (size_t i = 1; i < ParticleSystem::Type::TYPE_LENGTH; i++) {
 			if (ImGui::MenuItem(ps_typeAsString[i].c_str())) {
@@ -1046,8 +1046,8 @@ SceneEditorManager::SceneEditorManager() {
 
 
 	// pointer object
-	m_pointer_obj.load("sphere");
-	m_pointer_obj.setScale(0.1);
+	m_pointer_obj.load("arrow");
+	m_pointer_obj.setScale(0.8);
 
 	// crosshair
 	m_crosshair.load("crosshair.png");
@@ -1132,17 +1132,19 @@ void SceneEditorManager::update() {
 				if (closest == -1 || diff < closest) {
 					closest = diff;
 					m_pointer = point;
+					m_pointer_normal = scene->m_terrains.getNormalFromPosition(point);
 				}
 			}
 			// entities
 			for (size_t i = 0; i < scene->m_entities.size(); i++) {
-				t = scene->m_entities[i]->castRay(position, Normalize(forward));
-				if (t != -1) {
-					float3 point = position + Normalize(forward) * t;
-					float diff = (point - position).Length();
-					if (closest == -1 || diff < closest) {
-						closest = diff;
-						m_pointer = point;
+				float3 cast_target, cast_normal;
+				if (scene->m_entities[i]->castRayEx_limitDistance(
+						position, forward, cast_target, cast_normal)) {
+					float tt = (cast_target - position).Length();
+					if (closest == -1 || tt < closest) {
+						closest = tt;
+						m_pointer = cast_target;
+						m_pointer_normal = cast_normal;
 					}
 				}
 			}
@@ -1313,6 +1315,7 @@ void SceneEditorManager::draw_color() {
 		Renderer::getInstance()->bindRenderAndDepthTarget();
 		/* ----------------------------------------------- */
 		m_pointer_obj.setPosition(m_pointer);
+		m_pointer_obj.setRotation(vector2Rotation(-m_pointer_normal));
 		m_pointer_obj.draw_onlyMesh(float3(1, 0.5, 0.5));
 	}
 }

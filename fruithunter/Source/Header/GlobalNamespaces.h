@@ -94,6 +94,18 @@ static float2 rotatef2(float2 v, float rad) {
 	float c = cos(rad), s = sin(rad);
 	return float2(v.x * c - v.y * s, v.x * s + v.y * c);
 }
+static float3 rotatef2X(float3 v, float rad) {
+	float2 r = rotatef2(float2(v.z, v.y), rad);
+	return float3(v.x, r.y, r.x);
+}
+static float3 rotatef2Y(float3 v, float rad) {
+	float2 r = rotatef2(float2(v.x, v.z), rad);
+	return float3(r.x, v.y, r.y);
+}
+static float3 rotatef2Z(float3 v, float rad) {
+	float2 r = rotatef2(float2(v.x, v.y), rad);
+	return float3(r.x, r.y, v.z);
+}
 
 /* Return length of direction until collision. Return 0 if no collision */
 static float RayPlaneIntersection(float3 rayPoint, float3 rayDirection, float3 planePosition, float3 planeNormal) {

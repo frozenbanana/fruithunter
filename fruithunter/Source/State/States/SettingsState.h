@@ -10,6 +10,7 @@ class SettingsState : public StateItem {
 private:
 	Sprite2D m_settingsBackground;
 	Button m_vsyncButton;
+	Button m_FXAAButton;
 	Button m_darkEdgesButton;
 	Button m_shadowsButton;
 	Button m_resolutionButton;

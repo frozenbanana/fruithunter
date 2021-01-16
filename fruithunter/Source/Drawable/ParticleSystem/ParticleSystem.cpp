@@ -620,6 +620,21 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
 		break;
+	case ParticleSystem::MELON_TRAIL:
+		colorVariety[0] = float4(118 / 255.f, 129 / 255.f, 104 / 255.f, 1.0f);
+		colorVariety[1] = float4(69 / 255.f, 115 / 255.f, 69 / 255.f, 1.0f);
+		colorVariety[2] = float4(93 / 255.f, 76 / 255.f, 36 / 255.f, 1.0f);
+		size_interval = float2(0.035f, 0.09f);
+		timeAlive_interval = float2(0.1, 0.4);
+		velocity_max = float3(0.2, 1, 0.2);
+		velocity_min = float3(-0.2, 0.5, -0.2);
+		velocity_interval = float2(4,5);
+		acceleration = float3(0, -20, 0);
+		slowdown = 1;
+		shape = Shape::Circle;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
+		break;
 	default:
 		colorVariety[0] = float4(1.);
 		colorVariety[1] = float4(1.);

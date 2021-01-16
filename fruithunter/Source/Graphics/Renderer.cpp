@@ -88,7 +88,7 @@ void Renderer::changeResolution(int width, int height) {
 
 	// 1. clear the existing references to the backbuffer
 	ID3D11ShaderResourceView* srvNULL[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = { nullptr };
-	m_deviceContext->PSSetShaderResources(0,ARRAYSIZE(srvNULL), srvNULL);
+	m_deviceContext->PSSetShaderResources(0, ARRAYSIZE(srvNULL), srvNULL);
 	ID3D11RenderTargetView* nullView[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = { nullptr };
 	m_deviceContext->OMSetRenderTargets(ARRAYSIZE(nullView), nullView, nullptr);
 	m_renderTargetView.Reset();
@@ -101,7 +101,8 @@ void Renderer::changeResolution(int width, int height) {
 	if (FAILED(hr_gd))
 		ErrorLogger::logError("Failed getting swapChain description", hr_gd);
 
-	HRESULT hr = m_swapChain->ResizeBuffers(2, m_screenWidth, m_screenHeight, sc_desc.BufferDesc.Format, NULL);
+	HRESULT hr = m_swapChain->ResizeBuffers(
+		2, m_screenWidth, m_screenHeight, sc_desc.BufferDesc.Format, NULL);
 	if (FAILED(hr))
 		ErrorLogger::logError("In renderer, could not resize buffers", hr);
 
@@ -126,10 +127,10 @@ void Renderer::changeResolution(int width, int height) {
 
 void Renderer::setFullscreen(bool value) { m_swapChain->SetFullscreenState(value, nullptr); }
 
-bool Renderer::isFullscreen() const { 
+bool Renderer::isFullscreen() const {
 	BOOL state;
 	m_swapChain->GetFullscreenState(&state, nullptr);
-	return state; 
+	return state;
 }
 
 void Renderer::bindConstantBuffer_ScreenSize(int slot) {
@@ -151,8 +152,10 @@ void Renderer::copyDepthToSRV() {
 	m_depthSRV.Get()->GetResource(&dst);
 	m_depthDSV.Get()->GetResource(&src);
 	m_deviceContext->CopyResource(dst, src);
-	if(dst)dst->Release();
-	if(src)src->Release();
+	if (dst)
+		dst->Release();
+	if (src)
+		src->Release();
 }
 
 void Renderer::copyTargetToSRV() {
@@ -160,8 +163,10 @@ void Renderer::copyTargetToSRV() {
 	m_targetSRVCopy.Get()->GetResource(&dst);
 	m_renderTargetView.Get()->GetResource(&src);
 	m_deviceContext->CopyResource(dst, src);
-	if(dst)dst->Release();
-	if(src)src->Release();
+	if (dst)
+		dst->Release();
+	if (src)
+		src->Release();
 }
 
 void Renderer::bindRenderAndDepthTarget() {
@@ -170,8 +175,7 @@ void Renderer::bindRenderAndDepthTarget() {
 }
 
 void Renderer::bindRenderTarget() {
-	m_deviceContext.Get()->OMSetRenderTargets(
-		1, m_renderTargetView.GetAddressOf(), NULL);
+	m_deviceContext.Get()->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), NULL);
 }
 
 void Renderer::captureFrame() {
@@ -182,13 +186,13 @@ void Renderer::captureFrame() {
 	}
 	else {
 		// Write out the render target to png
-		hr = SaveWICTextureToFile(Renderer::getDeviceContext(), tex,
-			GUID_ContainerFormatPng, L"assets/captures/backbuffer.png", nullptr, nullptr);
+		hr = SaveWICTextureToFile(Renderer::getDeviceContext(), tex, GUID_ContainerFormatPng,
+			L"assets/captures/backbuffer.png", nullptr, nullptr);
 		m_capturedFrame.init();
 		m_capturedFrameLoaded = true;
 	}
 	if (tex != nullptr)
-	tex->Release();
+		tex->Release();
 }
 
 void Renderer::drawCapturedFrame() {
@@ -201,24 +205,24 @@ void Renderer::drawCapturedFrame() {
 
 void Renderer::draw_darkEdges() {
 	if (Settings::getInstance()->getDarkEdges()) {
-		//copy depth buffer
+		// copy depth buffer
 		copyDepthToSRV();
 		bindDepthSRVCopy(0);
-		//copy renderTarget
+		// copy renderTarget
 		copyTargetToSRV();
 		bindTargetSRVCopy(1);
 		// bind shader
 		m_shader_darkEdges.bindShadersAndLayout();
-		//bind contant buffer
+		// bind contant buffer
 		bindConstantBuffer_ScreenSize(6);
-		//bind vertex buffer
+		// bind vertex buffer
 		bindQuadVertexBuffer();
 
-		bindRenderTarget();//need to remove depth buffer!
+		bindRenderTarget(); // need to remove depth buffer!
 
 		m_deviceContext->Draw(6, 0);
 
-		bindRenderAndDepthTarget();//place back the depth buffer
+		bindRenderAndDepthTarget(); // place back the depth buffer
 	}
 }
 
@@ -230,6 +234,31 @@ void Renderer::drawLoading() {
 	}
 	m_loadingScreen.draw();
 	endFrame();
+}
+
+void Renderer::draw_FXAA() {
+	if (Settings::getInstance()->getFXAA()) {
+
+		// Copy renderTarget
+		copyTargetToSRV();
+		bindTargetSRVCopy(1);
+
+		// Bind shader
+		m_shader_FXAA.bindShadersAndLayout();
+
+		// Bind constant buffer
+		bindConstantBuffer_ScreenSize(6);
+
+		// Bind vertex buffer
+		bindQuadVertexBuffer();
+
+		// Draw
+		bindRenderTarget(); // need to remove depth buffer!
+
+		m_deviceContext->Draw(6, 0);
+
+		bindRenderAndDepthTarget(); // place back the depth buffer
+	}
 }
 
 void Renderer::setDrawState(DrawingState state) { m_drawState = state; }
@@ -272,7 +301,7 @@ Renderer::Renderer(int width, int height) {
 		r->m_isLoaded = true;
 	}
 
-	//ImGui
+	// ImGui
 	IMGUI_CHECKVERSION();
 	ctx = ImGui::CreateContext();
 	ImPlot::CreateContext();
@@ -295,6 +324,19 @@ Renderer::Renderer(int width, int height) {
 		} };
 		m_shader_darkEdges.createShaders(L"VertexShader_quadSimplePass.hlsl", nullptr,
 			L"PixelShader_darkEdge.hlsl", inputLayout_onlyMesh, 1);
+	}
+	if (!m_shader_FXAA.isLoaded()) {
+		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = { {
+			"Position",					 // "semantic" name in shader
+			0,							 // "semantic" index (not used)
+			DXGI_FORMAT_R32G32B32_FLOAT, // size of ONE element (3 floats)
+			0,							 // input slot
+			0,							 // offset of first element
+			D3D11_INPUT_PER_VERTEX_DATA, // specify data PER vertex
+			0							 // used for INSTANCING (ignore)
+		} };
+		m_shader_FXAA.createShaders(L"VertexShader_quadSimplePass.hlsl", nullptr,
+			L"PixelShader_FXAA.hlsl", inputLayout_onlyMesh, 1);
 	}
 
 	// Set texture paths to quads
@@ -322,13 +364,13 @@ float Renderer::getScreenHeight() const { return (float)m_screenHeight; }
 LONG Renderer::getWindowWidth() const {
 	RECT rect;
 	GetWindowRect(m_handle, &rect);
-	return rect.right-rect.left;
+	return rect.right - rect.left;
 }
 
 LONG Renderer::getWindowHeight() const {
 	RECT rect;
 	GetWindowRect(m_handle, &rect);
-	return rect.bottom-rect.top;
+	return rect.bottom - rect.top;
 }
 
 void Renderer::initalize(HWND window) {}
@@ -345,7 +387,7 @@ void Renderer::beginFrame() {
 	//	CD3D11_VIEWPORT(0.f, 0.f, (float)m_backBufferDesc.Width, (float)m_backBufferDesc.Height);
 	// m_deviceContext->RSSetViewports(1, &viewport);
 	D3D11_VIEWPORT vp;
-	vp.Width = m_screenWidth; //(float)m_backBufferDesc.Width;
+	vp.Width = m_screenWidth;	//(float)m_backBufferDesc.Width;
 	vp.Height = m_screenHeight; //(float)m_backBufferDesc.Height;
 	vp.MinDepth = 0.0f;
 	vp.MaxDepth = 1.0f;
@@ -379,8 +421,7 @@ ID3D11DeviceContext* Renderer::getDeviceContext() {
 		return r->m_deviceContext.Get();
 	}
 	else {
-		ErrorLogger::logError(
-			"Renderer : Trying to get device context without being initalized.");
+		ErrorLogger::logError("Renderer : Trying to get device context without being initalized.");
 		return nullptr;
 	}
 }

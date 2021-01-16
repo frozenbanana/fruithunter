@@ -31,6 +31,7 @@ public:
 		EXPLOSION_SILVER,
 		EXPLOSION_BRONZE,
 		JUMP_DUST,
+		MELON_TRAIL,
 		TYPE_LENGTH
 	};
 	struct ParticleDescription {
