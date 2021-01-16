@@ -511,7 +511,27 @@ void Player::updateVelocity_onFlatGround(float3 playerForce, float dt) {
 	// add player forces
 	m_velocity += playerForce * getPlayerMovementSpeed() * dt;
 
-	m_lastSafePosition = m_position;
+	// Extra check to make sure that position is safe from water before updating last_safe...
+	// Cheks 4 points surrounding player and checks that none is under water
+
+	int checkDist = 3;
+	float3 checkPos[4];
+	checkPos[0] = float3(0, 0, checkDist) + m_position;
+	checkPos[1] = float3(-checkDist, 0, 0) + m_position;
+	checkPos[2] = float3(0, 0, -checkDist) + m_position;
+	checkPos[3] = float3(checkDist, 0, 0) + m_position;
+	
+
+	Terrain* terrain = SceneManager::getScene()->m_terrains.getTerrainFromPosition(m_position);
+	bool safe = true;
+	for (int i = 0; i < 4; ++i) {
+		if (terrain->getHeightFromPosition(checkPos[i].x, checkPos[i].z) < m_seaHeight) {
+			safe = false;
+		}
+	}
+
+	if (safe)
+		m_lastSafePosition = m_position;
 }
 
 void Player::updateVelocity_onSteepGround(float dt) {
