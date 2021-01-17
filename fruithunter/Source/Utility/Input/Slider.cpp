@@ -47,8 +47,6 @@ void Slider::initialize(string label, float2 pos) {
 
 	m_colour = float4(1.f, 1.f, 1.f, 1.f);
 	m_sliding = false;
-
-	m_textRenderer.setScale(m_scale * 8.0f);
 }
 
 float Slider::getValue() { return m_value; }
@@ -74,8 +72,10 @@ bool Slider::update() {
 	int y = abs(ip->mouseY() - (int)(m_sliderPos.y + m_sliderOffset.y));
 
 	if (x * x + y * y < m_radius * m_radius) {
+		// hovering
 		m_colour = float4(0.5f, 0.5f, 0.5f, 1.f);
 		if (ip->mousePressed(Input::MouseButton::LEFT)) {
+			// clicked
 			m_grabPos = (float)ip->mouseX();
 			m_startPos = m_sliderPos;
 			m_offset = 0.f;
@@ -83,15 +83,19 @@ bool Slider::update() {
 		}
 	}
 	else if (!m_sliding) {
+		// normal color
 		m_colour = float4(1.f, 1.f, 1.f, 1.f);
 	}
 
 	if (m_sliding && ip->mouseDown(Input::MouseButton::LEFT)) {
+		// sliding btn
 		m_offset = ip->mouseX() - m_grabPos;
 		m_sliderPos.x =
 			max(min(SCREEN_WIDTH / 2 + 120.f, m_startPos.x + m_offset), SCREEN_WIDTH / 2 - 120.f);
+		m_value = (m_sliderPos.x - SCREEN_WIDTH / 2 + 120.f) / 240.f;
 	}
 	if (m_sliding && ip->mouseReleased(Input::MouseButton::LEFT)) {
+		// release btn
 		changed = true;
 		m_sliding = false;
 		m_startPos = m_sliderPos;
@@ -103,14 +107,21 @@ bool Slider::update() {
 
 void Slider::draw() {
 	m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
-
+	float2 sliderValuePos = m_sliderPos + float2(150.f, 0.f);
 	m_spriteBatch->Draw(m_backgroundTexture.Get(), float2(m_position) + float2(150.f, 0.f), nullptr,
 		Colors::White, 0.f, m_backgroundOffset);
-	m_spriteBatch->Draw(m_texture.Get(), m_sliderPos + float2(150.f, 0.f), nullptr, m_colour, 0.f,
+	m_spriteBatch->Draw(
+		m_texture.Get(), sliderValuePos, nullptr, m_colour, 0.f,
 		m_textureOffset, m_scale);
 
 	m_spriteBatch->End();
 
+	m_textRenderer.setScale(m_scale * 8.0f);
 	m_textRenderer.setAlignment(TextRenderer::HorizontalAlignment::RIGHT, TextRenderer::VerticalAlignment::CENTER);
 	m_textRenderer.draw(m_label + ":", m_position);
+
+	m_textRenderer.setScale(m_scale * 2.5f);
+	m_textRenderer.setAlignment(
+		TextRenderer::HorizontalAlignment::MIDDLE, TextRenderer::VerticalAlignment::CENTER);
+	m_textRenderer.draw(to_string(int(100*m_value))+"%", sliderValuePos);
 }
