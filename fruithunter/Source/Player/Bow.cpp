@@ -11,6 +11,8 @@ Bow::Bow() {
 
 Bow::~Bow() {}
 
+float Bow::getWindup() const { return m_bowWindup; }
+
 void Bow::draw() {
 	m_bow.draw_animate();
 	if (!m_waitingForArrowRecovery)
