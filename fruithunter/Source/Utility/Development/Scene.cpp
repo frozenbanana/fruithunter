@@ -465,7 +465,7 @@ bool Scene::handleWin() {
 float Scene::getDeltaTime() {
 	float dt = m_timer.getDt();
 	if (m_player->inHuntermode())
-		dt *= 0.1;
+		dt *= 0.45;
 	return dt;
 }
 
