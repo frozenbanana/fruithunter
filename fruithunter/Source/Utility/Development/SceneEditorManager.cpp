@@ -749,11 +749,11 @@ void SceneEditorManager::updateCameraMovement(float dt) {
 	// Rotation
 	float2 mouseMovement;
 	if (ip->getMouseMode() == DirectX::Mouse::MODE_RELATIVE) {
-		mouseMovement = float2((float)ip->mouseY(), (float)ip->mouseX());
+		mouseMovement = float2((float)ip->getMouseMovement().x, (float)ip->getMouseMovement().y);
 	}
-	float rotationSpeed = (0.001) + Settings::getInstance()->getSensitivity() * dt;
+	float rotationSpeed = Settings::getInstance()->getSensitivity()*0.01f;
 	mouseMovement *= rotationSpeed;
-	m_camera.rotate(float3(mouseMovement.x, mouseMovement.y, 0));
+	m_camera.rotate(float3(mouseMovement.y, mouseMovement.x, 0));
 }
 
 void SceneEditorManager::update_transformation(float dt) {

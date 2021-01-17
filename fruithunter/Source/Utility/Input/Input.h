@@ -28,8 +28,7 @@ public:
 	int scrollWheelValue();
 	bool scrolledUp();
 	bool scrolledDown();
-	int getMouseMovementX();
-	int getMouseMovementY();
+	XMINT2 getMouseMovement() const;
 
 	static Input* getInstance();
 
@@ -40,6 +39,11 @@ public:
 	void enableImguiInput();
 	void disableImguiInput();
 	bool isImguiReceivingInput();
+
+	/* Handle mouse related events (currently only mouse movement) */
+	void event_mouseInput(RAWMOUSE mouse_event);
+	/* Reset accumulated events */
+	void event_frameReset();
 
 private:
 	Input();
@@ -60,7 +64,6 @@ private:
 	int m_scrollWheelTracker;
 	ScrollTracking m_scrollDirection;
 
-	// Mouse move tracker
-	int m_oldX;
-	int m_oldY;
+	// Mouse move
+	XMINT2 m_mouseMovement;
 };

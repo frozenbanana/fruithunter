@@ -220,13 +220,14 @@ void Player::rotatePlayer(float dt) {
 
 	float deltaX = 0.0f;
 	float deltaY = 0.0f;
-
+	
 	if (ip->getMouseMode() == DirectX::Mouse::MODE_RELATIVE) {
-		deltaX = (float)ip->mouseX();
-		deltaY = (float)ip->mouseY();
+		XMINT2 mp = ip->getMouseMovement();
+		deltaX = mp.x;
+		deltaY = mp.y;
 	}
 
-	float rotationSpeed = (0.1f + Settings::getInstance()->getSensitivity() * 2) * dt;
+	float rotationSpeed = Settings::getInstance()->getSensitivity() * 0.01f;
 
 	if (deltaX != 0.0f) {
 		m_cameraYaw += deltaX * rotationSpeed;

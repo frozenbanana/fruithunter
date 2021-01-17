@@ -27,7 +27,21 @@ LRESULT CALLBACK WinProc(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
 		DirectX::Keyboard::ProcessMessage(msg, wparam, lparam);
 		DirectX::Mouse::ProcessMessage(msg, wparam, lparam);
 		break;
-	case WM_INPUT:
+	case WM_INPUT: {
+		UINT dwSize = sizeof(RAWINPUT);
+		static BYTE lpb[sizeof(RAWINPUT)];
+
+		GetRawInputData((HRAWINPUT)lparam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER));
+
+		RAWINPUT* raw = (RAWINPUT*)lpb;
+
+		if (raw->header.dwType == RIM_TYPEMOUSE) {
+			int xPosRelative = raw->data.mouse.lLastX;
+			int yPosRelative = raw->data.mouse.lLastY;
+			Input::getInstance()->event_mouseInput(raw->data.mouse);
+		}
+		break;
+	}
 	case WM_MOUSEMOVE:
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:

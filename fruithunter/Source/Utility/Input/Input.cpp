@@ -19,17 +19,11 @@ void Input::initilize(HWND window) {
 		inp->m_scrollWheelTracker = 0;
 		inp->update();
 		inp->m_isLoaded = true;
-		inp->m_oldX = inp->m_mouseState.x;
-		inp->m_oldY = inp->m_mouseState.y;
 	}
 }
 
 // Updates states and trackers
 void Input::update() {
-	// Get old mouse coordinated before updating states
-	m_oldX = m_mouseState.x;
-	m_oldY = m_mouseState.y;
-
 	// Update current state
 	m_keyboardState = m_keyboard->GetState();
 	m_mouseState = m_mouse->GetState();
@@ -147,9 +141,7 @@ bool Input::scrolledUp() { return m_scrollDirection == ScrollTracking::DOWN; }
 
 bool Input::scrolledDown() { return m_scrollDirection == ScrollTracking::UP; }
 
-int Input::getMouseMovementX() { return m_mouseState.x - m_oldX; }
-
-int Input::getMouseMovementY() { return m_mouseState.y - m_oldY; }
+XMINT2 Input::getMouseMovement() const { return m_mouseMovement; }
 
 DirectX::Mouse::Mode Input::getMouseMode() { return m_mouseState.positionMode; }
 
@@ -158,6 +150,13 @@ void Input::enableImguiInput() { m_imguiInput = true; }
 void Input::disableImguiInput() { m_imguiInput = false; }
 
 bool Input::isImguiReceivingInput() { return m_imguiInput; }
+
+void Input::event_mouseInput(RAWMOUSE mouse_event) {
+	m_mouseMovement =
+		XMINT2(m_mouseMovement.x + mouse_event.lLastX, m_mouseMovement.y + mouse_event.lLastY);
+}
+
+void Input::event_frameReset() { m_mouseMovement = XMINT2(); }
 
 Input* Input::getInstance() { return &m_this; }
 

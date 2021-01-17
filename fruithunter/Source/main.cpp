@@ -11,6 +11,14 @@
 #include "AudioController.h"
 #include "SimpleDirectX.h"
 
+#include <hidusage.h>
+#ifndef HID_USAGE_PAGE_GENERIC
+#define HID_USAGE_PAGE_GENERIC ((USHORT)0x01)
+#endif
+#ifndef HID_USAGE_GENERIC_MOUSE
+#define HID_USAGE_GENERIC_MOUSE ((USHORT)0x02)
+#endif
+
 int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance, _In_ LPSTR cmdLine,
 	_In_ int cmdCount) {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -27,6 +35,14 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	StateStack stateStack;
 	stateStack.push(StateItem::State::MainState);
 
+	// high definition mouse input
+	RAWINPUTDEVICE Rid[1];
+	Rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
+	Rid[0].usUsage = HID_USAGE_GENERIC_MOUSE;
+	Rid[0].dwFlags = RIDEV_INPUTSINK;
+	Rid[0].hwndTarget = renderer->getHandle();
+	RegisterRawInputDevices(Rid, 1, sizeof(Rid[0]));
+
 	// random seed
 	srand((unsigned int)time(NULL));
 
@@ -42,6 +58,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 
 		// Main loop
 		stateStack.update();
+		input->event_frameReset(); // reset accumulation of input events
 		renderer->beginFrame();
 		stateStack.draw();
 		stateStack.handleRequest();
