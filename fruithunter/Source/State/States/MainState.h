@@ -14,15 +14,24 @@ class MainState : public StateItem {
 private:
 	TextRenderer m_textRenderer;
 	Timer m_timer;
-	Button m_startButton;
-	Button m_settingsButton;
-	Button m_exitButton;
-	Button m_editorButton;
 
 	// Scene variables
 	Camera m_camera;
+	float m_cam_slider = 0;
+	float3 m_cam_pos_menu = float3(58.0f, 10.9f, 21.9f);
+	float3 m_cam_pos_levelSelect = float3(65.897, 9.530 + 1.5, 20.913);
+	float3 m_cam_target_menu = float3(61.3f, 10.1f, -36.0f);
+	float3 m_cam_target_levelSelect = float3(66.906, 9.553, 19.836);
 	float m_totalDelta = 0.f;
 	shared_ptr<Apple> m_apple;
+
+	string m_levelSelect_header = "Select Hunt";
+	int m_levelHighlighted = -1;
+	ParticleSystem m_ps_selected;
+	struct LevelOption {
+		Entity obj_bowl, obj_content;
+		bool completed = false;
+	} m_levelSelections[3];
 
 	float m_totalDelta_forBow = 0.f;
 	float m_bowHoldTime = 2;  // bow holds in x seconds before firing
@@ -31,6 +40,12 @@ private:
 	vector<shared_ptr<Arrow>> m_arrows;
 
 	SceneManager sceneManager;
+
+	enum MenuState {
+		Menu = -1,
+		LevelSelect = 1 
+	} m_menuState = Menu;
+	float m_stateSwitchTime = 1; // time in seconds to switch state
 
 	// Logo
 	struct LogoLetter {
@@ -47,6 +62,10 @@ private:
 		btn_length
 	};
 	Menu_PoppingButton m_buttons[btn_length];
+	Menu_PoppingButton m_back;
+
+	void setButtons_menu();
+	void setButtons_levelSelect();
 
 public:
 	MainState();

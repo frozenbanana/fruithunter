@@ -52,8 +52,9 @@ void TextRenderer::setFont(string font) {
 
 
 void TextRenderer::setColor(Color color) { 
-	m_color = color;
-}
+	m_color = color; }
+
+void TextRenderer::setAlpha(float alpha) { m_alpha = alpha; }
 
 void TextRenderer::setScale(float scale) { m_scale = scale; }
 
@@ -230,9 +231,8 @@ void TextRenderer::draw(std::string text, float2 pos) {
 		0.5f * ((float2)m_spriteFont->MeasureString(wText.c_str()) * (m_alignment + float2(1, 1)));
 
 	//Vector2 origin = Vector2(m_spriteFont->MeasureString(wText.c_str())) / 2.0f;
-
 	m_spriteFont->DrawString(
-		m_spriteBatch.get(), wText.c_str(), pos, m_color, m_rotation, origin, m_scale);
+		m_spriteBatch.get(), wText.c_str(), pos, m_color*m_alpha, m_rotation, origin, m_scale);
 
 	m_spriteBatch->End();
 	setDepthStateToNull();

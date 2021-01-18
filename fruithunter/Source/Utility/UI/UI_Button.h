@@ -30,6 +30,7 @@ public:
 	void setText(string text);
 	void setFont(string font);
 	void setColor(Color color);
+	void setAlpha(float alpha);
 
 	void setStandardColor(Color color);
 	void setHoveringColor(Color color);

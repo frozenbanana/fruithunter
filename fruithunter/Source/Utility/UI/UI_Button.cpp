@@ -16,6 +16,11 @@ void UI_Button::setFont(string font) { m_textRenderer.setFont(font); }
 
 void UI_Button::setColor(Color color) { m_sprite.setColor(color); }
 
+void UI_Button::setAlpha(float alpha) {
+	m_sprite.setAlpha(alpha);
+	m_textRenderer.setAlpha(alpha);
+}
+
 void UI_Button::setStandardColor(Color color) { m_color_standard = color; }
 
 void UI_Button::setHoveringColor(Color color) { m_color_hovering = color; }
@@ -31,17 +36,14 @@ bool UI_Button::update(float dt) {
 	if (isHovering()) {
 		// mouse hovering
 		m_interpolation = Clamp(m_interpolation + (dt * (1.f / m_colorChangeTime)), 0.f, 1.f);
-		setColor((m_color_standard * (1-m_interpolation)) + (m_color_hovering * m_interpolation));
-		m_textRenderer.setColor((m_textColor_standard * (1 - m_interpolation)) +(m_textColor_hovering * m_interpolation));
-		if (Input::getInstance()->mousePressed(m_key_activator)) {
+		if (Input::getInstance()->mousePressed(m_key_activator))
 			clicked = true;
-		}
 	}
 	else {
 		m_interpolation = Clamp(m_interpolation - (dt * (1.f / m_colorChangeTime)), 0.f, 1.f);
-		setColor((m_color_standard * (1 - m_interpolation)) + (m_color_hovering * m_interpolation));
-		m_textRenderer.setColor((m_textColor_standard * (1 - m_interpolation)) + (m_textColor_hovering * m_interpolation));
 	}
+	setColor((m_color_standard * (1 - m_interpolation)) + (m_color_hovering * m_interpolation));
+	m_textRenderer.setColor((m_textColor_standard * (1 - m_interpolation)) + (m_textColor_hovering * m_interpolation));
 	return clicked;
 }
 
