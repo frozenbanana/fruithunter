@@ -210,10 +210,6 @@ SoundID Scene::playMusicByAreaTag(AreaTag tag) {
 		id = AudioController::getInstance()->play(
 			"ketapop-dark-short", AudioController::SoundType::Music, true);
 		break;
-	case LevelIsland:
-		id = AudioController::getInstance()->play(
-			"jingle-guitar", AudioController::SoundType::Music, true);
-		break;
 	}
 	return id;
 }

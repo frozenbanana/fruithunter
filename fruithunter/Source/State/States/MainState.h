@@ -8,6 +8,7 @@
 #include "Sprite2D.h"
 #include "SceneManager.h"
 #include "Menu_PoppingButton.h"
+#include "Menu_PoppingArrowButton.h"
 #include "GlobalNamespaces.h"
 
 class MainState : public StateItem {
@@ -26,18 +27,28 @@ private:
 	shared_ptr<Apple> m_apple;
 
 	string m_levelSelect_header = "Select Hunt";
-	int m_levelHighlighted = -1;
+	int m_levelHighlighted = 0;
 	ParticleSystem m_ps_selected;
+	Sprite2D m_levelItem_background;
+	Sprite2D m_miniFruitSprites[FruitType::NR_OF_FRUITS];
+	Sprite2D m_coinHolderSprite;
+	Sprite2D m_medalSprites[TimeTargets::NR_OF_TIME_TARGETS];
 	struct LevelOption {
 		Entity obj_bowl, obj_content;
+		string name = "";
+		bool terrainTypes[AreaTag::NR_OF_AREAS] = { 0 };
+		int collectionGoal[FruitType::NR_OF_FRUITS] = { 0 };
 		bool completed = false;
-	} m_levelSelections[3];
+		TimeTargets grade = TimeTargets::BRONZE;
+	};
+	LevelOption m_levelSelections[3];
 
 	float m_totalDelta_forBow = 0.f;
 	float m_bowHoldTime = 2;  // bow holds in x seconds before firing
 	float m_shootDelay = 2.5; // wait x seconds after shot
 	Bow m_bow;
 	vector<shared_ptr<Arrow>> m_arrows;
+	Menu_PoppingArrowButton m_selectionArrows[2]; // 0 = left, 1 = right
 
 	SceneManager sceneManager;
 

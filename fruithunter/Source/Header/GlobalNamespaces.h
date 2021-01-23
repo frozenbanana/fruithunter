@@ -26,14 +26,13 @@ using float4x4 = DirectX::SimpleMath::Matrix;
 
 #define DEBUG true
 
-enum AreaTag { Forest, Plains, Desert, Volcano, LevelIsland, NR_OF_AREAS };
+enum AreaTag { Forest, Plains, Desert, Volcano, NR_OF_AREAS };
 enum FruitType { APPLE, BANANA, MELON, DRAGON, NR_OF_FRUITS };
 enum TimeTargets { GOLD, SILVER, BRONZE, NR_OF_TIME_TARGETS };
 enum Skillshot { SS_NOTHING, SS_BRONZE, SS_SILVER, SS_GOLD };
 
 static string AreaTagToString(AreaTag tag) {
-	static string str[AreaTag::NR_OF_AREAS] = { "Forest", "Plains", "Desert", "Volcano",
-		"LevelIsland" };
+	static string str[AreaTag::NR_OF_AREAS] = { "Forest", "Plains", "Desert", "Volcano" };
 	return str[tag];
 }
 static string FruitTypeToString(FruitType type) {
@@ -138,6 +137,14 @@ template <typename TYPE> static TYPE Clamp(TYPE v, TYPE min, TYPE max) {
 /* Lerp between two values. Parameters require addition and multiplication operators! */
 template <typename VARTYPE> static VARTYPE lerp(VARTYPE t1, VARTYPE t2, float mix) {
 	return t1 * (1 - mix) + t2 * mix;
+}
+
+/* Modulus operation that also affects negative values */
+static int mod(int v, int mod) { 
+	v %= mod;
+	if (v < 0)
+		v = mod + v;
+	return v;
 }
 
 static float3 vector2Rotation(float3 direction) {

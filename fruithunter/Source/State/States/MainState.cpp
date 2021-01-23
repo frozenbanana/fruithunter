@@ -16,7 +16,14 @@ void MainState::setButtons_menu() {
 }
 
 void MainState::setButtons_levelSelect() {
-	m_back.set(float2(150, 720 - 75), "Back");
+	m_back.set(float2(1280-150, 75), "Back");
+
+	float hor_edgeOffset = 100;
+	float ver_edgeOffset = 150;
+	m_selectionArrows[0].set(float2(hor_edgeOffset, 720 - ver_edgeOffset), "", 0.2,
+		Menu_PoppingArrowButton::FacingDirection::Left);
+	m_selectionArrows[1].set(float2(1280 - hor_edgeOffset, 720 - ver_edgeOffset), "", 0.4,
+		Menu_PoppingArrowButton::FacingDirection::Right);
 }
 
 MainState::MainState() : StateItem(StateItem::State::MainState) {}
@@ -27,6 +34,31 @@ void MainState::init() {
 	m_bow.setRecoveryTime(0);
 
 	m_camera.setView(m_cam_pos_menu, m_cam_target_menu, float3(0.f, 1.f, 0.f));
+
+	string miniSprites[FruitType::NR_OF_FRUITS] = { "apple.png", "banana.png", "melon.png",
+		"dragonfruit.png" };
+	for (size_t i = 0; i < FruitType::NR_OF_FRUITS; i++) {
+		m_miniFruitSprites[i].load(miniSprites[i]);
+		m_miniFruitSprites[i].setScale(0.05f);
+		m_miniFruitSprites[i].setAlignment(); // center
+	}
+	
+	m_levelItem_background.load("back_level.png");
+	m_levelItem_background.setColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
+	m_levelItem_background.setAlignment(); // center
+	m_levelItem_background.setScale(0.7);
+
+	m_coinHolderSprite.load("coin_holder.png");
+	m_coinHolderSprite.setAlignment();
+	m_coinHolderSprite.setScale(0.075f);
+
+	string medalSpriteNames[TimeTargets::NR_OF_TIME_TARGETS] = { "coin_gold.png", "coin_silver.png",
+		"coin_bronze.png" };
+	for (size_t i = 0; i < TimeTargets::NR_OF_TIME_TARGETS; i++) {
+		m_medalSprites[i].load(medalSpriteNames[i]);
+		m_medalSprites[i].setScale(0.075f);
+		m_medalSprites[i].setAlignment();
+	}
 
 	float3 bowlPositions[3] = { float3(67.614, 9.530, 20.688), float3(66.927, 9.530, 19.881),
 		float3(66.216, 9.530, 19.077) };
@@ -51,7 +83,27 @@ void MainState::init() {
 		m_levelSelections[i].obj_content.setScale(0.5);
 
 		m_levelSelections[i].completed = completed;
+		m_levelSelections[i].grade = grade;
 	}
+	// level 1
+	m_levelSelections[0].terrainTypes[AreaTag::Plains] = true;
+	m_levelSelections[0].name = "Beginners Salad";
+	m_levelSelections[0].collectionGoal[FruitType::APPLE] = 7;
+	m_levelSelections[0].collectionGoal[FruitType::MELON] = 2;
+
+	m_levelSelections[1].terrainTypes[AreaTag::Forest] = true;
+	m_levelSelections[1].name = "Overnight Salad";
+	m_levelSelections[1].collectionGoal[FruitType::APPLE] = 2;
+	m_levelSelections[1].collectionGoal[FruitType::MELON] = 2;
+	m_levelSelections[1].collectionGoal[FruitType::BANANA] = 2;
+
+	m_levelSelections[2].terrainTypes[AreaTag::Desert] = true;
+	m_levelSelections[2].terrainTypes[AreaTag::Volcano] = true;
+	m_levelSelections[2].name = "Hot Rainbow Salad";
+	m_levelSelections[2].collectionGoal[FruitType::APPLE] = 2;
+	m_levelSelections[2].collectionGoal[FruitType::MELON] = 2;
+	m_levelSelections[2].collectionGoal[FruitType::BANANA] = 2;
+	m_levelSelections[2].collectionGoal[FruitType::DRAGON] = 2;
 
 	m_ps_selected.load(ParticleSystem::Type::LEVELSELECT_SELECTION, 30);
 	m_ps_selected.setScale(float3(0.6, 0.3, 0.6));
@@ -67,6 +119,15 @@ void MainState::init() {
 	m_back.setHoveringColor(Color(1.f, 210.f / 255.f, 0.f));
 	m_back.setTextStandardColor(Color(1.f, 1.f, 1.f));
 	m_back.setTextHoveringColor(Color(0.f, 0.f, 0.f));
+
+	for (size_t i = 0; i < 2; i++) {
+		m_selectionArrows[i].setStandardColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
+		m_selectionArrows[i].setHoveringColor(Color(1.f, 210.f / 255.f, 0.f));
+
+		m_selectionArrows[i].setTextStandardColor(Color(1.f, 1.f, 1.f));
+		m_selectionArrows[i].setTextHoveringColor(Color(0.f, 0.f, 0.f));
+
+	}
 
 	m_letters.resize(11);
 	string logoPaths[11] = {
@@ -88,8 +149,7 @@ void MainState::init() {
 		m_letters[i].speedOffset = float2(RandomFloat(-0.15f, 0.15f), RandomFloat(-0.5f, 0.5f));
 		m_letters[i].letter.setAlignment(); // center
 	}
-	SoundID id = AudioController::getInstance()->play("bubble_pop", AudioController::SoundType::Effect, true);
-	AudioController::getInstance()->fadeOut(id, 10);
+
 }
 
 void MainState::update() {
@@ -192,6 +252,14 @@ void MainState::update() {
 			m_menuState = Menu;
 			setButtons_menu(); // reset buttons and create the popping effect
 		}
+		if (m_selectionArrows[0].update_behavior(dt) || ip->keyPressed(Keyboard::Left)) {
+			// left selection arrow
+			m_levelHighlighted = mod(m_levelHighlighted-1, 3);
+		}
+		if (m_selectionArrows[1].update_behavior(dt) || ip->keyPressed(Keyboard::Right)) {
+			// right selection arrow
+			m_levelHighlighted = mod(m_levelHighlighted+1, 3);
+		}
 	}
 
 	// move towards menu state
@@ -217,8 +285,6 @@ void MainState::update() {
 				// hovering
 				anyHighlights = true;
 				m_levelHighlighted = i;
-				m_ps_selected.setPosition(m_levelSelections[i].obj_bowl.getPosition()+float3(0,0.2,0));
-				m_ps_selected.emitingState(true);
 				if (ip->mousePressed(Input::LEFT)) {
 					// clicked
 					// change Level
@@ -228,11 +294,9 @@ void MainState::update() {
 			}
 		}
 	}
-	if (!anyHighlights) {
-		m_levelHighlighted = -1;
-		m_ps_selected.emitingState(false);
-	}
 
+	m_ps_selected.setPosition(
+		m_levelSelections[m_levelHighlighted].obj_bowl.getPosition() + float3(0, 0.2, 0));
 	m_ps_selected.update(dt);
 
 }
@@ -299,6 +363,52 @@ void MainState::draw() {
 
 	m_back.setAlpha(levelSelectAlpha);
 	m_back.draw();
+
+	float itemWidthOffset = 325;
+	float totalItemWidth = itemWidthOffset * (3-1);
+	for (size_t i = 0; i < 3; i++) {
+		float2 itemPos =
+			float2(1280.f / 2 + itemWidthOffset * i - totalItemWidth * 0.5f, 720 - 150);
+		if (m_levelHighlighted == i)
+			itemPos += float2(0,-25);
+		// background
+		m_levelItem_background.setPosition(itemPos);
+		m_levelItem_background.setAlpha(levelSelectAlpha);
+		m_levelItem_background.draw();
+		// text
+		m_textRenderer.setAlignment(
+			TextRenderer::HorizontalAlignment::LEFT, TextRenderer::VerticalAlignment::TOP);
+		m_textRenderer.setScale(0.25f);
+		m_textRenderer.setAlpha(levelSelectAlpha);
+		m_textRenderer.draw(m_levelSelections[i].name, itemPos+float2(-100,-70));
+		// terrain types
+		// collection goal
+		float2 backSize = m_levelItem_background.getSize();
+		float miniWidth = 100;
+		for (size_t j = 0; j < FruitType::NR_OF_FRUITS; j++) {
+			m_miniFruitSprites[j].setPosition(
+				float2(-45, 60) + itemPos +
+				float2((miniWidth / (FruitType::NR_OF_FRUITS - 1)) * j - miniWidth / 2, 0));
+			m_miniFruitSprites[j].setAlpha(levelSelectAlpha);
+			m_miniFruitSprites[j].draw();
+		}
+		// grade
+		float2 coinPos = itemPos + float2(75, 50);
+		m_coinHolderSprite.setPosition(coinPos);
+		m_coinHolderSprite.setAlpha(levelSelectAlpha);
+		m_coinHolderSprite.draw();
+		if (m_levelSelections[i].completed) {
+			TimeTargets grade = m_levelSelections[i].grade;
+			m_medalSprites[grade].setPosition(coinPos);
+			m_medalSprites[grade].setAlpha(levelSelectAlpha);
+			m_medalSprites[grade].draw();
+		}
+	}
+
+	for (size_t i = 0; i < 2; i++) {
+		m_selectionArrows[i].setAlpha(levelSelectAlpha);
+		m_selectionArrows[i].draw();
+	}
 }
 
 void MainState::play() {
@@ -309,15 +419,9 @@ void MainState::play() {
 	m_timer.reset();
 
 	// setup buttons
-	string buttonTexts[btn_length] = { "Start", "Settings", "Exit", "Editor" };
-	float2 btn_pos_start(200, 400);
-	float btn_stride_y = 85;
-	float btn_delay_stride = 0.1;
-	for (size_t i = 0; i < btn_length; i++) {
-		m_buttons[i].set(
-			btn_pos_start + float2(0, btn_stride_y) * i, buttonTexts[i], btn_delay_stride * i);
-	}
-	m_back.set(float2(150,720-75), "Back");
+	setButtons_menu();
+	setButtons_levelSelect();
+		
 }
 
 void MainState::pause() {}

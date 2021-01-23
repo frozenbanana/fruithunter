@@ -184,6 +184,20 @@ void AudioController::setVolume(SoundID id, float value) {
 	}
 }
 
+void AudioController::setPitch(SoundID id, float value) {
+	int index = findID(id);
+	if (index != -1) {
+		m_playlist[index].instance->SetPitch(value);
+	}
+}
+
+void AudioController::setPan(SoundID id, float value) {
+	int index = findID(id);
+	if (index != -1) {
+		m_playlist[index].instance->SetPan(value);
+	}
+}
+
 void AudioController::fadeOut(SoundID id, float time) { 
 	m_events.push_back(make_shared<EventFadeOut>(id, time));
 }
