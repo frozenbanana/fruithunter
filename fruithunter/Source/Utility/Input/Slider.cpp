@@ -45,8 +45,8 @@ bool Slider::update() {
 	bool changed = false;
 
 	float2 mp = float2(ip->mouseX(), ip->mouseY()) / screenModifier;
-	float2 pos = m_img_grabber.getPosition() * screenModifier;
-	float radius = m_img_grabber.getSize().x * screenModifier.x * 0.5;
+	float2 pos = m_img_grabber.getPosition();
+	float radius = m_img_grabber.getSize().x * 0.5;
 
 	m_colour = (m_sliding || (mp - pos).Length() < radius) ? m_grabberColor_highlighted
 														   : m_grabberColor_standard;
