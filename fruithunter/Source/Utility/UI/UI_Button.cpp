@@ -48,8 +48,6 @@ bool UI_Button::update(float dt) {
 }
 
 void UI_Button::draw() { 
-	float2 screenModifier = float2((SCREEN_WIDTH / 1280.f), (SCREEN_HEIGHT / 720.f));
-
 	//background image
 	m_sprite.setScale(getScale());
 	m_sprite.setRotation(getRotation());
@@ -57,9 +55,9 @@ void UI_Button::draw() {
 	m_sprite.draw();
 
 	//text
-	m_textRenderer.setScale(getScale().y * screenModifier.y * 0.5f);
+	m_textRenderer.setScale(getScale().y * 0.5f);
 	m_textRenderer.setRotation(getRotation());
-	m_textRenderer.draw(m_text, getPosition() * screenModifier);
+	m_textRenderer.draw(m_text, getPosition());
 }
 
 void UI_Button::load(vector<string> images, float animationSpeed) {

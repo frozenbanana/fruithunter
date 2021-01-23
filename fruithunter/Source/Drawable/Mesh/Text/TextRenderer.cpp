@@ -227,12 +227,14 @@ void TextRenderer::draw(std::string text, float2 pos) {
 	m_spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront);
 	std::wstring wText = std::wstring(text.begin(), text.end());
 
+	float2 screenModifier = float2((SCREEN_WIDTH / 1280.f), (SCREEN_HEIGHT / 720.f));
+
 	float2 origin =
 		0.5f * ((float2)m_spriteFont->MeasureString(wText.c_str()) * (m_alignment + float2(1, 1)));
 
 	//Vector2 origin = Vector2(m_spriteFont->MeasureString(wText.c_str())) / 2.0f;
-	m_spriteFont->DrawString(
-		m_spriteBatch.get(), wText.c_str(), pos, m_color*m_alpha, m_rotation, origin, m_scale);
+	m_spriteFont->DrawString(m_spriteBatch.get(), wText.c_str(), pos * screenModifier,
+		m_color * m_alpha, m_rotation, origin, m_scale * screenModifier);
 
 	m_spriteBatch->End();
 	setDepthStateToNull();

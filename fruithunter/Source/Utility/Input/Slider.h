@@ -1,34 +1,31 @@
 #pragma once
 #include "TextRenderer.h"
 #include <CommonStates.h>
+#include "Sprite2D.h";
 
 class Slider {
 private:
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_backgroundTexture;
-	float2 m_startPos;
-	float2 m_sliderPos;
-	float2 m_textureOffset;
-	float2 m_backgroundOffset;
-	float2 m_sliderOffset;
+	float2 m_position;
+	float m_scale = 0.08;
+	string m_label;
 
+	const float2 m_sliderOffset = float2(150, 0);
+
+	const float4 m_grabberColor_highlighted = float4(0.5, 0.5, 0.5, 1);
+	const float4 m_grabberColor_standard = float4(1, 1, 1, 1);
 	Color m_colour;
 
-	float m_radius;
-	float m_scale;
-
-	unique_ptr<SpriteBatch> m_spriteBatch;
-	unique_ptr<CommonStates> m_states;
+	Sprite2D m_img_background, m_img_grabber;
 
 	TextRenderer m_textRenderer;
-	string m_label;
-	float2 m_position;
 
 	float m_grabPos;
-	float m_offset;
 	float m_value;
+	float m_preValue; // temp var when pressing grabber
 
 	bool m_sliding;
+
+	float2 getSliderPos() const;
 
 public:
 	Slider();

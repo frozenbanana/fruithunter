@@ -12,27 +12,19 @@ EndRoundState::~EndRoundState() {}
 void EndRoundState::init() {
 	m_victoryText = "Nothing";
 
-	float width = SCREEN_WIDTH;
-	float height = SCREEN_HEIGHT;
-	m_restartButton.initialize("Restart", float2(width / 2, height / 2 + 50));
-	m_levelSelectButton.initialize("Select Level", float2(width / 2, height / 2 + 120));
-	m_exitButton.initialize("Exit", float2(width / 2, height / 2 + 190));
+	float width = 1280;
+	float height = 720;
+	float2 center(width / 2, height / 2);
+	m_restartButton.initialize("Restart", center + float2(0, 50));
+	m_levelSelectButton.initialize("Select Level", center + float2(0,120));
+	m_exitButton.initialize("Exit", center + float2(0,190));
 	m_particleSystem.load(ParticleSystem::STARS_GOLD, 10);
 	// m_particleSystem.setEmitRate(10.f);
 	m_particleSystem.setPosition(float3(0.0f, -1.f, 0.f));
 	m_timer.reset();
 	m_camera.setView(float3(0.f, 0.f, -1.0f), float3(0.f, 0.f, .0f), float3(0.f, 1.f, .0f));
 
-	m_background.load("banana.png");
-	m_background.setScale(1.40f);
-	m_background.setRotation(-0.5f);
-	m_background.setPosition(float2((width / 2.5f), (height / 2.0f) - 10.f));
-
 	m_bowl.load("Bowl");
-
-	// Just ignore this. It fixes things.
-	m_entity.load("Melon_000000");
-	m_entity.setPosition(float3(-1000));
 
 	Renderer::getInstance()->captureFrame();
 
@@ -88,7 +80,7 @@ void EndRoundState::update() {
 	}
 	if (m_levelSelectButton.update()) {
 		AudioController::getInstance()->flush();
-		pop(State::LevelSelectState,false);
+		pop(State::MainState,false);
 	}
 	if (m_exitButton.update()) {
 		AudioController::getInstance()->flush();
@@ -100,8 +92,8 @@ void EndRoundState::pause() { }
 
 void EndRoundState::play() {
 	Renderer::getInstance()->captureFrame();
-	float width = SCREEN_WIDTH;
-	float height = SCREEN_HEIGHT;
+	float width = 1280;
+	float height = 720;
 
 	// Set the correct bowl
 	// Bowl material and content are set in Playstate handleEvent(hasWon)
@@ -138,10 +130,9 @@ void EndRoundState::draw() {
 	m_bowl.draw();
 	m_bowlContent.draw();
 	Renderer::getInstance()->clearDepth();
-	float width = SCREEN_WIDTH;
-	float height = SCREEN_HEIGHT;
+	float width = 1280;
+	float height = 720;
 	m_camera.bind();
-	//m_background.draw();
 	m_textRenderer.setColor(Color(1., 1.f, 1.f, 1.0f));
 	m_textRenderer.draw(m_timeText, float2(width / 2, height / 2 - 125));
 	m_textRenderer.setColor(m_victoryColor);

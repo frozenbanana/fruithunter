@@ -1,6 +1,7 @@
 #include "Button.h"
 #include "Input.h"
 #include "ErrorLogger.h"
+#include "Renderer.h"
 
 Button::Button() {}
 
@@ -54,6 +55,14 @@ void Button::setResolution(Resolution value) { m_resolution = value; }
 
 void Button::setOnOff(bool value) { m_on = value; }
 
+BoundingBox2D Button::getBoundingBox() const { 
+	float2 screenModifier = float2((SCREEN_WIDTH / 1280.f), (SCREEN_HEIGHT / 720.f));
+	float2 position = m_position * screenModifier;
+	float2 size = m_size * screenModifier;
+	BoundingBox2D bb(position-size/2, position + size/2);
+	return bb;
+}
+
 bool Button::getOnOff() { return m_on; }
 
 int Button::getLowMedHighUltra() { return m_lowMedHighUltra; }
@@ -62,12 +71,13 @@ int Button::getResolution() { return m_resolution; }
 
 bool Button::update() {
 	Input* ip = Input::getInstance();
+	float2 screenModifier = float2((SCREEN_WIDTH / 1280.f), (SCREEN_HEIGHT / 720.f));
 	bool clicked = false;
 
-	int x = abs(ip->mouseX() - (int)m_position.x);
-	int y = abs(ip->mouseY() - (int)m_position.y);
+	float2 size = screenModifier * m_size;
 
-	if (x < m_size.x / 2.f && y < m_size.y / 2.f) {
+	float2 mp = float2(ip->mouseX(), ip->mouseY());
+	if (getBoundingBox().isInside(mp)) {
 		if (ip->mousePressed(Input::MouseButton::LEFT)) {
 			if (m_isToggle) {
 				m_on = !m_on;
