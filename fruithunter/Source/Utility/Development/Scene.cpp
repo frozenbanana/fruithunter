@@ -191,6 +191,14 @@ void Scene::dropFruit(FruitType fruitType) {
 	 }
 }
 
+void Scene::addArrow(shared_ptr<Arrow> arrow) { 
+	if (arrow.get() != nullptr) {
+		m_arrows.push_back(arrow);
+		if (m_arrows.size() > 10)
+			m_arrows.erase(m_arrows.begin());
+	}
+}
+
 SoundID Scene::playMusicByAreaTag(AreaTag tag) {
 	SoundID id = 0;
 	switch (tag) {

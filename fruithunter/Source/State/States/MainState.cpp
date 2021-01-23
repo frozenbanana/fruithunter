@@ -152,7 +152,7 @@ void MainState::update() {
 		arrow = m_bow.update(dt, true); // pull string
 	}
 	if (arrow.get() != nullptr)
-		m_arrows.push_back(arrow); // add shot arrow to array
+		SceneManager::getScene()->addArrow(arrow);// add shot arrow to array
 
 	// arrow collision
 	QuadTree<shared_ptr<Entity>>* entities = &SceneManager::getScene()->m_entities;
