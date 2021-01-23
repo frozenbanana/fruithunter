@@ -196,23 +196,23 @@ SoundID Scene::playMusicByAreaTag(AreaTag tag) {
 	switch (tag) {
 	case Forest:
 		id = AudioController::getInstance()->play(
-			"ketapop-nudia-short", AudioController::SoundType::Music, true);
+			"mystic_forest", AudioController::SoundType::Music, true);
 		break;
 	case Plains:
 		id = AudioController::getInstance()->play(
-			"jingle-guitar", AudioController::SoundType::Music, true);
+			"tuff_tuff_grazz", AudioController::SoundType::Music, true);
 		break;
 	case Desert:
 		id = AudioController::getInstance()->play(
-			"spanish-guitar", AudioController::SoundType::Music, true);
+			"pyramid_cactus", AudioController::SoundType::Music, true);
 		break;
 	case Volcano:
 		id = AudioController::getInstance()->play(
-			"ketapop-dark-short", AudioController::SoundType::Music, true);
+			"crumbling_halls", AudioController::SoundType::Music, true);
 		break;
 	case LevelIsland:
 		id = AudioController::getInstance()->play(
-			"jingle-guitar", AudioController::SoundType::Music, true);
+			"menu", AudioController::SoundType::Music, true);
 		break;
 	}
 	return id;

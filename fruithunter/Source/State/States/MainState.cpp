@@ -41,8 +41,6 @@ void MainState::init() {
 		m_letters[i].speedOffset = float2(RandomFloat(-0.15f, 0.15f), RandomFloat(-0.5f, 0.5f));
 		m_letters[i].letter.setAlignment(); // center
 	}
-	SoundID id = AudioController::getInstance()->play("bubble_pop", AudioController::SoundType::Effect, true);
-	AudioController::getInstance()->fadeOut(id, 10);
 }
 
 void MainState::update() {
@@ -174,7 +172,7 @@ void MainState::draw() {
 
 void MainState::play() {
 	sceneManager.load("intro");
-	AudioController::getInstance()->play("ocean-music", AudioController::SoundType::Music);
+	AudioController::getInstance()->play("banana_sunrise", AudioController::SoundType::Music);
 	m_apple = make_shared<Apple>(float3(58.0f, 10.1f, 16.9f));
 	m_arrows.clear();
 	m_timer.reset();
