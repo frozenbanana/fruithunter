@@ -20,9 +20,10 @@ private:
 	Camera m_camera;
 	float m_cam_slider = 0;
 	float3 m_cam_pos_menu = float3(58.0f, 10.9f, 21.9f);
-	float3 m_cam_pos_levelSelect = float3(65.897, 9.530 + 1.5, 20.913);
+	float3 m_cam_pos_levelSelect = float3(65.753, 9.530 + 1.25, 20.849);
 	float3 m_cam_target_menu = float3(61.3f, 10.1f, -36.0f);
-	float3 m_cam_target_levelSelect = float3(66.906, 9.553, 19.836);
+	float3 m_cam_target_levelSelect =
+		float3(66.960, 9.530-0.35, 19.784);
 	float m_totalDelta = 0.f;
 	shared_ptr<Apple> m_apple;
 
@@ -30,18 +31,17 @@ private:
 	int m_levelHighlighted = 0;
 	ParticleSystem m_ps_selected;
 	Sprite2D m_levelItem_background;
-	Sprite2D m_miniFruitSprites[FruitType::NR_OF_FRUITS];
 	Sprite2D m_coinHolderSprite;
 	Sprite2D m_medalSprites[TimeTargets::NR_OF_TIME_TARGETS];
+	Sprite2D m_img_keylock;
 	struct LevelOption {
 		Entity obj_bowl, obj_content;
 		string name = "";
-		bool terrainTypes[AreaTag::NR_OF_AREAS] = { 0 };
-		int collectionGoal[FruitType::NR_OF_FRUITS] = { 0 };
 		bool completed = false;
 		TimeTargets grade = TimeTargets::BRONZE;
 	};
 	LevelOption m_levelSelections[3];
+	size_t m_levelsAvailable = 0;
 
 	float m_totalDelta_forBow = 0.f;
 	float m_bowHoldTime = 2;  // bow holds in x seconds before firing
@@ -51,6 +51,8 @@ private:
 	Menu_PoppingArrowButton m_selectionArrows[2]; // 0 = left, 1 = right
 
 	SceneManager sceneManager;
+
+	SceneAbstactContent m_levelData[3];
 
 	enum MenuState {
 		Menu = -1,
@@ -74,9 +76,12 @@ private:
 	};
 	Menu_PoppingButton m_buttons[btn_length];
 	Menu_PoppingButton m_back;
+	Menu_PoppingButton m_play;
 
 	void setButtons_menu();
 	void setButtons_levelSelect();
+
+	static string asTimer(size_t seconds);
 
 public:
 	MainState();

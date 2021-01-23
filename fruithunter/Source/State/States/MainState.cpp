@@ -16,14 +16,23 @@ void MainState::setButtons_menu() {
 }
 
 void MainState::setButtons_levelSelect() {
-	m_back.set(float2(1280-150, 75), "Back");
-
 	float hor_edgeOffset = 100;
-	float ver_edgeOffset = 150;
-	m_selectionArrows[0].set(float2(hor_edgeOffset, 720 - ver_edgeOffset), "", 0.2,
+	float ver_edgeOffset = 250;
+	m_selectionArrows[0].set(float2(hor_edgeOffset, 720 - ver_edgeOffset), "", 0,
 		Menu_PoppingArrowButton::FacingDirection::Left);
-	m_selectionArrows[1].set(float2(1280 - hor_edgeOffset, 720 - ver_edgeOffset), "", 0.4,
+	m_selectionArrows[1].set(float2(1280 - hor_edgeOffset, 720 - ver_edgeOffset), "", 0.2,
 		Menu_PoppingArrowButton::FacingDirection::Right);
+
+	m_back.set(float2(1280 - 150, 720 - 75), "Back", 0.4);
+	m_play.set(float2(1280 / 2, 720 - 75), "Play", 0.6);
+}
+
+string MainState::asTimer(size_t total) { 
+	int minutes = total / 60;
+	int seconds = total % 60;
+	string str = (minutes < 10 ? "0" : "") + to_string(minutes) + ":" + (seconds < 10 ? "0" : "") +
+				 to_string(seconds);
+	return str;
 }
 
 MainState::MainState() : StateItem(StateItem::State::MainState) {}
@@ -34,14 +43,6 @@ void MainState::init() {
 	m_bow.setRecoveryTime(0);
 
 	m_camera.setView(m_cam_pos_menu, m_cam_target_menu, float3(0.f, 1.f, 0.f));
-
-	string miniSprites[FruitType::NR_OF_FRUITS] = { "apple.png", "banana.png", "melon.png",
-		"dragonfruit.png" };
-	for (size_t i = 0; i < FruitType::NR_OF_FRUITS; i++) {
-		m_miniFruitSprites[i].load(miniSprites[i]);
-		m_miniFruitSprites[i].setScale(0.05f);
-		m_miniFruitSprites[i].setAlignment(); // center
-	}
 	
 	m_levelItem_background.load("back_level.png");
 	m_levelItem_background.setColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
@@ -50,60 +51,19 @@ void MainState::init() {
 
 	m_coinHolderSprite.load("coin_holder.png");
 	m_coinHolderSprite.setAlignment();
-	m_coinHolderSprite.setScale(0.075f);
+	m_coinHolderSprite.setScale(0.04f);
 
 	string medalSpriteNames[TimeTargets::NR_OF_TIME_TARGETS] = { "coin_gold.png", "coin_silver.png",
 		"coin_bronze.png" };
 	for (size_t i = 0; i < TimeTargets::NR_OF_TIME_TARGETS; i++) {
 		m_medalSprites[i].load(medalSpriteNames[i]);
-		m_medalSprites[i].setScale(0.075f);
+		m_medalSprites[i].setScale(0.04f);
 		m_medalSprites[i].setAlignment();
 	}
 
-	float3 bowlPositions[3] = { float3(67.614, 9.530, 20.688), float3(66.927, 9.530, 19.881),
-		float3(66.216, 9.530, 19.077) };
-	string bowlLevelContentObjName[3] = {"BowlContent1","BowlContent2","BowlContent3"};
-	string bowlGradeObjName[TimeTargets::NR_OF_TIME_TARGETS] = { "bowl_gold", "bowl_silver",
-		"bowl_bronze" };
-	for (size_t i = 0; i < 3; i++) {
-		const SceneCompletion* cp = SaveManager::getProgress("scene"+to_string(i));
-		bool completed = false;
-		TimeTargets grade = TimeTargets::BRONZE;
-		if (cp) {
-			completed = cp->isCompleted();
-			grade = cp->grade;
-		}
-		float3 position = bowlPositions[i];
-
-		m_levelSelections[i].obj_bowl.load(bowlGradeObjName[grade]);
-		m_levelSelections[i].obj_content.load(bowlLevelContentObjName[i]);
-		m_levelSelections[i].obj_bowl.setPosition(position);
-		m_levelSelections[i].obj_content.setPosition(position);
-		m_levelSelections[i].obj_bowl.setScale(0.5);
-		m_levelSelections[i].obj_content.setScale(0.5);
-
-		m_levelSelections[i].completed = completed;
-		m_levelSelections[i].grade = grade;
-	}
-	// level 1
-	m_levelSelections[0].terrainTypes[AreaTag::Plains] = true;
-	m_levelSelections[0].name = "Beginners Salad";
-	m_levelSelections[0].collectionGoal[FruitType::APPLE] = 7;
-	m_levelSelections[0].collectionGoal[FruitType::MELON] = 2;
-
-	m_levelSelections[1].terrainTypes[AreaTag::Forest] = true;
-	m_levelSelections[1].name = "Overnight Salad";
-	m_levelSelections[1].collectionGoal[FruitType::APPLE] = 2;
-	m_levelSelections[1].collectionGoal[FruitType::MELON] = 2;
-	m_levelSelections[1].collectionGoal[FruitType::BANANA] = 2;
-
-	m_levelSelections[2].terrainTypes[AreaTag::Desert] = true;
-	m_levelSelections[2].terrainTypes[AreaTag::Volcano] = true;
-	m_levelSelections[2].name = "Hot Rainbow Salad";
-	m_levelSelections[2].collectionGoal[FruitType::APPLE] = 2;
-	m_levelSelections[2].collectionGoal[FruitType::MELON] = 2;
-	m_levelSelections[2].collectionGoal[FruitType::BANANA] = 2;
-	m_levelSelections[2].collectionGoal[FruitType::DRAGON] = 2;
+	m_img_keylock.load("keylock.png");
+	m_img_keylock.setAlignment();// center
+	m_img_keylock.setScale(0.85);
 
 	m_ps_selected.load(ParticleSystem::Type::LEVELSELECT_SELECTION, 30);
 	m_ps_selected.setScale(float3(0.6, 0.3, 0.6));
@@ -119,6 +79,11 @@ void MainState::init() {
 	m_back.setHoveringColor(Color(1.f, 210.f / 255.f, 0.f));
 	m_back.setTextStandardColor(Color(1.f, 1.f, 1.f));
 	m_back.setTextHoveringColor(Color(0.f, 0.f, 0.f));
+
+	m_play.setStandardColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
+	m_play.setHoveringColor(Color(1.f, 210.f / 255.f, 0.f));
+	m_play.setTextStandardColor(Color(1.f, 1.f, 1.f));
+	m_play.setTextHoveringColor(Color(0.f, 0.f, 0.f));
 
 	for (size_t i = 0; i < 2; i++) {
 		m_selectionArrows[i].setStandardColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
@@ -252,13 +217,18 @@ void MainState::update() {
 			m_menuState = Menu;
 			setButtons_menu(); // reset buttons and create the popping effect
 		}
+		if (m_play.update_behavior(dt)) {
+			// start level
+			SceneManager::getScene()->load("scene" + to_string(m_levelHighlighted));
+			push(State::PlayState);
+		}
 		if (m_selectionArrows[0].update_behavior(dt) || ip->keyPressed(Keyboard::Left)) {
 			// left selection arrow
-			m_levelHighlighted = mod(m_levelHighlighted-1, 3);
+			m_levelHighlighted = mod(m_levelHighlighted - 1, m_levelsAvailable);
 		}
 		if (m_selectionArrows[1].update_behavior(dt) || ip->keyPressed(Keyboard::Right)) {
 			// right selection arrow
-			m_levelHighlighted = mod(m_levelHighlighted+1, 3);
+			m_levelHighlighted = mod(m_levelHighlighted + 1, m_levelsAvailable);
 		}
 	}
 
@@ -272,29 +242,7 @@ void MainState::update() {
 	float3 cam_forward_levelSelect = Normalize(m_cam_target_levelSelect-m_cam_pos_levelSelect);
 	m_camera.setTarget((m_cam_pos_menu+cam_forward_menu) * (1 - c) + (m_cam_pos_levelSelect+cam_forward_levelSelect) * c);
 
-	// level select bowl selection
-	float3 ray_position = m_camera.getPosition(), ray_forward;
-	float2 mpos =
-		float2(1 - (float)ip->mouseX() / SCREEN_WIDTH, (float)ip->mouseY() / SCREEN_HEIGHT);
-	ray_forward = m_camera.getMousePickVector(mpos) * 100;
-	bool anyHighlights = false;
-	for (size_t i = 0; i < 3; i++) {
-		if (i == 0 || m_levelSelections[i - 1].completed) {
-			// valid level to select
-			if (m_levelSelections[i].obj_bowl.castRay(ray_position, ray_forward) != -1) {
-				// hovering
-				anyHighlights = true;
-				m_levelHighlighted = i;
-				if (ip->mousePressed(Input::LEFT)) {
-					// clicked
-					// change Level
-					SceneManager::getScene()->load("scene" + to_string(i));
-					push(State::PlayState);
-				}
-			}
-		}
-	}
-
+	// update level selection particlesystem effect
 	m_ps_selected.setPosition(
 		m_levelSelections[m_levelHighlighted].obj_bowl.getPosition() + float3(0, 0.2, 0));
 	m_ps_selected.update(dt);
@@ -364,44 +312,62 @@ void MainState::draw() {
 	m_back.setAlpha(levelSelectAlpha);
 	m_back.draw();
 
+	m_play.setAlpha(levelSelectAlpha);
+	m_play.draw();
+
 	float itemWidthOffset = 325;
 	float totalItemWidth = itemWidthOffset * (3-1);
 	for (size_t i = 0; i < 3; i++) {
 		float2 itemPos =
-			float2(1280.f / 2 + itemWidthOffset * i - totalItemWidth * 0.5f, 720 - 150);
+			float2(1280.f / 2 + itemWidthOffset * i - totalItemWidth * 0.5f, 720 - 250);
 		if (m_levelHighlighted == i)
 			itemPos += float2(0,-25);
 		// background
 		m_levelItem_background.setPosition(itemPos);
 		m_levelItem_background.setAlpha(levelSelectAlpha);
 		m_levelItem_background.draw();
-		// text
-		m_textRenderer.setAlignment(
-			TextRenderer::HorizontalAlignment::LEFT, TextRenderer::VerticalAlignment::TOP);
-		m_textRenderer.setScale(0.25f);
-		m_textRenderer.setAlpha(levelSelectAlpha);
-		m_textRenderer.draw(m_levelSelections[i].name, itemPos+float2(-100,-70));
-		// terrain types
-		// collection goal
-		float2 backSize = m_levelItem_background.getSize();
-		float miniWidth = 100;
-		for (size_t j = 0; j < FruitType::NR_OF_FRUITS; j++) {
-			m_miniFruitSprites[j].setPosition(
-				float2(-45, 60) + itemPos +
-				float2((miniWidth / (FruitType::NR_OF_FRUITS - 1)) * j - miniWidth / 2, 0));
-			m_miniFruitSprites[j].setAlpha(levelSelectAlpha);
-			m_miniFruitSprites[j].draw();
+
+		if (i == 0 || m_levelSelections[i-1].completed) {
+			// level index
+			m_textRenderer.setAlignment(); // center
+			m_textRenderer.setScale(2.5f);
+			m_textRenderer.setAlpha(levelSelectAlpha * 0.35f);
+			m_textRenderer.draw(to_string(i), itemPos);
+			// text
+			m_textRenderer.setAlignment(
+				TextRenderer::HorizontalAlignment::LEFT, TextRenderer::VerticalAlignment::TOP);
+			m_textRenderer.setScale(0.25f);
+			m_textRenderer.setAlpha(levelSelectAlpha);
+			m_textRenderer.draw(m_levelSelections[i].name, itemPos + float2(-100, -70));
+			// grade
+			float2 coinPos = itemPos + float2(-85, -30);
+			for (int c = 0; c < TimeTargets::NR_OF_TIME_TARGETS; c++) {
+				// coin background
+				float2 cur_coinPos = coinPos + float2(0, c * 45);
+				m_coinHolderSprite.setPosition(cur_coinPos);
+				m_coinHolderSprite.setAlpha(levelSelectAlpha);
+				m_coinHolderSprite.draw();
+				// coin medal
+				float medalAlpha = 0.2;
+				if (m_levelSelections[i].completed && m_levelSelections[i].grade <= c)
+					medalAlpha = 1;
+				m_medalSprites[c].setPosition(cur_coinPos);
+				m_medalSprites[c].setAlpha(levelSelectAlpha * medalAlpha);
+				m_medalSprites[c].draw();
+				// level time
+				m_textRenderer.setAlignment(TextRenderer::HorizontalAlignment::LEFT,
+					TextRenderer::VerticalAlignment::CENTER);
+				m_textRenderer.setAlpha(levelSelectAlpha);
+				m_textRenderer.setScale(0.25f);
+				m_textRenderer.draw(asTimer(m_levelData[i].m_utility.timeTargets[c]) + " min",
+					cur_coinPos + float2(25, 0));
+			}
 		}
-		// grade
-		float2 coinPos = itemPos + float2(75, 50);
-		m_coinHolderSprite.setPosition(coinPos);
-		m_coinHolderSprite.setAlpha(levelSelectAlpha);
-		m_coinHolderSprite.draw();
-		if (m_levelSelections[i].completed) {
-			TimeTargets grade = m_levelSelections[i].grade;
-			m_medalSprites[grade].setPosition(coinPos);
-			m_medalSprites[grade].setAlpha(levelSelectAlpha);
-			m_medalSprites[grade].draw();
+		else {
+			// level locked
+			m_img_keylock.setPosition(itemPos);
+			m_img_keylock.setAlpha(levelSelectAlpha);
+			m_img_keylock.draw();
 		}
 	}
 
@@ -418,9 +384,49 @@ void MainState::play() {
 	m_arrows.clear();
 	m_timer.reset();
 
+	// load player progression
+	for (size_t i = 0; i < 3; i++) {
+		m_levelData[i].load_raw("scene"+to_string(i));
+	}
+
 	// setup buttons
 	setButtons_menu();
 	setButtons_levelSelect();
+
+	// levelselection setup
+	float3 bowlPositions[3] = { float3(67.614, 9.530, 20.688), float3(66.927, 9.530, 19.881),
+		float3(66.216, 9.530, 19.077) };
+	string bowlLevelContentObjName[3] = { "BowlContent1", "BowlContent2", "BowlContent3" };
+	string bowlGradeObjName[TimeTargets::NR_OF_TIME_TARGETS] = { "bowl_gold", "bowl_silver",
+		"bowl_bronze" };
+	for (size_t i = 0; i < 3; i++) {
+		const SceneCompletion* cp = SaveManager::getProgress("scene" + to_string(i));
+		bool completed = false;
+		TimeTargets grade = TimeTargets::BRONZE;
+		if (cp) {
+			completed = cp->isCompleted();
+			grade = cp->grade;
+		}
+		float3 position = bowlPositions[i];
+
+		m_levelSelections[i].obj_bowl.load(bowlGradeObjName[grade]);
+		m_levelSelections[i].obj_content.load(bowlLevelContentObjName[i]);
+		m_levelSelections[i].obj_bowl.setPosition(position);
+		m_levelSelections[i].obj_content.setPosition(position);
+		m_levelSelections[i].obj_bowl.setScale(0.5);
+		m_levelSelections[i].obj_content.setScale(0.5);
+
+		m_levelSelections[i].completed = completed;
+		m_levelSelections[i].grade = grade;
+	}
+	m_levelSelections[0].name = "Beginners Salad";
+	m_levelSelections[1].name = "Overnight Salad";
+	m_levelSelections[2].name = "Hot Rainbow Salad";
+
+	for (size_t i = 1; i < 3; i++) {
+		if (m_levelSelections[i-1].completed)
+			m_levelsAvailable = i + 1;
+	}
 		
 }
 

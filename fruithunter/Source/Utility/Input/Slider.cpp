@@ -23,9 +23,6 @@ Slider::~Slider() {}
 void Slider::initialize(string label, float2 pos) {
 	m_label = label;
 	m_position = pos;
-
-	m_colour = float4(1.f, 1.f, 1.f, 1.f);
-	m_sliding = false;
 }
 
 float Slider::getValue() { return m_value; }
