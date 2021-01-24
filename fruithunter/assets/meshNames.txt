@@ -44,3 +44,4 @@ flower4
 totem
 FenceNoEnd
 Fence
+picnicBlanket

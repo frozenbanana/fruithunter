@@ -635,6 +635,21 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
 		break;
+	case ParticleSystem::LEVELSELECT_SELECTION:
+		colorVariety[0] = float4(214 / 255.f, 53 / 255.f, 53 / 255.f, 1.0f);
+		colorVariety[1] = float4(62 / 255.f, 201 / 255.f, 62 / 255.f, 1.0f);
+		colorVariety[2] = float4(61 / 255.f, 61 / 255.f, 211 / 255.f, 1.0f);
+		size_interval = float2(0.035, 0.09f);
+		timeAlive_interval = float2(0.500, 1);
+		velocity_max = float3(1, 1, 1);
+		velocity_min = float3(-1, -1, -1);
+		velocity_interval = float2(0.2, 0.3);
+		acceleration = float3(0, 0, 0);
+		slowdown = 1;
+		shape = Shape::Star;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
+		break;
 	default:
 		colorVariety[0] = float4(1.);
 		colorVariety[1] = float4(1.);

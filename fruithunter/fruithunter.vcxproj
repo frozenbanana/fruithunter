@@ -233,6 +233,7 @@
     <ClCompile Include="Source\Utility\SimpleDirectX.cpp" />
     <ClCompile Include="Source\Utility\Timer\Timer.cpp" />
     <ClCompile Include="Source\Utility\Translation2DStructures.cpp" />
+    <ClCompile Include="Source\Utility\UI\Menu_PoppingArrowButton.cpp" />
     <ClCompile Include="Source\Utility\UI\Menu_PoppingButton.cpp" />
     <ClCompile Include="Source\Utility\UI\UI_Button.cpp" />
     <ClCompile Include="Source\Utility\VariableSyncer\VariableSyncer.cpp" />
@@ -315,6 +316,7 @@
     <ClInclude Include="Source\Utility\SimpleDirectX.h" />
     <ClInclude Include="Source\Utility\Timer\Timer.h" />
     <ClInclude Include="Source\Utility\Translation2DStructures.h" />
+    <ClInclude Include="Source\Utility\UI\Menu_PoppingArrowButton.h" />
     <ClInclude Include="Source\Utility\UI\Menu_PoppingButton.h" />
     <ClInclude Include="Source\Utility\UI\UI_Button.h" />
     <ClInclude Include="Source\Utility\VariableSyncer\VariableSyncer.h" />
