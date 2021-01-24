@@ -84,6 +84,7 @@ void SkyBox::loadStandard() {
 	fileNames[AreaTag::Plains] = "PlainsSkybox.jpg";
 	fileNames[AreaTag::Desert] = "DesertSkybox.jpg";
 	fileNames[AreaTag::Volcano] = "VolcanoSkybox.jpg";
+	fileNames[AreaTag::LevelIsland] = "PlainsSkybox.jpg";
 	
 	lightInfo info[AreaTag::NR_OF_AREAS];
 	info[AreaTag::Forest] = { 
@@ -105,6 +106,11 @@ void SkyBox::loadStandard() {
 		float4(0.6f, 0.2f, 0.0f, 1.0f), 
 		float4(0.7f, 0.2f, 0.1f, 1.0f),
 		float4(1.0f, 0.2f, 0.1f, 1.0f) 
+	};
+	info[AreaTag::LevelIsland] = { 
+		float4(0.7f, 0.7f, 0.7f, 1.0f), 
+		float4(0.8f, 0.9f, 0.7f, 1.0f),
+		float4(1.0f, 1.0f, 1.0f, 1.0f)
 	};
 	load(fileNames, info);
 }

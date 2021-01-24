@@ -4,18 +4,36 @@
 #include "ErrorLogger.h"
 #include "Input.h"
 
-float2 Slider::getSliderPos() const { 
-	return m_position + m_sliderOffset + float2((m_value * 240.f) - 120.f, 0);
-}
-
 Slider::Slider() {
-	m_img_background.load("sliderBackground.png");
-	m_img_background.setScale(1.f);
-	m_img_background.setAlignment(); // center
+	m_spriteBatch = std::make_unique<SpriteBatch>(Renderer::getDeviceContext());
+	m_states = std::make_unique<CommonStates>(Renderer::getDevice());
 
-	m_img_grabber.load("apple.png");
-	m_img_grabber.setScale(m_scale);
-	m_img_grabber.setAlignment(); // center
+	Microsoft::WRL::ComPtr<ID3D11Resource> resource;
+
+	HRESULT t = CreateWICTextureFromFile(Renderer::getDevice(), L"assets/sprites/apple.png",
+		resource.GetAddressOf(), m_texture.ReleaseAndGetAddressOf());
+	if (t)
+		ErrorLogger::logError("Failed to create slider sprite texture", t);
+
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> tex;
+	resource.As(&tex);
+	CD3D11_TEXTURE2D_DESC texDesc;
+	tex->GetDesc(&texDesc);
+
+	m_scale = 0.08f;
+	m_radius = texDesc.Width * m_scale * 0.5f;
+	m_textureOffset = float2(texDesc.Width / 2.f, texDesc.Height / 2.f);
+	m_sliderOffset = float2(150.f, 0.f);
+
+	t = CreateWICTextureFromFile(Renderer::getDevice(), L"assets/sprites/sliderBackground.png",
+		resource.GetAddressOf(), m_backgroundTexture.ReleaseAndGetAddressOf());
+	if (t)
+		ErrorLogger::logError("Failed to create backgorund sprite texture", t);
+
+	resource.As(&tex);
+	tex->GetDesc(&texDesc);
+
+	m_backgroundOffset = float2(texDesc.Width / 2.f, texDesc.Height / 2.f);
 }
 
 Slider::~Slider() {}
@@ -23,6 +41,12 @@ Slider::~Slider() {}
 void Slider::initialize(string label, float2 pos) {
 	m_label = label;
 	m_position = pos;
+
+	m_startPos = pos;
+	m_sliderPos = m_startPos;
+
+	m_colour = float4(1.f, 1.f, 1.f, 1.f);
+	m_sliding = false;
 }
 
 float Slider::getValue() { return m_value; }
@@ -30,59 +54,74 @@ float Slider::getValue() { return m_value; }
 void Slider::setPosition(float2 position) {
 	float offset = position.x - m_position.x;
 	m_position = position;
+	m_sliderPos.y = m_position.y;
+	m_sliderPos.x += offset;
+	m_startPos = m_sliderPos;
 }
 
 void Slider::setValue(float value) {
 	m_value = value;
+	m_sliderPos.x = (m_value * 240.f) + SCREEN_WIDTH / 2 - 120.f;
 }
 
 bool Slider::update() {
 	Input* ip = Input::getInstance();
-	float2 screenModifier = float2((SCREEN_WIDTH / 1280.f), (SCREEN_HEIGHT / 720.f));
 	bool changed = false;
 
-	float2 mp = float2(ip->mouseX(), ip->mouseY()) / screenModifier;
-	float2 pos = m_img_grabber.getPosition();
-	float radius = m_img_grabber.getSize().x * 0.5;
+	int x = abs(ip->mouseX() - (int)(m_sliderPos.x + m_sliderOffset.x));
+	int y = abs(ip->mouseY() - (int)(m_sliderPos.y + m_sliderOffset.y));
 
-	m_colour = (m_sliding || (mp - pos).Length() < radius) ? m_grabberColor_highlighted
-														   : m_grabberColor_standard;
-	if ((mp-pos).Length() < radius) {
+	if (x * x + y * y < m_radius * m_radius) {
 		// hovering
+		m_colour = float4(0.5f, 0.5f, 0.5f, 1.f);
 		if (ip->mousePressed(Input::MouseButton::LEFT)) {
 			// clicked
-			m_grabPos = mp.x;
+			m_grabPos = (float)ip->mouseX();
+			m_startPos = m_sliderPos;
+			m_offset = 0.f;
 			m_sliding = true;
-			m_preValue = m_value;
 		}
 	}
+	else if (!m_sliding) {
+		// normal color
+		m_colour = float4(1.f, 1.f, 1.f, 1.f);
+	}
+
 	if (m_sliding && ip->mouseDown(Input::MouseButton::LEFT)) {
 		// sliding btn
-		float offset = mp.x - m_grabPos;
-		m_value = Clamp<float>(m_preValue + offset / 240, 0, 1);
+		m_offset = ip->mouseX() - m_grabPos;
+		m_sliderPos.x =
+			max(min(SCREEN_WIDTH / 2 + 120.f, m_startPos.x + m_offset), SCREEN_WIDTH / 2 - 120.f);
+		m_value = (m_sliderPos.x - SCREEN_WIDTH / 2 + 120.f) / 240.f;
 	}
 	if (m_sliding && ip->mouseReleased(Input::MouseButton::LEFT)) {
 		// release btn
 		changed = true;
 		m_sliding = false;
+		m_startPos = m_sliderPos;
+		m_value = (m_sliderPos.x - SCREEN_WIDTH / 2 + 120.f) / 240.f;
 	}
 
 	return changed;
 }
 
 void Slider::draw() {
-	float2 sliderValuePos = getSliderPos();
-	m_img_background.setPosition(m_position + float2(150.f, 0.f));
-	m_img_background.draw();
-	m_img_grabber.setPosition(sliderValuePos);
-	m_img_grabber.setColor(m_colour);
-	m_img_grabber.draw();
+	m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
+	float2 sliderValuePos = m_sliderPos + float2(150.f, 0.f);
+	m_spriteBatch->Draw(m_backgroundTexture.Get(), float2(m_position) + float2(150.f, 0.f), nullptr,
+		Colors::White, 0.f, m_backgroundOffset);
+	m_spriteBatch->Draw(
+		m_texture.Get(), sliderValuePos, nullptr, m_colour, 0.f,
+		m_textureOffset, m_scale);
+
+	m_spriteBatch->End();
 
 	m_textRenderer.setScale(m_scale * 8.0f);
 	m_textRenderer.setAlignment(TextRenderer::HorizontalAlignment::RIGHT, TextRenderer::VerticalAlignment::CENTER);
 	m_textRenderer.draw(m_label + ":", m_position);
 
 	m_textRenderer.setScale(m_scale * 2.5f);
-	m_textRenderer.setAlignment(); // center
+	m_textRenderer.setAlignment(
+		TextRenderer::HorizontalAlignment::MIDDLE, TextRenderer::VerticalAlignment::CENTER);
 	m_textRenderer.draw(to_string(int(100*m_value))+"%", sliderValuePos);
 }

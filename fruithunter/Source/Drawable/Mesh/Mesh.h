@@ -2,7 +2,7 @@
 #include "MeshHandler.h"
 #include "ShaderSet.h"
 
-#define COLOR_BUFFER_SLOT 8
+#define COLOR_BUFFER_SLOT 2
 #define MATERIAL_BUFFER_SLOT 2
 
 class Mesh {
@@ -69,7 +69,7 @@ public:
 	void drawCall_all();
 	void drawCall_perMaterial();
 
-	void draw(float3 color = float3(1.));
+	void draw();
 	void draw_noMaterial(float3 color = float3(1, 1, 1));
 	void draw_BoundingBox();
 

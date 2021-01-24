@@ -12,6 +12,7 @@ class EndRoundState : public StateItem {
 private:
 	Camera m_camera;
 	Timer m_timer;
+	Sprite2D m_background;
 	TextRenderer m_textRenderer;
 	string m_victoryText;
 	float4 m_victoryColor;
@@ -23,6 +24,7 @@ private:
 	Entity m_bowlContent;
 	Entity m_bowl;
 	size_t m_currentBowlContent;
+	Entity m_entity;
 
 public:
 	EndRoundState();

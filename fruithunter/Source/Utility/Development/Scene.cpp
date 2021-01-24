@@ -191,14 +191,6 @@ void Scene::dropFruit(FruitType fruitType) {
 	 }
 }
 
-void Scene::addArrow(shared_ptr<Arrow> arrow) { 
-	if (arrow.get() != nullptr) {
-		m_arrows.push_back(arrow);
-		if (m_arrows.size() > 10)
-			m_arrows.erase(m_arrows.begin());
-	}
-}
-
 SoundID Scene::playMusicByAreaTag(AreaTag tag) {
 	SoundID id = 0;
 	switch (tag) {
@@ -217,6 +209,10 @@ SoundID Scene::playMusicByAreaTag(AreaTag tag) {
 	case Volcano:
 		id = AudioController::getInstance()->play(
 			"crumbling_halls", AudioController::SoundType::Music, true);
+		break;
+	case LevelIsland:
+		id = AudioController::getInstance()->play(
+			"menu", AudioController::SoundType::Music, true);
 		break;
 	}
 	return id;

@@ -294,9 +294,6 @@
     <ClCompile Include="Source\Utility\SimpleDirectX.cpp">
       <Filter>Source\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Utility\UI\Menu_PoppingArrowButton.cpp">
-      <Filter>Source\Utility\UI</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -538,9 +535,6 @@
     </ClInclude>
     <ClInclude Include="Source\Utility\SimpleDirectX.h">
       <Filter>Source\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Utility\UI\Menu_PoppingArrowButton.h">
-      <Filter>Source\Utility\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -7,7 +7,7 @@ struct PS_IN {
 	float4 ShadowPosH : POSITION2;
 };
 
-cbuffer colorBuffer : register(b8) { float4 color; }
+cbuffer colorBuffer : register(b2) { float4 color; }
 Texture2D texture_shadowMap : register(t4);
 cbuffer lightInfo : register(b5) {
 	float4 ambient;

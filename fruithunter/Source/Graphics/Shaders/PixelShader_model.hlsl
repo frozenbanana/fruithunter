@@ -28,8 +28,6 @@ cbuffer lightInfo : register(b6) {
 	float4 cb_toLight;
 };
 
-cbuffer colorOverlay : register(b8) { float4 cb_colorOverlay; }
-
 cbuffer cameraProperties : register(b9) { float4 camera_position; }
 
 
@@ -79,8 +77,7 @@ float4 main(PS_IN ip) : SV_TARGET {
 
 	// base color
 	float3 pixelBaseColor =
-		mapUsages.y ? (textures[1].Sample(samplerAni, ip.TexCoord)).rgb * diffuse3_strength.rgb
-					: (diffuse3_strength.rgb);
+		mapUsages.y ? (textures[1].Sample(samplerAni, ip.TexCoord)).rgb : (diffuse3_strength.rgb);
 	if (mapUsages.y && (textures[1].Sample(samplerAni, ip.TexCoord)).a == 0)
 		return float4(0, 0, 0, 0);
 
@@ -107,6 +104,5 @@ float4 main(PS_IN ip) : SV_TARGET {
 	float3 col = pixelBaseColor * ambientColour.xyz; // ambient
 	col += pixelBaseColor * diffuseTint * diffuseColour.xyz * shade;//diffuse
 	col += reflectTint * specularColour.xyz * specular * shade; //specular
-	col *= cb_colorOverlay; // used to remove colors
 	return float4(col, 1.0);
 }

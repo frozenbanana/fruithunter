@@ -42,11 +42,11 @@ public:
 	void isVisible(bool state);
 
 	// Drawing
-	virtual void draw(float3 color = float3(1.));
+	virtual void draw();
 	void draw_onlyMesh(float3 color);
 	void draw_boundingBox();
 
-	void draw_animate(float3 color = float3(1.));
+	void draw_animate();
 	void draw_animate_onlyMesh(float3 color = float3(1.f));
 
 	virtual void updateAnimated(float dt);

@@ -121,12 +121,11 @@ void Animated::updateSpecific(float frameTime) {
 	Renderer::getDeviceContext()->UpdateSubresource(m_animationBuffer.Get(), 0, 0, &data, 0, 0);
 }
 
-void Animated::draw(float3 color) {
+void Animated::draw() {
 	bindMeshes();
 	bindConstantBuffer();
 	m_shaderObject_animation.bindShadersAndLayout();
 
-	m_meshes[0]->bindColorBuffer(color);
 	m_meshes[0]->drawCall_perMaterial();
 }
 

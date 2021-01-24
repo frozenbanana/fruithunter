@@ -122,8 +122,6 @@ public:
 	//SoundID play3D(string sound, AudioController::SoundType type = SoundType::Effect, bool repeat = false);
 	void scaleVolumeByDistance(SoundID id, float distance, float min = 1, float max = 50);
 	void setVolume(SoundID id, float value);
-	void setPitch(SoundID id, float value);
-	void setPan(SoundID id, float value);
 	void fadeOut(SoundID id, float time);
 	void fadeIn(SoundID id, float time);
 	void stop(SoundID id);
