@@ -379,7 +379,7 @@ void MainState::draw() {
 
 void MainState::play() {
 	sceneManager.load("intro");
-	AudioController::getInstance()->play("ocean-music", AudioController::SoundType::Music);
+	AudioController::getInstance()->play("banana_sunrise", AudioController::SoundType::Music);
 	m_apple = make_shared<Apple>(float3(58.0f, 10.1f, 16.9f));
 	m_arrows.clear();
 	m_timer.reset();
