@@ -21,6 +21,7 @@ public:
 	void drawTextInWorld(string text, float3 position, float3 lookAt, float2 size);
 
 	void setColor(Color color);
+	void setAlpha(float alpha);
 	void setScale(float scale);
 	void setRotation(float rotation);
 	void setAlignment(HorizontalAlignment ha = MIDDLE, VerticalAlignment va = CENTER);
@@ -34,6 +35,7 @@ private:
 	float2 m_alignment = float2(0, 0);
 	float m_scale = 1;
 	float m_rotation = 0;
+	float m_alpha = 1;
 	std::unique_ptr<SpriteBatch> m_spriteBatch;
 	std::unique_ptr<SpriteFont> m_spriteFont;
 	float2 m_fontPos;

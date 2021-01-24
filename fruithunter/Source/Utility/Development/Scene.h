@@ -164,6 +164,8 @@ public:
 	void pickUpFruit(FruitType fruitType);
 	void dropFruit(FruitType fruitType);
 
+	void addArrow(shared_ptr<Arrow> arrow);
+
 	static SoundID playMusicByAreaTag(AreaTag tag);
 	void update_activeTerrain(AreaTag tag);
 

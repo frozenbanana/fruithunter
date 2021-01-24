@@ -9,7 +9,7 @@ class UI_Button : public Transformation2D {
 private:
 	Sprite2D m_sprite;
 	TextRenderer m_textRenderer;
-	string m_text;
+	string m_text = "";
 
 	Color m_color_standard = Color(1, 1, 1, 1);
 	Color m_color_hovering = Color(1, 1, 1, 1);
@@ -30,6 +30,7 @@ public:
 	void setText(string text);
 	void setFont(string font);
 	void setColor(Color color);
+	void setAlpha(float alpha);
 
 	void setStandardColor(Color color);
 	void setHoveringColor(Color color);

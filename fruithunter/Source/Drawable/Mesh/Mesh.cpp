@@ -222,16 +222,17 @@ void Mesh::drawCall_perMaterial() {
 	}
 }
 
-void Mesh::draw() {
+void Mesh::draw(float3 color) {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
 	if (m_materials[m_currentMaterial].size() > 0) {
 		m_shaderObject.bindShadersAndLayout();
+		bindColorBuffer(color);
 		bindMesh();
 		drawCall_perMaterial();
 	}
 	else
-		draw_noMaterial();
+		draw_noMaterial(color);
 }
 
 void Mesh::draw_noMaterial(float3 color) {

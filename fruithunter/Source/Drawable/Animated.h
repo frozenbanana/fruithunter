@@ -34,7 +34,7 @@ public:
 	void update(float dt);
 	void updateSpecific(float frameTime); // or deltaFrameTime
 
-	void draw();
+	void draw(float3 color = float3(1.));
 	void draw_onlyMesh(float3 color);
 
 	bool load(std::string filename, int nrOfFrames = 1, bool combineParts = true);

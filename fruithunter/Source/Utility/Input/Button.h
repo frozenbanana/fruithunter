@@ -1,5 +1,6 @@
 #pragma once
 #include "TextRenderer.h"
+#include "Translation2DStructures.h"
 
 #define COL_INACTIVE Color(1.0f, 1.0f, 1.0f, 1.0f)
 #define COL_ACTIVE Color(1.f, 0.0f, 0.0f, 1.0f)
@@ -34,6 +35,8 @@ public:
 	void setLowMedHighUltra(Setting value);
 	void setResolution(Resolution value);
 	void setOnOff(bool value);
+
+	BoundingBox2D getBoundingBox() const;
 
 	bool getOnOff();
 	int getLowMedHighUltra();
