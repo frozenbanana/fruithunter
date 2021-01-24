@@ -13,10 +13,6 @@ private:
 	};
 	OnScreenFruitItem m_fruitSprites[NR_OF_FRUITS];
 
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_backgroundTexture;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_staminaTexture;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_staminaFrame;
-
 	Sprite2D m_img_background, m_img_stamina, m_img_staminaFrame;
 
 	TextRenderer m_textRenderer;
