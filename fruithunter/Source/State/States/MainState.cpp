@@ -35,6 +35,12 @@ string MainState::asTimer(size_t total) {
 	return str;
 }
 
+void MainState::changeToLevel(size_t levelIndex) {
+	AudioController::getInstance()->stop(m_menuMusic);
+	SceneManager::getScene()->load("scene" + to_string(levelIndex));
+	push(State::PlayState);
+}
+
 MainState::MainState() : StateItem(StateItem::State::MainState) {}
 
 MainState::~MainState() {}
@@ -194,7 +200,6 @@ void MainState::update() {
 
 		if (m_buttons[btn_start].update_behavior(dt)) {
 			// start
-			//push(State::LevelSelectState);
 			m_menuState = LevelSelect;
 			setButtons_levelSelect(); // reset buttons and create the popping effect
 		}
@@ -219,8 +224,7 @@ void MainState::update() {
 		}
 		if (m_play.update_behavior(dt)) {
 			// start level
-			SceneManager::getScene()->load("scene" + to_string(m_levelHighlighted));
-			push(State::PlayState);
+			changeToLevel(m_levelHighlighted);
 		}
 		if (m_selectionArrows[0].update_behavior(dt) || ip->keyPressed(Keyboard::Left)) {
 			// left selection arrow
@@ -378,11 +382,16 @@ void MainState::draw() {
 }
 
 void MainState::play() {
-	sceneManager.load("intro");
-	AudioController::getInstance()->play("banana_sunrise", AudioController::SoundType::Music);
+	if (SceneManager::getScene()->m_sceneName != "intro")
+		sceneManager.load("intro");
 	m_apple = make_shared<Apple>(float3(58.0f, 10.1f, 16.9f));
 	m_arrows.clear();
 	m_timer.reset();
+
+	// menu music
+	if (!AudioController::getInstance()->isListed(m_menuMusic))
+		m_menuMusic = AudioController::getInstance()->play(
+			"banana_sunrise", AudioController::SoundType::Music, true);
 
 	// load player progression
 	for (size_t i = 0; i < 3; i++) {

@@ -116,7 +116,9 @@ void AudioController::update() {
 	}
 }
 
-void AudioController::flush() { m_playlist.clear(); }
+void AudioController::flush() {
+	m_playlist.clear();
+}
 
 SoundID AudioController::play(string sound, AudioController::SoundType type, bool repeat) {
 	int effectIndex = findEffect(sound);

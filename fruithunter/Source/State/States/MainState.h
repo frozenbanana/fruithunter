@@ -78,10 +78,14 @@ private:
 	Menu_PoppingButton m_back;
 	Menu_PoppingButton m_play;
 
+	SoundID m_menuMusic = 0;
+
 	void setButtons_menu();
 	void setButtons_levelSelect();
 
 	static string asTimer(size_t seconds);
+
+	void changeToLevel(size_t levelIndex);
 
 public:
 	MainState();

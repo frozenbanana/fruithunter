@@ -34,6 +34,8 @@ void Scene::clear() {
 	// active terrain
 	m_activeTerrain_tag = AreaTag::Plains;
 	m_activeTerrain_soundID = 0;
+	// music
+	AudioController::getInstance()->stop(m_activeTerrain_soundID);
 
 	m_sceneName = "";
 	m_loaded = false;
@@ -444,6 +446,9 @@ void Scene::reset() {
 	// active terrain
 	m_activeTerrain_tag = AreaTag::Plains;
 	m_activeTerrain_soundID = 0;
+
+	// music
+	AudioController::getInstance()->stop(m_activeTerrain_soundID);
 
 	PathFindingThread::unlock();
 
