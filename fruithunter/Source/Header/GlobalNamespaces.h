@@ -73,7 +73,7 @@ static float4x4 CreatePYRMatrix(float3 rotation) {
 		   float4x4::CreateRotationY(rotation.y);
 }
 
-static string Time2DisplayableString(size_t time) { 
+static string Time2DisplayableString(size_t time) {
 	size_t total = time;
 	size_t minutes = total / 60;
 	size_t seconds = total % 60;

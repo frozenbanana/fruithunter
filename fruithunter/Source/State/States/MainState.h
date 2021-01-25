@@ -74,9 +74,10 @@ private:
 		btn_editor,
 		btn_length
 	};
-	Menu_PoppingButton m_buttons[btn_length];
-	Menu_PoppingButton m_back;
-	Menu_PoppingButton m_play;
+	Menu_PoppingButton m_btn_buttons[btn_length];
+	Menu_PoppingButton m_btn_credits;
+	Menu_PoppingButton m_btn_back;
+	Menu_PoppingButton m_btn_play;
 
 	SoundID m_menuMusic = 0;
 

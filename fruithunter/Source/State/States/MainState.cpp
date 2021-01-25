@@ -10,9 +10,10 @@ void MainState::setButtons_menu() {
 	float btn_stride_y = 85;
 	float btn_delay_stride = 0.1;
 	for (size_t i = 0; i < btn_length; i++) {
-		m_buttons[i].set(
+		m_btn_buttons[i].set(
 			btn_pos_start + float2(0, btn_stride_y) * i, buttonTexts[i], btn_delay_stride * i);
 	}
+	m_btn_credits.set(float2(1280-150,720-75), "Credits", btn_length * btn_delay_stride);
 }
 
 void MainState::setButtons_levelSelect() {
@@ -23,8 +24,8 @@ void MainState::setButtons_levelSelect() {
 	m_selectionArrows[1].set(float2(1280 - hor_edgeOffset, 720 - ver_edgeOffset), "", 0.2,
 		Menu_PoppingArrowButton::FacingDirection::Right);
 
-	m_back.set(float2(1280 - 150, 720 - 75), "Back", 0.4);
-	m_play.set(float2(1280 / 2, 720 - 75), "Play", 0.6);
+	m_btn_back.set(float2(1280 - 150, 720 - 75), "Back", 0.4);
+	m_btn_play.set(float2(1280 / 2, 720 - 75), "Play", 0.6);
 }
 
 string MainState::asTimer(size_t total) { 
@@ -75,21 +76,26 @@ void MainState::init() {
 	m_ps_selected.setScale(float3(0.6, 0.3, 0.6));
 
 	for (size_t i = 0; i < btn_length; i++) {
-		m_buttons[i].setStandardColor(Color(42.f/255.f, 165.f/255.f, 209.f/255.f));
-		m_buttons[i].setHoveringColor(Color(1.f, 210.f/255.f, 0.f));
+		m_btn_buttons[i].setStandardColor(Color(42.f/255.f, 165.f/255.f, 209.f/255.f));
+		m_btn_buttons[i].setHoveringColor(Color(1.f, 210.f/255.f, 0.f));
 
-		m_buttons[i].setTextStandardColor(Color(1.f, 1.f, 1.f));
-		m_buttons[i].setTextHoveringColor(Color(0.f, 0.f, 0.f));
+		m_btn_buttons[i].setTextStandardColor(Color(1.f, 1.f, 1.f));
+		m_btn_buttons[i].setTextHoveringColor(Color(0.f, 0.f, 0.f));
 	}
-	m_back.setStandardColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
-	m_back.setHoveringColor(Color(1.f, 210.f / 255.f, 0.f));
-	m_back.setTextStandardColor(Color(1.f, 1.f, 1.f));
-	m_back.setTextHoveringColor(Color(0.f, 0.f, 0.f));
+	m_btn_credits.setStandardColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
+	m_btn_credits.setHoveringColor(Color(1.f, 210.f / 255.f, 0.f));
+	m_btn_credits.setTextStandardColor(Color(1.f, 1.f, 1.f));
+	m_btn_credits.setTextHoveringColor(Color(0.f, 0.f, 0.f));
 
-	m_play.setStandardColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
-	m_play.setHoveringColor(Color(1.f, 210.f / 255.f, 0.f));
-	m_play.setTextStandardColor(Color(1.f, 1.f, 1.f));
-	m_play.setTextHoveringColor(Color(0.f, 0.f, 0.f));
+	m_btn_back.setStandardColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
+	m_btn_back.setHoveringColor(Color(1.f, 210.f / 255.f, 0.f));
+	m_btn_back.setTextStandardColor(Color(1.f, 1.f, 1.f));
+	m_btn_back.setTextHoveringColor(Color(0.f, 0.f, 0.f));
+
+	m_btn_play.setStandardColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
+	m_btn_play.setHoveringColor(Color(1.f, 210.f / 255.f, 0.f));
+	m_btn_play.setTextStandardColor(Color(1.f, 1.f, 1.f));
+	m_btn_play.setTextHoveringColor(Color(0.f, 0.f, 0.f));
 
 	for (size_t i = 0; i < 2; i++) {
 		m_selectionArrows[i].setStandardColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
@@ -198,31 +204,34 @@ void MainState::update() {
 			offsetX += m_letters[i].letter.getTextureSize().x / (1.65f * 2.f);
 		}
 
-		if (m_buttons[btn_start].update_behavior(dt)) {
+		if (m_btn_buttons[btn_start].update_behavior(dt)) {
 			// start
 			m_menuState = LevelSelect;
 			setButtons_levelSelect(); // reset buttons and create the popping effect
 		}
-		if (m_buttons[btn_settings].update_behavior(dt)) {
+		if (m_btn_buttons[btn_settings].update_behavior(dt)) {
 			// settings
 			push(State::SettingState);
 		}
-		if (m_buttons[btn_exit].update_behavior(dt)) {
+		if (m_btn_buttons[btn_exit].update_behavior(dt)) {
 			// exit
 			pop(false);
 		}
-		if (DEBUG && m_buttons[btn_editor].update_behavior(dt)) {
+		if (DEBUG && m_btn_buttons[btn_editor].update_behavior(dt)) {
 			// editor
 			push(State::EditorState);
 		}
+		if (m_btn_credits.update_behavior(dt)) {
+			// open credits
+		}
 	}
 	else if (m_cam_slider == 1) {
-		if (m_back.update_behavior(dt)) {
+		if (m_btn_back.update_behavior(dt)) {
 			// back to menu
 			m_menuState = Menu;
 			setButtons_menu(); // reset buttons and create the popping effect
 		}
-		if (m_play.update_behavior(dt)) {
+		if (m_btn_play.update_behavior(dt)) {
 			// start level
 			changeToLevel(m_levelHighlighted);
 		}
@@ -295,15 +304,17 @@ void MainState::draw() {
 	}
 
 	// Draw menu buttons
-	m_buttons[btn_start].setAlpha(menuAlpha);
-	m_buttons[btn_start].draw();
-	m_buttons[btn_settings].setAlpha(menuAlpha);
-	m_buttons[btn_settings].draw();
-	m_buttons[btn_exit].setAlpha(menuAlpha);
-	m_buttons[btn_exit].draw();
+	m_btn_buttons[btn_start].setAlpha(menuAlpha);
+	m_btn_buttons[btn_start].draw();
+	m_btn_buttons[btn_settings].setAlpha(menuAlpha);
+	m_btn_buttons[btn_settings].draw();
+	m_btn_buttons[btn_exit].setAlpha(menuAlpha);
+	m_btn_buttons[btn_exit].draw();
+	m_btn_credits.setAlpha(menuAlpha);
+	m_btn_credits.draw();
 	if (DEBUG) {
-		m_buttons[btn_editor].setAlpha(menuAlpha);
-		m_buttons[btn_editor].draw();
+		m_btn_buttons[btn_editor].setAlpha(menuAlpha);
+		m_btn_buttons[btn_editor].draw();
 	}
 
 	// level select
@@ -313,11 +324,11 @@ void MainState::draw() {
 	m_textRenderer.setAlpha(levelSelectAlpha);
 	m_textRenderer.draw(m_levelSelect_header, float2(50,50));
 
-	m_back.setAlpha(levelSelectAlpha);
-	m_back.draw();
+	m_btn_back.setAlpha(levelSelectAlpha);
+	m_btn_back.draw();
 
-	m_play.setAlpha(levelSelectAlpha);
-	m_play.draw();
+	m_btn_play.setAlpha(levelSelectAlpha);
+	m_btn_play.draw();
 
 	float itemWidthOffset = 325;
 	float totalItemWidth = itemWidthOffset * (3-1);
