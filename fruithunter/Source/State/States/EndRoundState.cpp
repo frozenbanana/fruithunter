@@ -15,9 +15,8 @@ void EndRoundState::init() {
 	float width = 1280;
 	float height = 720;
 	float2 center(width / 2, height / 2);
-	m_restartButton.initialize("Restart", center + float2(0, 50));
-	m_levelSelectButton.initialize("Select Level", center + float2(0,120));
-	m_exitButton.initialize("Exit", center + float2(0,190));
+	m_restartButton.initialize("Try Again", center + float2(0, 50));
+	m_levelSelectButton.initialize("Back To Menu", center + float2(0,120));
 	m_particleSystem.load(ParticleSystem::STARS_GOLD, 10);
 	// m_particleSystem.setEmitRate(10.f);
 	m_particleSystem.setPosition(float3(0.0f, -1.f, 0.f));
@@ -82,10 +81,6 @@ void EndRoundState::update() {
 		AudioController::getInstance()->flush();
 		pop(State::MainState,false);
 	}
-	if (m_exitButton.update()) {
-		AudioController::getInstance()->flush();
-		pop((State)-1, false);
-	}
 }
 
 void EndRoundState::pause() { }
@@ -104,7 +99,6 @@ void EndRoundState::play() {
 
 	m_restartButton.setPosition(float2(width / 2, height / 2 + 50));
 	m_levelSelectButton.setPosition(float2(width / 2, height / 2 + 120));
-	m_exitButton.setPosition(float2(width / 2, height / 2 + 190));
 
 	AudioController::getInstance()->play("applause", AudioController::SoundType::Effect);
 }
@@ -139,7 +133,6 @@ void EndRoundState::draw() {
 	m_textRenderer.draw(m_victoryText, float2(width / 2, height / 2 - 50));
 	m_restartButton.draw();
 	m_levelSelectButton.draw();
-	m_exitButton.draw();
 
 }
 
