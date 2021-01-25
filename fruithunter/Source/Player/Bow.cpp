@@ -156,7 +156,14 @@ float3 Bow::getDesiredRotation() {
 	float dt = SceneManager::getScene()->getDeltaTime();
 
 	float3 rotation_holstered = m_sourceRotation + m_bowPositioning_angle0;
-	float3 rotation_aiming = m_sourceRotation + m_bowPositioning_angle1;
+	//float3 rotation_aiming = m_sourceRotation + m_bowPositioning_angle1; // cannot be used! as arrows wont shoot in middle of players cursor
+	float3 forward = rotatef3(float3(0, 0, 1), m_sourceRotation);
+	float3 target = m_sourcePosition + forward * 15;
+	float3 source = m_bow.getPosition();
+	float3 rotation = vector2Rotation(target - source);
+	float3 rotOffset = vector2Rotation(rotatef3(float3(0, 0, 1), rotation - m_sourceRotation)); // fixes spinning bug
+	float3 rotation_aiming = m_sourceRotation + rotOffset;
+
 	float3 desiredRotation = (rotation_holstered * (1 - m_drawFactor) + rotation_aiming * m_drawFactor);
 	return desiredRotation;
 }

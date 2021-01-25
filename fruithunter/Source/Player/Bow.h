@@ -19,7 +19,7 @@ private:
 	float3 m_bowPositioning_offset0 = float3(0.05f, -0.3f, 0.5f);//holstered
 	float3 m_bowPositioning_angle0 = float3(0.4f, 0, -0.8f);
 	float3 m_bowPositioning_offset1 = float3(0.1f, -0.05f, 0.55f);//aiming
-	float3 m_bowPositioning_angle1 = float3(0, 0, -0.2f);
+	//float3 m_bowPositioning_angle1 = float3(0, 0, -0.2f); // cannot be used! Need dynamic angle to make sure arrows travels to crosshair
 	float m_bowPositioning_drawForward = 0.2f;
 	float m_bowPositioning_rotationVelocityClamp = 0.5f;
 	float m_bowPositioning_rotationSpringConstant = 30.f;

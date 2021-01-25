@@ -105,6 +105,11 @@ static float3 rotatef2Z(float3 v, float rad) {
 	float2 r = rotatef2(float2(v.x, v.y), rad);
 	return float3(r.x, r.y, v.z);
 }
+static float3 rotatef3(float3 v, float3 rot) {
+	float4x4 rotMat = float4x4::CreateRotationZ(rot.z) * float4x4::CreateRotationX(rot.x) *
+					  float4x4::CreateRotationY(rot.y);
+	return float3::Transform(v, rotMat);
+}
 
 /* Return length of direction until collision. Return 0 if no collision */
 static float RayPlaneIntersection(float3 rayPoint, float3 rayDirection, float3 planePosition, float3 planeNormal) {
@@ -140,8 +145,8 @@ template <typename VARTYPE> static VARTYPE lerp(VARTYPE t1, VARTYPE t2, float mi
 }
 
 /* Modulus operation that also affects negative values */
-static int mod(int v, int mod) { 
-	v %= mod;
+static float mod(float v, float mod) { 
+	v = fmod(v, mod);
 	if (v < 0)
 		v = mod + v;
 	return v;
