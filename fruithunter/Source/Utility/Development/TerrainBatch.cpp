@@ -147,13 +147,14 @@ float3 Environment::getRandomSpawnPoint() {
 	float3 point;
 	float3 normal;
 	size_t iterator = 0;
+	size_t tries = 100;
 	do {
 		point = float3::Transform(float3(RandomFloat(0, 1), 0, RandomFloat(0, 1)), getMatrix());
 		point.y = getHeightFromPosition(point.x, point.z);
 		normal = getNormalFromPosition(point.x, point.z);
 		iterator++;
-	} while (normal.Dot(float3(0, 1, 0)) < 0.75f || point.y < 0.5f || iterator > 100);
-	if (iterator > 100)
+	} while (iterator < tries && (normal.Dot(float3(0, 1, 0)) < 0.75f || point.y < 0.5f));
+	if (iterator == tries)
 		ErrorLogger::logError("(Environment) Failed finding a spawn point for fruit!",HRESULT());
 	return point;
 }

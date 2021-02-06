@@ -21,7 +21,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd face1_2.png
+map_Kd cuteFace.png
 map_d face1_2.png
 
 newmtl Yellow
