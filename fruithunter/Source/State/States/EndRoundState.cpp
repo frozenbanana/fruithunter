@@ -163,7 +163,9 @@ void EndRoundState::setBowl(string bowlContentEntityName, int bowlMaterial) {
 		m_bowlContent.load("BowlContent2");
 	else if (bowlContentEntityName == "scene2")
 		m_bowlContent.load("BowlContent3");
-	m_bowl.setCurrentMaterial((int)bowlMaterial);
+
+	vector<string> bowlNames = { "bowl_gold", "bowl_silver", "bowl_bronze" };
+	m_bowl.load(bowlNames[(int)bowlMaterial]);
 }
 
 void EndRoundState::setTimeText(string text) { m_timeText = text; }
