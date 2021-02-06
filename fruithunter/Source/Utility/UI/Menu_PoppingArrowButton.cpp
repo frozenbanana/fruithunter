@@ -28,7 +28,7 @@ bool Menu_PoppingArrowButton::update_behavior(float dt) {
 		if (clicked) {
 			m_scale_velocity = m_scale_desired * 3;
 			SoundID id = AudioController::getInstance()->play("bubble_pop");
-			AudioController::getInstance()->setPitch(id, 0.5);
+			AudioController::getInstance()->setPitch(id, RandomFloat(-1, 1) * 0.5);
 		}
 		m_scale_velocity +=
 			(m_scale_desired - getScale().x) * m_scale_spring_speed * dt; // add force

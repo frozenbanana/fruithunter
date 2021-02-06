@@ -260,6 +260,20 @@ void MainState::update() {
 		m_levelSelections[m_levelHighlighted].obj_bowl.getPosition() + float3(0, 0.2, 0));
 	m_ps_selected.update(dt);
 
+	// update level frames
+	float itemWidthOffset = 325;
+	float totalItemWidth = itemWidthOffset * (3 - 1);
+	for (size_t i = 0; i < 3; i++) {
+		float2 desiredItemPos =
+			float2(1280.f / 2 + itemWidthOffset * i - totalItemWidth * 0.5f, 720 - 250);
+		if (m_levelHighlighted == i)
+			desiredItemPos += float2(0, -25);
+		float2 currentItemPos = m_levelSelections[i].position_hud;
+		float lerp = 1 - pow(m_levelSelections[i].catchup, dt);
+		m_levelSelections[i].position_hud +=
+			(desiredItemPos - currentItemPos) * Clamp<float>(lerp, 0, 1);
+	}
+
 }
 
 void MainState::draw() {
@@ -333,10 +347,7 @@ void MainState::draw() {
 	float itemWidthOffset = 325;
 	float totalItemWidth = itemWidthOffset * (3-1);
 	for (size_t i = 0; i < 3; i++) {
-		float2 itemPos =
-			float2(1280.f / 2 + itemWidthOffset * i - totalItemWidth * 0.5f, 720 - 250);
-		if (m_levelHighlighted == i)
-			itemPos += float2(0,-25);
+		float2 itemPos = m_levelSelections[i].position_hud;
 		// background
 		m_levelItem_background.setPosition(itemPos);
 		m_levelItem_background.setAlpha(levelSelectAlpha);
@@ -345,15 +356,14 @@ void MainState::draw() {
 		if (i == 0 || m_levelSelections[i-1].completed) {
 			// level index
 			m_textRenderer.setAlignment(); // center
-			m_textRenderer.setScale(2.5f);
-			m_textRenderer.setAlpha(levelSelectAlpha * 0.35f);
-			m_textRenderer.draw(to_string(i), itemPos);
+			m_textRenderer.setScale(0.4f);
+			m_textRenderer.setAlpha(levelSelectAlpha);
+			m_textRenderer.draw(to_string(i), itemPos + float2(115, 80));
 			// text
-			m_textRenderer.setAlignment(
-				TextRenderer::HorizontalAlignment::LEFT, TextRenderer::VerticalAlignment::TOP);
+			m_textRenderer.setAlignment(); // center
 			m_textRenderer.setScale(0.25f);
 			m_textRenderer.setAlpha(levelSelectAlpha);
-			m_textRenderer.draw(m_levelSelections[i].name, itemPos + float2(-100, -70));
+			m_textRenderer.draw(m_levelSelections[i].name, itemPos + float2(0, -82));
 			// grade
 			float2 coinPos = itemPos + float2(-85, -30);
 			for (int c = 0; c < TimeTargets::NR_OF_TIME_TARGETS; c++) {
@@ -414,6 +424,9 @@ void MainState::play() {
 	setButtons_levelSelect();
 
 	// levelselection setup
+	float itemWidthOffset = 325;
+	float totalItemWidth = itemWidthOffset * (3 - 1);
+
 	float3 bowlPositions[3] = { float3(67.614, 9.530, 20.688), float3(66.927, 9.530, 19.881),
 		float3(66.216, 9.530, 19.077) };
 	string bowlLevelContentObjName[3] = { "BowlContent1", "BowlContent2", "BowlContent3" };
@@ -438,6 +451,10 @@ void MainState::play() {
 
 		m_levelSelections[i].completed = completed;
 		m_levelSelections[i].grade = grade;
+
+		float2 desiredItemPos =
+			float2(1280.f / 2 + itemWidthOffset * i - totalItemWidth * 0.5f, 720 - 250);
+		m_levelSelections[i].position_hud = desiredItemPos;
 	}
 	m_levelSelections[0].name = "Beginners Salad";
 	m_levelSelections[1].name = "Overnight Salad";

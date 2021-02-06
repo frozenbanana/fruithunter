@@ -35,7 +35,12 @@ private:
 	Sprite2D m_medalSprites[TimeTargets::NR_OF_TIME_TARGETS];
 	Sprite2D m_img_keylock;
 	struct LevelOption {
+		// 3d object
 		Entity obj_bowl, obj_content;
+		// hud positioning
+		float2 position_hud;
+		float catchup = 0.01f;
+		// description and info
 		string name = "";
 		bool completed = false;
 		TimeTargets grade = TimeTargets::BRONZE;
