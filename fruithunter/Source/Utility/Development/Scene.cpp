@@ -43,16 +43,24 @@ void Scene::clear() {
 	PathFindingThread::unlock();
 }
 
+size_t Scene::getTime() { return  (size_t)round(m_timer.getTimePassed()); }
+
+TimeTargets Scene::getWinGrade() {
+	size_t time = (size_t)round(m_timer.getTimePassed());
+	TimeTargets grade = TimeTargets::NR_OF_TIME_TARGETS;
+	for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++) {
+		if (time <= m_utility.timeTargets[i]) {
+			grade = (TimeTargets)i;
+			break;
+		}
+	}
+	return grade;
+}
+
 void Scene::saveWin() {
 	if (m_sceneName != "") {
-		size_t time = (size_t)round(m_timer.getTimePassed());
-		TimeTargets grade = TimeTargets::NR_OF_TIME_TARGETS;
-		for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++) {
-			if (time <= m_utility.timeTargets[i]) {
-				grade = (TimeTargets)i;
-				break;
-			}
-		}
+		size_t time = getTime();
+		TimeTargets grade = getWinGrade();
 		SaveManager::setProgress(m_sceneName, time, grade);
 	}
 }

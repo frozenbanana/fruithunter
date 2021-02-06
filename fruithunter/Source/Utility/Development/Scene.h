@@ -176,6 +176,8 @@ public:
 	void reset();
 	void clear();
 
+	size_t getTime();
+	TimeTargets getWinGrade();
 	bool handleWin();
 
 	float getDeltaTime();

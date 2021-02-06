@@ -29,8 +29,9 @@ void EndRoundState::init() {
 
 	string sceneName = SceneManager::getScene()->m_sceneName;
 	const SceneCompletion* savedData = SaveManager::getProgress(sceneName);
+	TimeTargets winGrade = SceneManager::getScene()->getWinGrade();
 	if (savedData != nullptr) {
-		switch (savedData->grade) {
+		switch (winGrade) {
 		case GOLD:
 			setVictoryText("You earned GOLD");
 			setVictoryColor(float4(1.0f, 0.85f, 0.0f, 1.0f));
@@ -60,7 +61,8 @@ void EndRoundState::init() {
 			setParticleColorByPrize(BRONZE);
 			break;
 		}
-		setTimeText("Time : " + Time2DisplayableString(savedData->timeToComplete));
+		size_t winTime = SceneManager::getScene()->getTime();
+		setTimeText("Time : " + Time2DisplayableString(winTime));
 	}
 }
 
