@@ -170,15 +170,15 @@ float3 Bow::getDesiredRotation() {
 
 void Bow::update_position(float dt) {
 	float3 desiredLocalPosition = getDesiredLocalPosition();
-	m_position_current +=
-		(desiredLocalPosition - m_position_current) * Clamp<float>(dt * m_positionCatchup, 0, 1);
+	float catchup = 1 - pow(m_positionCatchup, dt);
+	m_position_current += (desiredLocalPosition - m_position_current) * Clamp<float>(catchup, 0, 1);
 	setPosition(m_position_current + m_sourcePosition);
 }
 
 void Bow::update_rotation(float dt) {
-
 	float3 desiredRotation = getDesiredRotation();
-	m_rotation_current += (desiredRotation - m_rotation_current) * Clamp<float>(dt * m_rotationCatchup, 0, 1);
+	float catchup = 1 - pow(m_rotationCatchup, dt);
+	m_rotation_current += (desiredRotation - m_rotation_current) * Clamp<float>(catchup, 0, 1);
 	setRotation(m_rotation_current);
 }
 
