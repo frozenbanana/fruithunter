@@ -56,10 +56,6 @@ void MainState::init() {
 	m_levelItem_background.setAlignment(); // center
 	m_levelItem_background.setScale(0.7);
 
-	m_coinHolderSprite.load("coin_holder.png");
-	m_coinHolderSprite.setAlignment();
-	m_coinHolderSprite.setScale(0.04f);
-
 	string medalSpriteNames[TimeTargets::NR_OF_TIME_TARGETS] = { "coin_gold.png", "coin_silver.png",
 		"coin_bronze.png" };
 	for (size_t i = 0; i < TimeTargets::NR_OF_TIME_TARGETS; i++) {
@@ -243,6 +239,36 @@ void MainState::update() {
 			// right selection arrow
 			m_levelHighlighted = mod(m_levelHighlighted + 1, m_levelsAvailable);
 		}
+
+		// update level frames
+		float itemWidthOffset = 325;
+		float totalItemWidth = itemWidthOffset * (3 - 1);
+		for (size_t i = 0; i < 3; i++) {
+			// update frame position
+			float2 desiredItemPos =
+				float2(1280.f / 2 + itemWidthOffset * i - totalItemWidth * 0.5f, 720 - 250);
+			if (m_levelHighlighted == i)
+				desiredItemPos += float2(0, -25);
+			float2 currentItemPos = m_levelSelections[i].position_hud;
+			float lerp = 1 - pow(m_levelSelections[i].catchup, dt);
+			m_levelSelections[i].position_hud +=
+				(desiredItemPos - currentItemPos) * Clamp<float>(lerp, 0, 1);
+
+			// hover and click behavior
+			if (i == 0 || m_levelSelections[i - 1].completed) {
+				// valid level to process
+				m_levelItem_background.setPosition(m_levelSelections[i].position_hud);
+				float2 mp = float2(ip->mouseX(), ip->mouseY());
+				if (m_levelItem_background.getBoundingBox().isInside(mp)) {
+					// hovering frame
+					m_levelHighlighted = i;
+					if (ip->mousePressed(Input::LEFT)) {
+						// clicked frame
+						changeToLevel(m_levelHighlighted);
+					}
+				}
+			}
+		}
 	}
 
 	// move towards menu state
@@ -259,20 +285,6 @@ void MainState::update() {
 	m_ps_selected.setPosition(
 		m_levelSelections[m_levelHighlighted].obj_bowl.getPosition() + float3(0, 0.2, 0));
 	m_ps_selected.update(dt);
-
-	// update level frames
-	float itemWidthOffset = 325;
-	float totalItemWidth = itemWidthOffset * (3 - 1);
-	for (size_t i = 0; i < 3; i++) {
-		float2 desiredItemPos =
-			float2(1280.f / 2 + itemWidthOffset * i - totalItemWidth * 0.5f, 720 - 250);
-		if (m_levelHighlighted == i)
-			desiredItemPos += float2(0, -25);
-		float2 currentItemPos = m_levelSelections[i].position_hud;
-		float lerp = 1 - pow(m_levelSelections[i].catchup, dt);
-		m_levelSelections[i].position_hud +=
-			(desiredItemPos - currentItemPos) * Clamp<float>(lerp, 0, 1);
-	}
 
 }
 
@@ -333,10 +345,10 @@ void MainState::draw() {
 
 	// level select
 	float levelSelectAlpha = Clamp<float>(m_cam_slider * 2 - 1, 0, 1);
-	m_textRenderer.setAlignment(TextRenderer::HorizontalAlignment::LEFT, TextRenderer::VerticalAlignment::TOP);
-	m_textRenderer.setScale(1.5);
-	m_textRenderer.setAlpha(levelSelectAlpha);
-	m_textRenderer.draw(m_levelSelect_header, float2(50,50));
+	//m_textRenderer.setAlignment(TextRenderer::HorizontalAlignment::LEFT, TextRenderer::VerticalAlignment::TOP);
+	//m_textRenderer.setScale(1.5);
+	//m_textRenderer.setAlpha(levelSelectAlpha);
+	//m_textRenderer.draw(m_levelSelect_header, float2(50,50));
 
 	m_btn_back.setAlpha(levelSelectAlpha);
 	m_btn_back.draw();
@@ -367,17 +379,14 @@ void MainState::draw() {
 			// grade
 			float2 coinPos = itemPos + float2(-85, -30);
 			for (int c = 0; c < TimeTargets::NR_OF_TIME_TARGETS; c++) {
-				// coin background
-				float2 cur_coinPos = coinPos + float2(0, c * 45);
-				m_coinHolderSprite.setPosition(cur_coinPos);
-				m_coinHolderSprite.setAlpha(levelSelectAlpha);
-				m_coinHolderSprite.draw();
 				// coin medal
-				float medalAlpha = 0.2;
+				float2 cur_coinPos = coinPos + float2(0, c * 45);
 				if (m_levelSelections[i].completed && m_levelSelections[i].grade <= c)
-					medalAlpha = 1;
+					m_medalSprites[c].setColor(float4(1, 1, 1, 1));
+				else
+					m_medalSprites[c].setColor(float4(0.25, 0.25, 0.25, 1));
+				m_medalSprites[c].setAlpha(levelSelectAlpha);
 				m_medalSprites[c].setPosition(cur_coinPos);
-				m_medalSprites[c].setAlpha(levelSelectAlpha * medalAlpha);
 				m_medalSprites[c].draw();
 				// level time
 				m_textRenderer.setAlignment(TextRenderer::HorizontalAlignment::LEFT,

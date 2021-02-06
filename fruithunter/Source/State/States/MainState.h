@@ -31,7 +31,6 @@ private:
 	int m_levelHighlighted = 0;
 	ParticleSystem m_ps_selected;
 	Sprite2D m_levelItem_background;
-	Sprite2D m_coinHolderSprite;
 	Sprite2D m_medalSprites[TimeTargets::NR_OF_TIME_TARGETS];
 	Sprite2D m_img_keylock;
 	struct LevelOption {

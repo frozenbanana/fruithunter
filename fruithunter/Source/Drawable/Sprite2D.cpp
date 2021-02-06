@@ -151,7 +151,9 @@ void Sprite2D::setAlignment(HorizontalAlignment horizontal, VerticalAlignment ve
 
 void Sprite2D::setAnimationSpeed(float animationSpeed) { m_animationSpeed = animationSpeed; }
 
-void Sprite2D::setColor(Color color) { m_color = color; }
+void Sprite2D::setColor(Color color) { 
+	m_color = Color(color.x, color.y, color.z, m_color.w);
+}
 
 void Sprite2D::setAlpha(float alpha) { m_color.w = alpha; }
 
