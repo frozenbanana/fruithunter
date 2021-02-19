@@ -32,6 +32,7 @@ private:
 		void bind();
 		void drawCall();
 		bool isEmpty() const;
+		void operator=(const GrassPatch& other);
 	};
 	// container
 	QuadTree<GrassPatch> m_patches;

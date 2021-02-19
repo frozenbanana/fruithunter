@@ -75,6 +75,12 @@ void GrassManager::GrassPatch::drawCall() { Renderer::draw(m_straws.size(), 0); 
 
 bool GrassManager::GrassPatch::isEmpty() const { return m_straws.size() == 0; }
 
+void GrassManager::GrassPatch::operator=(const GrassPatch& other) {
+	m_straws = other.m_straws;
+	if (other.m_vertexBuffer.Get() != nullptr)
+		createBuffer();
+}
+
 void GrassManager::update_strawBuffer() { m_cbuffer_settings.update(m_strawSetting); }
 
 void GrassManager::update_animationBuffer(float time) { 
