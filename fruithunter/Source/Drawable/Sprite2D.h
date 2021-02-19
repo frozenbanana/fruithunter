@@ -16,7 +16,6 @@ class Sprite2D {
 private:
 	static unique_ptr<SpriteBatch> m_spriteBatch;
 	static unique_ptr<CommonStates> m_states;
-	const string m_prepath = "assets/sprites/";
 
 	struct SpriteTexture {
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_SRV;

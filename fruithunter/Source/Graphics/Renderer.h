@@ -10,8 +10,6 @@
 #define SCREEN_HEIGHT Renderer::getInstance()->getScreenHeight()
 #define SCREEN_WIDTH Renderer::getInstance()->getScreenWidth()
 
-
-
 class Renderer {
 public:
 	enum DrawingState { state_normal, state_shadow };

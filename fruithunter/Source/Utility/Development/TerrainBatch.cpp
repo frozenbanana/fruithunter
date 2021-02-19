@@ -138,7 +138,10 @@ Environment::Environment(
 
 void Environment::setWind(float3 wind) { m_wind = wind; }
 
-void Environment::setTag(AreaTag tag) { m_tag = tag; }
+void Environment::setTag(AreaTag tag) {
+	m_tag = tag;
+	m_grass.setStrawAndAnimationSettings(tag);
+}
 
 void Environment::setFruitSpawns(int fruitSpawns[NR_OF_FRUITS]) {
 	memcpy(m_fruitSpawn, fruitSpawns, sizeof(int) * NR_OF_FRUITS);
@@ -178,7 +181,7 @@ void Environment::loadFromBinFile(string path) {
 		file.read((char*)m_fruitSpawn, sizeof(int) * NR_OF_FRUITS);
 		// terrain
 		loadFromFile_binary(file);
-		m_grass.init(*this);
+		m_grass.init(*this, m_tag);
 
 		file.close();
 	}

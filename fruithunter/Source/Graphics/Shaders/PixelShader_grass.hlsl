@@ -61,7 +61,8 @@ float4 main(GSOutput ip) : SV_TARGET {
 	float shade = texSampleGrease(
 		texture_shadowMap, cb_shadowMapRes, ip.ShadowPosH.xy, ip.ShadowPosH.z, ip.PosW.xyz)
 					  .r;
-	float3 color = ip.Color.rgb * cb_ambient;
-	color += ip.Color.rgb * shade;
+	float3 baseColor = ip.Color.rgb;
+	float3 color = baseColor * cb_ambient.rgb; // ambient
+	color += baseColor * cb_diffuse.rgb * shade; // diffuse
 	return float4(color, 1);
 }

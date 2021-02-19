@@ -7,11 +7,6 @@
 #include "Fragment.h"
 #include "SimpleDirectX.h"
 
-#define MATRIX_BUFFER_SLOT 0
-#define SAMPLERSTATE_SLOT 0
-
-#define EDITMESH_STACKSIZE 30
-
 class Terrain : public Transformation, public Fragment {
 public:
 	struct Brush {
@@ -28,6 +23,10 @@ public:
 	};
 
 private:
+	const int MATRIX_SLOT = 0;
+	const int SAMPLER_SLOT = 0;
+	const int EDITMESH_STACKSIZE = 30;
+
 	struct SubGrid {
 	private:
 		vector<Vertex> m_vertices;

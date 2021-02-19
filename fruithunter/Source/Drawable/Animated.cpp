@@ -75,7 +75,7 @@ void Animated::createAnimationConstantBuffer() {
 void Animated::bindConstantBuffer() {
 	// bind buffer to pipeline
 	Renderer::getDeviceContext()->VSSetConstantBuffers(
-		ANIMATION_BUFFER_SLOT, 1, m_animationBuffer.GetAddressOf());
+		ANIMATED_SLOT, 1, m_animationBuffer.GetAddressOf());
 }
 
 Animated::Animated() {

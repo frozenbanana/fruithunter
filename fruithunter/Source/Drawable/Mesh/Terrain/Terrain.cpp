@@ -864,13 +864,13 @@ void Terrain::draw() {
 		// bind shaders
 		m_shader.bindShadersAndLayout();
 		// bind samplerstate
-		deviceContext->PSSetSamplers(SAMPLERSTATE_SLOT, 1, m_sampler.GetAddressOf());
+		deviceContext->PSSetSamplers(SAMPLER_SLOT, 1, m_sampler.GetAddressOf());
 		// bind texture resources
 		for (size_t i = 0; i < 4; i++) {
 			deviceContext->PSSetShaderResources((UINT)i, 1, m_textures[i]->view.GetAddressOf());
 		}
 		// bind world matrix
-		VSBindMatrix(MATRIX_BUFFER_SLOT);
+		VSBindMatrix(MATRIX_SLOT);
 		// draw
 		if (m_useCulling) {
 			for (size_t i = 0; i < m_culledGrids.size(); i++) {
@@ -899,7 +899,7 @@ void Terrain::draw_onlyMesh() {
 	// bind shaders
 	m_shader_onlyMesh.bindShadersAndLayout();
 	// bind world matrix
-	VSBindMatrix(MATRIX_BUFFER_SLOT);
+	VSBindMatrix(MATRIX_SLOT);
 	// draw
 	if (m_useCulling) {
 		for (size_t i = 0; i < m_culledGrids.size(); i++) {
@@ -925,13 +925,13 @@ void Terrain::draw_brush(const Brush& brush) {
 		// bind shaders
 		m_shader_brush.bindShadersAndLayout();
 		// bind samplerstate
-		deviceContext->PSSetSamplers(SAMPLERSTATE_SLOT, 1, m_sampler.GetAddressOf());
+		deviceContext->PSSetSamplers(SAMPLER_SLOT, 1, m_sampler.GetAddressOf());
 		// bind texture resources
 		for (size_t i = 0; i < 4; i++) {
 			deviceContext->PSSetShaderResources((UINT)i, 1, m_textures[i]->view.GetAddressOf());
 		}
 		// bind world matrix
-		VSBindMatrix(MATRIX_BUFFER_SLOT);
+		VSBindMatrix(MATRIX_SLOT);
 		// bind brush buffer
 		m_buffer_brush.update(brush);
 		m_buffer_brush.bindPS(7);
