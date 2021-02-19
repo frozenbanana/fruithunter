@@ -2,7 +2,7 @@ struct VS_OUT {
 	float4 posH : SV_POSITION;
 };
 
-cbuffer screenSizeBuffer : register(b6) { float4 cb_screenSize; };
+cbuffer screenSizeBuffer : register(b9) { float4 cb_screenSize; };
 
 Texture2D<float> depthMap : register(s0);
 Texture2D targetMap : register(s1);

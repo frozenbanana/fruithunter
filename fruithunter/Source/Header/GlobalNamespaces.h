@@ -84,7 +84,7 @@ static string Time2DisplayableString(size_t time) {
 // Helper Math functions
 /* Generate a random float between low to high */
 static float RandomFloat(float low = 0.f, float high = 1.f) {
-	float randomCoefficent = (float)(rand() % (int)1000.f) / 1000.f; // normalize
+	float randomCoefficent = (float)(rand() % RAND_MAX) / (float)RAND_MAX; // normalize
 	return low + randomCoefficent * (high - low);
 }
 

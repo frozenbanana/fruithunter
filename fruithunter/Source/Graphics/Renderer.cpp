@@ -192,6 +192,10 @@ void Renderer::bindRenderTarget() {
 	m_deviceContext.Get()->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), NULL);
 }
 
+void Renderer::setRasterizer_backfaceCulling() { m_deviceContext->RSSetState(m_raster_backfaceCulling.Get()); }
+
+void Renderer::setRasterizer_noCulling() { m_deviceContext->RSSetState(m_raster_noCulling.Get()); }
+
 void Renderer::captureFrame() {
 	ID3D11Texture2D* tex = nullptr;
 	auto hr = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&tex);
@@ -219,16 +223,16 @@ void Renderer::drawCapturedFrame() {
 
 void Renderer::draw_darkEdges() {
 	if (Settings::getInstance()->getDarkEdges()) {
-		// copy depth buffer
+		// bind depth buffer copy
 		copyDepthToSRV();
 		bindDepthSRVCopy(0);
-		// copy renderTarget
+		// bind renderTarget copy
 		copyTargetToSRV();
 		bindTargetSRVCopy(1);
 		// bind shader
 		m_shader_darkEdges.bindShadersAndLayout();
 		// bind contant buffer
-		bindConstantBuffer_ScreenSize(6);
+		bindConstantBuffer_ScreenSize(9);
 		// bind vertex buffer
 		bindQuadVertexBuffer();
 
@@ -311,6 +315,7 @@ Renderer::Renderer(int width, int height) {
 		r->createRenderTarget();
 		r->createConstantBuffers();
 		r->createQuadVertexBuffer();
+		r->createRasterizationStates();
 		m_shadowMapper.initiate();
 		r->m_isLoaded = true;
 	}
@@ -390,7 +395,8 @@ LONG Renderer::getWindowHeight() const {
 void Renderer::initalize(HWND window) {}
 
 void Renderer::beginFrame() {
-	m_deviceContext->RSSetState(0);
+	// Set standard rasterizer
+	setRasterizer_backfaceCulling();
 
 	// Bind rendertarget
 	m_deviceContext.Get()->OMSetRenderTargets(
@@ -665,4 +671,41 @@ void Renderer::createBlendState() {
 	HRESULT hr2 =
 		m_device->CreateBlendState(&blendStateDesc, m_blendStateAlphaBlending.GetAddressOf());
 	disableAlphaBlending();
+}
+
+void Renderer::createRasterizationStates() {
+
+	//typedef struct D3D11_RASTERIZER_DESC {
+	//	D3D11_FILL_MODE FillMode;	// Default: D3D11_FILL_SOLID
+	//	D3D11_CULL_MODE CullMode;	// Default: D3D11_CULL_BACK
+	//	BOOL FrontCounterClockwise; // Default: false
+	//	INT DepthBias;				// Default: 0
+	//	FLOAT DepthBiasClamp;		// Default: 0.0f
+	//	FLOAT SlopeScaledDepthBias; // Default: 0.0f
+	//	BOOL DepthClipEnable;		// Default: true
+	//	BOOL ScissorEnable;			// Default: false
+	//	BOOL MultisampleEnable;		// Default: false
+	//	BOOL AntialiasedLineEnable; // Default: false
+	//} D3D11_RASTERIZER_DESC;
+
+	D3D11_RASTERIZER_DESC desc_backface;
+	ZeroMemory(&desc_backface, sizeof(D3D11_RASTERIZER_DESC));
+	desc_backface.FillMode = D3D11_FILL_SOLID;
+	desc_backface.CullMode = D3D11_CULL_BACK;
+	desc_backface.DepthClipEnable = true;
+	HRESULT hr = m_device->CreateRasterizerState(&desc_backface, m_raster_backfaceCulling.GetAddressOf());
+	if (FAILED(hr))
+		ErrorLogger::logError(
+			"Failed creating rasterizer (backfaceCulling) in Renderer class!\n", hr);
+
+	D3D11_RASTERIZER_DESC desc_noCulling;
+	ZeroMemory(&desc_noCulling, sizeof(D3D11_RASTERIZER_DESC));
+	desc_noCulling.FillMode = D3D11_FILL_SOLID;
+	desc_noCulling.CullMode = D3D11_CULL_NONE;
+	desc_noCulling.DepthClipEnable = true;
+	hr = m_device->CreateRasterizerState(&desc_noCulling, m_raster_noCulling.GetAddressOf());
+	if (FAILED(hr))
+		ErrorLogger::logError(
+			"Failed creating rasterizer (noCulling) in Renderer class!\n", hr);
+
 }

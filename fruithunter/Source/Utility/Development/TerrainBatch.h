@@ -1,5 +1,6 @@
 #pragma once
 #include "Terrain.h"
+#include "GrassManager.h"
 
 /*
  * Manages external factors to Terrain
@@ -9,6 +10,8 @@ private:
 	float3 m_wind;
 	AreaTag m_tag = AreaTag::Plains;
 	int m_fruitSpawn[NR_OF_FRUITS]{ 0 };
+
+	GrassManager m_grass;
 
 public:
 	Environment(string filename = "", string textures[4] = nullptr, XMINT2 subsize = XMINT2(0, 0),
@@ -27,6 +30,9 @@ public:
 
 	void loadFromBinFile(string path);
 	void storeToBinFile(string path);
+
+	void quadtreeCull_grass(const vector<FrustumPlane>& planes);
+	void draw_grass();
 
 };
 
@@ -57,6 +63,7 @@ public:
 	void draw();
 	void draw_brush(const Terrain::Brush& brush);
 	void draw_onlyMesh();
+	void draw_grass();
 
 	void editMesh(const Terrain::Brush& brush, Terrain::Brush::Type type);
 	void editMesh_pop();

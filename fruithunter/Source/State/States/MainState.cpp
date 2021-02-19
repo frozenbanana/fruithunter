@@ -162,21 +162,6 @@ void MainState::update() {
 	if (arrow.get() != nullptr)
 		SceneManager::getScene()->addArrow(arrow);// add shot arrow to array
 
-	// arrow collision
-	QuadTree<shared_ptr<Entity>>* entities = &SceneManager::getScene()->m_entities;
-	for (size_t i = 0; i < m_arrows.size(); i++) {
-		if (m_arrows[i]->isActive()) {
-			// !! if arrow collides with anything, then the arrow handles the behavior !!
-			// check collision with terrains and static entities
-			m_arrows[i]->collide_terrainBatch(dt, sceneManager.getScene()->m_terrains);
-			for (size_t j = 0; j < entities->size(); j++) {
-				m_arrows[i]->collide_entity(dt, *(*entities)[j]);
-			}
-		}
-		// update arrow
-		m_arrows[i]->update(dt);
-	}
-
 	// update apple behavior (run around tree)
 	float fruitAnimationCycle = 1 / 4.f + 1 / 5.f + 1 / 2.0f + 1 / 1.9f + 1 / 4.f + 1 / 2.f; // apple frame speeds, added together
 	Fruit* fruit = m_apple.get();
@@ -293,8 +278,6 @@ void MainState::draw() {
 	sceneManager.setup_shadow(&m_camera);
 	// custom shadow drawing
 	m_apple->draw_animate_onlyMesh();
-	for (size_t i = 0; i < m_arrows.size(); i++)
-		m_arrows[i]->draw_onlyMesh(float3(1.));
 	// standard shadow drawing
 	sceneManager.draw_shadow();
 
@@ -314,13 +297,9 @@ void MainState::draw() {
 	}
 	m_ps_selected.draw();
 	m_bow.draw();
-	for (size_t i = 0; i < m_arrows.size(); i++)
-		m_arrows[i]->draw();
 	// standard drawing
 	sceneManager.draw_color(&m_camera);
 	// custom drawing (without dark outline)
-	for (size_t i = 0; i < m_arrows.size(); i++)
-		m_arrows[i]->draw_trailEffect();
 
 	float menuAlpha = Clamp<float>((1 - m_cam_slider) * 2 - 1, 0, 1);
 	// Logo
@@ -415,7 +394,6 @@ void MainState::play() {
 	if (SceneManager::getScene()->m_sceneName != "intro")
 		sceneManager.load("intro");
 	m_apple = make_shared<Apple>(float3(58.0f, 10.1f, 16.9f));
-	m_arrows.clear();
 	m_timer.reset();
 
 	// menu music
