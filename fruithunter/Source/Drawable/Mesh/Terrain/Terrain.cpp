@@ -794,19 +794,10 @@ void Terrain::SubGrid::generate_grass(
 	float2 position, float2 size, size_t count, HeightmapMesh& hmMesh, float4x4 worldMatrix) {
 
 	m_straws.clear();
-	if (count > 0) {
+	if (count > 0 && hmMesh.containsValidPosition(position, size, worldMatrix)) {
 		float4x4 worldInvTraMatrix = worldMatrix.Invert().Transpose();
-
-		size_t nrOfTries = 0;
-		size_t maxTries = Clamp<int>(count * 0.15f, 1, count);
-		bool earlyQuitCheck = true;
-		Straw straw;
 		m_straws.reserve(count);
 		for (size_t i = 0; i < count; i++) {
-			if (earlyQuitCheck && nrOfTries > maxTries)
-				break; // this terrain piece is probably invalid! Early quit to increase
-					   // performance.
-			nrOfTries++;
 			float2 pos;
 			pos.x = RandomFloat(position.x, position.x + size.x);
 			pos.y = RandomFloat(position.y, position.y + size.y);
@@ -825,11 +816,11 @@ void Terrain::SubGrid::generate_grass(
 				continue; // invalid
 
 			// insert straw
+			Straw straw;
 			straw.position = float3(pos.x, height, pos.y);
 			straw.rotationY = RandomFloat(0, 2 * XM_PI);
 			straw.height = RandomFloat(0, 1);
 			m_straws.push_back(straw);
-			earlyQuitCheck = false; // this is a valid terrain piece!
 		}
 		m_straws.shrink_to_fit();
 	}
