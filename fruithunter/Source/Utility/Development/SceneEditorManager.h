@@ -56,7 +56,6 @@ private:
 	//on tranformation variables
 	int m_target = -1;
 	float3 m_target_pos;//camera
-	float3 m_target_rot;
 	float3 m_target_forward;
 	float m_target_rayDist;
 

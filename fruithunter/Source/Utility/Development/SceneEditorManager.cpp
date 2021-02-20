@@ -759,70 +759,72 @@ void SceneEditorManager::updateCameraMovement(float dt) {
 void SceneEditorManager::update_transformation(float dt) {
 	Input* ip = Input::getInstance();
 
-	// Camera properties
-	float3 point = m_camera.getPosition();
-	float3 direction = m_camera.getForward();
-
 	// Handle transformation
 	if (m_transformable != nullptr) {
+		// Camera transformation (+mouse when released)
+		float3 cam_position = m_camera.getPosition();
+		float3 cam_forward = m_camera.getForward();
+		if (ip->getMouseMode() == DirectX::Mouse::MODE_ABSOLUTE) {
+			// x coordinate is backwards!! Not because of mouse position but rather
+			// getMousePickVector return
+			float2 mpos =
+				float2(1 - (float)ip->mouseX() / SCREEN_WIDTH, (float)ip->mouseY() / SCREEN_HEIGHT);
+			cam_forward = m_camera.getMousePickVector(mpos);
+		}
+
 		// target transform option
 		if (ip->mousePressed(m_key_target)) {
 			// ray cast
 			if (m_transformState == Edit_Translate) {
 				float t_min = -1;
 				for (size_t i = 0; i < 3; i++) {
-					float t = m_arrow[i].castRay(point, direction);
+					float t = m_arrow[i].castRay(cam_position, cam_forward);
 					if (t != -1 && (t_min == -1 || t < t_min)) {
 						t_min = t;
 						m_target = i;
 					}
 				}
-				float t = m_centerOrb.castRay(point, direction);
+				float t = m_centerOrb.castRay(cam_position, cam_forward);
 				if (t != -1 && (t_min == -1 || t < t_min)) {
 					t_min = t;
 					m_target = 4; // center orb
 					m_target_pos = m_camera.getPosition();
 				}
-				m_target_pos = m_camera.getPosition();
-				m_target_rot = m_camera.getRotation();
-				m_target_forward = m_camera.getForward();
+				m_target_pos = cam_position;
+				m_target_forward = cam_forward;
 				m_target_rayDist = t_min;
 			}
 			else if (m_transformState == Edit_Rotation) {
 				float t_min = -1;
 				for (size_t i = 0; i < 3; i++) {
-					float t = m_torus[i].castRay(point, direction);
+					float t = m_torus[i].castRay(cam_position, cam_forward);
 					if (t != -1 && (t_min == -1 || t < t_min)) {
 						t_min = t;
 						m_target = i;
 					}
 				}
-				m_target_pos = m_camera.getPosition();
-				m_target_rot = m_camera.getRotation();
-				m_target_forward = m_camera.getForward();
+				m_target_pos = cam_position;
+				m_target_forward = cam_forward;
 				m_target_rayDist = t_min;
 			}
 			else if (m_transformState == Edit_Scaling) {
-				float t = m_scaling_torus.castRay(point, direction);
+				float t = m_scaling_torus.castRay(cam_position, cam_forward);
 				if (t != -1) {
 					m_target = 4; // center orb
-					m_target_pos = m_camera.getPosition();
+					m_target_pos = cam_position;
 				}
-				m_target_pos = m_camera.getPosition();
-				m_target_rot = m_camera.getRotation();
-				m_target_forward = m_camera.getForward();
+				m_target_pos = cam_position;
+				m_target_forward = cam_forward;
 				m_target_rayDist = t;
 			}
 		}
 		else if (ip->mouseDown(m_key_target) && m_target != -1) {
-			float3 posDiff = m_camera.getPosition() - m_target_pos;
-			float3 rotDiff = m_camera.getRotation() - m_target_rot;
-			float3 forwardDiff = m_camera.getForward() - m_target_forward;
+			float3 posDiff = cam_position - m_target_pos;
+			float3 forwardDiff = cam_forward - m_target_forward;
 			float3 target_forward = m_target_forward;
 			float3 target_pos = m_target_pos;
-			m_target_pos = m_camera.getPosition();
-			m_target_rot = m_camera.getRotation();
-			m_target_forward = m_camera.getForward();
+			m_target_pos = cam_position;
+			m_target_forward = cam_forward;
 			if (m_transformState == Edit_Translate) {
 				if (m_target == 4) { // center orb
 					// change from position
@@ -869,7 +871,7 @@ void SceneEditorManager::update_transformation(float dt) {
 			}
 			else if (m_transformState == Edit_Scaling) {
 				float3 oldPoint = target_pos + target_forward * m_target_rayDist;
-				float3 point = m_camera.getPosition() + m_camera.getForward() * m_target_rayDist;
+				float3 point = cam_position + cam_forward * m_target_rayDist;
 				float3 pointDiff = point - oldPoint;
 				float scale = (m_transformable->getPosition() - point).Length() /
 							  (m_transformable->getPosition() - oldPoint).Length();
