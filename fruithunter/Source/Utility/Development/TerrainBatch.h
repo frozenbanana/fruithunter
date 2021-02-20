@@ -1,6 +1,5 @@
 #pragma once
 #include "Terrain.h"
-#include "GrassManager.h"
 
 /*
  * Manages external factors to Terrain

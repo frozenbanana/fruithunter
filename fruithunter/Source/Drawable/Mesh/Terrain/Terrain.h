@@ -16,7 +16,7 @@ private:
 	const int TEX_NOISE_SLOT = 0;
 	const int CBUFFER_ANIMATION_SLOT = 6;
 	const int CBUFFER_NOISESIZE_SLOT = 9;
-	const int STRAW_PER_AREAUNIT = 120;
+	const int STRAW_PER_AREAUNIT = 90;
 
 	// Grass Settings
 	bool m_grass_visibility = false;
