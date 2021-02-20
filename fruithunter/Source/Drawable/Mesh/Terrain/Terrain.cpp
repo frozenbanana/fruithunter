@@ -156,7 +156,7 @@ void Terrain::loadFromFile_binary(fstream& file) {
 	// grid size
 	file.read((char*)&m_gridSize, sizeof(XMINT2));
 	// heightmap points
-	m_heightmapMesh.loadFromFile_binary(file, getGridPointSize());
+	m_heightmapMesh.loadFromFile_binary(file);
 	// generate mesh
 	fillSubMeshes();
 }
