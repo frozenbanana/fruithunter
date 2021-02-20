@@ -60,6 +60,8 @@ public:
 
 	float castRay(float3 pointStart, float3 pointEnd);
 
+	bool containsValidPosition(float2 point, float2 size, float4x4 worldMatrix);
+
 	bool editMesh(const Brush& brush, Brush::Type type, float dt, float4x4 matWorld);
 	void editMesh_push();
 	bool editMesh_pop();

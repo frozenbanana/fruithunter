@@ -385,6 +385,33 @@ float HeightmapMesh::castRay(float3 startPoint, float3 endPoint) {
 	return -1;
 }
 
+bool HeightmapMesh::containsValidPosition(float2 point, float2 size, float4x4 worldMatrix) { 
+	float4x4 worldInvTraMatrix = worldMatrix.Invert().Transpose();
+	float2 fsize(m_gridPointSize.x - 1, m_gridPointSize.y - 1);
+	XMINT2 isize(fsize.x, fsize.y);
+	// point1
+	float2 fpoint1 = point * fsize;
+	XMINT2 ipoint1 = XMINT2(floor(fpoint1.x), floor(fpoint1.y));
+	ipoint1 = XMINT2(
+		Clamp<int>(ipoint1.x, 0, isize.x), Clamp<int>(ipoint1.y, 0, isize.y)); // clamp to grid
+	//point2
+	float2 fpoint2 = (point + size) * fsize;
+	XMINT2 ipoint2 = XMINT2(ceil(fpoint2.x), ceil(fpoint2.y));
+	ipoint2 = XMINT2(
+		Clamp<int>(ipoint2.x, 0, isize.x), Clamp<int>(ipoint2.y, 0, isize.y)); // clamp to grid
+	// check vertices between points
+	for (size_t xx = ipoint1.x; xx <= ipoint2.x; xx++) {
+		for (size_t yy = ipoint1.y; yy < ipoint2.y; yy++) {
+			float3 wPosition = float3::Transform(m_gridPoints[xx][yy].position, worldMatrix);
+			float3 wNormal = Normalize(float3::Transform(m_gridPoints[xx][yy].normal, worldInvTraMatrix));
+			// flat ground and above water
+			if (wPosition.y > 1 && wNormal.Dot(float3(0, 1, 0)) > 0.7f)
+				return true;
+		}
+	}
+	return false;
+}
+
 bool HeightmapMesh::editMesh(const Brush& brush, Brush::Type type, float dt, float4x4 matWorld) {
 	float b_wRadius = brush.radius;
 	float3 b_wPosition = brush.position;
