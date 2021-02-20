@@ -73,6 +73,15 @@
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_FXAA.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\VertexShader_grass.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\GeometryShader_grass.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_grass.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp">
@@ -296,6 +305,9 @@
     </ClCompile>
     <ClCompile Include="Source\Utility\UI\Menu_PoppingArrowButton.cpp">
       <Filter>Source\Utility\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Drawable\Mesh\Terrain\HeightmapMesh.cpp">
+      <Filter>Source\Drawable\Mesh\Terrain</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -541,6 +553,9 @@
     </ClInclude>
     <ClInclude Include="Source\Utility\UI\Menu_PoppingArrowButton.h">
       <Filter>Source\Utility\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\Mesh\Terrain\HeightmapMesh.h">
+      <Filter>Source\Drawable\Mesh\Terrain</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

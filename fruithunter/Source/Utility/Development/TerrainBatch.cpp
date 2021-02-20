@@ -94,7 +94,7 @@ void TerrainBatch::draw() {
 		m_terrains[i]->draw();
 }
 
-void TerrainBatch::draw_brush(const Terrain::Brush& brush) {
+void TerrainBatch::draw_brush(const Brush& brush) {
 	for (size_t i = 0; i < m_terrains.size(); i++)
 		m_terrains[i]->draw_brush(brush);
 }
@@ -104,7 +104,12 @@ void TerrainBatch::draw_onlyMesh() {
 		m_terrains[i]->draw_onlyMesh();
 }
 
-void TerrainBatch::editMesh(const Terrain::Brush& brush, Terrain::Brush::Type type) {
+void TerrainBatch::draw_grass() {
+	for (size_t i = 0; i < m_terrains.size(); i++)
+		m_terrains[i]->draw_grass();
+}
+
+void TerrainBatch::editMesh(const Brush& brush, Brush::Type type) {
 	for (size_t i = 0; i < m_terrains.size(); i++)
 		m_terrains[i]->editMesh(brush,type);
 }
@@ -131,7 +136,10 @@ Environment::Environment(
 
 void Environment::setWind(float3 wind) { m_wind = wind; }
 
-void Environment::setTag(AreaTag tag) { m_tag = tag; }
+void Environment::setTag(AreaTag tag) {
+	m_tag = tag;
+	setStrawAndAnimationSettings(tag);
+}
 
 void Environment::setFruitSpawns(int fruitSpawns[NR_OF_FRUITS]) {
 	memcpy(m_fruitSpawn, fruitSpawns, sizeof(int) * NR_OF_FRUITS);
@@ -171,6 +179,7 @@ void Environment::loadFromBinFile(string path) {
 		file.read((char*)m_fruitSpawn, sizeof(int) * NR_OF_FRUITS);
 		// terrain
 		loadFromFile_binary(file);
+		setStrawAndAnimationSettings(m_tag);
 
 		file.close();
 	}

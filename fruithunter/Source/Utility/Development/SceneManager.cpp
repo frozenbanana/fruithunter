@@ -88,6 +88,9 @@ void SceneManager::draw_color(Camera* overrideCamera) {
 
 	/* --- Things to be drawn without dark edges --- */
 
+	// terrain grass
+	scene->m_terrains.draw_grass();
+
 	// Particle Systems
 	for (size_t i = 0; i < scene->m_particleSystems.size(); i++) {
 		scene->m_particleSystems[i].draw();

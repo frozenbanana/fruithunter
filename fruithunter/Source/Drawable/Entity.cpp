@@ -71,7 +71,7 @@ void Entity::isVisible(bool state) { m_visible = state; }
 void Entity::draw(float3 color) {
 	if (m_visible) {
 		if (isMeshInitialized()) {
-			VSBindMatrix(MODEL_MATRIX_BUFFER_SLOT);
+			VSBindMatrix(MATRIX_SLOT);
 			setMaterial(m_currentMaterial);
 			m_mesh.get()->draw(color);
 		}
@@ -80,26 +80,26 @@ void Entity::draw(float3 color) {
 
 void Entity::draw_onlyMesh(float3 color) {
 	if (isMeshInitialized()) {
-		VSBindMatrix(MODEL_MATRIX_BUFFER_SLOT);
+		VSBindMatrix(MATRIX_SLOT);
 		m_mesh.get()->draw_noMaterial(color);
 	}
 }
 
 void Entity::draw_boundingBox() {
 	if (isMeshInitialized()) {
-		VSBindMatrix(MODEL_MATRIX_BUFFER_SLOT);
+		VSBindMatrix(MATRIX_SLOT);
 		m_mesh.get()->draw_BoundingBox();
 	}
 }
 
 void Entity::draw_animate(float3 color) {
-	VSBindMatrix(MODEL_MATRIX_BUFFER_SLOT);
+	VSBindMatrix(MATRIX_SLOT);
 	setMaterial(m_currentMaterial);
 	m_meshAnim.draw(color);
 }
 
 void Entity::draw_animate_onlyMesh(float3 color) {
-	VSBindMatrix(MODEL_MATRIX_BUFFER_SLOT);
+	VSBindMatrix(MATRIX_SLOT);
 	m_meshAnim.draw_onlyMesh(color);
 }
 

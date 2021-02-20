@@ -98,24 +98,23 @@ void SeaEffect::createBuffers() {
 void SeaEffect::bindConstantBuffers() {
 	auto deviceContent = Renderer::getDeviceContext();
 	// matrix
-	VSBindMatrix(WORLDMATRIX_BUFFER_SLOT);
+	VSBindMatrix(CBUFFER_MATRIX_SLOT);
 
 	// time buffer
 	deviceContent->UpdateSubresource(m_timeBuffer.Get(), 0, 0, &m_time, 0, 0);
-	deviceContent->VSSetConstantBuffers(CONSTANTBUFFER_TIME_SLOT, 1, m_timeBuffer.GetAddressOf());
-	deviceContent->PSSetConstantBuffers(CONSTANTBUFFER_TIME_SLOT, 1, m_timeBuffer.GetAddressOf());
+	deviceContent->VSSetConstantBuffers(CBUFFER_TIME_SLOT, 1, m_timeBuffer.GetAddressOf());
+	deviceContent->PSSetConstantBuffers(CBUFFER_TIME_SLOT, 1, m_timeBuffer.GetAddressOf());
 
 	// properties buffer
 	deviceContent->UpdateSubresource(m_propertiesBuffer.Get(), 0, 0, &m_properties, 0, 0);
 	deviceContent->PSSetConstantBuffers(
-		CONSTANTBUFFER_PROPERTIES_SLOT, 1, m_propertiesBuffer.GetAddressOf());
+		CBUFFER_PROPERTIES_SLOT, 1, m_propertiesBuffer.GetAddressOf());
 	deviceContent->VSSetConstantBuffers(
-		CONSTANTBUFFER_PROPERTIES_SLOT, 1, m_propertiesBuffer.GetAddressOf());
+		CBUFFER_PROPERTIES_SLOT, 1, m_propertiesBuffer.GetAddressOf());
 
 	// map sizes buffer
 	deviceContent->UpdateSubresource(m_mapSizesBuffer.Get(), 0, 0, &m_mapSizes, 0, 0);
-	deviceContent->VSSetConstantBuffers(
-		CONSTANTBUFFER_MAPSSIZES_SLOT, 1, m_mapSizesBuffer.GetAddressOf());
+	deviceContent->VSSetConstantBuffers(CBUFFER_MAPSSIZES_SLOT, 1, m_mapSizesBuffer.GetAddressOf());
 }
 
 bool SeaEffect::createResourceBuffer(string filename, ID3D11ShaderResourceView** buffer) {

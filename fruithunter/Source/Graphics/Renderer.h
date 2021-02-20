@@ -10,8 +10,6 @@
 #define SCREEN_HEIGHT Renderer::getInstance()->getScreenHeight()
 #define SCREEN_WIDTH Renderer::getInstance()->getScreenWidth()
 
-
-
 class Renderer {
 public:
 	enum DrawingState { state_normal, state_shadow };
@@ -47,6 +45,9 @@ public:
 	void bindRenderAndDepthTarget();
 	void bindRenderTarget();
 
+	void setRasterizer_backfaceCulling();
+	void setRasterizer_noCulling();
+
 	void captureFrame();
 
 	void drawCapturedFrame();
@@ -71,6 +72,7 @@ private:
 	void createConstantBuffers();
 	void createQuadVertexBuffer();
 	void createBlendState();
+	void createRasterizationStates();
 
 	static Renderer m_this;
 	bool m_isLoaded = false;
@@ -97,6 +99,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthDSV;	 // Depth stencil view
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthDSS;	 // Depth stencil state
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthSRV; // Depth shader resource view
+
+	//Rasterizer
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_raster_backfaceCulling;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_raster_noCulling;
 
 	//buffer
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_screenSizeBuffer;

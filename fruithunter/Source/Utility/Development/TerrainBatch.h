@@ -27,7 +27,6 @@ public:
 
 	void loadFromBinFile(string path);
 	void storeToBinFile(string path);
-
 };
 
 /*
@@ -55,10 +54,11 @@ public:
 	void quadtreeCull(const vector<FrustumPlane>& planes);
 
 	void draw();
-	void draw_brush(const Terrain::Brush& brush);
+	void draw_brush(const Brush& brush);
 	void draw_onlyMesh();
+	void draw_grass();
 
-	void editMesh(const Terrain::Brush& brush, Terrain::Brush::Type type);
+	void editMesh(const Brush& brush, Brush::Type type);
 	void editMesh_pop();
 	void editMesh_push();
 

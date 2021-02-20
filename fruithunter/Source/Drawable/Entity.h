@@ -7,10 +7,10 @@
 #include "Transformation.h"
 #include "Fragment.h"
 
-#define MODEL_MATRIX_BUFFER_SLOT 0
-
 class Entity : public Transformation, public Fragment {
 private:
+	const int MATRIX_SLOT = 0;
+
 	shared_ptr<Mesh> m_mesh;
 	bool m_visible = true;
 

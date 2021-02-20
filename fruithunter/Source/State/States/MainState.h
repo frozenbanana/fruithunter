@@ -51,7 +51,6 @@ private:
 	float m_bowHoldTime = 2;  // bow holds in x seconds before firing
 	float m_shootDelay = 2.5; // wait x seconds after shot
 	Bow m_bow;
-	vector<shared_ptr<Arrow>> m_arrows;
 	Menu_PoppingArrowButton m_selectionArrows[2]; // 0 = left, 1 = right
 
 	SceneManager sceneManager;

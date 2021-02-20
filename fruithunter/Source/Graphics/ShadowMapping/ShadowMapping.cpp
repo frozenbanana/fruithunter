@@ -71,6 +71,7 @@ void ShadowMapper::bindVPTBuffer() {
 
 	// bind
 	deviceContext->VSSetConstantBuffers(MATRIX_VPT_SLOT, 1, m_matrixVPTBuffer.GetAddressOf());
+	deviceContext->GSSetConstantBuffers(MATRIX_VPT_SLOT, 1, m_matrixVPTBuffer.GetAddressOf());
 }
 
 void ShadowMapper::bindCameraBuffer() {

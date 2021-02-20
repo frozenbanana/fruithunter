@@ -1,9 +1,6 @@
 #pragma once
 #include "GlobalNamespaces.h"
 
-#define MATRIX_SLOT 1
-#define CBUFFER_POS_SLOT 9
-
 class Camera {
 public:
 	Camera();
@@ -36,6 +33,8 @@ public:
 	void bind();
 
 protected:
+	const int MATRIX_SLOT = 1;
+	const int CBUFFER_POS_SLOT = 9;
 	const float DEFAULT_FOV = XM_PI / 2.5f;
 	struct ViewPerspectiveBuffer {
 		float4x4 mView;

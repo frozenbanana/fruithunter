@@ -203,7 +203,7 @@ void Mesh::bindColorBuffer(float3 color) {
 	// update color buffer
 	float4 data = float4(color.x, color.y, color.z, 1.0);
 	deviceContext->UpdateSubresource(m_colorBuffer.Get(), 0, 0, &data, 0, 0);
-	deviceContext->PSSetConstantBuffers(COLOR_BUFFER_SLOT, 1, m_colorBuffer.GetAddressOf());
+	deviceContext->PSSetConstantBuffers(COLOR_SLOT, 1, m_colorBuffer.GetAddressOf());
 }
 
 void Mesh::drawCall_all() { Renderer::draw((UINT)m_meshVertices.size(), 0); }
@@ -213,7 +213,7 @@ void Mesh::drawCall_perMaterial() {
 		for (size_t j = 0; j < m_parts[i].materialUsage.size(); j++) {
 			int materialIndex = m_parts[i].materialUsage[j].materialIndex;
 			if (materialIndex != -1) {
-				m_materials[m_currentMaterial][materialIndex].bind(MATERIAL_BUFFER_SLOT);
+				m_materials[m_currentMaterial][materialIndex].bind(MATERIAL_SLOT);
 				int count = m_parts[i].materialUsage[j].count;
 				int index = m_parts[i].materialUsage[j].index;
 				Renderer::draw(count, index);

@@ -5,16 +5,16 @@
 #include "Transformation.h"
 #include "Fragment.h"
 
-#define WORLDMATRIX_BUFFER_SLOT 0
-#define CONSTANTBUFFER_TIME_SLOT 2
-#define CONSTANTBUFFER_PROPERTIES_SLOT 3
-#define CONSTANTBUFFER_MAPSSIZES_SLOT 4
-
 class SeaEffect : public Transformation, public Fragment {
 public:
 	enum SeaEffectTypes { water, lava, Count };
 
 private:
+	const int CBUFFER_MATRIX_SLOT = 0;
+	const int CBUFFER_TIME_SLOT = 2;
+	const int CBUFFER_PROPERTIES_SLOT = 3;
+	const int CBUFFER_MAPSSIZES_SLOT = 4;
+
 	struct SubWaterGrid {
 	private:
 		vector<Vertex> m_vertices;

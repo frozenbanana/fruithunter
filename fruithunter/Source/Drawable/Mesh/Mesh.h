@@ -2,14 +2,14 @@
 #include "MeshHandler.h"
 #include "ShaderSet.h"
 
-#define COLOR_BUFFER_SLOT 8
-#define MATERIAL_BUFFER_SLOT 2
-
 class Mesh {
 public:
 	enum BoxIntersection { OutsideMiss = 0, OutsideHit = 1, InsideHit = 2 };
 
 private:
+	const int COLOR_SLOT = 8;
+	const int MATERIAL_SLOT = 2;
+
 	static ShaderSet m_shaderObject;
 	static ShaderSet m_shaderObject_onlyMesh;
 

@@ -83,7 +83,7 @@ private:
 	} m_editorTabActive = EditorTab::Library;
 
 	// terrain brush
-	Terrain::Brush m_terrainBrush;
+	Brush m_terrainBrush;
 	Keyboard::Keys m_terrainEditor_btn_strengthScroll = Keyboard::LeftShift;
 	Keyboard::Keys m_terrainEditor_btn_undo = Keyboard::Z;
 	Input::MouseButton m_terrainEditor_btn_lower = Input::MouseButton::RIGHT;
