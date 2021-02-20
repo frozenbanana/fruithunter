@@ -45,3 +45,6 @@ totem
 FenceNoEnd
 Fence
 picnicBlanket
+CreditsSign1
+CreditsSign2
+CreditsSign3
