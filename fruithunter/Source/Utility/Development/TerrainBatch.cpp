@@ -85,10 +85,8 @@ void TerrainBatch::clearCulling() {
 }
 
 void TerrainBatch::quadtreeCull(const vector<FrustumPlane>& planes) {
-	for (size_t i = 0; i < m_terrains.size(); i++) {
+	for (size_t i = 0; i < m_terrains.size(); i++)
 		m_terrains[i]->quadtreeCull(planes);
-		m_terrains[i]->quadtreeCull_grass(planes);
-	}
 }
 
 void TerrainBatch::draw() {
@@ -96,7 +94,7 @@ void TerrainBatch::draw() {
 		m_terrains[i]->draw();
 }
 
-void TerrainBatch::draw_brush(const Terrain::Brush& brush) {
+void TerrainBatch::draw_brush(const Brush& brush) {
 	for (size_t i = 0; i < m_terrains.size(); i++)
 		m_terrains[i]->draw_brush(brush);
 }
@@ -111,7 +109,7 @@ void TerrainBatch::draw_grass() {
 		m_terrains[i]->draw_grass();
 }
 
-void TerrainBatch::editMesh(const Terrain::Brush& brush, Terrain::Brush::Type type) {
+void TerrainBatch::editMesh(const Brush& brush, Brush::Type type) {
 	for (size_t i = 0; i < m_terrains.size(); i++)
 		m_terrains[i]->editMesh(brush,type);
 }
@@ -140,7 +138,7 @@ void Environment::setWind(float3 wind) { m_wind = wind; }
 
 void Environment::setTag(AreaTag tag) {
 	m_tag = tag;
-	m_grass.setStrawAndAnimationSettings(tag);
+	setStrawAndAnimationSettings(tag);
 }
 
 void Environment::setFruitSpawns(int fruitSpawns[NR_OF_FRUITS]) {
@@ -181,7 +179,7 @@ void Environment::loadFromBinFile(string path) {
 		file.read((char*)m_fruitSpawn, sizeof(int) * NR_OF_FRUITS);
 		// terrain
 		loadFromFile_binary(file);
-		m_grass.init(*this, m_tag);
+		setStrawAndAnimationSettings(m_tag);
 
 		file.close();
 	}
@@ -209,9 +207,3 @@ void Environment::storeToBinFile(string path) {
 		ErrorLogger::logError(
 			"(Environment) Failed saving environment to file! path: " + path, HRESULT());
 }
-
-void Environment::quadtreeCull_grass(const vector<FrustumPlane>& planes) {
-	m_grass.quadtreeCull(planes);
-}
-
-void Environment::draw_grass() { m_grass.draw(); }

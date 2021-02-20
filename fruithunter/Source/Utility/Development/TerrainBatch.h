@@ -11,8 +11,6 @@ private:
 	AreaTag m_tag = AreaTag::Plains;
 	int m_fruitSpawn[NR_OF_FRUITS]{ 0 };
 
-	GrassManager m_grass;
-
 public:
 	Environment(string filename = "", string textures[4] = nullptr, XMINT2 subsize = XMINT2(0, 0),
 		XMINT2 splits = XMINT2(1, 1), float3 wind = float3(0.f, 0.f, 0.f),
@@ -30,10 +28,6 @@ public:
 
 	void loadFromBinFile(string path);
 	void storeToBinFile(string path);
-
-	void quadtreeCull_grass(const vector<FrustumPlane>& planes);
-	void draw_grass();
-
 };
 
 /*
@@ -61,11 +55,11 @@ public:
 	void quadtreeCull(const vector<FrustumPlane>& planes);
 
 	void draw();
-	void draw_brush(const Terrain::Brush& brush);
+	void draw_brush(const Brush& brush);
 	void draw_onlyMesh();
 	void draw_grass();
 
-	void editMesh(const Terrain::Brush& brush, Terrain::Brush::Type type);
+	void editMesh(const Brush& brush, Brush::Type type);
 	void editMesh_pop();
 	void editMesh_push();
 

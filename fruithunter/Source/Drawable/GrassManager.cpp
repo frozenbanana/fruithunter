@@ -39,9 +39,10 @@ void GrassManager::GrassPatch::generate(
 			float2 pos;
 			pos.x = RandomFloat(position.x, position.x + size.x);
 			pos.y = RandomFloat(position.y, position.y + size.y);
-			float height = terrain.getLocalHeightFromUV(pos);
-			float3 lpos = float3(pos.x, height, pos.y);
+			float3 lpos = float3(pos.x, 0, pos.y);
 			float3 wpos = float3::Transform(lpos, terrain.getMatrix());
+			float height = terrain.getHeightFromPosition(wpos.x, wpos.z);
+			wpos.y = height;
 
 			// check if valid position
 			// above water
@@ -208,9 +209,6 @@ void GrassManager::bindNoiseTexture(size_t slot) {
 }
 
 void GrassManager::draw() {
-	imgui_settings();
-	imgui_animation();
-
 	if (m_visibility) {
 		// straw setting cbuffer
 		update_strawBuffer();

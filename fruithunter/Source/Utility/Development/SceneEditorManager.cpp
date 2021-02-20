@@ -1252,11 +1252,11 @@ void SceneEditorManager::update() {
 			scene->m_terrains.editMesh_push(); // autosave before editing
 		}
 		if (ip->mouseDown(m_terrainEditor_btn_raise))
-			scene->m_terrains.editMesh(m_terrainBrush, Terrain::Brush::Type::Raise);
+			scene->m_terrains.editMesh(m_terrainBrush, Brush::Type::Raise);
 		if (ip->mouseDown(m_terrainEditor_btn_lower))
-			scene->m_terrains.editMesh(m_terrainBrush, Terrain::Brush::Type::Lower);
+			scene->m_terrains.editMesh(m_terrainBrush, Brush::Type::Lower);
 		if (ip->mouseDown(m_terrainEditor_btn_flatten))
-			scene->m_terrains.editMesh(m_terrainBrush, Terrain::Brush::Type::Flatten);
+			scene->m_terrains.editMesh(m_terrainBrush, Brush::Type::Flatten);
 		// undo mesh
 		if (ip->keyPressed(m_terrainEditor_btn_undo)) {
 			scene->m_terrains.editMesh_pop();
