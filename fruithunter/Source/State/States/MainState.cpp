@@ -311,12 +311,13 @@ void MainState::draw() {
 	}
 	m_ps_selected.draw();
 	m_bow.draw();
-	Renderer::getInstance()->enableAlphaBlending();
-	m_obj_creditsSign.draw();
-	Renderer::getInstance()->disableAlphaBlending();
 	// standard drawing
 	sceneManager.draw_color(&m_camera);
 	// custom drawing (without dark outline)
+
+	Renderer::getInstance()->enableAlphaBlending();
+	m_obj_creditsSign.draw();
+	Renderer::getInstance()->disableAlphaBlending();
 
 	float source_alpha = Clamp<float>((1 - m_stateSwitchFactor) * 2 - 1, 0, 1);
 	float dest_alpha = Clamp<float>(m_stateSwitchFactor * 2 - 1, 0, 1);
