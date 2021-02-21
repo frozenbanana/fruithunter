@@ -18,12 +18,24 @@ private:
 
 	// Scene variables
 	Camera m_camera;
-	float m_cam_slider = 0;
-	float3 m_cam_pos_menu = float3(58.0f, 10.9f, 21.9f);
-	float3 m_cam_pos_levelSelect = float3(65.753, 9.530 + 1.25, 20.849);
-	float3 m_cam_target_menu = float3(61.3f, 10.1f, -36.0f);
-	float3 m_cam_target_levelSelect =
-		float3(66.960, 9.530-0.35, 19.784);
+	enum MainStateType { Menu, LevelSelect, Credits, NR_OF_STATES } m_mainState = Menu, m_stateTarget = Menu;
+	float m_stateSwitchTime = 1; // time in seconds to switch state
+	float m_stateSwitchFactor = 0;
+	bool m_stateSwitching = false;
+	struct CamTransformState {
+		float3 position, target;
+		CamTransformState(float3 _position, float3 _target) {
+			position = _position;
+			target = _target;
+		}
+	};
+	CamTransformState m_camTransformStates[NR_OF_STATES] = {
+		CamTransformState(float3(58.0f, 10.9f, 21.9f), float3(61.3f, 10.1f, -36.0f)),
+		CamTransformState(
+			float3(65.753, 9.530 + 1.25, 20.849), float3(66.960, 9.530 - 0.35, 19.784)),
+		CamTransformState(float3(50.154, 9.491 + 1.5, 21.472), float3(47.025, 9.490 + 1, 15.558))
+	};
+
 	float m_totalDelta = 0.f;
 	shared_ptr<Apple> m_apple;
 
@@ -53,15 +65,11 @@ private:
 	Bow m_bow;
 	Menu_PoppingArrowButton m_selectionArrows[2]; // 0 = left, 1 = right
 
+	Entity m_obj_creditsSign;
+
 	SceneManager sceneManager;
 
 	SceneAbstactContent m_levelData[3];
-
-	enum MenuState {
-		Menu = -1,
-		LevelSelect = 1 
-	} m_menuState = Menu;
-	float m_stateSwitchTime = 1; // time in seconds to switch state
 
 	// Logo
 	struct LogoLetter {
@@ -77,19 +85,23 @@ private:
 		btn_editor,
 		btn_length
 	};
-	Menu_PoppingButton m_btn_buttons[btn_length];
-	Menu_PoppingButton m_btn_credits;
-	Menu_PoppingButton m_btn_back;
-	Menu_PoppingButton m_btn_play;
+	Menu_PoppingButton m_btn_menu_buttons[btn_length];
+	Menu_PoppingButton m_btn_menu_credits;
+	Menu_PoppingButton m_btn_levelSelect_back;
+	Menu_PoppingButton m_btn_levelSelect_play;
+	Menu_PoppingButton m_btn_credits_back;
 
 	SoundID m_menuMusic = 0;
 
 	void setButtons_menu();
 	void setButtons_levelSelect();
+	void setButtons_credits();
 
 	static string asTimer(size_t seconds);
 
 	void changeToLevel(size_t levelIndex);
+
+	void changeMainState(MainStateType state);
 
 public:
 	MainState();
