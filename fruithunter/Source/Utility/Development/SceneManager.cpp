@@ -47,11 +47,6 @@ void SceneManager::draw_color(Camera* overrideCamera) {
 	// Bow
 	scene->m_player->draw();
 
-	// Fruits
-	for (int i = 0; i < scene->m_fruits.size(); i++) {
-		scene->m_fruits[i]->draw_fruit();
-	}
-
 	// Animals
 	for (size_t i = 0; i < scene->m_animals.size(); ++i) {
 		scene->m_animals[i]->draw();
@@ -87,6 +82,11 @@ void SceneManager::draw_color(Camera* overrideCamera) {
 	Renderer::getInstance()->draw_darkEdges();
 
 	/* --- Things to be drawn without dark edges --- */
+
+	// Fruits
+	for (int i = 0; i < scene->m_fruits.size(); i++) {
+		scene->m_fruits[i]->draw_fruit();
+	}
 
 	// terrain grass
 	scene->m_terrains.draw_grass();
