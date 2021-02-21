@@ -142,7 +142,7 @@ void PauseState::restart() {}
 void PauseState::draw() {
 	Renderer::getInstance()->beginFrame();
 	Renderer::getInstance()->drawCapturedFrame();
-	m_settingsBackground.drawNoScaling();
+	m_settingsBackground.draw();
 
 	for (size_t i = 0; i < 4; i++) {
 		m_dropFruits[i].draw();

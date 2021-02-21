@@ -14,15 +14,15 @@ Sprite2D::Sprite2D() {
 
 Sprite2D::~Sprite2D() {}
 
-void Sprite2D::draw() {
-	if (m_textures.size() > 0) {
+void Sprite2D::draw(bool autoAdjustToScreenResolution) {
+	if (m_textures.size() > 0 && m_textures[0].isLoaded()) {
 		size_t texIndex = (size_t)((clock() / 1000.f) / m_animationSpeed) % m_textures.size();
 
 		m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
 
 		float2 screenModifier = float2((SCREEN_WIDTH / 1280.f), (SCREEN_HEIGHT / 720.f));
 		float2 position = m_position * screenModifier;
-		float2 scale = m_scale * screenModifier;
+		float2 scale = m_scale * (autoAdjustToScreenResolution ? screenModifier : float2(1, 1));
 		float2 origin = float2(m_textures[texIndex].m_textureSize.x / 2.f,
 							m_textures[texIndex].m_textureSize.y / 2.f) *
 						float2((float)m_horizontalAligment, (float)m_verticalAlignment);
@@ -30,28 +30,6 @@ void Sprite2D::draw() {
 		m_spriteBatch->Draw(m_textures[texIndex].m_SRV.Get(), position, nullptr, m_color,
 			m_rotation,
 			origin, scale);
-
-		m_spriteBatch->End();
-		// Reset depth state
-		Renderer::getInstance()->getDeviceContext()->OMSetDepthStencilState(nullptr, 0);
-	}
-}
-
-void Sprite2D::drawNoScaling() {
-	if (m_textures.size() > 0) {
-		size_t texIndex = (size_t)((clock() / 1000.f) / m_animationSpeed) % m_textures.size();
-
-		m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
-
-		float2 screenModifier = float2((SCREEN_WIDTH / 1280.f), (SCREEN_HEIGHT / 720.f));
-		float2 position = m_position * screenModifier;
-		float2 scale = m_scale;
-		float2 origin = float2(m_textures[texIndex].m_textureSize.x / 2.f,
-							m_textures[texIndex].m_textureSize.y / 2.f) *
-						float2((float)m_horizontalAligment, (float)m_verticalAlignment);
-
-		m_spriteBatch->Draw(m_textures[texIndex].m_SRV.Get(), position, nullptr, m_color,
-			m_rotation, origin, scale);
 
 		m_spriteBatch->End();
 		// Reset depth state
@@ -176,8 +154,11 @@ bool Sprite2D::SpriteTexture::load(string path) {
 		tex->GetDesc(&texDesc);
 
 		m_textureSize = XMINT2(texDesc.Width, texDesc.Height);
+		m_loaded = true;
 		return true;
 	}
 	resource.Reset();
 
 }
+
+bool Sprite2D::SpriteTexture::isLoaded() const { return m_loaded; }

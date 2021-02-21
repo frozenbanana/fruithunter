@@ -77,7 +77,7 @@ static string Time2DisplayableString(size_t time) {
 	size_t total = time;
 	size_t minutes = total / 60;
 	size_t seconds = total % 60;
-	return (minutes < 10 ? "0" : "") + to_string(minutes) + "." + (seconds < 10 ? "0" : "") +
+	return (minutes < 10 ? "0" : "") + to_string(minutes) + ":" + (seconds < 10 ? "0" : "") +
 		   to_string(seconds);
 }
 

@@ -15,15 +15,17 @@ void EndRoundState::init() {
 	float width = 1280;
 	float height = 720;
 	float2 center(width / 2, height / 2);
-	m_restartButton.initialize("Try Again", center + float2(0, 50));
-	m_levelSelectButton.initialize("Back To Menu", center + float2(0,120));
+
 	m_particleSystem.load(ParticleSystem::STARS_GOLD, 10);
-	// m_particleSystem.setEmitRate(10.f);
-	m_particleSystem.setPosition(float3(0.0f, -1.f, 0.f));
 	m_timer.reset();
 	m_camera.setView(float3(0.f, 0.f, -1.0f), float3(0.f, 0.f, .0f), float3(0.f, 1.f, .0f));
 
-	m_bowl.load("Bowl");
+	m_spr_background.load("square_white.png");
+	m_spr_background.setPosition(center);
+	m_spr_background.setColor(float4(0, 0, 0, 1));
+	m_spr_background.setAlpha(0.75);
+	m_spr_background.setSize(float2(width*0.8, height*1));
+	m_spr_background.setAlignment(); // center
 
 	Renderer::getInstance()->captureFrame();
 
@@ -62,7 +64,7 @@ void EndRoundState::init() {
 			break;
 		}
 		size_t winTime = SceneManager::getScene()->getTime();
-		setTimeText("Time : " + Time2DisplayableString(winTime));
+		setTimeText("Time : " + Time2DisplayableString(winTime) + " min");
 	}
 }
 
@@ -75,13 +77,13 @@ void EndRoundState::update() {
 	m_bowlContent.rotateY(dt * 0.5f);
 	m_particleSystem.update(dt);
 
-	if (m_restartButton.update()) {
+	if (m_btn_play.update_behavior(dt)) {
 		SceneManager::getScene()->reset();
 		pop(true);
 	}
-	if (m_levelSelectButton.update()) {
+	if (m_btn_back.update_behavior(dt)) {
 		AudioController::getInstance()->flush();
-		pop(State::MainState,false);
+		pop(State::MainState, false);
 	}
 }
 
@@ -94,13 +96,16 @@ void EndRoundState::play() {
 
 	// Set the correct bowl
 	// Bowl material and content are set in Playstate handleEvent(hasWon)
-	m_bowl.setPosition(float3(0.0f, 0.0f, 0.0f));
+	m_bowl.setPosition(float3(0.0f, 0.25f, 0.0f));
 	m_bowlContent.setPosition(m_bowl.getPosition());
-	m_camera.setEye(m_bowl.getPosition() + float3(0.f, 0.7f, 1.0f));
-	m_camera.setTarget(m_bowl.getPosition() + float3(0.f,0.3f,0.f));
+	m_camera.setEye(float3(0.f, 0.9f, 1.0f));
+	m_camera.setTarget(float3(0.f,0.3f,0.f));
 
-	m_restartButton.setPosition(float2(width / 2, height / 2 + 50));
-	m_levelSelectButton.setPosition(float2(width / 2, height / 2 + 120));
+	m_particleSystem.setPosition(m_bowl.getPosition() + float3(0.0f, 0, 0.f));
+
+	m_btn_play.set(float2(float2(width/2 - 125, height - 100)), "Try Again", 0.2);
+	m_btn_back.set(float2(float2(width / 2 + 125, height - 100)), "Level Select", 0.4);
+	m_btn_back.setTextScale(0.7);
 
 	AudioController::getInstance()->play("applause", AudioController::SoundType::Effect);
 }
@@ -122,6 +127,7 @@ void EndRoundState::draw() {
 	shadowMap->setup_shadowRendering();
 	m_camera.bind();
 
+	m_spr_background.draw();
 	m_particleSystem.draw();
 	m_bowl.draw();
 	m_bowlContent.draw();
@@ -130,11 +136,12 @@ void EndRoundState::draw() {
 	float height = 720;
 	m_camera.bind();
 	m_textRenderer.setColor(Color(1., 1.f, 1.f, 1.0f));
-	m_textRenderer.draw(m_timeText, float2(width / 2, height / 2 - 125));
+	m_textRenderer.draw(m_timeText, float2(width / 2, height / 2 + 150));
 	m_textRenderer.setColor(m_victoryColor);
-	m_textRenderer.draw(m_victoryText, float2(width / 2, height / 2 - 50));
-	m_restartButton.draw();
-	m_levelSelectButton.draw();
+	m_textRenderer.draw(m_victoryText, float2(width / 2, 75));
+
+	m_btn_play.draw();
+	m_btn_back.draw();
 
 }
 
@@ -163,9 +170,13 @@ void EndRoundState::setBowl(string bowlContentEntityName, int bowlMaterial) {
 		m_bowlContent.load("BowlContent2");
 	else if (bowlContentEntityName == "scene2")
 		m_bowlContent.load("BowlContent3");
+	float scale = 0.6;
+	m_bowlContent.setScale(scale);
 
+	m_bowl.load("Bowl");
 	vector<string> bowlNames = { "bowl_gold", "bowl_silver", "bowl_bronze" };
 	m_bowl.load(bowlNames[(int)bowlMaterial]);
+	m_bowl.setScale(scale);
 }
 
 void EndRoundState::setTimeText(string text) { m_timeText = text; }

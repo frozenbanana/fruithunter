@@ -18,10 +18,12 @@ private:
 	static unique_ptr<CommonStates> m_states;
 
 	struct SpriteTexture {
+		bool m_loaded = false;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_SRV;
 		XMINT2 m_textureSize = XMINT2(0, 0);
 		string m_path = "";
 		bool load(string path);
+		bool isLoaded() const;
 	};
 	vector<SpriteTexture> m_textures;
 	HorizontalAlignment m_horizontalAligment = hLeft;
@@ -51,8 +53,7 @@ public:
 	void setColor(Color color);
 	void setAlpha(float alpha);
 
-	void draw();
-	void drawNoScaling();
+	void draw(bool autoAdjustToScreenResolution = true);
 
 	bool load(string path);
 	bool load(vector<string> paths, float animationSpeed = 1.f);

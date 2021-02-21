@@ -7,6 +7,7 @@
 #include "Timer.h"
 #include "Camera.h"
 #include "Sprite2D.h"
+#include "Menu_PoppingButton.h"
 
 class EndRoundState : public StateItem {
 private:
@@ -16,12 +17,14 @@ private:
 	string m_victoryText;
 	float4 m_victoryColor;
 	string m_timeText;
-	Button m_levelSelectButton;
-	Button m_restartButton;
 	ParticleSystem m_particleSystem;
 	Entity m_bowlContent;
 	Entity m_bowl;
 	size_t m_currentBowlContent;
+	Sprite2D m_spr_background;
+
+	Menu_PoppingButton m_btn_play;
+	Menu_PoppingButton m_btn_back;
 
 public:
 	EndRoundState();
