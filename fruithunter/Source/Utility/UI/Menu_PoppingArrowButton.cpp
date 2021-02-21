@@ -50,6 +50,12 @@ void Menu_PoppingArrowButton::set(
 	setPosition(m_startPosition);
 
 	load(direction ? "btn_arrowRight.png":"btn_arrowLeft.png");
+
+	// standard colors
+	setStandardColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
+	setHoveringColor(Color(1.f, 210.f / 255.f, 0.f));
+	setTextStandardColor(Color(1.f, 1.f, 1.f));
+	setTextHoveringColor(Color(0.f, 0.f, 0.f));
 }
 
 Menu_PoppingArrowButton::Menu_PoppingArrowButton() {}

@@ -21,6 +21,8 @@ void UI_Button::setAlpha(float alpha) {
 	m_textRenderer.setAlpha(alpha);
 }
 
+void UI_Button::setTextScale(float scale) { m_textScale = scale; }
+
 void UI_Button::setStandardColor(Color color) { m_color_standard = color; }
 
 void UI_Button::setHoveringColor(Color color) { m_color_hovering = color; }
@@ -55,7 +57,7 @@ void UI_Button::draw() {
 	m_sprite.draw();
 
 	//text
-	m_textRenderer.setScale(getScale().y * 0.5f);
+	m_textRenderer.setScale(getScale().y * 0.5f * m_textScale);
 	m_textRenderer.setRotation(getRotation());
 	m_textRenderer.draw(m_text, getPosition());
 }

@@ -18,6 +18,7 @@ private:
 
 	float m_colorChangeTime = 0.1f;
 	float m_interpolation = 0.f;
+	float m_textScale = 1.f;
 
 	Input::MouseButton m_key_activator = Input::MouseButton::LEFT;
 
@@ -31,6 +32,7 @@ public:
 	void setFont(string font);
 	void setColor(Color color);
 	void setAlpha(float alpha);
+	void setTextScale(float scale);
 
 	void setStandardColor(Color color);
 	void setHoveringColor(Color color);

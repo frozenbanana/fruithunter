@@ -87,42 +87,6 @@ void MainState::init() {
 	m_ps_selected.load(ParticleSystem::Type::LEVELSELECT_SELECTION, 30);
 	m_ps_selected.setScale(float3(0.6, 0.3, 0.6));
 
-	for (size_t i = 0; i < btn_length; i++) {
-		m_btn_menu_buttons[i].setStandardColor(Color(42.f/255.f, 165.f/255.f, 209.f/255.f));
-		m_btn_menu_buttons[i].setHoveringColor(Color(1.f, 210.f/255.f, 0.f));
-
-		m_btn_menu_buttons[i].setTextStandardColor(Color(1.f, 1.f, 1.f));
-		m_btn_menu_buttons[i].setTextHoveringColor(Color(0.f, 0.f, 0.f));
-	}
-	m_btn_menu_credits.setStandardColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
-	m_btn_menu_credits.setHoveringColor(Color(1.f, 210.f / 255.f, 0.f));
-	m_btn_menu_credits.setTextStandardColor(Color(1.f, 1.f, 1.f));
-	m_btn_menu_credits.setTextHoveringColor(Color(0.f, 0.f, 0.f));
-
-	m_btn_levelSelect_back.setStandardColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
-	m_btn_levelSelect_back.setHoveringColor(Color(1.f, 210.f / 255.f, 0.f));
-	m_btn_levelSelect_back.setTextStandardColor(Color(1.f, 1.f, 1.f));
-	m_btn_levelSelect_back.setTextHoveringColor(Color(0.f, 0.f, 0.f));
-
-	m_btn_levelSelect_play.setStandardColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
-	m_btn_levelSelect_play.setHoveringColor(Color(1.f, 210.f / 255.f, 0.f));
-	m_btn_levelSelect_play.setTextStandardColor(Color(1.f, 1.f, 1.f));
-	m_btn_levelSelect_play.setTextHoveringColor(Color(0.f, 0.f, 0.f));
-
-	m_btn_credits_back.setStandardColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
-	m_btn_credits_back.setHoveringColor(Color(1.f, 210.f / 255.f, 0.f));
-	m_btn_credits_back.setTextStandardColor(Color(1.f, 1.f, 1.f));
-	m_btn_credits_back.setTextHoveringColor(Color(0.f, 0.f, 0.f));
-
-	for (size_t i = 0; i < 2; i++) {
-		m_selectionArrows[i].setStandardColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
-		m_selectionArrows[i].setHoveringColor(Color(1.f, 210.f / 255.f, 0.f));
-
-		m_selectionArrows[i].setTextStandardColor(Color(1.f, 1.f, 1.f));
-		m_selectionArrows[i].setTextHoveringColor(Color(0.f, 0.f, 0.f));
-
-	}
-
 	m_letters.resize(11);
 	string logoPaths[11] = {
 		"fruithunter_logo_F_color.png",
