@@ -121,8 +121,6 @@ void Arrow::collided(float3 target) {
 		id, (SceneManager::getScene()->m_player->getCameraPosition() - target).Length());
 }
 
-void Arrow::draw_trailEffect() { m_trailEffect.draw(); }
-
 void Arrow::update(float dt) {
 	if (m_active) {
 		// dont update arrow position if arrow is disabled (hitting something makes it stop!)
@@ -138,23 +136,35 @@ void Arrow::update(float dt) {
 		lookAt(getPosition() + m_velocity);
 	}
 	//update trail
-	m_trailEffect.setPosition(getPosition_back());
-	m_trailEffect.update(dt); // update trail event if arrow is disabled!
+	if (m_trailEffect.get() != nullptr) {
+		m_trailEffect->setPosition(getPosition_back());
+	}
 }
 
 void Arrow::initilize(float3 frontPosition, float3 velocity) { 
 	setPosition_front(frontPosition);
 	m_velocity = velocity;
-	m_active = true;
-	m_trailEffect.emitingState(true);
+	changeState(true);
 }
 
 void Arrow::changeState(bool state) {
 	m_active = state;
-	m_trailEffect.emitingState(false);
+	if (state == true) {
+		// create trail effect when activated
+		m_trailEffect = make_shared<ParticleSystem>();
+		m_trailEffect->load(ParticleSystem::Type::ARROW_GLITTER, 5000);
+		m_trailEffect->emitingState(true);
+		SceneManager::getScene()->m_arrowParticles.push_back(m_trailEffect);
+	}
+	else {
+		// turn off trail effect (will be deleted when empty)
+		if (m_trailEffect.get() != nullptr) {
+			m_trailEffect->emitingState(false);
+			m_trailEffect.reset();
+		}
+	}
 }
 
-Arrow::Arrow() : Entity(m_model, float3(0.), float3(0.5, 0.5, 0.5)) { 
-	m_trailEffect.load(ParticleSystem::Type::ARROW_GLITTER, 25);
-	m_trailEffect.affectedByWindState(true);
-}
+Arrow::Arrow() : Entity(m_model, float3(0.), float3(0.5, 0.5, 0.5)) { }
+
+Arrow::~Arrow() { changeState(false); }

@@ -123,6 +123,7 @@ public:
 
 	// Arrows
 	vector<shared_ptr<Arrow>> m_arrows;
+	vector<shared_ptr<ParticleSystem>> m_arrowParticles;
 
 	// ParticleSystems
 	vector<ParticleSystem> m_particleSystems;

@@ -6,7 +6,7 @@ class Arrow : public Entity {
 private:
 	static const string m_model; // initilized in cpp file! 
 
-	ParticleSystem m_trailEffect;
+	shared_ptr<ParticleSystem> m_trailEffect;
 
 	float3 m_velocity = float3(0.);
 	float3 m_oldVelocity = float3(0.);
@@ -41,13 +41,12 @@ public:
 	bool collide_terrainBatch(float dt, TerrainBatch& terrains);
 	void collided(float3 target);
 
-	void draw_trailEffect();
-
 	void update(float dt);
 
 	void initilize(float3 frontPosition, float3 velocity);
 	void changeState(bool state);
 
 	Arrow();
+	~Arrow();
 
 };

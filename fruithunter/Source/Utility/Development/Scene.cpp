@@ -14,6 +14,7 @@ void Scene::clear() {
 	m_entities.clear();
 	// arrows
 	m_arrows.clear();
+	m_arrowParticles.clear();
 	// particleSystems
 	m_particleSystems.clear();
 	// animals
@@ -408,6 +409,7 @@ void Scene::reset() {
 
 	//arrows
 	m_arrows.clear(); 
+	m_arrowParticles.clear();
 	//animals
 	for (size_t i = 0; i < m_animals.size(); i++)
 		m_animals[i]->reset();

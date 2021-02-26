@@ -99,10 +99,8 @@ void SceneManager::draw_color(Camera* overrideCamera) {
 	// arrows
 	for (size_t i = 0; i < scene->m_arrows.size(); i++)
 		scene->m_arrows[i]->draw();
-
-	// arrows particleSystem
-	for (size_t i = 0; i < scene->m_arrows.size(); i++)
-		scene->m_arrows[i]->draw_trailEffect();
+	for (size_t i = 0; i < scene->m_arrowParticles.size(); i++)
+		scene->m_arrowParticles[i]->draw();
 
 	//FXAA
 	Renderer::getInstance()->draw_FXAA();
@@ -202,6 +200,15 @@ void SceneManager::update(Camera* overrideCamera) {
 			scene->m_arrows[i]->collide_scene(dt_nonSlow);
 		scene->m_arrows[i]->update(dt_nonSlow);
 	}
+	// arrow particles
+	for (size_t i = 0; i < scene->m_arrowParticles.size(); i++) {
+		scene->m_arrowParticles[i]->update(dt);
+		// remove if done (arrow should turn off particle system emiter)
+		if (scene->m_arrowParticles[i]->activeParticleCount() == 0) {
+			scene->m_arrowParticles.erase(scene->m_arrowParticles.begin()+i);
+			i--;
+		}
+	} 
 
 	// for all animals
 	for (size_t i = 0; i < scene->m_animals.size(); ++i) {

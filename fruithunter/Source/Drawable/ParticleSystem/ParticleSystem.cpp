@@ -366,19 +366,19 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		fadeInterval_end = 0.1;
 		break;
 	case ParticleSystem::ARROW_GLITTER:
-		colorVariety[0] = float4(0.88f, 0.87f, 0.81f, 1.0f);
-		colorVariety[1] = float4(0.92f, 0.89f, 0.83f, 1.0f);
-		colorVariety[2] = float4(0.87f, 0.82f, 0.80f, 1.0f);
-		size_interval = float2(0.05, 0.05);
-		timeAlive_interval = float2(0.45,0.55);
+		colorVariety[0] = float4(1.f, 1.f, 1.f, 1.0f);
+		colorVariety[1] = float4(1.f, 1.f, 1.f, 1.0f);
+		colorVariety[2] = float4(1.f, 1.f, 1.f, 1.0f);
+		size_interval = float2(0.075, 0.075);
+		timeAlive_interval = float2(0.35,0.35);
 		velocity_max = float3(0.);
 		velocity_min = float3(0.);
 		velocity_interval = float2(0.);
 		acceleration = float3(0.);
 		slowdown = 1;
 		shape = Shape::Circle;
-		fadeInterval_start = 0.1;
-		fadeInterval_end = 0.1;
+		fadeInterval_start = 0.35;
+		fadeInterval_end = 0;
 		break;
 	case ParticleSystem::CONFETTI:
 		colorVariety[0] = float4(214 / 255.f, 53 / 255.f, 53 / 255.f, 1.0f);
