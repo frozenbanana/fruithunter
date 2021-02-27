@@ -48,3 +48,4 @@ picnicBlanket
 CreditsSign1
 CreditsSign2
 CreditsSign3
+table
