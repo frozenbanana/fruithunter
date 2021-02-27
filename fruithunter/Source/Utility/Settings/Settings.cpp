@@ -5,7 +5,7 @@
 
 Settings Settings::m_this;
 
-Settings::Settings() { 
+Settings::Settings() {
 	// bind settings variables to file
 	m_settingFile.bind("Vsync:b", &m_tempContainer.vsync);
 	m_settingFile.bind("Fullscreen:b", &m_tempContainer.fullscreen);
@@ -51,13 +51,13 @@ void Settings::saveAllSetting() {
 	m_settingFile.writeFile(m_path);
 }
 
-void Settings::setVsync(bool value) { 
+void Settings::setVsync(bool value) {
 	if (m_container.vsync != value) {
 		m_container.vsync = value;
 	}
 }
 
-void Settings::setDarkEdges(bool value) { 
+void Settings::setDarkEdges(bool value) {
 	if (m_container.darkEdges != value) {
 		m_container.darkEdges = value;
 	}
@@ -76,7 +76,7 @@ void Settings::setFullscreen(bool value) {
 	}
 }
 
-void Settings::setDrawDistance(float value) { 
+void Settings::setDrawDistance(float value) {
 	if (m_container.drawDistance != value) {
 		m_container.drawDistance = value;
 	}
@@ -111,10 +111,11 @@ void Settings::setSensitivity(float value) {
 
 void Settings::setResolution(int width, int height) {
 	XMINT2 desiredResolution(width, height);
-	if (desiredResolution.x != m_container.resolution.x || desiredResolution.y != m_container.resolution.y) {
-		m_container.resolution = desiredResolution;
-		Renderer::getInstance()->changeResolution(width, height);
-	}
+	// if (desiredResolution.x != m_container.resolution.x || desiredResolution.y !=
+	// m_container.resolution.y) {
+	m_container.resolution = desiredResolution;
+	Renderer::getInstance()->changeResolution(width, height);
+	//}
 }
 
 void Settings::setShadowResolution(int res) {
