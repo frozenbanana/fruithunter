@@ -11,7 +11,7 @@ private:
 	int m_fruitSpawn[NR_OF_FRUITS]{ 0 };
 
 public:
-	Environment(string filename = "", string textures[4] = nullptr, XMINT2 subsize = XMINT2(0, 0),
+	Environment(string filename = "", XMINT2 subsize = XMINT2(0, 0),
 		XMINT2 splits = XMINT2(1, 1), float3 wind = float3(0.f, 0.f, 0.f),
 		AreaTag tag = AreaTag::Plains);
 
@@ -40,7 +40,7 @@ public:
 	size_t length() const;
 
 	void remove(size_t index);
-	void add(float3 position, float3 scale, string heightmapFilename, string textures[4], XMINT2 subSize, XMINT2 division = XMINT2(1, 1), float3 wind = float3(0.f, 0.f, 0.f), AreaTag tag = AreaTag::Plains);
+	void add(float3 position, float3 scale, string heightmapFilename, XMINT2 subSize, XMINT2 division = XMINT2(1, 1), float3 wind = float3(0.f, 0.f, 0.f), AreaTag tag = AreaTag::Plains);
 	void add(shared_ptr<Environment> environment);
 	void clear();
 	Environment* getTerrainFromPosition(float3 position);

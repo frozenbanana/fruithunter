@@ -11,10 +11,10 @@ ShaderSet Terrain::m_shader_terrain;
 ShaderSet Terrain::m_shader_terrain_brush;
 ShaderSet Terrain::m_shader_terrain_onlyMesh;
 ShaderSet Terrain::m_shader_grass;
-Microsoft::WRL::ComPtr<ID3D11SamplerState> Terrain::m_sampler;
 ConstantBuffer<Brush> Terrain::m_buffer_brush;
 ConstantBuffer<Terrain::StrawSetting> Terrain::m_cbuffer_settings;
 ConstantBuffer<Terrain::AnimationSetting> Terrain::m_cbuffer_animation;
+ConstantBuffer<Terrain::ColorBuffer> Terrain::m_cbuffer_color;
 ConstantBuffer<float4> Terrain::m_cbuffer_noiseSize;
 
 void Terrain::bindNoiseTexture(size_t slot) {
@@ -65,6 +65,33 @@ void Terrain::setStrawAndAnimationSettings(AreaTag tag) {
 	}
 }
 
+void Terrain::setColorSettings(AreaTag tag) {
+	switch (tag) {
+	case Forest:
+		m_colorBuffer.color_flat = float4(61 / 255.f, 105 / 255.f, 22 / 255.f, 1);
+		m_colorBuffer.color_tilt = float4(74 / 255.f, 65 / 255.f, 25 / 255.f, 1);
+		m_colorBuffer.intensityRange = float2(0.9, 1.1);
+		break;
+	case Plains:
+		m_colorBuffer.color_flat = float4(74 / 255.f, 106 / 255.f, 31 / 255.f, 1);
+		m_colorBuffer.color_tilt = float4(104 / 255.f, 80 / 255.f, 29 / 255.f, 1);
+		m_colorBuffer.intensityRange = float2(0.9, 1.1);
+		break;
+	case Desert:
+		m_colorBuffer.color_flat = float4(208 / 255.f, 208 / 255.f, 175 / 255.f, 1);
+		m_colorBuffer.color_tilt = float4(110 / 255.f, 110 / 255.f, 88 / 255.f, 1);
+		m_colorBuffer.intensityRange = float2(0.9, 1.1);
+		break;
+	case Volcano:
+		m_colorBuffer.color_flat = float4(51 / 255.f, 54 / 255.f, 83 / 255.f, 1);
+		m_colorBuffer.color_tilt = float4(30 / 255.f, 37 / 255.f, 66 / 255.f, 1);
+		m_colorBuffer.intensityRange = float2(0.9, 1.1);
+		break;
+	default:
+		break;
+	}
+}
+
 void Terrain::imgui_settings() {
 	if (ImGui::Begin("Straw Setting")) {
 		ImGui::SliderFloat("width", &m_grass_strawSetting.baseWidth, 0, 1);
@@ -83,28 +110,6 @@ void Terrain::imgui_animation() {
 		ImGui::SliderFloat("noiseInterval", &m_grass_animationSetting.noiseAnimInterval, 0, 50);
 		ImGui::SliderFloat("offsetStrength", &m_grass_animationSetting.offsetStrength, 0, 1);
 		ImGui::End();
-	}
-}
-
-void Terrain::createTerrainTextureSampler() {
-	auto gDevice = Renderer::getDevice();
-	auto gDeviceContext = Renderer::getDeviceContext();
-	// sampler
-	if (m_sampler.Get() == nullptr) {
-		D3D11_SAMPLER_DESC sampDesc;
-		sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		sampDesc.MipLODBias = 0.0f;
-		sampDesc.MaxAnisotropy = 16;
-		sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-		sampDesc.MinLOD = -3.402823466e+38F;
-		sampDesc.MaxLOD = 3.402823466e+38F;
-
-		HRESULT res = gDevice->CreateSamplerState(&sampDesc, m_sampler.GetAddressOf());
-		if (FAILED(res))
-			ErrorLogger::logError("Failed creating sampler state in Terrain class!\n", res);
 	}
 }
 
@@ -146,11 +151,6 @@ void Terrain::fillSubMeshes() {
 void Terrain::loadFromFile_binary(fstream& file) {
 	// transformation
 	((Transformation*)this)->stream_read(file);
-	// textures
-	string tex[4];
-	for (size_t i = 0; i < 4; i++)
-		tex[i] = SceneAbstactContent::fileRead_string(file);
-	setTextures(tex);
 	// tile size
 	file.read((char*)&m_tileSize, sizeof(XMINT2));
 	// grid size
@@ -164,29 +164,12 @@ void Terrain::loadFromFile_binary(fstream& file) {
 void Terrain::storeToFile_binary(fstream& file) {
 	// transformation
 	((Transformation*)this)->stream_write(file);
-	// textures
-	for (size_t i = 0; i < 4; i++)
-		SceneAbstactContent::fileWrite_string(file, m_textures[i]->filename);
 	// tile size
 	file.write((char*)&m_tileSize, sizeof(XMINT2));
 	// grid size
 	file.write((char*)&m_gridSize, sizeof(XMINT2));
 	// heightmapMesh
 	m_heightmapMesh.storeToFile_binary(file);
-}
-
-bool Terrain::createResourceBuffer(string filename, ID3D11ShaderResourceView** buffer) {
-	auto device = Renderer::getDevice();
-	auto deviceContext = Renderer::getDeviceContext();
-	wstring wstr = s2ws(m_texturePath + filename);
-	LPCWCHAR str = wstr.c_str();
-	HRESULT hrA = DirectX::CreateWICTextureFromFile(device, deviceContext, str, nullptr, buffer);
-	if (FAILED(hrA)) {
-		ErrorLogger::messageBox(
-			hrA, "(Terrain) Failed creating texturebuffer from texture\n" + filename);
-		return false;
-	}
-	return true;
 }
 
 bool Terrain::boxInsideFrustum(float3 boxPos, float3 boxSize, const vector<FrustumPlane>& planes) {
@@ -239,37 +222,17 @@ XMINT2 Terrain::getGridPointSize() const {
 	return XMINT2(m_gridSize.x * m_tileSize.x + 1, m_gridSize.y * m_tileSize.y + 1);
 }
 
-void Terrain::setTextures(string textures[4]) {
-	if (textures != nullptr) {
-		for (size_t i = 0; i < 4; i++) {
-			m_textures[i] =
-				TextureRepository::get(textures[i], TextureRepository::Type::type_texture);
-		}
-		m_textureInitilized = true;
-	}
-}
-
-void Terrain::getTextures(string textures[4]) const {
-	for (size_t i = 0; i < 4; i++) {
-		if (m_textures[i].get() != nullptr) {
-			textures[i] = m_textures[i]->filename;
-		}
-	}
-}
-
 XMINT2 Terrain::getSplits() const { return m_gridSize; }
 
 XMINT2 Terrain::getSubSize() const { return m_tileSize; }
 
-void Terrain::initilize(string filename, string textures[4], XMINT2 subsize, XMINT2 splits) {
+void Terrain::initilize(string filename, XMINT2 subsize, XMINT2 splits) {
 	// grass noise texture
 	m_tex_noise = TextureRepository::get("noise1.png");
 	// grass noise buffer
 	m_cbuffer_noiseSize.update(
 		float4(m_tex_noise->description.Width, m_tex_noise->description.Height, 0, 0));
 
-	// set texture
-	setTextures(textures);
 	// load terrain
 	if (filename == "" || (splits.x == 0 || splits.y == 0) || (subsize.x == 0 || subsize.y == 0)) {
 		// do nothing
@@ -277,7 +240,6 @@ void Terrain::initilize(string filename, string textures[4], XMINT2 subsize, XMI
 	else {
 		build(filename, subsize, splits);
 	}
-	createTerrainTextureSampler();
 }
 
 void Terrain::build(string heightmapName, XMINT2 subSize, XMINT2 splits) {
@@ -448,39 +410,31 @@ void Terrain::boundingBoxCull(CubeBoundingBox bb) {
 }
 
 void Terrain::draw() {
-	if (m_textureInitilized) {
-		ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
-		// bind shaders
-		m_shader_terrain.bindShadersAndLayout();
-		// bind samplerstate
-		deviceContext->PSSetSamplers(SAMPLER_SLOT, 1, m_sampler.GetAddressOf());
-		// bind texture resources
-		for (size_t i = 0; i < 4; i++) {
-			deviceContext->PSSetShaderResources((UINT)i, 1, m_textures[i]->view.GetAddressOf());
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+	// bind shaders
+	m_shader_terrain.bindShadersAndLayout();
+	// color buffer
+	update_colorBuffer();
+	m_cbuffer_color.bindPS(CBUFFER_COLOR);
+	// bind world matrix
+	VSBindMatrix(MATRIX_SLOT);
+	// draw
+	if (m_useCulling) {
+		for (size_t i = 0; i < m_culledGrids.size(); i++) {
+			SubGrid* sub = &m_subMeshes[m_culledGrids[i].x][m_culledGrids[i].y];
+			sub->bind_terrain();
+			sub->drawCall_terrain();
 		}
-		// bind world matrix
-		VSBindMatrix(MATRIX_SLOT);
-		// draw
-		if (m_useCulling) {
-			for (size_t i = 0; i < m_culledGrids.size(); i++) {
-				SubGrid* sub = &m_subMeshes[m_culledGrids[i].x][m_culledGrids[i].y];
+	}
+	else {
+		// draw grids
+		for (int xx = 0; xx < m_gridSize.x; xx++) {
+			for (int yy = 0; yy < m_gridSize.y; yy++) {
+				SubGrid* sub = &m_subMeshes[xx][yy];
 				sub->bind_terrain();
 				sub->drawCall_terrain();
 			}
 		}
-		else {
-			// draw grids
-			for (int xx = 0; xx < m_gridSize.x; xx++) {
-				for (int yy = 0; yy < m_gridSize.y; yy++) {
-					SubGrid* sub = &m_subMeshes[xx][yy];
-					sub->bind_terrain();
-					sub->drawCall_terrain();
-				}
-			}
-		}
-	}
-	else {
-		draw_onlyMesh();
 	}
 }
 
@@ -511,42 +465,34 @@ void Terrain::draw_onlyMesh() {
 }
 
 void Terrain::draw_brush(const Brush& brush) {
-	if (m_textureInitilized) {
-		ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
-		// bind shaders
-		m_shader_terrain_brush.bindShadersAndLayout();
-		// bind samplerstate
-		deviceContext->PSSetSamplers(SAMPLER_SLOT, 1, m_sampler.GetAddressOf());
-		// bind texture resources
-		for (size_t i = 0; i < 4; i++) {
-			deviceContext->PSSetShaderResources((UINT)i, 1, m_textures[i]->view.GetAddressOf());
+	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
+	// bind shaders
+	m_shader_terrain_brush.bindShadersAndLayout();
+	// color buffer
+	update_colorBuffer();
+	m_cbuffer_color.bindPS(CBUFFER_COLOR);
+	// bind world matrix
+	VSBindMatrix(MATRIX_SLOT);
+	// bind brush buffer
+	m_buffer_brush.update(brush);
+	m_buffer_brush.bindPS(7);
+	// draw
+	if (m_useCulling) {
+		for (size_t i = 0; i < m_culledGrids.size(); i++) {
+			SubGrid* sub = &m_subMeshes[m_culledGrids[i].x][m_culledGrids[i].y];
+			sub->bind_terrain();
+			sub->drawCall_terrain();
 		}
-		// bind world matrix
-		VSBindMatrix(MATRIX_SLOT);
-		// bind brush buffer
-		m_buffer_brush.update(brush);
-		m_buffer_brush.bindPS(7);
-		// draw
-		if (m_useCulling) {
-			for (size_t i = 0; i < m_culledGrids.size(); i++) {
-				SubGrid* sub = &m_subMeshes[m_culledGrids[i].x][m_culledGrids[i].y];
+	}
+	else {
+		// draw grids
+		for (int xx = 0; xx < m_gridSize.x; xx++) {
+			for (int yy = 0; yy < m_gridSize.y; yy++) {
+				SubGrid* sub = &m_subMeshes[xx][yy];
 				sub->bind_terrain();
 				sub->drawCall_terrain();
 			}
 		}
-		else {
-			// draw grids
-			for (int xx = 0; xx < m_gridSize.x; xx++) {
-				for (int yy = 0; yy < m_gridSize.y; yy++) {
-					SubGrid* sub = &m_subMeshes[xx][yy];
-					sub->bind_terrain();
-					sub->drawCall_terrain();
-				}
-			}
-		}
-	}
-	else {
-		draw_onlyMesh();
 	}
 }
 
@@ -591,9 +537,9 @@ void Terrain::draw_grass() {
 
 Terrain::Terrain(const Terrain& other) : Transformation(other), Fragment(other) { *this = other; }
 
-Terrain::Terrain(string filename, string textures[4], XMINT2 subsize, XMINT2 splits)
+Terrain::Terrain(string filename, XMINT2 subsize, XMINT2 splits)
 	: Fragment(Fragment::Type::terrain) {
-	initilize(filename, textures, subsize, splits);
+	initilize(filename, subsize, splits);
 	if (!m_shader_terrain.isLoaded()) {
 		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = {
 			{
@@ -606,14 +552,15 @@ Terrain::Terrain(string filename, string textures[4], XMINT2 subsize, XMINT2 spl
 				0							 // used for INSTANCING (ignore)
 			},
 			{ "TexCoordinate", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+			{ "Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "ColorIntensity", 0, DXGI_FORMAT_R32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 		};
-		m_shader_terrain.createShaders(L"VertexShader_model_onlyMesh.hlsl", NULL,
-			L"PixelShader_terrain.hlsl", inputLayout_onlyMesh, 3);
-		m_shader_terrain_brush.createShaders(L"VertexShader_model_onlyMesh.hlsl", NULL,
-			L"PixelShader_terrain_brush.hlsl", inputLayout_onlyMesh, 3);
-		m_shader_terrain_onlyMesh.createShaders(L"VertexShader_onlyMesh.hlsl", NULL,
-			L"PixelShader_terrain_onlyMesh.hlsl", inputLayout_onlyMesh, 3);
+		m_shader_terrain.createShaders(L"VertexShader_terrain.hlsl", NULL,
+			L"PixelShader_terrain.hlsl", inputLayout_onlyMesh, 4);
+		m_shader_terrain_brush.createShaders(L"VertexShader_terrain.hlsl", NULL,
+			L"PixelShader_terrain_brush.hlsl", inputLayout_onlyMesh, 4);
+		m_shader_terrain_onlyMesh.createShaders(L"VertexShader_terrain.hlsl", NULL,
+			L"PixelShader_terrain_onlyMesh.hlsl", inputLayout_onlyMesh, 4);
 	}
 
 	if (!m_shader_grass.isLoaded()) {
@@ -644,9 +591,6 @@ Terrain& Terrain::operator=(const Terrain& other) {
 	m_subMeshes = other.m_subMeshes;
 	m_heightmapMesh = other.m_heightmapMesh;
 	m_quadtree = other.m_quadtree;
-	m_textureInitilized = other.m_textureInitilized;
-	for (size_t i = 0; i < 4; i++)
-		m_textures[i] = other.m_textures[i];
 	m_culledGrids = other.m_culledGrids;
 	m_useCulling = other.m_useCulling;
 
@@ -665,7 +609,7 @@ void Terrain::SubGrid::generate_terrain(XMINT2 tileSize, XMINT2 gridIndex, Heigh
 		XMINT2(0, 0), XMINT2(1, 1), XMINT2(1, 0)
 	};
 
-	vector<Vertex>* vertices = &m_vertices;
+	vector<TerrainVertex>* vertices = &m_vertices;
 	vertices->clear();
 	vertices->reserve((tileSize.x) * (tileSize.y) * 6 + 6);
 
@@ -676,7 +620,7 @@ void Terrain::SubGrid::generate_terrain(XMINT2 tileSize, XMINT2 gridIndex, Heigh
 		Vertex groundVertex = hmMesh[order[i].x ? indexStop.x : indexStart.x]
 											[order[i].y ? indexStop.y : indexStart.y];
 		groundVertex.position.y = 0;
-		vertices->push_back(groundVertex);
+		vertices->push_back(TerrainVertex(groundVertex));
 	}
 	// terrain triangles
 	Vertex v[6];
@@ -690,9 +634,10 @@ void Terrain::SubGrid::generate_terrain(XMINT2 tileSize, XMINT2 gridIndex, Heigh
 				size_t ii = i * 3;
 				if (!(v[ii + 0].position.y == 0 && v[ii + 1].position.y == 0 &&
 						v[ii + 2].position.y == 0)) {
-					vertices->push_back(v[ii + 0]);
-					vertices->push_back(v[ii + 1]);
-					vertices->push_back(v[ii + 2]);
+					float intensity = RandomFloat();
+					vertices->push_back(TerrainVertex(v[ii + 0], intensity));
+					vertices->push_back(TerrainVertex(v[ii + 1], intensity));
+					vertices->push_back(TerrainVertex(v[ii + 2], intensity));
 				}
 			}
 		}
@@ -759,7 +704,7 @@ void Terrain::SubGrid::createBuffer_terrain() {
 		memset(&bufferDesc, 0, sizeof(bufferDesc));
 		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-		bufferDesc.ByteWidth = (UINT)m_vertices.size() * sizeof(Vertex);
+		bufferDesc.ByteWidth = (UINT)m_vertices.size() * sizeof(TerrainVertex);
 		D3D11_SUBRESOURCE_DATA data;
 		data.pSysMem = m_vertices.data();
 		HRESULT res = Renderer::getDevice()->CreateBuffer(
@@ -772,7 +717,7 @@ void Terrain::SubGrid::createBuffer_terrain() {
 
 void Terrain::SubGrid::bind_terrain() {
 	auto deviceContext = Renderer::getDeviceContext();
-	UINT strides = sizeof(Vertex);
+	UINT strides = sizeof(TerrainVertex);
 	UINT offset = 0;
 	deviceContext->IASetVertexBuffers(0, 1, m_vbuffer_terrain.GetAddressOf(), &strides, &offset);
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -833,3 +778,15 @@ void Terrain::SubGrid::operator=(const SubGrid& other) {
 	createBuffer_terrain();
 	createBuffer_grass();
 }
+
+void Terrain::imgui_color() {
+	if (ImGui::Begin("color buffer")) {
+		ImGui::ColorEdit3("flat color", (float*)&m_colorBuffer.color_flat);
+		ImGui::ColorEdit3("tilt color", (float*)&m_colorBuffer.color_tilt);
+		ImGui::SliderFloat("min intensity", &m_colorBuffer.intensityRange.x, 0, 2);
+		ImGui::SliderFloat("max intensity", &m_colorBuffer.intensityRange.y, 0, 2);
+		ImGui::End();
+	}
+}
+
+void Terrain::update_colorBuffer() { m_cbuffer_color.update(m_colorBuffer); }
