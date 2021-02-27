@@ -168,7 +168,7 @@ public:
 	void addArrow(shared_ptr<Arrow> arrow);
 
 	static SoundID playMusicByAreaTag(AreaTag tag);
-	void update_activeTerrain(AreaTag tag);
+	void update_activeTerrain(AreaTag tag, bool playMusic = true);
 
 	void load(string folder);
 	void save();

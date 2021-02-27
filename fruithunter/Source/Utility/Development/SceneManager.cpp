@@ -163,12 +163,12 @@ void SceneManager::update(Camera* overrideCamera) {
 
 	// Update Skybox
 	scene->m_skyBox.update(dt);
+
+	// update AreaTag
 	const Environment* activeEnvironment = scene->m_terrains.getTerrainFromPosition(player->getPosition());
 	if (activeEnvironment != nullptr) {
 		AreaTag tag = activeEnvironment->getTag();
-		scene->m_skyBox.switchLight(tag);
-		if (!m_manualCamera)
-			scene->update_activeTerrain(tag);
+		scene->update_activeTerrain(tag, !m_manualCamera);
 	}
 
 	// update water

@@ -12,7 +12,7 @@ struct lightInfo {
 
 class SkyBox {
 private:
-	ShaderSet m_shaderSkyBox;
+	static ShaderSet m_shaderSkyBox;
 	Mesh m_box;
 
 	AreaTag m_oldLight = AreaTag::Plains;
@@ -57,6 +57,9 @@ public:
 	//initilizers
 	void load(string fileNames[AreaTag::NR_OF_AREAS], lightInfo lightInfos[AreaTag::NR_OF_AREAS]);
 	void loadStandard();
+
+	void reset();
+
 	SkyBox();
 	~SkyBox();
 };

@@ -52,7 +52,7 @@ void EditorState::update() {
 
 void EditorState::pause() { }
 
-void EditorState::play() {}
+void EditorState::play() {  }
 
 void EditorState::restart() {}
 

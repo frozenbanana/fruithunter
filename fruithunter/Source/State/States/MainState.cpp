@@ -41,7 +41,7 @@ string MainState::asTimer(size_t total) {
 }
 
 void MainState::changeToLevel(size_t levelIndex) {
-	AudioController::getInstance()->stop(m_menuMusic);
+	AudioController::getInstance()->flush();
 	SceneManager::getScene()->load("scene" + to_string(levelIndex));
 	push(State::PlayState);
 }
@@ -195,6 +195,7 @@ void MainState::update() {
 			}
 			if (DEBUG && m_btn_menu_buttons[btn_editor].update_behavior(dt)) {
 				// editor
+				AudioController::getInstance()->flush();
 				push(State::EditorState);
 			}
 			if (m_btn_menu_credits.update_behavior(dt)) {

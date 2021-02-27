@@ -6,6 +6,8 @@
 
 void Scene::clear() {
 	PathFindingThread::lock();
+	// skybox
+	m_skyBox.reset();
 	// heightmap
 	m_terrains.clear();
 	// sea
@@ -233,17 +235,24 @@ SoundID Scene::playMusicByAreaTag(AreaTag tag) {
 	return id;
 }
 
-void Scene::update_activeTerrain(AreaTag tag) {
+void Scene::update_activeTerrain(AreaTag tag, bool playMusic) {
 	AudioController* ac = AudioController::getInstance();
 	if (tag != m_activeTerrain_tag) {
-		const float fadeInTime = 1;
+		// handle skybox
+		m_skyBox.switchLight(tag);
+		// handle music
+		if (playMusic) {
+			const float fadeInTime = 1;
+			AudioController::getInstance()->fadeOut(m_activeTerrain_soundID, fadeInTime);
+			m_activeTerrain_soundID = playMusicByAreaTag(tag);
+			AudioController::getInstance()->fadeIn(m_activeTerrain_soundID, fadeInTime);
+		}
+		// update tag
 		m_activeTerrain_tag = tag;
-		AudioController::getInstance()->fadeOut(m_activeTerrain_soundID, fadeInTime);
-		m_activeTerrain_soundID = playMusicByAreaTag(tag);
-		AudioController::getInstance()->fadeIn(m_activeTerrain_soundID, fadeInTime);
 	}
 	else if (!ac->isListed(m_activeTerrain_soundID))
-		m_activeTerrain_soundID = playMusicByAreaTag(tag);
+		if (playMusic)
+			m_activeTerrain_soundID = playMusicByAreaTag(tag);
 }
 
 void Scene::load(string folder) { 
@@ -407,6 +416,8 @@ void Scene::save() {
 void Scene::reset() { 
 	PathFindingThread::lock();
 
+	//skybox
+	m_skyBox.reset();
 	//arrows
 	m_arrows.clear(); 
 	m_arrowParticles.clear();
