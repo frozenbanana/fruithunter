@@ -248,8 +248,6 @@ bool SceneEditorManager::update_panel_terrain(Environment* selection, bool updat
 	static float3 position, rotation, scale = float3(100, 15, 100);
 	static AreaTag tag = AreaTag::Forest;
 	static string heightmap = m_heightmap_textures[0]->filename;
-	static string textures[4] = { m_terrain_textures[0]->filename, m_terrain_textures[0]->filename,
-		m_terrain_textures[7]->filename, m_terrain_textures[7]->filename };
 	static XMINT2 subSize = XMINT2(15, 15);
 	static XMINT2 divisions = XMINT2(16, 16);
 	static float3 wind;
@@ -260,8 +258,6 @@ bool SceneEditorManager::update_panel_terrain(Environment* selection, bool updat
 		rotation = selection->getRotation();
 		scale = selection->getScale();
 		tag = selection->getTag();
-		//heightmap = selection->getLoadedHeightmapFilename();
-		selection->getTextures(textures);
 		subSize = selection->getSubSize();
 		divisions = selection->getSplits();
 		wind = selection->getWindStatic();
@@ -322,28 +318,6 @@ bool SceneEditorManager::update_panel_terrain(Environment* selection, bool updat
 	}
 	static const string tex_description[4] = { "Texture Flat", "Texture Bottom Flat", "Texture Steep",
 		"Texture Minimal Steep" };
-	for (size_t i = 0; i < 4; i++) {
-		if (ImGui::BeginCombo(tex_description[i].c_str(), textures[i].c_str())) {
-			float cWidth = ImGui::CalcItemWidth();
-			int itemCountOnWidth = 3;
-			for (size_t j = 0; j < m_terrain_textures.size(); j++) {
-				ImGui::BeginGroup();
-				ImGui::Text(m_terrain_textures[j]->filename.c_str());
-				if (ImGui::ImageButton(m_terrain_textures[j]->view.Get(),
-						ImVec2(cWidth / itemCountOnWidth, cWidth / itemCountOnWidth))) {
-					textures[i] = m_terrain_textures[j]->filename;
-					if (isValid) {
-						selection->setTextures(textures);
-						updated = true;
-					}
-				}
-				ImGui::EndGroup();
-				if ((j + 1) % itemCountOnWidth != 0)
-					ImGui::SameLine();
-			}
-			ImGui::EndCombo();
-		}
-	}
 	for (size_t i = 0; i < NR_OF_FRUITS; i++) {
 		if (ImGui::InputInt(("Spawn Fruit (" + FruitTypeToString((FruitType)i) + ")").c_str(),
 				&fruitSpawns[i]) && isValid) {
@@ -356,7 +330,7 @@ bool SceneEditorManager::update_panel_terrain(Environment* selection, bool updat
 		if (ImGui::Button("Create")) {
 			updated = true;
 			scene->m_terrains.add(
-				position, scale, heightmap, textures, subSize, divisions, wind, tag);
+				position, scale, heightmap, subSize, divisions, wind, tag);
 		}
 	} else {
 		if (ImGui::Button("Rebuild")) {

@@ -8,11 +8,11 @@ void TerrainBatch::remove(size_t index) {
 	}
 }
 
-void TerrainBatch::add(float3 position, float3 scale, string heightmapFilename,
-	string textures[4], XMINT2 subSize, XMINT2 division, float3 wind, AreaTag tag) {
-	
-	m_terrains.push_back(make_shared<Environment>());//create new
-	m_terrains.back()->initilize(heightmapFilename, textures, subSize, division);
+void TerrainBatch::add(float3 position, float3 scale, string heightmapFilename, XMINT2 subSize,
+	XMINT2 division, float3 wind, AreaTag tag) {
+
+	m_terrains.push_back(make_shared<Environment>()); // create new
+	m_terrains.back()->initilize(heightmapFilename, subSize, division);
 	m_terrains.back()->setPosition(position);
 	m_terrains.back()->setScale(scale);
 	m_terrains.back()->setWind(wind);
@@ -129,7 +129,7 @@ float3 TerrainBatch::getSpawnpoint(size_t terrainIndex) {
 }
 
 Environment::Environment(
-	string filename, string textures[4], XMINT2 subsize, XMINT2 splits, float3 wind, AreaTag tag) : Terrain(filename, textures, subsize, splits) {
+	string filename, XMINT2 subsize, XMINT2 splits, float3 wind, AreaTag tag) : Terrain(filename, subsize, splits) {
 	setWind(wind);
 	setTag(tag);
 }
@@ -139,6 +139,7 @@ void Environment::setWind(float3 wind) { m_wind = wind; }
 void Environment::setTag(AreaTag tag) {
 	m_tag = tag;
 	setStrawAndAnimationSettings(tag);
+	setColorSettings(tag);
 }
 
 void Environment::setFruitSpawns(int fruitSpawns[NR_OF_FRUITS]) {
@@ -172,14 +173,16 @@ void Environment::loadFromBinFile(string path) {
 	file.open(path, ios::in | ios::binary);
 	if (file.is_open()) {
 		// area
-		file.read((char*)&m_tag, sizeof(AreaTag));
+		AreaTag tag;
+		file.read((char*)&tag, sizeof(AreaTag));
 		// wind
 		file.read((char*)&m_wind, sizeof(float3));
 		// fruit spawns
 		file.read((char*)m_fruitSpawn, sizeof(int) * NR_OF_FRUITS);
 		// terrain
 		loadFromFile_binary(file);
-		setStrawAndAnimationSettings(m_tag);
+
+		setTag(tag);
 
 		file.close();
 	}

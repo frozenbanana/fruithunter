@@ -8,6 +8,23 @@
 #include "SimpleDirectX.h"
 #include "HeightmapMesh.h"
 
+struct TerrainVertex {
+	float3 position;
+	float2 uv;
+	float3 normal;
+	float colorIntensity = 1;
+	void setFromVertex(const Vertex& v) {
+		position = v.position;
+		uv = v.uv;
+		normal = v.normal;
+	}
+	TerrainVertex(const Vertex& v) { setFromVertex(v);}
+	TerrainVertex(const Vertex& v, float intensity) {
+		setFromVertex(v);
+		colorIntensity = intensity;
+	}
+};
+
 class Terrain : public Transformation, public Fragment {
 private:
 	//-------------------------- GRASS ------------------------------
@@ -54,7 +71,7 @@ private:
 
 	//-------------------------- TERRAIN ------------------------------
 	// Constants
-	const int SAMPLER_SLOT = 0;
+	const int CBUFFER_COLOR = 9;
 
 	// Heightmap handler
 	HeightmapMesh m_heightmapMesh;
@@ -67,17 +84,19 @@ private:
 	// quadtree for culling
 	QuadTree<XMINT2> m_quadtree;
 
-	// resource buffer
-	const string m_texturePath = "assets/Meshes/Textures/";
-	// 0 = flat, 1 = lowFlat, 2 = tilt, 3 = lessTilt
-	bool m_textureInitilized = false;
-	shared_ptr<TextureSet> m_textures[4];
-
-	// Sampler description
-	static Microsoft::WRL::ComPtr<ID3D11SamplerState> m_sampler;
-
 	// brush
 	static ConstantBuffer<Brush> m_buffer_brush;
+
+	struct ColorBuffer {
+		float4 color_flat = float4(74 / 255.f, 106 / 255.f, 31 / 255.f, 1);
+		float4 color_tilt = float4(104 / 255.f, 80 / 255.f, 29 / 255.f, 1);
+		float2 intensityRange = float2(0.9, 1.1);
+		float2 filler;
+	} m_colorBuffer;
+	static ConstantBuffer<ColorBuffer> m_cbuffer_color;
+
+	void update_colorBuffer();
+	void imgui_color();
 
 	//-------------------------- GENERAL ------------------------------
 	// Constants
@@ -89,7 +108,7 @@ private:
 		const bool EDGE_SHADING = false;
 		const float EDGE_THRESHOLD = 0.3f;
 		// terrain
-		vector<Vertex> m_vertices;
+		vector<TerrainVertex> m_vertices;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> m_vbuffer_terrain;
 
 		// grass
@@ -128,14 +147,8 @@ private:
 
 	//----------------------- FUNCTIONS -------------------------
 
-	// buffers
-	void createTerrainTextureSampler();
-
 	// grids
 	void fillSubMeshes();
-
-	// resource
-	bool createResourceBuffer(string filename, ID3D11ShaderResourceView** buffer);
 
 	bool boxInsideFrustum(float3 boxPos, float3 boxSize, const vector<FrustumPlane>& planes); // unused!!
 
@@ -143,8 +156,8 @@ private:
 
 public:
 	// settings
-	void setTextures(string textures[4]);
 	void setStrawAndAnimationSettings(AreaTag tag);
+	void setColorSettings(AreaTag tag);
 
 	// get settings
 	void getTextures(string textures[4]) const;
@@ -169,7 +182,7 @@ public:
 	void draw_grass();
 
 	void initilize(
-		string filename, string textures[4], XMINT2 subsize, XMINT2 splits = XMINT2(1, 1));
+		string filename, XMINT2 subsize, XMINT2 splits = XMINT2(1, 1));
 	void build(string heightmapName, XMINT2 subSize, XMINT2 splits);
 	void changeSize(XMINT2 tileSize, XMINT2 gridSize);
 	void loadFromFile_binary(fstream& file);
@@ -181,7 +194,7 @@ public:
 	void editMesh_clear();
 
 	Terrain(const Terrain& other);
-	Terrain(string filename = "", string textures[4] = nullptr, XMINT2 subsize = XMINT2(0, 0),
+	Terrain(string filename = "", XMINT2 subsize = XMINT2(0, 0),
 		XMINT2 splits = XMINT2(1, 1));
 	~Terrain();
 
