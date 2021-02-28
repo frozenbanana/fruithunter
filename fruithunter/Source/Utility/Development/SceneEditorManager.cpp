@@ -1305,7 +1305,8 @@ void SceneEditorManager::draw_color() {
 	/* --- Things to be drawn without dark edges --- */
 
 	// terrain grass
-	scene->m_terrains.draw_grass();
+	if (m_editorTabActive != EditorTab::TerrainEditor) // hide grass when editing heightmap
+		scene->m_terrains.draw_grass();
 
 	// Particle Systems
 	for (size_t i = 0; i < scene->m_particleSystems.size(); i++) {
