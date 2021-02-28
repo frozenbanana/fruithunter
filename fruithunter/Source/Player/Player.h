@@ -118,6 +118,9 @@ private:
 	bool m_midairJumpActivated = false;
 	float m_jump_init_strength = 7.5;
 	float m_jump_dash_strength = 7.5;
+	int m_jump_max = 2; // max limit on jumps
+	int m_jump_count = 0; // increments on jump
+	float m_jump_strength = 7.5;
 
 	// effects
 	ParticleSystem m_jumpDust;
@@ -133,11 +136,14 @@ private:
 	void checkGround(Terrain* terrain);
 	void checkSteepTerrain(Terrain* terrain);
 	void calculateTerrainCollision(Terrain* terrain, float dt);
+	void checkEntityCollisions();
 
 	void checkSprint(float dt);
 	void checkDash(float dt);
 	void checkPlayerReset(float dt); // Resets player if below sea level
 	void checkJump(float dt);
+
+	void rechargeJump();
 
 	/*
 	 * Modifies m_velocity to have a sliding effect

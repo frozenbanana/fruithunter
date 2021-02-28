@@ -385,6 +385,24 @@ float HeightmapMesh::castRay(float3 startPoint, float3 endPoint) {
 	return -1;
 }
 
+bool HeightmapMesh::validPosition(float2 point, float4x4 worldMatrix) {
+	//check height
+	float3 lPoint = float3(point.x, getHeightFromUV(point), point.y);
+	float3 wPoint = float3::Transform(lPoint, worldMatrix);
+	if (wPoint.y < 1)
+		return false;
+
+	//check normal
+	float4x4 worldInvTraMatrix = worldMatrix.Invert().Transpose();
+	float3 lNormal = getNormalFromUV(point);
+	float3 wNormal = Normalize(float3::Transform(lNormal, worldInvTraMatrix));
+	if (wNormal.Dot(float3(0, 1, 0)) < 0.7)
+		return false;
+
+	return true; // valid position
+
+}
+
 bool HeightmapMesh::containsValidPosition(float2 point, float2 size, float4x4 worldMatrix) { 
 	float4x4 worldInvTraMatrix = worldMatrix.Invert().Transpose();
 	float2 fsize(m_gridPointSize.x - 1, m_gridPointSize.y - 1);

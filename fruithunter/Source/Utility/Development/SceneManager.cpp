@@ -154,11 +154,6 @@ void SceneManager::update(Camera* overrideCamera) {
 			if (Input::getInstance()->keyPressed(Keyboard::Keys(Keyboard::D1 + i)))
 				scene->dropFruit((FruitType)i);
 		}
-		// Check entity collision
-		// player - entity
-		for (int i = 0; i < scene->m_entities.size(); i++) {
-			player->collideObject(*scene->m_entities[i].get());
-		}
 	}
 
 	// Update Skybox

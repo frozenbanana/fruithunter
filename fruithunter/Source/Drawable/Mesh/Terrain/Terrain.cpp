@@ -790,3 +790,9 @@ void Terrain::imgui_color() {
 }
 
 void Terrain::update_colorBuffer() { m_cbuffer_color.update(m_colorBuffer); }
+
+bool Terrain::validPosition(float3 pos) {
+	float4x4 wMat = getMatrix();
+	float3 lPos = float3::Transform(pos, wMat.Invert());
+	return m_heightmapMesh.validPosition(float2(lPos.x, lPos.z), wMat); 
+}

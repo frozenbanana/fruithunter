@@ -165,6 +165,7 @@ public:
 	XMINT2 getSubSize() const;
 
 	// terrain scanning
+	bool validPosition(float3 pos);
 	bool pointInsideTerrainBoundingBox(float3 point);
 	float getHeightFromPosition(float x, float z);
 	float3 getNormalFromPosition(float x, float z);

@@ -26,6 +26,8 @@ void Player::update() {
 
 	rotatePlayer(deltaRaw);
 
+	checkEntityCollisions();
+
 	if (m_onEntity) {
 		// On an object, behave like ground
 		m_position += m_velocity * delta;
@@ -102,6 +104,7 @@ void Player::collideObject(Entity& obj) {
 			m_onGround = true;
 			m_onSteepGround = false;
 			m_onEntity = true;
+			rechargeJump();
 			if (obj.getCollisionType() == EntityCollision::ctOBB)
 				m_position.y +=
 					(obj.getPointOnOBB(m_position + float3(0.f, 2.f, 0.f)).y - m_position.y) * 0.2f;
@@ -316,11 +319,20 @@ void Player::calculateTerrainCollision(Terrain* terrain, float dt) {
 	while (1) {
 		float3 movement = m_velocity * dt;
 		float l = terrain->castRay(m_position, movement);
+
+		float3 collisionPoint, collisionNormal;
 		if (l == -1)
 			break; // break of no intersection was found!
-		float3 collisionPoint = m_position + movement * l;
-		float3 collisionNormal = terrain->getNormalFromPosition(collisionPoint.x, collisionPoint.z);
-		
+		else {
+			collisionPoint = m_position + movement * l;
+			collisionNormal =
+				terrain->getNormalFromPosition(collisionPoint.x, collisionPoint.z);
+
+			// on intersection
+			if (terrain->validPosition(collisionPoint))
+				rechargeJump();
+		}
+
 		slide(dt, collisionNormal, l);
 		
 		loopCount--;
@@ -330,6 +342,16 @@ void Player::calculateTerrainCollision(Terrain* terrain, float dt) {
 			break;
 		}
 	};
+}
+
+void Player::checkEntityCollisions() {
+	Scene* scene = SceneManager::getScene();
+	if (scene != nullptr) {
+		QuadTree<shared_ptr<Entity>>* entities = &scene->m_entities;
+		for (size_t i = 0; i < entities->size(); i++) {
+			collideObject(*(*entities)[i]);
+		}
+	}
 }
 
 void Player::checkSprint(float dt) {
@@ -389,36 +411,24 @@ void Player::checkPlayerReset(float dt) {
 
 void Player::checkJump(float dt) {
 	Input* ip = Input::getInstance();
-	bool onWalkableTerrain = (m_onGround || m_onEntity) && !m_onSteepGround;
-	if (ip->keyPressed(KEY_JUMP)) {
-		if (onWalkableTerrain) {
-			m_midairJumpActivated = false; // mid air jump available again
-			// initial jump
-			float3 direction = float3(0, 1, 0);
-			m_velocity += direction * m_jump_init_strength;
-			//spawn dust
-			m_jumpDust.emit(m_dustAmount);
-		}
-		else if (!m_midairJumpActivated) {
-			m_midairJumpActivated = true;
-			// midair jump
-			//float3 forward = Normalize(getForward() * float3(1, 0, 1));//ignore y axis
-			//float3 left = Normalize(forward.Cross(float3(0, 1, 0)));
 
-			//float3 nonYDirection =
-			//	Normalize(forward * (ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD)) +
-			//			  left * (ip->keyDown(KEY_LEFT) - ip->keyDown(KEY_RIGHT)));
-			//float3 direction = Normalize(nonYDirection + float3(0, 1, 0));
-			//m_velocity = direction * m_jump_dash_strength;
-			m_velocity.y = m_jump_dash_strength;
+	// jump
+	if (ip->keyPressed(KEY_JUMP)) {
+		if (m_jump_count < m_jump_max) {
+			// spend jump charge
+			m_jump_count++;
+			m_velocity.y = m_jump_strength;
 			// spawn dust
 			m_jumpDust.emit(m_dustAmount);
 		}
 	}
+
 	//update jump dust
 	m_jumpDust.setPosition(getPosition()); // follow feet
 	m_jumpDust.update(dt);
 }
+
+void Player::rechargeJump() { m_jump_count = 0; }
 
 void Player::slide(float dt, float3 normal, float l) {
 	if (l != -1) {
