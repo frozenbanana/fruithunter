@@ -904,6 +904,8 @@ void SceneEditorManager::draw_transformationVisuals() {
 
 void SceneEditorManager::update_imgui() {
 	Input* ip = Input::getInstance();
+	ImVec2 screenSize = ImVec2(
+		Renderer::getInstance()->getScreenWidth() ,Renderer::getInstance()->getScreenHeight());
 
 	// Main Menu Bar
 	ImVec2 menuBarSize;
@@ -927,7 +929,7 @@ void SceneEditorManager::update_imgui() {
 		ImGui::EndMainMenuBar();
 	}
 	// Docked window
-	float windHeight = Renderer::getInstance()->getScreenHeight() - menuBarSize.y;
+	float windHeight = screenSize.y - menuBarSize.y;
 	ImGui::SetNextWindowPos(ImVec2(0,menuBarSize.y));
 	ImGui::SetNextWindowSizeConstraints(
 		ImVec2(0, windHeight), ImVec2(Renderer::getInstance()->getScreenWidth(), windHeight));
@@ -951,6 +953,20 @@ void SceneEditorManager::update_imgui() {
 			}
 			ImGui::EndTabBar();
 		}
+		ImGui::End();
+	}
+	ImGui::PopStyleVar();
+
+	// bottom right docked window
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	if (ImGui::Begin("win_camProperties", NULL,
+			ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove)) {
+		float3 cp = m_camera.getPosition();
+		float3 cn = m_camera.getForward();
+		ImGui::Text("Cam Pos: [%.2f %.2f %.2f] Cam Dir: [%.2f %.2f %.2f]", cp.x, cp.y, cp.z, cn.x,
+			cn.y, cn.z);
+		ImVec2 size = ImGui::GetWindowSize();
+		ImGui::SetWindowPos(screenSize-size);
 		ImGui::End();
 	}
 	ImGui::PopStyleVar();
