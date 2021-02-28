@@ -33,7 +33,8 @@ private:
 		CamTransformState(float3(58.0f, 10.9f, 21.9f), float3(61.3f, 10.1f, -36.0f)),
 		CamTransformState(
 			float3(65.753, 9.530 + 1.25, 20.849), float3(66.960, 9.530 - 0.35, 19.784)),
-		CamTransformState(float3(50.154, 9.491 + 1.5, 21.472), float3(47.025, 9.490 + 1, 15.558))
+		CamTransformState(
+			float3(47.93, 11.02, 19.48), float3(47.93, 11.02, 19.48) + float3(0.7, -0.07, -0.71))
 	};
 
 	float m_totalDelta = 0.f;

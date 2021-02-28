@@ -107,17 +107,6 @@ void MainState::init() {
 		m_letters[i].speedOffset = float2(RandomFloat(-0.15f, 0.15f), RandomFloat(-0.5f, 0.5f));
 		m_letters[i].letter.setAlignment(); // center
 	}
-
-	// Credits Setup
-	m_obj_creditsSign.load("CreditsSign");
-	float c = 0.85;
-	float3 signPos1(50.154, 9.491, 21.472);
-	float3 signPos2(47.025, 9.490, 15.558);
-	float3 signPos = signPos1 * c + signPos2 * (1 - c);
-	m_obj_creditsSign.setPosition(signPos);
-	float3 signTarget = m_camTransformStates[Credits].position;
-	m_obj_creditsSign.lookTo(Normalize(signPos2 - signPos));
-
 }
 
 void MainState::update() {
@@ -317,7 +306,7 @@ void MainState::draw() {
 	// custom drawing (without dark outline)
 
 	Renderer::getInstance()->enableAlphaBlending();
-	m_obj_creditsSign.draw();
+	m_obj_creditsSign.draw(float3(1.5f));
 	Renderer::getInstance()->disableAlphaBlending();
 
 	float source_alpha = Clamp<float>((1 - m_stateSwitchFactor) * 2 - 1, 0, 1);
@@ -487,6 +476,17 @@ void MainState::play() {
 		if (m_levelSelections[i-1].completed)
 			m_levelsAvailable = i + 1;
 	}	
+
+	// Credits Setup
+	m_obj_creditsSign.load("CreditsSign");
+	float c = 1.2;
+	float3 pos = m_camTransformStates[MainStateType::Credits].position;
+	float3 tar = m_camTransformStates[MainStateType::Credits].target;
+	float3 dir = Normalize(tar - pos);
+	float3 signPos = pos + dir * c;
+	signPos.y = SceneManager::getScene()->m_terrains.getHeightFromPosition(signPos);
+	m_obj_creditsSign.setPosition(signPos);
+	m_obj_creditsSign.lookTo(dir * float3(1, 0, 1));
 }
 
 void MainState::pause() {}
