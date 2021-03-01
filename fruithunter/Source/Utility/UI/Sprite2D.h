@@ -5,14 +5,11 @@
 #include <SpriteBatch.h>
 #include <CommonStates.h>
 #include <SpriteFont.h>
-#include "Translation2DStructures.h"
+#include "Drawable2D.h"
 
 #define PATH_SPRITE "assets/sprites/"
 
-enum HorizontalAlignment { hLeft, hCenter, hRight};
-enum VerticalAlignment { vTop, vCenter, vBottom };
-
-class Sprite2D {
+class Sprite2D : public Drawable2D {
 private:
 	static unique_ptr<SpriteBatch> m_spriteBatch;
 	static unique_ptr<CommonStates> m_states;
@@ -26,34 +23,24 @@ private:
 		bool isLoaded() const;
 	};
 	vector<SpriteTexture> m_textures;
-	HorizontalAlignment m_horizontalAligment = hLeft;
-	VerticalAlignment m_verticalAlignment = vTop;
-	float2 m_position = float2(0, 0);
-	float2 m_scale = float2(1.f, 1.f);
-	float m_rotation = 0.0f;
+	HorizontalAlignment m_horizontalAligment = Left;
+	VerticalAlignment m_verticalAlignment = Top;
 	float m_animationSpeed = 1.f; // time between frames, in seconds
 	Color m_color = Color(1, 1, 1, 1);
+
+	void _draw(const Transformation2D& source);
 
 public:
 	XMINT2 getTextureSize(size_t index = 0) const;
 	float2 getSize(size_t index = 0) const;
-	float2 getPosition() const;
-	float getRotation() const;
-	float2 getScale() const;
 	Color getColor() const;
 	BoundingBox2D getBoundingBox() const;
 
-	void setPosition(float2 position);
-	void setScale(float2 scale);
-	void setScale(float scale);
 	void setSize(float2 size);
-	void setRotation(float rot);
-	void setAlignment(HorizontalAlignment horizontal = hCenter, VerticalAlignment vertical = vCenter);
+	void setAlignment(HorizontalAlignment horizontal = Middle, VerticalAlignment vertical = Center);
 	void setAnimationSpeed(float animationSpeed);
 	void setColor(Color color);
 	void setAlpha(float alpha);
-
-	void draw(bool autoAdjustToScreenResolution = true);
 
 	bool load(string path);
 	bool load(vector<string> paths, float animationSpeed = 1.f);

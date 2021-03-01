@@ -1,6 +1,5 @@
 #pragma once
 #include "StateItem.h"
-#include "TextRenderer.h"
 #include "Entity.h"
 #include "Button.h"
 #include "Sprite2D.h"

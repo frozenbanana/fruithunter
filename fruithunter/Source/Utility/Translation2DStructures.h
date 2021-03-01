@@ -25,6 +25,7 @@ public:
 	float2 getScale() const;
 	float getRotation() const;
 	float2 getNormal() const;
+	float4x4 getMatrix() const;
 
 	void setPosition(float2 position);
 	void setScale(float2 scale);
@@ -33,6 +34,9 @@ public:
 
 	void move(float2 movement);
 	void rotate(float rotate);
+
+	static Transformation2D transform(const Transformation2D& target, const Transformation2D& matrix);
+	static float2 transform(const float2& target, const Transformation2D& matrix);
 
 	Transformation2D(float2 position = float2(0.), float2 scale = float2(1.), float rotation = 0);
 };

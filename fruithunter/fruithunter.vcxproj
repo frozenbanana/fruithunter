@@ -173,7 +173,6 @@
     <ClCompile Include="Source\Drawable\HUD.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Dragonfruit.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Terrain\HeightmapMesh.cpp" />
-    <ClCompile Include="Source\Drawable\Sprite2D.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Animal.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Banana.cpp" />
@@ -185,10 +184,10 @@
     <ClCompile Include="Source\Drawable\Mesh\Quad.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\SkyBox\SkyBox.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Terrain\Terrain.cpp" />
-    <ClCompile Include="Source\Drawable\Mesh\Text\TextRenderer.cpp" />
     <ClCompile Include="Source\Drawable\ParticleSystem\Particle.cpp" />
     <ClCompile Include="Source\Drawable\ParticleSystem\ParticleSystem.cpp" />
     <ClCompile Include="Source\Drawable\SeaEffect.cpp" />
+    <ClCompile Include="Source\Drawable\Text3D.cpp" />
     <ClCompile Include="Source\Drawable\Transformation.cpp" />
     <ClCompile Include="Source\Graphics\Renderer.cpp" />
     <ClCompile Include="Source\Graphics\ShaderSet.cpp" />
@@ -209,7 +208,6 @@
     <ClCompile Include="Source\State\StateStack.cpp" />
     <ClCompile Include="Source\State\States\EditorState.cpp" />
     <ClCompile Include="Source\State\States\EndRoundState.cpp" />
-    <ClCompile Include="Source\State\States\LevelSelectState.cpp" />
     <ClCompile Include="Source\State\States\MainState.cpp" />
     <ClCompile Include="Source\State\States\PauseState.cpp" />
     <ClCompile Include="Source\State\States\PlayState.cpp" />
@@ -234,8 +232,12 @@
     <ClCompile Include="Source\Utility\SimpleDirectX.cpp" />
     <ClCompile Include="Source\Utility\Timer\Timer.cpp" />
     <ClCompile Include="Source\Utility\Translation2DStructures.cpp" />
+    <ClCompile Include="Source\Utility\UI\Drawable2D.cpp" />
     <ClCompile Include="Source\Utility\UI\Menu_PoppingArrowButton.cpp" />
     <ClCompile Include="Source\Utility\UI\Menu_PoppingButton.cpp" />
+    <ClCompile Include="Source\Utility\UI\Menu_Toggle.cpp" />
+    <ClCompile Include="Source\Utility\UI\Sprite2D.cpp" />
+    <ClCompile Include="Source\Utility\UI\Text2D.cpp" />
     <ClCompile Include="Source\Utility\UI\UI_Button.cpp" />
     <ClCompile Include="Source\Utility\VariableSyncer\VariableSyncer.cpp" />
   </ItemGroup>
@@ -250,7 +252,6 @@
     <ClInclude Include="Source\Drawable\HUD.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Dragonfruit.h" />
     <ClInclude Include="Source\Drawable\Mesh\Terrain\HeightmapMesh.h" />
-    <ClInclude Include="Source\Drawable\Sprite2D.h" />
     <ClInclude Include="Source\Drawable\Mesh\Animal.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Banana.h" />
@@ -262,10 +263,10 @@
     <ClInclude Include="Source\Drawable\Mesh\Quad.h" />
     <ClInclude Include="Source\Drawable\Mesh\SkyBox\SkyBox.h" />
     <ClInclude Include="Source\Drawable\Mesh\Terrain\Terrain.h" />
-    <ClInclude Include="Source\Drawable\Mesh\Text\TextRenderer.h" />
     <ClInclude Include="Source\Drawable\ParticleSystem\Particle.h" />
     <ClInclude Include="Source\Drawable\ParticleSystem\ParticleSystem.h" />
     <ClInclude Include="Source\Drawable\SeaEffect.h" />
+    <ClInclude Include="Source\Drawable\Text3D.h" />
     <ClInclude Include="Source\Drawable\Transformation.h" />
     <ClInclude Include="Source\Graphics\Renderer.h" />
     <ClInclude Include="Source\Graphics\ShaderSet.h" />
@@ -291,7 +292,6 @@
     <ClInclude Include="Source\State\StateStack.h" />
     <ClInclude Include="Source\State\States\EditorState.h" />
     <ClInclude Include="Source\State\States\EndRoundState.h" />
-    <ClInclude Include="Source\State\States\LevelSelectState.h" />
     <ClInclude Include="Source\State\States\MainState.h" />
     <ClInclude Include="Source\State\States\PauseState.h" />
     <ClInclude Include="Source\State\States\PlayState.h" />
@@ -318,8 +318,12 @@
     <ClInclude Include="Source\Utility\SimpleDirectX.h" />
     <ClInclude Include="Source\Utility\Timer\Timer.h" />
     <ClInclude Include="Source\Utility\Translation2DStructures.h" />
+    <ClInclude Include="Source\Utility\UI\Drawable2D.h" />
     <ClInclude Include="Source\Utility\UI\Menu_PoppingArrowButton.h" />
     <ClInclude Include="Source\Utility\UI\Menu_PoppingButton.h" />
+    <ClInclude Include="Source\Utility\UI\Menu_Toggle.h" />
+    <ClInclude Include="Source\Utility\UI\Sprite2D.h" />
+    <ClInclude Include="Source\Utility\UI\Text2D.h" />
     <ClInclude Include="Source\Utility\UI\UI_Button.h" />
     <ClInclude Include="Source\Utility\VariableSyncer\VariableSyncer.h" />
   </ItemGroup>

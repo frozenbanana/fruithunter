@@ -1,13 +1,17 @@
 #pragma once
 #include "StateItem.h"
-#include "TextRenderer.h"
+#include "Timer.h"
 #include "Entity.h"
 #include "Button.h"
 #include "Slider.h"
 #include "Sprite2D.h"
 
+#include "Menu_PoppingButton.h"
+#include "Menu_Toggle.h"
+
 class SettingsState : public StateItem {
 private:
+	Timer m_timer;
 	Sprite2D m_settingsBackground;
 	Button m_vsyncButton;
 	Button m_FXAAButton;
@@ -24,6 +28,8 @@ private:
 	Slider m_musicVolume;
 	Slider m_effectsVolume;
 	Slider m_sensitivity;
+
+	Menu_Toggle m_toggle;
 
 	bool m_screenStateChanged = false;
 

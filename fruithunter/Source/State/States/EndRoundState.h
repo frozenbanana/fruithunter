@@ -1,6 +1,6 @@
 #pragma once
 #include "StateItem.h"
-#include "TextRenderer.h"
+#include "Text2D.h"
 #include "Entity.h"
 #include "Button.h"
 #include "ParticleSystem.h"
@@ -13,7 +13,7 @@ class EndRoundState : public StateItem {
 private:
 	Camera m_camera;
 	Timer m_timer;
-	TextRenderer m_textRenderer;
+	Text2D m_textRenderer;
 	string m_victoryText;
 	float4 m_victoryColor;
 	string m_timeText;

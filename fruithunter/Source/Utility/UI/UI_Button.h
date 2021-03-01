@@ -1,15 +1,14 @@
 #pragma once
-#include "Translation2DStructures.h"
+#include "Drawable2D.h"
 #include "Sprite2D.h"
-#include "TextRenderer.h"
+#include "Text2D.h"
 #include "Input.h"
 #include "GlobalNamespaces.h"
 
-class UI_Button : public Transformation2D {
+class UI_Button : public Drawable2D {
 private:
 	Sprite2D m_sprite;
-	TextRenderer m_textRenderer;
-	string m_text = "";
+	Text2D m_text;
 
 	Color m_color_standard = Color(1, 1, 1, 1);
 	Color m_color_hovering = Color(1, 1, 1, 1);
@@ -25,8 +24,10 @@ private:
 	// -- Private Functions --
 	bool mouseOn(float2 mp) const;
 
+	void _draw(const Transformation2D& transformation);
+
 public:
-	bool isHovering() const;
+	bool isHovering(float2 mp) const;
 
 	void setText(string text);
 	void setFont(string font);
@@ -43,9 +44,7 @@ public:
 	void setColorChangeTime(float time);
 
 	/* Returns true if clicked */
-	bool update(float dt);
-
-	void draw();
+	bool update(float dt, float2 mp);
 
 	void load(vector<string> images, float animationSpeed = 1.f);
 	void load(string image);

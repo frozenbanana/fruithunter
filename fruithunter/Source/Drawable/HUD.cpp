@@ -31,10 +31,12 @@ void HUD::drawTargetTime() {
 	string timeString = "Target: " + Time2DisplayableString(target) + ".00";
 	//draw target time
 	wstring w_timeString = std::wstring(timeString.begin(), timeString.end());
-	m_textRenderer.setColor(color);
-	m_textRenderer.setScale(0.45);
-	m_textRenderer.setAlignment(TextRenderer::LEFT, TextRenderer::CENTER);
-	m_textRenderer.draw(timeString, float2(30, 720-100));
+	m_text.setColor(color);
+	m_text.setScale(0.45);
+	m_text.setAlignment(HorizontalAlignment::Left, VerticalAlignment::Center);
+	m_text.setPosition(float2(30, 720 - 100));
+	m_text.setText(timeString);
+	m_text.draw();
 }
 
 HUD::HUD() {
@@ -71,10 +73,12 @@ void HUD::draw() {
 	float time = SceneManager::getScene()->m_timer.getTimePassed();
 	size_t rest = int((time - int(time)) * 100);
 	string timeString = "    Time: " + Time2DisplayableString((size_t)time)+"."+(rest<10?"0":"")+to_string(rest);
-	m_textRenderer.setColor(float4(1.));
-	m_textRenderer.setScale(0.45);
-	m_textRenderer.setAlignment(TextRenderer::LEFT, TextRenderer::CENTER);
-	m_textRenderer.draw(timeString, float2(30, 720 - 60));
+	m_text.setColor(float4(1.));
+	m_text.setScale(0.45);
+	m_text.setAlignment(HorizontalAlignment::Left, VerticalAlignment::Center);
+	m_text.setPosition(float2(30, 720 - 60));
+	m_text.setText(timeString);
+	m_text.draw();
 	drawTargetTime();
 
 	// Draw inventory numbers and fruit sprites
@@ -86,10 +90,12 @@ void HUD::draw() {
 		if (winCondition[i] > 0) {
 			//text
 			string displayStr = to_string(gathered[i]) + "/" + to_string(winCondition[i]);
-			m_textRenderer.setColor(m_fruitSprites[i].textColor);
-			m_textRenderer.setScale(0.6);
-			m_textRenderer.setAlignment(TextRenderer::LEFT, TextRenderer::CENTER);
-			m_textRenderer.draw(displayStr, itemPosition + float2(35, 0));
+			m_text.setColor(m_fruitSprites[i].textColor);
+			m_text.setScale(0.6);
+			m_text.setAlignment(HorizontalAlignment::Left, VerticalAlignment::Center);
+			m_text.setPosition(itemPosition + float2(35,0));
+			m_text.setText(displayStr);
+			m_text.draw();
 			//image
 			m_fruitSprites[i].sprite.setPosition(itemPosition);
 			m_fruitSprites[i].sprite.draw();

@@ -1,5 +1,5 @@
 #pragma once
-#include "TextRenderer.h"
+#include "Text2D.h"
 #include "Translation2DStructures.h"
 
 #define COL_INACTIVE Color(1.0f, 1.0f, 1.0f, 1.0f)
@@ -7,7 +7,7 @@
 
 class Button {
 private:
-	TextRenderer m_textRenderer;
+	Text2D m_text;
 	string m_label;
 	float2 m_position;
 	float2 m_size;

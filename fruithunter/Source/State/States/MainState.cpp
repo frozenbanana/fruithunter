@@ -364,12 +364,16 @@ void MainState::draw() {
 				m_textRenderer.setAlignment(); // center
 				m_textRenderer.setScale(0.4f);
 				m_textRenderer.setAlpha(alpha);
-				m_textRenderer.draw(to_string(i), itemPos + float2(115, 80));
+				m_textRenderer.setPosition(itemPos + float2(115, 80));
+				m_textRenderer.setText(to_string(i+1));
+				m_textRenderer.draw();
 				// text
 				m_textRenderer.setAlignment(); // center
 				m_textRenderer.setScale(0.25f);
 				m_textRenderer.setAlpha(alpha);
-				m_textRenderer.draw(m_levelSelections[i].name, itemPos + float2(0, -82));
+				m_textRenderer.setPosition(itemPos + float2(0, -82));
+				m_textRenderer.setText(m_levelSelections[i].name);
+				m_textRenderer.draw();
 				// grade
 				float2 coinPos = itemPos + float2(-85, -30);
 				for (int c = 0; c < TimeTargets::NR_OF_TIME_TARGETS; c++) {
@@ -383,12 +387,14 @@ void MainState::draw() {
 					m_medalSprites[c].setPosition(cur_coinPos);
 					m_medalSprites[c].draw();
 					// level time
-					m_textRenderer.setAlignment(TextRenderer::HorizontalAlignment::LEFT,
-						TextRenderer::VerticalAlignment::CENTER);
+					m_textRenderer.setAlignment(HorizontalAlignment::Left,
+						VerticalAlignment::Center);
 					m_textRenderer.setAlpha(alpha);
 					m_textRenderer.setScale(0.25f);
-					m_textRenderer.draw(asTimer(m_levelData[i].m_utility.timeTargets[c]) + " min",
-						cur_coinPos + float2(25, 0));
+					m_textRenderer.setPosition(cur_coinPos + float2(25, 0));
+					m_textRenderer.setText(
+						asTimer(m_levelData[i].m_utility.timeTargets[c]) + " min");
+					m_textRenderer.draw();
 				}
 			}
 			else {

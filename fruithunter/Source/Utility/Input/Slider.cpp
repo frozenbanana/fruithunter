@@ -79,10 +79,14 @@ void Slider::draw() {
 	m_img_grabber.draw();
 
 	m_textRenderer.setScale(m_scale * 8.0f);
-	m_textRenderer.setAlignment(TextRenderer::HorizontalAlignment::RIGHT, TextRenderer::VerticalAlignment::CENTER);
-	m_textRenderer.draw(m_label + ":", m_position);
+	m_textRenderer.setAlignment(HorizontalAlignment::Right, VerticalAlignment::Center);
+	m_textRenderer.setPosition(m_position);
+	m_textRenderer.setText(m_label + ":");
+	m_textRenderer.draw();
 
 	m_textRenderer.setScale(m_scale * 2.5f);
 	m_textRenderer.setAlignment(); // center
-	m_textRenderer.draw(to_string(int(100*m_value))+"%", sliderValuePos);
+	m_textRenderer.setPosition(sliderValuePos);
+	m_textRenderer.setText(to_string(int(100 * m_value)) + "%");
+	m_textRenderer.draw();
 }

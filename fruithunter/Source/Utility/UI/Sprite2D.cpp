@@ -14,29 +14,6 @@ Sprite2D::Sprite2D() {
 
 Sprite2D::~Sprite2D() {}
 
-void Sprite2D::draw(bool autoAdjustToScreenResolution) {
-	if (m_textures.size() > 0 && m_textures[0].isLoaded()) {
-		size_t texIndex = (size_t)((clock() / 1000.f) / m_animationSpeed) % m_textures.size();
-
-		m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
-
-		float2 screenModifier = float2((SCREEN_WIDTH / 1280.f), (SCREEN_HEIGHT / 720.f));
-		float2 position = m_position * screenModifier;
-		float2 scale = m_scale * (autoAdjustToScreenResolution ? screenModifier : float2(1, 1));
-		float2 origin = float2(m_textures[texIndex].m_textureSize.x / 2.f,
-							m_textures[texIndex].m_textureSize.y / 2.f) *
-						float2((float)m_horizontalAligment, (float)m_verticalAlignment);
-
-		m_spriteBatch->Draw(m_textures[texIndex].m_SRV.Get(), position, nullptr, m_color,
-			m_rotation,
-			origin, scale);
-
-		m_spriteBatch->End();
-		// Reset depth state
-		Renderer::getInstance()->getDeviceContext()->OMSetDepthStencilState(nullptr, 0);
-	}
-}
-
 bool Sprite2D::load(string path) {
 	m_textures.resize(1);
 	return m_textures[0].load(path);
@@ -67,9 +44,34 @@ bool Sprite2D::load(vector<string> paths, float animationSpeed) {
 }
 
 void Sprite2D::set(float2 position, float2 scale, float rotation) { 
-	m_position = position;
-	m_scale = scale;
-	m_rotation = rotation;
+	setPosition(position);
+	setScale(scale);
+	setRotation(rotation);
+}
+
+void Sprite2D::_draw(const Transformation2D& source) {
+	if (m_textures.size() > 0 && m_textures[0].isLoaded()) {
+		size_t texIndex = (size_t)((clock() / 1000.f) / m_animationSpeed) % m_textures.size();
+
+		m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
+
+		float2 screenModifier = float2((SCREEN_WIDTH / 1280.f), (SCREEN_HEIGHT / 720.f));
+		float2 position = source.getPosition() * screenModifier;
+		float2 scale = source.getScale() * screenModifier;
+		float rotation = source.getRotation();
+		float2 alignment =
+			float2((float)m_horizontalAligment, (float)m_verticalAlignment) + float2(1, 1);
+		float2 texSize =
+			float2(m_textures[texIndex].m_textureSize.x, m_textures[texIndex].m_textureSize.y);
+		float2 origin = texSize / 2.f * alignment;
+
+		m_spriteBatch->Draw(
+			m_textures[texIndex].m_SRV.Get(), position, nullptr, m_color, rotation, origin, scale);
+
+		m_spriteBatch->End();
+		// Reset depth state
+		Renderer::getInstance()->getDeviceContext()->OMSetDepthStencilState(nullptr, 0);
+	}
 }
 
 XMINT2 Sprite2D::getTextureSize(size_t index) const { 
@@ -82,45 +84,33 @@ XMINT2 Sprite2D::getTextureSize(size_t index) const {
 float2 Sprite2D::getSize(size_t index) const {
 	if (index < m_textures.size() && index >= 0) {
 		XMINT2 texSize = getTextureSize(index);
-		return float2((float)texSize.x, (float)texSize.y) * m_scale;
+		return float2((float)texSize.x, (float)texSize.y) * getScale();
 	}
 	else
 		return float2(0, 0);
 }
-
-float2 Sprite2D::getPosition() const { return m_position; }
-
-float Sprite2D::getRotation() const { return m_rotation; }
-
-float2 Sprite2D::getScale() const { return m_scale; }
 
 Color Sprite2D::getColor() const { return m_color; }
 
 BoundingBox2D Sprite2D::getBoundingBox() const { 
 	size_t texIndex = (size_t)((clock() / 1000.f) / m_animationSpeed) % m_textures.size();
 	float2 screenModifier = float2((SCREEN_WIDTH / 1280.f), (SCREEN_HEIGHT / 720.f));
-	float2 position = m_position * screenModifier;
-	float2 scale = m_scale * screenModifier;
+	float2 position = getPosition() * screenModifier;
+	float2 scale = getScale() * screenModifier;
 	float2 size = getSize() * screenModifier;
-	float2 origin = (size / 2.f) * float2((float)m_horizontalAligment, (float)m_verticalAlignment);
+	float2 alignment =
+		float2((float)m_horizontalAligment, (float)m_verticalAlignment) + float2(1, 1);
+	float2 origin = (size / 2.f) * alignment;
 	BoundingBox2D bb(position - origin, position - origin + size); 
 	return bb;
 }
 
-void Sprite2D::setPosition(float2 position) { m_position = position; }
-
-void Sprite2D::setScale(float2 scale) { m_scale = scale; }
-
-void Sprite2D::setScale(float scale) { m_scale = float2(scale, scale); }
-
 void Sprite2D::setSize(float2 size) {
 	if (m_textures.size() > 0) {
 		XMINT2 texSize = getTextureSize();
-		m_scale = float2(size.x / texSize.x, size.y / texSize.y);
+		setScale(float2(size.x / texSize.x, size.y / texSize.y));
 	}
 }
-
-void Sprite2D::setRotation(float rot) { m_rotation = rot; }
 
 void Sprite2D::setAlignment(HorizontalAlignment horizontal, VerticalAlignment vertical) {
 	m_horizontalAligment = horizontal;

@@ -14,6 +14,13 @@ float Transformation2D::getRotation() const { return m_rotation; }
 
 float2 Transformation2D::getNormal() const { return float2(cos(m_rotation), sin(m_rotation)); }
 
+float4x4 Transformation2D::getMatrix() const { 
+	float4x4 m = float4x4::CreateScale(m_scale.x, m_scale.y, 1) *
+				 float4x4::CreateRotationZ(m_rotation) *
+				 float4x4::CreateTranslation(m_position.x, m_position.y, 0);
+	return m; 
+}
+
 void Transformation2D::setPosition(float2 position) { m_position = position; }
 
 void Transformation2D::setScale(float2 scale) { m_scale = scale; }
@@ -25,6 +32,20 @@ void Transformation2D::setRotation(float rotation) { m_rotation = rotation; }
 void Transformation2D::move(float2 movement) { m_position += movement; }
 
 void Transformation2D::rotate(float rotate) { m_rotation += rotate; }
+
+Transformation2D Transformation2D::transform(
+	const Transformation2D& target, const Transformation2D& matrix) {
+	Transformation2D t = target;
+	t.rotate(matrix.getRotation());
+	t.setScale(t.getScale()*matrix.getScale());
+	t.setPosition(transform(t.getPosition(), matrix));
+
+	return t;
+}
+
+float2 Transformation2D::transform(const float2& target, const Transformation2D& matrix) {
+	return float2::Transform(target, matrix.getMatrix());
+}
 
 Projectile::Projectile(float2 position, float mass) : Transformation2D(position) { setMass(mass); }
 

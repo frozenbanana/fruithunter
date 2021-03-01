@@ -10,7 +10,7 @@ StateItem::~StateItem() {}
 StateItem::State StateItem::getState() const { return m_state; }
 
 string StateItem::getStateAsString() const { 
-	string map[State::Size] = { "PlayState", "PauseState", "SettingState", "LevelSelectState",
+	string map[State::Size] = { "PlayState", "PauseState", "SettingState",
 		"MainState", "EndRoundState", "EditorState" };
 	return map[m_state];
 }

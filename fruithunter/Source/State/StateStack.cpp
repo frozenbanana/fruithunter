@@ -57,9 +57,6 @@ void StateStack::push(StateItem::State state) {
 	case StateItem::SettingState:
 		item = make_shared<SettingsState>();
 		break;
-	case StateItem::LevelSelectState:
-		item = make_shared<LevelSelectState>();
-		break;
 	case StateItem::MainState:
 		item = make_shared<MainState>();
 		break;

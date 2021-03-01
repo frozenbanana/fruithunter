@@ -15,8 +15,10 @@ void Button::initialize(string label, float2 position) {
 	m_label = label;
 	m_position = position;
 	m_colour = COL_INACTIVE;
-	m_size = m_textRenderer.getSize(m_label);
-	m_textRenderer.setScale(m_size.y * 0.01f);
+	m_text.setText(m_label);
+	m_size = m_text.getSize();
+	m_text.setScale(m_size.y * 0.01f);
+	m_text.setAlignment();
 }
 
 void Button::initialize(string label, float2 position, bool on) {
@@ -25,8 +27,10 @@ void Button::initialize(string label, float2 position, bool on) {
 	m_on = on;
 	m_isToggle = true;
 	m_colour = COL_INACTIVE;
-	m_size = m_textRenderer.getSize(m_label + ": On");
-	m_textRenderer.setScale(m_size.y * 0.01f);
+	m_text.setText(m_label + ": On");
+	m_size = m_text.getSize();
+	m_text.setScale(m_size.y * 0.01f);
+	m_text.setAlignment();
 }
 
 void Button::initialize(string label, float2 position, Setting value) {
@@ -35,8 +39,10 @@ void Button::initialize(string label, float2 position, Setting value) {
 	m_isLowMedHighUltra = true;
 	m_lowMedHighUltra = value;
 	m_colour = COL_INACTIVE;
-	m_size = m_textRenderer.getSize(m_label + ": Ultra");
-	m_textRenderer.setScale(m_size.y * 0.01f);
+	m_text.setText(m_label + ": Ultra");
+	m_size = m_text.getSize();
+	m_text.setScale(m_size.y * 0.01f);
+	m_text.setAlignment();
 }
 
 void Button::initialize(string label, float2 position, Resolution value) {
@@ -45,8 +51,10 @@ void Button::initialize(string label, float2 position, Resolution value) {
 	m_isResolution = true;
 	m_resolution = value;
 	m_colour = COL_INACTIVE;
-	m_size = m_textRenderer.getSize(m_label + ": 3840x2160");
-	m_textRenderer.setScale(m_size.y * 0.01f);
+	m_text.setText(m_label + ": 3840x2160");
+	m_size = m_text.getSize();
+	m_text.setScale(m_size.y * 0.01f);
+	m_text.setAlignment();
 }
 
 void Button::setLowMedHighUltra(Setting value) { m_lowMedHighUltra = value; }
@@ -105,31 +113,33 @@ bool Button::update() {
 }
 
 void Button::draw() {
-	m_textRenderer.setColor(Color(m_colour.x, m_colour.y, m_colour.z, m_colour.w));
+	m_text.setColor(m_colour);
+	m_text.setPosition(m_position);
 	if (m_isToggle && m_on)
-		m_textRenderer.draw(m_label + ": On", m_position);
+		m_text.setText(m_label + ": On");
 	else if (m_isToggle && !m_on)
-		m_textRenderer.draw(m_label + ": Off", m_position);
+		m_text.setText(m_label + ": Off");
 	else if (m_isLowMedHighUltra) {
 		if (m_lowMedHighUltra == LOW)
-			m_textRenderer.draw(m_label + ": Low", m_position);
+			m_text.setText(m_label + ": Low");
 		else if (m_lowMedHighUltra == MEDIUM)
-			m_textRenderer.draw(m_label + ": Medium", m_position);
+			m_text.setText(m_label + ": Medium");
 		else if (m_lowMedHighUltra == HIGH)
-			m_textRenderer.draw(m_label + ": High", m_position);
+			m_text.setText(m_label + ": High");
 		else if (m_lowMedHighUltra == ULTRA)
-			m_textRenderer.draw(m_label + ": Ultra", m_position);
+			m_text.setText(m_label + ": Ultra");
 	}
 	else if (m_isResolution) {
 		if (m_resolution == HD)
-			m_textRenderer.draw(m_label + ": 1280x720", m_position);
+			m_text.setText(m_label + ": 1280x720");
 		else if (m_resolution == FHD)
-			m_textRenderer.draw(m_label + ": 1920x1080", m_position);
+			m_text.setText(m_label + ": 1920x1080");
 		else if (m_resolution == QHD)
-			m_textRenderer.draw(m_label + ": 2560x1440", m_position);
+			m_text.setText(m_label + ": 2560x1440");
 		else if (m_resolution == UHD)
-			m_textRenderer.draw(m_label + ": 3840x2160", m_position);
+			m_text.setText(m_label + ": 3840x2160");
 	}
 	else
-		m_textRenderer.draw(m_label, m_position);
+		m_text.setText(m_label);
+	m_text.draw();
 }

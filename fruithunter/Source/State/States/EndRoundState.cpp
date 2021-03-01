@@ -136,9 +136,13 @@ void EndRoundState::draw() {
 	float height = 720;
 	m_camera.bind();
 	m_textRenderer.setColor(Color(1., 1.f, 1.f, 1.0f));
-	m_textRenderer.draw(m_timeText, float2(width / 2, height / 2 + 150));
+	m_textRenderer.setPosition(float2(width / 2, height / 2 + 150));
+	m_textRenderer.setText(m_timeText);
+	m_textRenderer.draw();
 	m_textRenderer.setColor(m_victoryColor);
-	m_textRenderer.draw(m_victoryText, float2(width / 2, 75));
+	m_textRenderer.setPosition(float2(width / 2, 75));
+	m_textRenderer.setText(m_victoryText);
+	m_textRenderer.draw();
 
 	m_btn_play.draw();
 	m_btn_back.draw();

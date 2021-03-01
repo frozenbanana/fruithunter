@@ -1,5 +1,5 @@
 #pragma once
-#include "TextRenderer.h"
+#include "Text2D.h"
 #include <CommonStates.h>
 #include "Sprite2D.h";
 
@@ -17,7 +17,7 @@ private:
 
 	Sprite2D m_img_background, m_img_grabber;
 
-	TextRenderer m_textRenderer;
+	Text2D m_textRenderer;
 
 	float m_grabPos;
 	float m_value;

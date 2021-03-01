@@ -10,6 +10,8 @@ void Menu_PoppingArrowButton::setDesiredScale_standard(float value) {
 }
 
 bool Menu_PoppingArrowButton::update_behavior(float dt) { 
+	Input* ip = Input::getInstance();
+	float2 mp(ip->mouseX(), ip->mouseY());
 	if (m_timer <= m_delay && m_timer + dt > m_delay) {
 		SoundID id = AudioController::getInstance()->play("bubble_pop");
 		AudioController::getInstance()->setPitch(id, RandomFloat(-1, 1) * 0.5);
@@ -18,8 +20,8 @@ bool Menu_PoppingArrowButton::update_behavior(float dt) {
 	bool clicked = false;
 	if (m_timer > m_delay) {
 		setRotation(cos(m_timer - m_delay * 5) * 0.1f);
-		clicked = update(dt);
-		if (isHovering()) {
+		clicked = update(dt, mp);
+		if (isHovering(mp)) {
 			m_scale_desired = m_scale_desired_hovering;
 		}
 		else {

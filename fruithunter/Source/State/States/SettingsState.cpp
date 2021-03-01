@@ -14,6 +14,8 @@ void SettingsState::init() {
 
 	Settings* settings = Settings::getInstance();
 
+	m_toggle.init(float2(1280/2,720-50), "Header");
+
 	m_masterVolume.initialize("Master Volume", center + float2(0, -330));
 	m_musicVolume.initialize("Music Volume", center + float2(0, -280));
 	m_effectsVolume.initialize("Effects Volume", center + float2(0, -230));
@@ -38,9 +40,17 @@ void SettingsState::init() {
 }
 
 void SettingsState::update() {
+	Input* ip = Input::getInstance();
 	Input::getInstance()->setMouseModeAbsolute();
+	m_timer.update();
+	float dt = m_timer.getDt();
 
 	Settings* settings = Settings::getInstance();
+
+	float2 mp(ip->mouseX(), ip->mouseY());
+	if (m_toggle.update(dt, mp)) {
+		// pressed
+	}
 
 	if (m_masterVolume.update()) {
 		settings->setMasterVolume(m_masterVolume.getValue());
@@ -145,6 +155,7 @@ void SettingsState::restart() {}
 
 void SettingsState::draw() {
 	Renderer::getInstance()->drawCapturedFrame();
+
 	m_settingsBackground.draw();
 	m_darkEdgesButton.draw();
 	m_vsyncButton.draw();
@@ -158,6 +169,8 @@ void SettingsState::draw() {
 	m_musicVolume.draw();
 	m_effectsVolume.draw();
 	m_sensitivity.draw();
+
+	m_toggle.draw();
 
 	float2 center(1280.f / 2, 720.f / 2);
 	if (m_screenStateChanged) {

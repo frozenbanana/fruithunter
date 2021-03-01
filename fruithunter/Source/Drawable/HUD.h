@@ -1,7 +1,7 @@
 #pragma once
 #include "GlobalNamespaces.h"
 #include "Sprite2D.h"
-#include "TextRenderer.h"
+#include "Text2D.h"
 
 class HUD {
 private:
@@ -15,7 +15,7 @@ private:
 
 	Sprite2D m_img_background, m_img_stamina, m_img_staminaFrame;
 
-	TextRenderer m_textRenderer;
+	Text2D m_text;
 
 	//-- Private Functions --
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "StateItem.h"
-#include "TextRenderer.h"
+#include "Text2D.h"
 #include "Button.h"
 #include "Timer.h"
 #include "Apple.h"
@@ -13,7 +13,7 @@
 
 class MainState : public StateItem {
 private:
-	TextRenderer m_textRenderer;
+	Text2D m_textRenderer;
 	Timer m_timer;
 
 	// Scene variables

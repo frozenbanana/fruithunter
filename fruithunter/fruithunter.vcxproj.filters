@@ -90,9 +90,6 @@
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp">
       <Filter>Source\Drawable\Mesh\Fruits</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Drawable\Mesh\Text\TextRenderer.cpp">
-      <Filter>Source\Drawable\Mesh\Text</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Drawable\Mesh\SkyBox\SkyBox.cpp">
       <Filter>Source\Drawable\Mesh\SkyBox</Filter>
     </ClCompile>
@@ -204,9 +201,6 @@
     <ClCompile Include="Source\State\States\SettingsState.cpp">
       <Filter>Source\State\States</Filter>
     </ClCompile>
-    <ClCompile Include="Source\State\States\LevelSelectState.cpp">
-      <Filter>Source\State\States</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Utility\Settings\Settings.cpp">
       <Filter>Source\Utility\Settings</Filter>
     </ClCompile>
@@ -215,9 +209,6 @@
     </ClCompile>
     <ClCompile Include="Source\Utility\SaveState\SaveManager.cpp">
       <Filter>Source\Utility\SaveState</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Drawable\Sprite2D.cpp">
-      <Filter>Source\Drawable</Filter>
     </ClCompile>
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Dragonfruit.cpp">
       <Filter>Source\Drawable\Mesh\Fruits</Filter>
@@ -312,13 +303,25 @@
     <ClCompile Include="Source\Drawable\Mesh\Terrain\HeightmapMesh.cpp">
       <Filter>Source\Drawable\Mesh\Terrain</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Utility\UI\Menu_Toggle.cpp">
+      <Filter>Source\Utility\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\UI\Drawable2D.cpp">
+      <Filter>Source\Utility\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\UI\Sprite2D.cpp">
+      <Filter>Source\Utility\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\UI\Text2D.cpp">
+      <Filter>Source\Utility\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Drawable\Text3D.cpp">
+      <Filter>Source\Drawable</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
       <Filter>Source\Drawable\Mesh\Fruits</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Drawable\Mesh\Text\TextRenderer.h">
-      <Filter>Source\Drawable\Mesh\Text</Filter>
     </ClInclude>
     <ClInclude Include="Source\Drawable\Mesh\SkyBox\SkyBox.h">
       <Filter>Source\Drawable\Mesh\SkyBox</Filter>
@@ -437,9 +440,6 @@
     <ClInclude Include="Source\State\States\SettingsState.h">
       <Filter>Source\State\States</Filter>
     </ClInclude>
-    <ClInclude Include="Source\State\States\LevelSelectState.h">
-      <Filter>Source\State\States</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Utility\Settings\Settings.h">
       <Filter>Source\Utility\Settings</Filter>
     </ClInclude>
@@ -448,9 +448,6 @@
     </ClInclude>
     <ClInclude Include="Source\Utility\SaveState\SaveManager.h">
       <Filter>Source\Utility\SaveState</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Drawable\Sprite2D.h">
-      <Filter>Source\Drawable</Filter>
     </ClInclude>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Dragonfruit.h">
       <Filter>Source\Drawable\Mesh\Fruits</Filter>
@@ -560,6 +557,21 @@
     <ClInclude Include="Source\Drawable\Mesh\Terrain\HeightmapMesh.h">
       <Filter>Source\Drawable\Mesh\Terrain</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Utility\UI\Menu_Toggle.h">
+      <Filter>Source\Utility\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\UI\Drawable2D.h">
+      <Filter>Source\Utility\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\UI\Sprite2D.h">
+      <Filter>Source\Utility\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\UI\Text2D.h">
+      <Filter>Source\Utility\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\Text3D.h">
+      <Filter>Source\Drawable</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
@@ -616,9 +628,6 @@
     </Filter>
     <Filter Include="Source\Drawable\Mesh\SkyBox">
       <UniqueIdentifier>{e5a64864-2aa0-4ca8-b3c3-3d67c2988969}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Drawable\Mesh\Text">
-      <UniqueIdentifier>{3f21d543-aeec-4695-8963-33d4a09f668c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Utility\Input">
       <UniqueIdentifier>{d7b43882-2a51-43c3-9a41-7e91061d5fb9}</UniqueIdentifier>
