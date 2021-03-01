@@ -79,7 +79,7 @@ void Slider::draw() {
 	m_img_grabber.draw();
 
 	m_textRenderer.setScale(m_scale * 8.0f);
-	m_textRenderer.setAlignment(HorizontalAlignment::Right, VerticalAlignment::Center);
+	m_textRenderer.setAlignment(HorizontalAlignment::AlignRight, VerticalAlignment::AlignCenter);
 	m_textRenderer.setPosition(m_position);
 	m_textRenderer.setText(m_label + ":");
 	m_textRenderer.draw();

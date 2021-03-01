@@ -13,8 +13,8 @@ private:
 
 	string m_text;
 	Color m_color = Color(1, 1, 1, 1);
-	HorizontalAlignment m_horizontal = HorizontalAlignment::Left;
-	VerticalAlignment m_vertical = VerticalAlignment::Top;
+	HorizontalAlignment m_horizontal = HorizontalAlignment::AlignLeft;
+	VerticalAlignment m_vertical = VerticalAlignment::AlignTop;
 
 	void setDepthStateToNull();
 
@@ -31,7 +31,7 @@ public:
 	void setFont(string font);
 	void setColor(Color color);
 	void setAlpha(float alpha);
-	void setAlignment(HorizontalAlignment ha = Middle, VerticalAlignment va = Center);
+	void setAlignment(HorizontalAlignment ha = AlignMiddle, VerticalAlignment va = AlignCenter);
 
 	Text2D();
 

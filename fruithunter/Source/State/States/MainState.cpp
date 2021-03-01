@@ -387,8 +387,8 @@ void MainState::draw() {
 					m_medalSprites[c].setPosition(cur_coinPos);
 					m_medalSprites[c].draw();
 					// level time
-					m_textRenderer.setAlignment(HorizontalAlignment::Left,
-						VerticalAlignment::Center);
+					m_textRenderer.setAlignment(HorizontalAlignment::AlignLeft,
+						VerticalAlignment::AlignCenter);
 					m_textRenderer.setAlpha(alpha);
 					m_textRenderer.setScale(0.25f);
 					m_textRenderer.setPosition(cur_coinPos + float2(25, 0));

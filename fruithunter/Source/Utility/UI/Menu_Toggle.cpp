@@ -43,10 +43,14 @@ void ToggleSelectable::_draw(const Transformation2D& source) {
 
 	// text
 	m_text.setScale(0.5);
-	m_text.draw(source);
+	m_text.draw(Transformation2D::transform(m_sprite, source));
 }
 
 float2 ToggleSelectable::getSize() const { return m_sprite.getSize(); }
+
+void ToggleSelectable::setAlignment(HorizontalAlignment ha, VerticalAlignment va) {
+	m_sprite.setAlignment(ha, va);
+}
 
 bool ToggleSelectable::getState() const { return m_state; }
 
@@ -72,10 +76,11 @@ bool ToggleSelectable::update(float dt, float2 mp) {
 
 	// scale interpolation
 	m_scale_desired = (hovering || state ? m_scale_desired_hovering : m_scale_desired_standard);
-	m_scale_velocity += (m_scale_desired - getScale().x) * m_scale_spring_speed * dt; // add force
+	m_scale_velocity +=
+		(m_scale_desired - m_sprite.getScale().x) * m_scale_spring_speed * dt; // add force
 	m_scale_velocity *= pow(m_scale_spring_friction, dt); // friction
 	m_scale_current = m_scale_current + m_scale_velocity * dt; // move scale as spring
-	setScale(m_scale_current);
+	m_sprite.setScale(m_scale_current);
 
 	return clicked;
 }
@@ -100,5 +105,5 @@ void Menu_Toggle::init(float2 position, string text) {
 
 Menu_Toggle::Menu_Toggle() { 
 	setState(false);
-	m_text.setAlignment(HorizontalAlignment::Right, VerticalAlignment::Center);
+	m_text.setAlignment(HorizontalAlignment::AlignRight, VerticalAlignment::AlignCenter);
 }

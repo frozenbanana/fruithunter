@@ -33,7 +33,7 @@ void HUD::drawTargetTime() {
 	wstring w_timeString = std::wstring(timeString.begin(), timeString.end());
 	m_text.setColor(color);
 	m_text.setScale(0.45);
-	m_text.setAlignment(HorizontalAlignment::Left, VerticalAlignment::Center);
+	m_text.setAlignment(HorizontalAlignment::AlignLeft, VerticalAlignment::AlignCenter);
 	m_text.setPosition(float2(30, 720 - 100));
 	m_text.setText(timeString);
 	m_text.draw();
@@ -75,7 +75,7 @@ void HUD::draw() {
 	string timeString = "    Time: " + Time2DisplayableString((size_t)time)+"."+(rest<10?"0":"")+to_string(rest);
 	m_text.setColor(float4(1.));
 	m_text.setScale(0.45);
-	m_text.setAlignment(HorizontalAlignment::Left, VerticalAlignment::Center);
+	m_text.setAlignment(HorizontalAlignment::AlignLeft, VerticalAlignment::AlignCenter);
 	m_text.setPosition(float2(30, 720 - 60));
 	m_text.setText(timeString);
 	m_text.draw();
@@ -92,7 +92,7 @@ void HUD::draw() {
 			string displayStr = to_string(gathered[i]) + "/" + to_string(winCondition[i]);
 			m_text.setColor(m_fruitSprites[i].textColor);
 			m_text.setScale(0.6);
-			m_text.setAlignment(HorizontalAlignment::Left, VerticalAlignment::Center);
+			m_text.setAlignment(HorizontalAlignment::AlignLeft, VerticalAlignment::AlignCenter);
 			m_text.setPosition(itemPosition + float2(35,0));
 			m_text.setText(displayStr);
 			m_text.draw();

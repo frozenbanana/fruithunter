@@ -12,8 +12,8 @@ private:
 
 	float m_scale_current = 1;
 	float m_scale_desired = 0;
-	float m_scale_desired_hovering = 0.9;
-	float m_scale_desired_standard = 0.75;
+	float m_scale_desired_hovering = 0.8;
+	float m_scale_desired_standard = 0.6;
 
 	float m_scale_velocity = 0;
 	const float m_scale_spring_speed = 200;
@@ -36,6 +36,8 @@ private:
 
 public:
 	float2 getSize() const;
+
+	void setAlignment(HorizontalAlignment ha, VerticalAlignment va);
 
 	bool getState() const;
 	void setState(bool state);

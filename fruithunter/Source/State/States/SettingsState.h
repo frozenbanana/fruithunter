@@ -29,8 +29,6 @@ private:
 	Slider m_effectsVolume;
 	Slider m_sensitivity;
 
-	Menu_Toggle m_toggle;
-
 	bool m_screenStateChanged = false;
 
 public:

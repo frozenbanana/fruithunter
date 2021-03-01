@@ -23,8 +23,8 @@ private:
 		bool isLoaded() const;
 	};
 	vector<SpriteTexture> m_textures;
-	HorizontalAlignment m_horizontalAligment = Left;
-	VerticalAlignment m_verticalAlignment = Top;
+	HorizontalAlignment m_horizontalAligment = AlignLeft;
+	VerticalAlignment m_verticalAlignment = AlignTop;
 	float m_animationSpeed = 1.f; // time between frames, in seconds
 	Color m_color = Color(1, 1, 1, 1);
 
@@ -37,7 +37,7 @@ public:
 	BoundingBox2D getBoundingBox() const;
 
 	void setSize(float2 size);
-	void setAlignment(HorizontalAlignment horizontal = Middle, VerticalAlignment vertical = Center);
+	void setAlignment(HorizontalAlignment horizontal = AlignMiddle, VerticalAlignment vertical = AlignCenter);
 	void setAnimationSpeed(float animationSpeed);
 	void setColor(Color color);
 	void setAlpha(float alpha);
