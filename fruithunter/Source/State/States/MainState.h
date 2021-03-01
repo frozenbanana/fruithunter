@@ -32,7 +32,7 @@ private:
 	CamTransformState m_camTransformStates[NR_OF_STATES] = {
 		CamTransformState(float3(58.0f, 10.9f, 21.9f), float3(61.3f, 10.1f, -36.0f)),
 		CamTransformState(
-			float3(65.753, 9.530 + 1.25, 20.849), float3(66.960, 9.530 - 0.35, 19.784)),
+			float3(65.81, 11.32+0.2, 21.01), float3(65.81, 11.32+0.2, 21.01)+ float3(0.54, -0.62-0.1, -0.56)),
 		CamTransformState(
 			float3(47.93, 11.02, 19.48), float3(47.93, 11.02, 19.48) + float3(0.7, -0.07, -0.71))
 	};

@@ -439,8 +439,11 @@ void MainState::play() {
 	float itemWidthOffset = 325;
 	float totalItemWidth = itemWidthOffset * (3 - 1);
 
-	float3 bowlPositions[3] = { float3(67.614, 9.530, 20.688), float3(66.927, 9.530, 19.881),
-		float3(66.216, 9.530, 19.077) };
+	float3 bowlPositions[3] = { 
+		float3(67.455,10.528,20.378), 
+		float3(66.942,10.528,19.874),
+		float3(66.410,10.528,19.344) 
+	};
 	string bowlLevelContentObjName[3] = { "BowlContent1", "BowlContent2", "BowlContent3" };
 	string bowlGradeObjName[TimeTargets::NR_OF_TIME_TARGETS] = { "bowl_gold", "bowl_silver",
 		"bowl_bronze" };
@@ -458,8 +461,9 @@ void MainState::play() {
 		m_levelSelections[i].obj_content.load(bowlLevelContentObjName[i]);
 		m_levelSelections[i].obj_bowl.setPosition(position);
 		m_levelSelections[i].obj_content.setPosition(position);
-		m_levelSelections[i].obj_bowl.setScale(0.5);
-		m_levelSelections[i].obj_content.setScale(0.5);
+		float bowlScale = 0.4;
+		m_levelSelections[i].obj_bowl.setScale(bowlScale);
+		m_levelSelections[i].obj_content.setScale(bowlScale);
 
 		m_levelSelections[i].completed = completed;
 		m_levelSelections[i].grade = grade;
