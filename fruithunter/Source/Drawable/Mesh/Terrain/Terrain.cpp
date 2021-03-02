@@ -38,8 +38,8 @@ void Terrain::setStrawAndAnimationSettings(AreaTag tag) {
 		m_grass_strawSetting.color_top = float4(106 / 255.f, 138 / 255.f, 21 / 255.f, 1);
 		m_grass_strawSetting.color_bottom = float4(70 / 255.f, 93 / 255.f, 32 / 255.f, 1);
 
-		m_grass_animationSetting.speed = 30;
-		m_grass_animationSetting.noiseAnimInterval = 24.5f;
+		m_grass_animationSetting.speed = 24;
+		m_grass_animationSetting.noiseAnimInterval = 10.f;
 		m_grass_animationSetting.offsetStrength = 0.26f;
 		break;
 	case Plains:
@@ -50,8 +50,8 @@ void Terrain::setStrawAndAnimationSettings(AreaTag tag) {
 		m_grass_strawSetting.color_top = float4(106 / 255.f, 138 / 255.f, 21 / 255.f, 1);
 		m_grass_strawSetting.color_bottom = float4(70 / 255.f, 93 / 255.f, 32 / 255.f, 1);
 
-		m_grass_animationSetting.speed = 20;
-		m_grass_animationSetting.noiseAnimInterval = 7.4f;
+		m_grass_animationSetting.speed = 12;
+		m_grass_animationSetting.noiseAnimInterval = 3.25f;
 		m_grass_animationSetting.offsetStrength = 0.2f;
 		break;
 	case Desert:
@@ -228,7 +228,7 @@ XMINT2 Terrain::getSubSize() const { return m_tileSize; }
 
 void Terrain::initilize(string filename, XMINT2 subsize, XMINT2 splits) {
 	// grass noise texture
-	m_tex_noise = TextureRepository::get("noise1.png");
+	m_tex_noise = TextureRepository::get("noise_grass.png");
 	// grass noise buffer
 	m_cbuffer_noiseSize.update(
 		float4(m_tex_noise->description.Width, m_tex_noise->description.Height, 0, 0));
@@ -498,6 +498,8 @@ void Terrain::draw_brush(const Brush& brush) {
 
 void Terrain::draw_grass() {
 	if (m_grass_visibility) {
+		imgui_settings();
+		imgui_animation();
 		// straw setting cbuffer
 		update_strawBuffer();
 		m_cbuffer_settings.bindGS(SETTING_SLOT);

@@ -1,4 +1,5 @@
 #include "Translation2DStructures.h"
+#include "ErrorLogger.h"
 
 Transformation2D::Transformation2D(float2 position, float2 scale, float rotation) {
 	m_position = position;
@@ -94,7 +95,16 @@ void BoundingBox2D::set(float2 pStart, float2 pEnd) {
 	m_point_end = pEnd;
 }
 
+#include "Input.h"
 bool BoundingBox2D::isInside(float2 point) const {
+	if (Input::getInstance()->keyPressed(Keyboard::J)) {
+		ErrorLogger::log("mp: [" + to_string(point.x) + " " + to_string(point.y) + "]");
+		ErrorLogger::log(
+			"p1: [" + to_string(m_point_start.x) + " " + to_string(m_point_start.y) + "]");
+		ErrorLogger::log("p2: [" + to_string(m_point_end.x) + " " + to_string(m_point_end.y) + "]");
+		ErrorLogger::log("");
+	}
+
 	return (point.x > m_point_start.x && point.y > m_point_start.y && point.x < m_point_end.x &&
 			point.y < m_point_end.y);
 }

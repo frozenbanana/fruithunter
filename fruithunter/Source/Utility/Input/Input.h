@@ -23,8 +23,9 @@ public:
 	bool mouseReleased(MouseButton button, bool filterImgui = true);
 	bool mouseDown(MouseButton button, bool filterImgui = true);
 	bool mouseUp(MouseButton button, bool filterImgui = true);
-	int mouseX() const;
-	int mouseY() const;
+	float mouseX() const;
+	float mouseY() const;
+	float2 mouseXY() const;
 	int scrollWheelValue();
 	bool scrolledUp();
 	bool scrolledDown();
