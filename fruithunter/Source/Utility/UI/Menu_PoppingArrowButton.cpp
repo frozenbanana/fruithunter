@@ -11,7 +11,7 @@ void Menu_PoppingArrowButton::setDesiredScale_standard(float value) {
 
 bool Menu_PoppingArrowButton::update_behavior(float dt) { 
 	Input* ip = Input::getInstance();
-	float2 mp(ip->mouseX(), ip->mouseY());
+	float2 mp = ip->mouseXY();
 	if (m_timer <= m_delay && m_timer + dt > m_delay) {
 		SoundID id = AudioController::getInstance()->play("bubble_pop");
 		AudioController::getInstance()->setPitch(id, RandomFloat(-1, 1) * 0.5);

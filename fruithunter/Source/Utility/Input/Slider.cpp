@@ -38,10 +38,9 @@ void Slider::setValue(float value) {
 
 bool Slider::update() {
 	Input* ip = Input::getInstance();
-	float2 screenModifier = float2((SCREEN_WIDTH / 1280.f), (SCREEN_HEIGHT / 720.f));
 	bool changed = false;
 
-	float2 mp = float2(ip->mouseX(), ip->mouseY()) / screenModifier;
+	float2 mp = ip->mouseXY();
 	float2 pos = m_img_grabber.getPosition();
 	float radius = m_img_grabber.getSize().x * 0.5;
 

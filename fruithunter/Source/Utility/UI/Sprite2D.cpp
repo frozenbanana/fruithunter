@@ -94,9 +94,8 @@ Color Sprite2D::getColor() const { return m_color; }
 
 BoundingBox2D Sprite2D::getBoundingBox() const { 
 	//size_t texIndex = (size_t)((clock() / 1000.f) / m_animationSpeed) % m_textures.size();
-	float2 screenModifier = float2((SCREEN_WIDTH / 1280.f), (SCREEN_HEIGHT / 720.f));
-	float2 position = getPosition() * screenModifier;
-	float2 size = getSize() * screenModifier;
+	float2 position = getPosition();
+	float2 size = getSize();
 	float2 alignment =
 		float2((float)m_horizontalAligment, (float)m_verticalAlignment) + float2(1, 1);
 	float2 origin = (size / 2.f) * alignment;

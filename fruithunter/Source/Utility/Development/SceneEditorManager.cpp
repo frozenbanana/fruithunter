@@ -741,8 +741,8 @@ void SceneEditorManager::update_transformation(float dt) {
 		if (ip->getMouseMode() == DirectX::Mouse::MODE_ABSOLUTE) {
 			// x coordinate is backwards!! Not because of mouse position but rather
 			// getMousePickVector return
-			float2 mpos =
-				float2(1 - (float)ip->mouseX() / SCREEN_WIDTH, (float)ip->mouseY() / SCREEN_HEIGHT);
+			float2 mpos = ip->mouseXY() / float2(1280, 720);
+			mpos.x = 1 - mpos.x;
 			cam_forward = m_camera.getMousePickVector(mpos);
 		}
 
@@ -1134,8 +1134,8 @@ void SceneEditorManager::update() {
 			if (ip->getMouseMode() == DirectX::Mouse::MODE_ABSOLUTE) {
 				// x coordinate is backwards!! Not because of mouse position but rather
 				// getMousePickVector return
-				float2 mpos = float2(
-					1 - (float)ip->mouseX() / SCREEN_WIDTH, (float)ip->mouseY() / SCREEN_HEIGHT);
+				float2 mpos = ip->mouseXY() / float2(1280, 720);
+				mpos.x = 1 - mpos.x;
 				forward = m_camera.getMousePickVector(mpos) * m_pointer_range;
 			}
 			else {
@@ -1175,8 +1175,8 @@ void SceneEditorManager::update() {
 			if (ip->getMouseMode() == DirectX::Mouse::MODE_ABSOLUTE) {
 				// x coordinate is backwards!! Not because of mouse position but rather
 				// getMousePickVector return
-				float2 mpos = float2(
-					1 - (float)ip->mouseX() / SCREEN_WIDTH, (float)ip->mouseY() / SCREEN_HEIGHT);
+				float2 mpos = ip->mouseXY() / float2(1280, 720);
+				mpos.x = 1 - mpos.x;
 				forward = m_camera.getMousePickVector(mpos) * m_pointer_range;
 			}
 			else {
@@ -1227,8 +1227,8 @@ void SceneEditorManager::update() {
 		float3 point = m_camera.getPosition();
 		float3 forward = m_camera.getForward() * 100; // MOUSE RELATIVE MODE
 		if (ip->getMouseMode() == DirectX::Mouse::MODE_ABSOLUTE) {
-			float2 mpos =
-				float2(1 - (float)ip->mouseX() / SCREEN_WIDTH, (float)ip->mouseY() / SCREEN_HEIGHT);
+			float2 mpos = ip->mouseXY() / float2(1280, 720);
+			mpos.x = 1 - mpos.x;
 			forward = m_camera.getMousePickVector(mpos) * m_pointer_range;
 		}
 		float t = scene->m_terrains.castRay(point, forward);

@@ -115,27 +115,14 @@ bool Input::mouseUp(MouseButton button, bool filterImgui) {
 	return false;
 }
 
-float Input::mouseX() const { 
+float2 Input::mouseXY() const { 
 	Renderer* r = Renderer::getInstance();
-	if (r->isFullscreen() && m_mouseState.positionMode == Mouse::Mode::MODE_ABSOLUTE) {
-		// remap mouse position to be in screen position 
-		// (button collisions require mouse position to be within screen size)
-		return ((float)m_mouseState.x / r->getWindowWidth()) * r->getScreenWidth();
-	}
-	return (float)m_mouseState.x; 
-}
+	float2 normSize(1280, 720);
+	float2 winSize(r->getWindowWidth(), r->getWindowHeight());
+	float2 mp = (float2(m_mouseState.x, m_mouseState.y) / winSize) * normSize;
+	return mp; 
 
-float Input::mouseY() const { 
-	Renderer* r = Renderer::getInstance();
-	if (r->isFullscreen() && m_mouseState.positionMode == Mouse::Mode::MODE_ABSOLUTE) {
-		// remap mouse position to be in screen position 
-		// (button collisions require mouse position to be within screen size)
-		return ((float)m_mouseState.y / r->getWindowHeight()) * r->getScreenHeight();
-	}
-	return (float)m_mouseState.y; 
 }
-
-float2 Input::mouseXY() const { return float2(mouseX(), mouseY()); }
 
 int Input::scrollWheelValue() { return m_mouseState.scrollWheelValue; }
 

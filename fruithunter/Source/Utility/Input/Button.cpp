@@ -64,9 +64,8 @@ void Button::setResolution(Resolution value) { m_resolution = value; }
 void Button::setOnOff(bool value) { m_on = value; }
 
 BoundingBox2D Button::getBoundingBox() const { 
-	float2 screenModifier = float2((SCREEN_WIDTH / 1280.f), (SCREEN_HEIGHT / 720.f));
-	float2 position = m_position * screenModifier;
-	float2 size = m_size * screenModifier;
+	float2 position = m_position;
+	float2 size = m_size;
 	BoundingBox2D bb(position-size/2, position + size/2);
 	return bb;
 }
@@ -84,8 +83,7 @@ bool Button::update() {
 
 	float2 size = screenModifier * m_size;
 
-	float2 mp = float2(ip->mouseX(), ip->mouseY());
-	if (getBoundingBox().isInside(mp)) {
+	if (getBoundingBox().isInside(ip->mouseXY())) {
 		if (ip->mousePressed(Input::MouseButton::LEFT)) {
 			if (m_isToggle) {
 				m_on = !m_on;
