@@ -34,19 +34,19 @@ void Terrain::setStrawAndAnimationSettings(AreaTag tag) {
 		m_grass_visibility = true;
 		m_grass_strawSetting.baseWidth = 0.115f;
 		m_grass_strawSetting.heightRange = float2(0.568f, 1.f);
-		m_grass_strawSetting.noiseInterval = 30;
+		m_grass_strawSetting.noiseInterval = 6.2f;
 		m_grass_strawSetting.color_top = float4(106 / 255.f, 138 / 255.f, 21 / 255.f, 1);
 		m_grass_strawSetting.color_bottom = float4(70 / 255.f, 93 / 255.f, 32 / 255.f, 1);
 
-		m_grass_animationSetting.speed = 24;
-		m_grass_animationSetting.noiseAnimInterval = 10.f;
+		m_grass_animationSetting.speed = 13.7f;
+		m_grass_animationSetting.noiseAnimInterval = 5.f;
 		m_grass_animationSetting.offsetStrength = 0.26f;
 		break;
 	case Plains:
 		m_grass_visibility = true;
 		m_grass_strawSetting.baseWidth = 0.112f;
 		m_grass_strawSetting.heightRange = float2(0.359f, 0.5f);
-		m_grass_strawSetting.noiseInterval = 25;
+		m_grass_strawSetting.noiseInterval = 6.2;
 		m_grass_strawSetting.color_top = float4(106 / 255.f, 138 / 255.f, 21 / 255.f, 1);
 		m_grass_strawSetting.color_bottom = float4(70 / 255.f, 93 / 255.f, 32 / 255.f, 1);
 
@@ -498,8 +498,6 @@ void Terrain::draw_brush(const Brush& brush) {
 
 void Terrain::draw_grass() {
 	if (m_grass_visibility) {
-		imgui_settings();
-		imgui_animation();
 		// straw setting cbuffer
 		update_strawBuffer();
 		m_cbuffer_settings.bindGS(SETTING_SLOT);

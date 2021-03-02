@@ -113,12 +113,6 @@ void MainState::update() {
 	Input* ip = Input::getInstance();
 	ip->setMouseModeAbsolute();
 
-	if (ip->mousePressed(Input::LEFT)) {
-		ErrorLogger::logFloat2("mp:", ip->mouseXY());
-		ErrorLogger::logInt2("window size:", XMINT2(Renderer::getInstance()->getWindowWidth(),
-												 Renderer::getInstance()->getWindowHeight()));
-	}
-
 	float3 treePos(56.4f, 9.5f, 18.2f);
 	float3 bowPos = treePos + float3(10, 1.5, 5);
 

@@ -119,9 +119,19 @@ float2 Input::mouseXY() const {
 	Renderer* r = Renderer::getInstance();
 	float2 normSize(1280, 720);
 	float2 winSize(r->getWindowWidth(), r->getWindowHeight());
-	float2 mp = (float2(m_mouseState.x, m_mouseState.y) / winSize) * normSize;
+	float2 mp = float2(m_mouseState.x, m_mouseState.y);
+	if (r->isFullscreen()) {
+		// window size captures the correct window size 
+		// but is incorrect if the application isnt in fullscreen mode
+		mp = mp / float2(r->getWindowWidth(), r->getWindowHeight());
+	}
+	else {
+		// non fullscreen mode has a window size equal to the resolution of the screen.
+		// (doesnt work in fullscreen as the window size might be larger/smaller than resolution)
+		mp = mp / float2(r->getScreenWidth(), r->getScreenHeight());
+	}
+	mp = mp * normSize;
 	return mp; 
-
 }
 
 int Input::scrollWheelValue() { return m_mouseState.scrollWheelValue; }
