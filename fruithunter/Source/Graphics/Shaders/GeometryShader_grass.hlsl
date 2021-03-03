@@ -39,8 +39,6 @@ float2 clampUV(uint2 uv, uint2 size) {
 	return clamp(uv, uint2(0, 0), uint2(size.x - 1, size.y - 1));
 }
 
-float2 bounceUV(float2 uv) { return 1 - abs((uv % 2) - 1); }
-
 float4 texSample(Texture2D texMap, uint2 texSize, float2 uv) {
 	float2 mappedUV = uv * (float2)texSize;
 	uint2 floorUV = (uint2)mappedUV;
@@ -78,7 +76,7 @@ void main(point VS_OUT input[1], inout TriangleStream<GSOutput> output) {
 	float2 noiseAnimUV =
 		(float2(posW.x, posW.z) * cb_noiseAnimInterval + float2(1, 1) * cb_time * cb_speed) /
 		tex_noise_size;
-	float windFactor = texSample(texture_noise, tex_noise_size, bounceUV(noiseAnimUV)).r;
+	float windFactor = texSample(texture_noise, tex_noise_size, noiseAnimUV % 1).r;
 	windFactor = windFactor * 2 - 1; // remap to [-1,1]
 	float3 offset = windDir * windFactor * cb_offsetStrength;
 
