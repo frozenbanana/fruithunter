@@ -5,3 +5,4 @@
 #include "EndRoundState.h"
 #include "PauseState.h"
 #include "SettingsState.h"
+#include "ControlState.h"

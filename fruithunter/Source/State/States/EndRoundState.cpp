@@ -132,9 +132,11 @@ void EndRoundState::draw() {
 	m_bowl.draw();
 	m_bowlContent.draw();
 	Renderer::getInstance()->clearDepth();
+
 	float width = 1280;
 	float height = 720;
 	m_camera.bind();
+	m_textRenderer.setAlignment(); // center
 	m_textRenderer.setColor(Color(1., 1.f, 1.f, 1.0f));
 	m_textRenderer.setPosition(float2(width / 2, height / 2 + 150));
 	m_textRenderer.setText(m_timeText);

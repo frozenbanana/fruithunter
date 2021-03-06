@@ -206,6 +206,7 @@
     <ClCompile Include="Source\Player\Player.cpp" />
     <ClCompile Include="Source\State\StateItem.cpp" />
     <ClCompile Include="Source\State\StateStack.cpp" />
+    <ClCompile Include="Source\State\States\ControlState.cpp" />
     <ClCompile Include="Source\State\States\EditorState.cpp" />
     <ClCompile Include="Source\State\States\EndRoundState.cpp" />
     <ClCompile Include="Source\State\States\MainState.cpp" />
@@ -290,6 +291,7 @@
     <ClInclude Include="Source\State\StateItem.h" />
     <ClInclude Include="Source\State\States.h" />
     <ClInclude Include="Source\State\StateStack.h" />
+    <ClInclude Include="Source\State\States\ControlState.h" />
     <ClInclude Include="Source\State\States\EditorState.h" />
     <ClInclude Include="Source\State\States\EndRoundState.h" />
     <ClInclude Include="Source\State\States\MainState.h" />

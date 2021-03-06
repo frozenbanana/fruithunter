@@ -1,7 +1,6 @@
 #pragma once
 #include "StateItem.h"
 #include "Entity.h"
-#include "Button.h"
 #include "Sprite2D.h"
 #include "Menu_PoppingButton.h"
 #include "Timer.h"
@@ -11,18 +10,7 @@ private:
 	Timer m_timer;
 	Sprite2D m_settingsBackground;
 
-	//tutorial sprites
-	Sprite2D m_dropFruits[4];
-	Sprite2D m_btns[5];
-	Sprite2D m_movementKeys;
-	Sprite2D m_charMovement;
-	Sprite2D m_jumpKey;
-	Sprite2D m_charJump;
-	Sprite2D m_slowMo;
-	Sprite2D m_bow;
-	Sprite2D m_mouseLeft;
-
-	enum MenuButtons { btn_restart, btn_resume, btn_settings, btn_mainmenu, btn_exit, btn_length };
+	enum MenuButtons { btn_restart, btn_resume, btn_controls, btn_settings, btn_mainmenu, btn_exit, btn_length };
 	Menu_PoppingButton m_buttons[btn_length];
 
 public:

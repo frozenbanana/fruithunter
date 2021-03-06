@@ -9,6 +9,7 @@ public:
 		PlayState,
 		PauseState,
 		SettingState,
+		ControlState,
 		MainState,
 		EndRoundState,
 		EditorState,
