@@ -92,7 +92,6 @@ bool TerrainBatch::validPosition(float3 pos) {
 	}
 	if (ter_i != -1) {
 		// found terrain
-		ErrorLogger::log(to_string(ter_i));
 		return m_terrains[ter_i]->validPosition(pos);
 	}
 	return false; // didnt find any terrain, return invalid position
