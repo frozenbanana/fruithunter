@@ -42,18 +42,28 @@ void Melon::behaviorPassive() {
 		float th = m_respawn_max / 2;
 		if (m_respawn_timer >= th && m_respawn_timer - dt < th) {
 			// find new respawn point
-			int tIndex = SceneManager::getScene()->m_terrains.getTerrainIndexFromPosition(getPosition());
-			if (tIndex == -1) {
-				// pick random terrain if not on a terrain (Plan B)
-				tIndex = rand()%SceneManager::getScene()->m_terrains.length();
-			}
-			if (tIndex != -1) {
-				float3 sp = SceneManager::getScene()->m_terrains.getSpawnpoint(tIndex);
+			if (m_boundTerrain != nullptr) {
+				// spawn on bound terrain
+				float3 sp = m_boundTerrain->getRandomSpawnPoint();
 				setPosition(sp + float3(0, 1, 0) * (getHalfSizes().y + 0.1));
 			}
 			else {
-				// this should never happen as fruits only can spawn if there is a terrain to spawn from
-				ErrorLogger::logError("(Melon) Melon cant respawn. No terrains exists!", HRESULT());
+				int tIndex =
+					SceneManager::getScene()->m_terrains.getTerrainIndexFromPosition(getPosition());
+				if (tIndex == -1) {
+					// pick random terrain if not on a terrain (Plan B)
+					tIndex = rand() % SceneManager::getScene()->m_terrains.length();
+				}
+				if (tIndex != -1) {
+					float3 sp = SceneManager::getScene()->m_terrains.getSpawnpoint(tIndex);
+					setPosition(sp + float3(0, 1, 0) * (getHalfSizes().y + 0.1));
+				}
+				else {
+					// this should never happen as fruits only can spawn if there is a terrain to
+					// spawn from
+					ErrorLogger::logError(
+						"(Melon) Melon cant respawn. No terrains exists!", HRESULT());
+				}
 			}
 			m_velocity *= 0;
 		}
@@ -145,15 +155,7 @@ void Melon::behaviorActive() {
 }
 
 void Melon::behaviorCaught() {
-	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
-	if (atOrUnder(SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition()))) {
-		m_direction = playerPosition - getPosition(); // run to player
-
-		m_speed = m_caught_speed;
-		//makeReadyForPath(playerPosition);
-		
-	}
-	lookTo(playerPosition);
+	/* NOT USED */
 }
 
 void Melon::updateAnimated(float dt) {

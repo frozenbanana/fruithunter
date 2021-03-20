@@ -2,12 +2,13 @@
 #include "Entity.h"
 #include "AI.h"
 #include "ParticleSystem.h"
+#include "TerrainBatch.h"
 
 #define THROWVELOCITY 30.f
 
 class Fruit : public Entity, public AI {
 protected:
-	// Phyics based movment
+	// Phyics based movement
 	bool m_isVisible = true;
 	float3 m_velocity = float3(0.f);
 	float m_speed = 0.0f;
@@ -39,6 +40,7 @@ protected:
 	vector<string> m_materialNames;
 	// -------------------
 
+	Environment* m_boundTerrain = nullptr;
 	float3 m_worldHome;
 	size_t m_nrOfTriesGoHome = 0;
 	FruitType m_fruitType;
@@ -77,6 +79,7 @@ public:
 	void setStartPosition(float3 pos);
 	void setNextDestination(float3 nextDest);
 	void setWorldHome(float3 pos);
+	void bindToEnvironment(Environment* terrain);
 	bool withinDistanceTo(float3 target, float treshhold);
 	ParticleSystem* getParticleSystem();
 	float3 getHomePosition() const;

@@ -132,6 +132,8 @@ void Fruit::setWorldHome(float3 pos) {
 	m_worldHome.y = SceneManager::getScene()->m_terrains.getHeightFromPosition(pos);
 }
 
+void Fruit::bindToEnvironment(Environment* terrain) { m_boundTerrain = terrain; }
+
 bool Fruit::withinDistanceTo(float3 target, float treshhold) {
 	return (getPosition() - target).Length() < treshhold;
 }

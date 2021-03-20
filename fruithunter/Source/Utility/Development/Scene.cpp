@@ -450,6 +450,7 @@ void Scene::reset() {
 					m_fruits.push_back(make_shared<DragonFruit>(spawn));
 					break;
 				}
+				m_fruits.back()->bindToEnvironment(m_terrains.getTerrainFromIndex(i).get());
 			}
 		}
 	}
