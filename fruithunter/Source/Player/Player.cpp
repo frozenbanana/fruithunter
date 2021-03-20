@@ -403,8 +403,10 @@ void Player::checkPlayerReset(float dt) {
 		m_velocity = float3(0.f);
 		m_resetTimer += dt;
 		if (m_resetTimer > m_resetDelay) {
+			// reset
 			m_position = m_lastSafePosition;
 			m_resetTimer = 0.f;
+			rechargeJump();
 		}
 	}
 }
