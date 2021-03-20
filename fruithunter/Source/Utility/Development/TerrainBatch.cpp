@@ -180,7 +180,7 @@ float3 Environment::getRandomSpawnPoint() {
 		iterator++;
 	} while (iterator < tries && !validPosition(point));
 	if (iterator == tries)
-		ErrorLogger::logError("(Environment) Failed finding a spawn point for fruit!",HRESULT());
+		ErrorLogger::logError("(Environment::getRandomSpawnPoint) Failed finding a spawn point for fruit!");
 	return point;
 }
 
