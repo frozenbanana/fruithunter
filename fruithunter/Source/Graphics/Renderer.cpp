@@ -85,17 +85,6 @@ void Renderer::bindTargetSRVCopy(int slot) {
 	m_deviceContext->PSSetShaderResources(slot, 1, m_targetSRVCopy.GetAddressOf());
 }
 
-void Renderer::enableAlphaBlending() {
-	float blendFactor[4] = { 0 };
-	m_deviceContext->OMSetBlendState(m_blendStateAlphaBlending.Get(), blendFactor, 0xffffffff);
-}
-
-void Renderer::disableAlphaBlending() {
-	float blendFactor[4] = { 0 };
-	m_deviceContext->OMSetBlendState(
-		m_blendStateWithoutAlphaBlending.Get(), blendFactor, 0xffffffff);
-}
-
 void Renderer::changeResolution(int width, int height) {
 	m_screenWidth = width;
 	m_screenHeight = height;
@@ -192,9 +181,46 @@ void Renderer::bindRenderTarget() {
 	m_deviceContext.Get()->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), NULL);
 }
 
-void Renderer::setRasterizer_backfaceCulling() { m_deviceContext->RSSetState(m_raster_backfaceCulling.Get()); }
+void Renderer::setBlendState_Opaque() {
+	float blendFactor[4] = { 0 };
+	m_deviceContext->OMSetBlendState(m_commonStates->Opaque(), blendFactor, 0xffffffff);
+}
 
-void Renderer::setRasterizer_noCulling() { m_deviceContext->RSSetState(m_raster_noCulling.Get()); }
+void Renderer::setBlendState_AlphaBlend() {
+	float blendFactor[4] = { 0 };
+	m_deviceContext->OMSetBlendState(m_commonStates->AlphaBlend(), blendFactor, 0xffffffff);
+}
+
+void Renderer::setBlendState_Additive() {
+	float blendFactor[4] = { 0 };
+	m_deviceContext->OMSetBlendState(m_commonStates->Additive(), blendFactor, 0xffffffff);
+}
+
+void Renderer::setBlendState_NonPremultiplied() {
+	float blendFactor[4] = { 0 };
+	m_deviceContext->OMSetBlendState(m_commonStates->NonPremultiplied(), blendFactor, 0xffffffff);
+}
+
+void Renderer::setRasterizer_CullCounterClockwise() { m_deviceContext->RSSetState(m_commonStates->CullCounterClockwise()); }
+
+void Renderer::setRasterizer_CullNone() {
+	m_deviceContext->RSSetState(m_commonStates->CullNone()); }
+
+void Renderer::setRasterizer_Wireframe() {
+	m_deviceContext->RSSetState(m_commonStates->Wireframe());
+}
+
+void Renderer::setDepthState_None() { 
+	m_deviceContext->OMSetDepthStencilState(m_commonStates->DepthNone(), 1); 
+}
+
+void Renderer::setDepthState_Default() {
+	m_deviceContext->OMSetDepthStencilState(m_commonStates->DepthDefault(), 1);
+}
+
+void Renderer::setDepthState_Read() {
+	m_deviceContext->OMSetDepthStencilState(m_commonStates->DepthRead(), 1);
+}
 
 void Renderer::captureFrame() {
 	ID3D11Texture2D* tex = nullptr;
@@ -315,7 +341,7 @@ Renderer::Renderer(int width, int height) {
 		r->createRenderTarget();
 		r->createConstantBuffers();
 		r->createQuadVertexBuffer();
-		r->createRasterizationStates();
+		m_commonStates = make_unique<CommonStates>(m_device.Get());
 		m_shadowMapper.initiate();
 		r->m_isLoaded = true;
 	}
@@ -374,8 +400,6 @@ Renderer* Renderer::getInstance() { return &m_this; }
 
 HWND Renderer::getHandle() { return m_handle; }
 
-ID3D11DepthStencilState* Renderer::getDepthDSS() const { return m_depthDSS.Get(); }
-
 float Renderer::getScreenWidth() const { return (float)m_screenWidth; }
 
 float Renderer::getScreenHeight() const { return (float)m_screenHeight; }
@@ -396,7 +420,13 @@ void Renderer::initalize(HWND window) {}
 
 void Renderer::beginFrame() {
 	// Set standard rasterizer
-	setRasterizer_backfaceCulling();
+	setRasterizer_CullCounterClockwise();
+
+	// set standard blendState
+	setBlendState_Opaque();
+
+	// set default depthState
+	setDepthState_Default();
 
 	// Bind rendertarget
 	m_deviceContext.Get()->OMSetRenderTargets(
@@ -470,9 +500,7 @@ void Renderer::createDevice(HWND window) {
 		return;
 	}
 
-	createDepthState();
 	createDepthBuffer(swapChainDesc);
-	createBlendState();
 }
 
 void Renderer::createRenderTarget() {
@@ -583,30 +611,6 @@ void Renderer::createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd) {
 	texCopy->Release();
 }
 
-void Renderer::createDepthState() {
-	D3D11_DEPTH_STENCIL_DESC DeStState;
-	DeStState.DepthEnable = true;
-	DeStState.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	DeStState.DepthFunc = D3D11_COMPARISON_LESS;
-	DeStState.StencilEnable = true;
-	DeStState.StencilReadMask = 0xFF;
-	DeStState.StencilWriteMask = 0xFF;
-	// Stencil operations if pixel is front-facing
-	DeStState.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	DeStState.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-	DeStState.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	DeStState.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-	// Stencil operations if pixel is back-facing
-	DeStState.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	DeStState.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-	DeStState.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	DeStState.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-	HRESULT hr = m_device->CreateDepthStencilState(&DeStState, m_depthDSS.GetAddressOf());
-	m_deviceContext->OMSetDepthStencilState(m_depthDSS.Get(), 1);
-}
-
 void Renderer::createConstantBuffers() {
 	// screen size Buffer
 	m_screenSizeBuffer.Reset();
@@ -641,71 +645,4 @@ void Renderer::createQuadVertexBuffer() {
 		if (FAILED(res))
 			ErrorLogger::logError("Failed creating quad vertex buffer in Renderer class!\n", res);
 	}
-}
-
-void Renderer::createBlendState() {
-	D3D11_BLEND_DESC blendStateDesc;
-	ZeroMemory(&blendStateDesc, sizeof(D3D11_BLEND_DESC));
-	blendStateDesc.RenderTarget->BlendEnable = false;
-	blendStateDesc.AlphaToCoverageEnable = false;
-	blendStateDesc.IndependentBlendEnable = false;
-
-	HRESULT hr = m_device->CreateBlendState(NULL, m_blendStateWithoutAlphaBlending.GetAddressOf());
-	// HRESULT hr = m_device->CreateBlendState(&blendStateDesc,
-	// m_blendStateWithoutAlphaBlending.GetAddressOf());
-
-	// create a blend state with alpha blending
-	ZeroMemory(&blendStateDesc, sizeof(D3D11_BLEND_DESC));
-	blendStateDesc.RenderTarget->BlendEnable = true;
-	blendStateDesc.AlphaToCoverageEnable = true;
-	blendStateDesc.IndependentBlendEnable = false;
-
-	blendStateDesc.RenderTarget[0].BlendEnable = true;
-	blendStateDesc.RenderTarget[0].RenderTargetWriteMask = 0x0f;
-	blendStateDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	blendStateDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	blendStateDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-	blendStateDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-	blendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-	blendStateDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-	HRESULT hr2 =
-		m_device->CreateBlendState(&blendStateDesc, m_blendStateAlphaBlending.GetAddressOf());
-	disableAlphaBlending();
-}
-
-void Renderer::createRasterizationStates() {
-
-	//typedef struct D3D11_RASTERIZER_DESC {
-	//	D3D11_FILL_MODE FillMode;	// Default: D3D11_FILL_SOLID
-	//	D3D11_CULL_MODE CullMode;	// Default: D3D11_CULL_BACK
-	//	BOOL FrontCounterClockwise; // Default: false
-	//	INT DepthBias;				// Default: 0
-	//	FLOAT DepthBiasClamp;		// Default: 0.0f
-	//	FLOAT SlopeScaledDepthBias; // Default: 0.0f
-	//	BOOL DepthClipEnable;		// Default: true
-	//	BOOL ScissorEnable;			// Default: false
-	//	BOOL MultisampleEnable;		// Default: false
-	//	BOOL AntialiasedLineEnable; // Default: false
-	//} D3D11_RASTERIZER_DESC;
-
-	D3D11_RASTERIZER_DESC desc_backface;
-	ZeroMemory(&desc_backface, sizeof(D3D11_RASTERIZER_DESC));
-	desc_backface.FillMode = D3D11_FILL_SOLID;
-	desc_backface.CullMode = D3D11_CULL_BACK;
-	desc_backface.DepthClipEnable = true;
-	HRESULT hr = m_device->CreateRasterizerState(&desc_backface, m_raster_backfaceCulling.GetAddressOf());
-	if (FAILED(hr))
-		ErrorLogger::logError(
-			"Failed creating rasterizer (backfaceCulling) in Renderer class!\n", hr);
-
-	D3D11_RASTERIZER_DESC desc_noCulling;
-	ZeroMemory(&desc_noCulling, sizeof(D3D11_RASTERIZER_DESC));
-	desc_noCulling.FillMode = D3D11_FILL_SOLID;
-	desc_noCulling.CullMode = D3D11_CULL_NONE;
-	desc_noCulling.DepthClipEnable = true;
-	hr = m_device->CreateRasterizerState(&desc_noCulling, m_raster_noCulling.GetAddressOf());
-	if (FAILED(hr))
-		ErrorLogger::logError(
-			"Failed creating rasterizer (noCulling) in Renderer class!\n", hr);
-
 }

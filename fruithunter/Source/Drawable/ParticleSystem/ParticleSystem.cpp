@@ -226,9 +226,11 @@ void ParticleSystem::draw(bool alpha) {
 
 		// draw
 		if (alpha) {
-			Renderer::getInstance()->enableAlphaBlending();
+			Renderer::getInstance()->setBlendState_NonPremultiplied();
+			Renderer::getInstance()->setDepthState_Read();
 			deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
-			Renderer::getInstance()->disableAlphaBlending();
+			Renderer::getInstance()->setBlendState_Opaque();
+			Renderer::getInstance()->setDepthState_Default();
 			ShaderSet::clearShaderBindings(); // removes bug of sprites not being able to be
 											  // drawn(by removing geometry shade)
 		}

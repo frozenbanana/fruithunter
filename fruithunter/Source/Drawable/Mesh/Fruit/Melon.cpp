@@ -354,9 +354,9 @@ void Melon::draw_fruit() {
 		}
 		else
 			setScale(m_startScale);
-		Renderer::getInstance()->enableAlphaBlending();
+		Renderer::getInstance()->setBlendState_NonPremultiplied();
 		draw_animate();
-		Renderer::getInstance()->disableAlphaBlending();
+		Renderer::getInstance()->setBlendState_Opaque();
 		m_particleSystem.draw(true);
 		draw_sensors();
 		draw_rollTrail();

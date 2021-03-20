@@ -273,9 +273,6 @@ void MainState::draw() {
 	//	__COLOR__
 	sceneManager.setup_color(&m_camera);
 	// custom drawing (with darkoutlines)
-	Renderer::getInstance()->enableAlphaBlending();
-	m_apple->draw_animate();
-	Renderer::getInstance()->disableAlphaBlending();
 	for (size_t i = 0; i < 3; i++) {
 		if (i == 0 || m_levelSelections[i - 1].completed) {
 			float3 highlightColor = float3(1.) * (m_levelHighlighted == i ? 1 : 0.3);
@@ -284,16 +281,17 @@ void MainState::draw() {
 				m_levelSelections[i].obj_content.draw(highlightColor);
 		}
 	}
-	m_ps_selected.draw();
 	m_bow.draw();
 	// standard drawing
 	sceneManager.draw_color(&m_camera);
 	// custom drawing (without dark outline)
-
-	Renderer::getInstance()->enableAlphaBlending();
+	Renderer::getInstance()->setBlendState_NonPremultiplied();
+	m_apple->draw_animate();
 	m_obj_creditsSign.draw(float3(1.5f));
-	Renderer::getInstance()->disableAlphaBlending();
+	Renderer::getInstance()->setBlendState_Opaque();
+	m_ps_selected.draw();
 
+	/* -- MENU UI -- */
 	float source_alpha = Clamp<float>((1 - m_stateSwitchFactor) * 2 - 1, 0, 1);
 	float dest_alpha = Clamp<float>(m_stateSwitchFactor * 2 - 1, 0, 1);
 	float stateAlpha[NR_OF_STATES] = { 0, 0, 0 };

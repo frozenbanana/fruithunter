@@ -115,15 +115,16 @@ bool CollectionPoint::update(float dt, float3 target) {
 }
 
 void CollectionPoint::draw() {
+	if (!m_reachedDestination) {
+		m_fruit.setPosition(m_position);
+		Renderer::getInstance()->setBlendState_NonPremultiplied();
+		m_fruit.draw();
+		Renderer::getInstance()->setBlendState_Opaque();
+	}
 	m_explosion.draw();
 
 	m_stars.draw();
 
 	m_sparkle.setPosition(m_position);
 	m_sparkle.draw();
-
-	if (!m_reachedDestination) {
-		m_fruit.setPosition(m_position);
-		m_fruit.draw();
-	}
 }
