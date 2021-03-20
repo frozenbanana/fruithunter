@@ -128,9 +128,9 @@ void EndRoundState::draw() {
 	m_camera.bind();
 
 	m_spr_background.draw();
-	m_particleSystem.draw();
 	m_bowl.draw();
 	m_bowlContent.draw();
+	m_particleSystem.draw();
 	Renderer::getInstance()->clearDepth();
 
 	float width = 1280;

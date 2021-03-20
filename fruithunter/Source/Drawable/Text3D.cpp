@@ -157,9 +157,9 @@ void Text3D::draw() {
 
 		bindVertexBuffer();
 
-		Renderer::getInstance()->enableAlphaBlending();
+		Renderer::getInstance()->setBlendState_NonPremultiplied();
 		Renderer::draw(m_vertexCount, 0);
-		Renderer::getInstance()->disableAlphaBlending();
+		Renderer::getInstance()->setBlendState_Opaque();
 
 		// Release
 		if (holdRTV)

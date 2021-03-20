@@ -3,6 +3,7 @@
 #include "ShaderSet.h"
 #include "Quad.h"
 #include "ShadowMapping.h"
+#include <CommonStates.h>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -20,7 +21,6 @@ public:
 	static ID3D11DeviceContext* getDeviceContext();
 	static Renderer* getInstance();
 	HWND getHandle();
-	ID3D11DepthStencilState* getDepthDSS() const;
 	float getScreenWidth() const;
 	float getScreenHeight() const;
 	LONG getWindowWidth() const;
@@ -34,8 +34,6 @@ public:
 	void bindTargetSRVCopy(int slot);
 	void bindConstantBuffer_ScreenSize(int slot);
 	void bindQuadVertexBuffer();
-	void enableAlphaBlending();
-	void disableAlphaBlending();
 	void changeResolution(int width, int height);
 	void setFullscreen(bool value);
 	bool isFullscreen() const;
@@ -45,8 +43,19 @@ public:
 	void bindRenderAndDepthTarget();
 	void bindRenderTarget();
 
-	void setRasterizer_backfaceCulling();
-	void setRasterizer_noCulling();
+	// BlendState
+	void setBlendState_Opaque();
+	void setBlendState_AlphaBlend();
+	void setBlendState_Additive();
+	void setBlendState_NonPremultiplied();
+	// Rasterizer
+	void setRasterizer_CullCounterClockwise();
+	void setRasterizer_CullNone();
+	void setRasterizer_Wireframe();
+	// DepthState
+	void setDepthState_None();
+	void setDepthState_Default();
+	void setDepthState_Read();
 
 	void captureFrame();
 
@@ -68,11 +77,8 @@ private:
 	void createDevice(HWND window);
 	void createRenderTarget();
 	void createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd);
-	void createDepthState();
 	void createConstantBuffers();
 	void createQuadVertexBuffer();
-	void createBlendState();
-	void createRasterizationStates();
 
 	static Renderer m_this;
 	bool m_isLoaded = false;
@@ -91,18 +97,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_targetSRVCopy;
 
-	//BlendState
-	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendStateAlphaBlending;
-	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendStateWithoutAlphaBlending;
-
 	//Depth buffer
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthDSV;	 // Depth stencil view
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthDSS;	 // Depth stencil state
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthSRV; // Depth shader resource view
-
-	//Rasterizer
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_raster_backfaceCulling;
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_raster_noCulling;
 
 	//buffer
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_screenSizeBuffer;
@@ -129,4 +126,6 @@ private:
 	// Resolution
 	int m_screenWidth;
 	int m_screenHeight;
+
+	std::unique_ptr<CommonStates> m_commonStates;
 };

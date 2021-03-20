@@ -514,7 +514,7 @@ void Terrain::draw_grass() {
 		// world matrix
 		GSBindMatrix(MATRIX_SLOT);
 
-		Renderer::getInstance()->setRasterizer_noCulling(); // enable backface rendering
+		Renderer::getInstance()->setRasterizer_CullNone(); // enable backface rendering
 		if (m_useCulling) {
 			for (size_t i = 0; i < m_culledGrids.size(); i++) {
 				SubGrid* sub = &m_subMeshes[m_culledGrids[i].x][m_culledGrids[i].y];
@@ -531,7 +531,7 @@ void Terrain::draw_grass() {
 				}
 			}
 		}
-		Renderer::getInstance()->setRasterizer_backfaceCulling(); // reset back to backface culling
+		Renderer::getInstance()->setRasterizer_CullCounterClockwise(); // reset back to backface culling
 	}
 }
 

@@ -179,9 +179,9 @@ void Animal::grabFruit(float3 pos) {
 void Animal::draw() {
 	Entity::draw(); // Draw the animal
 					// Draw the thoughtbubble
-	Renderer::getInstance()->enableAlphaBlending();
+	Renderer::getInstance()->setBlendState_NonPremultiplied();
 	m_thoughtBubble.draw();
-	Renderer::getInstance()->disableAlphaBlending();
+	Renderer::getInstance()->setBlendState_Opaque();
 }
 
 void Animal::draw_onlyAnimal() {

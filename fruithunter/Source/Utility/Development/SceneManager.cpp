@@ -51,9 +51,6 @@ void SceneManager::draw_color(Camera* overrideCamera) {
 	for (size_t i = 0; i < scene->m_animals.size(); ++i) {
 		scene->m_animals[i]->draw();
 	}
-	// collection points
-	for (size_t i = 0; i < scene->m_collectionPoint.size(); i++)
-		scene->m_collectionPoint[i]->draw();
 
 	// frustum data for culling
 	vector<FrustumPlane> frustum;
@@ -83,22 +80,30 @@ void SceneManager::draw_color(Camera* overrideCamera) {
 
 	/* --- Things to be drawn without dark edges --- */
 
-	// Fruits
+	// terrain grass
+	scene->m_terrains.draw_grass();
+
+	// arrows entities
+	for (size_t i = 0; i < scene->m_arrows.size(); i++)
+		scene->m_arrows[i]->draw();
+
+	/* --- Transparent objects --- */
+
+	// Fruits (faces are transparent)
 	for (int i = 0; i < scene->m_fruits.size(); i++) {
 		scene->m_fruits[i]->draw_fruit();
 	}
 
-	// terrain grass
-	scene->m_terrains.draw_grass();
+	// collection points
+	for (size_t i = 0; i < scene->m_collectionPoint.size(); i++)
+		scene->m_collectionPoint[i]->draw();
 
 	// Particle Systems
 	for (size_t i = 0; i < scene->m_particleSystems.size(); i++) {
 		scene->m_particleSystems[i].draw();
 	}
 
-	// arrows
-	for (size_t i = 0; i < scene->m_arrows.size(); i++)
-		scene->m_arrows[i]->draw();
+	// arrow partile effects
 	for (size_t i = 0; i < scene->m_arrowParticles.size(); i++)
 		scene->m_arrowParticles[i]->draw();
 
