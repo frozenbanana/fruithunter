@@ -79,6 +79,26 @@ float TerrainBatch::castRay(float3 point, float3 direction) {
 	return intersection;
 }
 
+bool TerrainBatch::validPosition(float3 pos) { 
+	// find heighest terrain
+	int ter_i = -1;
+	float ter_height = 0;
+	for (size_t i = 0; i < m_terrains.size(); i++) {
+		float height = m_terrains[i]->getHeightFromPosition(pos.x, pos.z);
+		if (ter_i == -1 || (height > ter_height)) {
+			ter_i = i;
+			ter_height = height;
+		}
+	}
+	if (ter_i != -1) {
+		// found terrain
+		ErrorLogger::log(to_string(ter_i));
+		return m_terrains[ter_i]->validPosition(pos);
+	}
+	return false; // didnt find any terrain, return invalid position
+
+}
+
 void TerrainBatch::clearCulling() {
 	for (size_t i = 0; i < m_terrains.size(); i++)
 		m_terrains[i]->clearCulling();

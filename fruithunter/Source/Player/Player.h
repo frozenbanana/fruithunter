@@ -32,6 +32,7 @@ public:
 	void getStaminaBySkillshot(Skillshot skillShot);
 
 	// SETS
+	/* Sets the player position, as well as the safe position for respawning. */
 	void setPosition(float3 position);
 
 	//States
@@ -127,15 +128,15 @@ private:
 	const int m_dustAmount = 30;
 
 	//- - - Functions - - -
-	void updateBow(float dt, Terrain* terrain);
+	void updateBow(float dt);
 	void updateCamera();
 	void rotatePlayer(float dt);
 	void updateGodMode(float dt);
 
 	float3 getMovementForce();
-	void checkGround(Terrain* terrain);
-	void checkSteepTerrain(Terrain* terrain);
-	void calculateTerrainCollision(Terrain* terrain, float dt);
+	void checkGround(TerrainBatch* terrain);
+	void checkSteepTerrain(TerrainBatch* terrain);
+	void calculateTerrainCollision(TerrainBatch* terrain, float dt);
 	void checkEntityCollisions();
 
 	void checkSprint(float dt);

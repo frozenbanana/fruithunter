@@ -14,7 +14,7 @@ void Player::update() {
 	float delta = SceneManager::getScene()->getDeltaTime();
 	float deltaRaw = SceneManager::getScene()->getDeltaTime_skipSlow();
 
-	Terrain* terrain = SceneManager::getScene()->m_terrains.getTerrainFromPosition(m_position);
+	TerrainBatch* terrain = &SceneManager::getScene()->m_terrains;
 
 	// Movement force
 	float3 force = getMovementForce();
@@ -78,7 +78,7 @@ void Player::update() {
 
 	updateCamera();
 
-	updateBow(deltaRaw, terrain);
+	updateBow(deltaRaw);
 }
 
 void Player::draw() {
@@ -191,7 +191,7 @@ bool Player::inHuntermode() const { return m_hunterMode; }
 
 void Player::activateHunterMode() { m_hunterMode = true; }
 
-void Player::updateBow(float dt, Terrain* terrain) {
+void Player::updateBow(float dt) {
 
 	m_bow.setOrientation(getCameraPosition(), float3(m_cameraPitch, m_cameraYaw, 0));
 
@@ -286,26 +286,25 @@ float3 Player::getMovementForce() {
 	return force;
 }
 
-void Player::checkGround(Terrain* terrain) {
+void Player::checkGround(TerrainBatch* terrain) {
 	if (terrain == nullptr) {
 		m_onGround = false;
 	}
 	else {
-		float terrainHeight = terrain->getHeightFromPosition(
-			m_position.x, m_position.z); // height of terrain on current position
+		float terrainHeight =
+			terrain->getHeightFromPosition(m_position); // height of terrain on current position
 		m_position.y = clamp(
 			m_position.y, m_position.y, terrainHeight); // clamp position to never go under terrain!
 		m_onGround = abs(m_position.y - terrainHeight) < ONGROUND_THRESHOLD;
 	}
 }
 
-void Player::checkSteepTerrain(Terrain* terrain) {
+void Player::checkSteepTerrain(TerrainBatch* terrain) {
 	if (terrain == nullptr) {
 		m_onSteepGround = false;
 	}
 	else {
-		float3 normal = terrain->getNormalFromPosition(
-			m_position.x, m_position.z); // normal on current position
+		float3 normal = terrain->getNormalFromPosition(m_position); // normal on current position
 		float terrainSteepness = abs(
 			float3(0, 1, 0).Dot(normal)); // abs() because sometime the dot product becomes negative
 
@@ -313,7 +312,7 @@ void Player::checkSteepTerrain(Terrain* terrain) {
 	}
 }
 
-void Player::calculateTerrainCollision(Terrain* terrain, float dt) {
+void Player::calculateTerrainCollision(TerrainBatch* terrain, float dt) {
 	// modify velocity vector to match terrain
 	int loopCount = 100;
 	while (1) {
@@ -326,7 +325,7 @@ void Player::calculateTerrainCollision(Terrain* terrain, float dt) {
 		else {
 			collisionPoint = m_position + movement * l;
 			collisionNormal =
-				terrain->getNormalFromPosition(collisionPoint.x, collisionPoint.z);
+				terrain->getNormalFromPosition(collisionPoint);
 
 			// on intersection
 			if (terrain->validPosition(collisionPoint))
@@ -536,10 +535,10 @@ void Player::updateVelocity_onFlatGround(float3 playerForce, float dt) {
 	checkPos[3] = float3(checkDist, 0, 0) + m_position;
 	
 
-	Terrain* terrain = SceneManager::getScene()->m_terrains.getTerrainFromPosition(m_position);
+	TerrainBatch* terrain = &SceneManager::getScene()->m_terrains;
 	bool safe = true;
 	for (int i = 0; i < 4; ++i) {
-		if (terrain->getHeightFromPosition(checkPos[i].x, checkPos[i].z) < m_seaHeight) {
+		if (terrain->getHeightFromPosition(checkPos[i]) < m_seaHeight) {
 			safe = false;
 		}
 	}

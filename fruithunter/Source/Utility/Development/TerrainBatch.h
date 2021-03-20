@@ -49,6 +49,7 @@ public:
 	float getHeightFromPosition(float3 position) const;
 	float3 getNormalFromPosition(float3 position) const;
 	float castRay(float3 point, float3 direction);
+	bool validPosition(float3 pos);
 
 	void clearCulling();
 	void quadtreeCull(const vector<FrustumPlane>& planes);
