@@ -17,15 +17,8 @@ void MainState::setButtons_menu() {
 }
 
 void MainState::setButtons_levelSelect() {
-	float hor_edgeOffset = 100;
-	float ver_edgeOffset = 250;
-	m_selectionArrows[0].set(float2(hor_edgeOffset, 720 - ver_edgeOffset), "", 0,
-		Menu_PoppingArrowButton::FacingDirection::Left);
-	m_selectionArrows[1].set(float2(1280 - hor_edgeOffset, 720 - ver_edgeOffset), "", 0.2,
-		Menu_PoppingArrowButton::FacingDirection::Right);
-
-	m_btn_levelSelect_back.set(float2(1280 - 150, 720 - 75), "Back", 0.4);
-	m_btn_levelSelect_play.set(float2(1280 / 2, 720 - 75), "Play", 0.6);
+	m_btn_levelSelect_back.set(float2(1280 - 150, 720 - 75), "Back", 0);
+	m_btn_levelSelect_play.set(float2(1280 / 2, 720 - 75), "Play", 0.2);
 }
 
 void MainState::setButtons_credits() {
@@ -200,14 +193,6 @@ void MainState::update() {
 			if (m_btn_levelSelect_play.update_behavior(dt)) {
 				// start level
 				changeToLevel(m_levelHighlighted);
-			}
-			if (m_selectionArrows[0].update_behavior(dt) || ip->keyPressed(Keyboard::Left)) {
-				// left selection arrow
-				m_levelHighlighted = mod(m_levelHighlighted - 1, m_levelsAvailable);
-			}
-			if (m_selectionArrows[1].update_behavior(dt) || ip->keyPressed(Keyboard::Right)) {
-				// right selection arrow
-				m_levelHighlighted = mod(m_levelHighlighted + 1, m_levelsAvailable);
 			}
 
 			// update level frames
@@ -404,11 +389,6 @@ void MainState::draw() {
 				m_img_keylock.draw();
 			}
 		}
-
-		for (size_t i = 0; i < 2; i++) {
-			m_selectionArrows[i].setAlpha(alpha);
-			m_selectionArrows[i].draw();
-		}
 	}
 
 	// Credits
@@ -482,9 +462,10 @@ void MainState::play() {
 	m_levelSelections[1].name = "Overnight Salad";
 	m_levelSelections[2].name = "Hot Rainbow Salad";
 
+	m_levelsAvailable = 1;
 	for (size_t i = 1; i < 3; i++) {
 		if (m_levelSelections[i-1].completed)
-			m_levelsAvailable = i + 1;
+			m_levelsAvailable++;
 	}	
 
 	// Credits Setup
