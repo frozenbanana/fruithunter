@@ -1317,7 +1317,7 @@ void SceneEditorManager::draw_color() {
 	scene->m_skyBox.draw();
 
 	// Dark edges
-	Renderer::getInstance()->draw_darkEdges();
+	Renderer::getInstance()->draw_darkEdges(m_camera.getFrustumPoints());
 
 	/* --- Things to be drawn without dark edges --- */
 

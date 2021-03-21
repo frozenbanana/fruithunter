@@ -76,7 +76,12 @@ void SceneManager::draw_color(Camera* overrideCamera) {
 	scene->m_skyBox.draw();
 
 	// Dark edges
-	Renderer::getInstance()->draw_darkEdges();
+	vector<float3> frustumPoints;
+	if (overrideCamera == nullptr)
+		frustumPoints = scene->m_player->getFrustumPoints(1);
+	else
+		frustumPoints = overrideCamera->getFrustumPoints(1);
+	Renderer::getInstance()->draw_darkEdges(frustumPoints);
 
 	/* --- Things to be drawn without dark edges --- */
 

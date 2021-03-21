@@ -61,7 +61,7 @@ public:
 
 	void drawCapturedFrame();
 
-	void draw_darkEdges();
+	void draw_darkEdges(const vector<float3>& frustumPoints);
 
 	void drawLoading();
 
@@ -107,6 +107,7 @@ private:
 	// post process dark edges variables
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexQuadBuffer;
 	ShaderSet m_shader_darkEdges;
+	ShaderSet m_shader_darkEdges_normal;
 
 	// post process FXAA variables
 	ShaderSet m_shader_FXAA;
@@ -128,4 +129,9 @@ private:
 	int m_screenHeight;
 
 	std::unique_ptr<CommonStates> m_commonStates;
+
+	struct FrustumLines {
+		float4 dirs[4];
+	};
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_cbuffer_frustum;
 };

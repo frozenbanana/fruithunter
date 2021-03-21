@@ -247,17 +247,26 @@ void Renderer::drawCapturedFrame() {
 	m_capturedFrame.draw();
 }
 
-void Renderer::draw_darkEdges() {
+void Renderer::draw_darkEdges(const vector<float3>& frustumPoints) {
 	if (Settings::getInstance()->getDarkEdges()) {
 		// bind depth buffer copy
 		copyDepthToSRV();
 		bindDepthSRVCopy(0);
 		// bind shader
-		m_shader_darkEdges.bindShadersAndLayout();
+		//m_shader_darkEdges.bindShadersAndLayout();
+		m_shader_darkEdges_normal.bindShadersAndLayout();
 		// bind contant buffer
 		bindConstantBuffer_ScreenSize(9);
 		// bind vertex buffer
 		bindQuadVertexBuffer();
+
+		FrustumLines f;
+		for (size_t i = 0; i < 4; i++) {
+			float3 dir = Normalize(frustumPoints[i + 1] - frustumPoints[0]);
+			f.dirs[i] = float4(dir.x, dir.y, dir.z,1);
+		}
+		m_deviceContext->UpdateSubresource(m_cbuffer_frustum.Get(), 0, 0, &f, 0, 0);
+		m_deviceContext->PSSetConstantBuffers(8,1,m_cbuffer_frustum.GetAddressOf());
 
 		bindRenderTarget(); // need to remove depth buffer!
 
@@ -370,6 +379,19 @@ Renderer::Renderer(int width, int height) {
 		} };
 		m_shader_darkEdges.createShaders(L"VertexShader_quadSimplePass.hlsl", nullptr,
 			L"PixelShader_darkEdge.hlsl", inputLayout_onlyMesh, 1);
+	}
+	if (!m_shader_darkEdges_normal.isLoaded()) {
+		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = { {
+			"Position",					 // "semantic" name in shader
+			0,							 // "semantic" index (not used)
+			DXGI_FORMAT_R32G32B32_FLOAT, // size of ONE element (3 floats)
+			0,							 // input slot
+			0,							 // offset of first element
+			D3D11_INPUT_PER_VERTEX_DATA, // specify data PER vertex
+			0							 // used for INSTANCING (ignore)
+		} };
+		m_shader_darkEdges_normal.createShaders(L"VertexShader_quadSimplePass.hlsl", nullptr,
+			L"PixelShader_darkEdge_normal.hlsl", inputLayout_onlyMesh, 1);
 	}
 	if (!m_shader_FXAA.isLoaded()) {
 		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = { {
@@ -625,6 +647,19 @@ void Renderer::createConstantBuffers() {
 		Renderer::getDevice()->CreateBuffer(&desc, nullptr, m_screenSizeBuffer.GetAddressOf());
 	if (FAILED(res))
 		ErrorLogger::logError("Failed creating screen size buffer in Renderer class!\n", res);
+
+	// frustim buffer
+	m_cbuffer_frustum.Reset();
+	D3D11_BUFFER_DESC desc_fr;
+	memset(&desc_fr, 0, sizeof(desc_fr));
+	desc_fr.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc_fr.Usage = D3D11_USAGE_DEFAULT;
+	desc_fr.ByteWidth = sizeof(FrustumLines);
+
+	res =
+		Renderer::getDevice()->CreateBuffer(&desc_fr, nullptr, m_cbuffer_frustum.GetAddressOf());
+	if (FAILED(res))
+		ErrorLogger::logError("Failed creating frustum buffer in Renderer class!\n", res);
 }
 
 void Renderer::createQuadVertexBuffer() {
