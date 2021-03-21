@@ -35,13 +35,13 @@ void main(point VS_OUT input[1], inout TriangleStream<GSOutput> output) {
 
 		Corner corners[4];
 		corners[0].pos = float4(posV + halfWidth * right - halfHeight * up, 1.0f);
-		corners[0].uv = float2(0.0f, 0.0f);
+		corners[0].uv = float2(1.0f, 0.0f);
 		corners[1].pos = float4(posV + halfWidth * right + halfHeight * up, 1.0f);
-		corners[1].uv = float2(1.0f, 0.0f);
+		corners[1].uv = float2(1.0f, 1.0f);
 		corners[2].pos = float4(posV - halfWidth * right - halfHeight * up, 1.0f);
-		corners[2].uv = float2(0.0f, 1.0f);
+		corners[2].uv = float2(0.0f, 0.0f);
 		corners[3].pos = float4(posV - halfWidth * right + halfHeight * up, 1.0f);
-		corners[3].uv = float2(1.0f, 1.0f);
+		corners[3].uv = float2(0.0f, 1.0f);
 
 		// Append points to make a quad
 		GSOutput element;

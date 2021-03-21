@@ -7,6 +7,7 @@
 
 ShaderSet ParticleSystem::m_shaderSetCircle;
 ShaderSet ParticleSystem::m_shaderSetStar;
+ShaderSet ParticleSystem::m_shaderSetSprite;
 
 void ParticleSystem::load(ParticleSystem::Type type, float emitRate, size_t capacity) {
 	setType(type, false);
@@ -17,6 +18,7 @@ void ParticleSystem::load(ParticleSystem::Type type, float emitRate, size_t capa
 ParticleSystem::ParticleSystem()
 	: Fragment(Fragment::Type::particleSystem), Transformation(float3(0.),float3(0.)) {
 	createShaders();
+	m_tex_particle = TextureRepository::get("missing_texture.jpg");
 }
 
 void ParticleSystem::setParticle(size_t index) {
@@ -159,6 +161,9 @@ void ParticleSystem::createShaders() {
 		m_shaderSetStar.createShaders(L"VertexShader_particleSystem.hlsl",
 			L"GeometryShader_particleSystem.hlsl", L"PixelShader_particleSystem_star.hlsl",
 			inputLayout, 4);
+		m_shaderSetSprite.createShaders(L"VertexShader_particleSystem.hlsl",
+			L"GeometryShader_particleSystem.hlsl", L"PixelShader_particleSystem_sprite.hlsl",
+			inputLayout, 4);
 	}
 }
 
@@ -218,19 +223,24 @@ void ParticleSystem::draw(bool alpha) {
 		case ParticleDescription::Shape::Star:
 			m_shaderSetStar.bindShadersAndLayout();
 			break;
+		case ParticleDescription::Shape::Sprite:
+			m_shaderSetSprite.bindShadersAndLayout();
+			break;
 		default:
 			m_shaderSetCircle.bindShadersAndLayout();
 			break;
 		}
 		bindVertexBuffer();
+		Renderer::getDeviceContext()->PSSetShaderResources(
+			0, 1, m_tex_particle->view.GetAddressOf());
 
 		// draw
 		if (alpha) {
 			Renderer::getInstance()->setBlendState_NonPremultiplied();
-			Renderer::getInstance()->setDepthState_Read();
+			//Renderer::getInstance()->setDepthState_Read();
 			deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
 			Renderer::getInstance()->setBlendState_Opaque();
-			Renderer::getInstance()->setDepthState_Default();
+			//Renderer::getInstance()->setDepthState_Default();
 			ShaderSet::clearShaderBindings(); // removes bug of sprites not being able to be
 											  // drawn(by removing geometry shade)
 		}
@@ -243,12 +253,14 @@ void ParticleSystem::draw(bool alpha) {
 void ParticleSystem::setType(Type type, bool resize) {
 	m_type = type;
 	m_particle_description = ParticleDescription(type); 
+	m_tex_particle = TextureRepository::get(m_particle_description.str_sprite);
 	if (resize)
 		resizeBuffer();
 }
 
 void ParticleSystem::setCustomDescription(ParticleSystem::ParticleDescription desc, bool resize) {
 	m_particle_description = desc;
+	m_tex_particle = TextureRepository::get(m_particle_description.str_sprite);
 	if (resize)
 		resizeBuffer();
 }
@@ -303,6 +315,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		velocity_interval = float2(0.43, 0.43);
 		acceleration = float3(0.);
 		slowdown = 1;
+		str_sprite = "";
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
@@ -318,6 +331,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		velocity_interval = float2(0.43, 0.43);
 		acceleration = float3(0.);
 		slowdown = 1;
+		str_sprite = "";
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
@@ -333,6 +347,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		velocity_interval = float2(1,2);
 		acceleration = float3(0, 10, 0);
 		slowdown = 1;
+		str_sprite = "";
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
@@ -348,6 +363,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		velocity_interval = float2(0.75,1.5);
 		acceleration = float3(0, 3, 0);
 		slowdown = 1;
+		str_sprite = "";
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
@@ -363,6 +379,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		velocity_interval = float2(0.2, 0.5);
 		acceleration = float3(0.);
 		slowdown = 1;
+		str_sprite = "";
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
@@ -378,6 +395,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		velocity_interval = float2(0.);
 		acceleration = float3(0.);
 		slowdown = 1;
+		str_sprite = "";
 		shape = Shape::Circle;
 		fadeInterval_start = 0.35;
 		fadeInterval_end = 0;
@@ -393,6 +411,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		velocity_interval = float2(5, 7);
 		acceleration = float3(0, -10, 0);
 		slowdown = 1;
+		str_sprite = "";
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
@@ -408,6 +427,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		velocity_interval = float2(2, 2.5);
 		acceleration = float3(0.);
 		slowdown = 0.05;
+		str_sprite = "";
 		shape = Shape::Star;
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
@@ -423,6 +443,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		velocity_interval = float2(2,2.5);
 		acceleration = float3(0.);
 		slowdown = 0.05;
+		str_sprite = "";
 		shape = Shape::Star;
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
@@ -438,6 +459,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		velocity_interval = float2(2,2.5);
 		acceleration = float3(0.);
 		slowdown = 0.05;
+		str_sprite = "";
 		shape = Shape::Star;
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
@@ -453,6 +475,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		velocity_interval = float2(3, 20);
 		acceleration = float3(0.);
 		slowdown = 0.0001;
+		str_sprite = "";
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
@@ -468,6 +491,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		velocity_interval = float2(3, 20);
 		acceleration = float3(0.);
 		slowdown = 0.0001;
+		str_sprite = "";
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
@@ -484,6 +508,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 0.0001;
 		shape = Shape::Circle;
+		str_sprite = "";
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
 		break;
@@ -499,6 +524,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 0.0001;
 		shape = Shape::Circle;
+		str_sprite = "";
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
 		break;
@@ -514,6 +540,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 1;
 		shape = Shape::Star;
+		str_sprite = "";
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
 		break;
@@ -529,6 +556,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 1;
 		shape = Shape::Star;
+		str_sprite = "";
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
 		break;
@@ -544,6 +572,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 1;
 		shape = Shape::Star;
+		str_sprite = "";
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
 		break;
@@ -559,6 +588,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0.);
 		slowdown = 1;
 		shape = Shape::Star;
+		str_sprite = "";
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
 		break;
@@ -574,6 +604,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0,-3,0);
 		slowdown = 0.05f;
 		shape = Shape::Star;
+		str_sprite = "";
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
 		break;
@@ -589,6 +620,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0, -3, 0);
 		slowdown = 0.05f;
 		shape = Shape::Star;
+		str_sprite = "";
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
 		break;
@@ -604,6 +636,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		acceleration = float3(0, -3, 0);
 		slowdown = 0.05f;
 		shape = Shape::Star;
+		str_sprite = "";
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
 		break;
@@ -618,6 +651,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		velocity_interval = float2(5, 5.5);
 		acceleration = float3(0, 0, 0);
 		slowdown = 0.001f;
+		str_sprite = "";
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
@@ -633,6 +667,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		velocity_interval = float2(4,5);
 		acceleration = float3(0, -20, 0);
 		slowdown = 1;
+		str_sprite = "";
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
@@ -648,9 +683,26 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		velocity_interval = float2(0.2, 0.3);
 		acceleration = float3(0, 0, 0);
 		slowdown = 1;
+		str_sprite = "";
 		shape = Shape::Star;
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;
+		break;
+	case ParticleSystem::TEST_SPRITE:
+		colorVariety[0] = float4(1, 1, 1, 1.0f);
+		colorVariety[1] = float4(1, 1, 1, 1.0f);
+		colorVariety[2] = float4(1, 1, 1, 1.0f);
+		size_interval = float2(0.7, 1.5);
+		timeAlive_interval = float2(1.5, 3);
+		velocity_max = float3(1.);
+		velocity_min = float3(-1, 0, -1);
+		velocity_interval = float2(1, 2);
+		acceleration = float3(0, 10, 0);
+		slowdown = 1;
+		fadeInterval_start = 0.1;
+		fadeInterval_end = 0.1;
+		str_sprite = "bananaFace.png";
+		shape = Shape::Sprite;
 		break;
 	default:
 		colorVariety[0] = float4(1.);
@@ -663,6 +715,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		velocity_interval = float2(0, 0);
 		acceleration = float3(0.);
 		slowdown = 1;
+		str_sprite = "";
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1;
 		fadeInterval_end = 0.1;

@@ -606,7 +606,7 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 		"Ground Dust", "Volcano Fire", "Volcano Smoke", "Lava Bubble", "Arrow Glitter", "Confetti",
 		"Stars Gold", "Stars Silver", "Stars Bronze", "Explosion Apple", "Explosion Banana",
 		"Explosion Melon", "Explosion Dragon", "Sparkle Apple", "Sparkle Banana", "Sparkle Melon",
-		"Sparkle Dragon", "Explosion Gold", "Explosion Silver", "Explosion Bronze", "Jump Dust", "Melon Trail", "LevelSelect Selection" };
+		"Sparkle Dragon", "Explosion Gold", "Explosion Silver", "Explosion Bronze", "Jump Dust", "Melon Trail", "LevelSelect Selection", "Test Sprite" };
 	if (ImGui::BeginCombo("Type", ps_typeAsString[type].c_str())) {
 		for (size_t i = 1; i < ParticleSystem::Type::TYPE_LENGTH; i++) {
 			if (ImGui::MenuItem(ps_typeAsString[i].c_str())) {
@@ -670,8 +670,9 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 		ImGui::InputFloat2("Velocity Interval", (float*)&pd.velocity_interval);
 		ImGui::InputFloat3("Acceleration", (float*)&pd.acceleration);
 		ImGui::InputFloat("Slowdown", &pd.slowdown, 0, 0, 6);
-		if (ImGui::Combo("Shape", &shape, "Circle\0Star"))
+		if (ImGui::Combo("Shape", &shape, "Circle\0Star\0Sprite"))
 			pd.shape = (ParticleSystem::ParticleDescription::Shape)shape;
+		ImGui::InputText("Sprite",&pd.str_sprite);
 		if (ImGui::Button("Set"))
 			selection->setCustomDescription(pd);
 	}

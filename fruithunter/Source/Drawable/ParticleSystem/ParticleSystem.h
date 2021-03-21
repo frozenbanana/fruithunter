@@ -4,6 +4,7 @@
 #include "Timer.h"
 #include "Terrain.h"
 #include "Fragment.h"
+#include "TextureRepository.h"
 
 class ParticleSystem : public Fragment, public Transformation {
 public:
@@ -33,6 +34,7 @@ public:
 		JUMP_DUST,
 		MELON_TRAIL,
 		LEVELSELECT_SELECTION,
+		TEST_SPRITE,
 		TYPE_LENGTH
 	};
 	struct ParticleDescription {
@@ -46,7 +48,8 @@ public:
 		float slowdown;
 		float fadeInterval_start; // time(start) to time(x) seconds to scale particle to real size
 		float fadeInterval_end; // time(end-x) to time(end) seconds to scale particle to nothing 
-		enum Shape { Circle, Star } shape;
+		string str_sprite;
+		enum Shape { Circle, Star, Sprite } shape;
 		ParticleDescription(ParticleSystem::Type type = ParticleSystem::Type::NONE);
 	};
 
@@ -80,9 +83,12 @@ private:
 	// shaders
 	static ShaderSet m_shaderSetCircle;
 	static ShaderSet m_shaderSetStar;
+	static ShaderSet m_shaderSetSprite;
 
 	// vertex Buffers
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
+
+	shared_ptr<TextureSet> m_tex_particle;
 
 	// -- Functions --
 

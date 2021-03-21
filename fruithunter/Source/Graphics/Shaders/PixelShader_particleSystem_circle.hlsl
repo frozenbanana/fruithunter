@@ -12,6 +12,7 @@ float4 main(GSOutput input) : SV_TARGET {
 
 	if (radius > 0.5f) {
 		outColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
+		clip(-1); // abort fragment rendering
 	}
 	else {
 		outColor.a = 1.f;
