@@ -5,7 +5,6 @@ struct VS_OUT {
 cbuffer screenSizeBuffer : register(b9) { float4 cb_screenSize; };
 
 Texture2D<float> depthMap : register(s0);
-Texture2D targetMap : register(s1);
 
 float linearDepth(float depthSample) {
 	const float zNear = 0.025f;
@@ -18,7 +17,6 @@ float linearDepth(float depthSample) {
 float4 main(VS_OUT ip) : SV_TARGET {
 	float blend = 1.f;
 	float3 edgeColor = float3(0, 0, 0);
-	float3 backColor = targetMap[ip.posH.xy].xyz;
 	uint2 screenSize = uint2(cb_screenSize.x, cb_screenSize.y);
 
 	float2 uv = float2(ip.posH.x / screenSize.x, ip.posH.y / screenSize.y);
@@ -51,5 +49,6 @@ float4 main(VS_OUT ip) : SV_TARGET {
 		}
 	}
 	blend = clamp(5*sum / total, 0, 1);
-	return float4(backColor + (edgeColor-backColor)*blend, 1);
+
+	return float4(edgeColor, blend);
 }

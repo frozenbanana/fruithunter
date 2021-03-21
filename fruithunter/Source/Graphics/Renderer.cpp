@@ -252,9 +252,6 @@ void Renderer::draw_darkEdges() {
 		// bind depth buffer copy
 		copyDepthToSRV();
 		bindDepthSRVCopy(0);
-		// bind renderTarget copy
-		copyTargetToSRV();
-		bindTargetSRVCopy(1);
 		// bind shader
 		m_shader_darkEdges.bindShadersAndLayout();
 		// bind contant buffer
@@ -264,7 +261,11 @@ void Renderer::draw_darkEdges() {
 
 		bindRenderTarget(); // need to remove depth buffer!
 
+		setBlendState_NonPremultiplied();
+
 		m_deviceContext->Draw(6, 0);
+
+		setBlendState_Opaque();
 
 		bindRenderAndDepthTarget(); // place back the depth buffer
 	}
