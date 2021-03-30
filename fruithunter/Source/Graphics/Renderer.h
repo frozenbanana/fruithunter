@@ -67,6 +67,9 @@ public:
 
 	void draw_FXAA();
 
+	void setGodRaysSourcePosition(float3 position);
+	void draw_godRays(const float4x4& viewProjMatrix);
+
 	void setDrawState(DrawingState state);
 	ShadowMapper* getShadowMapper();
 	static void draw(size_t vertexCount, size_t vertexOffset);
@@ -110,6 +113,18 @@ private:
 
 	// post process FXAA variables
 	ShaderSet m_shader_FXAA;
+
+	// God Rays
+	ShaderSet m_shader_godRays;
+	float3 m_godRays_position;
+	struct GodRaysSettings {
+		float2 gSunPos;
+		float gInitDecay = 0.116f;
+		float gDistDecay = 1;
+		float3 gRayColor = float3(25 / 255.f, 25 / 255.f, 16 / 255.f);
+		float gMaxDeltaLen = 1;
+	} m_settings_godRays;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_cbuffer_godRays;
 
 	// Loading screen
 	Quad m_loadingScreen;

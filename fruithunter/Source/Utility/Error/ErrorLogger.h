@@ -19,6 +19,7 @@ public:
 	static void log(std::string message);
 	static void logFloat2(std::string description, float2 f2);
 	static void logFloat3(std::string description, float3 f3);
+	static void logFloat4(std::string description, float4 f4);
 	static void logInt2(std::string description, XMINT2 i2);
 
 private:

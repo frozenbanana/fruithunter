@@ -7,6 +7,7 @@
 #include <ScreenGrab.h>
 #include <wincodec.h>
 #include "Input.h"
+#include "SimpleDirectX.h"
 
 Renderer Renderer::m_this(1280, 720);
 
@@ -306,6 +307,55 @@ void Renderer::draw_FXAA() {
 	}
 }
 
+void Renderer::setGodRaysSourcePosition(float3 position) { m_godRays_position = position; }
+
+void Renderer::draw_godRays(const float4x4& viewProjMatrix) {
+	m_shader_godRays.bindShadersAndLayout();
+
+	// update and bind settings
+	//if (ImGui::Begin("God Ray Settings")) {
+	//	ImGui::SliderFloat("InitDecay", &m_settings_godRays.gInitDecay, 0, 1);
+	//	ImGui::SliderFloat("DistDecay", &m_settings_godRays.gDistDecay, 0, 1);
+	//	ImGui::ColorEdit3("RayColor", (float*)&m_settings_godRays.gRayColor);
+	//	ImGui::SliderFloat("MaxDeltaLength", &m_settings_godRays.gMaxDeltaLen, 0, 1);
+	//	ImGui::End();
+	//}
+
+	float3 pos = m_godRays_position;
+	float4 grPosF4 = float4(pos.x, pos.y, pos.z, 1);
+	grPosF4 = float4::Transform(grPosF4, viewProjMatrix);
+	grPosF4 /= grPosF4.w;
+	grPosF4.x = grPosF4.x * 0.5 + 0.5;
+	grPosF4.y = 1 - (grPosF4.y * 0.5 + 0.5); // upside down??
+	if (grPosF4.z <= 0 || grPosF4.z > 1)
+		return;
+	m_settings_godRays.gSunPos = float2(grPosF4.x, grPosF4.y);
+	m_deviceContext->UpdateSubresource(m_cbuffer_godRays.Get(), 0, 0, &m_settings_godRays, 0, 0);
+	m_deviceContext->PSSetConstantBuffers(8, 1, m_cbuffer_godRays.GetAddressOf());
+	
+	// Bind constant buffer
+	bindConstantBuffer_ScreenSize(9);
+
+	// bind quad
+	bindQuadVertexBuffer();
+
+	// bind depth view
+	copyDepthToSRV();
+	bindDepthSRVCopy(0);
+	//m_deviceContext->PSSetShaderResources(1, 1, m_depthSRV.GetAddressOf());
+
+	// bind additive blend state
+	setBlendState_Additive();
+
+	bindRenderTarget(); // need to remove depth buffer!
+	// draw
+	m_deviceContext->Draw(6, 0);
+
+	// Restore bindings
+	bindRenderAndDepthTarget(); // place back the depth buffer
+	setBlendState_Opaque();
+}
+
 void Renderer::setDrawState(DrawingState state) { m_drawState = state; }
 
 ShadowMapper* Renderer::getShadowMapper() { return &m_shadowMapper; }
@@ -358,31 +408,27 @@ Renderer::Renderer(int width, int height) {
 	ImGui::StyleColorsDark();
 
 	// compile shaders
+	D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = { {
+		"Position",					 // "semantic" name in shader
+		0,							 // "semantic" index (not used)
+		DXGI_FORMAT_R32G32B32_FLOAT, // size of ONE element (3 floats)
+		0,							 // input slot
+		0,							 // offset of first element
+		D3D11_INPUT_PER_VERTEX_DATA, // specify data PER vertex
+		0							 // used for INSTANCING (ignore)
+	} };
 	if (!m_shader_darkEdges.isLoaded()) {
-		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = { {
-			"Position",					 // "semantic" name in shader
-			0,							 // "semantic" index (not used)
-			DXGI_FORMAT_R32G32B32_FLOAT, // size of ONE element (3 floats)
-			0,							 // input slot
-			0,							 // offset of first element
-			D3D11_INPUT_PER_VERTEX_DATA, // specify data PER vertex
-			0							 // used for INSTANCING (ignore)
-		} };
+		
 		m_shader_darkEdges.createShaders(L"VertexShader_quadSimplePass.hlsl", nullptr,
 			L"PixelShader_darkEdge.hlsl", inputLayout_onlyMesh, 1);
 	}
 	if (!m_shader_FXAA.isLoaded()) {
-		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = { {
-			"Position",					 // "semantic" name in shader
-			0,							 // "semantic" index (not used)
-			DXGI_FORMAT_R32G32B32_FLOAT, // size of ONE element (3 floats)
-			0,							 // input slot
-			0,							 // offset of first element
-			D3D11_INPUT_PER_VERTEX_DATA, // specify data PER vertex
-			0							 // used for INSTANCING (ignore)
-		} };
 		m_shader_FXAA.createShaders(L"VertexShader_quadSimplePass.hlsl", nullptr,
 			L"PixelShader_FXAA.hlsl", inputLayout_onlyMesh, 1);
+	}
+	if (!m_shader_godRays.isLoaded()) {
+		m_shader_godRays.createShaders(L"VertexShader_quadSimplePass.hlsl", nullptr,
+			L"PixelShader_godRays.hlsl", inputLayout_onlyMesh, 1);
 	}
 
 	// Set texture paths to quads
@@ -614,17 +660,34 @@ void Renderer::createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd) {
 
 void Renderer::createConstantBuffers() {
 	// screen size Buffer
-	m_screenSizeBuffer.Reset();
-	D3D11_BUFFER_DESC desc;
-	memset(&desc, 0, sizeof(desc));
-	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.ByteWidth = sizeof(XMINT4);
+	{
+		m_screenSizeBuffer.Reset();
+		D3D11_BUFFER_DESC desc;
+		memset(&desc, 0, sizeof(desc));
+		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.ByteWidth = sizeof(XMINT4);
 
-	HRESULT res =
-		Renderer::getDevice()->CreateBuffer(&desc, nullptr, m_screenSizeBuffer.GetAddressOf());
-	if (FAILED(res))
-		ErrorLogger::logError("Failed creating screen size buffer in Renderer class!\n", res);
+		HRESULT res =
+			Renderer::getDevice()->CreateBuffer(&desc, nullptr, m_screenSizeBuffer.GetAddressOf());
+		if (FAILED(res))
+			ErrorLogger::logError("Failed creating screen size buffer in Renderer class!\n", res);
+	}
+	// god rays settings Buffer
+	{
+		m_cbuffer_godRays.Reset();
+		D3D11_BUFFER_DESC desc;
+		memset(&desc, 0, sizeof(desc));
+		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.ByteWidth = sizeof(GodRaysSettings);
+
+		HRESULT res =
+			Renderer::getDevice()->CreateBuffer(&desc, nullptr, m_cbuffer_godRays.GetAddressOf());
+		if (FAILED(res))
+			ErrorLogger::logError(
+				"Failed creating godRaysSettings buffer in Renderer class!\n", res);
+	}
 }
 
 void Renderer::createQuadVertexBuffer() {

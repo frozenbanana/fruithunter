@@ -20,6 +20,7 @@ public:
 	bool checkAnimal(float3 animalPos, float range, float throwStrength);
 
 	// GETS
+	Camera& getCamera();
 	float3 getPosition() const;
 	float3 getCameraPosition() const;
 	float3 getForward() const;

@@ -31,13 +31,11 @@ void SceneManager::setup_color(Camera* overrideCamera) {
 	ShadowMapper* shadowMap = Renderer::getInstance()->getShadowMapper();
 	Renderer::getInstance()->beginFrame(); // initilize color rendering mode
 	shadowMap->setup_shadowRendering();	   // initilize shadows for color rendering mode
+	
+	Camera* camera = (overrideCamera ? overrideCamera : &scene->m_player->getCamera());
+	camera->bind();
 
-	if (overrideCamera == nullptr) {
-		scene->m_player->bindMatrix();
-	}
-	else {
-		overrideCamera->bind();
-	}
+	Renderer::getInstance()->setGodRaysSourcePosition(camera->getPosition() + float3(-100, 100, 0));
 
 	scene->m_skyBox.bindLightBuffer();
 }
@@ -53,11 +51,13 @@ void SceneManager::draw_color(Camera* overrideCamera) {
 	}
 
 	// frustum data for culling
+	Camera* camera = nullptr;
 	vector<FrustumPlane> frustum;
 	if (overrideCamera == nullptr)
-		frustum = scene->m_player->getFrustumPlanes();
+		camera = &scene->m_player->getCamera();
 	else
-		frustum = overrideCamera->getFrustumPlanes();
+		camera = overrideCamera;
+	frustum = camera->getFrustumPlanes();
 	// Entities
 	vector<shared_ptr<Entity>*> culledEntities = scene->m_entities.cullElements(frustum);
 	for (size_t i = 0; i < culledEntities.size(); i++)
@@ -106,6 +106,8 @@ void SceneManager::draw_color(Camera* overrideCamera) {
 	// arrow partile effects
 	for (size_t i = 0; i < scene->m_arrowParticles.size(); i++)
 		scene->m_arrowParticles[i]->draw();
+
+	Renderer::getInstance()->draw_godRays(camera->getViewProjMatrix());
 
 	//FXAA
 	Renderer::getInstance()->draw_FXAA();
@@ -286,6 +288,11 @@ void SceneManager::update(Camera* overrideCamera) {
 		}
 		PathFindingThread::unlock();
 	}
+
+	if (Input::getInstance()->keyPressed(Keyboard::L)) {
+		Renderer::getInstance()->setGodRaysSourcePosition(player->getPosition());
+	}
+
 }
 
 void SceneManager::setup_shadow(Camera* overrideCamera) {
