@@ -21,6 +21,7 @@ SamplerState samp;
 
 static const int NUM_STEPS = 150;
 static const float NUM_DELTA = 1.0 / 150.0f;
+static const float ASPECT_RATIO = 1280.f/720; // width/height aspect ratio
 
 float sampleDepth(float2 uv) { return float(depthTexture.Sample(samp, uv) >= 0.99999); }
 
@@ -37,7 +38,10 @@ float4 main(VS_OUT ip) : SV_TARGET {
 	float2 rayDelta = dirToSun * deltaLen;
 
 	// Each step decay
-	float stepDecay = cb_DistDecay * deltaLen;
+	//float stepDecay = cb_DistDecay * deltaLen; // this code streches sun to be rectangular
+	float screenDeltaLen =
+		min(cb_MaxDeltaLen, length((cb_SunUV - uv) * float2(ASPECT_RATIO, 1)) * NUM_DELTA);
+	float stepDecay = cb_DistDecay * screenDeltaLen;
 
 	// Initial values
 	float2 rayOffset = float2(0.0, 0.0);

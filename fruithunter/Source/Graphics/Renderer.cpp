@@ -313,13 +313,13 @@ void Renderer::draw_godRays(const float4x4& viewProjMatrix) {
 	m_shader_godRays.bindShadersAndLayout();
 
 	// update and bind settings
-	//if (ImGui::Begin("God Ray Settings")) {
-	//	ImGui::SliderFloat("InitDecay", &m_settings_godRays.gInitDecay, 0, 1);
-	//	ImGui::SliderFloat("DistDecay", &m_settings_godRays.gDistDecay, 0, 1);
-	//	ImGui::ColorEdit3("RayColor", (float*)&m_settings_godRays.gRayColor);
-	//	ImGui::SliderFloat("MaxDeltaLength", &m_settings_godRays.gMaxDeltaLen, 0, 1);
-	//	ImGui::End();
-	//}
+	if (ImGui::Begin("God Ray Settings")) {
+		ImGui::SliderFloat("InitDecay", &m_settings_godRays.gInitDecay, 0, 1);
+		ImGui::SliderFloat("DistDecay", &m_settings_godRays.gDistDecay, 0, 1);
+		ImGui::ColorEdit3("RayColor", (float*)&m_settings_godRays.gRayColor);
+		ImGui::SliderFloat("MaxDeltaLength", &m_settings_godRays.gMaxDeltaLen, 0, 1);
+		ImGui::End();
+	}
 
 	float3 pos = m_godRays_position;
 	float4 grPosF4 = float4(pos.x, pos.y, pos.z, 1);
