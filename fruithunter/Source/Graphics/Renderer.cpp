@@ -466,6 +466,10 @@ LONG Renderer::getWindowHeight() const {
 void Renderer::initalize(HWND window) {}
 
 void Renderer::beginFrame() {
+	// Set Standard SamplerState
+	ID3D11SamplerState* sampState = m_commonStates->AnisotropicClamp();
+	m_deviceContext->PSSetSamplers(0, 1, &sampState);
+
 	// Set standard rasterizer
 	setRasterizer_CullCounterClockwise();
 
