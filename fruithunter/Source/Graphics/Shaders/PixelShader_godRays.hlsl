@@ -2,11 +2,12 @@ struct VS_OUT {
 	float4 posH : SV_POSITION;
 };
 
-cbuffer screenSizeBuffer : register(b9) { int4 cb_screenSize; };
-cbuffer godRayPoint : register(b8) { 
-	float2 cb_uv;
-	float2 cb_temp8;
+cbuffer lightInfo : register(b5) {
+	float4 ambientColour;
+	float4 diffuseColour;
+	float4 specularColour;
 };
+cbuffer screenSizeBuffer : register(b9) { int4 cb_screenSize; };
 cbuffer settings : register(b8) {
 	float2 cb_SunUV;
 	float cb_InitDecay;
@@ -64,5 +65,5 @@ float4 main(VS_OUT ip) : SV_TARGET {
 		decay = saturate(decay - stepDecay);
 	}
 	// The resultant intensity of the pixel.
-	return float4(cb_RayColor * rayIntensity, 1.f);
+	return float4(cb_RayColor * ambientColour.rgb * rayIntensity, 1.f);
 }
