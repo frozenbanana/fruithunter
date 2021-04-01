@@ -4,6 +4,7 @@
 #include "QuadTree.h"
 #include "Transformation.h"
 #include "Fragment.h"
+#include "ParticleSystem.h"
 
 class SeaEffect : public Transformation, public Fragment {
 public:
@@ -48,6 +49,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_timeBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_mapSizesBuffer;
 
+	ParticleSystem m_ps_fireballs;
+	float m_time_sound_rate = 999;
+	float m_time_sound = 0;
 	float4 m_time;
 	struct WaterShaderProperties {
 		float distortionStrength = 0.01f;
@@ -90,6 +94,9 @@ private:
 
 public:
 	void setType(SeaEffectTypes type);
+
+	void setPosition(float3 position);
+	void setScale(float3 scale); 
 
 	SeaEffectTypes getType() const;
 	XMINT2 getTileSize() const;

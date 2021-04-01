@@ -3,6 +3,8 @@
 #include "VariableSyncer.h"
 #include "Renderer.h"
 #include "ErrorLogger.h"
+#include "AudioController.h"
+#include "SceneManager.h"
 
 ShaderSet SeaEffect::m_shader;
 ShaderSet SeaEffect::m_shader_onlyMesh;
@@ -227,13 +229,44 @@ void SeaEffect::setType(SeaEffectTypes type) {
 	m_type = type;
 }
 
+void SeaEffect::setPosition(float3 position) {
+	Transformation::setPosition(position);
+	m_ps_fireballs.setPosition(position);
+}
+
+void SeaEffect::setScale(float3 scale) {
+	Transformation::setScale(scale);
+	m_time_sound_rate = 1.f / (scale.x * scale.z * 0.01f);
+	m_ps_fireballs.setScale(scale);
+	m_ps_fireballs.setEmitRate(m_time_sound_rate); // resizes capacity
+}
+
 SeaEffect::SeaEffectTypes SeaEffect::getType() const { return m_type; }
 
 XMINT2 SeaEffect::getTileSize() const { return m_tileSize; }
 
 XMINT2 SeaEffect::getGridSize() const { return m_gridSize; }
 
-void SeaEffect::update(float dt) { m_time.x += dt; }
+void SeaEffect::update(float dt) { 
+	m_time.x += dt; 
+
+	if (m_type == SeaEffectTypes::lava) {
+		// lava bubbles
+		m_time_sound -= dt;
+		if (m_time_sound <= 0) {
+			m_time_sound = m_time_sound_rate;
+			// make bubble
+			SoundID sid = AudioController::getInstance()->play("lavaBubble");
+			float3 player_pos = SceneManager::getScene()->m_player->getPosition();
+			float3 sound_pos =
+				getPosition() + float3(RandomFloat(), RandomFloat(), RandomFloat()) * getScale();
+			AudioController::getInstance()->setPitch(sid, RandomFloat(-1,1)*0.2);
+			AudioController::getInstance()->scaleVolumeByDistance(
+				sid, (player_pos - sound_pos).Length(), 1, 7.5);
+		}
+		m_ps_fireballs.update(dt);
+	}
+}
 
 void SeaEffect::clearCulling() {
 	m_useCulling = false;
@@ -302,6 +335,8 @@ void SeaEffect::draw() {
 			}
 		}
 	}
+
+	m_ps_fireballs.draw();
 }
 
 void SeaEffect::draw_onlyMesh() {
@@ -466,6 +501,9 @@ void SeaEffect::initilize(SeaEffectTypes type, XMINT2 tiles, XMINT2 gridSize, fl
 }
 
 SeaEffect::SeaEffect() : Transformation(), Fragment(Fragment::Type::sea) {
+	m_ps_fireballs.load(ParticleSystem::Type::CONFETTI, 0);
+	setScale(getScale()); // sets emit rate
+
 	// static shader stuff
 	if (!m_shader.isLoaded()) {
 		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = {
