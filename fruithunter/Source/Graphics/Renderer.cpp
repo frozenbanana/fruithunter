@@ -182,6 +182,8 @@ void Renderer::bindRenderTarget() {
 	m_deviceContext.Get()->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), NULL);
 }
 
+void Renderer::createCommonStates() { m_commonStates = make_unique<CommonStates>(m_device.Get()); }
+
 void Renderer::setBlendState_Opaque() {
 	float blendFactor[4] = { 0 };
 	m_deviceContext->OMSetBlendState(m_commonStates->Opaque(), blendFactor, 0xffffffff);
@@ -324,6 +326,8 @@ void Renderer::draw_godRays(const float4x4& viewProjMatrix) {
 	float3 pos = m_godRays_position;
 	float4 grPosF4 = float4(pos.x, pos.y, pos.z, 1);
 	grPosF4 = float4::Transform(grPosF4, viewProjMatrix);
+	if (grPosF4.w == 0)
+		return;
 	grPosF4 /= grPosF4.w;
 	grPosF4.x = grPosF4.x * 0.5 + 0.5;
 	grPosF4.y = 1 - (grPosF4.y * 0.5 + 0.5); // upside down??
@@ -392,7 +396,6 @@ Renderer::Renderer(int width, int height) {
 		r->createRenderTarget();
 		r->createConstantBuffers();
 		r->createQuadVertexBuffer();
-		m_commonStates = make_unique<CommonStates>(m_device.Get());
 		m_shadowMapper.initiate();
 		r->m_isLoaded = true;
 	}

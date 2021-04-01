@@ -43,6 +43,7 @@ public:
 	void bindRenderAndDepthTarget();
 	void bindRenderTarget();
 
+	void createCommonStates();
 	// BlendState
 	void setBlendState_Opaque();
 	void setBlendState_AlphaBlend();

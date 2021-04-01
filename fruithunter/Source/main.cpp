@@ -28,6 +28,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	ErrorLogger errorLogger;
 	Input* input = Input::getInstance();
 	Renderer* renderer = Renderer::getInstance();
+	renderer->createCommonStates(); // if run on debug mode, game will crash if this line of code is run in Renderer Constructor!
 	Settings::initialize();
 	PathFindingThread* extraThread = PathFindingThread::getInstance();
 	MSG msg = { 0 };
