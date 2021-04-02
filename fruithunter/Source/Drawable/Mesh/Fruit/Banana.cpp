@@ -28,6 +28,9 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 	m_activeRadius = 5.f;
 	m_passiveRadius = 3.f;
 
+	m_groundFriction = 60;
+	m_airFriction = 30;
+
 	setFrameTargets(0, 1);
 }
 
@@ -43,7 +46,7 @@ void Banana::behaviorPassive() {
 	// Only decide what to do on ground
 	if (m_onGround) {
 		float3 direction = float3(0.f);
-		if (!withinDistanceTo(m_worldHome, ARRIVAL_RADIUS)) {
+		if (!withinDistanceTo(m_worldHome, 25) && 0) {
 			float3 toHome = m_worldHome - getPosition();
 			toHome.Normalize();
 			toHome.y = 1.0f;
@@ -51,10 +54,17 @@ void Banana::behaviorPassive() {
 		}
 		else {
 			float3 terrainNormal = SceneManager::getScene()->m_terrains.getNormalFromPosition(getPosition());
-			terrainNormal.Normalize();
 			direction = terrainNormal;
+			// reflect
+			float3::Reflect(m_velocity, terrainNormal, m_velocity);
+			m_velocity *= 1.35f;
+			// random direction (greater effect if velocity point up or down)
+			float tiltFactor = abs(terrainNormal.Dot(float3(0, 1, 0)));
+			float3 randomVel = tiltFactor * float3(RandomFloat(-1, 1), 0, RandomFloat(-1, 1)) * 5;
+			m_velocity += randomVel;
 		}
-		jump(direction, PASSIVE_JUMP_POWER);
+		//jump(direction, PASSIVE_JUMP_POWER);
+		//audio
 		SoundID sid = AudioController::getInstance()->play("jump1");
 		AudioController::getInstance()->scaleVolumeByDistance(sid, (playerPosition-getPosition()).Length(), 0.2, 25);
 		AudioController::getInstance()->setPitch(sid, RandomFloat(-1, 1) * 0.5);
