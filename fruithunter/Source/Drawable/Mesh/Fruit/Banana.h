@@ -7,8 +7,6 @@ private:
 	float m_bounciness;
 	State m_state;
 
-	float m_velocitySpeed_max = 10;
-
 	float3 m_rotation;
 
 	void playSound_bounce();
