@@ -59,7 +59,6 @@ public:
 	void setDepthState_Read();
 
 	void captureFrame();
-
 	void drawCapturedFrame();
 
 	void draw_darkEdges();
