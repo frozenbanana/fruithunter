@@ -27,8 +27,6 @@ void EndRoundState::init() {
 	m_spr_background.setSize(float2(width*0.8, height*1));
 	m_spr_background.setAlignment(); // center
 
-	Renderer::getInstance()->captureFrame();
-
 	string sceneName = SceneManager::getScene()->m_sceneName;
 	const SceneCompletion* savedData = SaveManager::getProgress(sceneName);
 	TimeTargets winGrade = SceneManager::getScene()->getWinGrade();
@@ -90,7 +88,6 @@ void EndRoundState::update() {
 void EndRoundState::pause() { }
 
 void EndRoundState::play() {
-	Renderer::getInstance()->captureFrame();
 	float width = 1280;
 	float height = 720;
 

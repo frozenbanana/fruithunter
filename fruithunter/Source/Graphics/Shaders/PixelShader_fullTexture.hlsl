@@ -1,7 +1,6 @@
 struct Input {
-	float4 position : SV_POSITION;
-	float3 color : COLOR;
-	float2 uv : TEXCOORD;
+	float4 posH : SV_POSITION;
+	float2 uv : TexCoord;
 };
 
 Texture2D objTexture : TEXTURE : register(t0);

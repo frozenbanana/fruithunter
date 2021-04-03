@@ -7,9 +7,6 @@
     <FxCompile Include="Source\Graphics\Shaders\PixelShaderSkyBox.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Source\Graphics\Shaders\PixelShader.hlsl">
-      <Filter>Source\Graphics\Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_model.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
@@ -91,6 +88,9 @@
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_godRays.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_fullTexture.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp">
@@ -109,9 +109,6 @@
       <Filter>Source\Drawable\Mesh</Filter>
     </ClCompile>
     <ClCompile Include="Source\Drawable\Mesh\MeshHandler.cpp">
-      <Filter>Source\Drawable\Mesh</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Drawable\Mesh\Quad.cpp">
       <Filter>Source\Drawable\Mesh</Filter>
     </ClCompile>
     <ClCompile Include="Source\Drawable\Animated.cpp">
@@ -345,9 +342,6 @@
       <Filter>Source\Drawable\Mesh</Filter>
     </ClInclude>
     <ClInclude Include="Source\Drawable\Mesh\MeshHandler.h">
-      <Filter>Source\Drawable\Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Drawable\Mesh\Quad.h">
       <Filter>Source\Drawable\Mesh</Filter>
     </ClInclude>
     <ClInclude Include="Source\Drawable\Animated.h">

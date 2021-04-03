@@ -68,15 +68,9 @@ LRESULT CALLBACK WinProc(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
 	return DefWindowProc(handle, msg, wparam, lparam);
 }
 
-void Renderer::bindBackAndDepthBuffer() {
-	m_deviceContext->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), m_depthDSV.Get());
-}
-
 void Renderer::clearDepth() {
 	m_deviceContext->ClearDepthStencilView(m_depthDSV.Get(), D3D11_CLEAR_DEPTH, 1, 0);
 }
-
-void Renderer::bindEverything() { bindBackAndDepthBuffer(); }
 
 void Renderer::bindDepthSRVCopy(int slot) {
 	m_deviceContext->PSSetShaderResources(slot, 1, m_depthSRV.GetAddressOf());
@@ -145,7 +139,7 @@ void Renderer::bindConstantBuffer_ScreenSize(int slot) {
 
 void Renderer::bindQuadVertexBuffer() {
 	auto deviceContext = Renderer::getDeviceContext();
-	UINT strides = sizeof(float3);
+	UINT strides = sizeof(float2)*2; // float2 pos, float2 uv;
 	UINT offset = 0;
 	deviceContext->IASetVertexBuffers(0, 1, m_vertexQuadBuffer.GetAddressOf(), &strides, &offset);
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -226,28 +220,51 @@ void Renderer::setDepthState_Read() {
 }
 
 void Renderer::captureFrame() {
-	ID3D11Texture2D* tex = nullptr;
-	auto hr = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&tex);
-	if (FAILED(hr)) {
-		ErrorLogger::logError("Failed to capture backbuffer.", hr);
-	}
-	else {
-		// Write out the render target to png
-		hr = SaveWICTextureToFile(Renderer::getDeviceContext(), tex, GUID_ContainerFormatPng,
-			L"assets/captures/backbuffer.png", nullptr, nullptr);
-		m_capturedFrame.init();
-		m_capturedFrameLoaded = true;
-	}
-	if (tex != nullptr)
-		tex->Release();
+	copyTargetToSRV();
+
+	//ID3D11Texture2D* tex = nullptr;
+	//auto hr = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&tex);
+	//if (FAILED(hr)) {
+	//	ErrorLogger::logError("Failed to capture backbuffer.", hr);
+	//}
+	//else {
+	//	// Write out the render target to png
+	//	hr = SaveWICTextureToFile(Renderer::getDeviceContext(), tex, GUID_ContainerFormatPng,
+	//		L"assets/captures/backbuffer.png", nullptr, nullptr);
+	//	m_capturedFrame.init();
+	//	m_capturedFrameLoaded = true;
+	//}
+	//if (tex != nullptr)
+	//	tex->Release();
 }
 
 void Renderer::drawCapturedFrame() {
-	if (!m_capturedFrameLoaded) {
-		m_capturedFrame.init();
-		m_capturedFrameLoaded = true;
-	}
-	m_capturedFrame.draw();
+
+	// bind shader
+	m_shader_drawTexture.bindShadersAndLayout();
+	// bind texture
+	bindTargetSRVCopy(0);
+	// bind vertex buffer
+	bindQuadVertexBuffer();
+
+	bindRenderTarget(); // need to remove depth buffer!
+	setDepthState_Read(); // read but dont write to depth buffer
+
+	setBlendState_NonPremultiplied();
+
+	m_deviceContext->Draw(6, 0);
+
+	setBlendState_Opaque();
+
+	bindRenderAndDepthTarget(); // place back the depth buffer
+	setDepthState_Default(); // place back depth state
+
+
+	//if (!m_capturedFrameLoaded) {
+	//	m_capturedFrame.init();
+	//	m_capturedFrameLoaded = true;
+	//}
+	//m_capturedFrame.draw();
 }
 
 void Renderer::draw_darkEdges() {
@@ -257,8 +274,6 @@ void Renderer::draw_darkEdges() {
 		bindDepthSRVCopy(0);
 		// bind shader
 		m_shader_darkEdges.bindShadersAndLayout();
-		// bind contant buffer
-		bindConstantBuffer_ScreenSize(9);
 		// bind vertex buffer
 		bindQuadVertexBuffer();
 
@@ -272,16 +287,6 @@ void Renderer::draw_darkEdges() {
 
 		bindRenderAndDepthTarget(); // place back the depth buffer
 	}
-}
-
-void Renderer::drawLoading() {
-	beginFrame();
-	if (!m_loadingScreenInitialised) {
-		m_loadingScreen.init();
-		m_loadingScreenInitialised = true;
-	}
-	m_loadingScreen.draw();
-	endFrame();
 }
 
 void Renderer::draw_FXAA() {
@@ -336,9 +341,6 @@ void Renderer::draw_godRays(const float4x4& viewProjMatrix) {
 	m_settings_godRays.gSunPos = float2(grPosF4.x, grPosF4.y);
 	m_deviceContext->UpdateSubresource(m_cbuffer_godRays.Get(), 0, 0, &m_settings_godRays, 0, 0);
 	m_deviceContext->PSSetConstantBuffers(8, 1, m_cbuffer_godRays.GetAddressOf());
-	
-	// Bind constant buffer
-	bindConstantBuffer_ScreenSize(9);
 
 	// bind quad
 	bindQuadVertexBuffer();
@@ -411,32 +413,35 @@ Renderer::Renderer(int width, int height) {
 	ImGui::StyleColorsDark();
 
 	// compile shaders
-	D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = { {
-		"Position",					 // "semantic" name in shader
-		0,							 // "semantic" index (not used)
-		DXGI_FORMAT_R32G32B32_FLOAT, // size of ONE element (3 floats)
-		0,							 // input slot
-		0,							 // offset of first element
-		D3D11_INPUT_PER_VERTEX_DATA, // specify data PER vertex
-		0							 // used for INSTANCING (ignore)
-	} };
+	D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = {
+		{
+			"Position",					 // "semantic" name in shader
+			0,							 // "semantic" index (not used)
+			DXGI_FORMAT_R32G32_FLOAT, // size of ONE element
+			0,							 // input slot
+			0,							 // offset of first element
+			D3D11_INPUT_PER_VERTEX_DATA, // specify data PER vertex
+			0							 // used for INSTANCING (ignore)
+		},
+		{ "TexCoord", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 8, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
 	if (!m_shader_darkEdges.isLoaded()) {
 		
 		m_shader_darkEdges.createShaders(L"VertexShader_quadSimplePass.hlsl", nullptr,
-			L"PixelShader_darkEdge.hlsl", inputLayout_onlyMesh, 1);
+			L"PixelShader_darkEdge.hlsl", inputLayout_onlyMesh, 2);
 	}
 	if (!m_shader_FXAA.isLoaded()) {
 		m_shader_FXAA.createShaders(L"VertexShader_quadSimplePass.hlsl", nullptr,
-			L"PixelShader_FXAA.hlsl", inputLayout_onlyMesh, 1);
+			L"PixelShader_FXAA.hlsl", inputLayout_onlyMesh, 2);
 	}
 	if (!m_shader_godRays.isLoaded()) {
 		m_shader_godRays.createShaders(L"VertexShader_quadSimplePass.hlsl", nullptr,
-			L"PixelShader_godRays.hlsl", inputLayout_onlyMesh, 1);
+			L"PixelShader_godRays.hlsl", inputLayout_onlyMesh, 2);
 	}
-
-	// Set texture paths to quads
-	m_capturedFrame.setTexturePath("assets/captures/backbuffer.png");
-	m_capturedFrame.setPixelShaderPath("PixelShader_blur.hlsl");
+	if (!m_shader_drawTexture.isLoaded()) {
+		m_shader_drawTexture.createShaders(L"VertexShader_quadSimplePass.hlsl", nullptr,
+			L"PixelShader_fullTexture.hlsl", inputLayout_onlyMesh, 2);
+	}
 }
 
 Renderer::~Renderer() {
@@ -699,16 +704,29 @@ void Renderer::createConstantBuffers() {
 
 void Renderer::createQuadVertexBuffer() {
 	if (m_vertexQuadBuffer.Get() == nullptr) {
-		float3 points[4] = { float3(-1, -1, 0), float3(1, -1, 0), float3(-1, 1, 0),
-			float3(1, 1, 0) };
-		float3 quadData[6] = { points[0], points[3], points[1], points[0], points[2], points[3] };
+		struct QuadVertex {
+			float2 pos;
+			float2 uv;
+			QuadVertex(float2 _pos, float2 _uv) { 
+				pos = _pos;
+				uv = _uv;
+			}
+		};
+		QuadVertex vertices[4] = { 
+			QuadVertex(float2(-1, -1), float2(0, 1)),
+			QuadVertex(float2(1, -1), float2(1, 1)), 
+			QuadVertex(float2(-1, 1), float2(0, 0)),
+			QuadVertex(float2(1, 1), float2(1, 0)) 
+		};
+		QuadVertex quadData[6] = { vertices[0], vertices[3], vertices[1], vertices[0], vertices[2],
+			vertices[3] };
 		// vertex buffer
 		m_vertexQuadBuffer.Reset();
 		D3D11_BUFFER_DESC bufferDesc;
 		memset(&bufferDesc, 0, sizeof(bufferDesc));
 		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-		bufferDesc.ByteWidth = (UINT)6 * sizeof(float3);
+		bufferDesc.ByteWidth = 6 * sizeof(QuadVertex);
 		D3D11_SUBRESOURCE_DATA data;
 		data.pSysMem = quadData;
 		HRESULT res = Renderer::getDevice()->CreateBuffer(

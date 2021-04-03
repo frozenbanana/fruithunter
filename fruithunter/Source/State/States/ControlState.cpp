@@ -117,8 +117,6 @@ void ControlState::draw() {
 void ControlState::pause() {}
 
 void ControlState::play() {
-	Renderer::getInstance()->captureFrame();
-
 	m_btn_back.set(float2(1280/2, 720-50), "Back", 0.2);
 }
 

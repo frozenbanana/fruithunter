@@ -1,5 +1,6 @@
 struct VS_OUT {
 	float4 posH : SV_POSITION;
+	float2 uv : TexCoord;
 };
 
 cbuffer lightInfo : register(b5) {
@@ -7,7 +8,6 @@ cbuffer lightInfo : register(b5) {
 	float4 diffuseColour;
 	float4 specularColour;
 };
-cbuffer screenSizeBuffer : register(b9) { int4 cb_screenSize; };
 cbuffer settings : register(b8) {
 	float2 cb_SunUV;
 	float cb_InitDecay;
@@ -27,7 +27,7 @@ static const float ASPECT_RATIO = 1280.f/720; // width/height aspect ratio
 float sampleDepth(float2 uv) { return float(depthTexture.Sample(samp, uv) >= 0.99999); }
 
 float4 main(VS_OUT ip) : SV_TARGET {
-	float2 uv = float2(ip.posH.x / cb_screenSize.x, ip.posH.y / cb_screenSize.y);
+	float2 uv = ip.uv;
 
 	// Find the direction and distance to the sun
 	float2 dirToSun = (cb_SunUV - uv);

@@ -1,8 +1,7 @@
 struct VS_OUT {
 	float4 posH : SV_POSITION;
+	float2 uv : TexCoord;
 };
-
-cbuffer screenSizeBuffer : register(b9) { int4 cb_screenSize; };
 
 Texture2D<float> depthMap : register(s0);
 
@@ -17,9 +16,6 @@ float linearDepth(float depthSample) {
 float4 main(VS_OUT ip) : SV_TARGET {
 	float blend = 1.f;
 	float3 edgeColor = float3(0, 0, 0);
-	uint2 screenSize = uint2(cb_screenSize.x, cb_screenSize.y);
-
-	float2 uv = float2(ip.posH.x / screenSize.x, ip.posH.y / screenSize.y);
 
 	float pixThis = linearDepth(depthMap[ip.posH.xy]);
 	//float pixThisNorm = clamp((pixThis - 0.025) / (150-0.025), 0, 1);

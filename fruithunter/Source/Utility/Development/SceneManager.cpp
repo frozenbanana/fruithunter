@@ -111,6 +111,9 @@ void SceneManager::draw_color(Camera* overrideCamera) {
 
 	//FXAA
 	Renderer::getInstance()->draw_FXAA();
+
+	// Capture frame
+	Renderer::getInstance()->captureFrame();
 }
 
 void SceneManager::draw_hud() {

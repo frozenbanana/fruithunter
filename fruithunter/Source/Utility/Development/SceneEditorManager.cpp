@@ -1342,6 +1342,9 @@ void SceneEditorManager::draw_color() {
 		m_pointer_obj.setRotation(vector2Rotation(-m_pointer_normal));
 		m_pointer_obj.draw_onlyMesh(float3(1, 0.5, 0.5));
 	}
+
+	// Capture frame
+	Renderer::getInstance()->captureFrame();
 }
 
 void SceneEditorManager::draw_hud() { m_crosshair.draw(); }

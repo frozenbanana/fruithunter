@@ -1,7 +1,6 @@
 #pragma once
 #include "GlobalNamespaces.h"
 #include "ShaderSet.h"
-#include "Quad.h"
 #include "ShadowMapping.h"
 #include <CommonStates.h>
 
@@ -26,10 +25,8 @@ public:
 	LONG getWindowWidth() const;
 	LONG getWindowHeight() const;
 
-	void bindBackAndDepthBuffer();
 	void clearDepth();
 
-	void bindEverything();
 	void bindDepthSRVCopy(int slot);
 	void bindTargetSRVCopy(int slot);
 	void bindConstantBuffer_ScreenSize(int slot);
@@ -62,8 +59,6 @@ public:
 	void drawCapturedFrame();
 
 	void draw_darkEdges();
-
-	void drawLoading();
 
 	void draw_FXAA();
 
@@ -126,13 +121,8 @@ private:
 	} m_settings_godRays;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_cbuffer_godRays;
 
-	// Loading screen
-	Quad m_loadingScreen;
-	bool m_loadingScreenInitialised = false;
-
 	// Menu Background
-	Quad m_capturedFrame;
-	bool m_capturedFrameLoaded = false;
+	ShaderSet m_shader_drawTexture;
 
 	// shadows
 	ShadowMapper m_shadowMapper;
