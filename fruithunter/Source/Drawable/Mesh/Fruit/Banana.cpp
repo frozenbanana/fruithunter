@@ -35,72 +35,45 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 }
 
 void Banana::behaviorPassive() {
+	float dt = SceneManager::getScene()->getDeltaTime();
 	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
+	// if below sea level
 	if (getPosition().y <= 1.f) {
+		// jump towards home
 		float3 target = m_worldHome - getPosition();
 		target.Normalize();
 		target.y = 1.f;
 		jump(target, 10.f);
 		return;
 	}
-	// Only decide what to do on ground
-	if (m_onGround) {
-		float3 direction = float3(0.f);
-		if (!withinDistanceTo(m_worldHome, 25) && 0) {
-			float3 toHome = m_worldHome - getPosition();
-			toHome.Normalize();
-			toHome.y = 1.0f;
-			direction = toHome;
+	
+	// collision
+	float3 ray_point = getPosition() - float3(0, 1, 0) * getHalfSizes().y;
+	float3 ray_distance = m_velocity * dt;
+	float3 intersection_position, intersection_normal;
+	if (rayCastWorld(ray_point, ray_distance, intersection_position, intersection_normal)) {
+		if (withinDistanceTo(playerPosition, m_activeRadius)) {
+			// Freakout if player is close
+			// Go bananas!
+			intersection_normal.x += RandomFloat(-1.f, 1.f);
+			intersection_normal.z += RandomFloat(-1.f, 1.f);
+			intersection_normal.y = 1.0f;
+			jump(intersection_normal, ACTIVE_JUMP_POWER);
+			// play audio
+			playSound_bounce();
 		}
 		else {
-			float3 terrainNormal = SceneManager::getScene()->m_terrains.getNormalFromPosition(getPosition());
-			direction = terrainNormal;
-			// reflect
-			float3::Reflect(m_velocity, terrainNormal, m_velocity);
-			m_velocity *= 1.35f;
-			// random direction (greater effect if velocity point up or down)
-			float tiltFactor = abs(terrainNormal.Dot(float3(0, 1, 0)));
-			float3 randomVel = tiltFactor * float3(RandomFloat(-1, 1), 0, RandomFloat(-1, 1)) * 5;
-			m_velocity += randomVel;
-		}
-		//jump(direction, PASSIVE_JUMP_POWER);
-		//audio
-		SoundID sid = AudioController::getInstance()->play("jump1");
-		AudioController::getInstance()->scaleVolumeByDistance(sid, (playerPosition-getPosition()).Length(), 0.2, 25);
-		AudioController::getInstance()->setPitch(sid, RandomFloat(-1, 1) * 0.5);
-
-		if (withinDistanceTo(playerPosition, m_activeRadius)) {
-			changeState(ACTIVE);
-			stopMovement();
+			// bounce
+			bounce(intersection_normal, 1.35f, 5);
+			// clamp velocity
+			//m_velocity = Normalize(m_velocity) * min(m_velocity.Length(), m_velocitySpeed_max);
 		}
 	}
 }
 
-void Banana::behaviorActive() {
-	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
-	if (!withinDistanceTo(playerPosition, m_passiveRadius)) {
-		changeState(PASSIVE);
-	}
-	// Only decide what to do on ground
-	if (m_onGround) {
-		float3 terrainNormal =
-			SceneManager::getScene()->m_terrains.getNormalFromPosition(getPosition());
-		// Go bananas!
-		terrainNormal.x += RandomFloat(-1.f, 1.f);
-		terrainNormal.z += RandomFloat(-1.f, 1.f);
-		terrainNormal.y = 1.0f;
-		jump(terrainNormal, ACTIVE_JUMP_POWER);
-	}
-}
-void Banana::behaviorCaught() {
-	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
-	if (m_onGround) {
-		float3 toPlayer = playerPosition - getPosition();
-		toPlayer.Normalize();
-		toPlayer.y = 1.0f;
-		jump(toPlayer, 8.0f);
-	}
-}
+void Banana::behaviorActive() {}
+
+void Banana::behaviorCaught() {}
 
 void Banana::updateAnimated(float dt) {
 	switch (m_state) {
@@ -129,6 +102,29 @@ void Banana::release(float3 direction) {
 	m_afterRealease = true;
 }
 
+
+void Banana::playSound_bounce() {
+	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
+	SoundID sid = AudioController::getInstance()->play("jump1");
+	AudioController::getInstance()->scaleVolumeByDistance(
+		sid, (playerPosition - getPosition()).Length(), 0.2, 25);
+	AudioController::getInstance()->setPitch(sid, RandomFloat(-1, 1) * 0.5);
+}
+
+void Banana::bounce(
+	float3 normal, float bounceReflectMultiplier, float randomHorizontalMultiplier) {
+	// reflect
+	float3::Reflect(m_velocity, normal, m_velocity);
+	m_velocity *= bounceReflectMultiplier;
+	// random direction (greater effect if velocity point up or down)
+	float tiltFactor = abs(normal.Dot(float3(0, 1, 0)));
+	float3 randomVel =
+		tiltFactor * float3(RandomFloat(-1, 1), 0, RandomFloat(-1, 1)) * randomHorizontalMultiplier;
+	m_velocity += randomVel;
+
+	// play audio 
+	playSound_bounce();
+}
 
 void Banana::updateFirstJump(float dt) {
 	int frameOrder[] = { 0, 1, 0, 2, 0, 1 }; // Order of using keyframes
@@ -201,8 +197,6 @@ void Banana::updateBounce(float dt) {
 void Banana::updateStopped(float dt) {
 	// TODO: Straighten up and prepare to jump again.
 }
-
-void Banana::stop() {}
 
 void Banana::bounce() {
 	setAnimationDestination();

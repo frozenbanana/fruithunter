@@ -7,13 +7,16 @@ private:
 	float m_bounciness;
 	State m_state;
 
+	float m_velocitySpeed_max = 10;
+
 	float3 m_rotation;
-	float3 m_acceleration;
+
+	void playSound_bounce();
+	void bounce(float3 normal, float bounceReflectMultiplier = 1.f, float randomHorizontalMultiplier = 0.f);
 
 	void updateFirstJump(float dt);
 	void updateBounce(float dt);
 	void updateStopped(float dt);
-	void stop();
 	void bounce();
 	void rotRandom() {
 		m_rotation =
