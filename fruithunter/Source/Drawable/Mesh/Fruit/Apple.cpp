@@ -195,7 +195,7 @@ void Apple::flee(float3 playerPos) {
 	}
 	// set new velocity from path
 }
-void Apple::pathfinding(float3 start, std::vector<float4>* animals) {
+void Apple::pathfinding(float3 start) {
 	// ErrorLogger::log("thread starting for pathfinding");
 	auto pft = PathFindingThread::getInstance();
 	
@@ -270,9 +270,6 @@ void Apple::pathfinding(float3 start, std::vector<float4>* animals) {
 
 				// Check if node is in open or closed.
 				if (!beingUsed(child, open, closed)) {
-					continue;
-				}
-				if (!checkAnimals(*animals, childPosition)) {
 					continue;
 				}
 

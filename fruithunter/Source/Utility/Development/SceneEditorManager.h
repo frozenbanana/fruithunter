@@ -97,7 +97,6 @@ private:
 
 	bool update_panel_terrain(Environment* selection, bool update = false);
 	bool update_panel_entity(Entity* selection, bool update = false);
-	bool update_panel_animal(Animal* selection, bool update = false);
 	bool update_panel_sea(SeaEffect* selection, bool update = false);
 	bool update_panel_effect(ParticleSystem* selection, bool update = false);
 	void refreshLibrary();

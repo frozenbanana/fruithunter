@@ -177,9 +177,6 @@
     <ClCompile Include="Source\Graphics\ShadowMapping\ShadowMapping.cpp">
       <Filter>Source\Graphics\ShadowMapping</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Drawable\Mesh\Animal.cpp">
-      <Filter>Source\Drawable\Mesh</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Drawable\ParticleSystem\Particle.cpp">
       <Filter>Source\Drawable\ParticleSystem</Filter>
     </ClCompile>
@@ -418,9 +415,6 @@
     </ClInclude>
     <ClInclude Include="Source\Utility\QuadTree.h">
       <Filter>Source\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Drawable\Mesh\Animal.h">
-      <Filter>Source\Drawable\Mesh</Filter>
     </ClInclude>
     <ClInclude Include="Source\AI\PathFindingThread.h">
       <Filter>Source\AI</Filter>

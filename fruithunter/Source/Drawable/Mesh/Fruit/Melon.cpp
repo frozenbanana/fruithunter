@@ -162,7 +162,7 @@ void Melon::updateAnimated(float dt) {
 	// static mesh (no animation)
 }
 
-void Melon::pathfinding(float3 start, std::vector<float4>* animals) {
+void Melon::pathfinding(float3 start) {
 	// ErrorLogger::log("thread starting for pathfinding");
 	auto pft = PathFindingThread::getInstance();
 
@@ -228,9 +228,6 @@ void Melon::pathfinding(float3 start, std::vector<float4>* animals) {
 
 					// Check if node is in open or closed.
 					if (!beingUsed(child, open, closed)) {
-						continue;
-					}
-					if (!checkAnimals(*animals, childPosition)) {
 						continue;
 					}
 

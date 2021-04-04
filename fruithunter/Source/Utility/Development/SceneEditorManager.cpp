@@ -52,13 +52,7 @@ void SceneEditorManager::update_imgui_library() {
 					Fragment::Type type = f->getType();
 					Fragment* fCopy = nullptr;
 					bool anyUpdate = true;
-					if (type == Fragment::Type::animal) {
-						Animal* obj = dynamic_cast<Animal*>(f);
-						shared_ptr<Animal> copy = make_shared<Animal>(*obj);
-						scene->m_animals.push_back(copy);
-						fCopy = copy.get();
-					}
-					else if (type == Fragment::Type::entity) {
+					if (type == Fragment::Type::entity) {
 						Entity* target = dynamic_cast<Entity*>(f);
 						shared_ptr<Entity> obj = make_shared<Entity>(*target);
 						scene->m_entities.add(obj->getLocalBoundingBoxPosition(),
@@ -125,9 +119,6 @@ void SceneEditorManager::update_imgui_library() {
 			case Fragment::entity:
 				updated = update_panel_entity(dynamic_cast<Entity*>(f), m_selectedThisFrame);
 				break;
-			case Fragment::animal:
-				updated = update_panel_animal(dynamic_cast<Animal*>(f), m_selectedThisFrame);
-				break;
 			case Fragment::terrain:
 				updated = update_panel_terrain(dynamic_cast<Environment*>(f), m_selectedThisFrame);
 				break;
@@ -151,10 +142,6 @@ void SceneEditorManager::update_imgui_library() {
 				}
 				if (ImGui::BeginTabItem("Entity")) {
 					updated = update_panel_entity(nullptr);
-					ImGui::EndTabItem();
-				}
-				if (ImGui::BeginTabItem("Animal")) {
-					updated = update_panel_animal(nullptr);
 					ImGui::EndTabItem();
 				}
 				if (ImGui::BeginTabItem("SeaEffect")) {
@@ -412,94 +399,6 @@ bool SceneEditorManager::update_panel_entity(Entity* selection, bool update) {
 	return updated;
 }
 
-bool SceneEditorManager::update_panel_animal(Animal* selection, bool update) {
-	bool updated = false;
-	bool isValid = (selection != nullptr);
-
-	static const string types[Animal::Type::Length] = { "Bear", "Goat", "Gorilla" };
-	static float3 position, sleepPosition;
-	static float rotationY = 0;
-	static Animal::Type type = Animal::Type::Bear;
-	static FruitType fruitType = FruitType::APPLE;
-	static int fruitCount = 1;
-
-	if (update && isValid) {
-		position = selection->getPosition();
-		rotationY = selection->getRotation().y;
-		type = selection->getType();
-		fruitType = selection->getfruitType();
-		fruitCount = selection->getRequiredFruitCount();
-		sleepPosition = selection->getSleepPosition();
-	}
-	if (ImGui::Button("UpdateP") || Input::getInstance()->keyPressed(m_key_setPosition)) {
-		position = m_pointer;
-		if (isValid) {
-			selection->setPosition(position);
-			updated = true;
-		}
-	}
-	ImGui::SameLine();
-	if (ImGui::InputFloat3("Position", (float*)&position, 2) && isValid) {
-		selection->setPosition(position);
-		updated = true;
-	}
-	if (ImGui::InputFloat("Rotation", (float*)&rotationY, 2) && isValid) {
-		selection->setRotation(float3(0, rotationY, 0));
-		updated = true;
-	}
-	if (ImGui::Button("UpdateSP")) {
-		sleepPosition = m_pointer;
-		if (isValid) {
-			selection->setSleepPosition(sleepPosition);
-			updated = true;
-		}
-	}
-	ImGui::SameLine();
-	if (ImGui::InputFloat3("Sleep Position", (float*)&sleepPosition, 2) && isValid) {
-		selection->setSleepPosition(sleepPosition);
-		updated = true;
-	}
-	if (ImGui::BeginCombo("Model", types[type].c_str())) {
-		for (size_t i = 0; i < Animal::Type::Length; i++) {
-			if (ImGui::MenuItem(types[i].c_str())) {
-				type = (Animal::Type)i;
-				if (isValid) {
-					selection->setType(type);
-					updated = true;
-				}
-			}
-		}
-		ImGui::EndCombo();
-	}
-	if (ImGui::BeginCombo("Fruit To Give", FruitTypeToString(fruitType).c_str())) {
-		for (size_t i = 0; i < FruitType::NR_OF_FRUITS; i++) {
-			if (ImGui::MenuItem(FruitTypeToString((FruitType)i).c_str())) {
-				fruitType = (FruitType)i;
-				if (isValid) {
-					selection->setFruitType(fruitType);
-					updated = true;
-				}
-			}
-		}
-		ImGui::EndCombo();
-	}
-	if (ImGui::InputInt("Fruit Count", &fruitCount)) {
-		fruitCount = Clamp<int>(fruitCount, 0, 3);
-		if (isValid) {
-			selection->setRequiredFruitCount(fruitCount);
-			updated = true;
-		}
-	}
-	if (!isValid) {
-		if (ImGui::Button("Create")) {
-			updated = true;
-			scene->m_animals.push_back(make_shared<
-				Animal>(position, sleepPosition, type, fruitType, fruitCount, rotationY));
-		}
-	}
-	return updated;
-}
-
 bool SceneEditorManager::update_panel_sea(SeaEffect* selection, bool update) {
 	bool updated = false;
 	bool isValid = (selection != nullptr);
@@ -682,8 +581,7 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 void SceneEditorManager::refreshLibrary() {
 	m_library.clear();
 	m_library.reserve(scene->m_terrains.length() + scene->m_seaEffects.size() +
-					  scene->m_entities.size() + scene->m_particleSystems.size() +
-					  scene->m_animals.size());
+					  scene->m_entities.size() + scene->m_particleSystems.size());
 	for (size_t i = 0; i < scene->m_terrains.length(); i++)
 		m_library.push_back(scene->m_terrains.getTerrainFromIndex(i).get());
 	for (size_t i = 0; i < scene->m_seaEffects.size(); i++)
@@ -692,8 +590,6 @@ void SceneEditorManager::refreshLibrary() {
 		m_library.push_back(scene->m_entities[i].get());
 	for (size_t i = 0; i < scene->m_particleSystems.size(); i++)
 		m_library.push_back(&scene->m_particleSystems[i]);
-	for (size_t i = 0; i < scene->m_animals.size(); i++)
-		m_library.push_back(scene->m_animals[i].get());
 
 	if (m_library.size() == 0) {
 		deselect_fragment();
@@ -982,7 +878,7 @@ void SceneEditorManager::select_index(size_t index) {
 	m_selectedIndex = index;
 	m_selectedThisFrame = true;
 
-	static const Fragment::Type validTypes[3] = { Fragment::Type::animal, Fragment::Type::entity,
+	static const Fragment::Type validTypes[3] = { Fragment::Type::entity,
 		Fragment::Type::particleSystem };
 	bool found = false;
 	for (size_t i = 0; i < 3; i++) {
@@ -1002,8 +898,8 @@ void SceneEditorManager::select_fragment(FragmentID id) {
 			m_selectedIndex = i;
 			m_selectedThisFrame = true;
 
-			static const Fragment::Type validTypes[3] = { Fragment::Type::animal,
-				Fragment::Type::entity, Fragment::Type::particleSystem };
+			static const Fragment::Type validTypes[3] = { Fragment::Type::entity,
+				Fragment::Type::particleSystem };
 			m_transformable = nullptr;
 			for (size_t j = 0; j < 3; j++) {
 				if (m_library[i]->getType() == validTypes[j]) {
@@ -1204,14 +1100,6 @@ void SceneEditorManager::update() {
 					f = scene->m_entities[i].get();
 				}
 			}
-			// animal
-			for (size_t i = 0; i < scene->m_animals.size(); i++) {
-				float t = scene->m_animals[i]->castRay(position, forward);
-				if (t != -1 && (closest == -1 || t < closest)) {
-					closest = t;
-					f = scene->m_animals[i].get();
-				}
-			}
 			// select in library
 			if (f != nullptr) {
 				for (size_t i = 0; i < m_library.size(); i++) {
@@ -1292,11 +1180,6 @@ void SceneEditorManager::draw_shadow() { 	// terrain manager
 }
 
 void SceneEditorManager::draw_color() { 
-	// Animals
-	for (size_t i = 0; i < scene->m_animals.size(); ++i) {
-		scene->m_animals[i]->draw();
-	}
-
 	// frustum data for culling
 	vector<FrustumPlane> frustum = m_camera.getFrustumPlanes();
 	// Entities

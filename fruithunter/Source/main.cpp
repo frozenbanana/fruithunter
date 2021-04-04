@@ -1,6 +1,5 @@
 #include <iostream>
 #include "ErrorLogger.h"
-#include "Quad.h"
 #include "Renderer.h"
 #include "Input.h"
 #include <Windows.h>
