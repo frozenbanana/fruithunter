@@ -122,6 +122,7 @@ public:
 	void draw_shadow();
 	void draw_color();
 	void draw_hud();
+	void draw_editorWorldObjects();
 	void draw();
 
 	void load(string folder);

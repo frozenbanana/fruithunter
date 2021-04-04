@@ -165,9 +165,6 @@
     <ClCompile Include="Source\Drawable\EntityCollision.cpp">
       <Filter>Source\Drawable</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Drawable\EntityRepository.cpp">
-      <Filter>Source\Drawable</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Utility\VariableSyncer\VariableSyncer.cpp">
       <Filter>Source\Utility\VariableSyncer</Filter>
     </ClCompile>
@@ -399,9 +396,6 @@
       <Filter>Source\Utility\Repositories</Filter>
     </ClInclude>
     <ClInclude Include="Source\Drawable\EntityCollision.h">
-      <Filter>Source\Drawable</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Drawable\EntityRepository.h">
       <Filter>Source\Drawable</Filter>
     </ClInclude>
     <ClInclude Include="Source\Utility\VariableSyncer\VariableSyncer.h">

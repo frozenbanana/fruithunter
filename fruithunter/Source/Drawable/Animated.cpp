@@ -126,7 +126,7 @@ void Animated::draw(float3 color) {
 	bindConstantBuffer();
 	m_shaderObject_animation.bindShadersAndLayout();
 
-	m_meshes[0]->bindColorBuffer(color);
+	m_meshes[0]->bindColorBuffer(float4(color.x, color.y, color.z, 1.f));
 	m_meshes[0]->drawCall_perMaterial();
 }
 
@@ -135,7 +135,7 @@ void Animated::draw_onlyMesh(float3 color) {
 	bindConstantBuffer();
 	m_shaderObject_animation.bindShadersAndLayout();
 
-	m_meshes[0]->bindColorBuffer(color);
+	m_meshes[0]->bindColorBuffer(float4(color.x, color.y, color.z, 1.f));
 	m_meshes[0]->drawCall_all();
 }
 

@@ -42,8 +42,8 @@ public:
 	void isVisible(bool state);
 
 	// Drawing
-	virtual void draw(float3 color = float3(1.));
-	void draw_onlyMesh(float3 color);
+	virtual void draw(float3 color = float3(1.), float alpha = 1.f);
+	void draw_onlyMesh(float3 color = float3(1.), float alpha = 1.f);
 	void draw_boundingBox();
 
 	void draw_animate(float3 color = float3(1.));

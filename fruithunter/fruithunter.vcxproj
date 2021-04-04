@@ -172,7 +172,6 @@
     <ClCompile Include="Source\Drawable\CollectionPoint.cpp" />
     <ClCompile Include="Source\Drawable\Entity.cpp" />
     <ClCompile Include="Source\Drawable\EntityCollision.cpp" />
-    <ClCompile Include="Source\Drawable\EntityRepository.cpp" />
     <ClCompile Include="Source\Drawable\HUD.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Dragonfruit.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Terrain\HeightmapMesh.cpp" />
@@ -251,7 +250,6 @@
     <ClInclude Include="Source\Drawable\CollectionPoint.h" />
     <ClInclude Include="Source\Drawable\Entity.h" />
     <ClInclude Include="Source\Drawable\EntityCollision.h" />
-    <ClInclude Include="Source\Drawable\EntityRepository.h" />
     <ClInclude Include="Source\Drawable\HUD.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Dragonfruit.h" />
     <ClInclude Include="Source\Drawable\Mesh\Terrain\HeightmapMesh.h" />

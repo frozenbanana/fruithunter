@@ -872,6 +872,8 @@ void SceneEditorManager::update_transformation(float dt) {
 
 void SceneEditorManager::draw_transformationVisuals() {
 	if (m_transformable != nullptr) {
+		Renderer::getInstance()->setBlendState_NonPremultiplied();
+		float alpha = 0.65f;
 		float scale1 = m_transformable->getScale().Length();
 		scale1 = Clamp<float>(scale1, 1, 10);
 		float3 scale(scale1, scale1, scale1);
@@ -880,26 +882,27 @@ void SceneEditorManager::draw_transformationVisuals() {
 			for (size_t i = 0; i < 3; i++) {
 				m_arrow[i].setPosition(m_transformable->getPosition());
 				m_arrow[i].setScale(scale);
-				m_arrow[i].draw_onlyMesh(m_axis[i]);
+				m_arrow[i].draw_onlyMesh(m_axis[i], alpha);
 			}
 			m_centerOrb.setPosition(m_transformable->getPosition());
 			m_centerOrb.setScale(scale * 0.25f);
-			m_centerOrb.draw_onlyMesh(float3(1.));
+			m_centerOrb.draw_onlyMesh(float3(1.f), alpha);
 		}
 		else if (m_transformState == Edit_Rotation) {
 			for (size_t i = 0; i < 3; i++) {
 				m_torus[i].setPosition(m_transformable->getPosition());
 				m_torus[i].setRotation(m_transformable->getRotation() * m_maskPYR[i]);
 				m_torus[i].setScale(scale);
-				m_torus[i].draw_onlyMesh(m_axis[i]);
+				m_torus[i].draw_onlyMesh(m_axis[i], alpha);
 			}
 		}
 		else if (m_transformState == Edit_Scaling) {
 			float cubeScaling = 1;
 			m_scaling_torus.setPosition(m_transformable->getPosition());
 			m_scaling_torus.setScale(cubeScaling * scale);
-			m_scaling_torus.draw_onlyMesh(float3(1.));
+			m_scaling_torus.draw_onlyMesh(float3(1.f), alpha);
 		}
+		Renderer::getInstance()->setBlendState_Opaque();
 	}
 }
 
@@ -1285,7 +1288,7 @@ void SceneEditorManager::draw_shadow() { 	// terrain manager
 	// terrain entities
 	vector<shared_ptr<Entity>*> culledEntities = scene->m_entities.cullElements(planes);
 	for (size_t i = 0; i < culledEntities.size(); i++)
-		(*culledEntities[i])->draw_onlyMesh(float3(0.));
+		(*culledEntities[i])->draw_onlyMesh(float3(0.f));
 }
 
 void SceneEditorManager::draw_color() { 
@@ -1330,30 +1333,33 @@ void SceneEditorManager::draw_color() {
 		scene->m_particleSystems[i].draw();
 	}
 
-	//////////////////// -- EDITOR_STUFF -- ////////////////////
-
-	if (m_editorTabActive == EditorTab::Library) {
-		/* --- Things to be drawn without depthbuffer --- */
-		Renderer::getInstance()->bindRenderTarget();
-		draw_transformationVisuals();
-		Renderer::getInstance()->bindRenderAndDepthTarget();
-		/* ----------------------------------------------- */
-		m_pointer_obj.setPosition(m_pointer);
-		m_pointer_obj.setRotation(vector2Rotation(-m_pointer_normal));
-		m_pointer_obj.draw_onlyMesh(float3(1, 0.5, 0.5));
-	}
-
 	// Capture frame
 	Renderer::getInstance()->captureFrame();
 }
 
 void SceneEditorManager::draw_hud() { m_crosshair.draw(); }
 
+void SceneEditorManager::draw_editorWorldObjects() {
+	// Clear depth so that all entities are drawn infront of everything else 
+	// but still has depth perception to other editor entities.
+	Renderer::getInstance()->clearDepth();
+	// Draw 
+	if (m_editorTabActive == EditorTab::Library) {
+		// Pointer Entity Helper
+		m_pointer_obj.setPosition(m_pointer);
+		m_pointer_obj.setRotation(vector2Rotation(-m_pointer_normal));
+		m_pointer_obj.draw_onlyMesh(float3(1, 0.5, 0.5));
+		// Transformation Entity Helpers
+		draw_transformationVisuals();
+	}
+}
+
 void SceneEditorManager::draw() { 
 	setup_shadow(&m_camera); 
 	draw_shadow();
 	setup_color(&m_camera);
 	draw_color();
+	draw_editorWorldObjects();
 	draw_hud();
 }
 

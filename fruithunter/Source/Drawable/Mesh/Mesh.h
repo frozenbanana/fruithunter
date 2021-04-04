@@ -62,15 +62,15 @@ public:
 
 	// -- BINDS --
 	void bindMaterial(int index);
-	void bindColorBuffer(float3 color);
+	void bindColorBuffer(float4 color);
 	void bindMesh() const;
 
 	// -- DRAW CALLS
 	void drawCall_all();
 	void drawCall_perMaterial();
 
-	void draw(float3 color = float3(1.));
-	void draw_noMaterial(float3 color = float3(1, 1, 1));
+	void draw(float3 color = float3(1.f), float alpha = 1.f);
+	void draw_noMaterial(float3 color = float3(1.f), float alpha = 1.f);
 	void draw_BoundingBox();
 
 	// -- ANALYSE --
