@@ -41,10 +41,6 @@ void SceneManager::setup_color(Camera* overrideCamera) {
 }
 
 void SceneManager::draw_color(Camera* overrideCamera) {
-
-	// Bow
-	scene->m_player->draw();
-
 	// Animals
 	for (size_t i = 0; i < scene->m_animals.size(); ++i) {
 		scene->m_animals[i]->draw();
@@ -79,6 +75,9 @@ void SceneManager::draw_color(Camera* overrideCamera) {
 	Renderer::getInstance()->draw_darkEdges();
 
 	/* --- Things to be drawn without dark edges --- */
+
+	// Bow
+	scene->m_player->draw();
 
 	// terrain grass
 	scene->m_terrains.draw_grass();

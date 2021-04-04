@@ -28,6 +28,7 @@ public:
 	void clearDepth();
 
 	void bindDepthSRVCopy(int slot);
+	void bindDepthSRV(int slot);
 	void bindTargetSRVCopy(int slot);
 	void bindConstantBuffer_ScreenSize(int slot);
 	void bindQuadVertexBuffer();
@@ -98,6 +99,7 @@ private:
 	//Depth buffer
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthDSV;	 // Depth stencil view
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthSRV; // Depth shader resource view
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthCopySRV; // Depth copy shader resource view
 
 	//buffer
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_screenSizeBuffer;

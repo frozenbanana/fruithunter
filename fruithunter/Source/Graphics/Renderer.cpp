@@ -73,6 +73,10 @@ void Renderer::clearDepth() {
 }
 
 void Renderer::bindDepthSRVCopy(int slot) {
+	m_deviceContext->PSSetShaderResources(slot, 1, m_depthCopySRV.GetAddressOf());
+}
+
+void Renderer::bindDepthSRV(int slot) {
 	m_deviceContext->PSSetShaderResources(slot, 1, m_depthSRV.GetAddressOf());
 }
 
@@ -147,7 +151,7 @@ void Renderer::bindQuadVertexBuffer() {
 
 void Renderer::copyDepthToSRV() {
 	ID3D11Resource *dst = nullptr, *src = nullptr;
-	m_depthSRV.Get()->GetResource(&dst);
+	m_depthCopySRV.Get()->GetResource(&dst);
 	m_depthDSV.Get()->GetResource(&src);
 	m_deviceContext->CopyResource(dst, src);
 	if (dst)
@@ -269,24 +273,22 @@ void Renderer::drawCapturedFrame() {
 
 void Renderer::draw_darkEdges() {
 	if (Settings::getInstance()->getDarkEdges()) {
+		bindRenderTarget(); // need to remove depth buffer!
 		// bind depth buffer copy
-		copyDepthToSRV();
-		bindDepthSRVCopy(0);
+		bindDepthSRV(0);
 		// bind shader
 		m_shader_darkEdges.bindShadersAndLayout();
 		// Bind constant buffer
 		bindConstantBuffer_ScreenSize(9);
 		// bind vertex buffer
 		bindQuadVertexBuffer();
-
-		bindRenderTarget(); // need to remove depth buffer!
-
+		// Enable Alpha
 		setBlendState_NonPremultiplied();
 
 		m_deviceContext->Draw(6, 0);
 
+		// Reset setup
 		setBlendState_Opaque();
-
 		bindRenderAndDepthTarget(); // place back the depth buffer
 	}
 }
@@ -646,30 +648,45 @@ void Renderer::createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd) {
 
 	tex->Release();
 
-	//	DEPTH COPY
-
-	m_depthSRV.Reset();
-	// texture 2d copy
-	ID3D11Texture2D* texCopy = 0;
-	D3D11_TEXTURE2D_DESC CopyDeStDesc = DeStDesc;
-	DeStDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	res = m_device->CreateTexture2D(&CopyDeStDesc, 0, &texCopy);
-	if (FAILED(res))
-		ErrorLogger::logError("(Renderer) Failed creating depth 2D texture copy!", res);
-
 	// depth shader resource
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	ZeroMemory(&srvDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
-	srvDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT; // D32_FLOAT = INVALID, R32_FLOAT = SUCCESS
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-	srvDesc.Texture2D.MostDetailedMip = 0;
+	D3D11_SHADER_RESOURCE_VIEW_DESC depthSRVDesc;
+	ZeroMemory(&depthSRVDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	depthSRVDesc.Format =
+		DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT; // D32_FLOAT = INVALID, R32_FLOAT = SUCCESS
+	depthSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	depthSRVDesc.Texture2D.MipLevels = 1;
+	depthSRVDesc.Texture2D.MostDetailedMip = 0;
 	HRESULT srvHR =
-		m_device->CreateShaderResourceView(texCopy, &srvDesc, m_depthSRV.GetAddressOf());
+		m_device->CreateShaderResourceView(tex, &depthSRVDesc, m_depthSRV.GetAddressOf());
 	if (FAILED(srvHR))
 		ErrorLogger::logError("(Renderer) Failed creating depthSRV!", srvHR);
 
-	texCopy->Release();
+	//	DEPTH COPY
+	{
+		m_depthCopySRV.Reset();
+		// texture 2d copy
+		ID3D11Texture2D* texCopy = 0;
+		D3D11_TEXTURE2D_DESC CopyDeStDesc = DeStDesc;
+		DeStDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		res = m_device->CreateTexture2D(&CopyDeStDesc, 0, &texCopy);
+		if (FAILED(res))
+			ErrorLogger::logError("(Renderer) Failed creating depth 2D texture copy!", res);
+
+		// depth copy shader resource
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		ZeroMemory(&srvDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+		srvDesc.Format =
+			DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT; // D32_FLOAT = INVALID, R32_FLOAT = SUCCESS
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = 1;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		HRESULT srvHR =
+			m_device->CreateShaderResourceView(texCopy, &srvDesc, m_depthCopySRV.GetAddressOf());
+		if (FAILED(srvHR))
+			ErrorLogger::logError("(Renderer) Failed creating depthCopySRV!", srvHR);
+
+		texCopy->Release();
+	}
 }
 
 void Renderer::createConstantBuffers() {
