@@ -92,6 +92,7 @@ public:
 	~Bow();
 
 	float getWindup() const;
+	float getDrawFactor() const;
 
 	/* Draw bow mesh. Draw arrow mesh (if not recovering) */
 	void draw();

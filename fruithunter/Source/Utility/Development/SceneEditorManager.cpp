@@ -1074,8 +1074,8 @@ SceneEditorManager::SceneEditorManager() {
 	m_pointer_obj.setScale(0.8);
 
 	// crosshair
-	m_crosshair.load("crosshair.png");
-	m_crosshair.set(float2(1280./2, 720./2), float2(1./10));
+	m_crosshair.load("crosshair_blackCross.png");
+	m_crosshair.set(float2(1280./2, 720./2), float2(1./30));
 	m_crosshair.setAlignment();//center - center
 
 	// translation

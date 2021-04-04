@@ -1,7 +1,6 @@
 #pragma once
 #include "GlobalNamespaces.h"
 #include "Terrain.h"
-#include "EntityRepository.h"
 #include <list>
 #include <mutex>
 #define ARRIVAL_RADIUS 1.0f

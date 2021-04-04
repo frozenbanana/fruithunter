@@ -6,7 +6,6 @@
 #include "Animal.h"
 #include "TerrainBatch.h"
 #include "ParticleSystem.h"
-#include "EntityRepository.h"
 #include "SkyBox.h"
 #include "Player.h"
 #include "CollectionPoint.h"

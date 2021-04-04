@@ -119,9 +119,9 @@ void SceneManager::draw_color(Camera* overrideCamera) {
 void SceneManager::draw_hud() {
 	m_hud.draw();
 	
-	float anim = scene->m_player->getBow().getWindup();
-	m_crosshair.setScale(anim * 1.f / 25);
-	m_crosshair.setAlpha(anim);
+	float anim = scene->m_player->getBow().getDrawFactor();
+	m_crosshair.setScale(anim * 1.f / 35);
+	m_crosshair.setAlpha(anim * 0.75f);
 	m_crosshair.draw();
 }
 
@@ -131,7 +131,7 @@ SceneManager::SceneManager() {
 	if(scene.get() == nullptr) 
 		scene = make_shared<Scene>(); 
 
-	m_crosshair.load("crosshair_whiteCircle.png");
+	m_crosshair.load("crosshair_ingame.png");
 	m_crosshair.set(float2(1280. / 2, 720. / 2), float2(1. / 10));
 	m_crosshair.setAlignment(); // center - center
 }
