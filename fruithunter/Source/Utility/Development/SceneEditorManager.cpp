@@ -934,22 +934,6 @@ SceneEditorManager::SceneEditorManager() {
 	m_heightmap_textures.push_back(tr->get("tutorial.png", type));
 	m_heightmap_textures.push_back(tr->get("VolcanoMap.png", type));
 
-	// terrain textures
-	type = TextureRepository::Type::type_texture;
-	m_terrain_textures.push_back(tr->get("texture_grass.jpg", type));
-	m_terrain_textures.push_back(tr->get("texture_grass3.jpg", type));
-	m_terrain_textures.push_back(tr->get("texture_grass6.jpg", type));
-	m_terrain_textures.push_back(tr->get("texture_lava1.jpg", type));
-	m_terrain_textures.push_back(tr->get("texture_mossyRock.jpg", type));
-	m_terrain_textures.push_back(tr->get("texture_mud.jpg", type));
-	m_terrain_textures.push_back(tr->get("texture_rock2.jpg", type));
-	m_terrain_textures.push_back(tr->get("texture_rock4.jpg", type));
-	m_terrain_textures.push_back(tr->get("texture_rock6.jpg", type));
-	m_terrain_textures.push_back(tr->get("texture_rock8.jpg", type));
-	m_terrain_textures.push_back(tr->get("texture_rock9.png", type));
-	m_terrain_textures.push_back(tr->get("texture_sand1.jpg", type));
-	m_terrain_textures.push_back(tr->get("texture_sand3.jpg", type));
-
 	// loadable entities from name file
 
 	ifstream nameFile;

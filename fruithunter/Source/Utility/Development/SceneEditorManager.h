@@ -65,7 +65,6 @@ private:
 
 	// Resources
 	vector<shared_ptr<TextureSet>> m_heightmap_textures;
-	vector<shared_ptr<TextureSet>> m_terrain_textures;
 
 	vector<string> m_loadable_entity;
 
