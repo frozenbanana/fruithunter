@@ -274,6 +274,8 @@ void Renderer::draw_darkEdges() {
 		bindDepthSRVCopy(0);
 		// bind shader
 		m_shader_darkEdges.bindShadersAndLayout();
+		// Bind constant buffer
+		bindConstantBuffer_ScreenSize(9);
 		// bind vertex buffer
 		bindQuadVertexBuffer();
 

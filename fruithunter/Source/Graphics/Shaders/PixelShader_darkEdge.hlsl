@@ -3,6 +3,8 @@ struct VS_OUT {
 	float2 uv : TexCoord;
 };
 
+cbuffer screenSizeConstantBuffer : register(b9) { int4 cb_screenSize; };
+
 Texture2D<float> depthMap : register(s0);
 
 float linearDepth(float depthSample) {
@@ -38,9 +40,12 @@ float4 main(VS_OUT ip) : SV_TARGET {
 	for (int xx = 0; xx < isize; xx++) {
 		for (int yy = 0; yy < isize; yy++) {
 			total += table[yy * isize + xx];
-			float pixOther = linearDepth(depthMap[ip.posH.xy + int2(xx - (int)(isize/2), yy - (int)(isize/2))]);
-			if ((pixThis - pixOther) > 0.15f * pixThis) {
-				sum += table[yy * isize + xx];
+			int2 uv = ip.posH.xy + int2(xx - (int)(isize / 2), yy - (int)(isize / 2));
+			if (uv.x >= 0 && uv.x < cb_screenSize.x && uv.y >= 0 && uv.y < cb_screenSize.y) {
+				float pixOther = linearDepth(depthMap[uv]);
+				if ((pixThis - pixOther) > 0.15f * pixThis) {
+					sum += table[yy * isize + xx];
+				}
 			}
 		}
 	}
