@@ -155,6 +155,8 @@ bool Player::checkAnimal(float3 animalPos, float range, float throwStrength) {
 	return false;
 }
 
+Camera& Player::getCamera() { return m_camera; }
+
 float3 Player::getPosition() const { return m_position; }
 
 float3 Player::getCameraPosition() const { return m_camera.getPosition(); }

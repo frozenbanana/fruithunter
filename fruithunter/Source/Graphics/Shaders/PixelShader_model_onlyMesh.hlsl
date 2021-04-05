@@ -71,16 +71,19 @@ float3 lighting(float3 pos, float3 normal, float3 color, float shade) {
 	float3 toLight = normalize(cb_toLight.xyz);
 
 	// diffuse
-	float shadowTint = max(dot(toLight, normal), 0.0);
+	float diffuseTint = max(dot(toLight, normal), 0.0);
 
 	// specular
-	float3 toCam = normalize(pos-camera_position.xyz);
-	float3 reflectedRay = normalize(reflect(toLight, normal));
-	float3 tint = max(dot(reflectedRay, toCam), 0.0);
-	float reflectTint = pow(tint, 10);
+	float reflectTint = 0;
+	if (diffuseTint > 0.0f) {
+		float3 toCam = normalize(pos - camera_position.xyz);
+		float3 reflectedRay = normalize(reflect(toLight, normal));
+		float3 tint = max(dot(reflectedRay, toCam), 0.0);
+		reflectTint = pow(tint, 10);
+	}
 
 	float3 retColor = color * ambient.xyz;//ambient
-	retColor += color * shadowTint * shade * diffuse.xyz;//diffuse
+	retColor += color * diffuseTint * shade * diffuse.xyz; // diffuse
 	retColor += reflectTint * specular * shade;//specular
 	return retColor;
 }
@@ -89,5 +92,5 @@ float4 main(PS_IN ip) : SV_TARGET {
 	float shade = texSampleGrease(
 		texture_shadowMap, cb_shadowMapRes, ip.ShadowPosH.xy, ip.ShadowPosH.z, ip.PosW.xyz)
 					  .r;
-	return float4(lighting(ip.PosW, ip.Normal.xyz, color.xyz, shade), 1.0);
+	return float4(lighting(ip.PosW, ip.Normal.xyz, color.xyz, shade), color.a);
 }

@@ -106,27 +106,12 @@ bool AI::isValid(
 	return true;
 }
 
-bool AI::checkAnimals(std::vector<float4> animals, float3 childPos) { 
-	childPos.y = 0.f;
-	for (auto e : animals) {
-		float3 animalPos;
-		animalPos.x = e.x;
-		animalPos.y = 0.f;
-		animalPos.z = e.z;
-		float len = (childPos - animalPos).LengthSquared();
-		if ( len < e.w*e.w*1.5f) {
-			return false;
-		}
-	}	
-	return true; 
-}
-
 void AI::makeReadyForPath(float3 destination) {
 	m_readyForPath = true;
 	m_destination = destination;
 }
 
-void AI::pathfinding(float3 start, std::vector<float4> *animals) {
+void AI::pathfinding(float3 start) {
 	// ErrorLogger::log("thread starting for pathfinding");
 	auto pft = PathFindingThread::getInstance();
 	
@@ -193,9 +178,6 @@ void AI::pathfinding(float3 start, std::vector<float4> *animals) {
 
 				// Check if node is in open or closed.
 				if (!beingUsed(child, open, closed)) {
-					continue;
-				}
-				if (!checkAnimals(*animals, childPosition)) {
 					continue;
 				}
 

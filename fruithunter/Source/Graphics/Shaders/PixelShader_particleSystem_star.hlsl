@@ -26,10 +26,8 @@ float4 main(GSOutput input) : SV_TARGET {
 	d = min(d, shape(st, ROT + 3.1415, NR_OF_EDGES)); // triangle 2
 
 	outColor *= (1.0 - smoothstep(.4, .41, d));
-	if (d < 0.01) {
-		outColor.a = 0.f;
-		clip(-1); // abort fragment rendering
-	}
+
+	clip(outColor.a - 0.05); // ignore pixel if almost invisible
 
 	return outColor;
 }

@@ -33,11 +33,7 @@ cbuffer colorOverlay : register(b8) { float4 cb_colorOverlay; }
 cbuffer cameraProperties : register(b9) { float4 camera_position; }
 
 
-SamplerState samplerAni {
-	Filter = MIN_MAG_MIP_LINEAR;
-	AddressU = Linear;
-	AddressV = Linear;
-};
+SamplerState samplerAni : register(s0);
 
 float random(float3 seed, int i) {
 	float4 seed4 = float4(seed, i);
@@ -108,5 +104,5 @@ float4 main(PS_IN ip) : SV_TARGET {
 	col += pixelBaseColor * diffuseTint * diffuseColour.xyz * shade;//diffuse
 	col += reflectTint * specularColour.xyz * specular * shade; //specular
 	col *= cb_colorOverlay; // used to remove colors
-	return float4(col, 1.0);
+	return float4(col, cb_colorOverlay.a);
 }

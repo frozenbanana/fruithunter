@@ -1,7 +1,6 @@
 #pragma once
 #include "GlobalNamespaces.h"
 #include "ShaderSet.h"
-#include "Quad.h"
 #include "ShadowMapping.h"
 #include <CommonStates.h>
 
@@ -26,11 +25,10 @@ public:
 	LONG getWindowWidth() const;
 	LONG getWindowHeight() const;
 
-	void bindBackAndDepthBuffer();
 	void clearDepth();
 
-	void bindEverything();
 	void bindDepthSRVCopy(int slot);
+	void bindDepthSRV(int slot);
 	void bindTargetSRVCopy(int slot);
 	void bindConstantBuffer_ScreenSize(int slot);
 	void bindQuadVertexBuffer();
@@ -43,6 +41,7 @@ public:
 	void bindRenderAndDepthTarget();
 	void bindRenderTarget();
 
+	void createCommonStates();
 	// BlendState
 	void setBlendState_Opaque();
 	void setBlendState_AlphaBlend();
@@ -58,14 +57,14 @@ public:
 	void setDepthState_Read();
 
 	void captureFrame();
-
 	void drawCapturedFrame();
 
 	void draw_darkEdges();
 
-	void drawLoading();
-
 	void draw_FXAA();
+
+	void setGodRaysSourcePosition(float3 position);
+	void draw_godRays(const float4x4& viewProjMatrix);
 
 	void setDrawState(DrawingState state);
 	ShadowMapper* getShadowMapper();
@@ -100,6 +99,7 @@ private:
 	//Depth buffer
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthDSV;	 // Depth stencil view
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthSRV; // Depth shader resource view
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthCopySRV; // Depth copy shader resource view
 
 	//buffer
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_screenSizeBuffer;
@@ -111,13 +111,20 @@ private:
 	// post process FXAA variables
 	ShaderSet m_shader_FXAA;
 
-	// Loading screen
-	Quad m_loadingScreen;
-	bool m_loadingScreenInitialised = false;
+	// God Rays
+	ShaderSet m_shader_godRays;
+	float3 m_godRays_position;
+	struct GodRaysSettings {
+		float2 gSunPos;
+		float gInitDecay = 0.116f;
+		float gDistDecay = 1;
+		float3 gRayColor = float3(25 / 255.f, 25 / 255.f, 16 / 255.f);
+		float gMaxDeltaLen = 1;
+	} m_settings_godRays;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_cbuffer_godRays;
 
 	// Menu Background
-	Quad m_capturedFrame;
-	bool m_capturedFrameLoaded = false;
+	ShaderSet m_shader_drawTexture;
 
 	// shadows
 	ShadowMapper m_shadowMapper;

@@ -13,6 +13,8 @@ Bow::~Bow() {}
 
 float Bow::getWindup() const { return m_bowWindup; }
 
+float Bow::getDrawFactor() const { return m_drawFactor; }
+
 void Bow::draw() {
 	m_bow.draw_animate();
 	if (!m_waitingForArrowRecovery)

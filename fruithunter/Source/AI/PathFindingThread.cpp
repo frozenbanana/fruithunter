@@ -54,7 +54,7 @@ void PathFindingThread::run() {
 			if (pft->m_batch->size() > 0) {
 				auto object = pft->m_batch->at(index);
 				if (object.get() != nullptr)
-					object->pathfinding(object->getPosition(), &m_animals);
+					object->pathfinding(object->getPosition());
 			}
 			pft->m_mutex.unlock();
 		}
@@ -79,13 +79,12 @@ bool PathFindingThread::isRunning() {
 	return ret;
 }
 
-void PathFindingThread::initialize(std::vector<shared_ptr<Fruit>>& batch, std::vector<float4> animals) {
+void PathFindingThread::initialize(std::vector<shared_ptr<Fruit>>& batch) {
 
 	auto pft = PathFindingThread::getInstance();
 	pft->m_mutex.lock();
 	//set data
 	pft->m_batch = &batch;
-	pft->m_animals = animals;
 	// make available for processing
 	pft->m_running = true;
 	pft->m_mutex.unlock();

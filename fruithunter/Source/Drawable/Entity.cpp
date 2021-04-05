@@ -68,20 +68,20 @@ void Entity::setScale(float scale) { setScale(float3(1.) * scale); }
 
 void Entity::isVisible(bool state) { m_visible = state; }
 
-void Entity::draw(float3 color) {
+void Entity::draw(float3 color, float alpha) {
 	if (m_visible) {
 		if (isMeshInitialized()) {
 			VSBindMatrix(MATRIX_SLOT);
 			setMaterial(m_currentMaterial);
-			m_mesh.get()->draw(color);
+			m_mesh.get()->draw(color, alpha);
 		}
 	}
 }
 
-void Entity::draw_onlyMesh(float3 color) {
+void Entity::draw_onlyMesh(float3 color, float alpha) {
 	if (isMeshInitialized()) {
 		VSBindMatrix(MATRIX_SLOT);
-		m_mesh.get()->draw_noMaterial(color);
+		m_mesh.get()->draw_noMaterial(color, alpha);
 	}
 }
 

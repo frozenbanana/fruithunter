@@ -5,9 +5,6 @@
 Melon::Melon(float3 pos) : Fruit(pos) {
 	loadAnimated("Melon", 1);
 	m_nrOfFramePhases = 6;
-	vector<string> names{ "Melon.mtl", "Melon2bronze.mtl", "Melon2silver.mtl", "Melon2gold.mtl",
-		"Melon3.mtl" };
-	loadMaterials(names);
 
 	m_meshAnim.setFrameTargets(0, 0);
 	m_fruitType = MELON;
@@ -162,7 +159,7 @@ void Melon::updateAnimated(float dt) {
 	// static mesh (no animation)
 }
 
-void Melon::pathfinding(float3 start, std::vector<float4>* animals) {
+void Melon::pathfinding(float3 start) {
 	// ErrorLogger::log("thread starting for pathfinding");
 	auto pft = PathFindingThread::getInstance();
 
@@ -228,9 +225,6 @@ void Melon::pathfinding(float3 start, std::vector<float4>* animals) {
 
 					// Check if node is in open or closed.
 					if (!beingUsed(child, open, closed)) {
-						continue;
-					}
-					if (!checkAnimals(*animals, childPosition)) {
 						continue;
 					}
 

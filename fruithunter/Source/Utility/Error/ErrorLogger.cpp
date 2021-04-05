@@ -106,6 +106,13 @@ void ErrorLogger::logFloat3(std::string description, float3 f3) {
 	}
 }
 
+void ErrorLogger::logFloat4(std::string description, float4 f4) {
+	if (DEBUG) {
+		std::cout << description + " : " + std::to_string(f4.x) + ", " + std::to_string(f4.y) +
+						 ", " + std::to_string(f4.z) + ", " + std::to_string(f4.w) + "\n";
+	}
+}
+
 void ErrorLogger::logInt2(std::string description, XMINT2 i2) {
 	if (DEBUG) {
 		std::cout << description + " : " + std::to_string(i2.x) + ", " + std::to_string(i2.y) +

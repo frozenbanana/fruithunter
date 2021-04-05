@@ -37,7 +37,7 @@ private:
 public:
 	Melon(float3 pos = float3(0.f, 0.f, 0.f));
 	void updateAnimated(float dt);
-	void pathfinding(float3 start, std::vector<float4>* animals) override;
+	void pathfinding(float3 start) override;
 
 	bool isRespawning() const;
 

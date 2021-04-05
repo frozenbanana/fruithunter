@@ -45,8 +45,6 @@ void PauseState::update() {
 void PauseState::pause() { }
 
 void PauseState::play() {
-	Renderer::getInstance()->captureFrame();
-
 	// setup buttons
 	string buttonTexts[btn_length] = { "Restart", "Resume", "Controls", "Settings", "Main Menu", "Exit" };
 	float2 btn_pos_start(1280/2.f, 275-50);
