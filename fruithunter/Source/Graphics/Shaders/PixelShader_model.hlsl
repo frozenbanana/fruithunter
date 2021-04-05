@@ -91,8 +91,8 @@ float4 main(PS_IN ip) : SV_TARGET {
 							   : (specular3_shininess.rgb);
 		float3 toCam = normalize(ip.PosW - camera_position.xyz);
 		float3 reflectedRay = normalize(reflect(toLight, ip.Normal));
-		float3 tint = max(dot(reflectedRay, toCam), 0.0);
-		reflectTint = pow(tint, specular3_shininess.w * 10);
+		float3 tint = max(dot(reflectedRay, toCam), 0.0f);
+		reflectTint = pow(tint, specular3_shininess.w * 10.0f);
 	}
 
 	float shade = texSampleGrease(

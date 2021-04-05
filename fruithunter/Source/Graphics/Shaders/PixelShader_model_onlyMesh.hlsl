@@ -79,7 +79,7 @@ float3 lighting(float3 pos, float3 normal, float3 color, float shade) {
 		float3 toCam = normalize(pos - camera_position.xyz);
 		float3 reflectedRay = normalize(reflect(toLight, normal));
 		float3 tint = max(dot(reflectedRay, toCam), 0.0);
-		reflectTint = pow(tint, 10);
+		reflectTint = pow(tint, 10.0f);
 	}
 
 	float3 retColor = color * ambient.xyz;//ambient

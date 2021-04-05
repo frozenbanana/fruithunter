@@ -60,7 +60,7 @@ float4 texSample(Texture2D texMap, uint2 texSize, float2 uv) {
 [maxvertexcount(3)] 
 void main(point VS_OUT input[1], inout TriangleStream<GSOutput> output) {
 
-	float3 posW = mul(float4(input[0].PosV, 1), mWorld);
+	float3 posW = mul(float4(input[0].PosV, 1.0f), mWorld);
 	float rotation = input[0].rotation;
 	float height = cb_heightRange.x + input[0].height * (cb_heightRange.y - cb_heightRange.x);
 	float width = cb_baseWidth;
@@ -93,12 +93,12 @@ void main(point VS_OUT input[1], inout TriangleStream<GSOutput> output) {
 	// set output
 	GSOutput e;
 	for (int i = 0; i < 3; i++) {
-		e.PosW = float4(positions[i], 1);
-		e.PosH = mul(float4(positions[i], 1), mViewPerspective);
-		e.ShadowPosH = mul(float4(positions[i], 1), mShadowVPT);
+		e.PosW = float4(positions[i], 1.0f);
+		e.PosH = mul(float4(positions[i], 1.0f), mViewPerspective);
+		e.ShadowPosH = mul(float4(positions[i], 1.0f), mShadowVPT);
 		float3 baseColor = (i % 3 == 2) ? cb_color_top : cb_color_bottom;
-		e.Color = float4(baseColor, 1);
-		e.uv = float2(0, 0);
+		e.Color = float4(baseColor, 1.0f);
+		e.uv = float2(0.0f, 0.0f);
 		output.Append(e);
 	}
 }

@@ -18,8 +18,8 @@ private:
 	static float m_acceleration_toPlayer;
 	static float m_startStrength;
 	static float m_slowdown;
-	const float3 m_sparkle_spawnSize = float3(0.3);
-	const float3 m_explosion_spawnSize = float3(1.);
+	const float3 m_sparkle_spawnSize = float3(0.3f);
+	const float3 m_explosion_spawnSize = float3(1.0f);
 	float3 m_startPosition;
 	float3 m_position;
 	float3 m_velocity;

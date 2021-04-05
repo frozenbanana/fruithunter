@@ -2,10 +2,10 @@
 #include "AudioController.h"
 
 FileSyncer CollectionPoint::file;
-float CollectionPoint::m_distanceThreshold = 1.5;
-float CollectionPoint::m_acceleration_toPlayer = 30;
-float CollectionPoint::m_startStrength = 10;
-float CollectionPoint::m_slowdown = 0.1;
+float CollectionPoint::m_distanceThreshold = 1.5f;
+float CollectionPoint::m_acceleration_toPlayer = 30.0f;
+float CollectionPoint::m_startStrength = 10.0f;
+float CollectionPoint::m_slowdown = 0.1f;
 
 void CollectionPoint::setType(FruitType type) {
 	float fruit_scale = 1;
@@ -13,27 +13,27 @@ void CollectionPoint::setType(FruitType type) {
 	switch (type) {
 	case APPLE:
 		m_explosion.load(ParticleSystem::Type::EXPLOSION_APPLE, 0, m_explosion_emitCount);
-		m_sparkle.load(ParticleSystem::Type::SPARKLE_APPLE, m_sparkle_emitRate, 0);
+		m_sparkle.load(ParticleSystem::Type::SPARKLE_APPLE, m_sparkle_emitRate, size_t(0));
 		m_fruit.load("Apple_000000");
-		fruit_scale = 0.15;
+		fruit_scale = 0.15f;
 		break;
 	case BANANA:
 		m_explosion.load(ParticleSystem::Type::EXPLOSION_BANANA, 0, m_explosion_emitCount);
-		m_sparkle.load(ParticleSystem::Type::SPARKLE_BANANA, m_sparkle_emitRate, 0);
+		m_sparkle.load(ParticleSystem::Type::SPARKLE_BANANA, m_sparkle_emitRate, size_t(0));
 		m_fruit.load("Banana_000000");
-		fruit_scale = 0.8;
+		fruit_scale = 0.8f;
 		break;
 	case MELON:
 		m_explosion.load(ParticleSystem::Type::EXPLOSION_MELON, 0, m_explosion_emitCount);
-		m_sparkle.load(ParticleSystem::Type::SPARKLE_MELON, m_sparkle_emitRate, 0);
+		m_sparkle.load(ParticleSystem::Type::SPARKLE_MELON, m_sparkle_emitRate, size_t(0));
 		m_fruit.load("Melon_000000");
-		fruit_scale = 0.15;
+		fruit_scale = 0.15f;
 		break;
 	case DRAGON:
 		m_explosion.load(ParticleSystem::Type::EXPLOSION_DRAGON, 0, m_explosion_emitCount);
-		m_sparkle.load(ParticleSystem::Type::SPARKLE_DRAGON, m_sparkle_emitRate, 0);
+		m_sparkle.load(ParticleSystem::Type::SPARKLE_DRAGON, m_sparkle_emitRate, size_t(0));
 		m_fruit.load("Dragon_000000");
-		fruit_scale = 0.15;
+		fruit_scale = 0.15f;
 		break;
 	}
 	m_fruit.setScale(fruit_scale);
@@ -95,7 +95,7 @@ bool CollectionPoint::update(float dt, float3 target) {
 	m_stars.update(dt);
 
 	//rotate fruit
-	m_fruit.rotate(float3(1.012, 1.07, 1.03) * dt * m_fruit_rotationSpeed);
+	m_fruit.rotate(float3(1.012f, 1.07f, 1.03f) * dt * m_fruit_rotationSpeed);
 
 	//update sparkle movement
 	if (!m_reachedDestination) {

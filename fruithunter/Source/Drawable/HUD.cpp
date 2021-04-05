@@ -32,7 +32,7 @@ void HUD::drawTargetTime() {
 	//draw target time
 	wstring w_timeString = std::wstring(timeString.begin(), timeString.end());
 	m_text.setColor(color);
-	m_text.setScale(0.45);
+	m_text.setScale(0.45f);
 	m_text.setAlignment(HorizontalAlignment::AlignLeft, VerticalAlignment::AlignCenter);
 	m_text.setPosition(float2(30, 720 - 100));
 	m_text.setText(timeString);
@@ -46,10 +46,10 @@ HUD::HUD() {
 	m_img_stamina.setPosition(float2(1280-230, 720-60));
 	m_img_staminaFrame.load("staminaFrame.png");
 	m_img_staminaFrame.setPosition(m_img_stamina.getPosition() + float2(-13, -10));
-	m_img_staminaFrame.setScale(float2(1.05, 0.8));
+	m_img_staminaFrame.setScale(float2(1.05f, 0.8f));
 
-	Color textColors[NR_OF_FRUITS] = { Color(1, 0, 0, 1), Color(0.9, 0.7, 0.2, 1),
-		Color(0.4, 0.7, 0.3, 1), Color(1, 0.3, 0.3, 1) };
+	Color textColors[NR_OF_FRUITS] = { Color(1.0f, 0.0f, 0.0f, 1.0f), Color(0.9f, 0.7f, 0.2f, 1.0f),
+		Color(0.4f, 0.7f, 0.3f, 1.0f), Color(1.0f, 0.3f, 0.3f, 1.0f) };
 	string fruitImages[NR_OF_FRUITS] = { "apple.png", "banana.png", "melon.png",
 		"dragonfruit.png" };
 	for (size_t i = 0; i < NR_OF_FRUITS; i++) {
@@ -65,7 +65,7 @@ void HUD::draw() {
 
 	// Draw text background
 	m_img_background.draw();
-	m_img_stamina.setScale(float2(stamina + 0.05, 0.8));
+	m_img_stamina.setScale(float2(stamina + 0.05f, 0.8f));
 	m_img_stamina.draw();
 	m_img_staminaFrame.draw();
 
@@ -91,9 +91,9 @@ void HUD::draw() {
 			//text
 			string displayStr = to_string(gathered[i]) + "/" + to_string(winCondition[i]);
 			m_text.setColor(m_fruitSprites[i].textColor);
-			m_text.setScale(0.6);
+			m_text.setScale(0.6f);
 			m_text.setAlignment(HorizontalAlignment::AlignLeft, VerticalAlignment::AlignCenter);
-			m_text.setPosition(itemPosition + float2(35,0));
+			m_text.setPosition(itemPosition + float2(35.0f, 0.0f));
 			m_text.setText(displayStr);
 			m_text.draw();
 			//image

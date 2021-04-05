@@ -88,9 +88,9 @@ private:
 	static ConstantBuffer<Brush> m_buffer_brush;
 
 	struct ColorBuffer {
-		float4 color_flat = float4(74 / 255.f, 106 / 255.f, 31 / 255.f, 1);
-		float4 color_tilt = float4(104 / 255.f, 80 / 255.f, 29 / 255.f, 1);
-		float2 intensityRange = float2(0.9, 1.1);
+		float4 color_flat = float4(74.0f / 255.f, 106.0f / 255.f, 31.0f / 255.f, 1.0f);
+		float4 color_tilt = float4(104.0f / 255.f, 80.0f / 255.f, 29.0f / 255.f, 1.0f);
+		float2 intensityRange = float2(0.9f, 1.1f);
 		float2 filler;
 	} m_colorBuffer;
 	static ConstantBuffer<ColorBuffer> m_cbuffer_color;

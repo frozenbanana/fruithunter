@@ -46,8 +46,8 @@ private:
 	float m_arrowTimeBeforeReturn = 1.0f;
 
 	// bow catchup, smoother experiance
-	float m_rotationCatchup = pow(0.1f, 14);
-	float m_positionCatchup = pow(0.1f, 25);
+	float m_rotationCatchup = pow(0.1f, 14.0f);
+	float m_positionCatchup = pow(0.1f, 25.0f);
 
 	// sound
 	SoundID m_soundID_stretch = 0;
