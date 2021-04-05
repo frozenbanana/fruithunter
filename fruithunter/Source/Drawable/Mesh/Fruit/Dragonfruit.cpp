@@ -131,7 +131,7 @@ void DragonFruit::behaviorActive() {
 	//z rotation, sideway tilt when turning
 	float2 oldVel2D = float2(oldVelocity.x, oldVelocity.z);
 	oldVel2D.Normalize();
-	float2 oldVel2DTurned90 = rotatef2(oldVel2D, 3.1415 / 2);
+	float2 oldVel2DTurned90 = rotatef2(oldVel2D, 3.1415f / 2.0f);
 	float2 vel2D = float2(m_velocity.x, m_velocity.z);
 	vel2D.Normalize();
 	float desired_rotZ = acos(Clamp<float>(oldVel2D.Dot(vel2D), -1, 1)) *

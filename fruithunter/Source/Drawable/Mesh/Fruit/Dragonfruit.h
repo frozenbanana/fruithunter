@@ -24,14 +24,15 @@ private:
 
 	float2 m_spawn_range = float2(5,35); // additional height above terrain height
 
-	float m_heightFromGroundLimit = 20; // If under limit, will force fruit to fly away from ground
-	float m_velocitySpeed = 10; // flight speed
-	float m_speedGain = 8; // speed acquired from tilting
-	float m_steeringSpeed = 1.2; // speed of turning to target
-	float m_turningStrength = 50; // z rotation strength from turning
-	float m_rotZ = 0; // current z rotation
+	float m_heightFromGroundLimit =
+		20.0f;							// If under limit, will force fruit to fly away from ground
+	float m_velocitySpeed = 10.0f;		// flight speed
+	float m_speedGain = 8.0f;			// speed acquired from tilting
+	float m_steeringSpeed = 1.2f; // speed of turning to target
+	float m_turningStrength = 50.0f; // z rotation strength from turning
+	float m_rotZ = 0.0f;			 // current z rotation
 
-	float m_timer = 0; // time until new target 
+	float m_timer = 0.0f;				 // time until new target 
 	float2 m_timer_range = float2(3,5); // timer length range
 
 public:
