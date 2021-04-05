@@ -198,10 +198,10 @@ std::string Mesh::getName() const { return m_loadedMeshName; }
 
 void Mesh::setMaterialIndex(int material) { m_currentMaterial = material; }
 
-void Mesh::bindColorBuffer(float3 color) {
+void Mesh::bindColorBuffer(float4 color) {
 	auto deviceContext = Renderer::getDeviceContext();
 	// update color buffer
-	float4 data = float4(color.x, color.y, color.z, 1.0);
+	float4 data = color;
 	deviceContext->UpdateSubresource(m_colorBuffer.Get(), 0, 0, &data, 0, 0);
 	deviceContext->PSSetConstantBuffers(COLOR_SLOT, 1, m_colorBuffer.GetAddressOf());
 }
@@ -222,12 +222,12 @@ void Mesh::drawCall_perMaterial() {
 	}
 }
 
-void Mesh::draw(float3 color) {
+void Mesh::draw(float3 color, float alpha) {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 
 	if (m_materials[m_currentMaterial].size() > 0) {
 		m_shaderObject.bindShadersAndLayout();
-		bindColorBuffer(color);
+		bindColorBuffer(float4(color.x, color.y, color.z, alpha));
 		bindMesh();
 		drawCall_perMaterial();
 	}
@@ -235,15 +235,11 @@ void Mesh::draw(float3 color) {
 		draw_noMaterial(color);
 }
 
-void Mesh::draw_noMaterial(float3 color) {
+void Mesh::draw_noMaterial(float3 color, float alpha) {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
-
 	m_shaderObject_onlyMesh.bindShadersAndLayout();
-
 	bindMesh();
-
-	bindColorBuffer(color);
-
+	bindColorBuffer(float4(color.x, color.y, color.z, alpha));
 	drawCall_all();
 }
 

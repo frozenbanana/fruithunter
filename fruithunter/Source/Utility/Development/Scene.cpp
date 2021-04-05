@@ -19,8 +19,6 @@ void Scene::clear() {
 	m_arrowParticles.clear();
 	// particleSystems
 	m_particleSystems.clear();
-	// animals
-	m_animals.clear();
 	// spawn fruit
 	m_fruits.clear();
 	//collection points
@@ -76,13 +74,6 @@ Scene::~Scene() { PathFindingThread::getInstance()->pause(); }
 
 size_t Scene::find_parentIndex(Fragment* fragment) { 
 	switch (fragment->getType()) {
-	case Fragment::Type::animal:
-		for (size_t i = 0; i < m_animals.size(); i++) {
-			if (m_animals[i]->getID() == fragment->getID()) {
-				return i;
-			}
-		}
-		break;
 	case Fragment::Type::entity:
 		for (size_t i = 0; i < m_entities.size(); i++) {
 			if (m_entities[i]->getID() == fragment->getID())
@@ -116,14 +107,6 @@ size_t Scene::find_parentIndex(Fragment* fragment) {
 
 bool Scene::remove_fragment(Fragment* fragment) { 
 	switch (fragment->getType()) {
-	case Fragment::Type::animal:
-		for (size_t i = 0; i < m_animals.size(); i++) {
-			if (m_animals[i]->getID() == fragment->getID()) {
-				m_animals.erase(m_animals.begin() + i);
-				return true;
-			}
-		}
-		break;
 	case Fragment::Type::entity:
 		for (size_t i = 0; i < m_entities.size(); i++) {
 			if (m_entities[i]->getID() == fragment->getID()) {
@@ -163,8 +146,6 @@ bool Scene::remove_fragment(Fragment* fragment) {
 
 void Scene::updated_fragment(Fragment* fragment) {
 	switch (fragment->getType()) {
-	case Fragment::Type::animal:
-		break;
 	case Fragment::Type::entity:
 		for (size_t i = 0; i < m_entities.size(); i++) {
 			if (m_entities[i]->getID() == fragment->getID()) {
@@ -319,13 +300,6 @@ void Scene::load(string folder) {
 			m_particleSystems[i].setScale(c->size);
 			m_particleSystems[i].affectedByWindState(c->affectedByWind);
 		}
-		// animals
-		m_animals.resize(content.m_animals.size());
-		for (size_t i = 0; i < m_animals.size(); i++) {
-			SceneAbstactContent::AnimalContent* c = &content.m_animals[i];
-			m_animals[i] = make_shared<Animal>(c->position, c->sleepPosition, (Animal::Type)c->type,
-				(FruitType)c->fruitType, c->fruitCount, c->rotationY);
-		}
 		// utility
 		m_utility = content.m_utility;
 
@@ -391,19 +365,6 @@ void Scene::save() {
 			}
 		}
 
-		// animals
-		content.m_animals.resize(m_animals.size());
-		for (size_t i = 0; i < m_animals.size(); i++) {
-			SceneAbstactContent::AnimalContent *c = &content.m_animals[i];
-			Animal* a = m_animals[i].get();
-			c->fruitCount = a->getRequiredFruitCount();
-			c->fruitType = a->getfruitType();
-			c->position = a->getPosition();
-			c->rotationY = a->getRotation().y;
-			c->sleepPosition = a->getSleepPosition();
-			c->type = a->getType();
-		}
-
 		// level utility
 		content.m_utility = m_utility;
 
@@ -421,9 +382,6 @@ void Scene::reset() {
 	//arrows
 	m_arrows.clear(); 
 	m_arrowParticles.clear();
-	//animals
-	for (size_t i = 0; i < m_animals.size(); i++)
-		m_animals[i]->reset();
 	//fruits
 	m_fruits.clear();
 	size_t total = 0;

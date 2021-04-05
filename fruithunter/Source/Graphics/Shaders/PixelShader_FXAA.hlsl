@@ -7,7 +7,8 @@
 #define SUBPIXEL_QUALITY 0.75
 
 struct Input {
-	float4 position : SV_POSITION;
+	float4 posH : SV_POSITION;
+	float2 uv : TexCoord;
 };
 
 Texture2D objTexture : TEXTURE : register(t1);
@@ -27,9 +28,7 @@ float4 main(Input input) : SV_TARGET {
 		1.f / screenSize.x, 1.f / screenSize.y);
 
 	// Get UV coordinates
-	float2 texCoords;
-	texCoords.x = input.position.x / screenSize.x;
-	texCoords.y = input.position.y / screenSize.y;
+	float2 texCoords = input.uv;
 
 	// Get current pixel colour
 	float3 colorCenter = objTexture.Sample(objSamplerState, texCoords).rgb;

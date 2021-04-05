@@ -7,9 +7,6 @@
     <FxCompile Include="Source\Graphics\Shaders\PixelShaderSkyBox.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Source\Graphics\Shaders\PixelShader.hlsl">
-      <Filter>Source\Graphics\Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_model.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
@@ -91,6 +88,9 @@
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_godRays.hlsl">
       <Filter>Source\Graphics\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_fullTexture.hlsl">
+      <Filter>Source\Graphics\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp">
@@ -109,9 +109,6 @@
       <Filter>Source\Drawable\Mesh</Filter>
     </ClCompile>
     <ClCompile Include="Source\Drawable\Mesh\MeshHandler.cpp">
-      <Filter>Source\Drawable\Mesh</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Drawable\Mesh\Quad.cpp">
       <Filter>Source\Drawable\Mesh</Filter>
     </ClCompile>
     <ClCompile Include="Source\Drawable\Animated.cpp">
@@ -168,9 +165,6 @@
     <ClCompile Include="Source\Drawable\EntityCollision.cpp">
       <Filter>Source\Drawable</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Drawable\EntityRepository.cpp">
-      <Filter>Source\Drawable</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Utility\VariableSyncer\VariableSyncer.cpp">
       <Filter>Source\Utility\VariableSyncer</Filter>
     </ClCompile>
@@ -182,9 +176,6 @@
     </ClCompile>
     <ClCompile Include="Source\Graphics\ShadowMapping\ShadowMapping.cpp">
       <Filter>Source\Graphics\ShadowMapping</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Drawable\Mesh\Animal.cpp">
-      <Filter>Source\Drawable\Mesh</Filter>
     </ClCompile>
     <ClCompile Include="Source\Drawable\ParticleSystem\Particle.cpp">
       <Filter>Source\Drawable\ParticleSystem</Filter>
@@ -347,9 +338,6 @@
     <ClInclude Include="Source\Drawable\Mesh\MeshHandler.h">
       <Filter>Source\Drawable\Mesh</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Drawable\Mesh\Quad.h">
-      <Filter>Source\Drawable\Mesh</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Drawable\Animated.h">
       <Filter>Source\Drawable</Filter>
     </ClInclude>
@@ -407,9 +395,6 @@
     <ClInclude Include="Source\Drawable\EntityCollision.h">
       <Filter>Source\Drawable</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Drawable\EntityRepository.h">
-      <Filter>Source\Drawable</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Utility\VariableSyncer\VariableSyncer.h">
       <Filter>Source\Utility\VariableSyncer</Filter>
     </ClInclude>
@@ -430,9 +415,6 @@
     </ClInclude>
     <ClInclude Include="Source\Utility\QuadTree.h">
       <Filter>Source\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Drawable\Mesh\Animal.h">
-      <Filter>Source\Drawable\Mesh</Filter>
     </ClInclude>
     <ClInclude Include="Source\AI\PathFindingThread.h">
       <Filter>Source\AI</Filter>

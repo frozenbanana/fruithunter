@@ -104,5 +104,5 @@ float4 main(PS_IN ip) : SV_TARGET {
 	col += pixelBaseColor * diffuseTint * diffuseColour.xyz * shade;//diffuse
 	col += reflectTint * specularColour.xyz * specular * shade; //specular
 	col *= cb_colorOverlay; // used to remove colors
-	return float4(col, 1.0);
+	return float4(col, cb_colorOverlay.a);
 }

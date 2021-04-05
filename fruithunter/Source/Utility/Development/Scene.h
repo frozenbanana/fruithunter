@@ -3,10 +3,8 @@
 
 #include "AudioController.h"
 #include "SeaEffect.h"
-#include "Animal.h"
 #include "TerrainBatch.h"
 #include "ParticleSystem.h"
-#include "EntityRepository.h"
 #include "SkyBox.h"
 #include "Player.h"
 #include "CollectionPoint.h"
@@ -127,9 +125,6 @@ public:
 
 	// ParticleSystems
 	vector<ParticleSystem> m_particleSystems;
-
-	// Animals
-	std::vector<shared_ptr<Animal>> m_animals;
 
 	// Fruits
 	std::vector<shared_ptr<Fruit>> m_fruits;

@@ -41,15 +41,6 @@ void SceneManager::setup_color(Camera* overrideCamera) {
 }
 
 void SceneManager::draw_color(Camera* overrideCamera) {
-
-	// Bow
-	scene->m_player->draw();
-
-	// Animals
-	for (size_t i = 0; i < scene->m_animals.size(); ++i) {
-		scene->m_animals[i]->draw();
-	}
-
 	// frustum data for culling
 	Camera* camera = nullptr;
 	vector<FrustumPlane> frustum;
@@ -79,6 +70,9 @@ void SceneManager::draw_color(Camera* overrideCamera) {
 	Renderer::getInstance()->draw_darkEdges();
 
 	/* --- Things to be drawn without dark edges --- */
+
+	// Bow
+	scene->m_player->draw();
 
 	// terrain grass
 	scene->m_terrains.draw_grass();
@@ -111,14 +105,17 @@ void SceneManager::draw_color(Camera* overrideCamera) {
 
 	//FXAA
 	Renderer::getInstance()->draw_FXAA();
+
+	// Capture frame
+	Renderer::getInstance()->captureFrame();
 }
 
 void SceneManager::draw_hud() {
 	m_hud.draw();
 	
-	float anim = scene->m_player->getBow().getWindup();
-	m_crosshair.setScale(anim * 1.f / 25);
-	m_crosshair.setAlpha(anim);
+	float anim = scene->m_player->getBow().getDrawFactor();
+	m_crosshair.setScale(anim * 1.f / 35);
+	m_crosshair.setAlpha(anim * 0.75f);
 	m_crosshair.draw();
 }
 
@@ -128,7 +125,7 @@ SceneManager::SceneManager() {
 	if(scene.get() == nullptr) 
 		scene = make_shared<Scene>(); 
 
-	m_crosshair.load("crosshair_whiteCircle.png");
+	m_crosshair.load("crosshair_ingame.png");
 	m_crosshair.set(float2(1280. / 2, 720. / 2), float2(1. / 10));
 	m_crosshair.setAlignment(); // center - center
 }
@@ -211,40 +208,6 @@ void SceneManager::update(Camera* overrideCamera) {
 			i--;
 		}
 	} 
-
-	// for all animals
-	for (size_t i = 0; i < scene->m_animals.size(); ++i) {
-		Animal* animal = scene->m_animals[i].get();
-		animal->checkLookedAt(player->getCameraPosition(), player->getForward());
-		if (animal->notBribed()) {
-			// animal - player
-			bool getsThrown = player->checkAnimal(
-				animal->getPosition(), animal->getPlayerRange(), animal->getThrowStrength());
-			if (getsThrown) {
-				animal->makeAngrySound();
-				animal->beginWalk(player->getPosition());
-			}
-			else {
-				animal->setAttacked(false);
-			}
-			// animal - fruits
-			for (size_t iFruit = 0; iFruit < scene->m_fruits.size(); ++iFruit) {
-				Fruit* fruit = scene->m_fruits[iFruit].get();
-				PathFindingThread::lock();
-				if (fruit->getFruitType() == animal->getfruitType() &&
-					(fruit->getState() == AI::State::RELEASED ||
-						fruit->getState() == AI::State::CAUGHT)) {
-					float len = (animal->getPosition() - fruit->getPosition()).Length();
-					if (len < animal->getFruitRange()) {
-						animal->grabFruit(fruit->getPosition());
-						scene->m_fruits.erase(scene->m_fruits.begin() + iFruit);
-					}
-				}
-				PathFindingThread::unlock();
-			}
-		}
-		animal->update(dt, player->getPosition());
-	}
 
 	// Update fruits, arrow-fruit collision, fruit pickup
 	for (int i = 0; i < scene->m_fruits.size(); i++) {
@@ -330,11 +293,7 @@ void SceneManager::load(string folder) {
 	scene->load(folder);
 
 	// pathfinding thread
-	std::vector<float4> animalPos;
-	for (shared_ptr<Animal> a : scene->m_animals)
-		animalPos.push_back(
-			float4(a->getPosition().x, a->getPosition().y, a->getPosition().z, a->getFruitRange()));
-	PathFindingThread::getInstance()->initialize(scene->m_fruits, animalPos);
+	PathFindingThread::getInstance()->initialize(scene->m_fruits);
 
 	m_metricCollector.reset();
 }
@@ -342,11 +301,7 @@ void SceneManager::load(string folder) {
 void SceneManager::reset() { 
 	scene->reset(); 
 	// pathfinding thread
-	std::vector<float4> animalPos;
-	for (shared_ptr<Animal> a : scene->m_animals)
-		animalPos.push_back(
-			float4(a->getPosition().x, a->getPosition().y, a->getPosition().z, a->getFruitRange()));
-	PathFindingThread::getInstance()->initialize(scene->m_fruits, animalPos);
+	PathFindingThread::getInstance()->initialize(scene->m_fruits);
 
 	m_metricCollector.reset();
 }

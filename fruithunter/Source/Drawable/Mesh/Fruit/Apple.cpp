@@ -6,9 +6,6 @@
 
 Apple::Apple(float3 pos) : Fruit(pos) {
 	loadAnimated("Apple", 3);
-	vector<string> names{ "Apple.mtl", "Apple2bronze.mtl", "Apple2silver.mtl", "Apple2gold.mtl",
-		"Apple3.mtl" };
-	loadMaterials(names);
 
 	m_nrOfFramePhases = 6;
 	setScale(0.5);
@@ -195,7 +192,7 @@ void Apple::flee(float3 playerPos) {
 	}
 	// set new velocity from path
 }
-void Apple::pathfinding(float3 start, std::vector<float4>* animals) {
+void Apple::pathfinding(float3 start) {
 	// ErrorLogger::log("thread starting for pathfinding");
 	auto pft = PathFindingThread::getInstance();
 	
@@ -270,9 +267,6 @@ void Apple::pathfinding(float3 start, std::vector<float4>* animals) {
 
 				// Check if node is in open or closed.
 				if (!beingUsed(child, open, closed)) {
-					continue;
-				}
-				if (!checkAnimals(*animals, childPosition)) {
 					continue;
 				}
 

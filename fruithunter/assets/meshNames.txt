@@ -44,6 +44,5 @@ flower4
 totem
 FenceNoEnd
 Fence
-picnicBlanket
 CreditsSign
 table

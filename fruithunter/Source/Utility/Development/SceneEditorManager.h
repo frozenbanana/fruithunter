@@ -65,7 +65,6 @@ private:
 
 	// Resources
 	vector<shared_ptr<TextureSet>> m_heightmap_textures;
-	vector<shared_ptr<TextureSet>> m_terrain_textures;
 
 	vector<string> m_loadable_entity;
 
@@ -97,7 +96,6 @@ private:
 
 	bool update_panel_terrain(Environment* selection, bool update = false);
 	bool update_panel_entity(Entity* selection, bool update = false);
-	bool update_panel_animal(Animal* selection, bool update = false);
 	bool update_panel_sea(SeaEffect* selection, bool update = false);
 	bool update_panel_effect(ParticleSystem* selection, bool update = false);
 	void refreshLibrary();
@@ -122,6 +120,7 @@ public:
 	void draw_shadow();
 	void draw_color();
 	void draw_hud();
+	void draw_editorWorldObjects();
 	void draw();
 
 	void load(string folder);

@@ -1,7 +1,6 @@
 #pragma once
 #include "GlobalNamespaces.h"
 #include "Terrain.h"
-#include "EntityRepository.h"
 #include <list>
 #include <mutex>
 #define ARRIVAL_RADIUS 1.0f
@@ -40,7 +39,7 @@ public:
 		}
 	};
 	enum State { INACTIVE, PASSIVE, ACTIVE, CAUGHT, RELEASED };
-	virtual void pathfinding(float3 start, std::vector<float4> *animals);
+	virtual void pathfinding(float3 start);
 	void changeState(State newState);
 	State getState() const;
 	bool giveNewPath() const;
@@ -70,7 +69,6 @@ protected:
 	bool isValid(
 		float3 childPos, float3 currentNodePos, float radius);
 	bool isValid(float3 point);
-	bool checkAnimals(std::vector<float4> animals, float3 childPos);
 	void makeReadyForPath(float3 destination);
 
 	bool beingUsed(shared_ptr<AI::Node> child, std::vector<shared_ptr<AI::Node>>& openList,

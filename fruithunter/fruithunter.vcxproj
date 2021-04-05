@@ -172,11 +172,9 @@
     <ClCompile Include="Source\Drawable\CollectionPoint.cpp" />
     <ClCompile Include="Source\Drawable\Entity.cpp" />
     <ClCompile Include="Source\Drawable\EntityCollision.cpp" />
-    <ClCompile Include="Source\Drawable\EntityRepository.cpp" />
     <ClCompile Include="Source\Drawable\HUD.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Dragonfruit.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Terrain\HeightmapMesh.cpp" />
-    <ClCompile Include="Source\Drawable\Mesh\Animal.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Banana.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Fruit.cpp" />
@@ -184,7 +182,6 @@
     <ClCompile Include="Source\Drawable\Mesh\Material.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Mesh.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\MeshHandler.cpp" />
-    <ClCompile Include="Source\Drawable\Mesh\Quad.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\SkyBox\SkyBox.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Terrain\Terrain.cpp" />
     <ClCompile Include="Source\Drawable\ParticleSystem\Particle.cpp" />
@@ -252,11 +249,9 @@
     <ClInclude Include="Source\Drawable\CollectionPoint.h" />
     <ClInclude Include="Source\Drawable\Entity.h" />
     <ClInclude Include="Source\Drawable\EntityCollision.h" />
-    <ClInclude Include="Source\Drawable\EntityRepository.h" />
     <ClInclude Include="Source\Drawable\HUD.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Dragonfruit.h" />
     <ClInclude Include="Source\Drawable\Mesh\Terrain\HeightmapMesh.h" />
-    <ClInclude Include="Source\Drawable\Mesh\Animal.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Banana.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Fruit.h" />
@@ -264,7 +259,6 @@
     <ClInclude Include="Source\Drawable\Mesh\Material.h" />
     <ClInclude Include="Source\Drawable\Mesh\Mesh.h" />
     <ClInclude Include="Source\Drawable\Mesh\MeshHandler.h" />
-    <ClInclude Include="Source\Drawable\Mesh\Quad.h" />
     <ClInclude Include="Source\Drawable\Mesh\SkyBox\SkyBox.h" />
     <ClInclude Include="Source\Drawable\Mesh\Terrain\Terrain.h" />
     <ClInclude Include="Source\Drawable\ParticleSystem\Particle.h" />
@@ -349,7 +343,7 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Geometry</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="Source\Graphics\Shaders\PixelShader.hlsl">
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_fullTexture.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>

@@ -1,7 +1,6 @@
 #pragma once
 #include "GlobalNamespaces.h"
 #include "ShaderSet.h"
-#include "Quad.h"
 #include "ShadowMapping.h"
 #include <CommonStates.h>
 
@@ -26,11 +25,10 @@ public:
 	LONG getWindowWidth() const;
 	LONG getWindowHeight() const;
 
-	void bindBackAndDepthBuffer();
 	void clearDepth();
 
-	void bindEverything();
 	void bindDepthSRVCopy(int slot);
+	void bindDepthSRV(int slot);
 	void bindTargetSRVCopy(int slot);
 	void bindConstantBuffer_ScreenSize(int slot);
 	void bindQuadVertexBuffer();
@@ -62,8 +60,6 @@ public:
 	void drawCapturedFrame();
 
 	void draw_darkEdges();
-
-	void drawLoading();
 
 	void draw_FXAA();
 
@@ -103,6 +99,7 @@ private:
 	//Depth buffer
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthDSV;	 // Depth stencil view
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthSRV; // Depth shader resource view
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_depthCopySRV; // Depth copy shader resource view
 
 	//buffer
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_screenSizeBuffer;
@@ -126,13 +123,8 @@ private:
 	} m_settings_godRays;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_cbuffer_godRays;
 
-	// Loading screen
-	Quad m_loadingScreen;
-	bool m_loadingScreenInitialised = false;
-
 	// Menu Background
-	Quad m_capturedFrame;
-	bool m_capturedFrameLoaded = false;
+	ShaderSet m_shader_drawTexture;
 
 	// shadows
 	ShadowMapper m_shadowMapper;
