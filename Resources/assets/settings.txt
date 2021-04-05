@@ -1,0 +1,12 @@
+Vsync:false
+Fullscreen:false
+DarkEdges:true
+FXAA:true
+MasterVolume:0.300000
+MusicVolume:1.000000
+EffectsVolume:1.000000
+DrawDistance:1.000000
+ResolutionX:1280
+ResolutionY:720
+ShadowResolution:8192
+Sensitivity:0.108333

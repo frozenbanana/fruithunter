@@ -1,0 +1,4 @@
+distance:1.500000
+acceleration:30.000000
+startStrength:10.000000
+slowdown:0.100000
