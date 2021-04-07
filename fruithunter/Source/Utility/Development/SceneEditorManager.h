@@ -8,7 +8,6 @@
 /* Handles editing and drawing of scene data */
 class SceneEditorManager : public SceneManager {
 private:
-	RPYCamera m_camera;
 	float3 m_cam_velocity;
 	float m_cam_friction = 0.7f;
 	float m_highSpeed = 60.f;

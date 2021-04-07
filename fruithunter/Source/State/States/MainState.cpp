@@ -55,10 +55,9 @@ MainState::MainState() : StateItem(StateItem::State::MainState) {}
 MainState::~MainState() {}
 
 void MainState::init() {
-	m_bow.setRecoveryTime(0);
+	m_sceneManager.setPlayerState(false);
 
-	m_camera.setView(m_camTransformStates[m_mainState].position,
-		m_camTransformStates[m_mainState].target, float3(0.f, 1.f, 0.f));
+	m_bow.setRecoveryTime(0);
 	
 	m_levelItem_background.load("back_level.png");
 	m_levelItem_background.setColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
@@ -115,7 +114,7 @@ void MainState::update() {
 	m_totalDelta_forBow += dt;
 
 	// update scene
-	sceneManager.update(&m_camera);
+	m_sceneManager.update();
 
 	// update precoded bow behavior
 	float3 target = treePos + float3(0, 1.0, 0) +
@@ -241,10 +240,11 @@ void MainState::update() {
 		CamTransformState source = m_camTransformStates[m_mainState];
 		CamTransformState dest = m_camTransformStates[m_stateTarget];
 
-		m_camera.setEye(source.position * (1 - c) + dest.position * c);
+		m_sceneManager.getScene()->m_camera.setEye(source.position * (1 - c) + dest.position * c);
 		float3 sourceForwardPoint = Normalize(source.target - source.position) + source.position;
 		float3 destForwardPoint = Normalize(dest.target - dest.position) + dest.position;
-		m_camera.setTarget(sourceForwardPoint * (1 - c) + destForwardPoint * c);
+		m_sceneManager.getScene()->m_camera.setTarget(
+			sourceForwardPoint * (1 - c) + destForwardPoint * c);
 
 		if (m_stateSwitchFactor == 1) {
 			// switch state to target
@@ -263,15 +263,15 @@ void MainState::update() {
 
 void MainState::draw() {
 	//	__SHADOWS__
-	sceneManager.setup_shadow(&m_camera);
+	m_sceneManager.setup_shadow();
 	// custom shadow drawing
 	m_apple->draw_animate_onlyMesh();
 	m_obj_creditsSign.draw_onlyMesh(float3());
 	// standard shadow drawing
-	sceneManager.draw_shadow();
+	m_sceneManager.draw_shadow();
 
 	//	__COLOR__
-	sceneManager.setup_color(&m_camera);
+	m_sceneManager.setup_color();
 	// custom drawing (with darkoutlines)
 	for (size_t i = 0; i < 3; i++) {
 		if (i == 0 || m_levelSelections[i - 1].completed) {
@@ -283,7 +283,7 @@ void MainState::draw() {
 	}
 	m_bow.draw();
 	// standard drawing
-	sceneManager.draw_color(&m_camera);
+	m_sceneManager.draw_color();
 	// custom drawing (without dark outline)
 	Renderer::getInstance()->setBlendState_NonPremultiplied();
 	m_apple->draw_animate();
@@ -400,9 +400,13 @@ void MainState::draw() {
 
 void MainState::play() {
 	if (SceneManager::getScene()->m_sceneName != "intro")
-		sceneManager.load("intro");
+		m_sceneManager.load("intro");
 	m_apple = make_shared<Apple>(float3(58.0f, 10.1f, 16.9f));
 	m_timer.reset();
+
+	// set camera position
+	m_sceneManager.getScene()->m_camera.setView(m_camTransformStates[m_mainState].position,
+		m_camTransformStates[m_mainState].target, float3(0.f, 1.f, 0.f));
 
 	// menu music
 	if (!AudioController::getInstance()->isListed(m_menuMusic))

@@ -17,7 +17,6 @@ private:
 	Timer m_timer;
 
 	// Scene variables
-	Camera m_camera;
 	enum MainStateType { Menu, LevelSelect, Credits, NR_OF_STATES } m_mainState = Menu, m_stateTarget = Menu;
 	float m_stateSwitchTime = 1; // time in seconds to switch state
 	float m_stateSwitchFactor = 0;
@@ -67,7 +66,7 @@ private:
 
 	Entity m_obj_creditsSign;
 
-	SceneManager sceneManager;
+	SceneManager m_sceneManager;
 
 	SceneAbstactContent m_levelData[3];
 

@@ -8,6 +8,7 @@
 #include "SkyBox.h"
 #include "Player.h"
 #include "CollectionPoint.h"
+#include "RPYCamera.h"
 
 #include "Apple.h"
 #include "Banana.h"
@@ -106,6 +107,8 @@ protected:
 
 public:
 	string m_sceneName = "";
+
+	RPYCamera m_camera;
 
 	// Skybox
 	SkyBox m_skyBox;

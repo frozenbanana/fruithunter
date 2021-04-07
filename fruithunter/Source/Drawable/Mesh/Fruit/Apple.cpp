@@ -68,7 +68,7 @@ void Apple::behaviorPassive() {
 				// m_speed = 0.f;
 				jump(float3(0.0f, 1.0f, 0.0), 7.f);
 				SoundID sID = AudioController::getInstance()->play("jump2");
-				AudioController::getInstance()->scaleVolumeByDistance(sID, (SceneManager::getScene()->m_player->getPosition()-getPosition()).Length(), 1, 40);
+				AudioController::getInstance()->scaleVolumeByDistance(sID, (SceneManager::getScene()->m_camera.getPosition()-getPosition()).Length(), 1, 40);
 				AudioController::getInstance()->setPitch(sID, RandomFloat(-1, 1) * 0.5);
 
 				m_nrOfJumps++;

@@ -33,8 +33,8 @@ void SceneEditorManager::update_imgui_library() {
 				if (ImGui::Button("Find")) {
 					Transformation* t = dynamic_cast<Transformation*>(f);
 					if (t != nullptr) {
-						m_camera.setEye(t->getPosition() + float3(1, 1, 0) * 2.f);
-						m_camera.setTarget(t->getPosition());
+						scene->m_camera.setEye(t->getPosition() + float3(1, 1, 0) * 2.f);
+						scene->m_camera.setTarget(t->getPosition());
 					}
 				}
 				ImGui::SameLine();
@@ -604,9 +604,9 @@ void SceneEditorManager::updateCameraMovement(float dt) {
 	Input* ip = Input::getInstance();
 	// Position
 	const float3 STD_Forward = float3(0.0f, 0.0f, 1.0f);
-	float3 forward = m_camera.getForward();
-	float3 up = m_camera.getUp();
-	float3 right = m_camera.getRight();
+	float3 forward = scene->m_camera.getForward();
+	float3 up = scene->m_camera.getUp();
+	float3 right = scene->m_camera.getRight();
 	float3 acceleration = forward * (float)(ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD)) + 
 		right * (float)(ip->keyDown(KEY_RIGHT) - ip->keyDown(KEY_LEFT)) +
 		up*(float)(ip->keyDown(KEY_UP) - ip->keyDown(KEY_DOWN));
@@ -615,7 +615,7 @@ void SceneEditorManager::updateCameraMovement(float dt) {
 	acceleration *= speed;
 
 	m_cam_velocity += acceleration * dt;
-	m_camera.move(m_cam_velocity * dt);
+	scene->m_camera.move(m_cam_velocity * dt);
 	m_cam_velocity *= pow(m_cam_friction / 60.f, dt); // friction/slowdown
 	// Rotation
 	float2 mouseMovement;
@@ -624,7 +624,7 @@ void SceneEditorManager::updateCameraMovement(float dt) {
 	}
 	float rotationSpeed = Settings::getInstance()->getSensitivity()*0.01f;
 	mouseMovement *= rotationSpeed;
-	m_camera.rotate(float3(mouseMovement.y, mouseMovement.x, 0));
+	scene->m_camera.rotate(float3(mouseMovement.y, mouseMovement.x, 0));
 }
 
 void SceneEditorManager::update_transformation(float dt) {
@@ -633,14 +633,14 @@ void SceneEditorManager::update_transformation(float dt) {
 	// Handle transformation
 	if (m_transformable != nullptr) {
 		// Camera transformation (+mouse when released)
-		float3 cam_position = m_camera.getPosition();
-		float3 cam_forward = m_camera.getForward();
+		float3 cam_position = scene->m_camera.getPosition();
+		float3 cam_forward = scene->m_camera.getForward();
 		if (ip->getMouseMode() == DirectX::Mouse::MODE_ABSOLUTE) {
 			// x coordinate is backwards!! Not because of mouse position but rather
 			// getMousePickVector return
 			float2 mpos = ip->mouseXY() / float2(1280, 720);
 			mpos.x = 1 - mpos.x;
-			cam_forward = m_camera.getMousePickVector(mpos);
+			cam_forward = scene->m_camera.getMousePickVector(mpos);
 		}
 
 		// target transform option
@@ -659,7 +659,7 @@ void SceneEditorManager::update_transformation(float dt) {
 				if (t != -1 && (t_min == -1 || t < t_min)) {
 					t_min = t;
 					m_target = 4; // center orb
-					m_target_pos = m_camera.getPosition();
+					m_target_pos = scene->m_camera.getPosition();
 				}
 				m_target_pos = cam_position;
 				m_target_forward = cam_forward;
@@ -861,8 +861,8 @@ void SceneEditorManager::update_imgui() {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 	if (ImGui::Begin("win_camProperties", NULL,
 			ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove)) {
-		float3 cp = m_camera.getPosition();
-		float3 cn = m_camera.getForward();
+		float3 cp = scene->m_camera.getPosition();
+		float3 cn = scene->m_camera.getForward();
 		ImGui::Text("Cam Pos: [%.2f %.2f %.2f] Cam Dir: [%.2f %.2f %.2f]", cp.x, cp.y, cp.z, cn.x,
 			cn.y, cn.z);
 		ImVec2 size = ImGui::GetWindowSize();
@@ -924,6 +924,7 @@ void SceneEditorManager::readSceneDirectory() {
 }
 
 SceneEditorManager::SceneEditorManager() { 
+	setPlayerState(false);
 	TextureRepository* tr = TextureRepository::getInstance();
 	// terrain heightmap textures
 	TextureRepository::Type type = TextureRepository::Type::type_heightmap;
@@ -990,7 +991,7 @@ void SceneEditorManager::update() {
 	scene->m_skyBox.update(dt);
 
 	// update AreaTag
-	const Environment* activeEnvironment = scene->m_terrains.getTerrainFromPosition(m_camera.getPosition());
+	const Environment* activeEnvironment = scene->m_terrains.getTerrainFromPosition(scene->m_camera.getPosition());
 	if (activeEnvironment != nullptr) {
 		AreaTag tag = activeEnvironment->getTag();
 		scene->update_activeTerrain(tag, false);
@@ -1013,17 +1014,17 @@ void SceneEditorManager::update() {
 	if (m_editorTabActive == EditorTab::Library) {
 		// pick position
 		if (ip->mousePressed(Input::RIGHT)) {
-			float3 position = m_camera.getPosition();
+			float3 position = scene->m_camera.getPosition();
 			float3 forward;
 			if (ip->getMouseMode() == DirectX::Mouse::MODE_ABSOLUTE) {
 				// x coordinate is backwards!! Not because of mouse position but rather
 				// getMousePickVector return
 				float2 mpos = ip->mouseXY() / float2(1280, 720);
 				mpos.x = 1 - mpos.x;
-				forward = m_camera.getMousePickVector(mpos) * m_pointer_range;
+				forward = scene->m_camera.getMousePickVector(mpos) * m_pointer_range;
 			}
 			else {
-				forward = Normalize(m_camera.getForward()) * m_pointer_range;
+				forward = Normalize(scene->m_camera.getForward()) * m_pointer_range;
 			}
 			// find closest collision point
 			float closest = -1;
@@ -1054,17 +1055,17 @@ void SceneEditorManager::update() {
 		}
 		// pick fragment
 		if (ip->mousePressed(Input::MIDDLE)) {
-			float3 position = m_camera.getPosition();
+			float3 position = scene->m_camera.getPosition();
 			float3 forward;
 			if (ip->getMouseMode() == DirectX::Mouse::MODE_ABSOLUTE) {
 				// x coordinate is backwards!! Not because of mouse position but rather
 				// getMousePickVector return
 				float2 mpos = ip->mouseXY() / float2(1280, 720);
 				mpos.x = 1 - mpos.x;
-				forward = m_camera.getMousePickVector(mpos) * m_pointer_range;
+				forward = scene->m_camera.getMousePickVector(mpos) * m_pointer_range;
 			}
 			else {
-				forward = Normalize(m_camera.getForward()) * m_pointer_range;
+				forward = Normalize(scene->m_camera.getForward()) * m_pointer_range;
 			}
 			Fragment* f = nullptr;
 			float closest = -1;
@@ -1100,12 +1101,12 @@ void SceneEditorManager::update() {
 	// brush
 	if (m_editorTabActive == EditorTab::TerrainEditor) {
 		// pick on terrain
-		float3 point = m_camera.getPosition();
-		float3 forward = m_camera.getForward() * 100; // MOUSE RELATIVE MODE
+		float3 point = scene->m_camera.getPosition();
+		float3 forward = scene->m_camera.getForward() * 100; // MOUSE RELATIVE MODE
 		if (ip->getMouseMode() == DirectX::Mouse::MODE_ABSOLUTE) {
 			float2 mpos = ip->mouseXY() / float2(1280, 720);
 			mpos.x = 1 - mpos.x;
-			forward = m_camera.getMousePickVector(mpos) * m_pointer_range;
+			forward = scene->m_camera.getMousePickVector(mpos) * m_pointer_range;
 		}
 		float t = scene->m_terrains.castRay(point, forward);
 		if (t > 0) {
@@ -1165,7 +1166,7 @@ void SceneEditorManager::draw_shadow() { 	// terrain manager
 
 void SceneEditorManager::draw_color() { 
 	// frustum data for culling
-	vector<FrustumPlane> frustum = m_camera.getFrustumPlanes();
+	vector<FrustumPlane> frustum = scene->m_camera.getFrustumPlanes();
 	// Entities
 	vector<shared_ptr<Entity>*> culledEntities = scene->m_entities.cullElements(frustum);
 	for (size_t i = 0; i < culledEntities.size(); i++)
@@ -1222,9 +1223,9 @@ void SceneEditorManager::draw_editorWorldObjects() {
 }
 
 void SceneEditorManager::draw() { 
-	setup_shadow(&m_camera); 
+	setup_shadow(); 
 	draw_shadow();
-	setup_color(&m_camera);
+	setup_color();
 	draw_color();
 	draw_editorWorldObjects();
 	draw_hud();
@@ -1234,7 +1235,6 @@ void SceneEditorManager::load(string folder) {
 	clear();
 
 	SceneManager::load(folder); 
-	m_camera.setEye(scene->m_utility.startSpawn);
 
 	refreshLibrary();
 }

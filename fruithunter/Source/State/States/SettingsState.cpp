@@ -99,6 +99,7 @@ void SettingsState::update() {
 				settings->setResolution(3840, 2160);
 
 			m_screenStateChanged = false;
+			m_redraw = true; // will redraw scene at draw call
 		}
 	}
 
@@ -147,6 +148,14 @@ void SettingsState::play() {
 void SettingsState::restart() {}
 
 void SettingsState::draw() {
+	if (m_redraw) {
+		m_sceneManager.setup_shadow();
+		m_sceneManager.draw_shadow();
+		m_sceneManager.setup_color();
+		m_sceneManager.draw_color();
+		m_redraw = false;
+	}
+
 	Renderer::getInstance()->drawCapturedFrame();
 
 	m_settingsBackground.draw();
