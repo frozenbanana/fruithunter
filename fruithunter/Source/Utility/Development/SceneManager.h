@@ -10,7 +10,7 @@ class SceneManager {
 protected:
 	static shared_ptr<Scene> scene; //current active scene, is static so that other classes can fetch this information.
 	HUD m_hud;
-	bool m_manualCamera = false;
+	bool m_playerState = true;
 	
 	Sprite2D m_crosshair;
 
@@ -23,15 +23,18 @@ protected:
 public:
 	static Scene* getScene();
 
+	void setPlayerState(bool state);
+	bool getPlayerState() const;
+
 	SceneManager();
 	~SceneManager();
 
-	void update(Camera* overrideCamera = nullptr);
+	void update();
 
-	void setup_shadow(Camera* overrideCamera = nullptr);
+	void setup_shadow();
 	void draw_shadow();
-	void setup_color(Camera* overrideCamera = nullptr);
-	void draw_color(Camera* overrideCamera = nullptr);
+	void setup_color();
+	void draw_color();
 	void draw_hud();
 
 	void load(string folder);

@@ -27,12 +27,12 @@ void SceneManager::draw_shadow() {
 		scene->m_arrows[i]->draw_onlyMesh(float3(1.));
 }
 
-void SceneManager::setup_color(Camera* overrideCamera) {
+void SceneManager::setup_color() {
 	ShadowMapper* shadowMap = Renderer::getInstance()->getShadowMapper();
 	Renderer::getInstance()->beginFrame(); // initilize color rendering mode
 	shadowMap->setup_shadowRendering();	   // initilize shadows for color rendering mode
 	
-	Camera* camera = (overrideCamera ? overrideCamera : &scene->m_player->getCamera());
+	RPYCamera* camera = &scene->m_camera;
 	camera->bind();
 
 	Renderer::getInstance()->setGodRaysSourcePosition(camera->getPosition() + float3(-100, 100, 0));
@@ -40,15 +40,10 @@ void SceneManager::setup_color(Camera* overrideCamera) {
 	scene->m_skyBox.bindLightBuffer();
 }
 
-void SceneManager::draw_color(Camera* overrideCamera) {
+void SceneManager::draw_color() {
 	// frustum data for culling
-	Camera* camera = nullptr;
-	vector<FrustumPlane> frustum;
-	if (overrideCamera == nullptr)
-		camera = &scene->m_player->getCamera();
-	else
-		camera = overrideCamera;
-	frustum = camera->getFrustumPlanes();
+	RPYCamera* camera = &scene->m_camera;
+	vector<FrustumPlane> frustum = camera->getFrustumPlanes();
 	// Entities
 	vector<shared_ptr<Entity>*> culledEntities = scene->m_entities.cullElements(frustum);
 	for (size_t i = 0; i < culledEntities.size(); i++)
@@ -121,6 +116,10 @@ void SceneManager::draw_hud() {
 
 Scene* SceneManager::getScene() { return scene.get(); }
 
+void SceneManager::setPlayerState(bool state) { m_playerState = state; }
+
+bool SceneManager::getPlayerState() const { return m_playerState; }
+
 SceneManager::SceneManager() { 
 	if(scene.get() == nullptr) 
 		scene = make_shared<Scene>(); 
@@ -134,14 +133,10 @@ SceneManager::~SceneManager() {
 	PathFindingThread::getInstance()->pause(); 
 }
 
-void SceneManager::update(Camera* overrideCamera) {
+void SceneManager::update() {
 
 	monitor();
 
-	if (overrideCamera == nullptr)
-		m_manualCamera = false;
-	else
-		m_manualCamera = true;
 	//Input::getInstance()->setMouseModeRelative();
 	auto pft = PathFindingThread::getInstance();
 
@@ -149,9 +144,10 @@ void SceneManager::update(Camera* overrideCamera) {
 	float dt = scene->getDeltaTime();
 	float dt_nonSlow = scene->getDeltaTime_skipSlow();
 	Player* player = scene->m_player.get();
+	RPYCamera* camera = &scene->m_camera;
 
 	// update player
-	if (!m_manualCamera) {
+	if (m_playerState) {
 		player->update();
 		// drop fruit on key press
 		for (int i = 0; i < NR_OF_FRUITS; i++) {
@@ -164,10 +160,11 @@ void SceneManager::update(Camera* overrideCamera) {
 	scene->m_skyBox.update(dt);
 
 	// update AreaTag
-	const Environment* activeEnvironment = scene->m_terrains.getTerrainFromPosition(player->getPosition());
+	const Environment* activeEnvironment =
+		scene->m_terrains.getTerrainFromPosition(camera->getPosition());
 	if (activeEnvironment != nullptr) {
 		AreaTag tag = activeEnvironment->getTag();
-		scene->update_activeTerrain(tag, !m_manualCamera);
+		scene->update_activeTerrain(tag, m_playerState);
 	}
 
 	// update water
@@ -182,8 +179,8 @@ void SceneManager::update(Camera* overrideCamera) {
 
 	// collection points
 	for (size_t i = 0; i < scene->m_collectionPoint.size(); i++) {
-		if (scene->m_collectionPoint[i]->update(dt,
-				(scene->m_player->getPosition() + scene->m_player->getCameraPosition()) / 2.f)) {
+		if (scene->m_collectionPoint[i]->update(
+				dt, scene->m_player->getPosition() + float3(0, 1.5f / 2, 0))) {
 			scene->pickUpFruit(scene->m_collectionPoint[i]->getFruitType());
 		}
 		if (scene->m_collectionPoint[i]->isFinished()) {
@@ -232,7 +229,7 @@ void SceneManager::update(Camera* overrideCamera) {
 					// play hit sound
 					SoundID id = AudioController::getInstance()->play("fruit-impact-wet", AudioController::SoundType::Effect);
 					AudioController::getInstance()->scaleVolumeByDistance(
-						id, (player->getPosition() - fruit->getPosition()).Length());
+						id, (camera->getPosition() - fruit->getPosition()).Length());
 					arrow->collided(arrow->getPosition_front());
 					// add collection point
 					shared_ptr<CollectionPoint> cp = make_shared<CollectionPoint>();
@@ -253,14 +250,14 @@ void SceneManager::update(Camera* overrideCamera) {
 	}
 
 	if (Input::getInstance()->keyPressed(Keyboard::L)) {
-		Renderer::getInstance()->setGodRaysSourcePosition(player->getPosition());
+		Renderer::getInstance()->setGodRaysSourcePosition(camera->getPosition());
 	}
 
 }
 
-void SceneManager::setup_shadow(Camera* overrideCamera) {
+void SceneManager::setup_shadow() {
 	ShadowMapper* shadowMap = Renderer::getInstance()->getShadowMapper();
-	vector<float3> frustumPoints;
+	vector<float3> frustumPoints = scene->m_camera.getFrustumPoints(0.4f);
 
 	/* -- CONCEPT -- Check frustum edges collision points on terrain to find closest distance to map shadow to*/ 
 	//vector<float3> frustumPoints_temp = scene->m_player->getFrustumPoints(1);
@@ -280,10 +277,6 @@ void SceneManager::setup_shadow(Camera* overrideCamera) {
 	//}
 	//ImGui::End();
 
-	if (overrideCamera == nullptr)
-		frustumPoints = scene->m_player->getFrustumPoints(0.4f);
-	else
-		frustumPoints = overrideCamera->getFrustumPoints(0.4f);
 	shadowMap->mapShadowToFrustum(frustumPoints); // optimize shadowed area
 	shadowMap->setup_depthRendering();			  // initilize depth rendering mode
 }

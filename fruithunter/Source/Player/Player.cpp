@@ -86,10 +86,6 @@ void Player::draw() {
 	m_jumpDust.draw();
 }
 
-void Player::bindMatrix() { 
-	m_camera.bind();
-}
-
 void Player::collideObject(Entity& obj) {
 	// Check
 	float radius = 0.2f;
@@ -155,11 +151,7 @@ bool Player::checkAnimal(float3 animalPos, float range, float throwStrength) {
 	return false;
 }
 
-Camera& Player::getCamera() { return m_camera; }
-
 float3 Player::getPosition() const { return m_position; }
-
-float3 Player::getCameraPosition() const { return m_camera.getPosition(); }
 
 float3 Player::getForward() const { return m_playerForward; }
 
@@ -194,8 +186,8 @@ bool Player::inHuntermode() const { return m_hunterMode; }
 void Player::activateHunterMode() { m_hunterMode = true; }
 
 void Player::updateBow(float dt) {
-
-	m_bow.setOrientation(getCameraPosition(), float3(m_cameraPitch, m_cameraYaw, 0));
+	RPYCamera* camera = &SceneManager::getScene()->m_camera;
+	m_bow.setOrientation(camera->getPosition(), camera->getRotation());
 
 	//update bow behavior and handle spawning of arrows
 	shared_ptr<Arrow> arrow =
@@ -212,11 +204,11 @@ void Player::updateBow(float dt) {
 }
 
 void Player::updateCamera() {
+	RPYCamera* camera = &SceneManager::getScene()->m_camera;
 	float playerHeight = PLAYER_HEIGHT - 0.5f * (m_dashCharge / DASHMAXCHARGE);
-	m_camera.setFarPlane(Settings::getInstance()->getDrawDistance());
-	m_camera.setUp(m_playerUp);
-	m_camera.setEye(m_position + float3(0, playerHeight, 0));
-	m_camera.setTarget(m_position + float3(0, playerHeight, 0) + m_playerForward);
+	camera->setFarPlane(Settings::getInstance()->getDrawDistance());
+	camera->setEye(m_position + float3(0, playerHeight, 0));
+	camera->setRotation(float3(m_cameraPitch, m_cameraYaw, 0));
 }
 
 void Player::rotatePlayer(float dt) {
@@ -363,14 +355,6 @@ void Player::checkSprint(float dt) {
 	else {
 		m_sprinting = false;
 	}
-}
-
-vector<FrustumPlane> Player::getFrustumPlanes() const { return m_camera.getFrustumPlanes(); }
-
-CubeBoundingBox Player::getCameraBoundingBox() const { return m_camera.getFrustumBoundingBox(); }
-
-vector<float3> Player::getFrustumPoints(float scaleBetweenNearAndFarPlane) const {
-	return m_camera.getFrustumPoints(scaleBetweenNearAndFarPlane);
 }
 
 Bow& Player::getBow() { return m_bow; }

@@ -118,7 +118,7 @@ void Arrow::collided(float3 target) {
 	changeState(false);
 	SoundID id = AudioController::getInstance()->play("hit-wood", AudioController::SoundType::Effect);
 	AudioController::getInstance()->scaleVolumeByDistance(
-		id, (SceneManager::getScene()->m_player->getCameraPosition() - target).Length());
+		id, (SceneManager::getScene()->m_camera.getPosition() - target).Length());
 }
 
 void Arrow::update(float dt) {

@@ -5,6 +5,7 @@
 #include "Button.h"
 #include "Slider.h"
 #include "Sprite2D.h"
+#include "SceneManager.h"
 
 #include "Menu_PoppingButton.h"
 #include "Menu_Toggle.h"
@@ -28,6 +29,9 @@ private:
 	Slider m_musicVolume;
 	Slider m_effectsVolume;
 	Slider m_sensitivity;
+
+	bool m_redraw = false;
+	SceneManager m_sceneManager; // used to redraw background
 
 	bool m_screenStateChanged = false;
 

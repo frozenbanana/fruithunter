@@ -1,7 +1,6 @@
 #include "CollectionPoint.h"
 #include "AudioController.h"
 
-FileSyncer CollectionPoint::file;
 float CollectionPoint::m_distanceThreshold = 1.5f;
 float CollectionPoint::m_acceleration_toPlayer = 30.0f;
 float CollectionPoint::m_startStrength = 10.0f;
@@ -56,15 +55,7 @@ void CollectionPoint::setSkillType(Skillshot skillType) {
 	}
 }
 
-CollectionPoint::CollectionPoint() {
-	if (!file.fileCreated()) {
-		file.bind("distance:f", &m_distanceThreshold);
-		file.bind("acceleration:f", &m_acceleration_toPlayer);
-		file.bind("startStrength:f", &m_startStrength);
-		file.bind("slowdown:f", &m_slowdown);
-		file.connect("collectionPoint.txt");
-	}
-}
+CollectionPoint::CollectionPoint() {}
 
 CollectionPoint::~CollectionPoint() {}
 
@@ -88,7 +79,6 @@ bool CollectionPoint::isFinished() const {
 FruitType CollectionPoint::getFruitType() const { return m_type; }
 
 bool CollectionPoint::update(float dt, float3 target) { 
-	file.sync();
 	//update effects
 	m_explosion.update(dt);
 	m_sparkle.update(dt);

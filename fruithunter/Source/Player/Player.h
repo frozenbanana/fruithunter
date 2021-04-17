@@ -14,20 +14,13 @@ public:
 
 	void draw();
 
-	void bindMatrix();
-
 	void collideObject(Entity& obj);
 	bool checkAnimal(float3 animalPos, float range, float throwStrength);
 
 	// GETS
-	Camera& getCamera();
 	float3 getPosition() const;
-	float3 getCameraPosition() const;
 	float3 getForward() const;
 	float3 getVelocity() const;
-	vector<FrustumPlane> getFrustumPlanes() const;
-	CubeBoundingBox getCameraBoundingBox() const;
-	vector<float3> getFrustumPoints(float scaleBetweenNearAndFarPlane) const;
 	Bow& getBow();
 	float getStamina() const;
 	void getStaminaBySkillshot(Skillshot skillShot);

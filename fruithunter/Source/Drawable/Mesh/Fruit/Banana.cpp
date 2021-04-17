@@ -102,10 +102,10 @@ void Banana::release(float3 direction) {
 
 
 void Banana::playSound_bounce() {
-	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
+	float3 cameraPosition = SceneManager::getScene()->m_camera.getPosition();
 	SoundID sid = AudioController::getInstance()->play("jump1");
 	AudioController::getInstance()->scaleVolumeByDistance(
-		sid, (playerPosition - getPosition()).Length(), 0.2f, 25.f);
+		sid, (cameraPosition - getPosition()).Length(), 0.2f, 25.f);
 	AudioController::getInstance()->setPitch(sid, RandomFloat(-1.f, 1.f) * 0.5f);
 }
 

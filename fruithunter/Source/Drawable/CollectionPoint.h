@@ -1,10 +1,8 @@
 #pragma once
 #include "Entity.h"
 #include "ParticleSystem.h"
-#include "VariableSyncer.h"
 class CollectionPoint {
 private:
-	static FileSyncer file;
 	FruitType m_type;
 	Skillshot m_skillType;
 	const size_t m_explosion_emitCount = 300;
