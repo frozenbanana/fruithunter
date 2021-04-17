@@ -566,6 +566,7 @@
     <ClInclude Include="Source\State\States\ControlState.h">
       <Filter>Source\State\States</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
@@ -659,5 +660,11 @@
     <Filter Include="Source\Utility\UI">
       <UniqueIdentifier>{1aa22460-1ee4-4fd8-b5ff-309ea38e9837}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="fruithunter.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon.ico" />
   </ItemGroup>
 </Project>
