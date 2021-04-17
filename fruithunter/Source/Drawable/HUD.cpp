@@ -74,7 +74,7 @@ void HUD::draw() {
 	size_t rest = int((time - int(time)) * 100);
 	string timeString = "    Time: " + Time2DisplayableString((size_t)time)+"."+(rest<10?"0":"")+to_string(rest);
 	m_text.setColor(float4(1.));
-	m_text.setScale(0.45);
+	m_text.setScale(0.45f);
 	m_text.setAlignment(HorizontalAlignment::AlignLeft, VerticalAlignment::AlignCenter);
 	m_text.setPosition(float2(30, 720 - 60));
 	m_text.setText(timeString);

@@ -2,16 +2,16 @@
 #include "UI_Button.h"
 class Menu_PoppingButton : public UI_Button {
 private:
-	float m_delay = 0;
-	float m_timer = 0;
+	float m_delay = 0.f;
+	float m_timer = 0.f;
 
-	float m_scale_desired = 0;
-	float m_scale_desired_hovering = 0.9;
-	float m_scale_desired_standard = 0.75;
+	float m_scale_desired = 0.f;
+	float m_scale_desired_hovering = 0.9f;
+	float m_scale_desired_standard = 0.75f;
 
-	float m_scale_velocity = 0;
-	const float m_scale_spring_speed = 100;
-	const float m_scale_spring_friction = 0.01;
+	float m_scale_velocity = 0.f;
+	const float m_scale_spring_speed = 100.f;
+	const float m_scale_spring_friction = 0.01f;
 
 public:
 	void setDesiredScale_hovering(float value);

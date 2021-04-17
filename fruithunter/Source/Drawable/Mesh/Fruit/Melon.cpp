@@ -16,9 +16,9 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	setCollisionDataOBB();
 
 	m_ball.load("Sphere");
-	m_ball.setScale(0.1);
+	m_ball.setScale(0.1f);
 
-	m_rollTrail.setScale(float3(1, 0.1, 1));
+	m_rollTrail.setScale(float3(1.f, 0.1f, 1.f));
 	m_rollTrail.setType(ParticleSystem::Type::MELON_TRAIL, false);
 	m_rollTrail.setEmitRate(200, true);
 }
@@ -42,7 +42,7 @@ void Melon::behaviorPassive() {
 			if (m_boundTerrain != nullptr) {
 				// spawn on bound terrain
 				float3 sp = m_boundTerrain->getRandomSpawnPoint();
-				setPosition(sp + float3(0, 1, 0) * (getHalfSizes().y + 0.1));
+				setPosition(sp + float3(0.f, 1.f, 0.f) * (getHalfSizes().y + 0.1f));
 			}
 			else {
 				int tIndex =
@@ -53,7 +53,7 @@ void Melon::behaviorPassive() {
 				}
 				if (tIndex != -1) {
 					float3 sp = SceneManager::getScene()->m_terrains.getSpawnpoint(tIndex);
-					setPosition(sp + float3(0, 1, 0) * (getHalfSizes().y + 0.1));
+					setPosition(sp + float3(0.f, 1.f, 0.f) * (getHalfSizes().y + 0.1f));
 				}
 				else {
 					// this should never happen as fruits only can spawn if there is a terrain to
@@ -80,7 +80,7 @@ void Melon::behaviorActive() {
 	// init velocity
 	if (float2(m_velocity.x, m_velocity.z).Length() == 0) {
 		float r = RandomFloat(0, 1) * 2 * 3.1415f;
-		m_velocity += float3(cos(r), 0, sin(r)) * 0.1;
+		m_velocity += float3(cos(r), 0.f, sin(r)) * 0.1f;
 	}
 
 	// animation
@@ -98,7 +98,7 @@ void Melon::behaviorActive() {
 	float3 feet = getPosition() - getHalfSizes();
 	for (size_t i = 0; i < 8 + (int)m_avoidPlayer; i++) {
 		if (i < 8) {
-			float rot = (3.1415 * 2 / 8) * i;
+			float rot = (3.1415f * 2.f / 8.f) * (float)i;
 			m_sensors[i] = float3(cos(rot), 0, sin(rot)) *
 							   (m_velocity.Length() * !m_fixedSensors + m_fixedSensors) *
 							   m_sensorWidthScale +
@@ -122,7 +122,7 @@ void Melon::behaviorActive() {
 		}
 	}
 	if (counter)
-		sensorAvg /= counter;
+		sensorAvg /= (float)counter;
 
 	if (!m_onGround) {
 		// do nothing
@@ -262,7 +262,7 @@ void Melon::update() {
 
 	// update velocity
 	m_velocity += (float3(0, -1, 0) * m_gravityStrength) * dt; // gravity
-	m_velocity *= pow(1, dt);								   // friction
+	m_velocity *= pow(1.0f, dt);								   // friction
 	// collision
 	float3 point = getPosition() - float3(0, 1, 0) * getHalfSizes().y;
 	float3 forward = m_velocity * dt;
@@ -295,7 +295,7 @@ void Melon::update() {
 	float3 pos = getPosition() - float3(0, 1, 0) * getHalfSizes().y;
 	float tHeight = SceneManager::getScene()->m_terrains.getHeightFromPosition(pos);
 	if (pos.y < tHeight) {
-		pos.y = tHeight + getHalfSizes().y + 0.1;
+		pos.y = tHeight + getHalfSizes().y + 0.1f;
 		setPosition(pos);
 	}
 

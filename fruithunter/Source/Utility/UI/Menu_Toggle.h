@@ -10,14 +10,14 @@ private:
 	Sprite2D m_sprite;
 	Text2D m_text;
 
-	float m_scale_current = 1;
-	float m_scale_desired = 0;
-	float m_scale_desired_hovering = 0.8;
-	float m_scale_desired_standard = 0.6;
+	float m_scale_current = 1.f;
+	float m_scale_desired = 0.f;
+	float m_scale_desired_hovering = 0.8f;
+	float m_scale_desired_standard = 0.6f;
 
-	float m_scale_velocity = 0;
-	const float m_scale_spring_speed = 200;
-	const float m_scale_spring_friction = 0.000001;
+	float m_scale_velocity = 0.f;
+	const float m_scale_spring_speed = 200.f;
+	const float m_scale_spring_friction = 0.000001f;
 
 	float m_colorChangeTime = 0.1f;
 	float m_interpolation = 0.f;

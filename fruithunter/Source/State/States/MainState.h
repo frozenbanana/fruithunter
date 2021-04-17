@@ -31,9 +31,9 @@ private:
 	CamTransformState m_camTransformStates[NR_OF_STATES] = {
 		CamTransformState(float3(58.0f, 10.9f, 21.9f), float3(61.3f, 10.1f, -36.0f)),
 		CamTransformState(
-			float3(65.81, 11.32+0.2, 21.01), float3(65.81, 11.32+0.2, 21.01)+ float3(0.54, -0.62-0.1, -0.56)),
+			float3(65.81f, 11.32f+0.2f, 21.01f), float3(65.81f, 11.32f+0.2f, 21.01f)+ float3(0.54f, -0.62f-0.1f, -0.56f)),
 		CamTransformState(
-			float3(47.93, 11.02, 19.48), float3(47.93, 11.02, 19.48) + float3(0.7, -0.07, -0.71))
+			float3(47.93f, 11.02f, 19.48f), float3(47.93f, 11.02f, 19.48f) + float3(0.7f, -0.07f, -0.71f))
 	};
 
 	float m_totalDelta = 0.f;

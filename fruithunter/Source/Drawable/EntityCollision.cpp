@@ -4,8 +4,8 @@
 bool EntityCollision::collisionSphereSphere(SphereData* sphere1, SphereData* sphere2) {
 	float dist = (sphere1->m_point - sphere2->m_point).LengthSquared();
 	float radSum =
-		pow(sphere1->m_radius * sphere1->m_scale.y + sphere2->m_radius * sphere2->m_scale.y,
-			2); // Assume scale is uniform
+		float(pow(sphere1->m_radius * sphere1->m_scale.y + sphere2->m_radius * sphere2->m_scale.y,
+			2)); // Assume scale is uniform
 	return dist < radSum;
 }
 
