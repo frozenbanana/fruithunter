@@ -118,7 +118,7 @@ bool HeightmapMesh::setGridHeightFromHeightmap(string filename) {
 }
 
 void HeightmapMesh::smoothGrid(size_t iterations) {
-	int smoothSteps = iterations;
+	int smoothSteps = (int)iterations;
 	for (int i = 0; i < smoothSteps; i++) {
 		vector<vector<Vertex>> mapCopy = m_gridPoints;
 		for (int xx = 1; xx < m_gridPointSize.x - 1; xx++) {
@@ -405,16 +405,16 @@ bool HeightmapMesh::validPosition(float2 point, float4x4 worldMatrix) {
 
 bool HeightmapMesh::containsValidPosition(float2 point, float2 size, float4x4 worldMatrix) { 
 	float4x4 worldInvTraMatrix = worldMatrix.Invert().Transpose();
-	float2 fsize(m_gridPointSize.x - 1, m_gridPointSize.y - 1);
-	XMINT2 isize(fsize.x, fsize.y);
+	float2 fsize(float(m_gridPointSize.x - 1), float(m_gridPointSize.y - 1));
+	XMINT2 isize(int(fsize.x), int(fsize.y));
 	// point1
 	float2 fpoint1 = point * fsize;
-	XMINT2 ipoint1 = XMINT2(floor(fpoint1.x), floor(fpoint1.y));
+	XMINT2 ipoint1 = XMINT2((int)floor(fpoint1.x), (int)floor(fpoint1.y));
 	ipoint1 = XMINT2(
 		Clamp<int>(ipoint1.x, 0, isize.x), Clamp<int>(ipoint1.y, 0, isize.y)); // clamp to grid
 	//point2
 	float2 fpoint2 = (point + size) * fsize;
-	XMINT2 ipoint2 = XMINT2(ceil(fpoint2.x), ceil(fpoint2.y));
+	XMINT2 ipoint2 = XMINT2((int)ceil(fpoint2.x), (int)ceil(fpoint2.y));
 	ipoint2 = XMINT2(
 		Clamp<int>(ipoint2.x, 0, isize.x), Clamp<int>(ipoint2.y, 0, isize.y)); // clamp to grid
 	// check vertices between points
@@ -442,7 +442,7 @@ bool HeightmapMesh::editMesh(const Brush& brush, Brush::Type type, float dt, flo
 			if (wDist < b_wRadius) {
 				float effect = 1 - wDist / b_wRadius;
 				float smoothedMix =
-					1 - pow(1 - 0.5 * (1 - cos(effect * 3.1415f)), 1.f / brush.falloff);
+					1.0f - float(pow(1.f - 0.5f * (1.f - cos(effect * 3.1415f)), 1.f / brush.falloff));
 				if (type == Brush::Raise) {
 					m_gridPoints[x][y].position.y = Clamp<float>(
 						m_gridPoints[x][y].position.y + smoothedMix * brush.strength * dt, 0, 1);

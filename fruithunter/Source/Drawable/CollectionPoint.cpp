@@ -13,25 +13,25 @@ void CollectionPoint::setType(FruitType type) {
 	switch (type) {
 	case APPLE:
 		m_explosion.load(ParticleSystem::Type::EXPLOSION_APPLE, 0, m_explosion_emitCount);
-		m_sparkle.load(ParticleSystem::Type::SPARKLE_APPLE, m_sparkle_emitRate, size_t(0));
+		m_sparkle.load(ParticleSystem::Type::SPARKLE_APPLE, (float)m_sparkle_emitRate, size_t(0));
 		m_fruit.load("Apple_000000");
 		fruit_scale = 0.15f;
 		break;
 	case BANANA:
 		m_explosion.load(ParticleSystem::Type::EXPLOSION_BANANA, 0, m_explosion_emitCount);
-		m_sparkle.load(ParticleSystem::Type::SPARKLE_BANANA, m_sparkle_emitRate, size_t(0));
+		m_sparkle.load(ParticleSystem::Type::SPARKLE_BANANA, (float)m_sparkle_emitRate, size_t(0));
 		m_fruit.load("Banana_000000");
 		fruit_scale = 0.8f;
 		break;
 	case MELON:
 		m_explosion.load(ParticleSystem::Type::EXPLOSION_MELON, 0, m_explosion_emitCount);
-		m_sparkle.load(ParticleSystem::Type::SPARKLE_MELON, m_sparkle_emitRate, size_t(0));
+		m_sparkle.load(ParticleSystem::Type::SPARKLE_MELON, (float)m_sparkle_emitRate, size_t(0));
 		m_fruit.load("Melon_000000");
 		fruit_scale = 0.15f;
 		break;
 	case DRAGON:
 		m_explosion.load(ParticleSystem::Type::EXPLOSION_DRAGON, 0, m_explosion_emitCount);
-		m_sparkle.load(ParticleSystem::Type::SPARKLE_DRAGON, m_sparkle_emitRate, size_t(0));
+		m_sparkle.load(ParticleSystem::Type::SPARKLE_DRAGON, (float)m_sparkle_emitRate, size_t(0));
 		m_fruit.load("Dragon_000000");
 		fruit_scale = 0.15f;
 		break;

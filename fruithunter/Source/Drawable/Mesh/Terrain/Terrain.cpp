@@ -46,7 +46,7 @@ void Terrain::setStrawAndAnimationSettings(AreaTag tag) {
 		m_grass_visibility = true;
 		m_grass_strawSetting.baseWidth = 0.112f;
 		m_grass_strawSetting.heightRange = float2(0.359f, 0.5f);
-		m_grass_strawSetting.noiseInterval = 6.2;
+		m_grass_strawSetting.noiseInterval = 6.2f;
 		m_grass_strawSetting.color_top = float4(106 / 255.f, 138 / 255.f, 21 / 255.f, 1);
 		m_grass_strawSetting.color_bottom = float4(70 / 255.f, 93 / 255.f, 32 / 255.f, 1);
 
@@ -70,22 +70,22 @@ void Terrain::setColorSettings(AreaTag tag) {
 	case Forest:
 		m_colorBuffer.color_flat = float4(61 / 255.f, 105 / 255.f, 22 / 255.f, 1);
 		m_colorBuffer.color_tilt = float4(74 / 255.f, 65 / 255.f, 25 / 255.f, 1);
-		m_colorBuffer.intensityRange = float2(0.9, 1.1);
+		m_colorBuffer.intensityRange = float2(0.9f, 1.1f);
 		break;
 	case Plains:
 		m_colorBuffer.color_flat = float4(74 / 255.f, 106 / 255.f, 31 / 255.f, 1);
 		m_colorBuffer.color_tilt = float4(104 / 255.f, 80 / 255.f, 29 / 255.f, 1);
-		m_colorBuffer.intensityRange = float2(0.9, 1.1);
+		m_colorBuffer.intensityRange = float2(0.9f, 1.1f);
 		break;
 	case Desert:
 		m_colorBuffer.color_flat = float4(208 / 255.f, 208 / 255.f, 175 / 255.f, 1);
 		m_colorBuffer.color_tilt = float4(110 / 255.f, 110 / 255.f, 88 / 255.f, 1);
-		m_colorBuffer.intensityRange = float2(0.9, 1.1);
+		m_colorBuffer.intensityRange = float2(0.9f, 1.1f);
 		break;
 	case Volcano:
 		m_colorBuffer.color_flat = float4(51 / 255.f, 54 / 255.f, 83 / 255.f, 1);
 		m_colorBuffer.color_tilt = float4(30 / 255.f, 37 / 255.f, 66 / 255.f, 1);
-		m_colorBuffer.intensityRange = float2(0.9, 1.1);
+		m_colorBuffer.intensityRange = float2(0.9f, 1.1f);
 		break;
 	default:
 		break;
@@ -231,7 +231,7 @@ void Terrain::initilize(string filename, XMINT2 subsize, XMINT2 splits) {
 	m_tex_noise = TextureRepository::get("noise_grass.png");
 	// grass noise buffer
 	m_cbuffer_noiseSize.update(
-		float4(m_tex_noise->description.Width, m_tex_noise->description.Height, 0, 0));
+		float4(m_tex_noise->description.Width, m_tex_noise->description.Height, 0.f, 0.f));
 
 	// load terrain
 	if (filename == "" || (splits.x == 0 || splits.y == 0) || (subsize.x == 0 || subsize.y == 0)) {

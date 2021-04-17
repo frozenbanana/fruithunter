@@ -338,8 +338,8 @@ void Renderer::draw_godRays(const float4x4& viewProjMatrix) {
 	if (grPosF4.w == 0)
 		return;
 	grPosF4 /= grPosF4.w;
-	grPosF4.x = grPosF4.x * 0.5 + 0.5;
-	grPosF4.y = 1 - (grPosF4.y * 0.5 + 0.5); // upside down??
+	grPosF4.x = grPosF4.x * 0.5f + 0.5f;
+	grPosF4.y = 1.0f - (grPosF4.y * 0.5f + 0.5f); // upside down??
 	if (grPosF4.z <= 0 || grPosF4.z > 1)
 		return;
 	m_settings_godRays.gSunPos = float2(grPosF4.x, grPosF4.y);
