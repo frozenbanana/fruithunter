@@ -11,11 +11,13 @@ protected:
 	static shared_ptr<Scene> scene; //current active scene, is static so that other classes can fetch this information.
 	HUD m_hud;
 	bool m_playerState = true;
+	bool m_fotoMode = false;
 	
 	Sprite2D m_crosshair;
 
 	MetricCollector m_metricCollector;
 	Keyboard::Keys m_key_monitor = Keyboard::M;
+	Keyboard::Keys m_key_fotoMode = Keyboard::N;
 	bool m_monitoring = false;
 
 	//-- Private Functions --
@@ -25,6 +27,8 @@ public:
 
 	void setPlayerState(bool state);
 	bool getPlayerState() const;
+	void setFotoMode(bool state);
+	bool getFotoMode() const;
 
 	SceneManager();
 	~SceneManager();

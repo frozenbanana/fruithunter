@@ -67,7 +67,8 @@ void SceneManager::draw_color() {
 	/* --- Things to be drawn without dark edges --- */
 
 	// Bow
-	scene->m_player->draw();
+	if (!m_fotoMode)
+		scene->m_player->draw();
 
 	// terrain grass
 	scene->m_terrains.draw_grass();
@@ -106,12 +107,14 @@ void SceneManager::draw_color() {
 }
 
 void SceneManager::draw_hud() {
-	m_hud.draw();
-	
-	float anim = scene->m_player->getBow().getDrawFactor();
-	m_crosshair.setScale(anim * 1.f / 35);
-	m_crosshair.setAlpha(anim * 0.75f);
-	m_crosshair.draw();
+	if (!m_fotoMode) {
+		m_hud.draw();
+
+		float anim = scene->m_player->getBow().getDrawFactor();
+		m_crosshair.setScale(anim * 1.f / 35);
+		m_crosshair.setAlpha(anim * 0.75f);
+		m_crosshair.draw();
+	}
 }
 
 Scene* SceneManager::getScene() { return scene.get(); }
@@ -119,6 +122,10 @@ Scene* SceneManager::getScene() { return scene.get(); }
 void SceneManager::setPlayerState(bool state) { m_playerState = state; }
 
 bool SceneManager::getPlayerState() const { return m_playerState; }
+
+void SceneManager::setFotoMode(bool state) { m_fotoMode = state; }
+
+bool SceneManager::getFotoMode() const { return m_fotoMode; }
 
 SceneManager::SceneManager() { 
 	if(scene.get() == nullptr) 
@@ -136,6 +143,9 @@ SceneManager::~SceneManager() {
 void SceneManager::update() {
 
 	monitor();
+
+	if (Input::getInstance()->keyPressed(m_key_fotoMode) && DEBUG)
+		m_fotoMode = !m_fotoMode;
 
 	//Input::getInstance()->setMouseModeRelative();
 	auto pft = PathFindingThread::getInstance();
@@ -248,11 +258,6 @@ void SceneManager::update() {
 		}
 		PathFindingThread::unlock();
 	}
-
-	if (Input::getInstance()->keyPressed(Keyboard::L)) {
-		Renderer::getInstance()->setGodRaysSourcePosition(camera->getPosition());
-	}
-
 }
 
 void SceneManager::setup_shadow() {
