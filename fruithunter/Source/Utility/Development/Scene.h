@@ -120,7 +120,7 @@ public:
 	vector<shared_ptr<SeaEffect>> m_seaEffects;
 
 	// Static world entities
-	QuadTree<shared_ptr<Entity>> m_entities = QuadTree<shared_ptr<Entity>>(float3(0.), float3(200, 100, 200), 4);
+	QuadTree<shared_ptr<Entity>> m_entities = QuadTree<shared_ptr<Entity>>(float3(0.), float3(200, 100, 200), 8);
 
 	// Arrows
 	vector<shared_ptr<Arrow>> m_arrows;
