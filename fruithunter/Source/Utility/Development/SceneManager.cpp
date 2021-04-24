@@ -305,11 +305,13 @@ void SceneManager::reset() {
 }
 
 void SceneManager::monitor() {
-	m_metricCollector.update();
-	Input* ip = Input::getInstance();
-	if (ip->keyPressed(m_key_monitor))
-		m_monitoring = !m_monitoring;
-	if (m_monitoring) {
-		m_metricCollector.draw_imgui();
+	if (DEBUG) {
+		m_metricCollector.update();
+		Input* ip = Input::getInstance();
+		if (ip->keyPressed(m_key_monitor))
+			m_monitoring = !m_monitoring;
+		if (m_monitoring) {
+			m_metricCollector.draw_imgui();
+		}
 	}
 }
