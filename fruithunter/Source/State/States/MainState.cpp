@@ -433,8 +433,8 @@ void MainState::play() {
 		float3(66.410,10.528,19.344) 
 	};
 	string bowlLevelContentObjName[3] = { "BowlContent1", "BowlContent2", "BowlContent3" };
-	string bowlGradeObjName[TimeTargets::NR_OF_TIME_TARGETS] = { "bowl_gold", "bowl_silver",
-		"bowl_bronze" };
+	string bowlGradeObjName[TimeTargets::NR_OF_TIME_TARGETS+1] = { "bowl_gold", "bowl_silver",
+		"bowl_bronze" , "bowl_bronze"};
 	for (size_t i = 0; i < 3; i++) {
 		const SceneCompletion* cp = SaveManager::getProgress("scene" + to_string(i));
 		bool completed = false;
