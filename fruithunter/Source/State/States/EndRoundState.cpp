@@ -64,6 +64,12 @@ void EndRoundState::init() {
 		size_t winTime = SceneManager::getScene()->getTime();
 		setTimeText("Time : " + Time2DisplayableString(winTime) + " min");
 	}
+
+	AudioController::getInstance()->flush();
+	if (winGrade == TimeTargets::NR_OF_TIME_TARGETS)
+		AudioController::getInstance()->play("lose", AudioController::SoundType::Effect);
+	else
+		AudioController::getInstance()->play("win1", AudioController::SoundType::Effect);
 }
 
 void EndRoundState::update() {
@@ -103,8 +109,6 @@ void EndRoundState::play() {
 	m_btn_play.set(float2(float2(width/2 - 125, height - 100)), "Try Again", 0.2);
 	m_btn_back.set(float2(float2(width / 2 + 125, height - 100)), "Level Select", 0.4);
 	m_btn_back.setTextScale(0.7);
-
-	AudioController::getInstance()->play("applause", AudioController::SoundType::Effect);
 }
 
 void EndRoundState::restart() {}
