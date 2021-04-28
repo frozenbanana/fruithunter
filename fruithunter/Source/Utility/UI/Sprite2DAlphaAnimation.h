@@ -10,8 +10,9 @@ private:
 
 	struct AnimationSetting {
 		float factor = 0;
+		float fadeLength = 0;
 		int useBackground = false;
-		float padding[2];
+		float padding[1];
 	} m_animationSetting;
 	ConstantBuffer<AnimationSetting> m_cbuffer_animation;
 
@@ -21,8 +22,10 @@ private:
 
 public:
 	float getAnimationFactor() const;
+	float getFadeLength() const;
 
 	void setAnimationFactor(float factor);
+	void setFadeLength(float length);
 
 	bool load(string path) = delete;
 	bool load(string pathSource, string pathAnimation);

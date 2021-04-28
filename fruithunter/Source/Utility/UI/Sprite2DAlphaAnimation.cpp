@@ -62,9 +62,13 @@ void Sprite2DAlphaAnimation::imgui_animationSetting() {
 
 float Sprite2DAlphaAnimation::getAnimationFactor() const { return m_animationSetting.factor; }
 
+float Sprite2DAlphaAnimation::getFadeLength() const { return m_animationSetting.fadeLength; }
+
 void Sprite2DAlphaAnimation::setAnimationFactor(float factor) {
 	m_animationSetting.factor = min(max(factor, 0.f), 1.f);
 }
+
+void Sprite2DAlphaAnimation::setFadeLength(float length) { m_animationSetting.fadeLength = length; }
 
 bool Sprite2DAlphaAnimation::load(string pathSource, string pathAnimation) {
 	m_animationSetting.useBackground = false;
