@@ -28,13 +28,13 @@ void HUD::drawTargetTime() {
 	int target = timeTargets[BRONZE]; // no target (time)
 	if (index != NR_OF_TIME_TARGETS)
 		target = timeTargets[index];
-	string timeString = "Target: " + Time2DisplayableString(target) + ".00";
+	string timeString = Time2DisplayableString(target);
 	//draw target time
 	wstring w_timeString = std::wstring(timeString.begin(), timeString.end());
 	m_text.setColor(color);
-	m_text.setScale(0.45f);
-	m_text.setAlignment(HorizontalAlignment::AlignLeft, VerticalAlignment::AlignCenter);
-	m_text.setPosition(float2(30, 720 - 100));
+	m_text.setScale(0.4f);
+	m_text.setAlignment(HorizontalAlignment::AlignMiddle, VerticalAlignment::AlignCenter);
+	m_text.setPosition(m_stopwatch.getPosition() + float2(0.5f,-0.55f)*m_stopwatch.getSize());
 	m_text.setText(timeString);
 	m_text.draw();
 }
@@ -47,6 +47,11 @@ HUD::HUD() {
 	m_img_staminaFrame.load("staminaFrame.png");
 	m_img_staminaFrame.setPosition(m_img_stamina.getPosition() + float2(-13, -10));
 	m_img_staminaFrame.setScale(float2(1.05f, 0.8f));
+
+	m_stopwatch.load("stopwatch.png", "stopwatchBack.png", "stopwatchAnimation.png");
+	m_stopwatch.setAlignment(HorizontalAlignment::AlignLeft, VerticalAlignment::AlignBottom);
+	m_stopwatch.setPosition(float2(0, 720));
+	m_stopwatch.setScale(0.35f);
 
 	Color textColors[NR_OF_FRUITS] = { Color(1.0f, 0.0f, 0.0f, 1.0f), Color(0.9f, 0.7f, 0.2f, 1.0f),
 		Color(0.4f, 0.7f, 0.3f, 1.0f), Color(1.0f, 0.3f, 0.3f, 1.0f) };
@@ -64,7 +69,7 @@ void HUD::draw() {
 	float stamina = SceneManager::getScene()->m_player->getStamina();
 
 	// Draw text background
-	m_img_background.draw();
+	//m_img_background.draw();
 	m_img_stamina.setScale(float2(stamina + 0.05f, 0.8f));
 	m_img_stamina.draw();
 	m_img_staminaFrame.draw();
@@ -72,13 +77,20 @@ void HUD::draw() {
 	// Draw time and target time
 	float time = SceneManager::getScene()->m_timer.getTimePassed();
 	size_t rest = int((time - int(time)) * 100);
-	string timeString = "    Time: " + Time2DisplayableString((size_t)time)+"."+(rest<10?"0":"")+to_string(rest);
-	m_text.setColor(float4(1.));
-	m_text.setScale(0.45f);
-	m_text.setAlignment(HorizontalAlignment::AlignLeft, VerticalAlignment::AlignCenter);
-	m_text.setPosition(float2(30, 720 - 60));
+	//string timeString = "    Time: " + Time2DisplayableString((size_t)time)+"."+(rest<10?"0":"")+to_string(rest);
+	string timeString = Time2DisplayableString((size_t)time);
+	int timeTarget = SceneManager::getScene()->m_utility.timeTargets[TimeTargets::BRONZE];
+	// stopwatch
+	m_stopwatch.setAnimationFactor(time / timeTarget);
+	m_stopwatch.draw();
+	// time
+	m_text.setColor(float4(0, 0, 0, 1));
+	m_text.setScale(0.6f);
+	m_text.setAlignment(HorizontalAlignment::AlignMiddle, VerticalAlignment::AlignCenter);
+	m_text.setPosition(m_stopwatch.getPosition() + float2(0.5f, -0.4f) * m_stopwatch.getSize());
 	m_text.setText(timeString);
 	m_text.draw();
+	// target time
 	drawTargetTime();
 
 	// Draw inventory numbers and fruit sprites

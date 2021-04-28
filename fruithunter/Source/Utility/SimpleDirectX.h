@@ -47,6 +47,7 @@ public:
 	void bindVS(UINT slot);
 	void bindGS(UINT slot);
 	void bindPS(UINT slot);
+	void bindCS(UINT slot);
 
 };
 
@@ -97,4 +98,10 @@ inline void ConstantBuffer<STRUCT>::bindPS(UINT slot) {
 	if (!m_initilized)
 		createBuffer();
 	Renderer::getDeviceContext()->PSSetConstantBuffers(slot, 1, GetAddressOf());
+}
+
+template <typename STRUCT> inline void ConstantBuffer<STRUCT>::bindCS(UINT slot) {
+	if (!m_initilized)
+		createBuffer();
+	Renderer::getDeviceContext()->CSSetConstantBuffers(slot, 1, GetAddressOf());
 }
