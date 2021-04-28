@@ -10,9 +10,7 @@ StateItem::~StateItem() {}
 StateItem::State StateItem::getState() const { return m_state; }
 
 string StateItem::getStateAsString() const { 
-	string map[State::Size] = { "PlayState", "PauseState", "SettingState",
-		"MainState", "EndRoundState", "EditorState" };
-	return map[m_state];
+	return m_stateStrings[m_state]; 
 }
 
 StateItem::Request StateItem::popRequest() {

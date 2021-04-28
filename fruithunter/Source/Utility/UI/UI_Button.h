@@ -46,9 +46,8 @@ public:
 	/* Returns true if clicked */
 	bool update(float dt, float2 mp);
 
-	void load(vector<string> images, float animationSpeed = 1.f);
 	void load(string image);
 
-	UI_Button(vector<string> images = vector<string>(), float animationSpeed = 1.f);
+	UI_Button(string image = "");
 
 };

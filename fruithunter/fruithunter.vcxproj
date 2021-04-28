@@ -238,7 +238,10 @@
     <ClCompile Include="Source\Utility\UI\Menu_PoppingButton.cpp" />
     <ClCompile Include="Source\Utility\UI\Menu_Toggle.cpp" />
     <ClCompile Include="Source\Utility\UI\Sprite2D.cpp" />
+    <ClCompile Include="Source\Utility\UI\Sprite2DAlphaAnimation.cpp" />
+    <ClCompile Include="Source\Utility\UI\Sprite2DAnimation.cpp" />
     <ClCompile Include="Source\Utility\UI\Text2D.cpp" />
+    <ClCompile Include="Source\Utility\UI\Texture.cpp" />
     <ClCompile Include="Source\Utility\UI\UI_Button.cpp" />
     <ClCompile Include="Source\Utility\VariableSyncer\VariableSyncer.cpp" />
   </ItemGroup>
@@ -323,7 +326,10 @@
     <ClInclude Include="Source\Utility\UI\Menu_PoppingButton.h" />
     <ClInclude Include="Source\Utility\UI\Menu_Toggle.h" />
     <ClInclude Include="Source\Utility\UI\Sprite2D.h" />
+    <ClInclude Include="Source\Utility\UI\Sprite2DAlphaAnimation.h" />
+    <ClInclude Include="Source\Utility\UI\Sprite2DAnimation.h" />
     <ClInclude Include="Source\Utility\UI\Text2D.h" />
+    <ClInclude Include="Source\Utility\UI\Texture.h" />
     <ClInclude Include="Source\Utility\UI\UI_Button.h" />
     <ClInclude Include="Source\Utility\VariableSyncer\VariableSyncer.h" />
   </ItemGroup>
@@ -343,6 +349,14 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Geometry</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Source\Graphics\Shaders\PixelShader_alphaAnimation.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Source\Graphics\Shaders\PixelShader_fullTexture.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
