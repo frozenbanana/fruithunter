@@ -56,17 +56,14 @@ bool UI_Button::update(float dt, float2 mp) {
 	return clicked;
 }
 
-void UI_Button::load(vector<string> images, float animationSpeed) {
-	m_sprite.load(images, animationSpeed);
-}
-
 void UI_Button::load(string image) {
-	m_sprite.load(image);
+	if (image != "")
+		m_sprite.load(image);
 }
 
-UI_Button::UI_Button(vector<string> images, float animationSpeed) {
+UI_Button::UI_Button(string image) {
 	m_text.setAlignment(); // middle center
 	m_sprite.setAlignment(); // middle center
-	load(images, animationSpeed);
+	load(image);
 }
 

@@ -258,6 +258,8 @@ void SceneManager::update() {
 		}
 		PathFindingThread::unlock();
 	}
+
+	m_hud.update(dt);
 }
 
 void SceneManager::setup_shadow() {

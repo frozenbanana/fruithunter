@@ -292,6 +292,7 @@ void MainState::draw() {
 	m_ps_selected.draw();
 
 	/* -- MENU UI -- */
+
 	float source_alpha = Clamp<float>((1 - m_stateSwitchFactor) * 2 - 1, 0, 1);
 	float dest_alpha = Clamp<float>(m_stateSwitchFactor * 2 - 1, 0, 1);
 	float stateAlpha[NR_OF_STATES] = { 0, 0, 0 };
