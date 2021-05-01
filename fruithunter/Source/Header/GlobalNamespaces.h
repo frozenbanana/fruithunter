@@ -24,7 +24,7 @@ using float3 = DirectX::SimpleMath::Vector3;
 using float4 = DirectX::SimpleMath::Vector4;
 using float4x4 = DirectX::SimpleMath::Matrix;
 
-#define DEBUG true
+#define DEBUG false
 
 enum AreaTag { Forest, Plains, Desert, Volcano, NR_OF_AREAS };
 enum FruitType { APPLE, BANANA, MELON, DRAGON, NR_OF_FRUITS };
