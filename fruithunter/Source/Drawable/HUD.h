@@ -8,22 +8,15 @@ class HUD {
 private:
 	const float4 m_targetColors[NR_OF_TIME_TARGETS + 1] = {
 		float4(212.f / 255.f, 170.f / 255.f, 0.f / 255.f, 1.0f),   // gold
-		float4(128.f / 255.f, 128.f / 255.f, 128.f / 255.f, 1.0f), // silver
+		float4(175.f / 255.f, 175.f / 255.f, 175.f / 255.f, 1.0f), // silver
 		float4(220.f / 255.f, 95.f / 255.f, 0.f / 255.f, 1.0f),	   // bronze
 		float4(1.0f, 0.0f, 0.0f, 1.0f)							   // no target (color)
 	};
 
-	struct OnScreenFruitItem {
-		Sprite2D sprite;
-		float scale = 1;
-		float extraScaling = 0; // scales fruit sprite when fruit is picked up. 
-		float4 textColor = float4(1.);
-	};
-	OnScreenFruitItem m_fruitSprites[NR_OF_FRUITS];
-
-	Sprite2D m_img_stamina, m_img_staminaFrame;
 	Sprite2DAlphaAnimation m_stopwatch;
-	Sprite2D m_box;
+	Sprite2D m_stopwatchMarker;
+
+	Sprite2DAlphaAnimation m_slowmo;
 
 	struct TickSetting {
 		float slowdown = 0.00001f;
@@ -36,9 +29,9 @@ private:
 
 	float m_hd_ticks_scalingVelocity[FruitType::NR_OF_FRUITS] = { 0 };
 	float m_hd_ticks_scaling[FruitType::NR_OF_FRUITS] = { 1 };
-	Sprite2D m_hd_back;
-	Sprite2D m_hd_ticks[FruitType::NR_OF_FRUITS];
-	Sprite2D m_hd_emptyTick;
+	Sprite2D m_fruits[FruitType::NR_OF_FRUITS];
+	Sprite2D m_ticks[FruitType::NR_OF_FRUITS];
+	Sprite2D m_emptyTick;
 
 	struct Tick {
 		float scalingVelocity = 0;

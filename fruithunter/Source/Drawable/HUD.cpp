@@ -69,48 +69,39 @@ void HUD::imgui_tickSetting() {
 }
 
 HUD::HUD() {
-	m_img_stamina.load("stamina.png");
-	m_img_stamina.setPosition(float2(1280-230, 720-60));
-	m_img_staminaFrame.load("staminaFrame.png");
-	m_img_staminaFrame.setPosition(m_img_stamina.getPosition() + float2(-13, -10));
-	m_img_staminaFrame.setScale(float2(1.05f, 0.8f));
-
-	m_hd_back.load("hd_back.png");
-	m_hd_back.setPosition(float2(0, 0));
-	m_hd_back.setScale(0.35f);
-	m_hd_ticks[FruitType::APPLE].load("appleTick.png");
-	m_hd_ticks[FruitType::BANANA].load("bananaTick.png");
-	m_hd_ticks[FruitType::MELON].load("melonTick.png");
-	m_hd_ticks[FruitType::DRAGON].load("dragonTick.png");
+	m_fruits[FruitType::APPLE].load("fruit_apple.png");
+	m_fruits[FruitType::BANANA].load("fruit_banana.png");
+	m_fruits[FruitType::MELON].load("fruit_melon.png");
+	m_fruits[FruitType::DRAGON].load("fruit_dragon.png");
+	m_ticks[FruitType::APPLE].load("appleTick.png");
+	m_ticks[FruitType::BANANA].load("bananaTick.png");
+	m_ticks[FruitType::MELON].load("melonTick.png");
+	m_ticks[FruitType::DRAGON].load("dragonTick.png");
 	for (size_t i = 0; i < FruitType::NR_OF_FRUITS; i++) {
-		m_hd_ticks[i].setAlignment(); // center
-		m_hd_ticks[i].setScale(m_tickSetting.base_scale);
+		m_fruits[i].setScale(m_tickSetting.base_scale);
+		m_fruits[i].setAlignment(); // center
+		m_ticks[i].setScale(m_tickSetting.base_scale);
+		m_ticks[i].setAlignment(); // center
 	}
-	m_hd_emptyTick.load("emptyTick.png");
-	m_hd_emptyTick.setAlignment(); // center
-	m_hd_emptyTick.setScale(m_tickSetting.base_scale);
+	m_emptyTick.load("emptyTick.png");
+	m_emptyTick.setAlignment(); // center
+	m_emptyTick.setScale(m_tickSetting.base_scale);
 
-	m_stopwatch.load("stopwatch.png", "stopwatchBack.png", "stopwatchAnimation.png");
+	m_stopwatch.load("stopwatch_front.png", "stopwatch_background.png", "stopwatchAnimation.png");
 	m_stopwatch.setAlignment(HorizontalAlignment::AlignLeft, VerticalAlignment::AlignBottom);
 	m_stopwatch.setPosition(float2(0, 720) + float2(1, -1) * 30);
 	m_stopwatch.setScale(0.275f);
 
-	m_box.load("square_white.png");
-	m_box.setSize(float2(4, 1) * 5.f);
-	m_box.setAlignment();// center
+	m_stopwatchMarker.load("square_white.png");
+	m_stopwatchMarker.setSize(float2(4, 1) * 5.f);
+	m_stopwatchMarker.setAlignment();// center
 
 	m_text_time.setFont("luckiestguy.spritefont");
 
-	Color textColors[NR_OF_FRUITS] = { Color(1.0f, 0.0f, 0.0f, 1.0f), Color(0.9f, 0.7f, 0.2f, 1.0f),
-		Color(0.4f, 0.7f, 0.3f, 1.0f), Color(1.0f, 0.3f, 0.3f, 1.0f) };
-	string fruitImages[NR_OF_FRUITS] = { "apple.png", "banana.png", "melon.png",
-		"dragonfruit.png" };
-	for (size_t i = 0; i < NR_OF_FRUITS; i++) {
-		m_fruitSprites[i].sprite.load(fruitImages[i]);
-		m_fruitSprites[i].sprite.setAlignment(); // center
-		m_fruitSprites[i].sprite.setSize(float2(1.)*50);
-		m_fruitSprites[i].textColor = textColors[i];
-	}
+	m_slowmo.load("slowmo_front.png","slowmo_background.png","slowmo_animation.png");
+	m_slowmo.setAlignment(HorizontalAlignment::AlignRight, VerticalAlignment::AlignBottom);
+	m_slowmo.setScale(0.45f);
+	m_slowmo.setPosition(float2(1280, 720) * 0.975f);
 }
 
 void HUD::update(float dt) {
@@ -145,12 +136,13 @@ void HUD::update(float dt) {
 }
 
 void HUD::draw() {
+	// Draw stamina
 	float stamina = SceneManager::getScene()->m_player->getStamina();
-
-	// Draw text background
-	m_img_stamina.setScale(float2(stamina + 0.05f, 0.8f));
-	m_img_stamina.draw();
-	m_img_staminaFrame.draw();
+	//m_img_stamina.setScale(float2(stamina + 0.05f, 0.8f));
+	//m_img_stamina.draw();
+	//m_img_staminaFrame.draw();
+	m_slowmo.setAnimationFactor(stamina);
+	m_slowmo.draw();
 
 	// Draw time and target time
 	int* timeTargets = SceneManager::getScene()->m_utility.timeTargets;
@@ -166,7 +158,7 @@ void HUD::draw() {
 		m_stopwatch.getPosition() + float2(0.5f, -(1 - 0.587f)) * m_stopwatch.getSize();
 	// time
 	drawClock(stopwatchCenter + float2(0, m_stopwatch.getSize().y * 0.05f), 0.475f, time,
-		float4(0, 0, 0, 1));
+		float4(1, 1, 1, 1));
 	// time target
 	float timePassed = SceneManager::getScene()->m_timer.getTimePassed();
 	int index = NR_OF_TIME_TARGETS;
@@ -187,48 +179,28 @@ void HUD::draw() {
 		float factor = (float)SceneManager::getScene()->m_utility.timeTargets[i] /
 					   SceneManager::getScene()->m_utility.timeTargets[TimeTargets::BRONZE];
 		float radian = (-0.25f * XM_PI) * (1-factor) + (1.25f * XM_PI) * factor;
-		m_box.setPosition(stopwatchCenter + float2(cos(radian), sin(radian)) * radius);
-		m_box.setRotation(radian);
-		m_box.setColor(m_targetColors[i]);
-		m_box.draw();
+		m_stopwatchMarker.setPosition(stopwatchCenter + float2(cos(radian), sin(radian)) * radius);
+		m_stopwatchMarker.setRotation(radian);
+		m_stopwatchMarker.setColor(m_targetColors[i]);
+		m_stopwatchMarker.draw();
 	}
 
 	// Draw inventory numbers and fruit sprites
-	//int* gathered = SceneManager::getScene()->m_gatheredFruits;		  // NR_OF_FRUITS
-	//int* winCondition = SceneManager::getScene()->m_utility.winCondition; // NR_OF_FRUITS
-	//float2 itemPosition = float2(50, 50);
-	//float2 itemOffset = float2(0, 75);
-	//for (size_t i = 0; i < NR_OF_FRUITS; i++) {
-	//	if (winCondition[i] > 0) {
-	//		//text
-	//		string displayStr = to_string(gathered[i]) + "/" + to_string(winCondition[i]);
-	//		m_text.setColor(m_fruitSprites[i].textColor);
-	//		m_text.setScale(0.6f);
-	//		m_text.setAlignment(HorizontalAlignment::AlignLeft, VerticalAlignment::AlignCenter);
-	//		m_text.setPosition(itemPosition + float2(35.0f, 0.0f));
-	//		m_text.setText(displayStr);
-	//		m_text.draw();
-	//		//image
-	//		m_fruitSprites[i].sprite.setPosition(itemPosition);
-	//		m_fruitSprites[i].sprite.draw();
-	//		//next item preparation
-	//		itemPosition += itemOffset;
-	//	}
-	//}
-
-
-	m_hd_back.draw();
-	float2 backSize = m_hd_back.getSize();
-	float2 tickSize = m_hd_emptyTick.getSize();
+	float2 backSize = float2(100, 300);
+	float2 tickSize = m_emptyTick.getSize();
 	for (size_t f = 0; f < FruitType::NR_OF_FRUITS; f++) {
-		float mid = m_hd_back.getSize().y / 2;
+		float mid = backSize.y / 2;
 		float2 baseTickPos = float2(backSize.x - backSize.x / 12,
 			mid + m_tickSetting.offset_height * f -
 				(m_tickSetting.offset_height * (FruitType::NR_OF_FRUITS - 1)) / 2);
+
+		m_fruits[f].setPosition(float2(baseTickPos.x / 2, baseTickPos.y));
+		m_fruits[f].draw();
+
 		int count_target = SceneManager::getScene()->m_utility.winCondition[f];
 		int count_current = SceneManager::getScene()->m_gatheredFruits[f];
 		for (size_t t = 0; t < count_target; t++) {
-			Sprite2D* spr = (t < count_current) ? &m_hd_ticks[f] : &m_hd_emptyTick;
+			Sprite2D* spr = (t < count_current) ? &m_ticks[f] : &m_emptyTick;
 			spr->setPosition(baseTickPos + float2(t * m_tickSetting.offset_width, 0));
 			spr->setScale(m_tickSetting.base_scale * m_tickAnimations[f][t].scale);
 			spr->draw();
