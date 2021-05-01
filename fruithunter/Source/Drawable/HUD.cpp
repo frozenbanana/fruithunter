@@ -138,9 +138,6 @@ void HUD::update(float dt) {
 void HUD::draw() {
 	// Draw stamina
 	float stamina = SceneManager::getScene()->m_player->getStamina();
-	//m_img_stamina.setScale(float2(stamina + 0.05f, 0.8f));
-	//m_img_stamina.draw();
-	//m_img_staminaFrame.draw();
 	m_slowmo.setAnimationFactor(stamina);
 	m_slowmo.draw();
 
@@ -197,9 +194,8 @@ void HUD::draw() {
 		m_fruits[f].setPosition(float2(baseTickPos.x / 2, baseTickPos.y));
 		m_fruits[f].draw();
 
-		int count_target = SceneManager::getScene()->m_utility.winCondition[f];
 		int count_current = SceneManager::getScene()->m_gatheredFruits[f];
-		for (size_t t = 0; t < count_target; t++) {
+		for (size_t t = 0; t < m_tickAnimations[f].size(); t++) {
 			Sprite2D* spr = (t < count_current) ? &m_ticks[f] : &m_emptyTick;
 			spr->setPosition(baseTickPos + float2(t * m_tickSetting.offset_width, 0));
 			spr->setScale(m_tickSetting.base_scale * m_tickAnimations[f][t].scale);

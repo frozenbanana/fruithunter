@@ -65,6 +65,11 @@ void Melon::behaviorPassive() {
 			m_velocity *= 0;
 		}
 		m_respawn_timer = Clamp<float>(m_respawn_timer-dt, 0, m_respawn_max);
+
+		// scaling
+		float factor = abs((m_respawn_max / 2) - m_respawn_timer) / (m_respawn_max / 2);
+		setScale(m_startScale * factor);
+
 		if (m_respawn_timer == 0) {
 			// end of respawn
 			// switch to active mode
@@ -341,17 +346,8 @@ void Melon::draw_sensors() {
 }
 
 void Melon::draw_fruit() {
+	Fruit::draw_fruit();
 	if (m_isVisible) {
-		if (isRespawning()) {
-			float factor = abs((m_respawn_max / 2) - m_respawn_timer) / (m_respawn_max / 2);
-			setScale(m_startScale * factor);
-		}
-		else
-			setScale(m_startScale);
-		Renderer::getInstance()->setBlendState_NonPremultiplied();
-		draw_animate();
-		Renderer::getInstance()->setBlendState_Opaque();
-		m_particleSystem.draw(true);
 		draw_sensors();
 		draw_rollTrail();
 	}

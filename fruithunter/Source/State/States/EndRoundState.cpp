@@ -62,7 +62,7 @@ void EndRoundState::init() {
 			break;
 		}
 		size_t winTime = SceneManager::getScene()->getTime();
-		setTimeText("Time : " + Time2DisplayableString(winTime) + " min");
+		setTimeText("Time   " + Time2DisplayableString(winTime) + " min");
 	}
 
 	AudioController::getInstance()->flush();
