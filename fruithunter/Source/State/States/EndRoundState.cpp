@@ -24,7 +24,7 @@ void EndRoundState::init() {
 	m_spr_background.setPosition(center);
 	m_spr_background.setColor(float4(0, 0, 0, 1));
 	m_spr_background.setAlpha(0.75);
-	m_spr_background.setSize(float2(width*0.8, height*1));
+	m_spr_background.setSize(float2(width*0.8f, height*1));
 	m_spr_background.setAlignment(); // center
 
 	string sceneName = SceneManager::getScene()->m_sceneName;
