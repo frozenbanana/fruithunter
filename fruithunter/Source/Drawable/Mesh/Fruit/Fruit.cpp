@@ -37,9 +37,8 @@ void Fruit::setStartPosition(float3 pos) {
 void Fruit::setNextDestination(float3 nextDest) { m_nextDestinationAnimationPosition = nextDest; }
 
 Skillshot Fruit::hit(float3 playerPos) {
-	Skillshot hitType = SS_NOTHING;
+	Skillshot hitType = Skillshot::SS_BRONZE;
 	if (m_currentState != CAUGHT) {
-		changeState(CAUGHT);
 		float dist = (playerPos - getPosition()).Length();
 		ParticleSystem::Type type = ParticleSystem::Type::CONFETTI;
 		int nrOf = 5;

@@ -205,6 +205,8 @@ void SceneManager::update() {
 		if (scene->m_arrows[i]->isActive())
 			scene->m_arrows[i]->collide_scene(dt_nonSlow);
 		scene->m_arrows[i]->update(dt_nonSlow);
+		if (scene->m_arrows[i]->getPosition().y < 0)
+			scene->m_arrows[i]->collided(scene->m_arrows[i]->getPosition()); // stop arrows if below world
 	}
 	// arrow particles
 	for (size_t i = 0; i < scene->m_arrowParticles.size(); i++) {
