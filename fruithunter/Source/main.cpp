@@ -10,6 +10,8 @@
 #include "AudioController.h"
 #include "SimpleDirectX.h"
 
+#include <steam_api.h>
+
 #include <hidusage.h>
 #ifndef HID_USAGE_PAGE_GENERIC
 #define HID_USAGE_PAGE_GENERIC ((USHORT)0x01)
@@ -23,6 +25,8 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	Input::initilize(Renderer::getInstance()->getHandle());
+
+	bool steamInit = SteamAPI_Init();
 
 	ErrorLogger errorLogger;
 	Input* input = Input::getInstance();
@@ -83,6 +87,8 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 
 		MSG msg = { 0 };
 	}
+
+	SteamAPI_Shutdown();
 
 	Settings::getInstance()->saveAllSetting();
 	VariableSyncer::getInstance()->saveAll();

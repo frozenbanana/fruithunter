@@ -588,10 +588,148 @@
     <ClInclude Include="Source\Utility\UI\Texture.h">
       <Filter>Source\Utility\UI</Filter>
     </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamapplist.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamapps.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamappticket.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamclient.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamcontroller.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamfriends.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamgamecoordinator.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamgameserver.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamgameserverstats.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamhtmlsurface.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamhttp.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteaminput.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteaminventory.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteammasterserverupdater.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteammatchmaking.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteammusic.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteammusicremote.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamnetworking.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamnetworkingmessages.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamnetworkingsockets.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamnetworkingutils.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamparentalsettings.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamps3overlayrenderer.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamremoteplay.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamremotestorage.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamscreenshots.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamugc.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamuser.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamuserstats.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamutils.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\isteamvideo.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\matchmakingtypes.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\steam_api.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\steam_api_common.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\steam_api_flat.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\steam_api_internal.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\steam_gameserver.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\steamclientpublic.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\steamdatagram_tickets.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\steamencryptedappticket.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\steamhttpenums.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\steamnetworkingtypes.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\steamps3params.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\steamtypes.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\steamuniverse.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
     <None Include="packages.config" />
+    <None Include="Source\SteamSDK\steam_api.json">
+      <Filter>Source\SteamSDK</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source">
@@ -680,6 +818,9 @@
     </Filter>
     <Filter Include="Source\Utility\UI">
       <UniqueIdentifier>{1aa22460-1ee4-4fd8-b5ff-309ea38e9837}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\SteamSDK">
+      <UniqueIdentifier>{0c4c3c7e-aacf-4355-8d84-9fc71f19f519}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
