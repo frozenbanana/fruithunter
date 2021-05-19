@@ -18,6 +18,7 @@ static std::wstring str2wstr(const std::string& s) {
 }
 
 static void read_directory(const std::string& name, vector<string>& v) {
+	v.clear();
 	std::string pattern(name);
 	pattern.append("\\*");
 	WIN32_FIND_DATA data;

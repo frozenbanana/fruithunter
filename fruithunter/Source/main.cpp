@@ -9,8 +9,7 @@
 #include "StateStack.h"
 #include "AudioController.h"
 #include "SimpleDirectX.h"
-
-#include <steam_api.h>
+#include "SteamAPICommunicator.h"
 
 #include <hidusage.h>
 #ifndef HID_USAGE_PAGE_GENERIC
@@ -26,7 +25,8 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 
 	Input::initilize(Renderer::getInstance()->getHandle());
 
-	bool steamInit = SteamAPI_Init();
+	if (!SteamAPICommunicator::getInstance()->init())
+		return 1; // failed initilizing SteamAPI
 
 	ErrorLogger errorLogger;
 	Input* input = Input::getInstance();
@@ -74,6 +74,8 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 
 		renderer->endFrame();
 
+		SteamAPI_RunCallbacks();
+
 		while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -88,8 +90,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 		MSG msg = { 0 };
 	}
 
-	SteamAPI_Shutdown();
-
+	SteamAPICommunicator::getInstance()->shutdown();
 	Settings::getInstance()->saveAllSetting();
 	VariableSyncer::getInstance()->saveAll();
 	return 0;

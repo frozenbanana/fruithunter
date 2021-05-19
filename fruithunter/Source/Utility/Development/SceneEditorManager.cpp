@@ -8,6 +8,35 @@
 #include <wincodec.h>
 #include <fstream>
 
+void SceneEditorManager::update_imgui_leaderboard() {
+	static string leaderboardName;
+
+	ImGui::InputText("Leaderboard Name", &leaderboardName);
+	if (ImGui::Button("Fetch")) {
+		m_leaderboard.FindLeaderboard(leaderboardName.c_str());
+	}
+	if (m_leaderboard.getRequestState_FindLeaderboard() == CSteamLeaderboard::RequestState::r_finished) {
+		ImGui::SameLine();
+		if (ImGui::Button("Update")) {
+			m_leaderboard.DownloadScores();
+		}
+	}
+	string status = "";
+	string status_strOptions[4] = { "Idle", "Failed", "Waiting", "Finished" };
+	CSteamLeaderboard::RequestState reqState = m_leaderboard.getRequestState_DownloadScore();
+	ImGui::Text("Request Status: %s", status_strOptions[reqState].c_str());
+	if (ImGui::ListBoxHeader("Player Score", 10)) {
+		for (size_t i = 0; i < m_leaderboard.getEntryCount(); i++) {
+			LeaderboardEntry_t entry;
+			if (m_leaderboard.getEntry(i, entry)) {
+				const char* name = SteamFriends()->GetFriendPersonaName(entry.m_steamIDUser);
+				ImGui::Text("%s[%i]: %i", name, entry.m_nGlobalRank, entry.m_nScore);
+			}
+		}
+		ImGui::ListBoxFooter();
+	}
+}
+
 void SceneEditorManager::update_imgui_library() {
 	Input* ip = Input::getInstance();
 	{
@@ -163,13 +192,10 @@ void SceneEditorManager::update_imgui_library() {
 }
 
 void SceneEditorManager::update_imgui_gameRules() {
-	static char text[50];
-	memset(text, NULL, 50);
-	memcpy(text, scene->m_sceneName.c_str(), scene->m_sceneName.size());
 	ImGui::SetNextItemWidth(100);
-	if (ImGui::InputText("Scene Name", text, 50)) {
-		scene->m_sceneName = string(text);
-	}
+	ImGui::InputText("Scene Name", &scene->m_sceneName);
+	ImGui::SetNextItemWidth(100);
+	ImGui::InputText("Steam Leaderboard Name", &scene->m_leaderboardName);
 	for (size_t i = 0; i < NR_OF_FRUITS; i++) {
 		ImGui::SetNextItemWidth(100);
 		ImGui::InputInt(("WinCondition (" + FruitTypeToString((FruitType)i) + ")").c_str(),
@@ -849,6 +875,11 @@ void SceneEditorManager::update_imgui() {
 			if (ImGui::BeginTabItem("Terrain Editor")) {
 				m_editorTabActive = EditorTab::TerrainEditor;
 				update_imgui_terrainEditor();
+				ImGui::EndTabItem();
+			}
+			if (ImGui::BeginTabItem("Leaderboard")) {
+				m_editorTabActive = EditorTab::TerrainEditor;
+				update_imgui_leaderboard();
 				ImGui::EndTabItem();
 			}
 			ImGui::EndTabBar();

@@ -30,6 +30,12 @@ private:
 	const string path_scenes = "assets/Scenes/";
 
 public:
+	// leaderboard linked
+	string m_leaderboardName = "";
+
+	// Terrain
+	vector<string> m_terrainFiles;
+
 	// Seas
 	struct SeaContent {
 		int type;				//SeaEffect::SeaEffectTypes !!
@@ -107,6 +113,7 @@ protected:
 
 public:
 	string m_sceneName = "";
+	string m_leaderboardName = "";
 
 	RPYCamera m_camera;
 

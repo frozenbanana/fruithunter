@@ -165,8 +165,9 @@ void Input::setMouseModeRelative() {
 	if (m_mouseState.positionMode == DirectX::Mouse::MODE_ABSOLUTE)
 		m_mouse.get()->SetMode(DirectX::Mouse::MODE_RELATIVE);
 
-	if (m_mouse.get()->IsVisible() == true)
-		m_mouse.get()->SetVisible(false);
+	//if (m_mouse.get()->IsVisible() == true)
+	//	m_mouse.get()->SetVisible(false);
+	m_mouse.get()->SetVisible(false);
 }
 
 void Input::setMouseModeAbsolute() {
@@ -174,6 +175,7 @@ void Input::setMouseModeAbsolute() {
 	if (m_mouseState.positionMode != DirectX::Mouse::MODE_ABSOLUTE)
 		m_mouse.get()->SetMode(DirectX::Mouse::MODE_ABSOLUTE);
 
-	if (m_mouse.get()->IsVisible() == false)
-		m_mouse.get()->SetVisible(true);
+	//if (m_mouse.get()->IsVisible() == false)
+	//	m_mouse.get()->SetVisible(true);
+	m_mouse.get()->SetVisible(true);
 }

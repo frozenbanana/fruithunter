@@ -330,6 +330,12 @@
     <ClCompile Include="Source\Utility\UI\Texture.cpp">
       <Filter>Source\Utility\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Source\SteamSDK\CSteamLeaderboards.cpp">
+      <Filter>Source\SteamSDK</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\SteamAPICommunicator.cpp">
+      <Filter>Source\Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -722,6 +728,12 @@
     </ClInclude>
     <ClInclude Include="Source\SteamSDK\steamuniverse.h">
       <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SteamSDK\CSteamLeaderboards.h">
+      <Filter>Source\SteamSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\SteamAPICommunicator.h">
+      <Filter>Source\Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
