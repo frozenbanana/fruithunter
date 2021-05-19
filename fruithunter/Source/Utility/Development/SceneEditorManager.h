@@ -4,10 +4,13 @@
 #include "Sprite2D.h"
 #include "TextureRepository.h"
 #include "filesystemHelper.h"
+#include "CSteamLeaderboards.h"
 
 /* Handles editing and drawing of scene data */
 class SceneEditorManager : public SceneManager {
 private:
+	CSteamLeaderboard m_leaderboard;
+
 	float3 m_cam_velocity;
 	float m_cam_friction = 0.7f;
 	float m_highSpeed = 60.f;
@@ -76,7 +79,8 @@ private:
 	enum EditorTab {
 		Library,
 		GameRules,
-		TerrainEditor 
+		TerrainEditor,
+		Leaderboard
 	} m_editorTabActive = EditorTab::Library;
 
 	// terrain brush
@@ -88,6 +92,8 @@ private:
 	Input::MouseButton m_terrainEditor_btn_flatten = Input::MouseButton::MIDDLE;
 
 	//-- Private Functions --
+
+	void update_imgui_leaderboard();
 
 	void update_imgui_library();
 	void update_imgui_gameRules();

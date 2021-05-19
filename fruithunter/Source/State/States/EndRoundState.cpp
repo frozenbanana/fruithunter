@@ -27,42 +27,47 @@ void EndRoundState::init() {
 	m_spr_background.setSize(float2(width*0.8f, height*1));
 	m_spr_background.setAlignment(); // center
 
+	//const SceneCompletion* savedData = SaveManager::getProgress(sceneName);
 	string sceneName = SceneManager::getScene()->m_sceneName;
-	const SceneCompletion* savedData = SaveManager::getProgress(sceneName);
+	size_t winTime = SceneManager::getScene()->getTime();
 	TimeTargets winGrade = SceneManager::getScene()->getWinGrade();
-	if (savedData != nullptr) {
-		switch (winGrade) {
-		case GOLD:
-			setVictoryText("You earned GOLD");
-			setVictoryColor(float4(1.0f, 0.85f, 0.0f, 1.0f));
-			setConfettiPower(22);
-			setBowl(sceneName, (int)GOLD);
-			setParticleColorByPrize(GOLD);
-			break;
-		case SILVER:
-			setVictoryText("You earned SILVER");
-			setVictoryColor(float4(0.8f, 0.8f, 0.8f, 1.0f));
-			setConfettiPower(18);
-			setBowl(sceneName, (int)SILVER);
-			setParticleColorByPrize(SILVER);
-			break;
-		case BRONZE:
-			setVictoryText("You earned BRONZE");
-			setVictoryColor(float4(0.85f, 0.55f, 0.25f, 1.0f));
-			setConfettiPower(14);
-			setBowl(sceneName, (int)BRONZE);
-			setParticleColorByPrize(BRONZE);
-			break;
-		default:
-			setVictoryText("You earned NOTHING");
-			setVictoryColor(float4(1.0f, 1.0f, 1.0f, 1.0f));
-			setConfettiPower(2);
-			setBowl(sceneName, (int)BRONZE);
-			setParticleColorByPrize(BRONZE);
-			break;
-		}
-		size_t winTime = SceneManager::getScene()->getTime();
-		setTimeText("Time   " + Time2DisplayableString(winTime) + " min");
+	switch (winGrade) {
+	case GOLD:
+		setVictoryText("You earned GOLD");
+		setVictoryColor(float4(1.0f, 0.85f, 0.0f, 1.0f));
+		setConfettiPower(22);
+		setBowl(sceneName, (int)GOLD);
+		setParticleColorByPrize(GOLD);
+		break;
+	case SILVER:
+		setVictoryText("You earned SILVER");
+		setVictoryColor(float4(0.8f, 0.8f, 0.8f, 1.0f));
+		setConfettiPower(18);
+		setBowl(sceneName, (int)SILVER);
+		setParticleColorByPrize(SILVER);
+		break;
+	case BRONZE:
+		setVictoryText("You earned BRONZE");
+		setVictoryColor(float4(0.85f, 0.55f, 0.25f, 1.0f));
+		setConfettiPower(14);
+		setBowl(sceneName, (int)BRONZE);
+		setParticleColorByPrize(BRONZE);
+		break;
+	default:
+		setVictoryText("You earned NOTHING");
+		setVictoryColor(float4(1.0f, 1.0f, 1.0f, 1.0f));
+		setConfettiPower(2);
+		setBowl(sceneName, (int)BRONZE);
+		setParticleColorByPrize(BRONZE);
+		break;
+	}
+	setTimeText("Time   " + Time2DisplayableString(winTime) + " min");
+
+	if (!DEBUG || true) {
+		m_leaderboard_score = winTime;
+		string leaderboard = SceneManager::getScene()->m_leaderboardName;
+		if (leaderboard != "")
+			m_leaderboard.FindLeaderboard(leaderboard.c_str());
 	}
 
 	AudioController::getInstance()->flush();
@@ -88,6 +93,15 @@ void EndRoundState::update() {
 	if (m_btn_back.update_behavior(dt)) {
 		AudioController::getInstance()->flush();
 		pop(State::MainState, false);
+	}
+
+	if (!DEBUG || true) {
+		if (m_leaderboard.getRequestState_UploadScore() ==
+				CSteamLeaderboard::RequestState::r_inactive &&
+			m_leaderboard.getRequestState_FindLeaderboard() ==
+				CSteamLeaderboard::RequestState::r_finished) {
+			m_leaderboard.UploadScore(m_leaderboard_score); // keeps best score
+		}
 	}
 }
 

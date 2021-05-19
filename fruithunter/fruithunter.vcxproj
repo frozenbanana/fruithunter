@@ -213,6 +213,7 @@
     <ClCompile Include="Source\State\States\PauseState.cpp" />
     <ClCompile Include="Source\State\States\PlayState.cpp" />
     <ClCompile Include="Source\State\States\SettingsState.cpp" />
+    <ClCompile Include="Source\SteamSDK\CSteamLeaderboards.cpp" />
     <ClCompile Include="Source\Utility\Audio\AudioController.cpp" />
     <ClCompile Include="Source\Utility\Camera\Camera.cpp" />
     <ClCompile Include="Source\Utility\Camera\RPYCamera.cpp" />
@@ -231,6 +232,7 @@
     <ClCompile Include="Source\Utility\SaveState\SaveManager.cpp" />
     <ClCompile Include="Source\Utility\Settings\Settings.cpp" />
     <ClCompile Include="Source\Utility\SimpleDirectX.cpp" />
+    <ClCompile Include="Source\Utility\SteamAPICommunicator.cpp" />
     <ClCompile Include="Source\Utility\Timer\Timer.cpp" />
     <ClCompile Include="Source\Utility\Translation2DStructures.cpp" />
     <ClCompile Include="Source\Utility\UI\Drawable2D.cpp" />
@@ -299,6 +301,7 @@
     <ClInclude Include="Source\State\States\PauseState.h" />
     <ClInclude Include="Source\State\States\PlayState.h" />
     <ClInclude Include="Source\State\States\SettingsState.h" />
+    <ClInclude Include="Source\SteamSDK\CSteamLeaderboards.h" />
     <ClInclude Include="Source\SteamSDK\isteamapplist.h" />
     <ClInclude Include="Source\SteamSDK\isteamapps.h" />
     <ClInclude Include="Source\SteamSDK\isteamappticket.h" />
@@ -364,6 +367,7 @@
     <ClInclude Include="Source\Utility\SaveState\SaveManager.h" />
     <ClInclude Include="Source\Utility\Settings\Settings.h" />
     <ClInclude Include="Source\Utility\SimpleDirectX.h" />
+    <ClInclude Include="Source\Utility\SteamAPICommunicator.h" />
     <ClInclude Include="Source\Utility\Timer\Timer.h" />
     <ClInclude Include="Source\Utility\Translation2DStructures.h" />
     <ClInclude Include="Source\Utility\UI\Drawable2D.h" />

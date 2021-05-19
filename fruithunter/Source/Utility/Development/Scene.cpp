@@ -236,9 +236,9 @@ void Scene::update_activeTerrain(AreaTag tag, bool playMusic) {
 			m_activeTerrain_soundID = playMusicByAreaTag(tag);
 }
 
-void Scene::load(string folder) { 
+void Scene::load(string folder) {
 	if (folder != "") {
-		clear();// clear all data
+		clear(); // clear all data
 
 		m_loaded = true;
 		m_sceneName = folder;
@@ -248,21 +248,36 @@ void Scene::load(string folder) {
 		SceneAbstactContent content;
 		content.load_raw(folder);
 
+		// Leaderboard
+		m_leaderboardName = content.m_leaderboardName;
+
 		// heightmap
-		vector<string> files;
-		read_directory("assets/Scenes/" + m_sceneName, files);
-		files = vector<string>(files.begin() + 2, files.end());
+		/*
+		* Dynamic file reading. Caused problem of loading terrains even if deleted them in editor (their file wasnt deleted)
+		*/
+		//vector<string> files;
+		//read_directory("assets/Scenes/" + m_sceneName, files);
+		//files = vector<string>(files.begin() + 2, files.end());
+		//for (size_t i = 0; i < files.size(); i++) {
+		//	size_t offset = files[i].find('.', 0);
+		//	if (offset != string::npos) {
+		//		offset++; // skip '.'
+		//		string ending = files[i].substr(offset, files[i].length() - offset);
+		//		if (ending == "env") {
+		//			shared_ptr<Environment> env = make_shared<Environment>();
+		//			env->loadFromBinFile("assets/Scenes/" + m_sceneName + "/" + files[i]);
+		//			m_terrains.add(env);
+		//		}
+		//	}
+		//}
+		/*
+		* Simple system for reading files. Only reads files listed in content variable.
+		*/
+		vector<string> files = content.m_terrainFiles;
 		for (size_t i = 0; i < files.size(); i++) {
-			size_t offset = files[i].find('.', 0);
-			if (offset != string::npos) {
-				offset++; // skip '.'
-				string ending = files[i].substr(offset, files[i].length() - offset);
-				if (ending == "env") {
-					shared_ptr<Environment> env = make_shared<Environment>();
-					env->loadFromBinFile("assets/Scenes/" + m_sceneName + "/" + files[i]);
-					m_terrains.add(env);
-				}
-			}
+			shared_ptr<Environment> env = make_shared<Environment>();
+			env->loadFromBinFile("assets/Scenes/" + m_sceneName + "/" + files[i]);
+			m_terrains.add(env);
 		}
 
 		// sea
@@ -313,10 +328,16 @@ void Scene::save() {
 	if (m_sceneName != "") {
 		SceneAbstactContent content;
 
+		// Leaderboard
+		content.m_leaderboardName = m_leaderboardName;
+
 		// terrains
+		content.m_terrainFiles.resize(m_terrains.length());
 		for (size_t i = 0; i < m_terrains.length(); i++) {
+			string filename = "terrain" + to_string(i) + ".env";
 			m_terrains.getTerrainFromIndex(i)->storeToBinFile(
-				"assets/Scenes/" + m_sceneName + "/terrain" + to_string(i) + ".env");
+				"assets/Scenes/" + m_sceneName + "/" + filename);
+			content.m_terrainFiles[i] = filename;
 		}
 
 		// seas
@@ -493,8 +514,15 @@ bool SceneAbstactContent::load_raw(string folder) {
 	fstream file;
 	file.open(path+"/scene.data", ios::in | ios::binary);
 	if (file.is_open()) {
-		// seas
+		//leaderboard
+		m_leaderboardName = fileRead_string(file);
+		// terrain
 		size_t size = fileRead_ulong(file);
+		m_terrainFiles.resize(size);
+		for (size_t i = 0; i < size; i++)
+			m_terrainFiles[i] = fileRead_string(file);
+		// seas
+		size = fileRead_ulong(file);
 		m_seaAreas.resize(size);
 		for (size_t i = 0; i < size; i++)
 			file.read((char*)&m_seaAreas[i], sizeof(SeaContent));
@@ -534,6 +562,12 @@ bool SceneAbstactContent::save_raw(string folder) {
 	fstream file;
 	file.open(path+"/scene.data", ios::out | ios::binary);
 	if (file.is_open()) {
+		//leaderboard
+		fileWrite_string(file, m_leaderboardName);
+		//terrain
+		fileWrite_ulong(file, m_terrainFiles.size());
+		for (size_t i = 0; i < m_terrainFiles.size(); i++)
+			fileWrite_string(file, m_terrainFiles[i]);
 		//seas
 		fileWrite_ulong(file, m_seaAreas.size());
 		for (size_t i = 0; i < m_seaAreas.size(); i++)
