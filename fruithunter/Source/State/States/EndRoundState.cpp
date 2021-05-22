@@ -30,8 +30,9 @@ void EndRoundState::init() {
 	//const SceneCompletion* savedData = SaveManager::getProgress(sceneName);
 	Scene* scene = SceneManager::getScene();
 	string sceneName = scene->m_sceneName;
-	size_t winTimeMs = scene->m_timer.getTimePassedAsMilliseconds();
-	TimeTargets winGrade = scene->getTimeTargetGrade(scene->m_timer.getTimePassedAsMilliseconds(), scene->m_utility.timeTargets);
+	time_t winTimeMs = scene->m_timer.getTimePassedAsMilliseconds();
+	TimeTargets winGrade = scene->getTimeTargetGrade(
+		scene->m_timer.getTimePassedAsMilliseconds(), scene->m_utility.timeTargets);
 	switch (winGrade) {
 	case GOLD:
 		setVictoryText("You earned GOLD");

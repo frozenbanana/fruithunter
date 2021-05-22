@@ -30,7 +30,7 @@ namespace ProgressStructs {
 	public:
 		struct SceneCompletion {
 			string scene = "";
-			size_t time = 0; // milliseconds
+			time_t time = 0; // milliseconds
 		};
 		vector<SceneCompletion> level_progress;
 
@@ -47,7 +47,7 @@ namespace ProgressStructs {
 	public:
 		struct SceneCompletion {
 			string scene = "";
-			size_t timeToComplete = 0; // milliseconds
+			time_t timeToComplete = 0; // milliseconds
 		};
 		vector<SceneCompletion> level_progress;
 
@@ -73,7 +73,7 @@ public:
 	static SaveManager* getInstance();
 
 	bool getLevelProgress(string scene, time_t& timeMs);
-	void setLevelProgress(string scene, size_t timeMs);
+	void setLevelProgress(string scene, time_t timeMs);
 };
 
 template <typename VAR> static void fileWrite(ofstream& file, const VAR& variable) {

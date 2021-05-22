@@ -44,7 +44,7 @@ void Scene::clear() {
 	PathFindingThread::unlock();
 }
 
-TimeTargets Scene::getTimeTargetGrade(size_t timeMs, size_t timeTargets[NR_OF_TIME_TARGETS]) {
+TimeTargets Scene::getTimeTargetGrade(time_t timeMs, time_t timeTargets[NR_OF_TIME_TARGETS]) {
 	for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++) {
 		if (timeMs <= timeTargets[i])
 			return (TimeTargets)i;

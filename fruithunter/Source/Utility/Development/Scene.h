@@ -85,7 +85,7 @@ public:
 	// Level utility info
 	struct SceneUtilityInfo {
 		int winCondition[NR_OF_FRUITS] = { 0 };
-		size_t timeTargets[NR_OF_TIME_TARGETS] = { 0 };
+		time_t timeTargets[NR_OF_TIME_TARGETS] = { 0 };
 		float3 startSpawn;
 	} m_utility;
 
@@ -176,7 +176,7 @@ public:
 	void reset();
 	void clear();
 
-	static TimeTargets getTimeTargetGrade(size_t timeMs, size_t timeTargets[NR_OF_TIME_TARGETS]);
+	static TimeTargets getTimeTargetGrade(time_t timeMs, time_t timeTargets[NR_OF_TIME_TARGETS]);
 	bool handleWin();
 
 	float getDeltaTime();
