@@ -44,25 +44,18 @@ void Scene::clear() {
 	PathFindingThread::unlock();
 }
 
-size_t Scene::getTime() { return  (size_t)round(m_timer.getTimePassed()); }
-
-TimeTargets Scene::getWinGrade() {
-	size_t time = (size_t)round(m_timer.getTimePassed());
-	TimeTargets grade = TimeTargets::NR_OF_TIME_TARGETS;
+TimeTargets Scene::getTimeTargetGrade(size_t timeMs, size_t timeTargets[NR_OF_TIME_TARGETS]) {
 	for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++) {
-		if (time <= m_utility.timeTargets[i]) {
-			grade = (TimeTargets)i;
-			break;
-		}
+		if (timeMs <= timeTargets[i])
+			return (TimeTargets)i;
 	}
-	return grade;
+	return NR_OF_TIME_TARGETS;
 }
 
 void Scene::saveWin() {
 	if (m_sceneName != "") {
-		size_t time = getTime();
-		TimeTargets grade = getWinGrade();
-		SaveManager::setProgress(m_sceneName, time, grade);
+		size_t time = m_timer.getTimePassedAsMilliseconds();
+		SaveManager::getInstance()->setLevelProgress(m_sceneName, time);
 	}
 }
 
@@ -483,72 +476,46 @@ float Scene::getDeltaTime() {
 
 float Scene::getDeltaTime_skipSlow() { return m_timer.getDt(); }
 
-void SceneAbstactContent::fileWrite_string(fstream& file, string str) { 
-	size_t length = str.length();
-	fileWrite_ulong(file, length);
-	file.write(str.c_str(),length); 
-}
-
-string SceneAbstactContent::fileRead_string(fstream& file) { 
-	size_t length = fileRead_ulong(file);
-	char* text = new char[length];
-	file.read(text, length);
-	string ret;
-	ret.insert(0,text, length);
-	delete[] text;
-	return ret;
-}
-
-void SceneAbstactContent::fileWrite_ulong(fstream& file, size_t v) {
-	file.write((char*)&v, sizeof(size_t));
-}
-
-size_t SceneAbstactContent::fileRead_ulong(fstream& file) { 
-	size_t ret;
-	file.read((char*)&ret, sizeof(size_t));
-	return ret;
-}
-
 bool SceneAbstactContent::load_raw(string folder) {
 	string path = path_scenes + folder;
-	fstream file;
+	ifstream file;
 	file.open(path+"/scene.data", ios::in | ios::binary);
 	if (file.is_open()) {
 		//leaderboard
-		m_leaderboardName = fileRead_string(file);
+		fileRead(file, m_leaderboardName);
 		// terrain
-		size_t size = fileRead_ulong(file);
+		size_t size = fileRead<size_t>(file);
 		m_terrainFiles.resize(size);
 		for (size_t i = 0; i < size; i++)
-			m_terrainFiles[i] = fileRead_string(file);
+			fileRead(file, m_terrainFiles[i]);
 		// seas
-		size = fileRead_ulong(file);
+		size = fileRead<size_t>(file);
 		m_seaAreas.resize(size);
 		for (size_t i = 0; i < size; i++)
-			file.read((char*)&m_seaAreas[i], sizeof(SeaContent));
+			fileRead<SeaContent>(file, m_seaAreas[i]);
 		// particlesystems
-		size = fileRead_ulong(file);
+		size = fileRead<size_t>(file);
 		m_particleSystemContents.resize(size);
 		for (size_t i = 0; i < size; i++)
-			file.read((char*)&m_particleSystemContents[i], sizeof(ParticleSystemContent));
+			fileRead<ParticleSystemContent>(file, m_particleSystemContents[i]);
 		// entities
-		size = fileRead_ulong(file);
+		size = fileRead<size_t>(file);
 		m_entities.resize(size);
 		for (size_t i = 0; i < size; i++) {
-			m_entities[i].model = fileRead_string(file);
-			size_t subSize = fileRead_ulong(file);
+			fileRead(file, m_entities[i].model);
+			size_t subSize = fileRead<size_t>(file);
 			m_entities[i].instances.resize(subSize);
 			file.read(
 				(char*)m_entities[i].instances.data(), sizeof(GroupInstance::Instance) * subSize);
 		}
 		//animals
-		size = fileRead_ulong(file);
+		size = fileRead<size_t>(file);
 		m_animals.resize(size);
 		for (size_t i = 0; i < size; i++) {
-			file.read((char*)&m_animals[i], sizeof(AnimalContent));
+			fileRead<AnimalContent>(file, m_animals[i]);
 		}
 		// utility
-		file.read((char*)&m_utility, sizeof(SceneUtilityInfo));
+		fileRead<SceneUtilityInfo>(file, m_utility);
 
 		file.close();
 		return true;
@@ -559,38 +526,38 @@ bool SceneAbstactContent::load_raw(string folder) {
 bool SceneAbstactContent::save_raw(string folder) { 
 	string path = path_scenes + folder;
 	create_directory(path);
-	fstream file;
+	ofstream file;
 	file.open(path+"/scene.data", ios::out | ios::binary);
 	if (file.is_open()) {
 		//leaderboard
-		fileWrite_string(file, m_leaderboardName);
+		fileWrite(file, m_leaderboardName);
 		//terrain
-		fileWrite_ulong(file, m_terrainFiles.size());
+		fileWrite<size_t>(file, m_terrainFiles.size());
 		for (size_t i = 0; i < m_terrainFiles.size(); i++)
-			fileWrite_string(file, m_terrainFiles[i]);
+			fileWrite(file, m_terrainFiles[i]);
 		//seas
-		fileWrite_ulong(file, m_seaAreas.size());
+		fileWrite<size_t>(file, m_seaAreas.size());
 		for (size_t i = 0; i < m_seaAreas.size(); i++)
 			file.write((char*)&m_seaAreas[i], sizeof(SeaContent));
 		//particlesystems
-		fileWrite_ulong(file, m_particleSystemContents.size());
+		fileWrite<size_t>(file, m_particleSystemContents.size());
 		for (size_t i = 0; i < m_particleSystemContents.size(); i++)
-			file.write((char*)&m_particleSystemContents[i], sizeof(ParticleSystemContent));
+			fileWrite<ParticleSystemContent>(file, m_particleSystemContents[i]);
 		//entities
-		fileWrite_ulong(file, m_entities.size());
+		fileWrite<size_t>(file, m_entities.size());
 		for (size_t i = 0; i < m_entities.size(); i++) {
-			fileWrite_string(file, m_entities[i].model);
-			fileWrite_ulong(file, m_entities[i].instances.size());
+			fileWrite(file, m_entities[i].model);
+			fileWrite<size_t>(file, m_entities[i].instances.size());
 			file.write((char*)m_entities[i].instances.data(),
 				sizeof(GroupInstance::Instance) * m_entities[i].instances.size());
 		}
 		//animals
-		fileWrite_ulong(file, m_animals.size());
+		fileWrite<size_t>(file, m_animals.size());
 		for (size_t i = 0; i < m_animals.size(); i++) {
-			file.write((char*)&m_animals[i], sizeof(AnimalContent));
+			fileWrite<AnimalContent>(file, m_animals[i]);
 		}
 		//utility
-		file.write((char*)&m_utility, sizeof(SceneUtilityInfo));
+		fileWrite<SceneUtilityInfo>(file, m_utility);
 
 		file.close();
 		return true;

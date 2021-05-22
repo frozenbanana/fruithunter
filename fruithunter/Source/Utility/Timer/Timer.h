@@ -5,15 +5,16 @@ class Timer {
 public:
 	Timer();
 	void update();
-	float getTimePassed();
+	double getTimePassed();
+	size_t getTimePassedAsMilliseconds() const;
 	string getTimeToString();
-	float getDt();
+	double getDt();
 	void reset();
 
 private:
 	clock_t m_timer;
-	float m_frequencySeconds;
-	float m_startTime;
-	float m_totalTime;
-	float m_elapsedTime;
+	const clock_t MILLISECONDS_IN_SECONDS = 1000;
+	clock_t m_time_start;
+	clock_t m_time_total;
+	clock_t m_time_frame;
 };

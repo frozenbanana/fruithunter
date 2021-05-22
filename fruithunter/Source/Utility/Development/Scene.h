@@ -19,12 +19,6 @@
  * Handles the file information structure
 */
 class SceneAbstactContent {
-public:
-	static void fileWrite_string(fstream& file, string str);
-	static string fileRead_string(fstream& file);
-	static void fileWrite_ulong(fstream& file, size_t v);
-	static size_t fileRead_ulong(fstream& file);
-
 private:
 	string folder = "";
 	const string path_scenes = "assets/Scenes/";
@@ -91,7 +85,7 @@ public:
 	// Level utility info
 	struct SceneUtilityInfo {
 		int winCondition[NR_OF_FRUITS] = { 0 };
-		int timeTargets[NR_OF_TIME_TARGETS] = { 0 };
+		size_t timeTargets[NR_OF_TIME_TARGETS] = { 0 };
 		float3 startSpawn;
 	} m_utility;
 
@@ -182,8 +176,7 @@ public:
 	void reset();
 	void clear();
 
-	size_t getTime();
-	TimeTargets getWinGrade();
+	static TimeTargets getTimeTargetGrade(size_t timeMs, size_t timeTargets[NR_OF_TIME_TARGETS]);
 	bool handleWin();
 
 	float getDeltaTime();

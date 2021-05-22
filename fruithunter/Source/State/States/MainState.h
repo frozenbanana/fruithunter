@@ -96,8 +96,6 @@ private:
 	void setButtons_levelSelect();
 	void setButtons_credits();
 
-	static string asTimer(size_t seconds);
-
 	void changeToLevel(size_t levelIndex);
 
 	void changeMainState(MainStateType state);
