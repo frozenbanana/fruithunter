@@ -45,11 +45,9 @@ private:
 
 	//-- Private Functions --
 
-	void drawTargetTime();
-
 	void imgui_tickSetting();
 
-	void drawClock(float2 position, float scale, int time, float4 color);
+	void drawClock(float2 position, float scale, size_t timeMs, float4 color);
 
 public:
 	HUD();

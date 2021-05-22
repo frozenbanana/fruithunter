@@ -4,38 +4,10 @@
 #include "ErrorLogger.h"
 #include "SceneManager.h"
 
-void HUD::drawTargetTime() {
-	// Get time passed in seconds
-	float timePassed = SceneManager::getScene()->m_timer.getTimePassed();
-
-	int* timeTargets = SceneManager::getScene()->m_utility.timeTargets;
-	//find index of achieved target
-	int index = NR_OF_TIME_TARGETS; // holds index for timeTargets. If no targetTime is achieved then nr_of_targets is defined as null. 
-	for (int i = 0; i < NR_OF_TIME_TARGETS; i++) {
-		if (timePassed < timeTargets[i]) {
-			index = i;
-			break;
-		}
-	}
-	//set color and time target
-	float4 color = m_targetColors[index];
-	int target = timeTargets[BRONZE]; // no target (time)
-	if (index != NR_OF_TIME_TARGETS)
-		target = timeTargets[index];
-	string timeString = Time2DisplayableString(target);
-	//draw target time
-	wstring w_timeString = std::wstring(timeString.begin(), timeString.end());
-	m_text_time.setColor(color);
-	m_text_time.setScale(0.4f);
-	m_text_time.setAlignment(HorizontalAlignment::AlignMiddle, VerticalAlignment::AlignCenter);
-	m_text_time.setPosition(m_stopwatch.getPosition() + float2(0.5f,-0.55f)*m_stopwatch.getSize());
-	m_text_time.setText(timeString);
-	m_text_time.draw();
-}
-
-void HUD::drawClock(float2 position, float scale, int time, float4 color) {
-	int minutes = time / 60;
-	int seconds = (int)time % 60;
+void HUD::drawClock(float2 position, float scale, size_t timeMs, float4 color) {
+	size_t milliseconds = timeMs % 1000;
+	size_t seconds = (timeMs / 1000) % 60;
+	size_t minutes = (timeMs / 1000) / 60;
 
 	m_text_time.setColor(color);
 	m_text_time.setScale(scale);
@@ -142,30 +114,27 @@ void HUD::draw() {
 	m_slowmo.draw();
 
 	// Draw time and target time
-	int* timeTargets = SceneManager::getScene()->m_utility.timeTargets;
-	float time = SceneManager::getScene()->m_timer.getTimePassed();
-	string timeString = Time2DisplayableString((size_t)time);
-	int minutes = time / 60;
-	int seconds = (int)time % 60;
+	size_t* timeTargets = SceneManager::getScene()->m_utility.timeTargets;
+	size_t timeMs = SceneManager::getScene()->m_timer.getTimePassedAsMilliseconds();
+	string timeString = Milliseconds2DisplayableString(timeMs);
 	// stopwatch
-	m_stopwatch.setAnimationFactor(time / timeTargets[TimeTargets::BRONZE]);
+	m_stopwatch.setAnimationFactor((float)timeMs / timeTargets[TimeTargets::BRONZE]);
 	m_stopwatch.setFadeLength(0.01f);
 	m_stopwatch.draw();
 	float2 stopwatchCenter =
 		m_stopwatch.getPosition() + float2(0.5f, -(1 - 0.587f)) * m_stopwatch.getSize();
 	// time
-	drawClock(stopwatchCenter + float2(0, m_stopwatch.getSize().y * 0.05f), 0.475f, time,
+	drawClock(stopwatchCenter + float2(0, m_stopwatch.getSize().y * 0.05f), 0.475f, timeMs,
 		float4(1, 1, 1, 1));
 	// time target
-	float timePassed = SceneManager::getScene()->m_timer.getTimePassed();
 	int index = NR_OF_TIME_TARGETS;
 	for (int i = 0; i < NR_OF_TIME_TARGETS; i++) {
-		if (timePassed < timeTargets[i]) {
+		if (timeMs <= timeTargets[i]) {
 			index = i;
 			break;
 		}
 	}
-	int timeTarget = (index != NR_OF_TIME_TARGETS) ? timeTargets[index]
+	size_t timeTarget = (index != NR_OF_TIME_TARGETS) ? timeTargets[index]
 												   : timeTargets[BRONZE];
 	drawClock(stopwatchCenter + float2(0, m_stopwatch.getSize().y * -0.125f), 0.4f, timeTarget,
 		m_targetColors[index]);

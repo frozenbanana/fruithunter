@@ -28,9 +28,10 @@ void EndRoundState::init() {
 	m_spr_background.setAlignment(); // center
 
 	//const SceneCompletion* savedData = SaveManager::getProgress(sceneName);
-	string sceneName = SceneManager::getScene()->m_sceneName;
-	size_t winTime = SceneManager::getScene()->getTime();
-	TimeTargets winGrade = SceneManager::getScene()->getWinGrade();
+	Scene* scene = SceneManager::getScene();
+	string sceneName = scene->m_sceneName;
+	size_t winTimeMs = scene->m_timer.getTimePassedAsMilliseconds();
+	TimeTargets winGrade = scene->getTimeTargetGrade(scene->m_timer.getTimePassedAsMilliseconds(), scene->m_utility.timeTargets);
 	switch (winGrade) {
 	case GOLD:
 		setVictoryText("You earned GOLD");
@@ -61,10 +62,10 @@ void EndRoundState::init() {
 		setParticleColorByPrize(BRONZE);
 		break;
 	}
-	setTimeText("Time   " + Time2DisplayableString(winTime) + " min");
+	setTimeText("Time   " + Milliseconds2DisplayableString(winTimeMs) + " min");
 
-	if (!DEBUG || true) {
-		m_leaderboard_score = winTime;
+	if (!DEBUG) {
+		m_leaderboard_score = winTimeMs;
 		string leaderboard = SceneManager::getScene()->m_leaderboardName;
 		if (leaderboard != "")
 			m_leaderboard.FindLeaderboard(leaderboard.c_str());
@@ -95,7 +96,7 @@ void EndRoundState::update() {
 		pop(State::MainState, false);
 	}
 
-	if (!DEBUG || true) {
+	if (!DEBUG) {
 		if (m_leaderboard.getRequestState_UploadScore() ==
 				CSteamLeaderboard::RequestState::r_inactive &&
 			m_leaderboard.getRequestState_FindLeaderboard() ==

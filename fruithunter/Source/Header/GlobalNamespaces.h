@@ -73,12 +73,22 @@ static float4x4 CreatePYRMatrix(float3 rotation) {
 		   float4x4::CreateRotationY(rotation.y);
 }
 
-static string Time2DisplayableString(size_t time) {
-	size_t total = time;
-	size_t minutes = total / 60;
+static string Seconds2DisplayableString(size_t timeSeconds) {
+	size_t total = timeSeconds;
 	size_t seconds = total % 60;
+	size_t minutes = total / 60;
 	return (minutes < 10 ? "0" : "") + to_string(minutes) + ":" + (seconds < 10 ? "0" : "") +
 		   to_string(seconds);
+}
+static string Milliseconds2DisplayableString(size_t timeMs) {
+	size_t total = timeMs;
+	size_t milliseconds = total % 1000;
+	size_t seconds = (total / 1000) % 60;
+	size_t minutes = (total / 1000) / 60;
+	return 
+		(minutes < 10 ? "0" : "") + to_string(minutes) + ":" + 
+		(seconds < 10 ? "0" : "") + to_string(seconds) + "." + 
+		(milliseconds < 10 ? "00" : (milliseconds < 100 ? "0" : "")) + to_string(milliseconds);
 }
 
 // Helper Math functions

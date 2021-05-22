@@ -204,7 +204,7 @@ void SceneEditorManager::update_imgui_gameRules() {
 	for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++) {
 		ImGui::SetNextItemWidth(100);
 		ImGui::InputInt(("Time Target (" + TimeTargetToString((TimeTargets)i) + ")").c_str(),
-			&scene->m_utility.timeTargets[i]);
+			(int*)&scene->m_utility.timeTargets[i]);
 	}
 	if (ImGui::Button("FromPoint"))
 		scene->m_utility.startSpawn = m_pointer;

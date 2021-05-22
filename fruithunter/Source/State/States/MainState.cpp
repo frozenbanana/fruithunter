@@ -25,14 +25,6 @@ void MainState::setButtons_credits() {
 	m_btn_credits_back.set(float2(150, 720 - 75), "Back", 0);
 }
 
-string MainState::asTimer(size_t total) { 
-	int minutes = total / 60;
-	int seconds = total % 60;
-	string str = (minutes < 10 ? "0" : "") + to_string(minutes) + ":" + (seconds < 10 ? "0" : "") +
-				 to_string(seconds);
-	return str;
-}
-
 void MainState::changeToLevel(size_t levelIndex) {
 	AudioController::getInstance()->flush();
 	SceneManager::getScene()->load("scene" + to_string(levelIndex));
@@ -377,7 +369,8 @@ void MainState::draw() {
 					m_textRenderer.setScale(0.25f);
 					m_textRenderer.setPosition(cur_coinPos + float2(25, 0));
 					m_textRenderer.setText(
-						asTimer(m_levelData[i].m_utility.timeTargets[c]) + " min");
+						Seconds2DisplayableString(m_levelData[i].m_utility.timeTargets[c]/1000) +
+						" min");
 					m_textRenderer.draw();
 				}
 			}
@@ -437,13 +430,20 @@ void MainState::play() {
 	string bowlGradeObjName[TimeTargets::NR_OF_TIME_TARGETS+1] = { "bowl_gold", "bowl_silver",
 		"bowl_bronze" , "bowl_bronze"};
 	for (size_t i = 0; i < 3; i++) {
-		const SceneCompletion* cp = SaveManager::getProgress("scene" + to_string(i));
-		bool completed = false;
-		TimeTargets grade = TimeTargets::BRONZE;
-		if (cp) {
-			completed = cp->isCompleted();
-			grade = cp->grade;
+		string scene = "scene" + to_string(i);
+		SceneAbstactContent sceneContent;
+		sceneContent.load_raw(scene);
+		size_t timeTargets[NR_OF_TIME_TARGETS];
+		for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++)
+			timeTargets[i] = sceneContent.m_utility.timeTargets[i];
+
+		time_t timeMs;
+		TimeTargets grade = TimeTargets::NR_OF_TIME_TARGETS;
+		if (SaveManager::getInstance()->getLevelProgress(scene, timeMs)) {
+			grade = SceneManager::getScene()->getTimeTargetGrade(timeMs, timeTargets);
 		}
+		bool completed = (grade != TimeTargets::NR_OF_TIME_TARGETS);
+
 		float3 position = bowlPositions[i];
 
 		m_levelSelections[i].obj_bowl.load(bowlGradeObjName[grade]);
