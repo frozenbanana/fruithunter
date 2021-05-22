@@ -54,6 +54,7 @@ private:
 		// description and info
 		string name = "";
 		bool completed = false;
+		size_t timeMs = 0;
 		TimeTargets grade = TimeTargets::BRONZE;
 	};
 	LevelOption m_levelSelections[3];

@@ -66,7 +66,7 @@ bool SaveManager::getLevelProgress(string scene, time_t& timeMs) {
 	return false;
 }
 
-void SaveManager::setLevelProgress(string scene, size_t timeMs) {
+void SaveManager::setLevelProgress(string scene, time_t timeMs) {
 	if (scene != "") {
 		bool update = false;
 		bool found = false;
@@ -102,7 +102,7 @@ void ProgressStructs::PlayerProgression_1_0::_read(ifstream& file) {
 			// scene
 			fileRead(file, level_progress[i].scene);
 			// time to complete
-			fileRead<size_t>(file, level_progress[i].timeToComplete);
+			fileRead<time_t>(file, level_progress[i].timeToComplete);
 		}
 	}
 }
@@ -165,7 +165,7 @@ void ProgressStructs::PlayerProgression_Test::_read(ifstream& file) {
 			// scene
 			fileRead(file, level_progress[i].scene);
 			// time to complete
-			fileRead<size_t>(file, level_progress[i].time);
+			fileRead<time_t>(file, level_progress[i].time);
 		}
 	}
 }

@@ -16,7 +16,7 @@ void Timer::update() {
 
 double Timer::getTimePassed() { return (double)m_time_total / MILLISECONDS_IN_SECONDS; }
 
-size_t Timer::getTimePassedAsMilliseconds() const { return (size_t)m_time_total; }
+time_t Timer::getTimePassedAsMilliseconds() const { return (time_t)m_time_total; }
 
 void Timer::reset() {
 	m_timer = clock();

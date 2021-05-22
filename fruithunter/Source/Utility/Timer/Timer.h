@@ -6,7 +6,7 @@ public:
 	Timer();
 	void update();
 	double getTimePassed();
-	size_t getTimePassedAsMilliseconds() const;
+	time_t getTimePassedAsMilliseconds() const;
 	string getTimeToString();
 	double getDt();
 	void reset();

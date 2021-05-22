@@ -47,7 +47,7 @@ private:
 
 	void imgui_tickSetting();
 
-	void drawClock(float2 position, float scale, size_t timeMs, float4 color);
+	void drawClock(float2 position, float scale, time_t timeMs, float4 color);
 
 public:
 	HUD();

@@ -60,7 +60,7 @@ void MainState::init() {
 		"coin_bronze.png" };
 	for (size_t i = 0; i < TimeTargets::NR_OF_TIME_TARGETS; i++) {
 		m_medalSprites[i].load(medalSpriteNames[i]);
-		m_medalSprites[i].setScale(0.04f);
+		m_medalSprites[i].setScale(0.03f);
 		m_medalSprites[i].setAlignment();
 	}
 
@@ -350,11 +350,21 @@ void MainState::draw() {
 				m_textRenderer.setPosition(itemPos + float2(0, -82));
 				m_textRenderer.setText(m_levelSelections[i].name);
 				m_textRenderer.draw();
+				// best time
+				m_textRenderer.setAlignment(HorizontalAlignment::AlignLeft); // center
+				m_textRenderer.setScale(0.25f);
+				m_textRenderer.setAlpha(alpha);
+				m_textRenderer.setPosition(itemPos + float2(-100, -43));
+				string timeStr = "--:--.---";
+				if (m_levelSelections[i].grade != NR_OF_TIME_TARGETS)
+					timeStr = Milliseconds2DisplayableString(m_levelSelections[i].timeMs);
+				m_textRenderer.setText("Best: " + timeStr);
+				m_textRenderer.draw();
 				// grade
-				float2 coinPos = itemPos + float2(-85, -30);
+				float2 coinPos = itemPos + float2(-85, -10);
 				for (int c = 0; c < TimeTargets::NR_OF_TIME_TARGETS; c++) {
 					// coin medal
-					float2 cur_coinPos = coinPos + float2(0, c * 45);
+					float2 cur_coinPos = coinPos + float2(0, c * 35);
 					if (m_levelSelections[i].completed && m_levelSelections[i].grade <= c)
 						m_medalSprites[c].setColor(float4(1, 1, 1, 1));
 					else
@@ -366,7 +376,7 @@ void MainState::draw() {
 					m_textRenderer.setAlignment(HorizontalAlignment::AlignLeft,
 						VerticalAlignment::AlignCenter);
 					m_textRenderer.setAlpha(alpha);
-					m_textRenderer.setScale(0.25f);
+					m_textRenderer.setScale(0.2f);
 					m_textRenderer.setPosition(cur_coinPos + float2(25, 0));
 					m_textRenderer.setText(
 						Seconds2DisplayableString(m_levelData[i].m_utility.timeTargets[c]/1000) +
@@ -433,14 +443,12 @@ void MainState::play() {
 		string scene = "scene" + to_string(i);
 		SceneAbstactContent sceneContent;
 		sceneContent.load_raw(scene);
-		size_t timeTargets[NR_OF_TIME_TARGETS];
-		for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++)
-			timeTargets[i] = sceneContent.m_utility.timeTargets[i];
 
-		time_t timeMs;
+		time_t timeMs = 0;
 		TimeTargets grade = TimeTargets::NR_OF_TIME_TARGETS;
 		if (SaveManager::getInstance()->getLevelProgress(scene, timeMs)) {
-			grade = SceneManager::getScene()->getTimeTargetGrade(timeMs, timeTargets);
+			grade = SceneManager::getScene()->getTimeTargetGrade(
+				timeMs, sceneContent.m_utility.timeTargets);
 		}
 		bool completed = (grade != TimeTargets::NR_OF_TIME_TARGETS);
 
@@ -456,6 +464,7 @@ void MainState::play() {
 
 		m_levelSelections[i].completed = completed;
 		m_levelSelections[i].grade = grade;
+		m_levelSelections[i].timeMs = timeMs;
 
 		float2 desiredItemPos =
 			float2(1280.f / 2 + itemWidthOffset * i - totalItemWidth * 0.5f, 720 - 250);

@@ -4,10 +4,10 @@
 #include "ErrorLogger.h"
 #include "SceneManager.h"
 
-void HUD::drawClock(float2 position, float scale, size_t timeMs, float4 color) {
-	size_t milliseconds = timeMs % 1000;
-	size_t seconds = (timeMs / 1000) % 60;
-	size_t minutes = (timeMs / 1000) / 60;
+void HUD::drawClock(float2 position, float scale, time_t timeMs, float4 color) {
+	time_t milliseconds = timeMs % 1000;
+	time_t seconds = (timeMs / 1000) % 60;
+	time_t minutes = (timeMs / 1000) / 60;
 
 	m_text_time.setColor(color);
 	m_text_time.setScale(scale);
@@ -114,8 +114,8 @@ void HUD::draw() {
 	m_slowmo.draw();
 
 	// Draw time and target time
-	size_t* timeTargets = SceneManager::getScene()->m_utility.timeTargets;
-	size_t timeMs = SceneManager::getScene()->m_timer.getTimePassedAsMilliseconds();
+	time_t* timeTargets = SceneManager::getScene()->m_utility.timeTargets;
+	time_t timeMs = SceneManager::getScene()->m_timer.getTimePassedAsMilliseconds();
 	string timeString = Milliseconds2DisplayableString(timeMs);
 	// stopwatch
 	m_stopwatch.setAnimationFactor((float)timeMs / timeTargets[TimeTargets::BRONZE]);
@@ -134,7 +134,7 @@ void HUD::draw() {
 			break;
 		}
 	}
-	size_t timeTarget = (index != NR_OF_TIME_TARGETS) ? timeTargets[index]
+	time_t timeTarget = (index != NR_OF_TIME_TARGETS) ? timeTargets[index]
 												   : timeTargets[BRONZE];
 	drawClock(stopwatchCenter + float2(0, m_stopwatch.getSize().y * -0.125f), 0.4f, timeTarget,
 		m_targetColors[index]);
