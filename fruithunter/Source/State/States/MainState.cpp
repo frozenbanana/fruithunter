@@ -66,7 +66,6 @@ void MainState::init() {
 
 	m_img_keylock.load("keylock.png");
 	m_img_keylock.setAlignment();// center
-	m_img_keylock.setScale(0.85);
 
 	m_ps_selected.load(ParticleSystem::Type::LEVELSELECT_SELECTION, 30);
 	m_ps_selected.setScale(float3(0.6, 0.3, 0.6));
@@ -334,15 +333,15 @@ void MainState::draw() {
 			m_levelItem_background.setPosition(itemPos);
 			m_levelItem_background.setAlpha(alpha);
 			m_levelItem_background.draw();
+			// level index
+			m_textRenderer.setAlignment(); // center
+			m_textRenderer.setScale(0.4f);
+			m_textRenderer.setAlpha(alpha);
+			m_textRenderer.setPosition(itemPos + float2(115, 80));
+			m_textRenderer.setText(to_string(i + 1));
+			m_textRenderer.draw();
 
 			if (i == 0 || m_levelSelections[i - 1].completed) {
-				// level index
-				m_textRenderer.setAlignment(); // center
-				m_textRenderer.setScale(0.4f);
-				m_textRenderer.setAlpha(alpha);
-				m_textRenderer.setPosition(itemPos + float2(115, 80));
-				m_textRenderer.setText(to_string(i+1));
-				m_textRenderer.draw();
 				// text
 				m_textRenderer.setAlignment(); // center
 				m_textRenderer.setScale(0.25f);
@@ -386,9 +385,17 @@ void MainState::draw() {
 			}
 			else {
 				// level locked
-				m_img_keylock.setPosition(itemPos);
+				m_img_keylock.setPosition(itemPos + float2(0, 20));
+				m_img_keylock.setScale(0.65);
 				m_img_keylock.setAlpha(alpha);
 				m_img_keylock.draw();
+				// text (unlok previous)
+				m_textRenderer.setAlignment(); // center
+				m_textRenderer.setScale(0.25f);
+				m_textRenderer.setAlpha(alpha);
+				m_textRenderer.setPosition(itemPos + float2(0, -45));
+				m_textRenderer.setText("Complete  Previous");
+				m_textRenderer.draw();
 			}
 		}
 	}
