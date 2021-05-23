@@ -31,7 +31,7 @@ private:
 		Disabled,
 		Waiting,
 		Failed,
-		Finished
+		Finished 
 	} m_uploadState;
 
 	Menu_PoppingButton m_btn_play;

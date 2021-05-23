@@ -99,7 +99,7 @@ void EndRoundState::update() {
 	// update upload score state
 	if (m_leaderboard.getRequestState_FindLeaderboard() ==
 		CSteamLeaderboard::RequestState::r_inactive)
-		m_uploadState == UploadState::Disabled;
+		m_uploadState = UploadState::Disabled;
 	else if (m_leaderboard.getRequestState_FindLeaderboard() ==
 			CSteamLeaderboard::RequestState::r_failed ||
 		m_leaderboard.getRequestState_UploadScore() == 
