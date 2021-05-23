@@ -611,7 +611,7 @@ void Terrain::SubGrid::generate_terrain(XMINT2 tileSize, XMINT2 gridIndex, Heigh
 
 	vector<TerrainVertex>* vertices = &m_vertices;
 	vertices->clear();
-	vertices->reserve((tileSize.x) * (tileSize.y) * 6 + 6);
+	vertices->reserve((size_t)tileSize.x * tileSize.y * 6 + 6);
 
 	XMINT2 indexStart(gridIndex.x * tileSize.x, gridIndex.y * tileSize.y);
 	XMINT2 indexStop(indexStart.x + tileSize.x, indexStart.y + tileSize.y);

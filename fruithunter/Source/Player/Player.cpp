@@ -6,7 +6,7 @@
 #include "Settings.h"
 #include "SceneManager.h"
 
-Player::Player() { m_jumpDust.load(ParticleSystem::Type::JUMP_DUST, 0, m_dustAmount*2); }
+Player::Player() { m_jumpDust.load(ParticleSystem::Type::JUMP_DUST, 0, (size_t)m_dustAmount*2); }
 
 Player::~Player() {}
 
