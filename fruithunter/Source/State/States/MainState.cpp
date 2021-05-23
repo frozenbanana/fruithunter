@@ -8,7 +8,7 @@ void MainState::setButtons_menu() {
 	string buttonTexts[btn_length] = { "Start", "Settings", "Exit", "Editor" };
 	float2 btn_pos_start(200, 400);
 	float btn_stride_y = 85;
-	float btn_delay_stride = 0.1;
+	float btn_delay_stride = 0.1f;
 	for (size_t i = 0; i < btn_length; i++) {
 		m_btn_menu_buttons[i].set(
 			btn_pos_start + float2(0, btn_stride_y) * i, buttonTexts[i], btn_delay_stride * i);
@@ -18,7 +18,7 @@ void MainState::setButtons_menu() {
 
 void MainState::setButtons_levelSelect() {
 	m_btn_levelSelect_back.set(float2(1280 - 150, 720 - 75), "Back", 0);
-	m_btn_levelSelect_play.set(float2(1280 / 2, 720 - 75), "Play", 0.2);
+	m_btn_levelSelect_play.set(float2(1280 / 2, 720 - 75), "Play", 0.2f);
 }
 
 void MainState::setButtons_credits() {
@@ -54,7 +54,7 @@ void MainState::init() {
 	m_levelItem_background.load("back_level.png");
 	m_levelItem_background.setColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
 	m_levelItem_background.setAlignment(); // center
-	m_levelItem_background.setScale(0.7);
+	m_levelItem_background.setScale(0.7f);
 
 	string medalSpriteNames[TimeTargets::NR_OF_TIME_TARGETS] = { "coin_gold.png", "coin_silver.png",
 		"coin_bronze.png" };
@@ -68,7 +68,7 @@ void MainState::init() {
 	m_img_keylock.setAlignment();// center
 
 	m_ps_selected.load(ParticleSystem::Type::LEVELSELECT_SELECTION, 30);
-	m_ps_selected.setScale(float3(0.6, 0.3, 0.6));
+	m_ps_selected.setScale(float3(0.6f, 0.3f, 0.6f));
 
 	m_letters.resize(11);
 	string logoPaths[11] = {
@@ -100,7 +100,7 @@ void MainState::update() {
 	float3 bowPos = treePos + float3(10, 1.5, 5);
 
 	m_timer.update();
-	float dt = m_timer.getDt();
+	float dt = (float)m_timer.getDt();
 	m_totalDelta = fmod((m_totalDelta + dt), (2.f * XM_PI));
 	m_totalDelta_forBow += dt;
 
@@ -133,8 +133,8 @@ void MainState::update() {
 	float fruitAnimationCycle = 1 / 4.f + 1 / 5.f + 1 / 2.0f + 1 / 1.9f + 1 / 4.f + 1 / 2.f; // apple frame speeds, added together
 	Fruit* fruit = m_apple.get();
 	float3 fruitPosition = treePos; // center fruit on tree
-	fruitPosition += float3(cos(m_totalDelta)*2, 0.4, sin(m_totalDelta)*2); // walk around center
-	fruitPosition.y += abs(sin(m_totalDelta * 4 - 0.5)) * 0.5; // fruit jump
+	fruitPosition += float3(cos(m_totalDelta)*2.f, 0.4f, sin(m_totalDelta)*2.f); // walk around center
+	fruitPosition.y += abs(sin(m_totalDelta * 4.f - 0.5f)) * 0.5f; // fruit jump
 	fruit->setPosition(fruitPosition);
 	fruit->updateAnimated(8 * dt * fruitAnimationCycle / (2.f * XM_PI));
 	fruit->setRotation(float3(0.0f, -m_totalDelta, 0.0f));
@@ -144,7 +144,7 @@ void MainState::update() {
 			// Logo update
 			float offsetX = 1280.f / 16.f;
 			float offsetY = 720.f / 6.0f;
-			float t = m_timer.getTimePassed();
+			float t = (float)m_timer.getTimePassed();
 			for (size_t i = 0; i < m_letters.size(); i++) {
 				float2 movement = float2(sin(t + m_letters[i].speedOffset.x),
 									  cos(t + m_letters[i].speedOffset.y)) *
@@ -206,7 +206,7 @@ void MainState::update() {
 					float2 mp = ip->mouseXY();
 					if (m_levelItem_background.getBoundingBox().isInside(mp)) {
 						// hovering frame
-						m_levelHighlighted = i;
+						m_levelHighlighted = (int)i;
 						if (ip->mousePressed(Input::LEFT)) {
 							// clicked frame
 							changeToLevel(m_levelHighlighted);
@@ -247,7 +247,7 @@ void MainState::update() {
 
 	// update level selection particlesystem effect
 	m_ps_selected.setPosition(
-		m_levelSelections[m_levelHighlighted].obj_bowl.getPosition() + float3(0, 0.2, 0));
+		m_levelSelections[m_levelHighlighted].obj_bowl.getPosition() + float3(0, 0.2f, 0));
 	m_ps_selected.update(dt);
 
 }
@@ -266,7 +266,7 @@ void MainState::draw() {
 	// custom drawing (with darkoutlines)
 	for (size_t i = 0; i < 3; i++) {
 		if (i == 0 || m_levelSelections[i - 1].completed) {
-			float3 highlightColor = float3(1.) * (m_levelHighlighted == i ? 1 : 0.3);
+			float3 highlightColor = float3(1.f) * (m_levelHighlighted == i ? 1.f : 0.3f);
 			m_levelSelections[i].obj_bowl.draw(highlightColor);
 			if (m_levelSelections[i].completed)
 				m_levelSelections[i].obj_content.draw(highlightColor);
@@ -363,7 +363,7 @@ void MainState::draw() {
 				float2 coinPos = itemPos + float2(-85, -10);
 				for (int c = 0; c < TimeTargets::NR_OF_TIME_TARGETS; c++) {
 					// coin medal
-					float2 cur_coinPos = coinPos + float2(0, c * 35);
+					float2 cur_coinPos = coinPos + float2(0, c * 35.f);
 					if (m_levelSelections[i].completed && m_levelSelections[i].grade <= c)
 						m_medalSprites[c].setColor(float4(1, 1, 1, 1));
 					else
@@ -386,7 +386,7 @@ void MainState::draw() {
 			else {
 				// level locked
 				m_img_keylock.setPosition(itemPos + float2(0, 20));
-				m_img_keylock.setScale(0.65);
+				m_img_keylock.setScale(0.65f);
 				m_img_keylock.setAlpha(alpha);
 				m_img_keylock.draw();
 				// text (unlok previous)
@@ -439,9 +439,9 @@ void MainState::play() {
 	float totalItemWidth = itemWidthOffset * (3 - 1);
 
 	float3 bowlPositions[3] = { 
-		float3(67.455,10.528,20.378), 
-		float3(66.942,10.528,19.874),
-		float3(66.410,10.528,19.344) 
+		float3(67.455f,10.528f,20.378f), 
+		float3(66.942f,10.528f,19.874f),
+		float3(66.410f,10.528f,19.344f) 
 	};
 	string bowlLevelContentObjName[3] = { "BowlContent1", "BowlContent2", "BowlContent3" };
 	string bowlGradeObjName[TimeTargets::NR_OF_TIME_TARGETS+1] = { "bowl_gold", "bowl_silver",
@@ -465,7 +465,7 @@ void MainState::play() {
 		m_levelSelections[i].obj_content.load(bowlLevelContentObjName[i]);
 		m_levelSelections[i].obj_bowl.setPosition(position);
 		m_levelSelections[i].obj_content.setPosition(position);
-		float bowlScale = 0.4;
+		float bowlScale = 0.4f;
 		m_levelSelections[i].obj_bowl.setScale(bowlScale);
 		m_levelSelections[i].obj_content.setScale(bowlScale);
 
@@ -489,7 +489,7 @@ void MainState::play() {
 
 	// Credits Setup
 	m_obj_creditsSign.load("CreditsSign");
-	float c = 1.2;
+	float c = 1.2f;
 	float3 pos = m_camTransformStates[MainStateType::Credits].position;
 	float3 tar = m_camTransformStates[MainStateType::Credits].target;
 	float3 dir = Normalize(tar - pos);

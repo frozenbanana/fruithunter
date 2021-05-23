@@ -83,7 +83,7 @@ void EndRoundState::update() {
 	Input::getInstance()->setMouseModeAbsolute();
 
 	m_timer.update();
-	float dt = m_timer.getDt();
+	float dt = (float)m_timer.getDt();
 	m_bowl.rotateY(dt * 0.5f);
 	m_bowlContent.rotateY(dt * 0.5f);
 	m_particleSystem.update(dt);
@@ -93,7 +93,7 @@ void EndRoundState::update() {
 			CSteamLeaderboard::RequestState::r_inactive &&
 		m_leaderboard.getRequestState_FindLeaderboard() ==
 			CSteamLeaderboard::RequestState::r_finished) {
-		m_leaderboard.UploadScore(m_leaderboard_score); // keeps best score
+		m_leaderboard.UploadScore((int)m_leaderboard_score); // keeps best score
 	}
 
 	// update upload score state
@@ -141,9 +141,9 @@ void EndRoundState::play() {
 
 	m_particleSystem.setPosition(m_bowl.getPosition() + float3(0.0f, 0, 0.f));
 
-	m_btn_play.set(float2(float2(width/2 - 125, height - 100)), "Try Again", 0.2);
-	m_btn_back.set(float2(float2(width / 2 + 125, height - 100)), "Level Select", 0.4);
-	m_btn_back.setTextScale(0.7);
+	m_btn_play.set(float2(width/2 - 125, height - 100), "Try Again", 0.2f);
+	m_btn_back.set(float2(width / 2 + 125, height - 100), "Level Select", 0.4f);
+	m_btn_back.setTextScale(0.7f);
 }
 
 void EndRoundState::restart() {}
@@ -199,7 +199,7 @@ void EndRoundState::draw() {
 	m_textRenderer.setColor(Color(1., 1.f, 1.f, 1.0f));
 	m_textRenderer.setPosition(float2(width / 2 - 200, height / 2 + 180));
 	m_textRenderer.setText("Leaderboard: " + leaderboardState);
-	m_textRenderer.setScale(0.4);
+	m_textRenderer.setScale(0.4f);
 	m_textRenderer.draw();
 	// victory text
 	m_textRenderer.setAlignment(); // center
@@ -239,7 +239,7 @@ void EndRoundState::setBowl(string bowlContentEntityName, int bowlMaterial) {
 		m_bowlContent.load("BowlContent2");
 	else if (bowlContentEntityName == "scene2")
 		m_bowlContent.load("BowlContent3");
-	float scale = 0.6;
+	float scale = 0.6f;
 	m_bowlContent.setScale(scale);
 
 	m_bowl.load("Bowl");

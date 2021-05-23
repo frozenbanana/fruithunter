@@ -47,7 +47,7 @@ public:
 		float3 position;
 		float3 size;
 		bool affectedByWind;
-		size_t emitRate;
+		float emitRate;
 		size_t capacity;
 	};
 	vector<ParticleSystemContent> m_particleSystemContents;

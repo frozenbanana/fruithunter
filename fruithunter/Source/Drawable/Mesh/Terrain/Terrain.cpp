@@ -18,7 +18,7 @@ ConstantBuffer<Terrain::ColorBuffer> Terrain::m_cbuffer_color;
 ConstantBuffer<float4> Terrain::m_cbuffer_noiseSize;
 
 void Terrain::bindNoiseTexture(size_t slot) {
-	Renderer::getDeviceContext()->GSSetShaderResources(slot, 1, m_tex_noise->view.GetAddressOf());
+	Renderer::getDeviceContext()->GSSetShaderResources(slot, (UINT)1, m_tex_noise->view.GetAddressOf());
 }
 
 void Terrain::update_strawBuffer() { m_cbuffer_settings.update(m_grass_strawSetting); }
@@ -125,7 +125,7 @@ void Terrain::fillSubMeshes() {
 		for (int ixx = 0; ixx < m_gridSize.x; ixx++) {
 			m_subMeshes[ixx].resize(m_gridSize.y);
 			for (int iyy = 0; iyy < m_gridSize.y; iyy++) {
-				float2 position = cellSize * float2(ixx, iyy);
+				float2 position = cellSize * float2((float)ixx, (float)iyy);
 
 				// Terrain
 				m_subMeshes[ixx][iyy].generate_terrain(m_tileSize, XMINT2(ixx, iyy), m_heightmapMesh);
@@ -134,7 +134,7 @@ void Terrain::fillSubMeshes() {
 				float strawsForArea = STRAW_PER_AREAUNIT * getScale().x * getScale().z;
 				float strawsPerTile = strawsForArea / (m_gridSize.x * m_gridSize.y);
 				m_subMeshes[ixx][iyy].generate_grass(position, cellSize,
-					strawsPerTile, m_heightmapMesh,
+					(size_t)strawsPerTile, m_heightmapMesh,
 					getMatrix());
 
 				// add 2D index to quadtree
@@ -231,7 +231,7 @@ void Terrain::initilize(string filename, XMINT2 subsize, XMINT2 splits) {
 	m_tex_noise = TextureRepository::get("noise_grass.png");
 	// grass noise buffer
 	m_cbuffer_noiseSize.update(
-		float4(m_tex_noise->description.Width, m_tex_noise->description.Height, 0.f, 0.f));
+		float4((float)m_tex_noise->description.Width, (float)m_tex_noise->description.Height, 0.f, 0.f));
 
 	// load terrain
 	if (filename == "" || (splits.x == 0 || splits.y == 0) || (subsize.x == 0 || subsize.y == 0)) {
@@ -269,8 +269,8 @@ void Terrain::editMesh(const Brush& brush, Brush::Type type) {
 	float2 cellSize = float2(1.f / m_gridSize.x, 1.f / m_gridSize.y);
 	for (size_t gix = 0; gix < m_gridSize.x; gix++) {
 		for (size_t giy = 0; giy < m_gridSize.y; giy++) {
-			XMINT2 gridIndex(gix, giy);
-			float2 gPosition = cellSize * float2(gridIndex.x, gridIndex.y);
+			XMINT2 gridIndex((int)gix, (int)giy);
+			float2 gPosition = cellSize * float2((float)gridIndex.x, (float)gridIndex.y);
 			float3 wP1_f3 = float3::Transform(float3(gPosition.x, 0, gPosition.y), matWorld);
 			float3 wP2_f3 = float3::Transform(
 				float3(gPosition.x + cellSize.x, 0, gPosition.y + cellSize.y), matWorld);
@@ -280,12 +280,12 @@ void Terrain::editMesh(const Brush& brush, Brush::Type type) {
 			if (wP2.x > b_wP1.x && wP2.y > b_wP1.y && wP1.x < b_wP2.x && wP1.y < b_wP2.y) {
 				// grid cell inside
 				m_subMeshes[gix][giy].generate_terrain(
-					m_tileSize, XMINT2(gix, giy), m_heightmapMesh);
+					m_tileSize, XMINT2((int)gix, (int)giy), m_heightmapMesh);
 
 				float strawsForArea = STRAW_PER_AREAUNIT * getScale().x * getScale().z;
 				float strawsPerTile = strawsForArea / (m_gridSize.x * m_gridSize.y);
 				m_subMeshes[gridIndex.x][gridIndex.y].generate_grass(
-					gPosition, cellSize, strawsPerTile, m_heightmapMesh, getMatrix());
+					gPosition, cellSize, (size_t)strawsPerTile, m_heightmapMesh, getMatrix());
 			}
 		}
 	}
@@ -503,7 +503,7 @@ void Terrain::draw_grass() {
 		m_cbuffer_settings.bindGS(SETTING_SLOT);
 		// time cbuffer
 		Scene* scene = SceneManager::getScene();
-		update_animationBuffer(scene ? SceneManager::getScene()->m_timer.getTimePassed() : 0);
+		update_animationBuffer(scene ? (float)SceneManager::getScene()->m_timer.getTimePassed() : 0);
 		m_cbuffer_animation.bindGS(CBUFFER_ANIMATION_SLOT);
 		// noise size buffer
 		m_cbuffer_noiseSize.bindGS(CBUFFER_NOISESIZE_SLOT);

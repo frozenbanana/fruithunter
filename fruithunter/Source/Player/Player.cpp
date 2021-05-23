@@ -219,8 +219,8 @@ void Player::rotatePlayer(float dt) {
 	
 	if (ip->getMouseMode() == DirectX::Mouse::MODE_RELATIVE) {
 		XMINT2 mp = ip->getMouseMovement();
-		deltaX = mp.x;
-		deltaY = mp.y;
+		deltaX = (float)mp.x;
+		deltaY = (float)mp.y;
 	}
 
 	float rotationSpeed = Settings::getInstance()->getSensitivity() * 0.01f;
@@ -513,22 +513,19 @@ void Player::updateVelocity_onFlatGround(float3 playerForce, float dt) {
 	// Extra check to make sure that position is safe from water before updating last_safe...
 	// Cheks 4 points surrounding player and checks that none is under water
 
-	int checkDist = 3;
+	float checkDist = 3.f;
 	float3 checkPos[4];
 	checkPos[0] = float3(0, 0, checkDist) + m_position;
 	checkPos[1] = float3(-checkDist, 0, 0) + m_position;
 	checkPos[2] = float3(0, 0, -checkDist) + m_position;
 	checkPos[3] = float3(checkDist, 0, 0) + m_position;
-	
 
 	TerrainBatch* terrain = &SceneManager::getScene()->m_terrains;
 	bool safe = true;
 	for (int i = 0; i < 4; ++i) {
-		if (terrain->getHeightFromPosition(checkPos[i]) < m_seaHeight) {
+		if (!terrain->validPosition(checkPos[i]))
 			safe = false;
-		}
 	}
-
 	if (safe)
 		m_lastSafePosition = m_position;
 }
