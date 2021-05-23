@@ -2,7 +2,7 @@
 #include "SceneManager.h"
 
 void MetricCollector::reset() {
-	// fps 
+	// fps
 	fpsBank.clear();
 	elapsedTimeBank.clear();
 	fpsCollectorTimer = 0;
@@ -32,7 +32,7 @@ void MetricCollector::update() {
 
 void MetricCollector::draw_imgui() {
 	if (ImGui::Begin("Metrics")) {
-		//fps
+		// fps
 		float max = 0;
 		for (size_t i = 0; i < fpsBank.size(); i++)
 			if (fpsBank[i] > max)
@@ -42,7 +42,6 @@ void MetricCollector::draw_imgui() {
 			ImPlot::PlotLine<float>("Fps", elapsedTimeBank.data(), fpsBank.data(), fpsBank.size());
 			ImPlot::EndPlot();
 		}
-
-		ImGui::End();
 	}
+	ImGui::End();
 }

@@ -329,8 +329,8 @@ void Renderer::draw_godRays(const float4x4& viewProjMatrix) {
 	//	ImGui::SliderFloat("DistDecay", &m_settings_godRays.gDistDecay, 0, 1);
 	//	ImGui::ColorEdit3("RayColor", (float*)&m_settings_godRays.gRayColor);
 	//	ImGui::SliderFloat("MaxDeltaLength", &m_settings_godRays.gMaxDeltaLen, 0, 1);
-	//	ImGui::End();
 	//}
+	//ImGui::End();
 
 	float3 pos = m_godRays_position;
 	float4 grPosF4 = float4(pos.x, pos.y, pos.z, 1);

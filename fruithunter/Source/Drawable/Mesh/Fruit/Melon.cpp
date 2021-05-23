@@ -326,8 +326,8 @@ void Melon::update_imgui_changeParams() {
 		ImGui::Text("forwardAngle: %f", cos(m_accumulatedTime * m_forwardAngleSpeed));
 		ImGui::InputFloat("ground threshold", &m_aboveGroundThreshold);
 		ImGui::InputFloat("gravity strength", (float*)&m_gravityStrength);
-		ImGui::End();
 	}
+	ImGui::End();
 }
 
 void Melon::draw_rollTrail() { 

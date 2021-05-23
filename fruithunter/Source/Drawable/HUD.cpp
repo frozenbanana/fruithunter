@@ -36,8 +36,8 @@ void HUD::imgui_tickSetting() {
 		ImGui::InputFloat("kickoff", &m_tickSetting.kickoff);
 		ImGui::InputFloat("offset w", &m_tickSetting.offset_width);
 		ImGui::InputFloat("offset h", &m_tickSetting.offset_height);
-		ImGui::End();
 	}
+	ImGui::End();
 }
 
 HUD::HUD() {

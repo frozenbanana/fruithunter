@@ -18,7 +18,8 @@ ConstantBuffer<Terrain::ColorBuffer> Terrain::m_cbuffer_color;
 ConstantBuffer<float4> Terrain::m_cbuffer_noiseSize;
 
 void Terrain::bindNoiseTexture(size_t slot) {
-	Renderer::getDeviceContext()->GSSetShaderResources(slot, (UINT)1, m_tex_noise->view.GetAddressOf());
+	Renderer::getDeviceContext()->GSSetShaderResources(
+		slot, (UINT)1, m_tex_noise->view.GetAddressOf());
 }
 
 void Terrain::update_strawBuffer() { m_cbuffer_settings.update(m_grass_strawSetting); }
@@ -100,8 +101,8 @@ void Terrain::imgui_settings() {
 		ImGui::SliderFloat("noise interval", &m_grass_strawSetting.noiseInterval, 0, 50);
 		ImGui::ColorEdit3("color bottom", (float*)&m_grass_strawSetting.color_bottom);
 		ImGui::ColorEdit3("color top", (float*)&m_grass_strawSetting.color_top);
-		ImGui::End();
 	}
+	ImGui::End();
 }
 
 void Terrain::imgui_animation() {
@@ -109,8 +110,8 @@ void Terrain::imgui_animation() {
 		ImGui::SliderFloat("speed", &m_grass_animationSetting.speed, 0, 50);
 		ImGui::SliderFloat("noiseInterval", &m_grass_animationSetting.noiseAnimInterval, 0, 50);
 		ImGui::SliderFloat("offsetStrength", &m_grass_animationSetting.offsetStrength, 0, 1);
-		ImGui::End();
 	}
+	ImGui::End();
 }
 
 void Terrain::fillSubMeshes() {
@@ -128,14 +129,14 @@ void Terrain::fillSubMeshes() {
 				float2 position = cellSize * float2((float)ixx, (float)iyy);
 
 				// Terrain
-				m_subMeshes[ixx][iyy].generate_terrain(m_tileSize, XMINT2(ixx, iyy), m_heightmapMesh);
+				m_subMeshes[ixx][iyy].generate_terrain(
+					m_tileSize, XMINT2(ixx, iyy), m_heightmapMesh);
 
 				// Grass
 				float strawsForArea = STRAW_PER_AREAUNIT * getScale().x * getScale().z;
 				float strawsPerTile = strawsForArea / (m_gridSize.x * m_gridSize.y);
-				m_subMeshes[ixx][iyy].generate_grass(position, cellSize,
-					(size_t)strawsPerTile, m_heightmapMesh,
-					getMatrix());
+				m_subMeshes[ixx][iyy].generate_grass(
+					position, cellSize, (size_t)strawsPerTile, m_heightmapMesh, getMatrix());
 
 				// add 2D index to quadtree
 				m_quadtree.add(float3(position.x, 0, position.y),
@@ -230,8 +231,8 @@ void Terrain::initilize(string filename, XMINT2 subsize, XMINT2 splits) {
 	// grass noise texture
 	m_tex_noise = TextureRepository::get("noise_grass.png");
 	// grass noise buffer
-	m_cbuffer_noiseSize.update(
-		float4((float)m_tex_noise->description.Width, (float)m_tex_noise->description.Height, 0.f, 0.f));
+	m_cbuffer_noiseSize.update(float4(
+		(float)m_tex_noise->description.Width, (float)m_tex_noise->description.Height, 0.f, 0.f));
 
 	// load terrain
 	if (filename == "" || (splits.x == 0 || splits.y == 0) || (subsize.x == 0 || subsize.y == 0)) {
@@ -503,7 +504,8 @@ void Terrain::draw_grass() {
 		m_cbuffer_settings.bindGS(SETTING_SLOT);
 		// time cbuffer
 		Scene* scene = SceneManager::getScene();
-		update_animationBuffer(scene ? (float)SceneManager::getScene()->m_timer.getTimePassed() : 0);
+		update_animationBuffer(
+			scene ? (float)SceneManager::getScene()->m_timer.getTimePassed() : 0);
 		m_cbuffer_animation.bindGS(CBUFFER_ANIMATION_SLOT);
 		// noise size buffer
 		m_cbuffer_noiseSize.bindGS(CBUFFER_NOISESIZE_SLOT);
@@ -531,7 +533,8 @@ void Terrain::draw_grass() {
 				}
 			}
 		}
-		Renderer::getInstance()->setRasterizer_CullCounterClockwise(); // reset back to backface culling
+		Renderer::getInstance()
+			->setRasterizer_CullCounterClockwise(); // reset back to backface culling
 	}
 }
 
@@ -618,7 +621,7 @@ void Terrain::SubGrid::generate_terrain(XMINT2 tileSize, XMINT2 gridIndex, Heigh
 	// ground platform
 	for (size_t i = 0; i < 6; i++) {
 		Vertex groundVertex = hmMesh[order[i].x ? indexStop.x : indexStart.x]
-											[order[i].y ? indexStop.y : indexStart.y];
+									[order[i].y ? indexStop.y : indexStart.y];
 		groundVertex.position.y = 0;
 		vertices->push_back(TerrainVertex(groundVertex));
 	}
@@ -772,8 +775,8 @@ void Terrain::SubGrid::generate_grass(
 	createBuffer_grass();
 }
 
-void Terrain::SubGrid::operator=(const SubGrid& other) { 
-	m_vertices = other.m_vertices; 
+void Terrain::SubGrid::operator=(const SubGrid& other) {
+	m_vertices = other.m_vertices;
 	m_straws = other.m_straws;
 	createBuffer_terrain();
 	createBuffer_grass();
@@ -785,8 +788,8 @@ void Terrain::imgui_color() {
 		ImGui::ColorEdit3("tilt color", (float*)&m_colorBuffer.color_tilt);
 		ImGui::SliderFloat("min intensity", &m_colorBuffer.intensityRange.x, 0, 2);
 		ImGui::SliderFloat("max intensity", &m_colorBuffer.intensityRange.y, 0, 2);
-		ImGui::End();
 	}
+	ImGui::End();
 }
 
 void Terrain::update_colorBuffer() { m_cbuffer_color.update(m_colorBuffer); }
@@ -794,5 +797,5 @@ void Terrain::update_colorBuffer() { m_cbuffer_color.update(m_colorBuffer); }
 bool Terrain::validPosition(float3 pos) {
 	float4x4 wMat = getMatrix();
 	float3 lPos = float3::Transform(pos, wMat.Invert());
-	return m_heightmapMesh.validPosition(float2(lPos.x, lPos.z), wMat); 
+	return m_heightmapMesh.validPosition(float2(lPos.x, lPos.z), wMat);
 }

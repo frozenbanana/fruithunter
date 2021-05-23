@@ -5,7 +5,7 @@ ShaderSet Sprite2DAlphaAnimation::m_shader_alphaAnimation;
 
 void Sprite2DAlphaAnimation::_draw(const Transformation2D& source) {
 	if (m_sourceTexture.isLoaded()) {
-		//imgui_animationSetting();
+		// imgui_animationSetting();
 		// generate
 		m_cbuffer_animation.update(m_animationSetting);
 		m_cbuffer_animation.bindPS(0);
@@ -56,8 +56,8 @@ void Sprite2DAlphaAnimation::_draw(const Transformation2D& source) {
 void Sprite2DAlphaAnimation::imgui_animationSetting() {
 	if (ImGui::Begin("Sprite2DAlphaAnimation - AnimationSetting")) {
 		ImGui::SliderFloat("Factor", &m_animationSetting.factor, 0, 1, "%.5f");
-		ImGui::End();
 	}
+	ImGui::End();
 }
 
 float Sprite2DAlphaAnimation::getAnimationFactor() const { return m_animationSetting.factor; }

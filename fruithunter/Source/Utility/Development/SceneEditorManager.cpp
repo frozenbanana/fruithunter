@@ -15,7 +15,8 @@ void SceneEditorManager::update_imgui_leaderboard() {
 	if (ImGui::Button("Fetch")) {
 		m_leaderboard.FindLeaderboard(leaderboardName.c_str());
 	}
-	if (m_leaderboard.getRequestState_FindLeaderboard() == CSteamLeaderboard::RequestState::r_finished) {
+	if (m_leaderboard.getRequestState_FindLeaderboard() ==
+		CSteamLeaderboard::RequestState::r_finished) {
 		ImGui::SameLine();
 		if (ImGui::Button("Update")) {
 			m_leaderboard.DownloadScores();
@@ -40,10 +41,11 @@ void SceneEditorManager::update_imgui_leaderboard() {
 void SceneEditorManager::update_imgui_library() {
 	Input* ip = Input::getInstance();
 	{
-		if (ImGui::BeginChild("win_fragmentDisplayer", ImVec2(200, 0), true, ImGuiWindowFlags_AlwaysAutoResize)) {
+		if (ImGui::BeginChild(
+				"win_fragmentDisplayer", ImVec2(200, 0), true, ImGuiWindowFlags_AlwaysAutoResize)) {
 			ImVec2 childSize = ImGui::GetWindowSize();
 			ImGui::Text("Fragments");
-			if (ImGui::ListBoxHeader("", ImVec2(200, childSize.y-125))) {
+			if (ImGui::ListBoxHeader("", ImVec2(200, childSize.y - 125))) {
 				for (size_t i = 0; i < m_library.size(); i++) {
 					bool selected = (m_selectedIndex == i);
 					if (ImGui::Selectable(m_library[i]->getFullDescription().c_str(), selected)) {
@@ -120,7 +122,7 @@ void SceneEditorManager::update_imgui_library() {
 			}
 
 			// help text
-			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1,3));
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1, 3));
 			ImGui::Text(" --- Buttons ---");
 			ImVec4 btnCol(0, 1, 0, 1);
 			ImGui::Text("Select object: ");
@@ -133,9 +135,8 @@ void SceneEditorManager::update_imgui_library() {
 			ImGui::SameLine();
 			ImGui::TextColored(btnCol, "Tab");
 			ImGui::PopStyleVar();
-
-			ImGui::EndChild();
 		}
+		ImGui::EndChild();
 	}
 	ImGui::SameLine();
 	{
@@ -216,14 +217,13 @@ void SceneEditorManager::update_imgui_gameRules() {
 void SceneEditorManager::update_imgui_terrainEditor() {
 	ImGui::SetNextItemWidth(200);
 	ImGui::SliderFloat("Radius", &m_terrainBrush.radius, 0.1, 10);
-	static float falloffPoints[25] = {-1};
+	static float falloffPoints[25] = { -1 };
 	ImGui::SetNextItemWidth(200);
 	if (ImGui::SliderFloat("Falloff", &m_terrainBrush.falloff, 0, 5) || falloffPoints[0] == -1) {
 		for (size_t i = 0; i < ARRAYSIZE(falloffPoints); i++) {
 			float x = (float)i / (ARRAYSIZE(falloffPoints) - 1);
 			falloffPoints[i] =
-				1 - pow(1 - 0.5 * (1 - cos(x * 3.1415f)),
-						1.f / m_terrainBrush.falloff);
+				1 - pow(1 - 0.5 * (1 - cos(x * 3.1415f)), 1.f / m_terrainBrush.falloff);
 		}
 	}
 	ImGui::PlotLines(
@@ -292,7 +292,7 @@ bool SceneEditorManager::update_panel_terrain(Environment* selection, bool updat
 		updated = true;
 	}
 	if (ImGui::InputInt2("SubSize", (int*)&subSize)) {
-		subSize = XMINT2(Clamp<int>(subSize.x,0,subSize.x),Clamp<int>(subSize.y,0,subSize.y));
+		subSize = XMINT2(Clamp<int>(subSize.x, 0, subSize.x), Clamp<int>(subSize.y, 0, subSize.y));
 	}
 	if (ImGui::InputInt2("Divisions", (int*)&divisions)) {
 		divisions = XMINT2(
@@ -329,11 +329,12 @@ bool SceneEditorManager::update_panel_terrain(Environment* selection, bool updat
 		}
 		ImGui::EndCombo();
 	}
-	static const string tex_description[4] = { "Texture Flat", "Texture Bottom Flat", "Texture Steep",
-		"Texture Minimal Steep" };
+	static const string tex_description[4] = { "Texture Flat", "Texture Bottom Flat",
+		"Texture Steep", "Texture Minimal Steep" };
 	for (size_t i = 0; i < NR_OF_FRUITS; i++) {
 		if (ImGui::InputInt(("Spawn Fruit (" + FruitTypeToString((FruitType)i) + ")").c_str(),
-				&fruitSpawns[i]) && isValid) {
+				&fruitSpawns[i]) &&
+			isValid) {
 			fruitSpawns[i] = Clamp<int>(fruitSpawns[i], 0, fruitSpawns[i]);
 			size_t index = scene->find_parentIndex(selection);
 			scene->m_terrains.getTerrainFromIndex(index)->setFruitSpawns(fruitSpawns);
@@ -342,10 +343,10 @@ bool SceneEditorManager::update_panel_terrain(Environment* selection, bool updat
 	if (!isValid) {
 		if (ImGui::Button("Create")) {
 			updated = true;
-			scene->m_terrains.add(
-				position, scale, heightmap, subSize, divisions, wind, tag);
+			scene->m_terrains.add(position, scale, heightmap, subSize, divisions, wind, tag);
 		}
-	} else {
+	}
+	else {
 		if (ImGui::Button("Rebuild")) {
 			selection->build(heightmap, subSize, divisions);
 			updated = true;
@@ -468,7 +469,7 @@ bool SceneEditorManager::update_panel_sea(SeaEffect* selection, bool update) {
 	}
 	if (ImGui::InputInt2("Tiles", (int*)&tiles))
 		tiles = XMINT2(Clamp<int>(tiles.x, 0, tiles.x), Clamp<int>(tiles.y, 0, tiles.y));
-	if(ImGui::InputInt2("Grids", (int*)&grids))
+	if (ImGui::InputInt2("Grids", (int*)&grids))
 		grids = XMINT2(Clamp<int>(grids.x, 0, grids.x), Clamp<int>(grids.y, 0, grids.y));
 	if (!isValid) {
 		if (ImGui::Button("Create")) {
@@ -477,7 +478,8 @@ bool SceneEditorManager::update_panel_sea(SeaEffect* selection, bool update) {
 			se->initilize(type, tiles, grids, position, scale, rotation);
 			scene->m_seaEffects.push_back(se);
 		}
-	} else {
+	}
+	else {
 		if (ImGui::Button("Rebuild")) {
 			size_t index = scene->find_parentIndex(selection);
 			scene->m_seaEffects[index]->build(tiles, grids);
@@ -531,7 +533,8 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 		"Ground Dust", "Volcano Fire", "Volcano Smoke", "Lava Bubble", "Arrow Glitter", "Confetti",
 		"Stars Gold", "Stars Silver", "Stars Bronze", "Explosion Apple", "Explosion Banana",
 		"Explosion Melon", "Explosion Dragon", "Sparkle Apple", "Sparkle Banana", "Sparkle Melon",
-		"Sparkle Dragon", "Explosion Gold", "Explosion Silver", "Explosion Bronze", "Jump Dust", "Melon Trail", "LevelSelect Selection", "Test Sprite" };
+		"Sparkle Dragon", "Explosion Gold", "Explosion Silver", "Explosion Bronze", "Jump Dust",
+		"Melon Trail", "LevelSelect Selection", "Test Sprite" };
 	if (ImGui::BeginCombo("Type", ps_typeAsString[type].c_str())) {
 		for (size_t i = 1; i < ParticleSystem::Type::TYPE_LENGTH; i++) {
 			if (ImGui::MenuItem(ps_typeAsString[i].c_str())) {
@@ -574,14 +577,15 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 			ps.setScale(size);
 			scene->m_particleSystems.push_back(ps);
 		}
-	} else {
+	}
+	else {
 		if (ImGui::Button("Emit")) {
 			selection->emit(emitCount);
 		}
 		ImGui::SameLine();
 		ImGui::InputInt("Count", &emitCount, 1);
 	}
-	//Custom testing
+	// Custom testing
 	if (isValid) {
 		ImGui::Separator();
 		ImGui::Text("CUSTOM TESTING (Temporary panel)");
@@ -597,7 +601,7 @@ bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool upd
 		ImGui::InputFloat("Slowdown", &pd.slowdown, 0, 0, 6);
 		if (ImGui::Combo("Shape", &shape, "Circle\0Star\0Sprite"))
 			pd.shape = (ParticleSystem::ParticleDescription::Shape)shape;
-		ImGui::InputText("Sprite",&pd.str_sprite);
+		ImGui::InputText("Sprite", &pd.str_sprite);
 		if (ImGui::Button("Set"))
 			selection->setCustomDescription(pd);
 	}
@@ -633,9 +637,9 @@ void SceneEditorManager::updateCameraMovement(float dt) {
 	float3 forward = scene->m_camera.getForward();
 	float3 up = scene->m_camera.getUp();
 	float3 right = scene->m_camera.getRight();
-	float3 acceleration = forward * (float)(ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD)) + 
-		right * (float)(ip->keyDown(KEY_RIGHT) - ip->keyDown(KEY_LEFT)) +
-		up*(float)(ip->keyDown(KEY_UP) - ip->keyDown(KEY_DOWN));
+	float3 acceleration = forward * (float)(ip->keyDown(KEY_FORWARD) - ip->keyDown(KEY_BACKWARD)) +
+						  right * (float)(ip->keyDown(KEY_RIGHT) - ip->keyDown(KEY_LEFT)) +
+						  up * (float)(ip->keyDown(KEY_UP) - ip->keyDown(KEY_DOWN));
 	acceleration.Normalize();
 	float speed = ip->keyDown(KEY_SLOW) ? m_lowSpeed : m_highSpeed;
 	acceleration *= speed;
@@ -648,7 +652,7 @@ void SceneEditorManager::updateCameraMovement(float dt) {
 	if (ip->getMouseMode() == DirectX::Mouse::MODE_RELATIVE) {
 		mouseMovement = float2((float)ip->getMouseMovement().x, (float)ip->getMouseMovement().y);
 	}
-	float rotationSpeed = Settings::getInstance()->getSensitivity()*0.01f;
+	float rotationSpeed = Settings::getInstance()->getSensitivity() * 0.01f;
 	mouseMovement *= rotationSpeed;
 	scene->m_camera.rotate(float3(mouseMovement.y, mouseMovement.x, 0));
 }
@@ -831,7 +835,7 @@ void SceneEditorManager::draw_transformationVisuals() {
 void SceneEditorManager::update_imgui() {
 	Input* ip = Input::getInstance();
 	ImVec2 screenSize = ImVec2(
-		Renderer::getInstance()->getScreenWidth() ,Renderer::getInstance()->getScreenHeight());
+		Renderer::getInstance()->getScreenWidth(), Renderer::getInstance()->getScreenHeight());
 
 	// Main Menu Bar
 	ImVec2 menuBarSize;
@@ -856,11 +860,12 @@ void SceneEditorManager::update_imgui() {
 	}
 	// Docked window
 	float windHeight = screenSize.y - menuBarSize.y;
-	ImGui::SetNextWindowPos(ImVec2(0,menuBarSize.y));
+	ImGui::SetNextWindowPos(ImVec2(0, menuBarSize.y));
 	ImGui::SetNextWindowSizeConstraints(
 		ImVec2(0, windHeight), ImVec2(Renderer::getInstance()->getScreenWidth(), windHeight));
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-	if (ImGui::Begin("Docked Window", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize)) {
+	if (ImGui::Begin("Docked Window", NULL,
+			ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize)) {
 		if (ImGui::BeginTabBar("editorContent")) {
 			if (ImGui::BeginTabItem("Library")) {
 				m_editorTabActive = EditorTab::Library;
@@ -891,13 +896,14 @@ void SceneEditorManager::update_imgui() {
 	// bottom right docked window
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 	if (ImGui::Begin("win_camProperties", NULL,
-			ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove)) {
+			ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize |
+				ImGuiWindowFlags_NoMove)) {
 		float3 cp = scene->m_camera.getPosition();
 		float3 cn = scene->m_camera.getForward();
 		ImGui::Text("Cam Pos: [%.2f %.2f %.2f] Cam Dir: [%.2f %.2f %.2f]", cp.x, cp.y, cp.z, cn.x,
 			cn.y, cn.z);
 		ImVec2 size = ImGui::GetWindowSize();
-		ImGui::SetWindowPos(screenSize-size);
+		ImGui::SetWindowPos(screenSize - size);
 		ImGui::End();
 	}
 	ImGui::PopStyleVar();
@@ -905,7 +911,7 @@ void SceneEditorManager::update_imgui() {
 	m_selectedThisFrame = false;
 }
 
-void SceneEditorManager::select_index(size_t index) { 
+void SceneEditorManager::select_index(size_t index) {
 	m_selectedIndex = index;
 	m_selectedThisFrame = true;
 
@@ -954,7 +960,7 @@ void SceneEditorManager::readSceneDirectory() {
 	m_loadable_scenes = vector<string>(dirs.begin() + 2, dirs.end());
 }
 
-SceneEditorManager::SceneEditorManager() { 
+SceneEditorManager::SceneEditorManager() {
 	setPlayerState(false);
 	TextureRepository* tr = TextureRepository::getInstance();
 	// terrain heightmap textures
@@ -970,11 +976,9 @@ SceneEditorManager::SceneEditorManager() {
 
 	ifstream nameFile;
 	nameFile.open("assets/meshNames.txt", ios::in);
-	if (nameFile.is_open()) 
-	{
+	if (nameFile.is_open()) {
 		string line;
-		while (getline(nameFile, line)) 
-		{
+		while (getline(nameFile, line)) {
 			m_loadable_entity.push_back(line);
 		}
 	}
@@ -987,26 +991,25 @@ SceneEditorManager::SceneEditorManager() {
 
 	// crosshair
 	m_crosshair.load("crosshair_blackCross.png");
-	m_crosshair.set(float2(1280./2, 720./2), float2(1./30));
-	m_crosshair.setAlignment();//center - center
+	m_crosshair.set(float2(1280. / 2, 720. / 2), float2(1. / 30));
+	m_crosshair.setAlignment(); // center - center
 
 	// translation
 	for (size_t i = 0; i < 3; i++) {
 		m_arrow[i].load("arrow");
 	}
-	m_arrow[0].rotateY(XM_PI/2.f);
-	m_arrow[1].rotateX(XM_PI/2.f);
+	m_arrow[0].rotateY(XM_PI / 2.f);
+	m_arrow[1].rotateX(XM_PI / 2.f);
 	m_centerOrb.load("sphere");
-	//rotation
+	// rotation
 	m_torus[0].load("torusX");
 	m_torus[1].load("torusY");
 	m_torus[2].load("torusZ");
 	m_rotationCircle.load("sphere");
-	//scaling
+	// scaling
 	m_scaling_torus.load("torusY");
 
 	readSceneDirectory();
-
 }
 
 void SceneEditorManager::update() {
@@ -1022,7 +1025,8 @@ void SceneEditorManager::update() {
 	scene->m_skyBox.update(dt);
 
 	// update AreaTag
-	const Environment* activeEnvironment = scene->m_terrains.getTerrainFromPosition(scene->m_camera.getPosition());
+	const Environment* activeEnvironment =
+		scene->m_terrains.getTerrainFromPosition(scene->m_camera.getPosition());
 	if (activeEnvironment != nullptr) {
 		AreaTag tag = activeEnvironment->getTag();
 		scene->update_activeTerrain(tag, false);
@@ -1041,7 +1045,7 @@ void SceneEditorManager::update() {
 	////////////EDITOR///////////
 
 	update_imgui();
-	
+
 	if (m_editorTabActive == EditorTab::Library) {
 		// pick position
 		if (ip->mousePressed(Input::RIGHT)) {
@@ -1164,7 +1168,8 @@ void SceneEditorManager::update() {
 		float radiusChangeOnMouseWheel = 1.1;
 		if (ip->scrolledDown()) {
 			if (ip->keyDown(m_terrainEditor_btn_strengthScroll))
-				m_terrainBrush.strength = Clamp<float>(m_terrainBrush.strength*radiusChangeOnMouseWheel,0,1);
+				m_terrainBrush.strength =
+					Clamp<float>(m_terrainBrush.strength * radiusChangeOnMouseWheel, 0, 1);
 			else
 				m_terrainBrush.radius *= radiusChangeOnMouseWheel;
 		}
@@ -1181,11 +1186,11 @@ void SceneEditorManager::update() {
 	}
 }
 
-void SceneEditorManager::draw_shadow() { 	// terrain manager
+void SceneEditorManager::draw_shadow() { // terrain manager
 	ShadowMapper* shadowMap = Renderer::getInstance()->getShadowMapper();
 	vector<FrustumPlane> planes = shadowMap->getFrustumPlanes();
 
-	//draw terrainBatch
+	// draw terrainBatch
 	scene->m_terrains.quadtreeCull(planes);
 	scene->m_terrains.draw_onlyMesh();
 
@@ -1195,7 +1200,7 @@ void SceneEditorManager::draw_shadow() { 	// terrain manager
 		(*culledEntities[i])->draw_onlyMesh(float3(0.f));
 }
 
-void SceneEditorManager::draw_color() { 
+void SceneEditorManager::draw_color() {
 	// frustum data for culling
 	vector<FrustumPlane> frustum = scene->m_camera.getFrustumPlanes();
 	// Entities
@@ -1239,10 +1244,10 @@ void SceneEditorManager::draw_color() {
 void SceneEditorManager::draw_hud() { m_crosshair.draw(); }
 
 void SceneEditorManager::draw_editorWorldObjects() {
-	// Clear depth so that all entities are drawn infront of everything else 
+	// Clear depth so that all entities are drawn infront of everything else
 	// but still has depth perception to other editor entities.
 	Renderer::getInstance()->clearDepth();
-	// Draw 
+	// Draw
 	if (m_editorTabActive == EditorTab::Library) {
 		// Pointer Entity Helper
 		m_pointer_obj.setPosition(m_pointer);
@@ -1253,8 +1258,8 @@ void SceneEditorManager::draw_editorWorldObjects() {
 	}
 }
 
-void SceneEditorManager::draw() { 
-	setup_shadow(); 
+void SceneEditorManager::draw() {
+	setup_shadow();
 	draw_shadow();
 	setup_color();
 	draw_color();
@@ -1262,19 +1267,17 @@ void SceneEditorManager::draw() {
 	draw_hud();
 }
 
-void SceneEditorManager::load(string folder) { 
+void SceneEditorManager::load(string folder) {
 	clear();
 
-	SceneManager::load(folder); 
+	SceneManager::load(folder);
 
 	refreshLibrary();
 }
 
-void SceneEditorManager::reset() {
-	scene->reset(); 
-}
+void SceneEditorManager::reset() { scene->reset(); }
 
-void SceneEditorManager::clear() { 
+void SceneEditorManager::clear() {
 	m_library.clear();
 	m_transformable = nullptr;
 	m_selectedIndex = -1;
