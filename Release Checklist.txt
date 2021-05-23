@@ -5,3 +5,4 @@ Bug Test Application
 Copy Assets Folder
 Copy Source Folder (Remove everything but shaders)
 Remove "steam_appid.txt" if exists
+Increment game version

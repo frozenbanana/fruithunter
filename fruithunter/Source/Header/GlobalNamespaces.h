@@ -24,6 +24,9 @@ using float3 = DirectX::SimpleMath::Vector3;
 using float4 = DirectX::SimpleMath::Vector4;
 using float4x4 = DirectX::SimpleMath::Matrix;
 
+#define GAME_VERSION 1
+#define GAME_PATCH 1
+
 #define DEBUG true
 
 enum AreaTag { Forest, Plains, Desert, Volcano, NR_OF_AREAS };

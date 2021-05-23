@@ -1,0 +1,7 @@
+Release v1.1 ()
+Features:
+ - Added leaderboards
+ - Added version control system to player save files (resets save files)
+Bugs:
+ - Fixed fruit getting shot when arrows went under world map
+ - Fixed problem of respawning in invalid positions

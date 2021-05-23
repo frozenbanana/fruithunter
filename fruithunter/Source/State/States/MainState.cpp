@@ -284,6 +284,17 @@ void MainState::draw() {
 
 	/* -- MENU UI -- */
 
+	// game version
+	m_textRenderer.setAlignment(HorizontalAlignment::AlignRight, VerticalAlignment::AlignBottom); // center
+	m_textRenderer.setScale(0.4f);
+	m_textRenderer.setAlpha(1);
+	m_textRenderer.setPosition(float2(1280, 720) * 0.99f);
+	string gameVersionStr = "v" + to_string(GAME_VERSION) + "." + to_string(GAME_PATCH);
+	m_textRenderer.setText(gameVersionStr);
+	m_textRenderer.setColor(Color(0, 0, 0, 1));
+	m_textRenderer.draw();
+	m_textRenderer.setColor(Color(1, 1, 1, 1));
+
 	float source_alpha = Clamp<float>((1 - m_stateSwitchFactor) * 2 - 1, 0, 1);
 	float dest_alpha = Clamp<float>(m_stateSwitchFactor * 2 - 1, 0, 1);
 	float stateAlpha[NR_OF_STATES] = { 0, 0, 0 };
