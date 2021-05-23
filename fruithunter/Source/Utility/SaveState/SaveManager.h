@@ -2,7 +2,7 @@
 #include "GlobalNameSpaces.h"
 
 #define PLAYER_FILEPATH "assets/"
-#define PLAYER_FILENAME "player_progress"
+#define PLAYER_FILENAME "playerProgress"
 
 namespace ProgressStructs {
 	class PlayerProgressionBase {
