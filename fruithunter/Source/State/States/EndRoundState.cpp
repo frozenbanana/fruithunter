@@ -63,7 +63,7 @@ void EndRoundState::init() {
 		setParticleColorByPrize(BRONZE);
 		break;
 	}
-	setTimeText("Time   " + Milliseconds2DisplayableString(winTimeMs) + " min");
+	setTimeText("Time   " + Milliseconds2DisplayableString(winTimeMs));
 
 	if (!DEBUG) {
 		m_leaderboard_score = winTimeMs;
@@ -88,21 +88,40 @@ void EndRoundState::update() {
 	m_bowlContent.rotateY(dt * 0.5f);
 	m_particleSystem.update(dt);
 
-	if (m_btn_play.update_behavior(dt)) {
-		SceneManager::getScene()->reset();
-		pop(true);
-	}
-	if (m_btn_back.update_behavior(dt)) {
-		AudioController::getInstance()->flush();
-		pop(State::MainState, false);
+	// upload score if found leaderboard
+	if (m_leaderboard.getRequestState_UploadScore() ==
+			CSteamLeaderboard::RequestState::r_inactive &&
+		m_leaderboard.getRequestState_FindLeaderboard() ==
+			CSteamLeaderboard::RequestState::r_finished) {
+		m_leaderboard.UploadScore(m_leaderboard_score); // keeps best score
 	}
 
-	if (!DEBUG) {
-		if (m_leaderboard.getRequestState_UploadScore() ==
-				CSteamLeaderboard::RequestState::r_inactive &&
-			m_leaderboard.getRequestState_FindLeaderboard() ==
-				CSteamLeaderboard::RequestState::r_finished) {
-			m_leaderboard.UploadScore(m_leaderboard_score); // keeps best score
+	// update upload score state
+	if (m_leaderboard.getRequestState_FindLeaderboard() ==
+		CSteamLeaderboard::RequestState::r_inactive)
+		m_uploadState == UploadState::Disabled;
+	else if (m_leaderboard.getRequestState_FindLeaderboard() ==
+			CSteamLeaderboard::RequestState::r_failed ||
+		m_leaderboard.getRequestState_UploadScore() == 
+		CSteamLeaderboard::RequestState::r_failed)
+		m_uploadState = UploadState::Failed;
+	else if (m_leaderboard.getRequestState_FindLeaderboard() ==
+				 CSteamLeaderboard::RequestState::r_finished &&
+			 m_leaderboard.getRequestState_UploadScore() ==
+				 CSteamLeaderboard::RequestState::r_finished)
+		m_uploadState = UploadState::Finished;
+	else
+		m_uploadState = UploadState::Waiting;
+
+	// buttons
+	if (m_uploadState != UploadState::Waiting) {
+		if (m_btn_play.update_behavior(dt)) {
+			SceneManager::getScene()->reset();
+			pop(true);
+		}
+		if (m_btn_back.update_behavior(dt)) {
+			AudioController::getInstance()->flush();
+			pop(State::MainState, false);
 		}
 	}
 }
@@ -150,17 +169,44 @@ void EndRoundState::draw() {
 	m_particleSystem.draw();
 	Renderer::getInstance()->clearDepth();
 
+	// -- UI --
+
 	float width = 1280;
 	float height = 720;
-	m_camera.bind();
+	// time
 	m_textRenderer.setAlignment(); // center
 	m_textRenderer.setColor(Color(1., 1.f, 1.f, 1.0f));
-	m_textRenderer.setPosition(float2(width / 2, height / 2 + 150));
+	m_textRenderer.setPosition(float2(width / 2, height / 2 + 130));
 	m_textRenderer.setText(m_timeText);
+	m_textRenderer.setScale(0.75);
 	m_textRenderer.draw();
+	// leaderboard
+	string leaderboardState = "";
+	if (m_uploadState == UploadState::Disabled)
+		leaderboardState = "Disabled";
+	else if (m_uploadState == UploadState::Failed)
+		leaderboardState = "Failed";
+	else if (m_uploadState == UploadState::Finished)
+		leaderboardState = "Uploaded";
+	else {
+		// waiting
+		int points = 1 + (int)(m_timer.getTimePassed() * 2) % 3;
+		leaderboardState = "";
+		for (size_t i = 0; i < points; i++)
+			leaderboardState += ".";
+	}
+	m_textRenderer.setAlignment(HorizontalAlignment::AlignLeft); // center
+	m_textRenderer.setColor(Color(1., 1.f, 1.f, 1.0f));
+	m_textRenderer.setPosition(float2(width / 2 - 200, height / 2 + 180));
+	m_textRenderer.setText("Leaderboard: " + leaderboardState);
+	m_textRenderer.setScale(0.4);
+	m_textRenderer.draw();
+	// victory text
+	m_textRenderer.setAlignment(); // center
 	m_textRenderer.setColor(m_victoryColor);
 	m_textRenderer.setPosition(float2(width / 2, 75));
 	m_textRenderer.setText(m_victoryText);
+	m_textRenderer.setScale(1);
 	m_textRenderer.draw();
 
 	m_btn_play.draw();
