@@ -8,12 +8,12 @@ void Menu_PoppingButton::setDesiredScale_standard(float value) { m_scale_desired
 bool Menu_PoppingButton::update_behavior(float dt) {
 	Input* ip = Input::getInstance();
 	float2 mp = ip->mouseXY();
+	bool clicked = false;
 	if (m_timer <= m_delay && m_timer + dt > m_delay) {
 		SoundID id = AudioController::getInstance()->play("bubble_pop");
-		AudioController::getInstance()->setPitch(id, RandomFloat(-1, 1)*0.5);
+		AudioController::getInstance()->setPitch(id, RandomFloat(-1, 1) * 0.5);
 	}
 	m_timer += dt;
-	bool clicked = false;
 	if (m_timer > m_delay) {
 		setRotation(cos(m_timer - m_delay * 5) * 0.1f);
 		clicked = update(dt, mp);
@@ -23,9 +23,10 @@ bool Menu_PoppingButton::update_behavior(float dt) {
 		else {
 			m_scale_desired = m_scale_desired_standard;
 		}
-		m_scale_velocity += (m_scale_desired - getScale().x) * m_scale_spring_speed * dt; // add force
-		m_scale_velocity *= pow(m_scale_spring_friction, dt);							// friction
-		setScale(getScale().x + m_scale_velocity * dt); // move scale as spring
+		m_scale_velocity +=
+			(m_scale_desired - getScale().x) * m_scale_spring_speed * dt; // add force
+		m_scale_velocity *= pow(m_scale_spring_friction, dt);			  // friction
+		setScale(getScale().x + m_scale_velocity * dt);					  // move scale as spring
 	}
 	return clicked;
 }

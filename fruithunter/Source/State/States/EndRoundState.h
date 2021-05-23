@@ -27,6 +27,13 @@ private:
 	size_t m_leaderboard_score = 0;
 	CSteamLeaderboard m_leaderboard;
 
+	enum UploadState {
+		Disabled,
+		Waiting,
+		Failed,
+		Finished
+	} m_uploadState;
+
 	Menu_PoppingButton m_btn_play;
 	Menu_PoppingButton m_btn_back;
 
