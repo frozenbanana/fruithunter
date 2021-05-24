@@ -83,7 +83,7 @@ void Apple::behaviorPassive() {
 
 	// respawn if fall into water
 	if (getPosition().y < 1) {
-		changeState(State::CAUGHT);
+		respawn();
 	}
 }
 
@@ -100,64 +100,11 @@ void Apple::behaviorActive() {
 	}
 
 	if (getPosition().y < 1) {
-		changeState(State::CAUGHT);
+		respawn();
 	}
 }
 
-void Apple::behaviorCaught() {
-	// -- FRUIT RESPAWNING -- //
-	// Change into passive mode to automaticly respawn melon
-
-	if (!isRespawning()) {
-		// start of respawn
-		// init
-		m_respawn_timer = m_respawn_max;
-	}
-	else {
-		// update
-		float dt = SceneManager::getScene()->getDeltaTime();
-
-		float th = m_respawn_max / 2;
-		if (m_respawn_timer >= th && m_respawn_timer - dt < th) {
-			// find new respawn point
-			if (m_boundTerrain != nullptr) {
-				// spawn on bound terrain
-				float3 sp = m_boundTerrain->getRandomSpawnPoint();
-				setPosition(sp + float3(0.f, 1.f, 0.f) * (getHalfSizes().y + 0.1f));
-			}
-			else {
-				int tIndex =
-					SceneManager::getScene()->m_terrains.getTerrainIndexFromPosition(getPosition());
-				if (tIndex == -1) {
-					// pick random terrain if not on a terrain (Plan B)
-					tIndex = rand() % SceneManager::getScene()->m_terrains.length();
-				}
-				if (tIndex != -1) {
-					float3 sp = SceneManager::getScene()->m_terrains.getSpawnpoint(tIndex);
-					setPosition(sp + float3(0.f, 1.f, 0.f) * (getHalfSizes().y + 0.1f));
-				}
-				else {
-					// this should never happen as fruits only can spawn if there is a terrain to
-					// spawn from
-					ErrorLogger::logError(
-						"(Melon) Melon cant respawn. No terrains exists!", HRESULT());
-				}
-			}
-			m_velocity *= 0;
-		}
-		m_respawn_timer = Clamp<float>(m_respawn_timer - dt, 0, m_respawn_max);
-
-		// Scaling
-		float factor = abs((m_respawn_max / 2) - m_respawn_timer) / (m_respawn_max / 2);
-		setScale(m_startScale * factor);
-
-		if (m_respawn_timer == 0) {
-			// end of respawn
-			// switch to active mode
-			changeState(ACTIVE);
-		}
-	}
-}
+void Apple::behaviorCaught() { changeState(ACTIVE); }
 
 bool Apple::isValid(float3 point) { 
 	float3 normal = SceneManager::getScene()->m_terrains.getNormalFromPosition(point);

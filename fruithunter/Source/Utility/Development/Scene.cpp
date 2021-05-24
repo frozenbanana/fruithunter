@@ -407,7 +407,7 @@ void Scene::reset() {
 		for (size_t iFruit = 0; iFruit < NR_OF_FRUITS; iFruit++) {
 			size_t count = m_terrains.getTerrainFromIndex(i)->getFruitCount((FruitType)iFruit);
 			for (size_t j = 0; j < count; j++) {
-				float3 spawn = m_terrains.getSpawnpoint(i);
+				float3 spawn = m_terrains.getSpawnpoint(i) + float3(0, 1, 0);
 				switch (iFruit) {
 				case FruitType::APPLE:
 					m_fruits.push_back(make_shared<Apple>(spawn));

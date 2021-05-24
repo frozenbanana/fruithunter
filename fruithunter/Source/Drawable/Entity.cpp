@@ -25,7 +25,7 @@ void Entity::setCollisionForMesh(string meshName) {
 }
 
 bool Entity::atOrUnder(float terrainHeight) const {
-	return getPosition().y <= (terrainHeight + getHalfSizes().y / 2.f);
+	return getPosition().y <= (terrainHeight + getHalfSizes().y+0.01f);
 }
 
 string Entity::getModelName() const {

@@ -10,11 +10,6 @@ private:
 
 	ParticleSystem m_rollTrail;
 
-	//respawn
-	float m_startScale = 0.5;
-	float m_respawn_timer = 0;
-	float m_respawn_max = 1;
-
 	// Sensors
 	Entity m_ball;
 	float3 m_sensors[9];
@@ -38,8 +33,6 @@ public:
 	Melon(float3 pos = float3(0.f, 0.f, 0.f));
 	void updateAnimated(float dt);
 	void pathfinding(float3 start) override;
-
-	bool isRespawning() const;
 
 	void update();
 	void update_imgui_changeParams();

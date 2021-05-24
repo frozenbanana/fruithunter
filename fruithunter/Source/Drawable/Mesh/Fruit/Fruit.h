@@ -17,6 +17,11 @@ protected:
 	float m_groundFriction = 10.f;
 	float m_airFriction = 5.f;
 
+	bool m_respawning = false;
+	float m_startScale = 0.5;
+	float m_respawn_timer = 0;
+	float m_respawn_timeMax = 1;
+
 	bool m_onGround = true;
 
 	void checkOnGroundStatus();
@@ -61,6 +66,9 @@ protected:
 
 	void updateVelocity(float dt);
 	void stopMovement();
+
+	void respawn();
+	void updateRespawn();
 
 	/* Intersects with Terrain and collidable Entitites. */
 	bool rayCastWorld(float3 point, float3 forward, float3& intersection, float3& normal);

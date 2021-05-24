@@ -175,12 +175,24 @@ float3 Environment::getRandomSpawnPoint() {
 	float3 point;
 	size_t iterator = 0;
 	size_t tries = 100;
+	const float adjacentCheckDistance = 1;
+	bool valid;
 	do {
+		valid = true;
 		point = float3::Transform(float3(RandomFloat(0, 1), 0, RandomFloat(0, 1)), getMatrix());
+		if (!validPosition(point))
+			valid = false;
+		for (size_t i = 0; i < 4; i++) {
+			float r = ((float)i / 4) * XM_PI * 2;
+			float3 offset = float3(cos(r), 0, sin(r)) * adjacentCheckDistance;
+			if (!validPosition(point + offset))
+				valid = false;
+		}
 		iterator++;
-	} while (iterator < tries && !validPosition(point));
+	} while (iterator < tries && !valid);
 	if (iterator == tries)
-		ErrorLogger::logError("(Environment::getRandomSpawnPoint) Failed finding a spawn point for fruit!");
+		ErrorLogger::logError(
+			"(Environment::getRandomSpawnPoint) Failed finding a spawn point for fruit!");
 	return point;
 }
 
