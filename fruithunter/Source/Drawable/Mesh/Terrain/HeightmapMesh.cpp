@@ -523,9 +523,13 @@ void HeightmapMesh::loadFromFile_binary(fstream& file) {
 	// create mem and align position and uvs (normals and y axis not set)
 	createGridPointBase(m_gridPointSize);
 	// set point heights
+	float* ypositions = new float[(size_t)m_gridPointSize.x * m_gridPointSize.y];
+	file.read((char*)ypositions, sizeof(float) * m_gridPointSize.x * m_gridPointSize.y);
+	size_t index = 0;
 	for (size_t x = 0; x < m_gridPointSize.x; x++)
 		for (size_t y = 0; y < m_gridPointSize.y; y++)
-			file.read((char*)&m_gridPoints[x][y].position.y, sizeof(float)); // set y axis
+			m_gridPoints[x][y].position.y = ypositions[index++]; // set y axis
+	delete[] ypositions;
 	// set normals
 	setGridPointNormals();
 }

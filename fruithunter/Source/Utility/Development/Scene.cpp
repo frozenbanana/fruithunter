@@ -21,7 +21,7 @@ void Scene::clear() {
 	m_particleSystems.clear();
 	// spawn fruit
 	m_fruits.clear();
-	//collection points
+	// collection points
 	m_collectionPoint.clear();
 
 	// utility
@@ -59,13 +59,11 @@ void Scene::saveWin() {
 	}
 }
 
-Scene::Scene(string filename) { 
-	load(filename);
-}
+Scene::Scene(string filename) { load(filename); }
 
 Scene::~Scene() { PathFindingThread::getInstance()->pause(); }
 
-size_t Scene::find_parentIndex(Fragment* fragment) { 
+size_t Scene::find_parentIndex(Fragment* fragment) {
 	switch (fragment->getType()) {
 	case Fragment::Type::entity:
 		for (size_t i = 0; i < m_entities.size(); i++) {
@@ -98,7 +96,7 @@ size_t Scene::find_parentIndex(Fragment* fragment) {
 	return -1;
 }
 
-bool Scene::remove_fragment(Fragment* fragment) { 
+bool Scene::remove_fragment(Fragment* fragment) {
 	switch (fragment->getType()) {
 	case Fragment::Type::entity:
 		for (size_t i = 0; i < m_entities.size(); i++) {
@@ -134,7 +132,6 @@ bool Scene::remove_fragment(Fragment* fragment) {
 		break;
 	}
 	return false;
-	
 }
 
 void Scene::updated_fragment(Fragment* fragment) {
@@ -161,24 +158,24 @@ void Scene::updated_fragment(Fragment* fragment) {
 void Scene::pickUpFruit(FruitType fruitType) { m_gatheredFruits[fruitType]++; }
 
 void Scene::dropFruit(FruitType fruitType) {
-	 Input* ip = Input::getInstance();
-	 auto pft = PathFindingThread::getInstance();
+	Input* ip = Input::getInstance();
+	auto pft = PathFindingThread::getInstance();
 
-	 if (m_gatheredFruits[fruitType] > 0) {
-		 //reduce inventory
-		 if (!DEBUG)
-			 m_gatheredFruits[fruitType]--;
-		 //spawn fruit
-		 shared_ptr<Fruit> fruit = Fruit::createFruitFromType(fruitType);
-		 fruit->setPosition(m_player->getPosition() + float3(0.0f, 1.5f, 0.0f));
-		 fruit->release(m_player->getForward());
-		 PathFindingThread::lock();
-		 m_fruits.push_back(fruit);
-		 PathFindingThread::unlock();
-	 }
+	if (m_gatheredFruits[fruitType] > 0) {
+		// reduce inventory
+		if (!DEBUG)
+			m_gatheredFruits[fruitType]--;
+		// spawn fruit
+		shared_ptr<Fruit> fruit = Fruit::createFruitFromType(fruitType);
+		fruit->setPosition(m_player->getPosition() + float3(0.0f, 1.5f, 0.0f));
+		fruit->release(m_player->getForward());
+		PathFindingThread::lock();
+		m_fruits.push_back(fruit);
+		PathFindingThread::unlock();
+	}
 }
 
-void Scene::addArrow(shared_ptr<Arrow> arrow) { 
+void Scene::addArrow(shared_ptr<Arrow> arrow) {
 	if (arrow.get() != nullptr) {
 		m_arrows.push_back(arrow);
 		if (m_arrows.size() > 10)
@@ -244,29 +241,10 @@ void Scene::load(string folder) {
 		// Leaderboard
 		m_leaderboardName = content.m_leaderboardName;
 
-		// heightmap
-		/*
-		* Dynamic file reading. Caused problem of loading terrains even if deleted them in editor (their file wasnt deleted)
-		*/
-		//vector<string> files;
-		//read_directory("assets/Scenes/" + m_sceneName, files);
-		//files = vector<string>(files.begin() + 2, files.end());
-		//for (size_t i = 0; i < files.size(); i++) {
-		//	size_t offset = files[i].find('.', 0);
-		//	if (offset != string::npos) {
-		//		offset++; // skip '.'
-		//		string ending = files[i].substr(offset, files[i].length() - offset);
-		//		if (ending == "env") {
-		//			shared_ptr<Environment> env = make_shared<Environment>();
-		//			env->loadFromBinFile("assets/Scenes/" + m_sceneName + "/" + files[i]);
-		//			m_terrains.add(env);
-		//		}
-		//	}
-		//}
-		/*
-		* Simple system for reading files. Only reads files listed in content variable.
-		*/
-		vector<string> files = content.m_terrainFiles;
+		// terrains
+		vector<string> files;
+		read_directory("assets/Scenes/" + m_sceneName, files);
+		files_filterByEnding(files, "env");
 		for (size_t i = 0; i < files.size(); i++) {
 			shared_ptr<Environment> env = make_shared<Environment>();
 			env->loadFromBinFile("assets/Scenes/" + m_sceneName + "/" + files[i]);
@@ -324,15 +302,6 @@ void Scene::save() {
 		// Leaderboard
 		content.m_leaderboardName = m_leaderboardName;
 
-		// terrains
-		content.m_terrainFiles.resize(m_terrains.length());
-		for (size_t i = 0; i < m_terrains.length(); i++) {
-			string filename = "terrain" + to_string(i) + ".env";
-			m_terrains.getTerrainFromIndex(i)->storeToBinFile(
-				"assets/Scenes/" + m_sceneName + "/" + filename);
-			content.m_terrainFiles[i] = filename;
-		}
-
 		// seas
 		content.m_seaAreas.resize(m_seaEffects.size());
 		for (size_t i = 0; i < m_seaEffects.size(); i++) {
@@ -364,7 +333,8 @@ void Scene::save() {
 		for (size_t i = 0; i < m_entities.size(); i++) {
 			string model = m_entities[i]->getModelName();
 			SceneAbstactContent::GroupInstance::Instance instance(m_entities[i]->getPosition(),
-				m_entities[i]->getRotation(), m_entities[i]->getScale(), m_entities[i]->getIsCollidable());
+				m_entities[i]->getRotation(), m_entities[i]->getScale(),
+				m_entities[i]->getIsCollidable());
 			bool found = false;
 			for (size_t j = 0; j < group->size(); j++) {
 				if (group->at(j).model == model) {
@@ -384,19 +354,37 @@ void Scene::save() {
 
 		content.save_raw(m_sceneName);
 
+		// remove all old terrain files
+		vector<string> terrainFiles;
+		read_directory("assets/Scenes/" + m_sceneName, terrainFiles);
+		files_filterByEnding(terrainFiles, "env");
+		for (size_t i = 0; i < terrainFiles.size(); i++) {
+			string path = "assets/Scenes/" + m_sceneName + "/" + terrainFiles[i];
+			if (remove(path.c_str()) != 0) {
+				ErrorLogger::logWarning("(Scene::save) Failed removing file: " + path);
+			}
+		}
+
+		// save individual terrain files
+		for (size_t i = 0; i < m_terrains.length(); i++) {
+			string filename = "terrain" + to_string(i) + ".env";
+			string path = "assets/Scenes/" + m_sceneName + "/" + filename;
+			m_terrains.getTerrainFromIndex(i)->storeToBinFile(path);
+		}
+
 		ErrorLogger::log("Saved scene: " + m_sceneName);
 	}
 }
 
-void Scene::reset() { 
+void Scene::reset() {
 	PathFindingThread::lock();
 
-	//skybox
+	// skybox
 	m_skyBox.reset();
-	//arrows
-	m_arrows.clear(); 
+	// arrows
+	m_arrows.clear();
 	m_arrowParticles.clear();
-	//fruits
+	// fruits
 	m_fruits.clear();
 	size_t total = 0;
 	for (size_t i = 0; i < m_terrains.length(); i++)
@@ -426,14 +414,14 @@ void Scene::reset() {
 			}
 		}
 	}
-	//player
+	// player
 	m_player = make_shared<Player>();
 	m_player->setPosition(m_utility.startSpawn);
 	// camera
 	m_camera.setEye(m_utility.startSpawn);
-	//collectionPoints
+	// collectionPoints
 	m_collectionPoint.clear();
-	//gathered fruit
+	// gathered fruit
 	for (size_t i = 0; i < NR_OF_FRUITS; i++)
 		m_gatheredFruits[i] = 0;
 	// timer
@@ -479,17 +467,12 @@ float Scene::getDeltaTime_skipSlow() { return m_timer.getDt(); }
 bool SceneAbstactContent::load_raw(string folder) {
 	string path = path_scenes + folder;
 	ifstream file;
-	file.open(path+"/scene.data", ios::in | ios::binary);
+	file.open(path + "/scene.data", ios::in | ios::binary);
 	if (file.is_open()) {
-		//leaderboard
+		// leaderboard
 		fileRead(file, m_leaderboardName);
-		// terrain
-		size_t size = fileRead<size_t>(file);
-		m_terrainFiles.resize(size);
-		for (size_t i = 0; i < size; i++)
-			fileRead(file, m_terrainFiles[i]);
 		// seas
-		size = fileRead<size_t>(file);
+		size_t size = fileRead<size_t>(file);
 		m_seaAreas.resize(size);
 		for (size_t i = 0; i < size; i++)
 			fileRead<SeaContent>(file, m_seaAreas[i]);
@@ -508,7 +491,7 @@ bool SceneAbstactContent::load_raw(string folder) {
 			file.read(
 				(char*)m_entities[i].instances.data(), sizeof(GroupInstance::Instance) * subSize);
 		}
-		//animals
+		// animals
 		size = fileRead<size_t>(file);
 		m_animals.resize(size);
 		for (size_t i = 0; i < size; i++) {
@@ -523,27 +506,23 @@ bool SceneAbstactContent::load_raw(string folder) {
 	return false;
 }
 
-bool SceneAbstactContent::save_raw(string folder) { 
+bool SceneAbstactContent::save_raw(string folder) {
 	string path = path_scenes + folder;
 	create_directory(path);
 	ofstream file;
-	file.open(path+"/scene.data", ios::out | ios::binary);
+	file.open(path + "/scene.data", ios::out | ios::binary);
 	if (file.is_open()) {
-		//leaderboard
+		// leaderboard
 		fileWrite(file, m_leaderboardName);
-		//terrain
-		fileWrite<size_t>(file, m_terrainFiles.size());
-		for (size_t i = 0; i < m_terrainFiles.size(); i++)
-			fileWrite(file, m_terrainFiles[i]);
-		//seas
+		// seas
 		fileWrite<size_t>(file, m_seaAreas.size());
 		for (size_t i = 0; i < m_seaAreas.size(); i++)
 			file.write((char*)&m_seaAreas[i], sizeof(SeaContent));
-		//particlesystems
+		// particlesystems
 		fileWrite<size_t>(file, m_particleSystemContents.size());
 		for (size_t i = 0; i < m_particleSystemContents.size(); i++)
 			fileWrite<ParticleSystemContent>(file, m_particleSystemContents[i]);
-		//entities
+		// entities
 		fileWrite<size_t>(file, m_entities.size());
 		for (size_t i = 0; i < m_entities.size(); i++) {
 			fileWrite(file, m_entities[i].model);
@@ -551,12 +530,12 @@ bool SceneAbstactContent::save_raw(string folder) {
 			file.write((char*)m_entities[i].instances.data(),
 				sizeof(GroupInstance::Instance) * m_entities[i].instances.size());
 		}
-		//animals
+		// animals
 		fileWrite<size_t>(file, m_animals.size());
 		for (size_t i = 0; i < m_animals.size(); i++) {
 			fileWrite<AnimalContent>(file, m_animals[i]);
 		}
-		//utility
+		// utility
 		fileWrite<SceneUtilityInfo>(file, m_utility);
 
 		file.close();
@@ -565,4 +544,4 @@ bool SceneAbstactContent::save_raw(string folder) {
 	return false;
 }
 
-SceneAbstactContent::SceneAbstactContent() { }
+SceneAbstactContent::SceneAbstactContent() {}

@@ -27,9 +27,6 @@ public:
 	// leaderboard linked
 	string m_leaderboardName = "";
 
-	// Terrain
-	vector<string> m_terrainFiles;
-
 	// Seas
 	struct SeaContent {
 		int type;				//SeaEffect::SeaEffectTypes !!
