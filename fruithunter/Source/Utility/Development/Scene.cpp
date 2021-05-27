@@ -157,24 +157,6 @@ void Scene::updated_fragment(Fragment* fragment) {
 
 void Scene::pickUpFruit(FruitType fruitType) { m_gatheredFruits[fruitType]++; }
 
-void Scene::dropFruit(FruitType fruitType) {
-	Input* ip = Input::getInstance();
-	auto pft = PathFindingThread::getInstance();
-
-	if (m_gatheredFruits[fruitType] > 0) {
-		// reduce inventory
-		if (!DEBUG)
-			m_gatheredFruits[fruitType]--;
-		// spawn fruit
-		shared_ptr<Fruit> fruit = Fruit::createFruitFromType(fruitType);
-		fruit->setPosition(m_player->getPosition() + float3(0.0f, 1.5f, 0.0f));
-		fruit->release(m_player->getForward());
-		PathFindingThread::lock();
-		m_fruits.push_back(fruit);
-		PathFindingThread::unlock();
-	}
-}
-
 void Scene::addArrow(shared_ptr<Arrow> arrow) {
 	if (arrow.get() != nullptr) {
 		m_arrows.push_back(arrow);

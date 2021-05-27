@@ -159,11 +159,6 @@ void SceneManager::update() {
 	// update player
 	if (m_playerState) {
 		player->update();
-		// drop fruit on key press
-		for (int i = 0; i < NR_OF_FRUITS; i++) {
-			if (Input::getInstance()->keyPressed(Keyboard::Keys(Keyboard::D1 + i)))
-				scene->dropFruit((FruitType)i);
-		}
 	}
 
 	// Update Skybox

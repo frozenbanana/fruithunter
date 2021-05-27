@@ -38,8 +38,10 @@ public:
 	bool isLeaderboardLoaded();
 
 	bool FindLeaderboard(const char* pchLeaderboardName);
-	bool UploadScore(int score);
-	bool DownloadScores();
+	bool UploadScore(int score, ELeaderboardUploadScoreMethod method = k_ELeaderboardUploadScoreMethodKeepBest);
+	bool DownloadScores(
+		ELeaderboardDataRequest dataRequest = k_ELeaderboardDataRequestGlobalAroundUser,
+		int rangeStart = -4, int rangeEnd = 5);
 
 	int getEntryCount() const;
 	bool getEntry(int index, LeaderboardEntry_t& entry) const;

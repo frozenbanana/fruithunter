@@ -35,7 +35,7 @@ bool CSteamLeaderboard::FindLeaderboard(const char* pchLeaderboardName) {
 	}
 }
 
-bool CSteamLeaderboard::UploadScore(int score) {
+bool CSteamLeaderboard::UploadScore(int score, ELeaderboardUploadScoreMethod method) {
 	if (m_reqState_upload != RequestState::r_waiting) {
 		if (!m_CurrentLeaderboard) {
 			m_reqState_upload = RequestState::r_failed;
@@ -43,8 +43,8 @@ bool CSteamLeaderboard::UploadScore(int score) {
 		}
 		m_reqState_upload = RequestState::r_waiting;
 
-		SteamAPICall_t hSteamAPICall = SteamUserStats()->UploadLeaderboardScore(
-			m_CurrentLeaderboard, k_ELeaderboardUploadScoreMethodKeepBest, score, NULL, 0);
+		SteamAPICall_t hSteamAPICall =
+			SteamUserStats()->UploadLeaderboardScore(m_CurrentLeaderboard, method, score, NULL, 0);
 		m_callResultUploadScore.Set(hSteamAPICall, this, &CSteamLeaderboard::OnUploadScore);
 
 		return true;
@@ -53,7 +53,7 @@ bool CSteamLeaderboard::UploadScore(int score) {
 		return false;
 }
 
-bool CSteamLeaderboard::DownloadScores() {
+bool CSteamLeaderboard::DownloadScores(ELeaderboardDataRequest dataRequest, int rangeStart, int rangeEnd) {
 	if (m_reqState_download != RequestState::r_waiting) {
 		if (!m_CurrentLeaderboard) {
 			m_reqState_download = RequestState::r_failed;
@@ -63,7 +63,7 @@ bool CSteamLeaderboard::DownloadScores() {
 
 		// load the specified leaderboard data around the current user
 		SteamAPICall_t hSteamAPICall = SteamUserStats()->DownloadLeaderboardEntries(
-			m_CurrentLeaderboard, k_ELeaderboardDataRequestGlobalAroundUser, -4, 5);
+			m_CurrentLeaderboard, dataRequest, rangeStart, rangeEnd);
 		m_callResultDownloadScore.Set(hSteamAPICall, this, &CSteamLeaderboard::OnDownloadScore);
 
 		return true;

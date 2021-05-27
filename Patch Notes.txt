@@ -7,3 +7,4 @@ Reworks:
  - Banana behavior rework
 Bugs:
  - Fixed problem of player respawning in invalid positions
+ - Removed bug of dropping caught fruit

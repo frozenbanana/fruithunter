@@ -93,11 +93,10 @@ private:
 
 	//-- Private Functions --
 
-	void update_imgui_leaderboard();
-
 	void update_imgui_library();
 	void update_imgui_gameRules();
 	void update_imgui_terrainEditor();
+	void update_imgui_leaderboard();
 
 	bool update_panel_terrain(Environment* selection, bool update = false);
 	bool update_panel_entity(Entity* selection, bool update = false);

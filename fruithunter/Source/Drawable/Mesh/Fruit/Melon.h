@@ -18,12 +18,12 @@ private:
 	bool m_showSensors = false;
 	bool m_avoidPlayer = true;
 	float m_sensorHeightTrigger = 4;
-	float m_sensorWidthScale = 5.f;
+	float m_sensorWidthScale = 6.f;
 	bool m_fixedSensors = true;
 
 	// Movement params
-	float m_topSpeed = 20;
-	float m_acceleration = 0.05f;
+	float m_topSpeed = 18;//20
+	float m_acceleration = 0.15f;//0.05f
 	float m_varyingForwardAngle = 1.5;
 	float m_accumulatedTime = 0;
 	float m_forwardAngleSpeed = 5;

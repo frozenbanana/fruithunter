@@ -200,6 +200,9 @@ void Melon::update() {
 	Scene* scene = SceneManager::getScene();
 	float dt = scene->getDeltaTime();
 
+	if (m_showSensors)
+		update_imgui_changeParams();
+
 	m_rollTrail.update(dt);
 	m_rollTrail.emitingState(m_onGround); // emit if on ground
 

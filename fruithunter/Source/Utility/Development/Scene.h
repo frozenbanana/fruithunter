@@ -159,7 +159,6 @@ public:
 	void updated_fragment(Fragment* fragment);
 
 	void pickUpFruit(FruitType fruitType);
-	void dropFruit(FruitType fruitType);
 
 	void addArrow(shared_ptr<Arrow> arrow);
 

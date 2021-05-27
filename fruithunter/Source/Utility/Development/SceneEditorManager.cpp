@@ -9,18 +9,36 @@
 #include <fstream>
 
 void SceneEditorManager::update_imgui_leaderboard() {
-	static string leaderboardName;
-
-	ImGui::InputText("Leaderboard Name", &leaderboardName);
-	if (ImGui::Button("Fetch")) {
-		m_leaderboard.FindLeaderboard(leaderboardName.c_str());
+	static bool initDownload = false;
+	ImGui::InputText("Steam Leaderboard Name", &scene->m_leaderboardName);
+	if (ImGui::Button("Update")) {
+		m_leaderboard.FindLeaderboard(scene->m_leaderboardName.c_str());
+		initDownload = false;
+	}
+	ImGui::SameLine();
+	static ELeaderboardDataRequest requestType = ELeaderboardDataRequest::k_ELeaderboardDataRequestGlobalAroundUser;
+	const string requestTypesStr[] = {"Global","GlobalAroundUser","Friends","Users"};
+	if (ImGui::BeginCombo("RequestType", requestTypesStr[requestType].c_str())) {
+		for (size_t i = 0; i < 4; i++) {
+			if (ImGui::MenuItem(requestTypesStr[i].c_str())) {
+				requestType = (ELeaderboardDataRequest)i;
+				// fetch again
+				if (m_leaderboard.getRequestState_FindLeaderboard() ==
+					CSteamLeaderboard::RequestState::r_inactive)
+				m_leaderboard.FindLeaderboard(scene->m_leaderboardName.c_str());
+				initDownload = false;
+			}
+		}
+		ImGui::EndCombo();
 	}
 	if (m_leaderboard.getRequestState_FindLeaderboard() ==
-		CSteamLeaderboard::RequestState::r_finished) {
-		ImGui::SameLine();
-		if (ImGui::Button("Update")) {
-			m_leaderboard.DownloadScores();
-		}
+			CSteamLeaderboard::RequestState::r_finished &&
+		!initDownload) {
+		int begin = -4, end = 5;
+		if (requestType == ELeaderboardDataRequest::k_ELeaderboardDataRequestGlobal)
+			begin = 0, end = 10;
+		m_leaderboard.DownloadScores(requestType, begin, end);
+		initDownload = true;
 	}
 	string status = "";
 	string status_strOptions[4] = { "Idle", "Failed", "Waiting", "Finished" };
@@ -30,11 +48,22 @@ void SceneEditorManager::update_imgui_leaderboard() {
 		for (size_t i = 0; i < m_leaderboard.getEntryCount(); i++) {
 			LeaderboardEntry_t entry;
 			if (m_leaderboard.getEntry(i, entry)) {
+				ImVec4 color = ImVec4(1, 1, 1, 1);
+				const char* myname = SteamFriends()->GetPersonaName();
 				const char* name = SteamFriends()->GetFriendPersonaName(entry.m_steamIDUser);
-				ImGui::Text("%s[%i]: %i", name, entry.m_nGlobalRank, entry.m_nScore);
+				if (myname != nullptr && name != nullptr && string(myname) == string(name))
+					color = ImVec4(1, 1, 0, 1);
+				ImGui::TextColored(
+					ImVec4(1, 1, 1, 1), "%s[%i]: %i", name, entry.m_nGlobalRank, entry.m_nScore);
 			}
 		}
 		ImGui::ListBoxFooter();
+	}
+	static int score = 0;
+	ImGui::InputInt("Score", &score);
+	ImGui::SameLine();
+	if (ImGui::Button("Upload")) {
+		m_leaderboard.UploadScore(score, ELeaderboardUploadScoreMethod::k_ELeaderboardUploadScoreMethodForceUpdate); // overwrite
 	}
 }
 
@@ -195,14 +224,14 @@ void SceneEditorManager::update_imgui_library() {
 void SceneEditorManager::update_imgui_gameRules() {
 	ImGui::SetNextItemWidth(100);
 	ImGui::InputText("Scene Name", &scene->m_sceneName);
-	ImGui::SetNextItemWidth(100);
-	ImGui::InputText("Steam Leaderboard Name", &scene->m_leaderboardName);
 	for (size_t i = 0; i < NR_OF_FRUITS; i++) {
 		ImGui::SetNextItemWidth(100);
 		ImGui::InputInt(("WinCondition (" + FruitTypeToString((FruitType)i) + ")").c_str(),
 			&scene->m_utility.winCondition[i]);
 	}
 	for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++) {
+		ImGui::Text(Milliseconds2DisplayableString(scene->m_utility.timeTargets[i]).c_str());
+		ImGui::SameLine();
 		ImGui::SetNextItemWidth(100);
 		ImGui::InputInt(("Time Target (" + TimeTargetToString((TimeTargets)i) + ")").c_str(),
 			(int*)&scene->m_utility.timeTargets[i]);
