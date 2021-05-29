@@ -1,6 +1,7 @@
 #pragma once
 #include "GlobalNamespaces.h"
 #include "VariableSyncer.h"
+#include "Renderer.h"
 
 class Settings {
 private:
@@ -14,7 +15,7 @@ private:
 	// settings variables
 	struct SettingContainer {
 		bool vsync = false;
-		bool fullscreen = false;
+		Renderer::ScreenMode screenMode = Renderer::ScreenMode::Screen_Windowed;
 		bool darkEdges = true;
 		bool FXAA = true;
 		float volume_master = 0.5f;
@@ -37,7 +38,7 @@ public:
 	void setVsync(bool value);
 	void setDarkEdges(bool value);
 	void setFXAA(bool value);
-	void setFullscreen(bool value);
+	void setScreenMode(Renderer::ScreenMode mode);
 
 	void setDrawDistance(float value);
 	void setMasterVolume(float value);
@@ -51,7 +52,7 @@ public:
 	bool getVsync();
 	bool getFXAA();
 	bool getDarkEdges();
-	bool getFullscreen();
+	Renderer::ScreenMode getScreenMode();
 
 	float getDrawDistance();
 	float getDrawDistanceValue();

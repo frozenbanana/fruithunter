@@ -19,7 +19,9 @@ private:
 	Button m_darkEdgesButton;
 	Button m_shadowsButton;
 	Button m_resolutionButton;
-	Button m_fullscreenButton;
+
+	Renderer::ScreenMode m_screenModeLocal = Renderer::ScreenMode::Screen_Windowed;
+	Button m_screenMode;
 
 	Button m_applyButton;
 	Button m_backButton;
@@ -34,6 +36,8 @@ private:
 	SceneManager m_sceneManager; // used to redraw background
 
 	bool m_screenStateChanged = false;
+
+	static string screenModeToString(Renderer::ScreenMode mode);
 
 public:
 	SettingsState();
