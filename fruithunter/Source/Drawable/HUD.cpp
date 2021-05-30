@@ -83,7 +83,7 @@ void HUD::update(float dt) {
 		int count_current = SceneManager::getScene()->m_gatheredFruits[f];
 		int count_previous = m_tick_previousCatchCount[f];
 		// resize if needed
-		if (m_tickAnimations[f].size() < count_target) {
+		if (m_tickAnimations[f].size() != count_target) {
 			m_tickAnimations[f].resize(count_target); // resize to fit
 			m_tick_previousCatchCount[f] = 0;
 		}
