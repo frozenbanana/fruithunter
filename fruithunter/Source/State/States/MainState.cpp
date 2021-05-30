@@ -18,7 +18,7 @@ void MainState::setButtons_menu() {
 
 void MainState::setButtons_levelSelect() {
 	m_btn_levelSelect_back.set(float2(1280 - 150, 720 - 75), "Back", 0);
-	m_btn_levelSelect_play.set(float2(1280 / 2, 720 - 75), "Play", 0.2f);
+	m_btn_levelSelect_controls.set(float2(150, 720 - 75), "Controls", 0.2f);
 }
 
 void MainState::setButtons_credits() {
@@ -180,9 +180,8 @@ void MainState::update() {
 				// back to menu
 				changeMainState(Menu);
 			}
-			if (m_btn_levelSelect_play.update_behavior(dt)) {
-				// start level
-				changeToLevel(m_levelHighlighted);
+			if (m_btn_levelSelect_controls.update_behavior(dt)) {
+				push(State::ControlState);
 			}
 
 			// update level frames
@@ -333,8 +332,8 @@ void MainState::draw() {
 		m_btn_levelSelect_back.setAlpha(alpha);
 		m_btn_levelSelect_back.draw();
 
-		m_btn_levelSelect_play.setAlpha(alpha);
-		m_btn_levelSelect_play.draw();
+		m_btn_levelSelect_controls.setAlpha(alpha);
+		m_btn_levelSelect_controls.draw();
 
 		float itemWidthOffset = 325;
 		float totalItemWidth = itemWidthOffset * (3 - 1);

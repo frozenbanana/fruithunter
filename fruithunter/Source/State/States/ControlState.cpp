@@ -7,10 +7,6 @@ ControlState::ControlState() : StateItem(State::ControlState) {}
 ControlState::~ControlState() {}
 
 void ControlState::init() {
-
-	m_text.setScale(0.6f);
-	m_text.setAlignment();
-
 	float2 screenSize = float2(1280, 720);
 
 	float2 scale = float2(0.25f);
@@ -90,13 +86,33 @@ void ControlState::update() {
 void ControlState::draw() {
 	Renderer::getInstance()->drawCapturedFrame();
 	m_background.draw();
+	
+	// shooting
+	m_text.setScale(0.6f);
+	m_text.setAlignment();
+	m_text.setPosition(float2(1280-(1070-100), 50));
+	m_text.setText("Shooting");
+	m_text.draw();
+	m_mouseLeft.draw();
+	m_bow.draw();
 
-	m_text.setPosition(float2(1280/2, 50));
+	// slowmotion
+	m_text.setScale(0.6f);
+	m_text.setAlignment();
+	m_text.setPosition(float2(1280 / 2, 50));
 	m_text.setText("Slow Motion");
 	m_text.draw();
 	m_slowMo.draw();
 	m_slowMoKey.draw();
+	m_text.setScale(0.25f);
+	m_text.setAlignment();
+	m_text.setPosition(float2(1280 / 2, 450));
+	m_text.setText("(Press  twice  to  turn  off)");
+	m_text.draw();
 
+	// movement
+	m_text.setScale(0.6f);
+	m_text.setAlignment();
 	m_text.setPosition(float2(1070 - 100, 50));
 	m_text.setText("Movement");
 	m_text.draw();
@@ -104,13 +120,13 @@ void ControlState::draw() {
 	m_charMovement.draw();
 	m_jumpKey.draw();
 	m_charJump.draw();
-	
-	m_text.setPosition(float2(1280-(1070-100), 50));
-	m_text.setText("Shooting");
+	m_text.setScale(0.25f);
+	m_text.setAlignment();
+	m_text.setPosition(float2(1070 - 100, 720 - 50));
+	m_text.setText("(Press  twice  to  double  jump)");
 	m_text.draw();
-	m_mouseLeft.draw();
-	m_bow.draw();
 
+	// buttons
 	m_btn_back.draw();
 }
 

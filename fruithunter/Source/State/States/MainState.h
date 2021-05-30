@@ -88,7 +88,7 @@ private:
 	Menu_PoppingButton m_btn_menu_buttons[btn_length];
 	Menu_PoppingButton m_btn_menu_credits;
 	Menu_PoppingButton m_btn_levelSelect_back;
-	Menu_PoppingButton m_btn_levelSelect_play;
+	Menu_PoppingButton m_btn_levelSelect_controls;
 	Menu_PoppingButton m_btn_credits_back;
 
 	SoundID m_menuMusic = 0;
