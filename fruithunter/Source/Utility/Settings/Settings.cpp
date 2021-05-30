@@ -8,7 +8,7 @@ Settings Settings::m_this;
 Settings::Settings() {
 	// bind settings variables to file
 	m_settingFile.bind("Vsync:b", &m_tempContainer.vsync);
-	m_settingFile.bind("Fullscreen:b", &m_tempContainer.fullscreen);
+	m_settingFile.bind("ScreenMode:i", &m_tempContainer.screenMode);
 	m_settingFile.bind("DarkEdges:b", &m_tempContainer.darkEdges);
 	m_settingFile.bind("FXAA:b", &m_tempContainer.FXAA);
 	m_settingFile.bind("MasterVolume:f", &m_tempContainer.volume_master);
@@ -33,7 +33,6 @@ void Settings::loadAllSetting() {
 	// update variables in case of overhead.
 	// Additional code may need to be executed for a variable!
 	setVsync(m_tempContainer.vsync);
-	setFullscreen(m_tempContainer.fullscreen);
 	setDarkEdges(m_tempContainer.darkEdges);
 	setFXAA(m_tempContainer.FXAA);
 	setMasterVolume(m_tempContainer.volume_master);
@@ -43,6 +42,7 @@ void Settings::loadAllSetting() {
 	setResolution(m_tempContainer.resolution.x, m_tempContainer.resolution.y);
 	setShadowResolution(m_tempContainer.resolution_shadow);
 	setSensitivity(m_tempContainer.sensitivity);
+	setScreenMode(m_tempContainer.screenMode);
 }
 
 void Settings::saveAllSetting() {
@@ -69,10 +69,10 @@ void Settings::setFXAA(bool value) {
 	}
 }
 
-void Settings::setFullscreen(bool value) {
-	if (m_container.fullscreen != value) {
-		m_container.fullscreen = value;
-		Renderer::getInstance()->setFullscreen(m_container.fullscreen);
+void Settings::setScreenMode(Renderer::ScreenMode mode) {
+	if (m_container.screenMode != mode) {
+		m_container.screenMode = mode;
+		Renderer::getInstance()->setScreenMode(mode);
 	}
 }
 
@@ -111,11 +111,8 @@ void Settings::setSensitivity(float value) {
 
 void Settings::setResolution(int width, int height) {
 	XMINT2 desiredResolution(width, height);
-	// if (desiredResolution.x != m_container.resolution.x || desiredResolution.y !=
-	// m_container.resolution.y) {
 	m_container.resolution = desiredResolution;
 	Renderer::getInstance()->changeResolution(width, height);
-	//}
 }
 
 void Settings::setShadowResolution(int res) {
@@ -131,7 +128,7 @@ bool Settings::getFXAA() { return m_container.FXAA; }
 
 bool Settings::getDarkEdges() { return m_container.darkEdges; }
 
-bool Settings::getFullscreen() { return m_container.fullscreen; }
+Renderer::ScreenMode Settings::getScreenMode() { return m_container.screenMode; }
 
 float Settings::getDrawDistance() { return 100.f + 100.f * m_container.drawDistance; }
 

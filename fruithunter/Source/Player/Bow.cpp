@@ -28,8 +28,9 @@ void Bow::atPull() {
 
 void Bow::pull(float dt) {
 	m_bowWindup = Clamp<float>(m_bowWindup + dt / m_bowPositioning_timeUntilTense, 0, 1);
-	m_drawFactor = 1.f - pow(m_bowWindup - 1, 2);
-	m_stringFactor = Clamp<float>(m_drawFactor,0,0.999); // bow animation is fixed to the draw factor
+	m_drawFactor = 1.f - (float)pow(m_bowWindup - 1, 2);
+	m_stringFactor =
+		Clamp<float>(m_drawFactor, 0, 0.999f); // bow animation is fixed to the draw factor
 	m_bow.updateAnimatedSpecific(m_stringFactor);
 	m_bow.setFrameTargets(0, 1);
 

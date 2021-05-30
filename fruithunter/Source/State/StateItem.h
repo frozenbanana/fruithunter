@@ -15,6 +15,8 @@ public:
 		EditorState,
 		Size
 	};
+	const string m_stateStrings[State::Size] = { "PlayState", "PauseState", "SettingState",
+		"ControlState", "MainState", "EndRoundState", "EditorState" };
 	struct Request {
 		enum Type { PUSH, POP, NONE } type = NONE;
 		State state = State::Size;

@@ -63,7 +63,7 @@ void ParticleSystem::activeState(bool state) { m_isActive = state; }
 
 void ParticleSystem::emit(size_t count) {
 	for (size_t i = 0; i < m_particles.size() && count > 0; i++) {
-		if (m_particles[i].isActive == false) {
+		if (m_particles[i].isActive == 0) {
 			setParticle(i);
 			count--;
 		}
@@ -87,7 +87,7 @@ void ParticleSystem::updateParticles(float dt) {
 	Environment* environment =
 		SceneManager::getScene()->m_terrains.getTerrainFromPosition(getPosition());
 	for (size_t i = 0; i < m_particles.size(); i++) {
-		if (m_particles[i].isActive == true) {
+		if (m_particles[i].isActive != 0) {
 			m_particleProperties[i].timeLeft -= dt;
 			float lifeTime = m_particleProperties[i].lifeTime;
 			float timeLeft = m_particleProperties[i].timeLeft;
@@ -110,8 +110,8 @@ void ParticleSystem::updateParticles(float dt) {
 				float dragCoefficient = 1;
 
 				float r = m_particles[i].size / 2.f;
-				float area = 3.1415f * pow(r, 2);
-				float mass = 3.1415f * (4.f / 3.f) * pow(r, 3);
+				float area = 3.1415f * (float)pow(r, 2);
+				float mass = 3.1415f * (4.f / 3.f) * (float)pow(r, 3);
 				// get wind
 				float3 acceleration = m_particle_description.acceleration;
 				if (environment != nullptr && m_affectedByWind) {
@@ -120,7 +120,7 @@ void ParticleSystem::updateParticles(float dt) {
 						(m_particleProperties[i].velocity - wind); // velocity relative wind
 					float v_length = v_relative.Length();
 					float Fd =
-						0.5 * density * pow(v_length, 2) * area * dragCoefficient; // drag from wind
+						0.5f * density * (float)pow(v_length, 2) * area * dragCoefficient; // drag from wind
 					acceleration += (-Fd / mass) * Normalize(v_relative);
 				}
 				// update velocity and position
@@ -176,7 +176,7 @@ void ParticleSystem::resizeBuffer() {
 	// calc size
 	size_t size = m_capacity;
 	if (m_capacity == 0)
-		size = round(m_emitRate * m_particle_description.timeAlive_interval.y);
+		size = (size_t)round(m_emitRate * m_particle_description.timeAlive_interval.y);
 	if (size != m_particles.size()) {
 		// resize buffers
 		m_particles.resize(size);
@@ -313,10 +313,10 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[2] = float4(0.0f, 0.65f, 0.55f, 1.0f);
 		size_interval = float2(0.04f, 0.06f);
 		timeAlive_interval = float2(4.f, 6.f);
-		velocity_max = float3(1.);
-		velocity_min = float3(-1.);
+		velocity_max = float3(1.f);
+		velocity_min = float3(-1.f);
 		velocity_interval = float2(0.43f, 0.43f);
-		acceleration = float3(0.);
+		acceleration = float3(0.f);
 		slowdown = 1;
 		str_sprite = "";
 		shape = Shape::Circle;
@@ -329,10 +329,10 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[2] = float4(0.81f, 0.58f, 0.39f, 1.0f);
 		size_interval = float2(0.04f, 0.06f);
 		timeAlive_interval = float2(2.5f, 3.5f);
-		velocity_max = float3(1.);
-		velocity_min = float3(-1.);
-		velocity_interval = float2(0.43, 0.43);
-		acceleration = float3(0.);
+		velocity_max = float3(1.f);
+		velocity_min = float3(-1.f);
+		velocity_interval = float2(0.43f, 0.43f);
+		acceleration = float3(0.f);
 		slowdown = 1;
 		str_sprite = "";
 		shape = Shape::Circle;
@@ -343,9 +343,9 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[0] = float4(179 / 255.f, 0 / 255.f, 0 / 255.f, 1.0f);
 		colorVariety[1] = float4(229 / 255.f, 74 / 255.f, 10 / 255.f, 1.0f);
 		colorVariety[2] = float4(200 / 255.f, 160 / 255.f, 4 / 255.f, 1.0f);
-		size_interval = float2(0.7, 1.5);
-		timeAlive_interval = float2(1.5, 3);
-		velocity_max = float3(1.);
+		size_interval = float2(0.7f, 1.5f);
+		timeAlive_interval = float2(1.5f, 3);
+		velocity_max = float3(1.f);
 		velocity_min = float3(-1, 0, -1);
 		velocity_interval = float2(1, 2);
 		acceleration = float3(0, 10, 0);
@@ -359,11 +359,11 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[0] = float4(0.50f, 0.40f, 0.40f, 1.0f);
 		colorVariety[1] = float4(0.30f, 0.30f, 0.30f, 1.0f);
 		colorVariety[2] = float4(0.60f, 0.60f, 0.60f, 1.0f);
-		size_interval = float2(0.9, 1.4);
+		size_interval = float2(0.9f, 1.4f);
 		timeAlive_interval = float2(2, 10);
-		velocity_max = float3(1.) * 0.25f;
+		velocity_max = float3(1.f) * 0.25f;
 		velocity_min = float3(-1, 0, -1) * 0.25f;
-		velocity_interval = float2(0.75, 1.5);
+		velocity_interval = float2(0.75f, 1.5f);
 		acceleration = float3(0, 3, 0);
 		slowdown = 1;
 		str_sprite = "";
@@ -377,10 +377,10 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[2] = float4(0.51f, 0.34f, 0.17f, 1.0f);
 		size_interval = float2(0.04f, 0.06f);
 		timeAlive_interval = float2(0.4f, 1.6f);
-		velocity_max = float3(1.);
-		velocity_min = float3(-1);
-		velocity_interval = float2(0.2, 0.5);
-		acceleration = float3(0.);
+		velocity_max = float3(1.f);
+		velocity_min = float3(-1.f);
+		velocity_interval = float2(0.2f, 0.5f);
+		acceleration = float3(0.f);
 		slowdown = 1;
 		str_sprite = "";
 		shape = Shape::Circle;
@@ -391,12 +391,12 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[0] = float4(1.f, 1.f, 1.f, 1.0f);
 		colorVariety[1] = float4(1.f, 1.f, 1.f, 1.0f);
 		colorVariety[2] = float4(1.f, 1.f, 1.f, 1.0f);
-		size_interval = float2(0.075, 0.075);
-		timeAlive_interval = float2(0.35, 0.35);
-		velocity_max = float3(0.);
-		velocity_min = float3(0.);
-		velocity_interval = float2(0.);
-		acceleration = float3(0.);
+		size_interval = float2(0.075f, 0.075f);
+		timeAlive_interval = float2(0.35f, 0.35f);
+		velocity_max = float3(0.f);
+		velocity_min = float3(0.f);
+		velocity_interval = float2(0.f);
+		acceleration = float3(0.f);
 		slowdown = 1;
 		str_sprite = "";
 		shape = Shape::Circle;
@@ -409,8 +409,8 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[2] = float4(61 / 255.f, 61 / 255.f, 211 / 255.f, 1.0f);
 		size_interval = float2(0.035f, 0.09f);
 		timeAlive_interval = float2(1.5f, 3.0f);
-		velocity_max = float3(0.2, 1, 0.2);
-		velocity_min = float3(-0.2, 0.5, -0.2);
+		velocity_max = float3(0.2f, 1, 0.2f);
+		velocity_min = float3(-0.2f, 0.5f, -0.2f);
 		velocity_interval = float2(5, 7);
 		acceleration = float3(0, -10, 0);
 		slowdown = 1;
@@ -425,9 +425,9 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[2] = float4(0.99f, 0.98f, 0.02f, 1.0f);
 		size_interval = float2(0.1f, .2f);
 		timeAlive_interval = float2(0.6f, .65f);
-		velocity_max = float3(1.);
-		velocity_min = float3(-1, 0.5, -1);
-		velocity_interval = float2(2, 2.5);
+		velocity_max = float3(1.f);
+		velocity_min = float3(-1, 0.5f, -1);
+		velocity_interval = float2(2, 2.5f);
 		acceleration = float3(0.);
 		slowdown = 0.05f;
 		str_sprite = "";
@@ -441,10 +441,10 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[2] = float4(0.75f, 0.75f, 0.75f, 1.0f);
 		size_interval = float2(0.1f, .2f);
 		timeAlive_interval = float2(0.6f, .65f);
-		velocity_max = float3(1.);
-		velocity_min = float3(-1, 0.5, -1);
-		velocity_interval = float2(2, 2.5);
-		acceleration = float3(0.);
+		velocity_max = float3(1.f);
+		velocity_min = float3(-1, 0.5f, -1);
+		velocity_interval = float2(2, 2.5f);
+		acceleration = float3(0.f);
 		slowdown = 0.05f;
 		str_sprite = "";
 		shape = Shape::Star;
@@ -457,10 +457,10 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[2] = float4(0.70f, 0.32f, 0.09f, 1.0f);
 		size_interval = float2(0.1f, .2f);
 		timeAlive_interval = float2(0.6f, .65f);
-		velocity_max = float3(1.);
-		velocity_min = float3(-1, 0.5, -1);
-		velocity_interval = float2(2, 2.5);
-		acceleration = float3(0.);
+		velocity_max = float3(1.f);
+		velocity_min = float3(-1, 0.5f, -1);
+		velocity_interval = float2(2, 2.5f);
+		acceleration = float3(0.f);
 		slowdown = 0.05f;
 		str_sprite = "";
 		shape = Shape::Star;
@@ -471,12 +471,12 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[0] = float4(228 / 255.f, 83 / 255.f, 83 / 255.f, 1.f);
 		colorVariety[1] = float4(186 / 255.f, 33 / 255.f, 33 / 255.f, 1.f);
 		colorVariety[2] = float4(255 / 255.f, 150 / 255.f, 150 / 255.f, 1.f);
-		size_interval = float2(0.075, 0.1);
-		timeAlive_interval = float2(0.4, 0.7);
-		velocity_max = float3(1.);
-		velocity_min = float3(-1.);
+		size_interval = float2(0.075f, 0.1f);
+		timeAlive_interval = float2(0.4f, 0.7f);
+		velocity_max = float3(1.f);
+		velocity_min = float3(-1.f);
 		velocity_interval = float2(3, 20);
-		acceleration = float3(0.);
+		acceleration = float3(0.f);
 		slowdown = 0.0001f;
 		str_sprite = "";
 		shape = Shape::Circle;
@@ -487,12 +487,12 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[0] = float4(249 / 255.f, 255 / 255.f, 158 / 255.f, 1.f);
 		colorVariety[1] = float4(232 / 255.f, 255 / 255.f, 58 / 255.f, 1.f);
 		colorVariety[2] = float4(225 / 255.f, 255 / 255.f, 0 / 255.f, 1.f);
-		size_interval = float2(0.075, 0.1);
-		timeAlive_interval = float2(0.4, 0.7);
-		velocity_max = float3(1.);
-		velocity_min = float3(-1.);
+		size_interval = float2(0.075f, 0.1f);
+		timeAlive_interval = float2(0.4f, 0.7f);
+		velocity_max = float3(1.f);
+		velocity_min = float3(-1.f);
 		velocity_interval = float2(3, 20);
-		acceleration = float3(0.);
+		acceleration = float3(0.f);
 		slowdown = 0.0001f;
 		str_sprite = "";
 		shape = Shape::Circle;
@@ -503,12 +503,12 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[0] = float4(58 / 255.f, 176 / 255.f, 60 / 255.f, 1.f);
 		colorVariety[1] = float4(72 / 255.f, 141 / 255.f, 65 / 255.f, 1.f);
 		colorVariety[2] = float4(72 / 255.f, 226 / 255.f, 39 / 255.f, 1.f);
-		size_interval = float2(0.075, 0.1);
-		timeAlive_interval = float2(0.4, 0.7);
-		velocity_max = float3(1.);
-		velocity_min = float3(-1.);
+		size_interval = float2(0.075f, 0.1f);
+		timeAlive_interval = float2(0.4f, 0.7f);
+		velocity_max = float3(1.f);
+		velocity_min = float3(-1.f);
 		velocity_interval = float2(3, 20);
-		acceleration = float3(0.);
+		acceleration = float3(0.f);
 		slowdown = 0.0001f;
 		shape = Shape::Circle;
 		str_sprite = "";
@@ -519,12 +519,12 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[0] = float4(78 / 255.f, 158 / 255.f, 80 / 255.f, 1.f);
 		colorVariety[1] = float4(235 / 255.f, 83 / 255.f, 83 / 255.f, 1.f);
 		colorVariety[2] = float4(215 / 255.f, 51 / 255.f, 51 / 255.f, 1.f);
-		size_interval = float2(0.075, 0.1);
-		timeAlive_interval = float2(0.4, 0.7);
-		velocity_max = float3(1.);
-		velocity_min = float3(-1.);
+		size_interval = float2(0.075f, 0.1f);
+		timeAlive_interval = float2(0.4f, 0.7f);
+		velocity_max = float3(1.f);
+		velocity_min = float3(-1.f);
 		velocity_interval = float2(3, 20);
-		acceleration = float3(0.);
+		acceleration = float3(0.f);
 		slowdown = 0.0001f;
 		shape = Shape::Circle;
 		str_sprite = "";
@@ -535,12 +535,12 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[0] = float4(228 / 255.f, 83 / 255.f, 83 / 255.f, 1.f);
 		colorVariety[1] = float4(186 / 255.f, 33 / 255.f, 33 / 255.f, 1.f);
 		colorVariety[2] = float4(255 / 255.f, 150 / 255.f, 150 / 255.f, 1.f);
-		size_interval = float2(0.15, 0.3);
-		timeAlive_interval = float2(0.1, 1.0);
-		velocity_max = float3(-1.);
-		velocity_min = float3(1.);
-		velocity_interval = float2(0.1, 0.2);
-		acceleration = float3(0.);
+		size_interval = float2(0.15f, 0.3f);
+		timeAlive_interval = float2(0.1f, 1.0f);
+		velocity_max = float3(-1.f);
+		velocity_min = float3(1.f);
+		velocity_interval = float2(0.1f, 0.2f);
+		acceleration = float3(0.f);
 		slowdown = 1;
 		shape = Shape::Star;
 		str_sprite = "";
@@ -551,12 +551,12 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[0] = float4(249 / 255.f, 255 / 255.f, 158 / 255.f, 1.f);
 		colorVariety[1] = float4(232 / 255.f, 255 / 255.f, 58 / 255.f, 1.f);
 		colorVariety[2] = float4(225 / 255.f, 255 / 255.f, 0 / 255.f, 1.f);
-		size_interval = float2(0.15, 0.3);
-		timeAlive_interval = float2(0.1, 1.0);
-		velocity_max = float3(-1.);
-		velocity_min = float3(1.);
-		velocity_interval = float2(0.1, 0.2);
-		acceleration = float3(0.);
+		size_interval = float2(0.15f, 0.3f);
+		timeAlive_interval = float2(0.1f, 1.0f);
+		velocity_max = float3(-1.f);
+		velocity_min = float3(1.f);
+		velocity_interval = float2(0.1f, 0.2f);
+		acceleration = float3(0.f);
 		slowdown = 1;
 		shape = Shape::Star;
 		str_sprite = "";
@@ -567,12 +567,12 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[0] = float4(58 / 255.f, 176 / 255.f, 60 / 255.f, 1.f);
 		colorVariety[1] = float4(72 / 255.f, 141 / 255.f, 65 / 255.f, 1.f);
 		colorVariety[2] = float4(72 / 255.f, 226 / 255.f, 39 / 255.f, 1.f);
-		size_interval = float2(0.15, 0.3);
-		timeAlive_interval = float2(0.1, 1.0);
-		velocity_max = float3(-1.);
-		velocity_min = float3(1.);
-		velocity_interval = float2(0.1, 0.2);
-		acceleration = float3(0.);
+		size_interval = float2(0.15f, 0.3f);
+		timeAlive_interval = float2(0.1f, 1.0f);
+		velocity_max = float3(-1.f);
+		velocity_min = float3(1.f);
+		velocity_interval = float2(0.1f, 0.2f);
+		acceleration = float3(0.f);
 		slowdown = 1;
 		shape = Shape::Star;
 		str_sprite = "";
@@ -615,10 +615,10 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[0] = float4(194 / 255.f, 194 / 255.f, 194 / 255.f, 1.f);
 		colorVariety[1] = float4(223 / 255.f, 223 / 255.f, 223 / 255.f, 1.f);
 		colorVariety[2] = float4(154 / 255.f, 154 / 255.f, 154 / 255.f, 1.f);
-		size_interval = float2(0.4, 0.6);
-		timeAlive_interval = float2(0.4, 2.5);
-		velocity_max = float3(-0.5, 0.5, -0.5);
-		velocity_min = float3(0.5, 1, 0.5);
+		size_interval = float2(0.4f, 0.6f);
+		timeAlive_interval = float2(0.4f, 2.5f);
+		velocity_max = float3(-0.5f, 0.5f, -0.5f);
+		velocity_min = float3(0.5f, 1, 0.5f);
 		velocity_interval = float2(10, 25);
 		acceleration = float3(0, -3, 0);
 		slowdown = 0.05f;
@@ -631,10 +631,10 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[0] = float4(206 / 255.f, 115 / 255.f, 0 / 255.f, 1.f);
 		colorVariety[1] = float4(190 / 255.f, 84 / 255.f, 0 / 255.f, 1.f);
 		colorVariety[2] = float4(231 / 255.f, 122 / 255.f, 25 / 255.f, 1.f);
-		size_interval = float2(0.4, 0.6);
-		timeAlive_interval = float2(0.4, 2.5);
-		velocity_max = float3(-0.5, 0.5, -0.5);
-		velocity_min = float3(0.5, 1, 0.5);
+		size_interval = float2(0.4f, 0.6f);
+		timeAlive_interval = float2(0.4f, 2.5f);
+		velocity_max = float3(-0.5f, 0.5f, -0.5f);
+		velocity_min = float3(0.5f, 1, 0.5f);
 		velocity_interval = float2(10, 25);
 		acceleration = float3(0, -3, 0);
 		slowdown = 0.05f;
@@ -647,11 +647,11 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[0] = float4(203 / 255.f, 203 / 255.f, 203 / 255.f, 1.f);
 		colorVariety[1] = float4(160 / 255.f, 160 / 255.f, 160 / 255.f, 1.f);
 		colorVariety[2] = float4(123 / 255.f, 123 / 255.f, 123 / 255.f, 1.f);
-		size_interval = float2(0.1, 0.3);
-		timeAlive_interval = float2(0.3, 0.5);
-		velocity_max = float3(-1, -0.05, -1);
-		velocity_min = float3(1, 0.05, 1);
-		velocity_interval = float2(5, 5.5);
+		size_interval = float2(0.1f, 0.3f);
+		timeAlive_interval = float2(0.3f, 0.5f);
+		velocity_max = float3(-1, -0.05f, -1);
+		velocity_min = float3(1, 0.05f, 1);
+		velocity_interval = float2(5, 5.5f);
 		acceleration = float3(0, 0, 0);
 		slowdown = 0.001f;
 		str_sprite = "";
@@ -664,9 +664,9 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		colorVariety[1] = float4(69 / 255.f, 115 / 255.f, 69 / 255.f, 1.0f);
 		colorVariety[2] = float4(93 / 255.f, 76 / 255.f, 36 / 255.f, 1.0f);
 		size_interval = float2(0.035f, 0.09f);
-		timeAlive_interval = float2(0.1, 0.4);
-		velocity_max = float3(0.2, 1, 0.2);
-		velocity_min = float3(-0.2, 0.5, -0.2);
+		timeAlive_interval = float2(0.1f, 0.4f);
+		velocity_max = float3(0.2f, 1, 0.2f);
+		velocity_min = float3(-0.2f, 0.5f, -0.2f);
 		velocity_interval = float2(4, 5);
 		acceleration = float3(0, -20, 0);
 		slowdown = 1;
@@ -708,15 +708,15 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		shape = Shape::Sprite;
 		break;
 	default:
-		colorVariety[0] = float4(1.);
-		colorVariety[1] = float4(1.);
-		colorVariety[2] = float4(1.);
+		colorVariety[0] = float4(1.f);
+		colorVariety[1] = float4(1.f);
+		colorVariety[2] = float4(1.f);
 		size_interval = float2(1, 1);
 		timeAlive_interval = float2(1, 1);
-		velocity_max = float3(0.);
-		velocity_min = float3(0.);
+		velocity_max = float3(0.f);
+		velocity_min = float3(0.f);
 		velocity_interval = float2(0, 0);
-		acceleration = float3(0.);
+		acceleration = float3(0.f);
 		slowdown = 1;
 		str_sprite = "";
 		shape = Shape::Circle;

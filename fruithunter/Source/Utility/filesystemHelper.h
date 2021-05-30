@@ -18,6 +18,7 @@ static std::wstring str2wstr(const std::string& s) {
 }
 
 static void read_directory(const std::string& name, vector<string>& v) {
+	v.clear();
 	std::string pattern(name);
 	pattern.append("\\*");
 	WIN32_FIND_DATA data;
@@ -33,3 +34,20 @@ static void read_directory(const std::string& name, vector<string>& v) {
 }
 
 static void create_directory(string path) { CreateDirectory(str2wstr(path).c_str(), NULL); }
+
+static void files_filterByEnding(vector<string>& paths, string fileEnding) {
+	for (size_t i = 0; i < paths.size(); i++) {
+		bool del = true;
+		size_t offset = paths[i].find('.', 0);
+		if (offset != string::npos) {
+			offset++; // skip '.'
+			string strEnd = paths[i].substr(offset, paths[i].length() - offset);
+			if (strEnd == fileEnding)
+				del = false;
+		}
+		if (del) {
+			paths.erase(paths.begin() + i);
+			i--;
+		}
+	}
+}

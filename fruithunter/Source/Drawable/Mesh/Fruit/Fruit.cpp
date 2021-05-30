@@ -37,9 +37,8 @@ void Fruit::setStartPosition(float3 pos) {
 void Fruit::setNextDestination(float3 nextDest) { m_nextDestinationAnimationPosition = nextDest; }
 
 Skillshot Fruit::hit(float3 playerPos) {
-	Skillshot hitType = SS_NOTHING;
+	Skillshot hitType = Skillshot::SS_BRONZE;
 	if (m_currentState != CAUGHT) {
-		changeState(CAUGHT);
 		float dist = (playerPos - getPosition()).Length();
 		ParticleSystem::Type type = ParticleSystem::Type::CONFETTI;
 		int nrOf = 5;
@@ -110,7 +109,7 @@ shared_ptr<Fruit> Fruit::createFruitFromType(FruitType type) {
 void Fruit::enforceOverTerrain() {
 	if (atOrUnder(SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition()))) {
 		float newY = SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition()) +
-					 abs(getHalfSizes().y / 2);
+					 abs(getHalfSizes().y + 0.01f);
 		setPosition(float3(getPosition().x, newY, getPosition().z));
 	}
 }
@@ -144,23 +143,15 @@ void Fruit::update() {
 	Scene* scene = SceneManager::getScene();
 	float dt = scene->getDeltaTime();
 
-	if (withinDistanceTo(scene->m_player->getPosition(), 160.f)) {
+	if (withinDistanceTo(scene->m_player->getPosition(), 500.f)) {
 		m_isVisible = true;
 		m_particleSystem.setPosition(getPosition());
 		checkOnGroundStatus(); // checks if on ground
-		/*
-		 * Flee: move towards edge of passive zone, away from player
-		 * Passive: 
-		        - If at water level, then jump towards home blindly
-				- If not at home, then set AI to home
-				- If failed to go home then set new home at current location
-				- If at home, then just jump straight up. But after 2 jumps move home
-		 * Caught: Jump straight up. Move straight to player
-		*/
-		doBehavior();
-		setDirection(); // walk towards AI walk node
 		updateAnimated(dt); // animation stuff
 		updateVelocity(dt); // update velocity (slowdown and apply accelration)
+		doBehavior();
+		setDirection();		 // walk towards AI walk node
+		updateRespawn();
 		move(dt);			// update position from velocity
 		enforceOverTerrain();// force fruit above ground
 		handleAvailablePath(getPosition()); // Keeps track of next AI node to go to (discards nodes if to close)
@@ -215,16 +206,74 @@ void Fruit::behaviorReleased() {
 void Fruit::updateVelocity(float dt) {
 	float friction = m_onGround ? m_groundFriction : m_airFriction;
 	// friction = m_groundFriction;
-	m_velocity *= pow(friction / 60.f, dt);
 	m_direction.Normalize();
 	float3 dir = m_direction * m_speed;
 	m_velocity += (m_direction * m_speed + m_gravity) * dt;
+	m_velocity *= pow(friction / 60.f, dt);
 }
 
 void Fruit::stopMovement() {
 	m_velocity = float3(0.f);
 	m_speed = 0.f;
 	m_availablePath.clear();
+}
+
+void Fruit::respawn() {
+	if (!m_respawning) {
+		// on respawn
+		m_respawning = true;
+		m_respawn_timer = m_respawn_timeMax;
+		m_startScale = getScale().x;
+	}
+}
+
+void Fruit::updateRespawn() {
+	// -- FRUIT RESPAWNING -- //
+	// Change into passive mode to automaticly respawn melon
+
+	if (m_respawning) {
+		// update
+		float dt = SceneManager::getScene()->getDeltaTime();
+
+		float th = m_respawn_timeMax / 2;
+		if (m_respawn_timer >= th && m_respawn_timer - dt < th) {
+			// find new respawn point
+			if (m_boundTerrain != nullptr) {
+				// spawn on bound terrain
+				float3 sp = m_boundTerrain->getRandomSpawnPoint();
+				setPosition(sp + float3(0.f, 1.f, 0.f) * (getHalfSizes().y + 0.1f));
+			}
+			else {
+				int tIndex =
+					SceneManager::getScene()->m_terrains.getTerrainIndexFromPosition(getPosition());
+				if (tIndex == -1) {
+					// pick random terrain if not on a terrain (Plan B)
+					tIndex = rand() % SceneManager::getScene()->m_terrains.length();
+				}
+				if (tIndex != -1) {
+					float3 sp = SceneManager::getScene()->m_terrains.getSpawnpoint(tIndex);
+					setPosition(sp + float3(0.f, 1.f, 0.f) * (getHalfSizes().y + 0.1f));
+				}
+				else {
+					// this should never happen as fruits only can spawn if there is a terrain to
+					// spawn from
+					ErrorLogger::logError(
+						"(Fruit) Fruit cant respawn. No terrains exists!", HRESULT());
+				}
+			}
+			m_velocity *= 0;
+		}
+		m_respawn_timer = Clamp<float>(m_respawn_timer - dt, 0, m_respawn_timeMax);
+
+		// scaling
+		float factor = abs((m_respawn_timeMax / 2) - m_respawn_timer) / (m_respawn_timeMax / 2);
+		setScale(m_startScale * factor);
+
+		if (m_respawn_timer == 0) {
+			// end of respawn
+			m_respawning = false;
+		}
+	}
 }
 
 bool Fruit::rayCastWorld(float3 point, float3 forward, float3& intersection, float3& normal) {

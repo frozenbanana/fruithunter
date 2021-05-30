@@ -29,7 +29,7 @@ float HeightmapMesh::sampleHeightmap(
 	else if (description.Format == DXGI_FORMAT_R16G16B16A16_UNORM) {
 		unsigned short int r =
 			((unsigned short int*)
-					data.pData)[iUV.y * (data.RowPitch / sizeof(short int)) + iUV.x * 4];
+					data.pData)[(size_t)iUV.y * (data.RowPitch / sizeof(short int)) + (size_t)iUV.x * 4];
 		v = (float)r / (pow(2.f, sizeof(short int) * 8.f) - 1.f);
 	}
 	return v;
@@ -121,8 +121,8 @@ void HeightmapMesh::smoothGrid(size_t iterations) {
 	int smoothSteps = (int)iterations;
 	for (int i = 0; i < smoothSteps; i++) {
 		vector<vector<Vertex>> mapCopy = m_gridPoints;
-		for (int xx = 1; xx < m_gridPointSize.x - 1; xx++) {
-			for (int yy = 1; yy < m_gridPointSize.y - 1; yy++) {
+		for (size_t xx = 1; xx < (size_t)m_gridPointSize.x - 1; xx++) {
+			for (size_t yy = 1; yy < (size_t)m_gridPointSize.y - 1; yy++) {
 				float3 current = mapCopy[xx][yy].position;
 				float3 average = (mapCopy[xx][yy].position + mapCopy[xx + 1][yy].position +
 									 mapCopy[xx][yy + 1].position + mapCopy[xx - 1][yy].position +
@@ -136,8 +136,8 @@ void HeightmapMesh::smoothGrid(size_t iterations) {
 
 void HeightmapMesh::setGridPointNormals() {
 	// map normals
-	for (int xx = 0; xx < m_gridPointSize.x - 1; xx++) {
-		for (int yy = 0; yy < m_gridPointSize.y - 1; yy++) {
+	for (size_t xx = 0; xx < (size_t)m_gridPointSize.x - 1; xx++) {
+		for (size_t yy = 0; yy < (size_t)m_gridPointSize.y - 1; yy++) {
 			float3 points[2][3];
 			for (int i = 0; i < 6; i++) {
 				XMINT2 index(xx + POINT_ORDER[i].x, yy + POINT_ORDER[i].y);
@@ -226,7 +226,7 @@ float HeightmapMesh::triangleTest(
 void HeightmapMesh::tileRayIntersectionTest(
 	XMINT2 gridIndex, float3 point, float3 direction, float& minL) {
 
-	int ix = gridIndex.x, iy = gridIndex.y;
+	size_t ix = gridIndex.x, iy = gridIndex.y;
 	// create triangles
 	vector<float3> triangles;
 	triangles.resize(6);
@@ -246,14 +246,14 @@ void HeightmapMesh::tileRayIntersectionTest(
 
 XMINT2 HeightmapMesh::getSize() const { return m_gridPointSize; }
 
-	float HeightmapMesh::getHeightFromUV(float2 uv) { 
+float HeightmapMesh::getHeightFromUV(float2 uv) { 
 	float X = uv.x;
 	float Y = uv.y;
 
 	if (X >= 0. && X < 1. && Y >= 0 && Y < 1.) {
 		float fx = X * (m_gridPointSize.x - 1);
 		float fy = Y * (m_gridPointSize.y - 1);
-		int ix = (int)fx, iy = (int)fy;	  // floor
+		size_t ix = (int)fx, iy = (int)fy;	  // floor
 		float rx = fx - ix, ry = fy - iy; // rest
 
 		float3 p1 = m_gridPoints[ix + 0][iy + 0].position;
@@ -288,7 +288,7 @@ float3 HeightmapMesh::getNormalFromUV(float2 uv) {
 	if (X >= 0 && X < 1 && Y >= 0 && Y < 1) {
 		float fx = X * (m_gridPointSize.x - 1);
 		float fy = Y * (m_gridPointSize.y - 1);
-		int ix = (int)fx, iy = (int)fy;	  // floor
+		size_t ix = (int)fx, iy = (int)fy;	  // floor
 		float rx = fx - ix, ry = fy - iy; // rest
 
 		float3 p1 = m_gridPoints[ix + 0][iy + 0].position;
@@ -326,8 +326,8 @@ float HeightmapMesh::castRay(float3 startPoint, float3 endPoint) {
 		XMINT2 iEnd((int)end.x, (int)end.y);
 		// find intersection tiles
 		vector<float> tsX, tsY;
-		int changeInX = abs(iEnd.x - iStart.x);
-		int changeInY = abs(iEnd.y - iStart.y);
+		size_t changeInX = (size_t)abs(iEnd.x - iStart.x);
+		size_t changeInY = (size_t)abs(iEnd.y - iStart.y);
 		tsX.reserve(changeInX);
 		tsY.reserve(changeInY);
 		for (int i = 0; i < changeInX; i++) {
@@ -366,7 +366,7 @@ float HeightmapMesh::castRay(float3 startPoint, float3 endPoint) {
 		// check all intersected tiles
 		float minL = -1;
 		for (int i = (int)ts.size() - 2; i >= 0; i--) {
-			float sampledT = (ts[i] + ts[i + 1]) / 2.f;
+			float sampledT = (ts[i] + ts[(size_t)i + 1]) / 2.f;
 			int ix = (int)((float)start.x + tilt.x * sampledT);
 			int iy = (int)((float)start.y + tilt.y * sampledT);
 			if (ix >= 0 && ix < m_gridPointSize.x - 1 && iy >= 0 && iy < m_gridPointSize.y - 1) {
@@ -523,9 +523,13 @@ void HeightmapMesh::loadFromFile_binary(fstream& file) {
 	// create mem and align position and uvs (normals and y axis not set)
 	createGridPointBase(m_gridPointSize);
 	// set point heights
+	float* ypositions = new float[(size_t)m_gridPointSize.x * m_gridPointSize.y];
+	file.read((char*)ypositions, sizeof(float) * m_gridPointSize.x * m_gridPointSize.y);
+	size_t index = 0;
 	for (size_t x = 0; x < m_gridPointSize.x; x++)
 		for (size_t y = 0; y < m_gridPointSize.y; y++)
-			file.read((char*)&m_gridPoints[x][y].position.y, sizeof(float)); // set y axis
+			m_gridPoints[x][y].position.y = ypositions[index++]; // set y axis
+	delete[] ypositions;
 	// set normals
 	setGridPointNormals();
 }

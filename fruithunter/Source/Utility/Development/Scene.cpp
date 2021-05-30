@@ -21,7 +21,7 @@ void Scene::clear() {
 	m_particleSystems.clear();
 	// spawn fruit
 	m_fruits.clear();
-	//collection points
+	// collection points
 	m_collectionPoint.clear();
 
 	// utility
@@ -44,35 +44,26 @@ void Scene::clear() {
 	PathFindingThread::unlock();
 }
 
-size_t Scene::getTime() { return  (size_t)round(m_timer.getTimePassed()); }
-
-TimeTargets Scene::getWinGrade() {
-	size_t time = (size_t)round(m_timer.getTimePassed());
-	TimeTargets grade = TimeTargets::NR_OF_TIME_TARGETS;
+TimeTargets Scene::getTimeTargetGrade(time_t timeMs, time_t timeTargets[NR_OF_TIME_TARGETS]) {
 	for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++) {
-		if (time <= m_utility.timeTargets[i]) {
-			grade = (TimeTargets)i;
-			break;
-		}
+		if (timeMs <= timeTargets[i])
+			return (TimeTargets)i;
 	}
-	return grade;
+	return NR_OF_TIME_TARGETS;
 }
 
 void Scene::saveWin() {
 	if (m_sceneName != "") {
-		size_t time = getTime();
-		TimeTargets grade = getWinGrade();
-		SaveManager::setProgress(m_sceneName, time, grade);
+		size_t time = m_timer.getTimePassedAsMilliseconds();
+		SaveManager::getInstance()->setLevelProgress(m_sceneName, time);
 	}
 }
 
-Scene::Scene(string filename) { 
-	load(filename);
-}
+Scene::Scene(string filename) { load(filename); }
 
 Scene::~Scene() { PathFindingThread::getInstance()->pause(); }
 
-size_t Scene::find_parentIndex(Fragment* fragment) { 
+size_t Scene::find_parentIndex(Fragment* fragment) {
 	switch (fragment->getType()) {
 	case Fragment::Type::entity:
 		for (size_t i = 0; i < m_entities.size(); i++) {
@@ -105,7 +96,7 @@ size_t Scene::find_parentIndex(Fragment* fragment) {
 	return -1;
 }
 
-bool Scene::remove_fragment(Fragment* fragment) { 
+bool Scene::remove_fragment(Fragment* fragment) {
 	switch (fragment->getType()) {
 	case Fragment::Type::entity:
 		for (size_t i = 0; i < m_entities.size(); i++) {
@@ -141,7 +132,6 @@ bool Scene::remove_fragment(Fragment* fragment) {
 		break;
 	}
 	return false;
-	
 }
 
 void Scene::updated_fragment(Fragment* fragment) {
@@ -167,25 +157,7 @@ void Scene::updated_fragment(Fragment* fragment) {
 
 void Scene::pickUpFruit(FruitType fruitType) { m_gatheredFruits[fruitType]++; }
 
-void Scene::dropFruit(FruitType fruitType) {
-	 Input* ip = Input::getInstance();
-	 auto pft = PathFindingThread::getInstance();
-
-	 if (m_gatheredFruits[fruitType] > 0) {
-		 //reduce inventory
-		 if (!DEBUG)
-			 m_gatheredFruits[fruitType]--;
-		 //spawn fruit
-		 shared_ptr<Fruit> fruit = Fruit::createFruitFromType(fruitType);
-		 fruit->setPosition(m_player->getPosition() + float3(0.0f, 1.5f, 0.0f));
-		 fruit->release(m_player->getForward());
-		 PathFindingThread::lock();
-		 m_fruits.push_back(fruit);
-		 PathFindingThread::unlock();
-	 }
-}
-
-void Scene::addArrow(shared_ptr<Arrow> arrow) { 
+void Scene::addArrow(shared_ptr<Arrow> arrow) {
 	if (arrow.get() != nullptr) {
 		m_arrows.push_back(arrow);
 		if (m_arrows.size() > 10)
@@ -236,9 +208,9 @@ void Scene::update_activeTerrain(AreaTag tag, bool playMusic) {
 			m_activeTerrain_soundID = playMusicByAreaTag(tag);
 }
 
-void Scene::load(string folder) { 
+void Scene::load(string folder) {
 	if (folder != "") {
-		clear();// clear all data
+		clear(); // clear all data
 
 		m_loaded = true;
 		m_sceneName = folder;
@@ -248,21 +220,17 @@ void Scene::load(string folder) {
 		SceneAbstactContent content;
 		content.load_raw(folder);
 
-		// heightmap
+		// Leaderboard
+		m_leaderboardName = content.m_leaderboardName;
+
+		// terrains
 		vector<string> files;
 		read_directory("assets/Scenes/" + m_sceneName, files);
-		files = vector<string>(files.begin() + 2, files.end());
+		files_filterByEnding(files, "env");
 		for (size_t i = 0; i < files.size(); i++) {
-			size_t offset = files[i].find('.', 0);
-			if (offset != string::npos) {
-				offset++; // skip '.'
-				string ending = files[i].substr(offset, files[i].length() - offset);
-				if (ending == "env") {
-					shared_ptr<Environment> env = make_shared<Environment>();
-					env->loadFromBinFile("assets/Scenes/" + m_sceneName + "/" + files[i]);
-					m_terrains.add(env);
-				}
-			}
+			shared_ptr<Environment> env = make_shared<Environment>();
+			env->loadFromBinFile("assets/Scenes/" + m_sceneName + "/" + files[i]);
+			m_terrains.add(env);
 		}
 
 		// sea
@@ -313,11 +281,8 @@ void Scene::save() {
 	if (m_sceneName != "") {
 		SceneAbstactContent content;
 
-		// terrains
-		for (size_t i = 0; i < m_terrains.length(); i++) {
-			m_terrains.getTerrainFromIndex(i)->storeToBinFile(
-				"assets/Scenes/" + m_sceneName + "/terrain" + to_string(i) + ".env");
-		}
+		// Leaderboard
+		content.m_leaderboardName = m_leaderboardName;
 
 		// seas
 		content.m_seaAreas.resize(m_seaEffects.size());
@@ -350,7 +315,8 @@ void Scene::save() {
 		for (size_t i = 0; i < m_entities.size(); i++) {
 			string model = m_entities[i]->getModelName();
 			SceneAbstactContent::GroupInstance::Instance instance(m_entities[i]->getPosition(),
-				m_entities[i]->getRotation(), m_entities[i]->getScale(), m_entities[i]->getIsCollidable());
+				m_entities[i]->getRotation(), m_entities[i]->getScale(),
+				m_entities[i]->getIsCollidable());
 			bool found = false;
 			for (size_t j = 0; j < group->size(); j++) {
 				if (group->at(j).model == model) {
@@ -370,19 +336,37 @@ void Scene::save() {
 
 		content.save_raw(m_sceneName);
 
+		// remove all old terrain files
+		vector<string> terrainFiles;
+		read_directory("assets/Scenes/" + m_sceneName, terrainFiles);
+		files_filterByEnding(terrainFiles, "env");
+		for (size_t i = 0; i < terrainFiles.size(); i++) {
+			string path = "assets/Scenes/" + m_sceneName + "/" + terrainFiles[i];
+			if (remove(path.c_str()) != 0) {
+				ErrorLogger::logWarning("(Scene::save) Failed removing file: " + path);
+			}
+		}
+
+		// save individual terrain files
+		for (size_t i = 0; i < m_terrains.length(); i++) {
+			string filename = "terrain" + to_string(i) + ".env";
+			string path = "assets/Scenes/" + m_sceneName + "/" + filename;
+			m_terrains.getTerrainFromIndex(i)->storeToBinFile(path);
+		}
+
 		ErrorLogger::log("Saved scene: " + m_sceneName);
 	}
 }
 
-void Scene::reset() { 
+void Scene::reset() {
 	PathFindingThread::lock();
 
-	//skybox
+	// skybox
 	m_skyBox.reset();
-	//arrows
-	m_arrows.clear(); 
+	// arrows
+	m_arrows.clear();
 	m_arrowParticles.clear();
-	//fruits
+	// fruits
 	m_fruits.clear();
 	size_t total = 0;
 	for (size_t i = 0; i < m_terrains.length(); i++)
@@ -393,7 +377,7 @@ void Scene::reset() {
 		for (size_t iFruit = 0; iFruit < NR_OF_FRUITS; iFruit++) {
 			size_t count = m_terrains.getTerrainFromIndex(i)->getFruitCount((FruitType)iFruit);
 			for (size_t j = 0; j < count; j++) {
-				float3 spawn = m_terrains.getSpawnpoint(i);
+				float3 spawn = m_terrains.getSpawnpoint(i) + float3(0, 1, 0);
 				switch (iFruit) {
 				case FruitType::APPLE:
 					m_fruits.push_back(make_shared<Apple>(spawn));
@@ -412,14 +396,14 @@ void Scene::reset() {
 			}
 		}
 	}
-	//player
+	// player
 	m_player = make_shared<Player>();
 	m_player->setPosition(m_utility.startSpawn);
 	// camera
 	m_camera.setEye(m_utility.startSpawn);
-	//collectionPoints
+	// collectionPoints
 	m_collectionPoint.clear();
-	//gathered fruit
+	// gathered fruit
 	for (size_t i = 0; i < NR_OF_FRUITS; i++)
 		m_gatheredFruits[i] = 0;
 	// timer
@@ -462,65 +446,41 @@ float Scene::getDeltaTime() {
 
 float Scene::getDeltaTime_skipSlow() { return m_timer.getDt(); }
 
-void SceneAbstactContent::fileWrite_string(fstream& file, string str) { 
-	size_t length = str.length();
-	fileWrite_ulong(file, length);
-	file.write(str.c_str(),length); 
-}
-
-string SceneAbstactContent::fileRead_string(fstream& file) { 
-	size_t length = fileRead_ulong(file);
-	char* text = new char[length];
-	file.read(text, length);
-	string ret;
-	ret.insert(0,text, length);
-	delete[] text;
-	return ret;
-}
-
-void SceneAbstactContent::fileWrite_ulong(fstream& file, size_t v) {
-	file.write((char*)&v, sizeof(size_t));
-}
-
-size_t SceneAbstactContent::fileRead_ulong(fstream& file) { 
-	size_t ret;
-	file.read((char*)&ret, sizeof(size_t));
-	return ret;
-}
-
 bool SceneAbstactContent::load_raw(string folder) {
 	string path = path_scenes + folder;
-	fstream file;
-	file.open(path+"/scene.data", ios::in | ios::binary);
+	ifstream file;
+	file.open(path + "/scene.data", ios::in | ios::binary);
 	if (file.is_open()) {
+		// leaderboard
+		fileRead(file, m_leaderboardName);
 		// seas
-		size_t size = fileRead_ulong(file);
+		size_t size = fileRead<size_t>(file);
 		m_seaAreas.resize(size);
 		for (size_t i = 0; i < size; i++)
-			file.read((char*)&m_seaAreas[i], sizeof(SeaContent));
+			fileRead<SeaContent>(file, m_seaAreas[i]);
 		// particlesystems
-		size = fileRead_ulong(file);
+		size = fileRead<size_t>(file);
 		m_particleSystemContents.resize(size);
 		for (size_t i = 0; i < size; i++)
-			file.read((char*)&m_particleSystemContents[i], sizeof(ParticleSystemContent));
+			fileRead<ParticleSystemContent>(file, m_particleSystemContents[i]);
 		// entities
-		size = fileRead_ulong(file);
+		size = fileRead<size_t>(file);
 		m_entities.resize(size);
 		for (size_t i = 0; i < size; i++) {
-			m_entities[i].model = fileRead_string(file);
-			size_t subSize = fileRead_ulong(file);
+			fileRead(file, m_entities[i].model);
+			size_t subSize = fileRead<size_t>(file);
 			m_entities[i].instances.resize(subSize);
 			file.read(
 				(char*)m_entities[i].instances.data(), sizeof(GroupInstance::Instance) * subSize);
 		}
-		//animals
-		size = fileRead_ulong(file);
+		// animals
+		size = fileRead<size_t>(file);
 		m_animals.resize(size);
 		for (size_t i = 0; i < size; i++) {
-			file.read((char*)&m_animals[i], sizeof(AnimalContent));
+			fileRead<AnimalContent>(file, m_animals[i]);
 		}
 		// utility
-		file.read((char*)&m_utility, sizeof(SceneUtilityInfo));
+		fileRead<SceneUtilityInfo>(file, m_utility);
 
 		file.close();
 		return true;
@@ -528,35 +488,37 @@ bool SceneAbstactContent::load_raw(string folder) {
 	return false;
 }
 
-bool SceneAbstactContent::save_raw(string folder) { 
+bool SceneAbstactContent::save_raw(string folder) {
 	string path = path_scenes + folder;
 	create_directory(path);
-	fstream file;
-	file.open(path+"/scene.data", ios::out | ios::binary);
+	ofstream file;
+	file.open(path + "/scene.data", ios::out | ios::binary);
 	if (file.is_open()) {
-		//seas
-		fileWrite_ulong(file, m_seaAreas.size());
+		// leaderboard
+		fileWrite(file, m_leaderboardName);
+		// seas
+		fileWrite<size_t>(file, m_seaAreas.size());
 		for (size_t i = 0; i < m_seaAreas.size(); i++)
 			file.write((char*)&m_seaAreas[i], sizeof(SeaContent));
-		//particlesystems
-		fileWrite_ulong(file, m_particleSystemContents.size());
+		// particlesystems
+		fileWrite<size_t>(file, m_particleSystemContents.size());
 		for (size_t i = 0; i < m_particleSystemContents.size(); i++)
-			file.write((char*)&m_particleSystemContents[i], sizeof(ParticleSystemContent));
-		//entities
-		fileWrite_ulong(file, m_entities.size());
+			fileWrite<ParticleSystemContent>(file, m_particleSystemContents[i]);
+		// entities
+		fileWrite<size_t>(file, m_entities.size());
 		for (size_t i = 0; i < m_entities.size(); i++) {
-			fileWrite_string(file, m_entities[i].model);
-			fileWrite_ulong(file, m_entities[i].instances.size());
+			fileWrite(file, m_entities[i].model);
+			fileWrite<size_t>(file, m_entities[i].instances.size());
 			file.write((char*)m_entities[i].instances.data(),
 				sizeof(GroupInstance::Instance) * m_entities[i].instances.size());
 		}
-		//animals
-		fileWrite_ulong(file, m_animals.size());
+		// animals
+		fileWrite<size_t>(file, m_animals.size());
 		for (size_t i = 0; i < m_animals.size(); i++) {
-			file.write((char*)&m_animals[i], sizeof(AnimalContent));
+			fileWrite<AnimalContent>(file, m_animals[i]);
 		}
-		//utility
-		file.write((char*)&m_utility, sizeof(SceneUtilityInfo));
+		// utility
+		fileWrite<SceneUtilityInfo>(file, m_utility);
 
 		file.close();
 		return true;
@@ -564,4 +526,4 @@ bool SceneAbstactContent::save_raw(string folder) {
 	return false;
 }
 
-SceneAbstactContent::SceneAbstactContent() { }
+SceneAbstactContent::SceneAbstactContent() {}

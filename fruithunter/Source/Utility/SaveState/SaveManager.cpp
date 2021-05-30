@@ -1,32 +1,32 @@
 #include "SaveManager.h"
+#include "ErrorLogger.h"
 #include <fstream>
 
 SaveManager SaveManager::m_this;
 
-void SaveManager::load() {
-	fstream file;
-	string path = m_path_wd + m_filename;
-	file.open(path, ios::in | ios::binary);
+int SaveManager::readFileVersion(ifstream& file) {
 	if (file.is_open()) {
-		m_progress.clear();
-		size_t size;
-		file.read((char*)&size, sizeof(size_t));
-		m_progress.resize(size);
-		for (size_t i = 0; i < size; i++) {
-			// scene
-			size_t length = 0;
-			file.read((char*)&length, sizeof(size_t));
-			char* text = new char[length];
-			file.read(text, length);
-			m_progress[i].scene.insert(0, text, length);
-			delete[] text;
-			// time to complete
-			file.read((char*)&m_progress[i].timeToComplete, sizeof(size_t));
-			// grade
-			int grade;
-			file.read((char*)&grade, sizeof(int));
-			m_progress[i].grade = (TimeTargets)grade;
-		}
+		return fileRead<int>(file);
+	}
+	return 0;
+}
+
+void SaveManager::writeFileVersion(
+	ofstream& file, int _version) {
+	if (file.is_open()) {
+		fileWrite<int>(file, _version);
+	}
+}
+
+void SaveManager::load() {
+	ifstream file;
+	string path = "";
+	path += PLAYER_FILEPATH;
+	path += PLAYER_FILENAME;
+	file.open(path, ios::binary);
+	if (file.is_open()) {
+		int version = readFileVersion(file);
+		m_progress.read(file, version);
 		file.close();
 	}
 	else {
@@ -36,23 +36,14 @@ void SaveManager::load() {
 }
 
 void SaveManager::save() {
-	fstream file;
-	string path = m_path_wd + m_filename;
-	file.open(path, ios::out | ios::binary);
+	ofstream file;
+	string path = "";
+	path += PLAYER_FILEPATH;
+	path += PLAYER_FILENAME;
+	file.open(path, ios::binary);
 	if (file.is_open()) {
-		size_t size = m_progress.size();
-		file.write((char*)&size, sizeof(size_t));
-		for (size_t i = 0; i < m_progress.size(); i++) {
-			//scene
-			size_t length = m_progress[i].scene.length();
-			file.write((char*)&length, sizeof(size_t));
-			file.write(m_progress[i].scene.c_str(),length);
-			//time to complete
-			file.write((char*)&m_progress[i].timeToComplete, sizeof(size_t));
-			//grade
-			int grade = m_progress[i].grade;
-			file.write((char*)&grade, sizeof(int));
-		}
+		writeFileVersion(file, m_progress.getVersion());
+		m_progress.write(file);
 		file.close();
 	}
 	else {
@@ -65,48 +56,132 @@ SaveManager::~SaveManager() {}
 
 SaveManager* SaveManager::getInstance() { return &m_this; }
 
-const SceneCompletion* SaveManager::getProgress(string scene) {
-	SaveManager* me = getInstance();
-	for (size_t i = 0; i < me->m_progress.size(); i++) {
-		if (me->m_progress[i].scene == scene) {
-			return &me->m_progress[i];
+bool SaveManager::getLevelProgress(string scene, time_t& timeMs) { 
+	for (size_t i = 0; i < m_progress.level_progress.size(); i++) {
+		if (m_progress.level_progress[i].scene == scene) {
+			timeMs = m_progress.level_progress[i].timeToComplete;
+			return true;
 		}
 	}
-	return nullptr;
+	return false;
 }
 
-void SaveManager::setProgress(string scene, size_t timeToComplete, TimeTargets grade) {
+void SaveManager::setLevelProgress(string scene, time_t timeMs) {
 	if (scene != "") {
-		bool updated = false;
+		bool update = false;
 		bool found = false;
-		SaveManager* me = getInstance();
-		for (size_t i = 0; i < me->m_progress.size(); i++) {
-			if (me->m_progress[i].scene == scene) {
+		for (size_t i = 0; i < m_progress.level_progress.size(); i++) {
+			if (m_progress.level_progress[i].scene == scene) {
+				// found
 				found = true;
-				if (me->m_progress[i].timeToComplete > timeToComplete) {
-					updated = true;
-					// overwrite progress
-					me->m_progress[i].timeToComplete = timeToComplete;
-					me->m_progress[i].grade = grade;
+				if (timeMs < m_progress.level_progress[i].timeToComplete) {
+					// overwrite
+					m_progress.level_progress[i].timeToComplete = timeMs;
+					update = true;
 				}
+				break;
 			}
 		}
 		if (!found) {
-			updated = true;
-			// add progress
-			SceneCompletion p;
-			p.scene = scene;
-			p.timeToComplete = timeToComplete;
-			p.grade = grade;
-			me->m_progress.push_back(p);
+			ProgressStructs::PlayerProgression_1_0::SceneCompletion level;
+			level.scene = scene;
+			level.timeToComplete = timeMs;
+			m_progress.level_progress.push_back(level);
+			update = true;
 		}
-		if (updated)
-			me->save();
+		if (update)
+			save();
 	}
 }
 
-void SaveManager::resetProgression() {
-	SaveManager* me = getInstance();
-	me->m_progress.clear();
-	me->save();
+void ProgressStructs::PlayerProgression_1_0::_read(ifstream& file) {
+	if (file.is_open()) {
+		size_t length = fileRead<size_t>(file);
+		level_progress.resize(length);
+		for (size_t i = 0; i < level_progress.size(); i++) {
+			// scene
+			fileRead(file, level_progress[i].scene);
+			// time to complete
+			fileRead<time_t>(file, level_progress[i].timeToComplete);
+		}
+	}
+}
+
+void ProgressStructs::PlayerProgression_1_0::_write(ofstream& file) {
+	if (file.is_open()) {
+		fileWrite<size_t>(file, level_progress.size());
+		for (size_t i = 0; i < level_progress.size(); i++) {
+			// scene
+			fileWrite(file, level_progress[i].scene);
+			// time to complete
+			fileWrite<size_t>(file, level_progress[i].timeToComplete);
+		}
+	}
+}
+
+void ProgressStructs::PlayerProgression_1_0::_pass(ifstream& file, int _version) {
+	// read from old struct (further reads from older if necessary)
+	PlayerProgression_Test older;
+	older.read(file, _version);
+	// parse from old struct
+	level_progress.resize(older.level_progress.size());
+	for (size_t i = 0; i < older.level_progress.size(); i++) {
+		level_progress[i].scene = older.level_progress[i].scene;
+		level_progress[i].timeToComplete = older.level_progress[i].time;
+	}
+}
+
+void ProgressStructs::PlayerProgression_1_0::clear() { level_progress.clear(); }
+
+int ProgressStructs::PlayerProgressionBase::getVersion() const { return version; }
+
+void ProgressStructs::PlayerProgressionBase::read(ifstream& file, int _version) {
+	if (version < _version) {
+		// OLD SYSTEM
+		ErrorLogger::logError("(SaveManager) System to old to read player progress file! (Version "
+							  "number is greater than system)");
+	}
+	else if (version == _version) {
+		// current version
+		clear();
+		_read(file);
+	}
+	else {
+		// older version
+		clear();
+		_pass(file, _version);
+	}
+}
+
+void ProgressStructs::PlayerProgressionBase::write(ofstream& file) { _write(file); }
+
+void ProgressStructs::PlayerProgression_Test::clear() { level_progress.clear(); }
+
+void ProgressStructs::PlayerProgression_Test::_read(ifstream& file) {
+	if (file.is_open()) {
+		size_t length = fileRead<size_t>(file);
+		level_progress.resize(length);
+		for (size_t i = 0; i < level_progress.size(); i++) {
+			// scene
+			fileRead(file, level_progress[i].scene);
+			// time to complete
+			fileRead<time_t>(file, level_progress[i].time);
+		}
+	}
+}
+
+void ProgressStructs::PlayerProgression_Test::_write(ofstream& file) {
+	if (file.is_open()) {
+		fileWrite<size_t>(file, level_progress.size());
+		for (size_t i = 0; i < level_progress.size(); i++) {
+			// scene
+			fileWrite(file, level_progress[i].scene);
+			// time to complete
+			fileWrite<size_t>(file, level_progress[i].time);
+		}
+	}
+}
+
+void ProgressStructs::PlayerProgression_Test::_pass(ifstream& file, int _version) {
+	ErrorLogger::logError("(SaveManager) Failed reading save file. Player save file version is too old!");
 }

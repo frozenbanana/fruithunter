@@ -24,45 +24,52 @@ void EndRoundState::init() {
 	m_spr_background.setPosition(center);
 	m_spr_background.setColor(float4(0, 0, 0, 1));
 	m_spr_background.setAlpha(0.75);
-	m_spr_background.setSize(float2(width*0.8, height*1));
+	m_spr_background.setSize(float2(width*0.8f, height*1));
 	m_spr_background.setAlignment(); // center
 
-	string sceneName = SceneManager::getScene()->m_sceneName;
-	const SceneCompletion* savedData = SaveManager::getProgress(sceneName);
-	TimeTargets winGrade = SceneManager::getScene()->getWinGrade();
-	if (savedData != nullptr) {
-		switch (winGrade) {
-		case GOLD:
-			setVictoryText("You earned GOLD");
-			setVictoryColor(float4(1.0f, 0.85f, 0.0f, 1.0f));
-			setConfettiPower(22);
-			setBowl(sceneName, (int)GOLD);
-			setParticleColorByPrize(GOLD);
-			break;
-		case SILVER:
-			setVictoryText("You earned SILVER");
-			setVictoryColor(float4(0.8f, 0.8f, 0.8f, 1.0f));
-			setConfettiPower(18);
-			setBowl(sceneName, (int)SILVER);
-			setParticleColorByPrize(SILVER);
-			break;
-		case BRONZE:
-			setVictoryText("You earned BRONZE");
-			setVictoryColor(float4(0.85f, 0.55f, 0.25f, 1.0f));
-			setConfettiPower(14);
-			setBowl(sceneName, (int)BRONZE);
-			setParticleColorByPrize(BRONZE);
-			break;
-		default:
-			setVictoryText("You earned NOTHING");
-			setVictoryColor(float4(1.0f, 1.0f, 1.0f, 1.0f));
-			setConfettiPower(2);
-			setBowl(sceneName, (int)BRONZE);
-			setParticleColorByPrize(BRONZE);
-			break;
-		}
-		size_t winTime = SceneManager::getScene()->getTime();
-		setTimeText("Time : " + Time2DisplayableString(winTime) + " min");
+	//const SceneCompletion* savedData = SaveManager::getProgress(sceneName);
+	Scene* scene = SceneManager::getScene();
+	string sceneName = scene->m_sceneName;
+	time_t winTimeMs = scene->m_timer.getTimePassedAsMilliseconds();
+	TimeTargets winGrade = scene->getTimeTargetGrade(
+		scene->m_timer.getTimePassedAsMilliseconds(), scene->m_utility.timeTargets);
+	switch (winGrade) {
+	case GOLD:
+		setVictoryText("You earned GOLD");
+		setVictoryColor(float4(1.0f, 0.85f, 0.0f, 1.0f));
+		setConfettiPower(22);
+		setBowl(sceneName, (int)GOLD);
+		setParticleColorByPrize(GOLD);
+		break;
+	case SILVER:
+		setVictoryText("You earned SILVER");
+		setVictoryColor(float4(0.8f, 0.8f, 0.8f, 1.0f));
+		setConfettiPower(18);
+		setBowl(sceneName, (int)SILVER);
+		setParticleColorByPrize(SILVER);
+		break;
+	case BRONZE:
+		setVictoryText("You earned BRONZE");
+		setVictoryColor(float4(0.85f, 0.55f, 0.25f, 1.0f));
+		setConfettiPower(14);
+		setBowl(sceneName, (int)BRONZE);
+		setParticleColorByPrize(BRONZE);
+		break;
+	default:
+		setVictoryText("You earned NOTHING");
+		setVictoryColor(float4(1.0f, 1.0f, 1.0f, 1.0f));
+		setConfettiPower(2);
+		setBowl(sceneName, (int)BRONZE);
+		setParticleColorByPrize(BRONZE);
+		break;
+	}
+	setTimeText("Time   " + Milliseconds2DisplayableString(winTimeMs));
+
+	if (!DEBUG) {
+		m_leaderboard_score = winTimeMs;
+		string leaderboard = SceneManager::getScene()->m_leaderboardName;
+		if (leaderboard != "")
+			m_leaderboard.FindLeaderboard(leaderboard.c_str());
 	}
 
 	AudioController::getInstance()->flush();
@@ -76,18 +83,46 @@ void EndRoundState::update() {
 	Input::getInstance()->setMouseModeAbsolute();
 
 	m_timer.update();
-	float dt = m_timer.getDt();
+	float dt = (float)m_timer.getDt();
 	m_bowl.rotateY(dt * 0.5f);
 	m_bowlContent.rotateY(dt * 0.5f);
 	m_particleSystem.update(dt);
 
-	if (m_btn_play.update_behavior(dt)) {
-		SceneManager::getScene()->reset();
-		pop(true);
+	// upload score if found leaderboard
+	if (m_leaderboard.getRequestState_UploadScore() ==
+			CSteamLeaderboard::RequestState::r_inactive &&
+		m_leaderboard.getRequestState_FindLeaderboard() ==
+			CSteamLeaderboard::RequestState::r_finished) {
+		m_leaderboard.UploadScore((int)m_leaderboard_score); // keeps best score
 	}
-	if (m_btn_back.update_behavior(dt)) {
-		AudioController::getInstance()->flush();
-		pop(State::MainState, false);
+
+	// update upload score state
+	if (m_leaderboard.getRequestState_FindLeaderboard() ==
+		CSteamLeaderboard::RequestState::r_inactive)
+		m_uploadState = UploadState::Disabled;
+	else if (m_leaderboard.getRequestState_FindLeaderboard() ==
+			CSteamLeaderboard::RequestState::r_failed ||
+		m_leaderboard.getRequestState_UploadScore() == 
+		CSteamLeaderboard::RequestState::r_failed)
+		m_uploadState = UploadState::Failed;
+	else if (m_leaderboard.getRequestState_FindLeaderboard() ==
+				 CSteamLeaderboard::RequestState::r_finished &&
+			 m_leaderboard.getRequestState_UploadScore() ==
+				 CSteamLeaderboard::RequestState::r_finished)
+		m_uploadState = UploadState::Finished;
+	else
+		m_uploadState = UploadState::Waiting;
+
+	// buttons
+	if (m_uploadState != UploadState::Waiting) {
+		if (m_btn_play.update_behavior(dt)) {
+			SceneManager::getScene()->reset();
+			pop(true);
+		}
+		if (m_btn_back.update_behavior(dt)) {
+			AudioController::getInstance()->flush();
+			pop(State::MainState, false);
+		}
 	}
 }
 
@@ -106,9 +141,9 @@ void EndRoundState::play() {
 
 	m_particleSystem.setPosition(m_bowl.getPosition() + float3(0.0f, 0, 0.f));
 
-	m_btn_play.set(float2(float2(width/2 - 125, height - 100)), "Try Again", 0.2);
-	m_btn_back.set(float2(float2(width / 2 + 125, height - 100)), "Level Select", 0.4);
-	m_btn_back.setTextScale(0.7);
+	m_btn_play.set(float2(width/2 - 125, height - 100), "Try Again", 0.2f);
+	m_btn_back.set(float2(width / 2 + 125, height - 100), "Level Select", 0.4f);
+	m_btn_back.setTextScale(0.7f);
 }
 
 void EndRoundState::restart() {}
@@ -134,17 +169,44 @@ void EndRoundState::draw() {
 	m_particleSystem.draw();
 	Renderer::getInstance()->clearDepth();
 
+	// -- UI --
+
 	float width = 1280;
 	float height = 720;
-	m_camera.bind();
+	// time
 	m_textRenderer.setAlignment(); // center
 	m_textRenderer.setColor(Color(1., 1.f, 1.f, 1.0f));
-	m_textRenderer.setPosition(float2(width / 2, height / 2 + 150));
+	m_textRenderer.setPosition(float2(width / 2, height / 2 + 130));
 	m_textRenderer.setText(m_timeText);
+	m_textRenderer.setScale(0.75);
 	m_textRenderer.draw();
+	// leaderboard
+	string leaderboardState = "";
+	if (m_uploadState == UploadState::Disabled)
+		leaderboardState = "Disabled";
+	else if (m_uploadState == UploadState::Failed)
+		leaderboardState = "Failed";
+	else if (m_uploadState == UploadState::Finished)
+		leaderboardState = "Uploaded";
+	else {
+		// waiting
+		int points = 1 + (int)(m_timer.getTimePassed() * 2) % 3;
+		leaderboardState = "";
+		for (size_t i = 0; i < points; i++)
+			leaderboardState += ".";
+	}
+	m_textRenderer.setAlignment(HorizontalAlignment::AlignLeft); // center
+	m_textRenderer.setColor(Color(1., 1.f, 1.f, 1.0f));
+	m_textRenderer.setPosition(float2(width / 2 - 200, height / 2 + 180));
+	m_textRenderer.setText("Leaderboard: " + leaderboardState);
+	m_textRenderer.setScale(0.4f);
+	m_textRenderer.draw();
+	// victory text
+	m_textRenderer.setAlignment(); // center
 	m_textRenderer.setColor(m_victoryColor);
 	m_textRenderer.setPosition(float2(width / 2, 75));
 	m_textRenderer.setText(m_victoryText);
+	m_textRenderer.setScale(1);
 	m_textRenderer.draw();
 
 	m_btn_play.draw();
@@ -177,7 +239,7 @@ void EndRoundState::setBowl(string bowlContentEntityName, int bowlMaterial) {
 		m_bowlContent.load("BowlContent2");
 	else if (bowlContentEntityName == "scene2")
 		m_bowlContent.load("BowlContent3");
-	float scale = 0.6;
+	float scale = 0.6f;
 	m_bowlContent.setScale(scale);
 
 	m_bowl.load("Bowl");

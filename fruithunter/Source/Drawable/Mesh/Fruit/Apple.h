@@ -16,4 +16,6 @@ public:
 	void updateAnimated(float dt);
 	void flee(float3 playerDir);
 	void pathfinding(float3 start) override;
+
+	bool isRespawning() const;
 };

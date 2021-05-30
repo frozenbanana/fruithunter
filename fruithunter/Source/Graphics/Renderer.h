@@ -13,6 +13,7 @@
 class Renderer {
 public:
 	enum DrawingState { state_normal, state_shadow };
+	enum ScreenMode { Screen_Windowed = 0, Screen_Fullscreen = 1, Screen_Borderless = 2, ScreenModeSize };
 	static void initalize(HWND window);
 	void beginFrame();
 	void endFrame();
@@ -35,6 +36,8 @@ public:
 	void changeResolution(int width, int height);
 	void setFullscreen(bool value);
 	bool isFullscreen() const;
+	void setScreenMode(ScreenMode mode);
+	ScreenMode getScreenMode() const;
 	void copyDepthToSRV();
 	void copyTargetToSRV();
 
@@ -78,6 +81,9 @@ private:
 	void createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd);
 	void createConstantBuffers();
 	void createQuadVertexBuffer();
+
+	bool SetWindowStyle_Borderless();
+	bool SetWindowStyle_Windowed();
 
 	static Renderer m_this;
 	bool m_isLoaded = false;
@@ -131,6 +137,7 @@ private:
 	DrawingState m_drawState = state_normal;
 
 	// Resolution
+	ScreenMode m_screenMode = ScreenMode::Screen_Windowed;
 	int m_screenWidth;
 	int m_screenHeight;
 

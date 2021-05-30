@@ -15,32 +15,8 @@ Sprite2D::Sprite2D() {
 Sprite2D::~Sprite2D() {}
 
 bool Sprite2D::load(string path) {
-	m_textures.resize(1);
-	return m_textures[0].load(path);
-}
-
-bool Sprite2D::load(vector<string> paths, float animationSpeed) { 
-	if (paths.size() > 0) {
-		m_animationSpeed = animationSpeed;
-		m_textures.resize(paths.size());
-		size_t index = 0;
-		size_t failedIndex = -1;
-		for (size_t i = 0; i < m_textures.size(); i++) {
-			if (m_textures[index].load(paths[i])) {
-				index++;
-			}
-			else 
-				failedIndex = i;
-		}
-		if (index != paths.size())
-			m_textures.resize(index);
-		if (failedIndex != -1) {
-			ErrorLogger::logWarning("(Sprite2D) Failed loading sprite: " + paths[failedIndex]);
-			return false; // failed if no texture was succesfully loaded
-		}
-		return true;
-	}
-	return false;
+	m_texture = make_shared<Texture>();
+	return m_texture->load(path);
 }
 
 void Sprite2D::set(float2 position, float2 scale, float rotation) { 
@@ -49,10 +25,10 @@ void Sprite2D::set(float2 position, float2 scale, float rotation) {
 	setRotation(rotation);
 }
 
-void Sprite2D::_draw(const Transformation2D& source) {
-	if (m_textures.size() > 0 && m_textures[0].isLoaded()) {
-		size_t texIndex = (size_t)((clock() / 1000.f) / m_animationSpeed) % m_textures.size();
+void Sprite2D::giveTexture(shared_ptr<Texture> tex) { m_texture = tex; }
 
+void Sprite2D::_draw(const Transformation2D& source) {
+	if (isLoaded()) {
 		m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
 
 		float2 screenModifier = float2((SCREEN_WIDTH / 1280.f), (SCREEN_HEIGHT / 720.f));
@@ -61,12 +37,11 @@ void Sprite2D::_draw(const Transformation2D& source) {
 		float rotation = source.getRotation();
 		float2 alignment =
 			float2((float)m_horizontalAligment, (float)m_verticalAlignment) + float2(1, 1);
-		float2 texSize =
-			float2(m_textures[texIndex].m_textureSize.x, m_textures[texIndex].m_textureSize.y);
+		float2 texSize = float2(m_texture->getSize().x, m_texture->getSize().y);
 		float2 origin = texSize / 2.f * alignment;
 
 		m_spriteBatch->Draw(
-			m_textures[texIndex].m_SRV.Get(), position, nullptr, m_color, rotation, origin, scale);
+			m_texture->getSRV().Get(), position, nullptr, m_color, rotation, origin, scale);
 
 		m_spriteBatch->End();
 		// Reset depth state
@@ -74,23 +49,24 @@ void Sprite2D::_draw(const Transformation2D& source) {
 	}
 }
 
-XMINT2 Sprite2D::getTextureSize(size_t index) const { 
-	if (index < m_textures.size() && index >= 0)
-		return m_textures[index].m_textureSize;
-	else
-		return XMINT2(0, 0);
+bool Sprite2D::isLoaded() const { return m_texture.get() != nullptr && m_texture->isLoaded(); }
+
+XMINT2 Sprite2D::getTextureSize() const { 
+	return m_texture->getSize();
 }
 
-float2 Sprite2D::getSize(size_t index) const {
-	if (index < m_textures.size() && index >= 0) {
-		XMINT2 texSize = getTextureSize(index);
-		return float2((float)texSize.x, (float)texSize.y) * getScale();
-	}
-	else
-		return float2(0, 0);
+float2 Sprite2D::getSize() const {
+	XMINT2 texSize = getTextureSize();
+	return float2((float)texSize.x, (float)texSize.y) * getScale();
 }
 
 Color Sprite2D::getColor() const { return m_color; }
+
+HorizontalAlignment Sprite2D::getHorizontalAlignment() const { return m_horizontalAligment; }
+
+VerticalAlignment Sprite2D::getVerticalAlignment() const { return m_verticalAlignment; }
+
+float Sprite2D::getAlpha() const { return m_color.w; }
 
 BoundingBox2D Sprite2D::getBoundingBox() const { 
 	//size_t texIndex = (size_t)((clock() / 1000.f) / m_animationSpeed) % m_textures.size();
@@ -104,7 +80,7 @@ BoundingBox2D Sprite2D::getBoundingBox() const {
 }
 
 void Sprite2D::setSize(float2 size) {
-	if (m_textures.size() > 0) {
+	if (isLoaded()) {
 		XMINT2 texSize = getTextureSize();
 		setScale(float2(size.x / texSize.x, size.y / texSize.y));
 	}
@@ -115,38 +91,8 @@ void Sprite2D::setAlignment(HorizontalAlignment horizontal, VerticalAlignment ve
 	m_verticalAlignment = vertical;
 }
 
-void Sprite2D::setAnimationSpeed(float animationSpeed) { m_animationSpeed = animationSpeed; }
-
 void Sprite2D::setColor(Color color) { 
 	m_color = Color(color.x, color.y, color.z, m_color.w);
 }
 
 void Sprite2D::setAlpha(float alpha) { m_color.w = alpha; }
-
-bool Sprite2D::SpriteTexture::load(string path) { 
-	m_path = PATH_SPRITE + path;
-	wstring str(m_path.begin(), m_path.end());
-
-	m_SRV.Reset();
-	Microsoft::WRL::ComPtr<ID3D11Resource> resource;
-	HRESULT res = CreateWICTextureFromFile(Renderer::getDevice(), str.c_str(),
-		resource.GetAddressOf(), m_SRV.ReleaseAndGetAddressOf());
-	if (FAILED(res)) {
-		ErrorLogger::logError("(Sprite2D) Failed to create SRV buffer! Path: " + m_path, res);
-		return false;
-	}
-	else {
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> tex;
-		resource.As(&tex);
-		CD3D11_TEXTURE2D_DESC texDesc;
-		tex->GetDesc(&texDesc);
-
-		m_textureSize = XMINT2(texDesc.Width, texDesc.Height);
-		m_loaded = true;
-		return true;
-	}
-	resource.Reset();
-
-}
-
-bool Sprite2D::SpriteTexture::isLoaded() const { return m_loaded; }

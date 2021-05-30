@@ -27,6 +27,13 @@ LRESULT CALLBACK WinProc(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
 	case WM_ACTIVATEAPP:
 		DirectX::Keyboard::ProcessMessage(msg, wparam, lparam);
 		DirectX::Mouse::ProcessMessage(msg, wparam, lparam);
+		// if app activated and screen mode is fullscreen
+		if (wparam == TRUE &&
+			Renderer::getInstance()->getScreenMode() == Renderer::ScreenMode::Screen_Fullscreen) {
+			// set back to fullscreen if not fullscreen already
+			if (!Renderer::getInstance()->isFullscreen())
+				Renderer::getInstance()->setFullscreen(true);
+		}
 		break;
 	case WM_INPUT: {
 		UINT dwSize = sizeof(RAWINPUT);
@@ -134,6 +141,33 @@ bool Renderer::isFullscreen() const {
 	m_swapChain->GetFullscreenState(&state, nullptr);
 	return state;
 }
+
+void Renderer::setScreenMode(ScreenMode mode) {
+	m_screenMode = mode;
+	RECT desktop;
+	HWND hDesktop;
+	switch (mode) {
+	case Renderer::Screen_Windowed:
+		Renderer::getInstance()->SetWindowStyle_Windowed();
+		Renderer::getInstance()->setFullscreen(false);
+		break;
+	case Renderer::Screen_Fullscreen:
+		SetWindowStyle_Windowed();
+		setFullscreen(true); // must resize before fullscreen(true)
+		break;
+	case Renderer::Screen_Borderless:
+		SetWindowStyle_Borderless();
+		setFullscreen(false); // must call fullscreen(false) before resizing
+		hDesktop = GetDesktopWindow();
+		GetWindowRect(hDesktop, &desktop);
+		changeResolution(desktop.right, desktop.bottom);
+		break;
+	default:
+		break;
+	}
+}
+
+Renderer::ScreenMode Renderer::getScreenMode() const { return m_screenMode; }
 
 void Renderer::bindConstantBuffer_ScreenSize(int slot) {
 	XMINT4 data = XMINT4(m_screenWidth, m_screenHeight, 0, 0);
@@ -329,8 +363,8 @@ void Renderer::draw_godRays(const float4x4& viewProjMatrix) {
 	//	ImGui::SliderFloat("DistDecay", &m_settings_godRays.gDistDecay, 0, 1);
 	//	ImGui::ColorEdit3("RayColor", (float*)&m_settings_godRays.gRayColor);
 	//	ImGui::SliderFloat("MaxDeltaLength", &m_settings_godRays.gMaxDeltaLen, 0, 1);
-	//	ImGui::End();
 	//}
+	//ImGui::End();
 
 	float3 pos = m_godRays_position;
 	float4 grPosF4 = float4(pos.x, pos.y, pos.z, 1);
@@ -377,6 +411,23 @@ void Renderer::draw(size_t vertexCount, size_t vertexOffset) {
 	renderer->m_deviceContext->Draw((UINT)vertexCount, (UINT)vertexOffset);
 }
 
+bool Renderer::SetWindowStyle_Borderless() { 
+	LONG_PTR ret = SetWindowLongPtr(m_handle, GWL_STYLE, WS_POPUP | WS_VISIBLE);
+	// SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED
+	SetWindowPos(m_handle, m_handle, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+	ShowWindow(m_handle, SW_SHOW);
+	return ret != 0;
+}
+
+bool Renderer::SetWindowStyle_Windowed() {
+	LONG_PTR ret =
+		SetWindowLongPtr(m_handle, GWL_STYLE, WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE);
+	SetWindowPos(
+		m_handle, m_handle, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+	ShowWindow(m_handle, SW_SHOW);
+	return ret != 0;
+}
+
 Renderer::Renderer(int width, int height) {
 	m_screenHeight = height;
 	m_screenWidth = width;
@@ -389,6 +440,7 @@ Renderer::Renderer(int width, int height) {
 	RegisterClass(&wc);
 
 	// Create the window
+	// dwStyle = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE
 	bool showTopBorder = true;
 	m_handle = CreateWindow(m_windowTitle, m_windowTitle,
 		WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE, 0, 0, m_screenWidth,

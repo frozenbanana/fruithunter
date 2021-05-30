@@ -28,14 +28,7 @@ Apple::Apple(float3 pos) : Fruit(pos) {
 void Apple::behaviorPassive() {
 	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
 	float terrainHeight = SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition());
-	// Check if not at home
-	if (getPosition().y <= 1.f) {
-		float3 target = m_worldHome - getPosition();
-		target.Normalize();
-		target.y = 1.f;
-		jump(target, 10.f);
-		return;
-	}
+
 	if (m_onGround) {
 		
 
@@ -87,6 +80,11 @@ void Apple::behaviorPassive() {
 		}
 	}
 	lookTo(m_velocity * float3(1, 0, 1));
+
+	// respawn if fall into water
+	if (getPosition().y < 1) {
+		respawn();
+	}
 }
 
 void Apple::behaviorActive() {
@@ -100,22 +98,13 @@ void Apple::behaviorActive() {
 		m_speed = m_active_speed;
 		lookTo(m_velocity * float3(1, 0, 1));
 	}
+
+	if (getPosition().y < 1) {
+		respawn();
+	}
 }
 
-void Apple::behaviorCaught() {
-	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
-	if (m_onGround) {
-		if (!m_hit) {
-			jump(float3(0.f, 1.f, 0.f), 15.f);
-			m_hit = true;
-		}
-		m_direction = playerPosition - getPosition();
-		lookTo(m_direction * float3(1, 0, 1));
-		
-		m_speed = m_caught_speed;
-	}
-	lookTo(playerPosition);
-}
+void Apple::behaviorCaught() { changeState(ACTIVE); }
 
 bool Apple::isValid(float3 point) { 
 	float3 normal = SceneManager::getScene()->m_terrains.getNormalFromPosition(point);
@@ -285,3 +274,5 @@ void Apple::pathfinding(float3 start) {
 		m_readyForPath = false;
 	}
 }
+
+bool Apple::isRespawning() const { return m_respawn_timer != 0; }

@@ -8,7 +8,7 @@ void MainState::setButtons_menu() {
 	string buttonTexts[btn_length] = { "Start", "Settings", "Exit", "Editor" };
 	float2 btn_pos_start(200, 400);
 	float btn_stride_y = 85;
-	float btn_delay_stride = 0.1;
+	float btn_delay_stride = 0.1f;
 	for (size_t i = 0; i < btn_length; i++) {
 		m_btn_menu_buttons[i].set(
 			btn_pos_start + float2(0, btn_stride_y) * i, buttonTexts[i], btn_delay_stride * i);
@@ -18,19 +18,11 @@ void MainState::setButtons_menu() {
 
 void MainState::setButtons_levelSelect() {
 	m_btn_levelSelect_back.set(float2(1280 - 150, 720 - 75), "Back", 0);
-	m_btn_levelSelect_play.set(float2(1280 / 2, 720 - 75), "Play", 0.2);
+	m_btn_levelSelect_controls.set(float2(150, 720 - 75), "Controls", 0.2f);
 }
 
 void MainState::setButtons_credits() {
 	m_btn_credits_back.set(float2(150, 720 - 75), "Back", 0);
-}
-
-string MainState::asTimer(size_t total) { 
-	int minutes = total / 60;
-	int seconds = total % 60;
-	string str = (minutes < 10 ? "0" : "") + to_string(minutes) + ":" + (seconds < 10 ? "0" : "") +
-				 to_string(seconds);
-	return str;
 }
 
 void MainState::changeToLevel(size_t levelIndex) {
@@ -62,22 +54,21 @@ void MainState::init() {
 	m_levelItem_background.load("back_level.png");
 	m_levelItem_background.setColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
 	m_levelItem_background.setAlignment(); // center
-	m_levelItem_background.setScale(0.7);
+	m_levelItem_background.setScale(0.7f);
 
 	string medalSpriteNames[TimeTargets::NR_OF_TIME_TARGETS] = { "coin_gold.png", "coin_silver.png",
 		"coin_bronze.png" };
 	for (size_t i = 0; i < TimeTargets::NR_OF_TIME_TARGETS; i++) {
 		m_medalSprites[i].load(medalSpriteNames[i]);
-		m_medalSprites[i].setScale(0.04f);
+		m_medalSprites[i].setScale(0.03f);
 		m_medalSprites[i].setAlignment();
 	}
 
 	m_img_keylock.load("keylock.png");
 	m_img_keylock.setAlignment();// center
-	m_img_keylock.setScale(0.85);
 
 	m_ps_selected.load(ParticleSystem::Type::LEVELSELECT_SELECTION, 30);
-	m_ps_selected.setScale(float3(0.6, 0.3, 0.6));
+	m_ps_selected.setScale(float3(0.6f, 0.3f, 0.6f));
 
 	m_letters.resize(11);
 	string logoPaths[11] = {
@@ -109,7 +100,7 @@ void MainState::update() {
 	float3 bowPos = treePos + float3(10, 1.5, 5);
 
 	m_timer.update();
-	float dt = m_timer.getDt();
+	float dt = (float)m_timer.getDt();
 	m_totalDelta = fmod((m_totalDelta + dt), (2.f * XM_PI));
 	m_totalDelta_forBow += dt;
 
@@ -142,8 +133,8 @@ void MainState::update() {
 	float fruitAnimationCycle = 1 / 4.f + 1 / 5.f + 1 / 2.0f + 1 / 1.9f + 1 / 4.f + 1 / 2.f; // apple frame speeds, added together
 	Fruit* fruit = m_apple.get();
 	float3 fruitPosition = treePos; // center fruit on tree
-	fruitPosition += float3(cos(m_totalDelta)*2, 0.4, sin(m_totalDelta)*2); // walk around center
-	fruitPosition.y += abs(sin(m_totalDelta * 4 - 0.5)) * 0.5; // fruit jump
+	fruitPosition += float3(cos(m_totalDelta)*2.f, 0.4f, sin(m_totalDelta)*2.f); // walk around center
+	fruitPosition.y += abs(sin(m_totalDelta * 4.f - 0.5f)) * 0.5f; // fruit jump
 	fruit->setPosition(fruitPosition);
 	fruit->updateAnimated(8 * dt * fruitAnimationCycle / (2.f * XM_PI));
 	fruit->setRotation(float3(0.0f, -m_totalDelta, 0.0f));
@@ -153,7 +144,7 @@ void MainState::update() {
 			// Logo update
 			float offsetX = 1280.f / 16.f;
 			float offsetY = 720.f / 6.0f;
-			float t = m_timer.getTimePassed();
+			float t = (float)m_timer.getTimePassed();
 			for (size_t i = 0; i < m_letters.size(); i++) {
 				float2 movement = float2(sin(t + m_letters[i].speedOffset.x),
 									  cos(t + m_letters[i].speedOffset.y)) *
@@ -189,9 +180,8 @@ void MainState::update() {
 				// back to menu
 				changeMainState(Menu);
 			}
-			if (m_btn_levelSelect_play.update_behavior(dt)) {
-				// start level
-				changeToLevel(m_levelHighlighted);
+			if (m_btn_levelSelect_controls.update_behavior(dt)) {
+				push(State::ControlState);
 			}
 
 			// update level frames
@@ -215,7 +205,7 @@ void MainState::update() {
 					float2 mp = ip->mouseXY();
 					if (m_levelItem_background.getBoundingBox().isInside(mp)) {
 						// hovering frame
-						m_levelHighlighted = i;
+						m_levelHighlighted = (int)i;
 						if (ip->mousePressed(Input::LEFT)) {
 							// clicked frame
 							changeToLevel(m_levelHighlighted);
@@ -256,7 +246,7 @@ void MainState::update() {
 
 	// update level selection particlesystem effect
 	m_ps_selected.setPosition(
-		m_levelSelections[m_levelHighlighted].obj_bowl.getPosition() + float3(0, 0.2, 0));
+		m_levelSelections[m_levelHighlighted].obj_bowl.getPosition() + float3(0, 0.2f, 0));
 	m_ps_selected.update(dt);
 
 }
@@ -275,7 +265,7 @@ void MainState::draw() {
 	// custom drawing (with darkoutlines)
 	for (size_t i = 0; i < 3; i++) {
 		if (i == 0 || m_levelSelections[i - 1].completed) {
-			float3 highlightColor = float3(1.) * (m_levelHighlighted == i ? 1 : 0.3);
+			float3 highlightColor = float3(1.f) * (m_levelHighlighted == i ? 1.f : 0.3f);
 			m_levelSelections[i].obj_bowl.draw(highlightColor);
 			if (m_levelSelections[i].completed)
 				m_levelSelections[i].obj_content.draw(highlightColor);
@@ -292,6 +282,18 @@ void MainState::draw() {
 	m_ps_selected.draw();
 
 	/* -- MENU UI -- */
+
+	// game version
+	m_textRenderer.setAlignment(HorizontalAlignment::AlignRight, VerticalAlignment::AlignBottom); // center
+	m_textRenderer.setScale(0.4f);
+	m_textRenderer.setAlpha(1);
+	m_textRenderer.setPosition(float2(1280, 720) * 0.99f);
+	string gameVersionStr = "v" + to_string(GAME_VERSION) + "." + to_string(GAME_PATCH);
+	m_textRenderer.setText(gameVersionStr);
+	m_textRenderer.setColor(Color(0, 0, 0, 1));
+	m_textRenderer.draw();
+	m_textRenderer.setColor(Color(1, 1, 1, 1));
+
 	float source_alpha = Clamp<float>((1 - m_stateSwitchFactor) * 2 - 1, 0, 1);
 	float dest_alpha = Clamp<float>(m_stateSwitchFactor * 2 - 1, 0, 1);
 	float stateAlpha[NR_OF_STATES] = { 0, 0, 0 };
@@ -330,8 +332,8 @@ void MainState::draw() {
 		m_btn_levelSelect_back.setAlpha(alpha);
 		m_btn_levelSelect_back.draw();
 
-		m_btn_levelSelect_play.setAlpha(alpha);
-		m_btn_levelSelect_play.draw();
+		m_btn_levelSelect_controls.setAlpha(alpha);
+		m_btn_levelSelect_controls.draw();
 
 		float itemWidthOffset = 325;
 		float totalItemWidth = itemWidthOffset * (3 - 1);
@@ -341,15 +343,15 @@ void MainState::draw() {
 			m_levelItem_background.setPosition(itemPos);
 			m_levelItem_background.setAlpha(alpha);
 			m_levelItem_background.draw();
+			// level index
+			m_textRenderer.setAlignment(); // center
+			m_textRenderer.setScale(0.4f);
+			m_textRenderer.setAlpha(alpha);
+			m_textRenderer.setPosition(itemPos + float2(115, 80));
+			m_textRenderer.setText(to_string(i + 1));
+			m_textRenderer.draw();
 
 			if (i == 0 || m_levelSelections[i - 1].completed) {
-				// level index
-				m_textRenderer.setAlignment(); // center
-				m_textRenderer.setScale(0.4f);
-				m_textRenderer.setAlpha(alpha);
-				m_textRenderer.setPosition(itemPos + float2(115, 80));
-				m_textRenderer.setText(to_string(i+1));
-				m_textRenderer.draw();
 				// text
 				m_textRenderer.setAlignment(); // center
 				m_textRenderer.setScale(0.25f);
@@ -357,11 +359,21 @@ void MainState::draw() {
 				m_textRenderer.setPosition(itemPos + float2(0, -82));
 				m_textRenderer.setText(m_levelSelections[i].name);
 				m_textRenderer.draw();
+				// best time
+				m_textRenderer.setAlignment(HorizontalAlignment::AlignLeft); // center
+				m_textRenderer.setScale(0.25f);
+				m_textRenderer.setAlpha(alpha);
+				m_textRenderer.setPosition(itemPos + float2(-100, -43));
+				string timeStr = "--:--.---";
+				if (m_levelSelections[i].grade != NR_OF_TIME_TARGETS)
+					timeStr = Milliseconds2DisplayableString(m_levelSelections[i].timeMs);
+				m_textRenderer.setText("Best: " + timeStr);
+				m_textRenderer.draw();
 				// grade
-				float2 coinPos = itemPos + float2(-85, -30);
+				float2 coinPos = itemPos + float2(-85, -10);
 				for (int c = 0; c < TimeTargets::NR_OF_TIME_TARGETS; c++) {
 					// coin medal
-					float2 cur_coinPos = coinPos + float2(0, c * 45);
+					float2 cur_coinPos = coinPos + float2(0, c * 35.f);
 					if (m_levelSelections[i].completed && m_levelSelections[i].grade <= c)
 						m_medalSprites[c].setColor(float4(1, 1, 1, 1));
 					else
@@ -373,18 +385,27 @@ void MainState::draw() {
 					m_textRenderer.setAlignment(HorizontalAlignment::AlignLeft,
 						VerticalAlignment::AlignCenter);
 					m_textRenderer.setAlpha(alpha);
-					m_textRenderer.setScale(0.25f);
+					m_textRenderer.setScale(0.2f);
 					m_textRenderer.setPosition(cur_coinPos + float2(25, 0));
 					m_textRenderer.setText(
-						asTimer(m_levelData[i].m_utility.timeTargets[c]) + " min");
+						Seconds2DisplayableString(m_levelData[i].m_utility.timeTargets[c]/1000) +
+						" min");
 					m_textRenderer.draw();
 				}
 			}
 			else {
 				// level locked
-				m_img_keylock.setPosition(itemPos);
+				m_img_keylock.setPosition(itemPos + float2(0, 20));
+				m_img_keylock.setScale(0.65f);
 				m_img_keylock.setAlpha(alpha);
 				m_img_keylock.draw();
+				// text (unlok previous)
+				m_textRenderer.setAlignment(); // center
+				m_textRenderer.setScale(0.25f);
+				m_textRenderer.setAlpha(alpha);
+				m_textRenderer.setPosition(itemPos + float2(0, -45));
+				m_textRenderer.setText("Complete  Previous");
+				m_textRenderer.draw();
 			}
 		}
 	}
@@ -428,33 +449,39 @@ void MainState::play() {
 	float totalItemWidth = itemWidthOffset * (3 - 1);
 
 	float3 bowlPositions[3] = { 
-		float3(67.455,10.528,20.378), 
-		float3(66.942,10.528,19.874),
-		float3(66.410,10.528,19.344) 
+		float3(67.455f,10.528f,20.378f), 
+		float3(66.942f,10.528f,19.874f),
+		float3(66.410f,10.528f,19.344f) 
 	};
 	string bowlLevelContentObjName[3] = { "BowlContent1", "BowlContent2", "BowlContent3" };
 	string bowlGradeObjName[TimeTargets::NR_OF_TIME_TARGETS+1] = { "bowl_gold", "bowl_silver",
 		"bowl_bronze" , "bowl_bronze"};
 	for (size_t i = 0; i < 3; i++) {
-		const SceneCompletion* cp = SaveManager::getProgress("scene" + to_string(i));
-		bool completed = false;
-		TimeTargets grade = TimeTargets::BRONZE;
-		if (cp) {
-			completed = cp->isCompleted();
-			grade = cp->grade;
+		string scene = "scene" + to_string(i);
+		SceneAbstactContent sceneContent;
+		sceneContent.load_raw(scene);
+
+		time_t timeMs = 0;
+		TimeTargets grade = TimeTargets::NR_OF_TIME_TARGETS;
+		if (SaveManager::getInstance()->getLevelProgress(scene, timeMs)) {
+			grade = SceneManager::getScene()->getTimeTargetGrade(
+				timeMs, sceneContent.m_utility.timeTargets);
 		}
+		bool completed = (grade != TimeTargets::NR_OF_TIME_TARGETS);
+
 		float3 position = bowlPositions[i];
 
 		m_levelSelections[i].obj_bowl.load(bowlGradeObjName[grade]);
 		m_levelSelections[i].obj_content.load(bowlLevelContentObjName[i]);
 		m_levelSelections[i].obj_bowl.setPosition(position);
 		m_levelSelections[i].obj_content.setPosition(position);
-		float bowlScale = 0.4;
+		float bowlScale = 0.4f;
 		m_levelSelections[i].obj_bowl.setScale(bowlScale);
 		m_levelSelections[i].obj_content.setScale(bowlScale);
 
 		m_levelSelections[i].completed = completed;
 		m_levelSelections[i].grade = grade;
+		m_levelSelections[i].timeMs = timeMs;
 
 		float2 desiredItemPos =
 			float2(1280.f / 2 + itemWidthOffset * i - totalItemWidth * 0.5f, 720 - 250);
@@ -472,7 +499,7 @@ void MainState::play() {
 
 	// Credits Setup
 	m_obj_creditsSign.load("CreditsSign");
-	float c = 1.2;
+	float c = 1.2f;
 	float3 pos = m_camTransformStates[MainStateType::Credits].position;
 	float3 tar = m_camTransformStates[MainStateType::Credits].target;
 	float3 dir = Normalize(tar - pos);

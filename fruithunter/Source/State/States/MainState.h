@@ -54,6 +54,7 @@ private:
 		// description and info
 		string name = "";
 		bool completed = false;
+		size_t timeMs = 0;
 		TimeTargets grade = TimeTargets::BRONZE;
 	};
 	LevelOption m_levelSelections[3];
@@ -87,7 +88,7 @@ private:
 	Menu_PoppingButton m_btn_menu_buttons[btn_length];
 	Menu_PoppingButton m_btn_menu_credits;
 	Menu_PoppingButton m_btn_levelSelect_back;
-	Menu_PoppingButton m_btn_levelSelect_play;
+	Menu_PoppingButton m_btn_levelSelect_controls;
 	Menu_PoppingButton m_btn_credits_back;
 
 	SoundID m_menuMusic = 0;
@@ -95,8 +96,6 @@ private:
 	void setButtons_menu();
 	void setButtons_levelSelect();
 	void setButtons_credits();
-
-	static string asTimer(size_t seconds);
 
 	void changeToLevel(size_t levelIndex);
 

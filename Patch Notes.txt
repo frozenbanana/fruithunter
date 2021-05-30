@@ -1,0 +1,10 @@
+Release v1.1 ()
+Features:
+ - Added leaderboards
+ - Added version control system to player save files (resets save files)
+Reworks:
+ - Level select screen displays more details
+ - Banana behavior rework
+Bugs:
+ - Fixed problem of player respawning in invalid positions
+ - Removed bug of dropping caught fruit

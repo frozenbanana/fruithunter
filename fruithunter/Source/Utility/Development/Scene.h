@@ -19,17 +19,14 @@
  * Handles the file information structure
 */
 class SceneAbstactContent {
-public:
-	static void fileWrite_string(fstream& file, string str);
-	static string fileRead_string(fstream& file);
-	static void fileWrite_ulong(fstream& file, size_t v);
-	static size_t fileRead_ulong(fstream& file);
-
 private:
 	string folder = "";
 	const string path_scenes = "assets/Scenes/";
 
 public:
+	// leaderboard linked
+	string m_leaderboardName = "";
+
 	// Seas
 	struct SeaContent {
 		int type;				//SeaEffect::SeaEffectTypes !!
@@ -47,7 +44,7 @@ public:
 		float3 position;
 		float3 size;
 		bool affectedByWind;
-		size_t emitRate;
+		float emitRate;
 		size_t capacity;
 	};
 	vector<ParticleSystemContent> m_particleSystemContents;
@@ -85,7 +82,7 @@ public:
 	// Level utility info
 	struct SceneUtilityInfo {
 		int winCondition[NR_OF_FRUITS] = { 0 };
-		int timeTargets[NR_OF_TIME_TARGETS] = { 0 };
+		time_t timeTargets[NR_OF_TIME_TARGETS] = { 0 };
 		float3 startSpawn;
 	} m_utility;
 
@@ -107,6 +104,7 @@ protected:
 
 public:
 	string m_sceneName = "";
+	string m_leaderboardName = "";
 
 	RPYCamera m_camera;
 
@@ -161,7 +159,6 @@ public:
 	void updated_fragment(Fragment* fragment);
 
 	void pickUpFruit(FruitType fruitType);
-	void dropFruit(FruitType fruitType);
 
 	void addArrow(shared_ptr<Arrow> arrow);
 
@@ -175,8 +172,7 @@ public:
 	void reset();
 	void clear();
 
-	size_t getTime();
-	TimeTargets getWinGrade();
+	static TimeTargets getTimeTargetGrade(time_t timeMs, time_t timeTargets[NR_OF_TIME_TARGETS]);
 	bool handleWin();
 
 	float getDeltaTime();

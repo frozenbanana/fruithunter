@@ -3,6 +3,12 @@
 #include "Input.h"
 #include "Settings.h"
 
+string SettingsState::screenModeToString(Renderer::ScreenMode mode) {
+	static const string screenModeStr[Renderer::ScreenMode::ScreenModeSize] = { "Windowed",
+		"Fullscreen", "Borderless" };
+	return screenModeStr[mode];
+}
+
 SettingsState::SettingsState() : StateItem(State::SettingState) {}
 
 SettingsState::~SettingsState() {}
@@ -23,9 +29,10 @@ void SettingsState::init() {
 	m_darkEdgesButton.initialize("Dark Edges", center + float2(0, -30), settings->getDarkEdges());
 
 	m_resolutionButton.initialize("Resolution", center + float2(0, 20), Button::Resolution::HD);
-	m_fullscreenButton.initialize("Fullscreen", center + float2(0, 70), settings->getFullscreen());
 	m_vsyncButton.initialize("V-Sync", center + float2(0, 130), settings->getVsync());
 	m_FXAAButton.initialize("FXAA", center + float2(0, 180), settings->getFXAA());
+
+	m_screenMode.initialize("Screen Mode: Windowed", center + float2(0, 70));
 
 	m_backButton.initialize("Back", center + float2(0, 230));
 	m_applyButton.initialize("Apply", center + float2(100, 230));
@@ -79,24 +86,29 @@ void SettingsState::update() {
 		else if (m_shadowsButton.getLowMedHighUltra() == Button::Setting::ULTRA)
 			settings->setShadowResolution(8192);
 	}
-	if (m_fullscreenButton.update()) {
+	if (m_resolutionButton.update()) {
 		m_screenStateChanged = true;
 	}
-	if (m_resolutionButton.update()) {
+	if (m_screenMode.update()) {
+		m_screenModeLocal =
+			(Renderer::ScreenMode)((m_screenModeLocal + 1) % Renderer::ScreenMode::ScreenModeSize);
 		m_screenStateChanged = true;
 	}
 	if (m_screenStateChanged) {
 		if (m_applyButton.update() || Input::getInstance()->keyDown(Keyboard::Keys::Enter)) {
-			settings->setFullscreen(m_fullscreenButton.getOnOff());
 
-			if (m_resolutionButton.getResolution() == Button::Resolution::HD)
-				settings->setResolution(1280, 720);
-			else if (m_resolutionButton.getResolution() == Button::Resolution::FHD)
-				settings->setResolution(1920, 1080);
-			else if (m_resolutionButton.getResolution() == Button::Resolution::QHD)
-				settings->setResolution(2560, 1440);
-			else if (m_resolutionButton.getResolution() == Button::Resolution::UHD)
-				settings->setResolution(3840, 2160);
+			settings->setScreenMode(m_screenModeLocal);
+
+			if (m_screenModeLocal != Renderer::ScreenMode::Screen_Borderless) {
+				if (m_resolutionButton.getResolution() == Button::Resolution::HD)
+					settings->setResolution(1280, 720);
+				else if (m_resolutionButton.getResolution() == Button::Resolution::FHD)
+					settings->setResolution(1920, 1080);
+				else if (m_resolutionButton.getResolution() == Button::Resolution::QHD)
+					settings->setResolution(2560, 1440);
+				else if (m_resolutionButton.getResolution() == Button::Resolution::UHD)
+					settings->setResolution(3840, 2160);
+			}
 
 			m_screenStateChanged = false;
 			m_redraw = true; // will redraw scene at draw call
@@ -115,8 +127,9 @@ void SettingsState::play() {
 
 	m_vsyncButton.setOnOff(settings->getVsync());
 	m_FXAAButton.setOnOff(settings->getFXAA());
-	m_fullscreenButton.setOnOff(settings->getFullscreen());
 	m_darkEdgesButton.setOnOff(settings->getDarkEdges());
+
+	m_screenModeLocal = Renderer::getInstance()->getScreenMode();
 
 	if (settings->getResolution().x == 1280)
 		m_resolutionButton.setResolution(Button::Resolution::HD);
@@ -164,13 +177,15 @@ void SettingsState::draw() {
 	m_FXAAButton.draw();
 	m_shadowsButton.draw();
 	m_resolutionButton.draw();
-	m_fullscreenButton.draw();
 
 	m_drawDistance.draw();
 	m_masterVolume.draw();
 	m_musicVolume.draw();
 	m_effectsVolume.draw();
 	m_sensitivity.draw();
+
+	m_screenMode.setLabel("Screen Mode: " + screenModeToString(m_screenModeLocal));
+	m_screenMode.draw();
 
 	float2 center(1280.f / 2, 720.f / 2);
 	if (m_screenStateChanged) {

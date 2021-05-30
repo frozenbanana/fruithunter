@@ -10,7 +10,6 @@ private:
 	float3 m_rotation;
 
 	void playSound_bounce();
-	void bounce(float3 normal, float bounceReflectMultiplier = 1.f, float randomHorizontalMultiplier = 0.f);
 
 	void updateFirstJump(float dt);
 	void updateBounce(float dt);
@@ -24,6 +23,8 @@ private:
 	void behaviorPassive() override;
 	void behaviorActive() override;
 	void behaviorCaught() override;
+
+	bool validAndSecureJumpTarget(float3 source, float3 target, float maximumJumpHeight);
 
 	float3 m_bounceDestination;
 

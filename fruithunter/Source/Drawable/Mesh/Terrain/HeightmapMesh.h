@@ -28,7 +28,7 @@ protected:
 	const int SMOOTH_STEPS = 1;
 
 	// grid points
-	XMINT2 m_gridPointSize;
+	XMINT2 m_gridPointSize = XMINT2(0, 0);
 	vector<vector<Vertex>> m_gridPoints;
 
 	// editMesh

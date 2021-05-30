@@ -8,6 +8,7 @@
 #include "Camera.h"
 #include "Sprite2D.h"
 #include "Menu_PoppingButton.h"
+#include "CSteamLeaderboards.h"
 
 class EndRoundState : public StateItem {
 private:
@@ -20,8 +21,17 @@ private:
 	ParticleSystem m_particleSystem;
 	Entity m_bowlContent;
 	Entity m_bowl;
-	size_t m_currentBowlContent;
 	Sprite2D m_spr_background;
+
+	size_t m_leaderboard_score = 0;
+	CSteamLeaderboard m_leaderboard;
+
+	enum UploadState {
+		Disabled,
+		Waiting,
+		Failed,
+		Finished 
+	} m_uploadState = Disabled;
 
 	Menu_PoppingButton m_btn_play;
 	Menu_PoppingButton m_btn_back;
