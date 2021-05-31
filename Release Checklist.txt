@@ -1,5 +1,5 @@
 Set DEBUG variable to false
-Remove SettingFile
+Set standard settings
 Remove PlayerFile
 Bug Test Application
 Copy Assets Folder

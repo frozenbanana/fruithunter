@@ -47,18 +47,21 @@ shared_ptr<Arrow> Bow::atLoosening() {
 	// start arrow recovery
 	m_waitingForArrowRecovery = true;
 	m_arrowReturnTimer = m_arrowTimeBeforeReturn;
+
+	//set bow position and rotation to desired stats.
+	m_rotation_current = getDesiredRotation();
+	setRotation(m_rotation_current);
+	m_position_current = getDesiredLocalPosition();
+	setPosition(m_position_current + m_sourcePosition);
+
 	// calculate arrow velocity
-	float bowEfficiencyConstant = 400.0f*3;
+	float bowEfficiencyConstant = 400.0f * 3;
 	float bowMaterialConstant = 0.05f;
 	float force = pow(
 		(bowEfficiencyConstant * m_drawFactor) / (m_arrowMass + m_bowMass * bowMaterialConstant),
 		0.5f);
 	float3 direction = getForward();
 	float3 vel = direction * force;
-
-	//set bow position and rotation to desired stats.
-	setRotation(getDesiredRotation());
-	setPosition(getDesiredLocalPosition()+m_sourcePosition);
 
 	//spawn arrow into world
 	shared_ptr<Arrow> ret = make_shared<Arrow>();
