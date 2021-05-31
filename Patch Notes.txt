@@ -10,3 +10,11 @@ Reworks:
 Bugs:
  - Fixed problem of player respawning in invalid positions
  - Removed bug of dropping caught fruit
+
+Release v1.2
+Features: 
+ - 
+Reworks:
+ - 
+Bugs:
+ - Fixed bug of arrow not firing in direction of player
