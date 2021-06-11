@@ -48,8 +48,6 @@ MainState::~MainState() {}
 
 void MainState::init() {
 	m_sceneManager.setPlayerState(false);
-
-	m_bow.setRecoveryTime(0);
 	
 	m_levelItem_background.load("back_level.png");
 	m_levelItem_background.setColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
@@ -109,7 +107,7 @@ void MainState::update() {
 
 	// update precoded bow behavior
 	float3 target = treePos + float3(0, 1.0, 0) +
-					float3(RandomFloat(-1, 1), RandomFloat(-1, 1), RandomFloat(-1, 1))*4;
+					float3(RandomFloat(-1, 1), RandomFloat(-1, 1), RandomFloat(-1, 1))*1.5;
 	float3 bowForward = target - bowPos;
 	bowForward.Normalize();
 	float3 rot = vector2Rotation(bowForward);

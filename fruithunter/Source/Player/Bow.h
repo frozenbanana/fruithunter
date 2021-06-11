@@ -20,34 +20,35 @@ private:
 	float3 m_bowPositioning_angle0 = float3(0.4f, 0, -0.8f);
 	float3 m_bowPositioning_offset1 = float3(0.1f, -0.05f, 0.55f);//aiming
 	//float3 m_bowPositioning_angle1 = float3(0, 0, -0.2f); // cannot be used! Need dynamic angle to make sure arrows travels to crosshair
-	float m_bowPositioning_drawForward = 0.2f;
-	float m_bowPositioning_rotationVelocityClamp = 0.5f;
-	float m_bowPositioning_rotationSpringConstant = 30.f;
-	float m_bowPositioning_bowDrag = 5.5f;
-	float m_bowPositioning_timeUntilTense = 0.5;
-	float m_bowPositioning_stringFriction = 0.0001f / 60.f;
-	float m_bowPositioning_stringSpringConstant = 800.f;
+	const float m_bowPositioning_drawForward = 0.2f;
+	const float m_bowPositioning_rotationVelocityClamp = 0.5f;
+	const float m_bowPositioning_rotationSpringConstant = 30.f;
+	const float m_bowPositioning_bowDrag = 5.5f;
+	const float m_bowPositioning_timeUntilTense = 0.5f;
+	const float m_bowPositioning_stringFriction = 0.0001f / 60.f;
+	const float m_bowPositioning_stringSpringConstant = 800.f;
 
 	// bow properties
-	float m_bowWindup = 0;
-	bool m_charging = false;
-	float m_drawFactor = 0.0f;
-	float m_stringVelocity = 0;
-	float m_stringFactor = 0.0f;
-	float m_bowMass = 1.4f;
+	float m_windup = 0; // main windowup factor [0-1]
+	float m_windup_positioning = 0.0f; // windup position
+	float m_windup_forward = 0.f; // windup forward position
+	float m_windup_string = 0.0f; // string windup
+	float m_stringVelocity = 0; // string windup velocity (bouncy effect)
+	bool m_charging = false; // is bow charging
+	const float m_bowMass = 1.4f;
 
 	// arrow properties
-	float m_arrowMass = 0.1f;
-	float m_arrowLength = 0.5f;
+	const float m_arrowMass = 0.1f;
+	const float m_arrowLength = 0.5f;
 
 	// arrow recovery
 	bool m_waitingForArrowRecovery = false;
 	float m_arrowReturnTimer = 0.f;
-	float m_arrowTimeBeforeReturn = 1.0f;
+	const float m_arrowTimeBeforeReturn = 1.0f;
 
 	// bow catchup, smoother experiance
-	float m_rotationCatchup = pow(0.1f, 14.0f);
-	float m_positionCatchup = pow(0.1f, 25.0f);
+	const float m_rotationCatchup = pow(0.1f, 14.0f);
+	const float m_positionCatchup = pow(0.1f, 25.0f);
 
 	// sound
 	SoundID m_soundID_stretch = 0;
@@ -105,8 +106,6 @@ public:
 
 	/* Returns float value on seconds until recovery */
 	float recovery() const;
-	/* Set recovery time for how long until the arrow will return after being shot. */
-	void setRecoveryTime(float timeInSeconds);
 	/* Return true if bow is ready to shoot arrow. */
 	bool isReady() const;
 

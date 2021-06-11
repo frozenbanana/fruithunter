@@ -11,9 +11,9 @@ Bow::Bow() {
 
 Bow::~Bow() {}
 
-float Bow::getWindup() const { return m_bowWindup; }
+float Bow::getWindup() const { return m_windup; }
 
-float Bow::getDrawFactor() const { return m_drawFactor; }
+float Bow::getDrawFactor() const { return m_windup_positioning; }
 
 void Bow::draw() {
 	m_bow.draw_animate();
@@ -27,15 +27,16 @@ void Bow::atPull() {
 }
 
 void Bow::pull(float dt) {
-	m_bowWindup = Clamp<float>(m_bowWindup + dt / m_bowPositioning_timeUntilTense, 0, 1);
-	m_drawFactor = 1.f - (float)pow(m_bowWindup - 1, 2);
-	m_stringFactor =
-		Clamp<float>(m_drawFactor, 0, 0.999f); // bow animation is fixed to the draw factor
-	m_bow.updateAnimatedSpecific(m_stringFactor);
+	m_windup = Clamp<float>(m_windup + dt / m_bowPositioning_timeUntilTense, 0, 1);
+	m_windup_positioning = 1.f - (float)pow(Clamp(m_windup*2,0.f,1.f) - 1, 2);
+	float stringF = 1.f - (float)pow(Clamp(m_windup * 1.5f - 0.5f, 0.f, 1.f) - 1, 2);
+	m_windup_string = Clamp<float>(stringF, 0, 0.999f); // bow animation is fixed to the draw factor
+	m_windup_forward = m_windup_string;
+	m_bow.updateAnimatedSpecific(m_windup_string);
 	m_bow.setFrameTargets(0, 1);
 
 	//stop stretch sound if bow fully streched
-	if (m_bowWindup == 1)
+	if (m_windup == 1)
 		AudioController::getInstance()->stop(m_soundID_stretch);
 }
 
@@ -55,10 +56,10 @@ shared_ptr<Arrow> Bow::atLoosening() {
 	setPosition(m_position_current + m_sourcePosition);
 
 	// calculate arrow velocity
-	float bowEfficiencyConstant = 400.0f * 3;
+	float bowEfficiencyConstant = 400.0f * 3; // 400*3
 	float bowMaterialConstant = 0.05f;
 	float force = pow(
-		(bowEfficiencyConstant * m_drawFactor) / (m_arrowMass + m_bowMass * bowMaterialConstant),
+		(bowEfficiencyConstant * m_windup_string) / (m_arrowMass + m_bowMass * bowMaterialConstant),
 		0.5f);
 	float3 direction = getForward();
 	float3 vel = direction * force;
@@ -72,16 +73,17 @@ shared_ptr<Arrow> Bow::atLoosening() {
 void Bow::loosen(float dt) {
 
 	// update bow factors
-	m_drawFactor += (0.f - m_drawFactor) * m_bowPositioning_bowDrag *
+	m_windup_positioning += (0.f - m_windup_positioning) * m_bowPositioning_bowDrag *
 					dt; // update draw factor to move towards 0
-	m_bowWindup = m_drawFactor;
-	m_stringVelocity += (0.f - m_stringFactor) * m_bowPositioning_stringSpringConstant *
+	m_windup_forward += (0.f - m_windup_forward) * m_bowPositioning_bowDrag * dt;
+	m_windup = m_windup_positioning;
+	m_stringVelocity += (0.f - m_windup_string) * m_bowPositioning_stringSpringConstant *
 						dt; // update spring velocity
 	m_stringVelocity *=
 		pow(m_bowPositioning_stringFriction, dt); // spring friction, reduce spring velocity
-	m_stringFactor += m_stringVelocity * dt;	  // update spring position
+	m_windup_string += m_stringVelocity * dt;	  // update spring position
 	// Update Animation
-	m_bow.updateAnimatedSpecific(m_stringFactor);
+	m_bow.updateAnimatedSpecific(m_windup_string);
 	m_bow.setFrameTargets(0, 1);
 }
 
@@ -97,7 +99,10 @@ shared_ptr<Arrow> Bow::update(float dt, bool pulling) {
 		else {
 			if (debug)
 				cout << "atRelease" << endl;
-			spawnedArrow = atLoosening();
+			if (m_windup < 0.5f)
+				m_charging = false; // stop charging
+			else
+				spawnedArrow = atLoosening();
 		}
 	}
 	else {
@@ -128,7 +133,7 @@ void Bow::setPosition(float3 position) {
 	m_bow.setPosition(position);
 
 	// update arrow transformation (is invisible when it should be)
-	arrow.setPosition(m_bow.getPosition() + getForward() * 0.3f * (1.0f - 1.6f * m_drawFactor));
+	arrow.setPosition(m_bow.getPosition() + getForward() * 0.3f * (1.0f - 1.6f * m_windup_string));
 }
 
 void Bow::setRotation(float3 rotation) {
@@ -146,14 +151,15 @@ float3 Bow::getDesiredLocalPosition() {
 
 	float3 position_holstered =
 		forward * m_bowPositioning_offset0.z + right * m_bowPositioning_offset0.x +
-		up * m_bowPositioning_offset0.y + bowForward * m_drawFactor * m_bowPositioning_drawForward;
+								up * m_bowPositioning_offset0.y +
+								bowForward * m_windup_forward * m_bowPositioning_drawForward;
 	float3 position_aiming =
 		(forward * m_bowPositioning_offset1.z + right * m_bowPositioning_offset1.x +
 			up * m_bowPositioning_offset1.y) +
-		bowForward * m_drawFactor * m_bowPositioning_drawForward;
+		bowForward * m_windup_forward * m_bowPositioning_drawForward;
 
 	float3 desiredPosition =
-		(position_holstered * (1 - m_drawFactor) + position_aiming * m_drawFactor);
+		(position_holstered * (1 - m_windup_positioning) + position_aiming * m_windup_positioning);
 	return desiredPosition;
 
 }
@@ -170,7 +176,7 @@ float3 Bow::getDesiredRotation() {
 	float3 rotOffset = vector2Rotation(rotatef3(float3(0, 0, 1), rotation - m_sourceRotation)); // fixes spinning bug
 	float3 rotation_aiming = m_sourceRotation + rotOffset;
 
-	float3 desiredRotation = (rotation_holstered * (1 - m_drawFactor) + rotation_aiming * m_drawFactor);
+	float3 desiredRotation = (rotation_holstered * (1 - m_windup_positioning) + rotation_aiming * m_windup_positioning);
 	return desiredRotation;
 }
 
@@ -204,8 +210,6 @@ void Bow::recovery_reduce(float dt) {
 }
 
 float Bow::recovery() const { return m_arrowReturnTimer; }
-
-void Bow::setRecoveryTime(float timeInSeconds) { m_arrowTimeBeforeReturn = timeInSeconds; }
 
 bool Bow::update_recovery(float dt) {
 	if (m_waitingForArrowRecovery) {
