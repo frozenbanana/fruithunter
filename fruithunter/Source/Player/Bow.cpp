@@ -72,19 +72,27 @@ shared_ptr<Arrow> Bow::atLoosening() {
 
 void Bow::loosen(float dt) {
 
-	// update bow factors
-	m_windup_positioning += (0.f - m_windup_positioning) * m_bowPositioning_bowDrag *
-					dt; // update draw factor to move towards 0
-	m_windup_forward += (0.f - m_windup_forward) * m_bowPositioning_bowDrag * dt;
-	m_windup = m_windup_positioning;
-	m_stringVelocity += (0.f - m_windup_string) * m_bowPositioning_stringSpringConstant *
-						dt; // update spring velocity
-	m_stringVelocity *=
-		pow(m_bowPositioning_stringFriction, dt); // spring friction, reduce spring velocity
-	m_windup_string += m_stringVelocity * dt;	  // update spring position
-	// Update Animation
-	m_bow.updateAnimatedSpecific(m_windup_string);
-	m_bow.setFrameTargets(0, 1);
+	if (m_arrowReturnTimer == 0) {
+		// move back to orignal
+		pull(-dt);
+	}
+	else {
+		// soft animation
+
+		m_windup = 0;
+		// update bow factors smoothly
+		m_windup_positioning += (0.f - m_windup_positioning) * m_bowPositioning_bowDrag *
+								dt; // update bow position factor to move towards 0
+		m_windup_forward += (0.f - m_windup_forward) * m_bowPositioning_bowDrag * dt;
+		m_stringVelocity += (0.f - m_windup_string) * m_bowPositioning_stringSpringConstant *
+							dt; // update spring velocity
+		m_stringVelocity *=
+			pow(m_bowPositioning_stringFriction, dt); // spring friction, reduce spring velocity
+		m_windup_string += m_stringVelocity * dt;	  // update spring position
+		// Update Animation
+		m_bow.updateAnimatedSpecific(m_windup_string);
+		m_bow.setFrameTargets(0, 1);
+	}
 }
 
 shared_ptr<Arrow> Bow::update(float dt, bool pulling) { 
@@ -99,8 +107,10 @@ shared_ptr<Arrow> Bow::update(float dt, bool pulling) {
 		else {
 			if (debug)
 				cout << "atRelease" << endl;
-			if (m_windup < 0.5f)
+			if (m_windup < 0.5f) {
 				m_charging = false; // stop charging
+				AudioController::getInstance()->stop(m_soundID_stretch); // stop sound
+			}
 			else
 				spawnedArrow = atLoosening();
 		}
