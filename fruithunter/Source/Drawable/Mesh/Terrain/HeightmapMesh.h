@@ -72,7 +72,7 @@ public:
 	void storeToFile_binary(fstream& file);
 
 	void changeSize(XMINT2 gridSize);
-	bool init(string filename, XMINT2 gridSize);
+	void init(string filename, XMINT2 gridSize);
 
 	vector<Vertex>& operator[](const size_t& index);
 	Vertex& operator[](const XMINT2& index);

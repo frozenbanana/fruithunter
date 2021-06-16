@@ -235,19 +235,14 @@ void Terrain::initilize(string filename, XMINT2 subsize, XMINT2 splits) {
 		(float)m_tex_noise->description.Width, (float)m_tex_noise->description.Height, 0.f, 0.f));
 
 	// load terrain
-	if (filename == "" || (splits.x == 0 || splits.y == 0) || (subsize.x == 0 || subsize.y == 0)) {
-		// do nothing
-	}
-	else {
-		build(filename, subsize, splits);
-	}
+	build(filename, subsize, splits);
 }
 
 void Terrain::build(string heightmapName, XMINT2 subSize, XMINT2 splits) {
 	m_tileSize = subSize;
 	m_gridSize = splits;
-	if (m_heightmapMesh.init(heightmapName, getGridPointSize()))
-		fillSubMeshes();
+	m_heightmapMesh.init(heightmapName, getGridPointSize());
+	fillSubMeshes();
 }
 
 void Terrain::changeSize(XMINT2 tileSize, XMINT2 gridSize) {

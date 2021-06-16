@@ -16,7 +16,7 @@ private:
 	float m_highSpeed = 60.f;
 	float m_lowSpeed = 25.f;
 
-	//Edit Transform
+	// Edit Transform
 	Transformation* m_transformable = nullptr;
 
 	enum EditTransformState {
@@ -25,13 +25,14 @@ private:
 		Edit_Rotation,
 		Edit_Count
 	} m_transformState = Edit_Translate;
-	//KeyBindings
+	// KeyBindings
 	const Keyboard::Keys m_key_delete = Keyboard::Delete;
-	const Input::MouseButton m_key_target = Input::LEFT;// btn for targeting transformation options
-	const Input::MouseButton m_key_select = Input::MIDDLE; // btn for selecting entity
+	const Input::MouseButton m_key_target = Input::LEFT; // btn for targeting transformation options
+	const Input::MouseButton m_key_select = Input::MIDDLE;	// btn for selecting entity
 	const Keyboard::Keys m_key_switchState = Keyboard::Tab; // btn for selecting entity
-	const Keyboard::Keys m_key_copy = Keyboard::C; // btn for copying fragment
-	const Keyboard::Keys m_key_setPosition = Keyboard::V; // btn for overwriting position to poiner pos
+	const Keyboard::Keys m_key_copy = Keyboard::C;			// btn for copying fragment
+	const Keyboard::Keys m_key_setPosition =
+		Keyboard::V; // btn for overwriting position to poiner pos
 
 	const Keyboard::Keys KEY_FORWARD = Keyboard::W;
 	const Keyboard::Keys KEY_BACKWARD = Keyboard::S;
@@ -45,19 +46,20 @@ private:
 	Sprite2D m_crosshair;
 
 	// PYR rotation mask
-	float3 m_maskPYR[3] = { float3(1, 1, 0), float3(0, 1, 0), float3(1, 1, 1) };//masks rotation axises that is desired for a torus
+	float3 m_maskPYR[3] = { float3(1, 1, 0), float3(0, 1, 0),
+		float3(1, 1, 1) }; // masks rotation axises that is desired for a torus
 
-	//axises
+	// axises
 	float3 m_axis[3] = { float3(1, 0, 0), float3(0, 1, 0), float3(0, 0, 1) };
 
-	//entities for transformation
-	Entity m_arrow[3], m_centerOrb;//translation
-	Entity m_torus[3], m_rotationCircle;//rotation
-	Entity m_scaling_torus;//scaling
+	// entities for transformation
+	Entity m_arrow[3], m_centerOrb;		 // translation
+	Entity m_torus[3], m_rotationCircle; // rotation
+	Entity m_scaling_torus;				 // scaling
 
-	//on tranformation variables
+	// on tranformation variables
 	int m_target = -1;
-	float3 m_target_pos;//camera
+	float3 m_target_pos; // camera
 	float3 m_target_forward;
 	float m_target_rayDist;
 
@@ -69,18 +71,39 @@ private:
 	vector<shared_ptr<TextureSet>> m_heightmap_textures;
 
 	vector<string> m_loadable_entity;
+	struct EntityView {
+		string objName;
+		float3 rotation;
+		Layer layer;
+	};
+	vector<EntityView> m_entityViews;
+	Entity m_entityViewer;
 
 	vector<string> m_loadable_scenes;
 
-	vector<Fragment*> m_library;
-	int m_selectedIndex = -1;
-	bool m_selectedThisFrame = false;
+	int m_selectedEntity = -1;
+	bool m_entityGhost_randomRotation = false;
+	bool m_entityGhost_randomScale = false;
+	float2 m_entityGhost_scaleRange = float2(1, 1);
+	float m_entityGhost_scale = 1.f;
+	float m_entityGhost_rotationY = 0;
+	Entity m_entityGhost_placer;
+
+	enum LibraryTab {
+		tab_terrain,
+		tab_entity,
+		tab_sea,
+		tab_particleSystem,
+		tab_count
+	} m_libraryTabOpen = LibraryTab::tab_terrain;
+	int m_library_selections[tab_count] = { -1 };
 
 	enum EditorTab {
 		Library,
 		GameRules,
 		TerrainEditor,
-		Leaderboard
+		Leaderboard,
+		etab_count
 	} m_editorTabActive = EditorTab::Library;
 
 	// terrain brush
@@ -98,11 +121,8 @@ private:
 	void update_imgui_terrainEditor();
 	void update_imgui_leaderboard();
 
-	bool update_panel_terrain(Environment* selection, bool update = false);
-	bool update_panel_entity(Entity* selection, bool update = false);
-	bool update_panel_sea(SeaEffect* selection, bool update = false);
-	bool update_panel_effect(ParticleSystem* selection, bool update = false);
-	void refreshLibrary();
+	template <typename CLASS> void update_panel(vector<shared_ptr<CLASS>>& list, LibraryTab tab);
+	void update_panel_entity_improved(QuadTree<shared_ptr<Entity>>& list, LibraryTab tab);
 
 	void updateCameraMovement(float dt);
 
@@ -110,11 +130,14 @@ private:
 	void draw_transformationVisuals();
 
 	void update_imgui();
-	void select_index(size_t index);
+	void select_index(LibraryTab tab, int index);
 	void select_fragment(FragmentID id);
-	void deselect_fragment();
 
 	void readSceneDirectory();
+
+	void render_entityViews();
+
+	void entityGhost_randomizeProperties();
 
 public:
 	SceneEditorManager();
@@ -131,3 +154,105 @@ public:
 	void reset();
 	void clear();
 };
+
+template <typename CLASS>
+inline void SceneEditorManager::update_panel(vector<shared_ptr<CLASS>>& list, LibraryTab tab) {
+	Input* ip = Input::getInstance();
+	int& selectedIdx = m_library_selections[tab];
+	if (ImGui::BeginChild(
+			"FragmentDisplayer", ImVec2(200, 0), true, ImGuiWindowFlags_AlwaysAutoResize)) {
+		// List
+		ImVec2 panelSize = ImGui::GetWindowSize();
+		if (ImGui::BeginChildFrame(3, ImVec2(0, panelSize.y - 135))) {
+			for (size_t i = 0; i < list.size(); i++) {
+				ImGui::PushID(i);
+				bool selected = (selectedIdx == i);
+				if (ImGui::Selectable(
+						static_cast<Fragment*>(list[i].get())->getFullDescription().c_str(),
+						&selected)) {
+					if (selectedIdx == i)
+						selectedIdx = -1;
+					else
+						selectedIdx = i;
+				}
+				// Drag Source
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+					ImGui::SetDragDropPayload("DND_TerrainItem", &i, sizeof(size_t));
+
+					ImGui::Text("Dragging[%i]", i);
+					ImGui::EndDragDropSource();
+				}
+				// Drag Target
+				if (ImGui::BeginDragDropTarget()) {
+					if (const ImGuiPayload* payload =
+							ImGui::AcceptDragDropPayload("DND_TerrainItem")) {
+						size_t payload_i = *(size_t*)payload->Data;
+						shared_ptr<CLASS> payload_source = list[payload_i];
+						list.erase(list.begin() + payload_i);
+						list.insert(list.begin() + i, payload_source);
+					}
+					ImGui::EndDragDropTarget();
+				}
+				ImGui::PopID();
+			}
+			ImGui::EndChildFrame();
+		}
+		// buttons
+		if (ImGui::Button("Create")) {
+			list.push_back(make_shared<CLASS>());
+		}
+		ImGui::SameLine();
+		if ((ImGui::Button("Remove") || ip->keyPressed(Keyboard::Delete)) && selectedIdx != -1) {
+			list.erase(list.begin() + selectedIdx);
+		}
+		if (ImGui::IsItemHovered()) {
+			ImGui::BeginTooltip();
+			ImGui::Text("QuickButton (Del)");
+			ImGui::EndTooltip();
+		}
+		ImGui::SameLine();
+		if ((ImGui::Button("Duplicate") || ip->keyPressed(Keyboard::C)) && selectedIdx != -1) {
+			list.push_back(make_shared<CLASS>(*list[selectedIdx].get()));
+		}
+		if (ImGui::IsItemHovered()) {
+			ImGui::BeginTooltip();
+			ImGui::Text("QuickButton (C)");
+			ImGui::EndTooltip();
+		}
+		if ((ImGui::Button("Find") || ip->keyPressed(Keyboard::F)) && selectedIdx != -1) {
+			Transformation* t = dynamic_cast<Transformation*>(list[selectedIdx].get());
+			if (t != nullptr) {
+				scene->m_camera.setEye(t->getPosition() + float3(1, 1, 0) * 2.f);
+				scene->m_camera.setTarget(t->getPosition());
+			}
+		}
+		if (ImGui::IsItemHovered()) {
+			ImGui::BeginTooltip();
+			ImGui::Text("QuickButton (F)");
+			ImGui::EndTooltip();
+		}
+		// help text
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1, 3));
+		ImGui::Text(" --- Buttons ---");
+		ImVec4 btnCol(0, 1, 0, 1);
+		ImGui::Text("Select object: ");
+		ImGui::SameLine();
+		ImGui::TextColored(btnCol, "MiddleClick");
+		ImGui::Text("Place pointer: ");
+		ImGui::SameLine();
+		ImGui::TextColored(btnCol, "RightClick");
+		ImGui::Text("Switch transform edit: ");
+		ImGui::SameLine();
+		ImGui::TextColored(btnCol, "Tab");
+		ImGui::PopStyleVar();
+	}
+	ImGui::EndChild();
+	ImGui::SameLine();
+	ImGui::BeginGroup();
+	{
+		if (selectedIdx != -1) {
+			static_cast<Fragment*>(list[selectedIdx].get())->imgui_properties();
+		}
+	}
+	ImGui::EndGroup();
+}

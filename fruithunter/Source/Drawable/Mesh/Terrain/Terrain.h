@@ -160,7 +160,6 @@ public:
 	void setColorSettings(AreaTag tag);
 
 	// get settings
-	void getTextures(string textures[4]) const;
 	XMINT2 getSplits() const;
 	XMINT2 getSubSize() const;
 

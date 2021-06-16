@@ -73,7 +73,7 @@ size_t Scene::find_parentIndex(Fragment* fragment) {
 		break;
 	case Fragment::Type::particleSystem:
 		for (size_t i = 0; i < m_particleSystems.size(); i++) {
-			if (m_particleSystems[i].getID() == fragment->getID()) {
+			if (m_particleSystems[i]->getID() == fragment->getID()) {
 				return i;
 			}
 		}
@@ -86,8 +86,8 @@ size_t Scene::find_parentIndex(Fragment* fragment) {
 		}
 		break;
 	case Fragment::Type::terrain:
-		for (size_t i = 0; i < m_terrains.length(); i++) {
-			if (m_terrains.getTerrainFromIndex(i)->getID() == fragment->getID()) {
+		for (size_t i = 0; i < m_terrains.size(); i++) {
+			if (m_terrains[i]->getID() == fragment->getID()) {
 				return i;
 			}
 		}
@@ -108,7 +108,7 @@ bool Scene::remove_fragment(Fragment* fragment) {
 		break;
 	case Fragment::Type::particleSystem:
 		for (size_t i = 0; i < m_particleSystems.size(); i++) {
-			if (m_particleSystems[i].getID() == fragment->getID()) {
+			if (m_particleSystems[i]->getID() == fragment->getID()) {
 				m_particleSystems.erase(m_particleSystems.begin() + i);
 				return true;
 			}
@@ -123,8 +123,8 @@ bool Scene::remove_fragment(Fragment* fragment) {
 		}
 		break;
 	case Fragment::Type::terrain:
-		for (size_t i = 0; i < m_terrains.length(); i++) {
-			if (m_terrains.getTerrainFromIndex(i)->getID() == fragment->getID()) {
+		for (size_t i = 0; i < m_terrains.size(); i++) {
+			if (m_terrains[i]->getID() == fragment->getID()) {
 				m_terrains.remove(i);
 				return true;
 			}
@@ -139,10 +139,10 @@ void Scene::updated_fragment(Fragment* fragment) {
 	case Fragment::Type::entity:
 		for (size_t i = 0; i < m_entities.size(); i++) {
 			if (m_entities[i]->getID() == fragment->getID()) {
+				Entity* ent = m_entities[i].get();
+				m_entities.updateElement(i, ent->getLocalBoundingBoxPosition(),
+					ent->getLocalBoundingBoxSize(), ent->getMatrix());
 				shared_ptr<Entity> ptr = m_entities[i];
-				m_entities.remove(i);
-				m_entities.add(ptr->getLocalBoundingBoxPosition(), ptr->getLocalBoundingBoxSize(),
-					ptr->getMatrix(), ptr);
 			}
 		}
 		break;
@@ -263,10 +263,11 @@ void Scene::load(string folder) {
 		m_particleSystems.resize(content.m_particleSystemContents.size());
 		for (size_t i = 0; i < content.m_particleSystemContents.size(); i++) {
 			SceneAbstactContent::ParticleSystemContent* c = &content.m_particleSystemContents[i];
-			m_particleSystems[i].load((ParticleSystem::Type)c->type, c->emitRate, c->capacity);
-			m_particleSystems[i].setPosition(c->position);
-			m_particleSystems[i].setScale(c->size);
-			m_particleSystems[i].affectedByWindState(c->affectedByWind);
+			m_particleSystems[i] = make_shared<ParticleSystem>();
+			m_particleSystems[i]->load((ParticleSystem::Type)c->type, c->emitRate, c->capacity);
+			m_particleSystems[i]->setPosition(c->position);
+			m_particleSystems[i]->setScale(c->size);
+			m_particleSystems[i]->affectedByWindState(c->affectedByWind);
 		}
 		// utility
 		m_utility = content.m_utility;
@@ -301,7 +302,7 @@ void Scene::save() {
 		content.m_particleSystemContents.resize(m_particleSystems.size());
 		for (size_t i = 0; i < m_particleSystems.size(); i++) {
 			SceneAbstactContent::ParticleSystemContent* c = &content.m_particleSystemContents[i];
-			ParticleSystem* ps = &m_particleSystems[i];
+			ParticleSystem* ps = m_particleSystems[i].get();
 			c->type = (int)ps->getType();
 			c->position = ps->getPosition();
 			c->size = ps->getScale();
@@ -348,10 +349,10 @@ void Scene::save() {
 		}
 
 		// save individual terrain files
-		for (size_t i = 0; i < m_terrains.length(); i++) {
+		for (size_t i = 0; i < m_terrains.size(); i++) {
 			string filename = "terrain" + to_string(i) + ".env";
 			string path = "assets/Scenes/" + m_sceneName + "/" + filename;
-			m_terrains.getTerrainFromIndex(i)->storeToBinFile(path);
+			m_terrains[i]->storeToBinFile(path);
 		}
 
 		ErrorLogger::log("Saved scene: " + m_sceneName);
@@ -369,15 +370,15 @@ void Scene::reset() {
 	// fruits
 	m_fruits.clear();
 	size_t total = 0;
-	for (size_t i = 0; i < m_terrains.length(); i++)
+	for (size_t i = 0; i < m_terrains.size(); i++)
 		for (size_t iFruit = 0; iFruit < NR_OF_FRUITS; iFruit++)
-			total = m_terrains.getTerrainFromIndex(i)->getFruitCount((FruitType)iFruit);
+			total = m_terrains[i]->getFruitCount((FruitType)iFruit);
 	m_fruits.reserve(total);
-	for (size_t i = 0; i < m_terrains.length(); i++) {
+	for (size_t i = 0; i < m_terrains.size(); i++) {
 		for (size_t iFruit = 0; iFruit < NR_OF_FRUITS; iFruit++) {
-			size_t count = m_terrains.getTerrainFromIndex(i)->getFruitCount((FruitType)iFruit);
+			size_t count = m_terrains[i]->getFruitCount((FruitType)iFruit);
 			for (size_t j = 0; j < count; j++) {
-				float3 spawn = m_terrains.getSpawnpoint(i) + float3(0, 1, 0);
+				float3 spawn = m_terrains[i]->getRandomSpawnPoint() + float3(0, 1, 0);
 				switch (iFruit) {
 				case FruitType::APPLE:
 					m_fruits.push_back(make_shared<Apple>(spawn));
@@ -392,7 +393,7 @@ void Scene::reset() {
 					m_fruits.push_back(make_shared<DragonFruit>(spawn));
 					break;
 				}
-				m_fruits.back()->bindToEnvironment(m_terrains.getTerrainFromIndex(i).get());
+				m_fruits.back()->bindToEnvironment(m_terrains[i].get());
 			}
 		}
 	}

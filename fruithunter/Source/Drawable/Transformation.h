@@ -56,6 +56,8 @@ public:
 	void stream_write(fstream& file);
 	void stream_read(fstream& file);
 
+	void imgui_properties();
+
 	Transformation(float3 position = float3(0.), float3 scale = float3(1.), float3 rotation = float3(0.));
 	virtual ~Transformation();
 

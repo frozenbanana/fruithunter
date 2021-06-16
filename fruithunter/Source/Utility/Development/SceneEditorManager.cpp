@@ -16,8 +16,9 @@ void SceneEditorManager::update_imgui_leaderboard() {
 		initDownload = false;
 	}
 	ImGui::SameLine();
-	static ELeaderboardDataRequest requestType = ELeaderboardDataRequest::k_ELeaderboardDataRequestGlobalAroundUser;
-	const string requestTypesStr[] = {"Global","GlobalAroundUser","Friends","Users"};
+	static ELeaderboardDataRequest requestType =
+		ELeaderboardDataRequest::k_ELeaderboardDataRequestGlobalAroundUser;
+	const string requestTypesStr[] = { "Global", "GlobalAroundUser", "Friends", "Users" };
 	if (ImGui::BeginCombo("RequestType", requestTypesStr[requestType].c_str())) {
 		for (size_t i = 0; i < 4; i++) {
 			if (ImGui::MenuItem(requestTypesStr[i].c_str())) {
@@ -25,7 +26,7 @@ void SceneEditorManager::update_imgui_leaderboard() {
 				// fetch again
 				if (m_leaderboard.getRequestState_FindLeaderboard() ==
 					CSteamLeaderboard::RequestState::r_inactive)
-				m_leaderboard.FindLeaderboard(scene->m_leaderboardName.c_str());
+					m_leaderboard.FindLeaderboard(scene->m_leaderboardName.c_str());
 				initDownload = false;
 			}
 		}
@@ -63,162 +64,54 @@ void SceneEditorManager::update_imgui_leaderboard() {
 	ImGui::InputInt("Score", &score);
 	ImGui::SameLine();
 	if (ImGui::Button("Upload")) {
-		m_leaderboard.UploadScore(score, ELeaderboardUploadScoreMethod::k_ELeaderboardUploadScoreMethodForceUpdate); // overwrite
+		m_leaderboard.UploadScore(score,
+			ELeaderboardUploadScoreMethod::k_ELeaderboardUploadScoreMethodForceUpdate); // overwrite
 	}
 }
 
 void SceneEditorManager::update_imgui_library() {
-	Input* ip = Input::getInstance();
-	{
-		if (ImGui::BeginChild(
-				"win_fragmentDisplayer", ImVec2(200, 0), true, ImGuiWindowFlags_AlwaysAutoResize)) {
-			ImVec2 childSize = ImGui::GetWindowSize();
-			ImGui::Text("Fragments");
-			if (ImGui::ListBoxHeader("", ImVec2(200, childSize.y - 125))) {
-				for (size_t i = 0; i < m_library.size(); i++) {
-					bool selected = (m_selectedIndex == i);
-					if (ImGui::Selectable(m_library[i]->getFullDescription().c_str(), selected)) {
-						if (selected) {
-							deselect_fragment();
-						}
-						else {
-							select_index(i);
-						}
-					}
-				}
-				ImGui::ListBoxFooter();
-			}
-			if (m_selectedIndex != -1) {
-				Fragment* f = m_library[m_selectedIndex];
-				if (ImGui::Button("Find")) {
-					Transformation* t = dynamic_cast<Transformation*>(f);
-					if (t != nullptr) {
-						scene->m_camera.setEye(t->getPosition() + float3(1, 1, 0) * 2.f);
-						scene->m_camera.setTarget(t->getPosition());
-					}
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("Remove") || ip->keyPressed(m_key_delete)) {
-					scene->remove_fragment(f);
-					refreshLibrary();
-				}
-				if (ImGui::IsItemHovered()) {
-					ImGui::BeginTooltip();
-					ImGui::Text("QuickButton (Del)");
-					ImGui::EndTooltip();
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("Copy") || ip->keyPressed(m_key_copy)) {
-					Fragment::Type type = f->getType();
-					Fragment* fCopy = nullptr;
-					bool anyUpdate = true;
-					if (type == Fragment::Type::entity) {
-						Entity* target = dynamic_cast<Entity*>(f);
-						shared_ptr<Entity> obj = make_shared<Entity>(*target);
-						scene->m_entities.add(obj->getLocalBoundingBoxPosition(),
-							obj->getLocalBoundingBoxSize(), obj->getMatrix(), obj);
-						fCopy = obj.get();
-					}
-					else if (type == Fragment::Type::particleSystem) {
-						ParticleSystem* obj = dynamic_cast<ParticleSystem*>(f);
-						scene->m_particleSystems.push_back(*obj);
-						fCopy = &scene->m_particleSystems.back();
-					}
-					else if (type == Fragment::Type::sea) {
-						SeaEffect* target = dynamic_cast<SeaEffect*>(f);
-						shared_ptr<SeaEffect> obj = make_shared<SeaEffect>(*target);
-						scene->m_seaEffects.push_back(obj);
-						fCopy = obj.get();
-					}
-					else if (type == Fragment::Type::terrain) {
-						Environment* obj = dynamic_cast<Environment*>(f);
-						shared_ptr<Environment> sh_obj = make_shared<Environment>(*obj);
-						scene->m_terrains.add(sh_obj);
-						fCopy = sh_obj.get();
-					}
-					else
-						anyUpdate = false;
-					if (anyUpdate) {
-						refreshLibrary();
-						select_fragment(fCopy->getID());
-					}
-				}
-				if (ImGui::IsItemHovered()) {
-					ImGui::BeginTooltip();
-					ImGui::Text("QuickButton (C)");
-					ImGui::EndTooltip();
-				}
-			}
+	static const string libraryTabsStr[LibraryTab::tab_count] = { "Terrain", "Entity", "Sea",
+		"Particle System" };
+	const ImVec4 colorBlueActive = ImVec4(51 / 255.f, 105 / 255.f, 173 / 255.f, 1);
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8, 0));
+	for (size_t i = 0; i < etab_count; i++) {
+		bool pop = false;
+		if (m_libraryTabOpen == (LibraryTab)i) {
+			ImGui::PushStyleColor(ImGuiCol_Button, colorBlueActive);
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, colorBlueActive);
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colorBlueActive);
+			pop = true;
+		}
+		if (ImGui::Button(libraryTabsStr[i].c_str())) {
+			m_libraryTabOpen = (LibraryTab)i;
+		}
+		if (pop)
+			ImGui::PopStyleColor(3);
+		if (i + 1 < etab_count)
+			ImGui::SameLine();
+	}
+	ImGui::PopStyleVar(1);
+	ImGui::PushStyleColor(ImGuiCol_Separator, colorBlueActive);
+	ImGui::Separator();
+	ImGui::PopStyleColor(1);
 
-			// help text
-			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1, 3));
-			ImGui::Text(" --- Buttons ---");
-			ImVec4 btnCol(0, 1, 0, 1);
-			ImGui::Text("Select object: ");
-			ImGui::SameLine();
-			ImGui::TextColored(btnCol, "MiddleClick");
-			ImGui::Text("Place pointer: ");
-			ImGui::SameLine();
-			ImGui::TextColored(btnCol, "RightClick");
-			ImGui::Text("Switch transform edit: ");
-			ImGui::SameLine();
-			ImGui::TextColored(btnCol, "Tab");
-			ImGui::PopStyleVar();
-		}
-		ImGui::EndChild();
+	ImGui::BeginGroup();
+	switch (m_libraryTabOpen) {
+	case SceneEditorManager::tab_terrain:
+		update_panel(scene->m_terrains, m_libraryTabOpen);
+		break;
+	case SceneEditorManager::tab_entity:
+		update_panel_entity_improved(scene->m_entities, m_libraryTabOpen);
+		break;
+	case SceneEditorManager::tab_sea:
+		update_panel(scene->m_seaEffects, m_libraryTabOpen);
+		break;
+	case SceneEditorManager::tab_particleSystem:
+		update_panel(scene->m_particleSystems, m_libraryTabOpen);
+		break;
 	}
-	ImGui::SameLine();
-	{
-		ImGui::PushItemWidth(150);
-		ImGui::BeginGroup();
-		if (m_selectedIndex != -1) {
-			bool updated = false;
-			Fragment* f = m_library[m_selectedIndex];
-			switch (f->getType()) {
-			case Fragment::entity:
-				updated = update_panel_entity(dynamic_cast<Entity*>(f), m_selectedThisFrame);
-				break;
-			case Fragment::terrain:
-				updated = update_panel_terrain(dynamic_cast<Environment*>(f), m_selectedThisFrame);
-				break;
-			case Fragment::particleSystem:
-				updated =
-					update_panel_effect(dynamic_cast<ParticleSystem*>(f), m_selectedThisFrame);
-				break;
-			case Fragment::sea:
-				updated = update_panel_sea(dynamic_cast<SeaEffect*>(f), m_selectedThisFrame);
-				break;
-			}
-			if (updated)
-				scene->updated_fragment(f);
-		}
-		else {
-			bool updated = false; // tells if a new fragment has been created
-			if (ImGui::BeginTabBar("fragmentCreator")) {
-				if (ImGui::BeginTabItem("Terrain")) {
-					updated = update_panel_terrain(nullptr);
-					ImGui::EndTabItem();
-				}
-				if (ImGui::BeginTabItem("Entity")) {
-					updated = update_panel_entity(nullptr);
-					ImGui::EndTabItem();
-				}
-				if (ImGui::BeginTabItem("SeaEffect")) {
-					updated = update_panel_sea(nullptr);
-					ImGui::EndTabItem();
-				}
-				if (ImGui::BeginTabItem("ParticleSystem")) {
-					updated = update_panel_effect(nullptr);
-					ImGui::EndTabItem();
-				}
-				ImGui::EndTabBar();
-			}
-			if (updated)
-				refreshLibrary();
-		}
-		ImGui::EndGroup();
-		ImGui::PopItemWidth();
-	}
+	ImGui::EndGroup();
+	select_index(m_libraryTabOpen, m_library_selections[m_libraryTabOpen]);
 }
 
 void SceneEditorManager::update_imgui_gameRules() {
@@ -284,379 +177,182 @@ void SceneEditorManager::update_imgui_terrainEditor() {
 	ImGui::PopStyleVar();
 }
 
-bool SceneEditorManager::update_panel_terrain(Environment* selection, bool update) {
-	bool isValid = (selection != nullptr);
-	bool updated = false;
-	static float3 position, rotation, scale = float3(100, 15, 100);
-	static AreaTag tag = AreaTag::Forest;
-	static string heightmap = m_heightmap_textures[0]->filename;
-	static XMINT2 subSize = XMINT2(15, 15);
-	static XMINT2 divisions = XMINT2(16, 16);
-	static float3 wind;
-	static int fruitSpawns[NR_OF_FRUITS] = { 0 };
-
-	if (update && isValid) {
-		position = selection->getPosition();
-		rotation = selection->getRotation();
-		scale = selection->getScale();
-		tag = selection->getTag();
-		subSize = selection->getSubSize();
-		divisions = selection->getSplits();
-		wind = selection->getWindStatic();
-		size_t index = scene->find_parentIndex(selection);
-		for (size_t i = 0; i < NR_OF_FRUITS; i++)
-			fruitSpawns[i] = selection->getFruitCount((FruitType)i);
-	}
-
-	if (ImGui::InputFloat3("Position", (float*)&position, 2) && isValid) {
-		selection->setPosition(position);
-		updated = true;
-	}
-	if (ImGui::InputFloat3("Rotation", (float*)&rotation, 2) && isValid) {
-		selection->setRotation(rotation);
-		updated = true;
-	}
-	if (ImGui::InputFloat3("Scale", (float*)&scale, 2) && isValid) {
-		selection->setScale(scale);
-		updated = true;
-	}
-	if (ImGui::InputInt2("SubSize", (int*)&subSize)) {
-		subSize = XMINT2(Clamp<int>(subSize.x, 0, subSize.x), Clamp<int>(subSize.y, 0, subSize.y));
-	}
-	if (ImGui::InputInt2("Divisions", (int*)&divisions)) {
-		divisions = XMINT2(
-			Clamp<int>(divisions.x, 0, divisions.x), Clamp<int>(divisions.y, 0, divisions.y));
-	}
-	if (ImGui::InputFloat3("Wind", (float*)&wind) && isValid) {
-		selection->setWind(wind);
-		updated = true;
-	}
-	if (ImGui::BeginCombo("AreaTag", AreaTagToString(tag).c_str())) {
-		for (size_t i = 0; i < AreaTag::NR_OF_AREAS; i++) {
-			if (ImGui::MenuItem(AreaTagToString((AreaTag)i).c_str())) {
-				tag = (AreaTag)i;
-				if (isValid) {
-					selection->setTag(tag);
-					updated = true;
+void SceneEditorManager::update_panel_entity_improved(
+	QuadTree<shared_ptr<Entity>>& list, LibraryTab tab) {
+	int& selectedIdx = m_library_selections[tab];
+	Input* ip = Input::getInstance();
+	if (ImGui::BeginChild(
+			"FragmentDisplayer", ImVec2(200, 0), true, ImGuiWindowFlags_AlwaysAutoResize)) {
+		// List
+		ImVec2 panelSize = ImGui::GetWindowSize();
+		if (ImGui::BeginChildFrame(2, ImVec2(0, panelSize.y - 135))) {
+			for (size_t i = 0; i < list.size(); i++) {
+				ImGui::PushID(i);
+				bool selected = (selectedIdx == i);
+				if (ImGui::Selectable(
+						static_cast<Fragment*>(list[i].get())->getFullDescription().c_str(),
+						&selected)) {
+					if (selectedIdx == i)
+						selectedIdx = -1;
+					else
+						selectedIdx = i;
 				}
+				//// Drag Source
+				// if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+				//	ImGui::SetDragDropPayload("DND_TerrainItem", &i, sizeof(size_t));
+
+				//	ImGui::Text("Dragging[%i]", i);
+				//	ImGui::EndDragDropSource();
+				//}
+				//// Drag Target
+				// if (ImGui::BeginDragDropTarget()) {
+				//	if (const ImGuiPayload* payload =
+				//			ImGui::AcceptDragDropPayload("DND_TerrainItem")) {
+				//		size_t payload_i = *(size_t*)payload->Data;
+				//		shared_ptr<Entity> payload_source = list[payload_i];
+				//		list.erase(list.begin() + payload_i);
+				//		list.insert(list.begin() + i, payload_source);
+				//	}
+				//	ImGui::EndDragDropTarget();
+				//}
+				ImGui::PopID();
 			}
+			ImGui::EndChildFrame();
 		}
-		ImGui::EndCombo();
-	}
-	if (ImGui::BeginCombo("Heightmap", heightmap.c_str())) {
-		float cWidth = ImGui::CalcItemWidth();
-		int itemCountOnWidth = 3;
-		for (size_t i = 0; i < m_heightmap_textures.size(); i++) {
-			ImGui::BeginGroup();
-			ImGui::Text(m_heightmap_textures[i]->filename.c_str());
-			if (ImGui::ImageButton(m_heightmap_textures[i]->view.Get(),
-					ImVec2(cWidth / itemCountOnWidth, cWidth / itemCountOnWidth)))
-				heightmap = m_heightmap_textures[i]->filename;
-			ImGui::EndGroup();
-			if ((i + 1) % itemCountOnWidth != 0)
-				ImGui::SameLine();
+		// buttons
+		if ((ImGui::Button("Remove") || ip->keyPressed(Keyboard::Delete)) && selectedIdx != -1) {
+			list.remove(selectedIdx);
 		}
-		ImGui::EndCombo();
-	}
-	static const string tex_description[4] = { "Texture Flat", "Texture Bottom Flat",
-		"Texture Steep", "Texture Minimal Steep" };
-	for (size_t i = 0; i < NR_OF_FRUITS; i++) {
-		if (ImGui::InputInt(("Spawn Fruit (" + FruitTypeToString((FruitType)i) + ")").c_str(),
-				&fruitSpawns[i]) &&
-			isValid) {
-			fruitSpawns[i] = Clamp<int>(fruitSpawns[i], 0, fruitSpawns[i]);
-			size_t index = scene->find_parentIndex(selection);
-			scene->m_terrains.getTerrainFromIndex(index)->setFruitSpawns(fruitSpawns);
-		}
-	}
-	if (!isValid) {
-		if (ImGui::Button("Create")) {
-			updated = true;
-			scene->m_terrains.add(position, scale, heightmap, subSize, divisions, wind, tag);
-		}
-	}
-	else {
-		if (ImGui::Button("Rebuild")) {
-			selection->build(heightmap, subSize, divisions);
-			updated = true;
+		if (ImGui::IsItemHovered()) {
+			ImGui::BeginTooltip();
+			ImGui::Text("QuickButton (Del)");
+			ImGui::EndTooltip();
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("Resize")) {
-			selection->changeSize(subSize, divisions);
-			updated = true;
+		if ((ImGui::Button("Duplicate") || ip->keyPressed(Keyboard::C)) && selectedIdx != -1) {
+			shared_ptr<Entity> duplicate = make_shared<Entity>(*list[selectedIdx].get());
+			list.add(duplicate->getLocalBoundingBoxPosition(), duplicate->getLocalBoundingBoxSize(),
+				duplicate);
 		}
-	}
-	return updated;
-}
-
-bool SceneEditorManager::update_panel_entity(Entity* selection, bool update) {
-	bool updated = false;
-	bool isValid = (selection != nullptr);
-	static float3 position, rotation, scale = float3(1.);
-	static string mesh = m_loadable_entity[0];
-	static bool collision = true;
-
-	if (update && isValid) {
-		position = selection->getPosition();
-		rotation = selection->getRotation();
-		scale = selection->getScale();
-		mesh = selection->getModelName();
-		collision = selection->getIsCollidable();
-	}
-
-	if (ImGui::BeginCombo("Meshes", mesh.c_str())) {
-		float cWidth = ImGui::CalcItemWidth();
-		int itemCountOnWidth = 3;
-		for (size_t i = 0; i < m_loadable_entity.size(); i++) {
-			if (ImGui::MenuItem(m_loadable_entity[i].c_str())) {
-				mesh = m_loadable_entity[i];
-				if (isValid) {
-					selection->load(mesh);
-					updated = true;
-				}
+		if (ImGui::IsItemHovered()) {
+			ImGui::BeginTooltip();
+			ImGui::Text("QuickButton (C)");
+			ImGui::EndTooltip();
+		}
+		if ((ImGui::Button("Find") || ip->keyPressed(Keyboard::F)) && selectedIdx != -1) {
+			Transformation* t = dynamic_cast<Transformation*>(list[selectedIdx].get());
+			if (t != nullptr) {
+				scene->m_camera.setEye(t->getPosition() + float3(1, 1, 0) * 2.f);
+				scene->m_camera.setTarget(t->getPosition());
 			}
 		}
-		ImGui::EndCombo();
-	}
-	if (ImGui::Button("Point") || Input::getInstance()->keyPressed(m_key_setPosition)) {
-		position = m_pointer;
-		if (isValid) {
-			selection->setPosition(position);
-			updated = true;
+		if (ImGui::IsItemHovered()) {
+			ImGui::BeginTooltip();
+			ImGui::Text("QuickButton (F)");
+			ImGui::EndTooltip();
 		}
-	}
-	ImGui::SameLine();
-	if (ImGui::InputFloat3("Position", (float*)&position) && isValid) {
-		selection->setPosition(position);
-		updated = true;
-	}
-	if (ImGui::InputFloat3("Rotation", (float*)&rotation) && isValid) {
-		selection->setRotation(rotation);
-		updated = true;
-	}
-	if (ImGui::InputFloat3("Scale", (float*)&scale) && isValid) {
-		selection->setScale(scale);
-		updated = true;
-	}
-	if (ImGui::Checkbox("Collidable", &collision) && isValid) {
-		selection->setCollidable(collision);
-		updated = true;
-	}
-	if (!isValid) {
-		if (ImGui::Button("Create")) {
-			updated = true;
-			shared_ptr<Entity> e = make_shared<Entity>(mesh, m_pointer, scale);
-			e->setRotation(rotation);
-			e->setCollidable(collision);
-			scene->m_entities.add(
-				e->getLocalBoundingBoxPosition(), e->getLocalBoundingBoxSize(), e->getMatrix(), e);
-		}
-	}
-	return updated;
-}
-
-bool SceneEditorManager::update_panel_sea(SeaEffect* selection, bool update) {
-	bool updated = false;
-	bool isValid = (selection != nullptr);
-
-	static float3 position, rotation, scale = float3(1.);
-	static XMINT2 tiles = XMINT2(1, 1), grids = XMINT2(1, 1);
-	static SeaEffect::SeaEffectTypes type = SeaEffect::SeaEffectTypes::water;
-	static string typeAsString[SeaEffect::SeaEffectTypes::Count] = { "Water", "Lava" };
-	static float color[3];
-	if (update && isValid) {
-		position = selection->getPosition();
-		rotation = selection->getRotation();
-		scale = selection->getScale();
-		type = selection->getType();
-		tiles = selection->getTileSize();
-		grids = selection->getGridSize();
-	}
-	if (ImGui::InputFloat3("Position", (float*)&position) && isValid) {
-		selection->setPosition(position);
-		updated = true;
-	}
-	if (ImGui::InputFloat3("Rotation", (float*)&rotation) && isValid) {
-		selection->setRotation(rotation);
-		updated = true;
-	}
-	if (ImGui::InputFloat3("Scale", (float*)&scale) && isValid) {
-		selection->setScale(scale);
-		updated = true;
-	}
-	if (ImGui::BeginCombo("Type", typeAsString[type].c_str())) {
-		for (size_t i = 0; i < SeaEffect::SeaEffectTypes::Count; i++) {
-			if (ImGui::MenuItem(typeAsString[i].c_str())) {
-				type = (SeaEffect::SeaEffectTypes)i;
-				if (isValid) {
-					selection->setType(type);
-					updated = true;
-				}
-			}
-		}
-		ImGui::EndCombo();
-	}
-	if (ImGui::InputInt2("Tiles", (int*)&tiles))
-		tiles = XMINT2(Clamp<int>(tiles.x, 0, tiles.x), Clamp<int>(tiles.y, 0, tiles.y));
-	if (ImGui::InputInt2("Grids", (int*)&grids))
-		grids = XMINT2(Clamp<int>(grids.x, 0, grids.x), Clamp<int>(grids.y, 0, grids.y));
-	if (!isValid) {
-		if (ImGui::Button("Create")) {
-			updated = true;
-			shared_ptr<SeaEffect> se = make_shared<SeaEffect>();
-			se->initilize(type, tiles, grids, position, scale, rotation);
-			scene->m_seaEffects.push_back(se);
-		}
-	}
-	else {
-		if (ImGui::Button("Rebuild")) {
-			size_t index = scene->find_parentIndex(selection);
-			scene->m_seaEffects[index]->build(tiles, grids);
-			updated = true;
-		}
-	}
-	return updated;
-}
-
-bool SceneEditorManager::update_panel_effect(ParticleSystem* selection, bool update) {
-	bool updated = false;
-	bool isValid = (selection != nullptr);
-
-	static int shape = 0;
-	static ParticleSystem::ParticleDescription pd;
-	static ParticleSystem::Type type = ParticleSystem::Type::CONFETTI;
-	static float3 position, size;
-	static int emitRate = 0;
-	static int capacity = 0;
-	static bool affectedByWind = false;
-	static int emitCount = 1;
-	if (update && isValid) {
-		type = selection->getType();
-		position = selection->getPosition();
-		size = selection->getScale();
-		emitRate = selection->getEmitRate();
-		capacity = selection->getCapacity();
-		affectedByWind = selection->isAffectedByWind();
-		pd = selection->getParticleDescription();
-	}
-	if (ImGui::Button("UpdateP") || Input::getInstance()->keyPressed(m_key_setPosition)) {
-		position = m_pointer;
-		if (isValid) {
-			selection->setPosition(position);
-			updated = true;
-		}
-	}
-	ImGui::SameLine();
-	if (ImGui::InputFloat3("Position", (float*)&position, 2) && isValid) {
-		selection->setPosition(position);
-		updated = true;
-	}
-	if (ImGui::InputFloat3("Size", (float*)&size, 2)) {
-		size = float3(abs(size.x), abs(size.y), abs(size.z));
-		if (isValid) {
-			selection->setScale(size);
-			updated = true;
-		}
-	}
-	static string ps_typeAsString[ParticleSystem::Type::TYPE_LENGTH] = { "None", "Forest Bubble",
-		"Ground Dust", "Volcano Fire", "Volcano Smoke", "Lava Bubble", "Arrow Glitter", "Confetti",
-		"Stars Gold", "Stars Silver", "Stars Bronze", "Explosion Apple", "Explosion Banana",
-		"Explosion Melon", "Explosion Dragon", "Sparkle Apple", "Sparkle Banana", "Sparkle Melon",
-		"Sparkle Dragon", "Explosion Gold", "Explosion Silver", "Explosion Bronze", "Jump Dust",
-		"Melon Trail", "LevelSelect Selection", "Test Sprite" };
-	if (ImGui::BeginCombo("Type", ps_typeAsString[type].c_str())) {
-		for (size_t i = 1; i < ParticleSystem::Type::TYPE_LENGTH; i++) {
-			if (ImGui::MenuItem(ps_typeAsString[i].c_str())) {
-				type = (ParticleSystem::Type)i;
-				if (isValid) {
-					selection->setType(type);
-					updated = true;
-				}
-			}
-		}
-		ImGui::EndCombo();
-	}
-	if (ImGui::InputInt("Emit Rate", &emitRate)) {
-		emitRate = Clamp<int>(emitRate, 0, emitRate);
-		if (isValid) {
-			selection->setEmitRate(emitRate);
-			updated = true;
-		}
-	}
-	if (ImGui::InputInt("Capacity", &capacity)) {
-		capacity = Clamp<int>(capacity, 0, capacity);
-		if (isValid) {
-			selection->setCapacity(capacity);
-			updated = true;
-		}
-	}
-	if (ImGui::Checkbox("Wind", &affectedByWind) && isValid) {
-		selection->affectedByWindState(affectedByWind);
-		updated = true;
-	}
-	if (!isValid) {
-		if (ImGui::Button("Create")) {
-			updated = true;
-			ParticleSystem ps;
-			ps.load(type, 10, 0);
-			ps.setEmitRate(emitRate, false);
-			ps.setCapacity(capacity);
-			ps.affectedByWindState(affectedByWind);
-			ps.setPosition(position);
-			ps.setScale(size);
-			scene->m_particleSystems.push_back(ps);
-		}
-	}
-	else {
-		if (ImGui::Button("Emit")) {
-			selection->emit(emitCount);
-		}
+		// help text
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1, 3));
+		ImGui::Text(" --- Buttons ---");
+		ImVec4 btnCol(0, 1, 0, 1);
+		ImGui::Text("Select object: ");
 		ImGui::SameLine();
-		ImGui::InputInt("Count", &emitCount, 1);
+		ImGui::TextColored(btnCol, "MiddleClick");
+		ImGui::Text("Place pointer: ");
+		ImGui::SameLine();
+		ImGui::TextColored(btnCol, "RightClick");
+		ImGui::Text("Switch transform edit: ");
+		ImGui::SameLine();
+		ImGui::TextColored(btnCol, "Tab");
+		ImGui::PopStyleVar();
 	}
-	// Custom testing
-	if (isValid) {
-		ImGui::Separator();
-		ImGui::Text("CUSTOM TESTING (Temporary panel)");
-		ImGui::ColorEdit4("Color0", (float*)&pd.colorVariety[0]);
-		ImGui::ColorEdit4("Color1", (float*)&pd.colorVariety[1]);
-		ImGui::ColorEdit4("Color2", (float*)&pd.colorVariety[2]);
-		ImGui::InputFloat2("Size Interval", (float*)&pd.size_interval);
-		ImGui::InputFloat2("TimeAlive Interval", (float*)&pd.timeAlive_interval);
-		ImGui::InputFloat3("Velocity min", (float*)&pd.velocity_min);
-		ImGui::InputFloat3("Velocity max", (float*)&pd.velocity_max);
-		ImGui::InputFloat2("Velocity Interval", (float*)&pd.velocity_interval);
-		ImGui::InputFloat3("Acceleration", (float*)&pd.acceleration);
-		ImGui::InputFloat("Slowdown", &pd.slowdown, 0, 0, 6);
-		if (ImGui::Combo("Shape", &shape, "Circle\0Star\0Sprite"))
-			pd.shape = (ParticleSystem::ParticleDescription::Shape)shape;
-		ImGui::InputText("Sprite", &pd.str_sprite);
-		if (ImGui::Button("Set"))
-			selection->setCustomDescription(pd);
+	ImGui::EndChild();
+	ImGui::SameLine();
+	ImGui::BeginGroup();
+	if (selectedIdx != -1) {
+		static_cast<Fragment*>(list[selectedIdx].get())->imgui_properties();
 	}
-	return updated;
-}
-
-void SceneEditorManager::refreshLibrary() {
-	m_library.clear();
-	m_library.reserve(scene->m_terrains.length() + scene->m_seaEffects.size() +
-					  scene->m_entities.size() + scene->m_particleSystems.size());
-	for (size_t i = 0; i < scene->m_terrains.length(); i++)
-		m_library.push_back(scene->m_terrains.getTerrainFromIndex(i).get());
-	for (size_t i = 0; i < scene->m_seaEffects.size(); i++)
-		m_library.push_back(scene->m_seaEffects[i].get());
-	for (size_t i = 0; i < scene->m_entities.size(); i++)
-		m_library.push_back(scene->m_entities[i].get());
-	for (size_t i = 0; i < scene->m_particleSystems.size(); i++)
-		m_library.push_back(&scene->m_particleSystems[i]);
-
-	if (m_library.size() == 0) {
-		deselect_fragment();
+	else {
+		// _Properties_
+		// - rotation
+		if (ImGui::Checkbox("Random Rotation", &m_entityGhost_randomRotation) &&
+			m_entityGhost_randomRotation)
+			entityGhost_randomizeProperties();
+		if (!m_entityGhost_randomRotation)
+			ImGui::SliderFloat("Rotation Y", &m_entityGhost_rotationY, 0, 2 * XM_PI, "%.2f rad");
+		// - scale
+		if (ImGui::Checkbox("Random Scale", &m_entityGhost_randomScale) &&
+			m_entityGhost_randomScale)
+			entityGhost_randomizeProperties();
+		if (m_entityGhost_randomScale) {
+			if (ImGui::DragFloatRange2("Scale Range", &m_entityGhost_scaleRange.x,
+					&m_entityGhost_scaleRange.y, 0.01f, 0, 10, "Min: %.2f", "Max: %.2f"))
+				entityGhost_randomizeProperties();
+		}
+		else
+			ImGui::SliderFloat("Scale", &m_entityGhost_scale, 0, 10, "%.2f");
+		// collision
+		bool collidable = m_entityGhost_placer.getIsCollidable();
+		if (ImGui::Checkbox("Collidable", &collidable))
+			m_entityGhost_placer.setCollidable(collidable);
+		// - quick commands
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1, 3));
+		ImGui::Text(" --- Quick Commands ---");
+		ImVec4 btnCol(0, 1, 0, 1);
+		ImGui::Text("Rotate: ");
+		ImGui::SameLine();
+		ImGui::TextColored(btnCol, "Scroll Up/Down");
+		ImGui::Text("Scaling: ");
+		ImGui::SameLine();
+		ImGui::TextColored(btnCol, "Left Shift + Scroll Up/Down");
+		ImGui::PopStyleVar();
+		if (ip->keyDown(Keyboard::LeftShift))
+			m_entityGhost_scale = Clamp(
+				m_entityGhost_scale + (ip->scrolledDown() - ip->scrolledUp()) * 0.1f, 0.f, 10.f);
+		else
+			m_entityGhost_rotationY =
+				mod(m_entityGhost_rotationY + (ip->scrolledDown() - ip->scrolledUp()) * 0.1f,
+					2 * XM_PI);
+		// _Mesh List_
+		static const ImVec2 imgSize = ImVec2(75, 75);
+		if (ImGui::BeginChild("Mesh List", ImVec2(imgSize.x * 3 + 75, 0), true,
+				ImGuiWindowFlags_AlwaysAutoResize)) {
+			for (size_t i = 0; i < m_entityViews.size(); i++) {
+				bool selected = (i == m_selectedEntity);
+				ImGui::BeginGroup();
+				ImVec2 wrappedTextSize =
+					ImGui::CalcTextSize(m_entityViews[i].objName.c_str(), NULL, false, imgSize.x);
+				ImGui::BeginChild(
+					1000 + i, wrappedTextSize, false, ImGuiWindowFlags_AlwaysAutoResize);
+				ImGui::TextWrapped(m_entityViews[i].objName.c_str());
+				ImGui::EndChild();
+				if (selected) {
+					ImGui::PushStyleColor(21, ImVec4(1, 1, 0, 1));
+					ImGui::PushStyleColor(22, ImVec4(0.75f, 0.75f, 0, 1));
+				}
+				if (ImGui::ImageButton(m_entityViews[i].layer.getSRV().Get(), imgSize)) {
+					// select mesh
+					if (selected) {
+						m_selectedEntity = -1;
+					}
+					else {
+						m_selectedEntity = i;
+						m_entityGhost_placer.load(m_entityViews[i].objName);
+					}
+				}
+				if (ImGui::IsItemHovered()) {
+					m_entityViews[i].rotation.y += 1.f * scene->getDeltaTime();
+				}
+				if (selected)
+					ImGui::PopStyleColor(2);
+				ImGui::EndGroup();
+				if ((i + 1) % 3 != 0)
+					ImGui::SameLine();
+			}
+		}
+		ImGui::EndChild();
 	}
-	else if (m_selectedIndex != -1) {
-		m_selectedIndex = Clamp<size_t>(m_selectedIndex, 0, m_library.size() - 1);
-		select_index(m_selectedIndex);
-	}
+	ImGui::EndGroup();
 }
 
 void SceneEditorManager::updateCameraMovement(float dt) {
@@ -895,31 +591,48 @@ void SceneEditorManager::update_imgui() {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 	if (ImGui::Begin("Docked Window", NULL,
 			ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize)) {
-		if (ImGui::BeginTabBar("editorContent")) {
-			if (ImGui::BeginTabItem("Library")) {
-				m_editorTabActive = EditorTab::Library;
-				update_imgui_library();
-				ImGui::EndTabItem();
+		static const string editorTabsStr[EditorTab::etab_count] = { "Library", "Game Rules",
+			"Terrain Editor", "Leaderboard" };
+		const ImVec4 colorBlueActive = ImVec4(51 / 255.f, 105 / 255.f, 173 / 255.f, 1);
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8, 0));
+		for (size_t i = 0; i < etab_count; i++) {
+			bool pop = false;
+			if (m_editorTabActive == (EditorTab)i) {
+				ImGui::PushStyleColor(ImGuiCol_Button, colorBlueActive);
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, colorBlueActive);
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colorBlueActive);
+				pop = true;
 			}
-			if (ImGui::BeginTabItem("Game Rules")) {
-				m_editorTabActive = EditorTab::GameRules;
-				update_imgui_gameRules();
-				ImGui::EndTabItem();
+			if (ImGui::Button(editorTabsStr[i].c_str())) {
+				m_editorTabActive = (EditorTab)i;
 			}
-			if (ImGui::BeginTabItem("Terrain Editor")) {
-				m_editorTabActive = EditorTab::TerrainEditor;
-				update_imgui_terrainEditor();
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem("Leaderboard")) {
-				m_editorTabActive = EditorTab::TerrainEditor;
-				update_imgui_leaderboard();
-				ImGui::EndTabItem();
-			}
-			ImGui::EndTabBar();
+			if (pop)
+				ImGui::PopStyleColor(3);
+			if (i + 1 < etab_count)
+				ImGui::SameLine();
 		}
-		ImGui::End();
+		ImGui::PopStyleVar(1);
+		ImGui::PushStyleColor(ImGuiCol_Separator, colorBlueActive);
+		ImGui::Separator();
+		ImGui::PopStyleColor(1);
+		ImGui::BeginGroup();
+		switch (m_editorTabActive) {
+		case SceneEditorManager::Library:
+			update_imgui_library();
+			break;
+		case SceneEditorManager::GameRules:
+			update_imgui_gameRules();
+			break;
+		case SceneEditorManager::TerrainEditor:
+			update_imgui_terrainEditor();
+			break;
+		case SceneEditorManager::Leaderboard:
+			update_imgui_leaderboard();
+			break;
+		}
+		ImGui::EndGroup();
 	}
+	ImGui::End();
 	ImGui::PopStyleVar();
 
 	// bottom right docked window
@@ -933,54 +646,49 @@ void SceneEditorManager::update_imgui() {
 			cn.y, cn.z);
 		ImVec2 size = ImGui::GetWindowSize();
 		ImGui::SetWindowPos(screenSize - size);
-		ImGui::End();
 	}
+	ImGui::End();
 	ImGui::PopStyleVar();
-
-	m_selectedThisFrame = false;
 }
 
-void SceneEditorManager::select_index(size_t index) {
-	m_selectedIndex = index;
-	m_selectedThisFrame = true;
+void SceneEditorManager::select_index(LibraryTab tab, int index) {
+	m_libraryTabOpen = tab;
+	m_library_selections[tab] = index;
 
-	static const Fragment::Type validTypes[3] = { Fragment::Type::entity,
-		Fragment::Type::particleSystem };
-	bool found = false;
-	for (size_t i = 0; i < 3; i++) {
-		if (m_library[index]->getType() == validTypes[i]) {
-			found = true;
-			m_transformable = dynamic_cast<Transformation*>(m_library[index]);
+	m_transformable = nullptr;
+	if (index != -1) {
+		switch (tab) {
+		case SceneEditorManager::tab_terrain:
+			m_transformable = static_cast<Transformation*>(scene->m_terrains[index].get());
+			break;
+		case SceneEditorManager::tab_entity:
+			m_transformable = static_cast<Transformation*>(scene->m_entities[index].get());
+			break;
+		case SceneEditorManager::tab_sea:
+			m_transformable = static_cast<Transformation*>(scene->m_seaEffects[index].get());
+			break;
+		case SceneEditorManager::tab_particleSystem:
+			m_transformable = static_cast<Transformation*>(scene->m_particleSystems[index].get());
 			break;
 		}
 	}
-	if (!found)
-		m_transformable = nullptr;
 }
 
 void SceneEditorManager::select_fragment(FragmentID id) {
-	for (size_t i = 0; i < m_library.size(); i++) {
-		if (m_library[i]->getID() == id) {
-			m_selectedIndex = i;
-			m_selectedThisFrame = true;
-
-			static const Fragment::Type validTypes[3] = { Fragment::Type::entity,
-				Fragment::Type::particleSystem };
-			m_transformable = nullptr;
-			for (size_t j = 0; j < 3; j++) {
-				if (m_library[i]->getType() == validTypes[j]) {
-					m_transformable = dynamic_cast<Transformation*>(m_library[i]);
-					break;
-				}
-			}
+	// terrain
+	for (size_t i = 0; i < scene->m_terrains.size(); i++) {
+		if (scene->m_terrains[i]->getID() == id) {
+			select_index(LibraryTab::tab_terrain, i);
+			return;
 		}
 	}
-}
-
-void SceneEditorManager::deselect_fragment() {
-	m_selectedIndex = -1;
-	m_selectedThisFrame = false;
-	m_transformable = nullptr;
+	// entity
+	for (size_t i = 0; i < scene->m_entities.size(); i++) {
+		if (scene->m_entities[i]->getID() == id) {
+			select_index(LibraryTab::tab_entity, i);
+			return;
+		}
+	}
 }
 
 void SceneEditorManager::readSceneDirectory() {
@@ -1003,15 +711,23 @@ SceneEditorManager::SceneEditorManager() {
 
 	// loadable entities from name file
 
+	vector<string> loadable;
 	ifstream nameFile;
 	nameFile.open("assets/meshNames.txt", ios::in);
 	if (nameFile.is_open()) {
 		string line;
 		while (getline(nameFile, line)) {
-			m_loadable_entity.push_back(line);
+			loadable.push_back(line);
 		}
 	}
 	nameFile.close();
+
+	m_entityViews.resize(loadable.size());
+	for (size_t i = 0; i < m_entityViews.size(); i++) {
+		m_entityViews[i].objName = loadable[i];
+		m_entityViews[i].layer.set(XMUINT2(500, 500), DXGI_FORMAT_R32G32B32A32_FLOAT,
+			D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+	}
 
 
 	// pointer object
@@ -1068,7 +784,7 @@ void SceneEditorManager::update() {
 
 	// particle system
 	for (size_t i = 0; i < scene->m_particleSystems.size(); i++) {
-		scene->m_particleSystems[i].update(dt);
+		scene->m_particleSystems[i]->update(dt);
 	}
 
 	////////////EDITOR///////////
@@ -1134,11 +850,11 @@ void SceneEditorManager::update() {
 			Fragment* f = nullptr;
 			float closest = -1;
 			// terrain
-			for (size_t i = 0; i < scene->m_terrains.length(); i++) {
-				float t = scene->m_terrains.getTerrainFromIndex(i)->castRay(position, forward);
+			for (size_t i = 0; i < scene->m_terrains.size(); i++) {
+				float t = scene->m_terrains[i]->castRay(position, forward);
 				if (t != -1 && (closest == -1 || t < closest)) {
 					closest = t;
-					f = scene->m_terrains.getTerrainFromIndex(i).get();
+					f = scene->m_terrains[i].get();
 				}
 			}
 			// entity
@@ -1151,15 +867,67 @@ void SceneEditorManager::update() {
 			}
 			// select in library
 			if (f != nullptr) {
-				for (size_t i = 0; i < m_library.size(); i++) {
-					if (f->getID() == m_library[i]->getID()) {
-						select_index(i);
+				select_fragment(f->getID());
+			}
+		}
+		update_transformation(dt);
+
+		// entity placer (entity tab open, no fragment selected, a mesh selected)
+		if (m_libraryTabOpen == LibraryTab::tab_entity && m_library_selections[tab_entity] == -1 &&
+			m_selectedEntity != -1) {
+			float3 position = scene->m_camera.getPosition();
+			float3 forward;
+			if (ip->getMouseMode() == DirectX::Mouse::MODE_ABSOLUTE) {
+				// x coordinate is backwards!! Not because of mouse position but rather
+				// getMousePickVector return
+				float2 mpos = ip->mouseXY() / float2(1280, 720);
+				mpos.x = 1 - mpos.x;
+				forward = scene->m_camera.getMousePickVector(mpos) * m_pointer_range;
+			}
+			else {
+				forward = Normalize(scene->m_camera.getForward()) * m_pointer_range;
+			}
+			// find closest collision point
+			float closest = -1;
+			float3 closestPoint;
+			// terrain
+			float t = scene->m_terrains.castRay(position, forward);
+			if (t != -1) {
+				float3 point = position + forward * t;
+				float diff = (point - position).Length();
+				if (closest == -1 || diff < closest) {
+					closest = diff;
+					closestPoint = point;
+				}
+			}
+			// entities
+			for (size_t i = 0; i < scene->m_entities.size(); i++) {
+				float3 cast_target, cast_normal;
+				if (scene->m_entities[i]->castRayEx_limitDistance(
+						position, forward, cast_target, cast_normal)) {
+					float diff = (cast_target - position).Length();
+					if (closest == -1 || diff < closest) {
+						closest = diff;
+						closestPoint = cast_target;
 					}
 				}
 			}
-		}
+			if (closest != -1) {
+				// update transformation
+				m_entityGhost_placer.setPosition(closestPoint);
+				m_entityGhost_placer.setRotation(float3(0, m_entityGhost_rotationY, 0));
+				m_entityGhost_placer.setScale(m_entityGhost_scale);
 
-		update_transformation(dt);
+				// placing
+				if (ip->mousePressed(Input::MouseButton::LEFT)) {
+					shared_ptr<Entity> obj = make_shared<Entity>(m_entityGhost_placer);
+					scene->m_entities.add(obj->getLocalBoundingBoxPosition(),
+						obj->getLocalBoundingBoxSize(), obj->getMatrix(), obj);
+					// randomize
+					entityGhost_randomizeProperties();
+				}
+			}
+		}
 	}
 
 	// brush
@@ -1215,6 +983,68 @@ void SceneEditorManager::update() {
 	}
 }
 
+void SceneEditorManager::entityGhost_randomizeProperties() {
+	if (m_entityGhost_randomRotation)
+		m_entityGhost_rotationY = RandomFloat(0, 2 * XM_PI);
+	if (m_entityGhost_randomScale)
+		m_entityGhost_scale = RandomFloat(m_entityGhost_scaleRange.x, m_entityGhost_scaleRange.y);
+}
+
+void SceneEditorManager::render_entityViews() {
+	float3 edges[8] = { float3(1, 1, 1), float3(1, 1, -1), float3(1, -1, 1), float3(1, -1, -1),
+		float3(-1, 1, 1), float3(-1, 1, -1), float3(-1, -1, 1), float3(-1, -1, -1) };
+	Camera camera;
+	camera.setEye(float3(10, 5, 10) * 0.2f);
+	camera.setAspectRatio(1);
+	camera.setTarget(float3(0, 0, 0));
+	camera.bind();
+	vector<FrustumPlane> fplanes = camera.getFrustumPlanes();
+	Renderer::getInstance()->setDrawState(Renderer::DrawingState::state_normal);
+	for (size_t i = 0; i < m_entityViews.size(); i++) {
+		Renderer::getDeviceContext()->OMSetRenderTargets(1,
+			m_entityViews[i].layer.getRTV().GetAddressOf(),
+			Renderer::getInstance()->getDepthStencilView().Get());
+
+		D3D11_VIEWPORT vp;
+		vp.Width = 500;
+		vp.Height = 500;
+		vp.MinDepth = 0.0f;
+		vp.MaxDepth = 1.0f;
+		vp.TopLeftX = 0;
+		vp.TopLeftY = 0;
+		Renderer::getDeviceContext()->RSSetViewports(1, &vp);
+
+		float clearColor[] = { 0.25f, .5f, 1, 1 };
+		Renderer::getDeviceContext()->ClearRenderTargetView(
+			m_entityViews[i].layer.getRTV().Get(), clearColor);
+		Renderer::getDeviceContext()->ClearDepthStencilView(
+			Renderer::getInstance()->getDepthStencilView().Get(), D3D11_CLEAR_DEPTH, 1, 0);
+
+		m_entityViewer.load(m_entityViews[i].objName);
+		m_entityViewer.setPosition(float3(0, 0, 0));
+		m_entityViewer.setRotation(float3(0, 0, 0));
+		m_entityViewer.setScale(1);
+		float3 bb_pos = m_entityViewer.getLocalBoundingBoxPosition();
+		float3 bb_size = m_entityViewer.getLocalBoundingBoxSize();
+		float3 points[8];
+		float minT = -1;
+		for (size_t i = 0; i < 8; i++) {
+			points[i] = bb_size * edges[i];
+			for (size_t f = 0; f < fplanes.size(); f++) {
+				float t = fplanes[f].castRay(float3(0, 0, 0), points[i]);
+				if (t > 0 && (minT == -1 || t < minT)) {
+					minT = t;
+				}
+			}
+		}
+		m_entityViewer.setScale(minT);
+		m_entityViewer.setRotation(m_entityViews[i].rotation);
+		m_entityViewer.setPosition(-m_entityViewer.getLocalBoundingBoxPosition() * minT);
+		scene->m_skyBox.bindLightBuffer();
+		m_entityViewer.draw();
+	}
+}
+
 void SceneEditorManager::draw_shadow() { // terrain manager
 	ShadowMapper* shadowMap = Renderer::getInstance()->getShadowMapper();
 	vector<FrustumPlane> planes = shadowMap->getFrustumPlanes();
@@ -1227,6 +1057,12 @@ void SceneEditorManager::draw_shadow() { // terrain manager
 	vector<shared_ptr<Entity>*> culledEntities = scene->m_entities.cullElements(planes);
 	for (size_t i = 0; i < culledEntities.size(); i++)
 		(*culledEntities[i])->draw_onlyMesh(float3(0.f));
+
+	// Editor Stuff
+	if (m_libraryTabOpen == LibraryTab::tab_entity && m_library_selections[tab_entity] == -1 &&
+		m_selectedEntity != -1) {
+		m_entityGhost_placer.draw_onlyMesh();
+	}
 }
 
 void SceneEditorManager::draw_color() {
@@ -1249,6 +1085,12 @@ void SceneEditorManager::draw_color() {
 		scene->m_seaEffects[i]->draw();
 	}
 
+	// Editor Stuff
+	if (m_libraryTabOpen == LibraryTab::tab_entity && m_library_selections[tab_entity] == -1 &&
+		m_selectedEntity != -1) {
+		m_entityGhost_placer.draw();
+	}
+
 	// SkyBox
 	scene->m_skyBox.draw();
 
@@ -1263,7 +1105,7 @@ void SceneEditorManager::draw_color() {
 
 	// Particle Systems
 	for (size_t i = 0; i < scene->m_particleSystems.size(); i++) {
-		scene->m_particleSystems[i].draw();
+		scene->m_particleSystems[i]->draw();
 	}
 
 	// Capture frame
@@ -1288,6 +1130,9 @@ void SceneEditorManager::draw_editorWorldObjects() {
 }
 
 void SceneEditorManager::draw() {
+
+	render_entityViews();
+
 	setup_shadow();
 	draw_shadow();
 	setup_color();
@@ -1300,16 +1145,15 @@ void SceneEditorManager::load(string folder) {
 	clear();
 
 	SceneManager::load(folder);
-
-	refreshLibrary();
 }
 
 void SceneEditorManager::reset() { scene->reset(); }
 
 void SceneEditorManager::clear() {
-	m_library.clear();
+	m_editorTabActive = EditorTab::Library;
+	m_libraryTabOpen = LibraryTab::tab_terrain;
 	m_transformable = nullptr;
-	m_selectedIndex = -1;
-	m_selectedThisFrame = false;
+	for (size_t i = 0; i < LibraryTab::tab_count; i++)
+		m_library_selections[i] = -1;
 	scene->clear();
 }

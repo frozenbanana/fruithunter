@@ -11,6 +11,7 @@ void Entity::setCollisionForMesh(string meshName) {
 	static vector<string> m_nonCollidables = { "DeadBush", "Grass1", "Grass2", "Grass3", "Grass4" };
 	for (size_t i = 0; i < m_treeNames.size(); i++) {
 		if (meshName == m_treeNames[i]) {
+			setCollidable(true);
 			setCollisionDataTree();
 			return;
 		}
@@ -21,6 +22,7 @@ void Entity::setCollisionForMesh(string meshName) {
 			return;
 		}
 	}
+	setCollidable(true);
 	setCollisionDataOBB();
 }
 
@@ -284,6 +286,16 @@ float3 Entity::getPointOnOBB(float3 point) const {
 }
 
 bool Entity::getIsCollidable() const { return m_collisionData.getIsCollidable(); }
+
+void Entity::imgui_properties() {
+	Transformation::imgui_properties();
+	// Mesh
+	// Collidable
+	bool collidable = m_collisionData.getIsCollidable();
+	if (ImGui::Checkbox("Collidable", &collidable)) {
+		setCollidable(collidable);
+	}
+}
 
 Entity::Entity(string filename, float3 position, float3 scale) : Fragment(Fragment::Type::entity) {
 	load(filename);

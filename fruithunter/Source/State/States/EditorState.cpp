@@ -6,7 +6,10 @@ EditorState::EditorState() : StateItem(State::EditorState) {}
 
 EditorState::~EditorState() {}
 
-void EditorState::init() { m_editor.clear(); }
+void EditorState::init() {
+	m_editor.clear();
+	Input::getInstance()->setMouseModeAbsolute();
+}
 
 void EditorState::update() {
 	Input* ip = Input::getInstance();

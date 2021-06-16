@@ -53,7 +53,7 @@ private:
 		float distortionStrength = 0.01f;
 		float whiteDepthDifferenceThreshold = 0.1f;
 		float timeSpeed = 0.05f;
-		UINT32 waterShadingLevels = 10;
+		int waterShadingLevels = 10;
 		float depthDifferenceStrength = 0.4f;
 		float3 color_edge = float3(0.8f, 0.8f, 1.f);
 		float4 color_shallow = float4(12.f / 255.f, 164.f / 255.f, 255.f / 255.f, 1.f);
@@ -62,6 +62,7 @@ private:
 		float2 tideHeightScaling = float2(0.3f, 1.f);
 		float tideHeightStrength = 2.f;
 		float3 filler;
+		void imgui_properties();
 	} m_properties;
 	SeaEffectTypes m_type;
 	struct WaterShaderMapSizes {
@@ -111,6 +112,8 @@ public:
 	void initilize(SeaEffectTypes type, XMINT2 tiles, XMINT2 gridSize = XMINT2(1, 1),
 		float3 position = float3(0, 0, 0), float3 scale = float3(1, 1, 1),
 		float3 rotation = float3(0, 0, 0));
+
+	void imgui_properties();
 
 	SeaEffect();
 	~SeaEffect();

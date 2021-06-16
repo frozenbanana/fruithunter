@@ -136,9 +136,17 @@ float2 Input::mouseXY() const {
 
 int Input::scrollWheelValue() { return m_mouseState.scrollWheelValue; }
 
-bool Input::scrolledUp() { return m_scrollDirection == ScrollTracking::DOWN; }
+bool Input::scrolledUp(bool filterImgui) {
+	if (m_imguiInput && filterImgui && ImGui::GetIO().WantCaptureMouse)
+		return false;
+	return m_scrollDirection == ScrollTracking::DOWN;
+}
 
-bool Input::scrolledDown() { return m_scrollDirection == ScrollTracking::UP; }
+bool Input::scrolledDown(bool filterImgui) {
+	if (m_imguiInput && filterImgui && ImGui::GetIO().WantCaptureMouse)
+		return false;
+	return m_scrollDirection == ScrollTracking::UP;
+}
 
 XMINT2 Input::getMouseMovement() const { return m_mouseMovement; }
 

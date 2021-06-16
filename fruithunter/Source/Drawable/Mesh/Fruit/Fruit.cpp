@@ -248,10 +248,10 @@ void Fruit::updateRespawn() {
 					SceneManager::getScene()->m_terrains.getTerrainIndexFromPosition(getPosition());
 				if (tIndex == -1) {
 					// pick random terrain if not on a terrain (Plan B)
-					tIndex = rand() % SceneManager::getScene()->m_terrains.length();
+					tIndex = rand() % SceneManager::getScene()->m_terrains.size();
 				}
 				if (tIndex != -1) {
-					float3 sp = SceneManager::getScene()->m_terrains.getSpawnpoint(tIndex);
+					float3 sp = SceneManager::getScene()->m_terrains[tIndex]->getRandomSpawnPoint();
 					setPosition(sp + float3(0.f, 1.f, 0.f) * (getHalfSizes().y + 0.1f));
 				}
 				else {

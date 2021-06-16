@@ -11,6 +11,7 @@ public:
 	void setTarget(float3 camTarget);
 	void setUp(float3 camUp);
 	void setFov(float fov);
+	void setAspectRatio(float aspectRatio);
 	void setNearPlane(float nearPlane);
 	void setFarPlane(float farPlane);
 
@@ -36,6 +37,7 @@ protected:
 	const int MATRIX_SLOT = 1;
 	const int CBUFFER_POS_SLOT = 9;
 	const float DEFAULT_FOV = XM_PI / 2.5f;
+	const float DEFAULT_ASPECTRATIO = 1280.f / 720.f;
 	struct ViewPerspectiveBuffer {
 		float4x4 mView;
 		float4x4 mPerspective;
@@ -50,6 +52,7 @@ protected:
 	float4x4 m_viewMatrix;
 	float4x4 m_projMatrix;
 
+	float m_aspectRatio = DEFAULT_ASPECTRATIO;
 	float m_fov = DEFAULT_FOV;
 	float3 m_positionEye = float3(0, 0, 0);
 	float3 m_positionTarget = float3(0, 0, -1.f);

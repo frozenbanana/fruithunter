@@ -180,6 +180,11 @@ static float3 vector2Rotation(float3 direction) {
 
 struct FrustumPlane {
 	float3 m_position, m_normal;
+
+	float castRay(float3 ray_point, float3 ray_direction) {
+		return m_normal.Dot(m_position - ray_point) / ray_direction.Dot(m_normal);
+	}
+
 	FrustumPlane(float3 position = float3(0, 0, 0), float3 normal = float3(0, 0, 0)) {
 		m_position = position;
 		m_normal = normal;

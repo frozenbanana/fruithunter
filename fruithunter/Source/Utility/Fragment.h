@@ -28,6 +28,8 @@ public:
 	std::string getTypeAsString() const;
 	std::string getFullDescription() const;
 
+	virtual void imgui_properties();
+
 private:
 	size_t nextID();
 };

@@ -125,7 +125,7 @@ public:
 	vector<shared_ptr<ParticleSystem>> m_arrowParticles;
 
 	// ParticleSystems
-	vector<ParticleSystem> m_particleSystems;
+	vector<shared_ptr<ParticleSystem>> m_particleSystems;
 
 	// Fruits
 	std::vector<shared_ptr<Fruit>> m_fruits;

@@ -239,11 +239,25 @@ void ParticleSystem::draw(bool alpha) {
 
 		// draw
 		if (alpha) {
-			Renderer::getInstance()->setBlendState_NonPremultiplied();
-			// Renderer::getInstance()->setDepthState_Read();
+			switch (m_particle_description.drawMode) {
+			case ParticleDescription::DrawMode::Normal:
+				Renderer::getInstance()->setBlendState_NonPremultiplied();
+				break;
+			case ParticleDescription::DrawMode::Add:
+				Renderer::getInstance()->setBlendState_Additive();
+				Renderer::getInstance()->setDepthState_Read();
+				break;
+			case ParticleDescription::DrawMode::Sub:
+				Renderer::getInstance()->setBlendState_NonPremultiplied();
+				break;
+			default:
+				break;
+			}
+	
 			deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
+
 			Renderer::getInstance()->setBlendState_Opaque();
-			// Renderer::getInstance()->setDepthState_Default();
+			Renderer::getInstance()->setDepthState_Default();
 			ShaderSet::clearShaderBindings(); // removes bug of sprites not being able to be
 											  // drawn(by removing geometry shade)
 		}
@@ -322,6 +336,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::GROUND_DUST:
 		colorVariety[0] = float4(0.77f, 0.35f, 0.51f, 1.0f);
@@ -338,6 +353,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::VULCANO_FIRE:
 		colorVariety[0] = float4(179 / 255.f, 0 / 255.f, 0 / 255.f, 1.0f);
@@ -354,6 +370,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::VULCANO_SMOKE:
 		colorVariety[0] = float4(0.50f, 0.40f, 0.40f, 1.0f);
@@ -370,6 +387,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::LAVA_BUBBLE:
 		colorVariety[0] = float4(0.70f, 0.20f, 0.20f, 1.0f);
@@ -386,6 +404,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::ARROW_GLITTER:
 		colorVariety[0] = float4(1.f, 1.f, 1.f, 1.0f);
@@ -402,6 +421,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		shape = Shape::Circle;
 		fadeInterval_start = 0.35f;
 		fadeInterval_end = 0;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::CONFETTI:
 		colorVariety[0] = float4(214 / 255.f, 53 / 255.f, 53 / 255.f, 1.0f);
@@ -418,6 +438,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::STARS_GOLD:
 		colorVariety[0] = float4(1.00f, 0.95f, 0.00f, 1.0f);
@@ -434,6 +455,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		shape = Shape::Star;
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::STARS_SILVER:
 		colorVariety[0] = float4(0.75f, 0.75f, 0.75f, 1.0f);
@@ -450,6 +472,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		shape = Shape::Star;
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::STARS_BRONZE:
 		colorVariety[0] = float4(0.69f, 0.34f, 0.05f, 1.0f);
@@ -466,6 +489,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		shape = Shape::Star;
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::EXPLOSION_APPLE:
 		colorVariety[0] = float4(228 / 255.f, 83 / 255.f, 83 / 255.f, 1.f);
@@ -482,6 +506,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::EXPLOSION_BANANA:
 		colorVariety[0] = float4(249 / 255.f, 255 / 255.f, 158 / 255.f, 1.f);
@@ -498,6 +523,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::EXPLOSION_MELON:
 		colorVariety[0] = float4(58 / 255.f, 176 / 255.f, 60 / 255.f, 1.f);
@@ -514,6 +540,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		str_sprite = "";
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::EXPLOSION_DRAGON:
 		colorVariety[0] = float4(78 / 255.f, 158 / 255.f, 80 / 255.f, 1.f);
@@ -530,6 +557,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		str_sprite = "";
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::SPARKLE_APPLE:
 		colorVariety[0] = float4(228 / 255.f, 83 / 255.f, 83 / 255.f, 1.f);
@@ -546,6 +574,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		str_sprite = "";
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::SPARKLE_BANANA:
 		colorVariety[0] = float4(249 / 255.f, 255 / 255.f, 158 / 255.f, 1.f);
@@ -562,6 +591,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		str_sprite = "";
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::SPARKLE_MELON:
 		colorVariety[0] = float4(58 / 255.f, 176 / 255.f, 60 / 255.f, 1.f);
@@ -578,6 +608,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		str_sprite = "";
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::SPARKLE_DRAGON:
 		colorVariety[0] = float4(78.f / 255.f, 158.f / 255.f, 80.f / 255.f, 1.f);
@@ -594,6 +625,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		str_sprite = "";
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::EXPLOSION_GOLD:
 		colorVariety[0] = float4(255.f / 255.f, 240.f / 255.f, 0.f / 255.f, 1.f);
@@ -610,6 +642,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		str_sprite = "";
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::EXPLOSION_SILVER:
 		colorVariety[0] = float4(194 / 255.f, 194 / 255.f, 194 / 255.f, 1.f);
@@ -626,6 +659,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		str_sprite = "";
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::EXPLOSION_BRONZE:
 		colorVariety[0] = float4(206 / 255.f, 115 / 255.f, 0 / 255.f, 1.f);
@@ -642,6 +676,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		str_sprite = "";
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::JUMP_DUST:
 		colorVariety[0] = float4(203 / 255.f, 203 / 255.f, 203 / 255.f, 1.f);
@@ -658,6 +693,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::MELON_TRAIL:
 		colorVariety[0] = float4(118 / 255.f, 129 / 255.f, 104 / 255.f, 1.0f);
@@ -674,6 +710,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::LEVELSELECT_SELECTION:
 		colorVariety[0] = float4(214.f / 255.f, 53.f / 255.f, 53.f / 255.f, 1.0f);
@@ -690,6 +727,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		shape = Shape::Star;
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	case ParticleSystem::TEST_SPRITE:
 		colorVariety[0] = float4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -706,6 +744,7 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		fadeInterval_end = 0.1f;
 		str_sprite = "bananaFace.png";
 		shape = Shape::Sprite;
+		drawMode = DrawMode::Normal;
 		break;
 	default:
 		colorVariety[0] = float4(1.f);
@@ -722,6 +761,101 @@ ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type ty
 		shape = Shape::Circle;
 		fadeInterval_start = 0.1f;
 		fadeInterval_end = 0.1f;
+		drawMode = DrawMode::Normal;
 		break;
 	}
+}
+
+void ParticleSystem::imgui_properties() { 
+	Transformation::imgui_properties(); 
+	// Type
+	static const string ps_typeAsString[Type::TYPE_LENGTH] = { "None", "Forest Bubble",
+		"Ground Dust", "Volcano Fire", "Volcano Smoke", "Lava Bubble", "Arrow Glitter", "Confetti",
+		"Stars Gold", "Stars Silver", "Stars Bronze", "Explosion Apple", "Explosion Banana",
+		"Explosion Melon", "Explosion Dragon", "Sparkle Apple", "Sparkle Banana", "Sparkle Melon",
+		"Sparkle Dragon", "Explosion Gold", "Explosion Silver", "Explosion Bronze", "Jump Dust",
+		"Melon Trail", "LevelSelect Selection", "Test Sprite" };
+	if (ImGui::BeginCombo("Type", ps_typeAsString[getType()].c_str())) {
+		for (size_t i = 1; i < Type::TYPE_LENGTH; i++) {
+			if (ImGui::MenuItem(ps_typeAsString[i].c_str()))
+				setType((Type)i);
+		}
+		ImGui::EndCombo();
+	}
+	// Emit Rate
+	if (ImGui::SliderFloat("Emit Rate", &m_emitRate, 0, 500)) {
+		setEmitRate(max(0, m_emitRate));
+	}
+	// Capacity
+	if (ImGui::InputScalar("Capacity", ImGuiDataType_U32, (unsigned int*)&m_capacity)) {
+		setCapacity(max(0, m_capacity));
+	}
+	// Wind
+	if (ImGui::Checkbox("Wind", &m_affectedByWind)) {
+		affectedByWindState(m_affectedByWind);
+	}
+	// Manual Emit
+	ImGui::Separator();
+	static int emitCount = 0;
+	if (ImGui::Button("Emit")) {
+		emit(emitCount);
+	}
+	ImGui::SameLine();
+	ImGui::InputInt("Count", &emitCount);
+	// advanced settings
+	ImGui::Separator();
+	if (ImGui::TreeNode("Advanced")) {
+		if (m_particle_description.imgui_properties()) {
+			m_tex_particle = TextureRepository::get(m_particle_description.str_sprite);
+			resizeBuffer();
+		}
+		ImGui::TreePop();
+	}
+}
+
+bool ParticleSystem::ParticleDescription::imgui_properties() {
+	bool update = false;
+	for (size_t i = 0; i < 3; i++)
+		ImGui::ColorEdit4(("Color["+to_string(i)+"]").c_str(), (float*)&colorVariety[i]);
+	ImGui::DragFloatRange2("Size Range", &size_interval.x, &size_interval.y, 0.01f, 0,1, "Min: %.2f", "Max: %.2f");
+	if (ImGui::DragFloatRange2("Time Alive Range", &timeAlive_interval.x, &timeAlive_interval.y,
+			0.1f, 0, 15, "Min: %.1f", "Max: %.1f"))
+		update = true;
+	ImGui::InputFloat3("Velocity Min", (float*)&velocity_min);
+	ImGui::InputFloat3("Velocity Max", (float*)&velocity_max);
+	ImGui::DragFloatRange2("Velocity Intensity Range", &velocity_interval.x, &velocity_interval.y, 0.01f, 0, 50, "Min: %.2f","Max: %.2f");
+	ImGui::InputFloat3("Gravity", (float*)&acceleration);
+	ImGui::SliderFloat("Slowdown", &slowdown, 0, 1);
+	ImGui::SliderFloat("Fade Begin", &fadeInterval_start, 0, 1);
+	ImGui::SliderFloat("Fade End", &fadeInterval_end, 0, 1);
+	static const char* shapes[] = { "Circle", "Star", "Sprite" };
+	ImGui::Combo("Shape", (int*)&shape, shapes, IM_ARRAYSIZE(shapes));
+	static const shared_ptr<TextureSet> sprites[] = { 
+		TextureRepository::get("bananaFace.png"),
+		TextureRepository::get("cuteFace.png"),
+		TextureRepository::get("dragonFace.png")
+	};
+	static int spriteSelected = 0;
+	if (ImGui::BeginCombo("Sprite", str_sprite.c_str())) {
+		float cWidth = ImGui::CalcItemWidth();
+		int itemCountOnWidth = 3;
+		ImVec2 instSize = ImVec2(1, 1) * (cWidth / itemCountOnWidth);
+		for (size_t i = 0; i < IM_ARRAYSIZE(sprites); i++) {
+			ImGui::BeginGroup();
+			ImGui::Text(sprites[i]->filename.c_str());
+			if (ImGui::ImageButton(sprites[i]->view.Get(), instSize)) {
+				spriteSelected = i;
+				str_sprite = sprites[i]->filename;
+				update = true;
+			}
+			ImGui::EndGroup();
+			if ((i + 1) % itemCountOnWidth != 0)
+				ImGui::SameLine();
+		}
+		ImGui::EndCombo();
+	}
+	static const char* modes[] = { "Normal", "Add", "Sub" };
+	ImGui::Combo("Draw Mode", (int*)&drawMode, modes, IM_ARRAYSIZE(modes));
+
+	return update;
 }

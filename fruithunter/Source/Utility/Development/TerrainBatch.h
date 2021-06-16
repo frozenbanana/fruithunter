@@ -27,25 +27,22 @@ public:
 
 	void loadFromBinFile(string path);
 	void storeToBinFile(string path);
+
+	void imgui_properties();
 };
 
 /*
  * Handles the Terrains as if they were one and the same, making the terrain interaction easier.
  */
-class TerrainBatch {
+class TerrainBatch : public vector<shared_ptr<Environment>> {
 private:
-	vector<shared_ptr<Environment>> m_terrains;
 
 public:
-	size_t length() const;
-
 	void remove(size_t index);
 	void add(float3 position, float3 scale, string heightmapFilename, XMINT2 subSize, XMINT2 division = XMINT2(1, 1), float3 wind = float3(0.f, 0.f, 0.f), AreaTag tag = AreaTag::Plains);
 	void add(shared_ptr<Environment> environment);
-	void clear();
 	Environment* getTerrainFromPosition(float3 position);
 	int getTerrainIndexFromPosition(float3 position) const;
-	shared_ptr<Environment> getTerrainFromIndex(size_t index);
 	float getHeightFromPosition(float3 position) const;
 	float3 getNormalFromPosition(float3 position) const;
 	float castRay(float3 point, float3 direction);
@@ -62,7 +59,5 @@ public:
 	void editMesh(const Brush& brush, Brush::Type type);
 	void editMesh_pop();
 	void editMesh_push();
-
-	float3 getSpawnpoint(size_t terrainIndex);
 
 };

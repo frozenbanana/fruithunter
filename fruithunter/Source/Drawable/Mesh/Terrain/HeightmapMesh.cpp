@@ -544,6 +544,11 @@ void HeightmapMesh::storeToFile_binary(fstream& file) {
 }
 
 void HeightmapMesh::changeSize(XMINT2 gridSize) {
+	if (gridSize.x == 0 || gridSize.y == 0)
+		return; // invalid size
+	
+	bool sampleFromGrid = !(m_gridPointSize.x == 0 || m_gridPointSize.y == 0);
+
 	vector<vector<Vertex>> gridPoints;
 	gridPoints.resize(gridSize.x);
 	for (int xx = 0; xx < gridSize.x; xx++) {
@@ -551,7 +556,8 @@ void HeightmapMesh::changeSize(XMINT2 gridSize) {
 
 		for (int yy = 0; yy < gridSize.y; yy++) {
 			float2 uv = float2((float)xx / (gridSize.x - 1), (float)yy / (gridSize.y - 1));
-			gridPoints[xx][yy].position = float3(uv.x, getHeightFromUV(uv), uv.y);
+			gridPoints[xx][yy].position =
+				float3(uv.x, sampleFromGrid ? getHeightFromUV(uv) : 0, uv.y);
 			gridPoints[xx][yy].uv = uv;
 		}
 	}
@@ -562,11 +568,11 @@ void HeightmapMesh::changeSize(XMINT2 gridSize) {
 	setGridPointNormals();
 }
 
-bool HeightmapMesh::init(string filename, XMINT2 gridSize) {
+void HeightmapMesh::init(string filename, XMINT2 gridSize) {
 	// create base
 	createGridPointBase(gridSize);
 	// set 
-	return setGridHeightFromHeightmap(filename);
+	setGridHeightFromHeightmap(filename);
 }
 
 vector<Vertex>& HeightmapMesh::operator[](const size_t& index) { return m_gridPoints[index]; }

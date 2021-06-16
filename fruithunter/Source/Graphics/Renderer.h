@@ -20,6 +20,7 @@ public:
 	static ID3D11Device* getDevice();
 	static ID3D11DeviceContext* getDeviceContext();
 	static Renderer* getInstance();
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> getDepthStencilView();
 	HWND getHandle();
 	float getScreenWidth() const;
 	float getScreenHeight() const;

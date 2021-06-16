@@ -14,9 +14,6 @@ float4 main(GSOutput input) : SV_TARGET {
 		outColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
 		clip(-1); // abort fragment rendering
 	}
-	else {
-		outColor.a = 1.f;
-	}
 
 	return outColor;
 }

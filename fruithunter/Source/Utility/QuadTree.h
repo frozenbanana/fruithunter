@@ -58,6 +58,9 @@ private:
 
 	void resetFetchState();
 
+	void calcBoundingBox(float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix,
+		float3& position, float3& size);
+
 public:
 	void log();
 
@@ -66,6 +69,9 @@ public:
 		float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix, const Element& element);
 	void remove(Element& element);
 	void remove(size_t index);
+	bool updateElement(size_t index, float3 position, float3 size);
+	bool updateElement(
+		size_t index, float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix);
 	vector<Element*> cullElements(const vector<FrustumPlane>& planes);
 	vector<Element*> cullElements(const CubeBoundingBox& bb);
 	vector<Element*> getElementsByPosition(float3 pos);
@@ -79,7 +85,7 @@ public:
 	size_t size() const;
 
 	Element& operator[](const size_t& index);
-	QuadTree<Element>& operator=(const QuadTree<Element>& other); 
+	QuadTree<Element>& operator=(const QuadTree<Element>& other);
 
 	QuadTree(float3 position = float3(0, 0, 0), float3 size = float3(0, 0, 0), size_t layerMax = 1);
 	~QuadTree();
@@ -393,28 +399,9 @@ template <typename Element> inline void QuadTree<Element>::resetFetchState() {
 	}
 }
 
-template <typename Element> inline void QuadTree<Element>::log() {
-	m_node.log(0);
-	ErrorLogger::log("");
-}
-
 template <typename Element>
-inline void QuadTree<Element>::add(float3 position, float3 size, const Element& element) {
-	// add the array
-	shared_ptr<ElementPart> part = make_shared<ElementPart>(position, size, element);
-	part->index = m_elementParts.size();
-	m_elementParts.push_back(part);
-	// insert into tree
-	bool anyHit = m_node.add(m_elementParts.back().get());
-	// remove if missed tree
-	if (!anyHit) {
-		m_elementParts.pop_back();
-	}
-}
-
-template <typename Element>
-inline void QuadTree<Element>::add(
-	float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix, const Element& element) {
+inline void QuadTree<Element>::calcBoundingBox(float3 lCenterPosition, float3 lHalfSize,
+	float4x4 worldMatrix, float3& position, float3& size) {
 	// define standard box around center
 	float3 points[8] = { float3(-1.f, -1.f, -1.f), float3(1.f, -1.f, -1.f), float3(-1.f, -1.f, 1.f),
 		float3(1.f, -1.f, 1.f),
@@ -438,8 +425,36 @@ inline void QuadTree<Element>::add(
 		}
 	}
 	// calculate parameters
-	float3 position(MM[0].x, MM[1].x, MM[2].x);							  // edge location
-	float3 size(MM[0].y - MM[0].x, MM[1].y - MM[1].x, MM[2].y - MM[2].x); // calc differences
+	position = float3(MM[0].x, MM[1].x, MM[2].x);							  // edge location
+	size = float3(MM[0].y - MM[0].x, MM[1].y - MM[1].x, MM[2].y - MM[2].x); // calc differences
+}
+
+template <typename Element> inline void QuadTree<Element>::log() {
+	m_node.log(0);
+	ErrorLogger::log("");
+}
+
+template <typename Element>
+inline void QuadTree<Element>::add(float3 position, float3 size, const Element& element) {
+	// add the array
+	shared_ptr<ElementPart> part = make_shared<ElementPart>(position, size, element);
+	part->index = m_elementParts.size();
+	m_elementParts.push_back(part);
+	// insert into tree
+	bool anyHit = m_node.add(m_elementParts.back().get());
+	// remove if missed tree
+	if (!anyHit) {
+		m_elementParts.pop_back();
+	}
+}
+
+template <typename Element>
+inline void QuadTree<Element>::add(
+	float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix, const Element& element) {
+
+	// Transform to tree properties
+	float3 position, size;
+	calcBoundingBox(lCenterPosition, lHalfSize, worldMatrix, position, size);
 
 	// Add
 	add(position, size, element);
@@ -461,6 +476,37 @@ template <typename Element> inline void QuadTree<Element>::remove(size_t index) 
 	for (size_t j = index; j < m_elementParts.size(); j++) {
 		m_elementParts[j]->index--;
 	}
+}
+
+template <typename Element>
+inline bool QuadTree<Element>::updateElement(size_t index, float3 position, float3 size) {
+	// update properties
+	m_elementParts[index]->position = position;
+	m_elementParts[index]->size = size;
+	// remove from tree
+	m_node.remove(m_elementParts[index].get());
+	// insert update element to tree
+	bool anyHit = m_node.add(m_elementParts[index].get());
+	// remove if missed tree
+	if (!anyHit) {
+		m_elementParts.erase(m_elementParts.begin() + index);
+		// fix indices on elementParts
+		for (size_t j = index; j < m_elementParts.size(); j++) {
+			m_elementParts[j]->index--;
+		}
+		return false;
+	}
+	return true;
+}
+
+template <typename Element>
+inline bool QuadTree<Element>::updateElement(
+	size_t index, float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix) {
+	// transform to tree properties
+	float3 position, size;
+	calcBoundingBox(lCenterPosition, lHalfSize, worldMatrix, position, size);
+	// update
+	return updateElement(index, position, size);
 }
 
 template <typename Element>
@@ -513,8 +559,8 @@ template <typename Element> inline void QuadTree<Element>::reset() {
 	m_node = Node();
 }
 
-template <typename Element> inline void QuadTree<Element>::clear() { 
-	m_elementParts.clear(); 
+template <typename Element> inline void QuadTree<Element>::clear() {
+	m_elementParts.clear();
 	m_node.clear();
 }
 
@@ -522,7 +568,9 @@ template <typename Element> inline void QuadTree<Element>::reserve(size_t size) 
 	m_elementParts.reserve(size);
 }
 
-template <typename Element> inline size_t QuadTree<Element>::size() const { return m_elementParts.size(); }
+template <typename Element> inline size_t QuadTree<Element>::size() const {
+	return m_elementParts.size();
+}
 
 template <typename Element> inline Element& QuadTree<Element>::operator[](const size_t& index) {
 	return m_elementParts[index]->element;

@@ -79,6 +79,8 @@ public:
 	float3 getPointOnOBB(float3 point) const;
 	bool getIsCollidable() const;
 
+	void imgui_properties();
+
 	Entity(string meshName = "", float3 position = float3(0, 0, 0), float3 scale = float3(1, 1, 1));
 	~Entity();
 };

@@ -509,6 +509,10 @@ Renderer::~Renderer() {
 
 Renderer* Renderer::getInstance() { return &m_this; }
 
+Microsoft::WRL::ComPtr<ID3D11DepthStencilView> Renderer::getDepthStencilView() {
+	return m_depthDSV;
+}
+
 HWND Renderer::getHandle() { return m_handle; }
 
 float Renderer::getScreenWidth() const { return (float)m_screenWidth; }

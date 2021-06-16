@@ -1,5 +1,6 @@
 #include "Fragment.h"
 #include <string>
+#include "imgui.h"
 
 size_t Fragment::m_id_counter = 0;
 
@@ -41,6 +42,8 @@ std::string Fragment::getTypeAsString() const { return m_typeAsString[m_type]; }
 std::string Fragment::getFullDescription() const {
 	return getDescription() + "(" + std::to_string(getID()) + ", " + getTypeAsString() + ")";
 }
+
+void Fragment::imgui_properties() { ImGui::Text("No Properties"); }
 
 size_t Fragment::nextID() { 
 	m_id_counter++;

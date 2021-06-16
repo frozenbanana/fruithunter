@@ -47,9 +47,11 @@ public:
 		float3 acceleration;	  // can be used to produce gravity for particles for example
 		float slowdown;
 		float fadeInterval_start; // time(start) to time(x) seconds to scale particle to real size
-		float fadeInterval_end; // time(end-x) to time(end) seconds to scale particle to nothing 
+		float fadeInterval_end;	  // time(end-x) to time(end) seconds to scale particle to nothing
 		string str_sprite;
 		enum Shape { Circle, Star, Sprite } shape;
+		enum DrawMode {Normal, Add, Sub} drawMode;
+		bool imgui_properties();
 		ParticleDescription(ParticleSystem::Type type = ParticleSystem::Type::NONE);
 	};
 
@@ -66,7 +68,7 @@ private:
 	size_t m_capacity = 0;
 	// particle properties
 	struct ParticleProperty { // not going to the GPU
-		float3 velocity;// current velocity
+		float3 velocity;	  // current velocity
 		float lifeTime = 1;
 		float timeLeft = 1;
 		float size = 1; // start size
@@ -127,5 +129,8 @@ public:
 	void draw(bool alpha = true);
 
 	void load(ParticleSystem::Type type, float emitRate, size_t capacity = 0);
+
+	void imgui_properties();
+
 	ParticleSystem();
 };

@@ -156,3 +156,12 @@ void Transformation::stream_read(fstream& file) {
 	file.read((char*)&m_scale, sizeof(float3));
 	m_propertiesChanged = true;
 }
+
+void Transformation::imgui_properties() {
+	if (ImGui::InputFloat3("Position", (float*)&m_position))
+		m_propertiesChanged = true;
+	if (ImGui::InputFloat3("Rotation", (float*)&m_rotation))
+		m_propertiesChanged = true;
+	if (ImGui::InputFloat3("Scale", (float*)&m_scale))
+		m_propertiesChanged = true;
+}

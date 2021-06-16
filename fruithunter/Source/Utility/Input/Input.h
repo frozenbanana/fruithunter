@@ -25,8 +25,8 @@ public:
 	bool mouseUp(MouseButton button, bool filterImgui = true);
 	float2 mouseXY() const;
 	int scrollWheelValue();
-	bool scrolledUp();
-	bool scrolledDown();
+	bool scrolledUp(bool filterImgui = true);
+	bool scrolledDown(bool filterImgui = true);
 	XMINT2 getMouseMovement() const;
 
 	static Input* getInstance();

@@ -12,8 +12,7 @@ Camera::Camera() {
 	m_up = float3(0.0, 1.0, 0.0);
 
 	m_fov = DEFAULT_FOV;
-	m_projMatrix = XMMatrixPerspectiveFovLH(
-		m_fov, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, m_nearPlane, m_farPlane);
+	m_projMatrix = XMMatrixPerspectiveFovLH(m_fov, m_aspectRatio, m_nearPlane, m_farPlane);
 	m_viewMatrix = XMMatrixLookAtLH(m_positionEye, m_positionTarget, m_up);
 	m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 	if (m_matrixBuffer.Get() == nullptr) {
@@ -75,6 +74,11 @@ void Camera::setFov(float fov) {
 	m_propertiesChanged = true;
 }
 
+void Camera::setAspectRatio(float aspectRatio) {
+	m_aspectRatio = aspectRatio;
+	m_propertiesChanged = true;
+}
+
 void Camera::setNearPlane(float nearPlane) {
 	m_nearPlane = nearPlane;
 	m_propertiesChanged = true;
@@ -104,8 +108,7 @@ void Camera::updateResources() {
 void Camera::updateMatrices() {
 	m_propertiesChanged = false;
 	m_viewMatrix = XMMatrixLookAtLH(m_positionEye, m_positionTarget, m_up);
-	m_projMatrix = XMMatrixPerspectiveFovLH(
-		m_fov, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, m_nearPlane, m_farPlane);
+	m_projMatrix = XMMatrixPerspectiveFovLH(m_fov, m_aspectRatio, m_nearPlane, m_farPlane);
 
 	m_vpMatrix = XMMatrixMultiply(m_viewMatrix, m_projMatrix);
 }
@@ -141,8 +144,7 @@ vector<FrustumPlane> Camera::getFrustumPlanes() const {
 	planes.reserve(6);
 	float3 center = m_positionEye;
 	float height = tan(m_fov / 2.f);
-	float aspectRatio = (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT;
-	float width = height * aspectRatio;
+	float width = height * m_aspectRatio;
 
 	float3 camForward = m_positionTarget - m_positionEye;
 	camForward.Normalize();
@@ -176,8 +178,7 @@ CubeBoundingBox Camera::getFrustumBoundingBox() const {
 vector<float3> Camera::getFrustumPoints(float scaleBetweenNearAndFarPlane) const {
 	float3 center = m_positionEye;
 	float height = tan(m_fov / 2.f);
-	float aspectRatio = (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT;
-	float width = height * aspectRatio;
+	float width = height * m_aspectRatio;
 
 	float3 camForward = m_positionTarget - m_positionEye;
 	camForward.Normalize();

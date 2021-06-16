@@ -465,7 +465,40 @@ void SeaEffect::initilize(SeaEffectTypes type, XMINT2 tiles, XMINT2 gridSize, fl
 	createBuffers();
 }
 
+void SeaEffect::imgui_properties() {
+	Transformation::imgui_properties();
+	// type
+	static const string typeAsString[SeaEffect::SeaEffectTypes::Count] = { "Water", "Lava" };
+	if (ImGui::BeginCombo("Type", typeAsString[m_type].c_str())) {
+		for (size_t i = 0; i < SeaEffect::SeaEffectTypes::Count; i++) {
+			if (ImGui::MenuItem(typeAsString[i].c_str())) {
+				setType((SeaEffect::SeaEffectTypes)i);
+			}
+		}
+		ImGui::EndCombo();
+	}
+	ImGui::Separator();
+	static XMINT2 tiles, grids;
+	ImGui::Text("Tile Size per Cell: (%i %i)", m_tileSize.x, m_tileSize.y);
+	if (ImGui::InputInt2("##1", (int*)&tiles)) {
+		tiles = XMINT2(Clamp<int>(tiles.x, 0, tiles.x), Clamp<int>(tiles.y, 0, tiles.y));
+	}
+	ImGui::Text("Grid Size: (%i %i)", m_gridSize.x, m_gridSize.y);
+	if (ImGui::InputInt2("##2", (int*)&grids)) {
+		grids = XMINT2(Clamp<int>(grids.x, 0, grids.x), Clamp<int>(grids.y, 0, grids.y));
+	}
+	if (ImGui::Button("Resize")) {
+		build(tiles, grids);
+	}
+	ImGui::Separator();
+	if (ImGui::TreeNode("Advanced")) {
+		m_properties.imgui_properties();
+		ImGui::TreePop();
+	}
+}
+
 SeaEffect::SeaEffect() : Transformation(), Fragment(Fragment::Type::sea) {
+	initilize(SeaEffectTypes::water, XMINT2(1, 1));
 	// static shader stuff
 	if (!m_shader.isLoaded()) {
 		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = {
@@ -524,3 +557,19 @@ size_t SeaEffect::SubWaterGrid::getVerticeCount() const { return m_vertices.size
 SeaEffect::SubWaterGrid::SubWaterGrid() {}
 
 SeaEffect::SubWaterGrid::~SubWaterGrid() {}
+
+void SeaEffect::WaterShaderProperties::imgui_properties() {
+	ImGui::SliderFloat("Distortion", &distortionStrength, 0, 1);
+	ImGui::SliderFloat("White Depth Difference Threshold", &whiteDepthDifferenceThreshold, 0, 1);
+	ImGui::SliderFloat("Time Speed", &timeSpeed, 0, 1);
+	ImGui::SliderInt("WaterShadingLevels", &waterShadingLevels, 1, 50);
+	ImGui::SliderFloat("Depth Difference Intensity", &depthDifferenceStrength, 0, 1);
+	ImGui::ColorEdit3("Edge", (float*)&color_edge);
+	ImGui::ColorEdit3("Shallow", (float*)&color_shallow);
+	ImGui::ColorEdit3("Deep", (float*)&color_deep);
+	ImGui::DragFloatRange2("Edge Height Range", &heightThreshold_edge.x, &heightThreshold_edge.y,0.01f, 0, 1, "Min: %.2f", "Max: %.2f");
+	ImGui::DragFloatRange2("Tide Height Scaling Range", &tideHeightScaling.x, &tideHeightScaling.y,
+		0.01f, 0, 1, "Min: %.2f", "Max: %.2f");
+	ImGui::SliderFloat(
+		"Tide Height Intensity Range", &tideHeightStrength, 0, 10);
+}
