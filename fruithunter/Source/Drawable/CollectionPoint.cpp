@@ -11,26 +11,26 @@ void CollectionPoint::setType(FruitType type) {
 	m_type = type;
 	switch (type) {
 	case APPLE:
-		m_explosion.load(ParticleSystem::Type::EXPLOSION_APPLE, 0, m_explosion_emitCount);
-		m_sparkle.load(ParticleSystem::Type::SPARKLE_APPLE, (float)m_sparkle_emitRate, size_t(0));
+		m_explosion.load("explosion apple", 0, m_explosion_emitCount);
+		m_sparkle.load("sparkle apple", (float)m_sparkle_emitRate, size_t(0));
 		m_fruit.load("Apple_000000");
 		fruit_scale = 0.15f;
 		break;
 	case BANANA:
-		m_explosion.load(ParticleSystem::Type::EXPLOSION_BANANA, 0, m_explosion_emitCount);
-		m_sparkle.load(ParticleSystem::Type::SPARKLE_BANANA, (float)m_sparkle_emitRate, size_t(0));
+		m_explosion.load("explosion banana", 0, m_explosion_emitCount);
+		m_sparkle.load("sparkle banana", (float)m_sparkle_emitRate, size_t(0));
 		m_fruit.load("Banana_000000");
 		fruit_scale = 0.8f;
 		break;
 	case MELON:
-		m_explosion.load(ParticleSystem::Type::EXPLOSION_MELON, 0, m_explosion_emitCount);
-		m_sparkle.load(ParticleSystem::Type::SPARKLE_MELON, (float)m_sparkle_emitRate, size_t(0));
+		m_explosion.load("explosion melon", 0, m_explosion_emitCount);
+		m_sparkle.load("sparkle melon", (float)m_sparkle_emitRate, size_t(0));
 		m_fruit.load("Melon_000000");
 		fruit_scale = 0.15f;
 		break;
 	case DRAGON:
-		m_explosion.load(ParticleSystem::Type::EXPLOSION_DRAGON, 0, m_explosion_emitCount);
-		m_sparkle.load(ParticleSystem::Type::SPARKLE_DRAGON, (float)m_sparkle_emitRate, size_t(0));
+		m_explosion.load("explosion dragon", 0, m_explosion_emitCount);
+		m_sparkle.load("sparkle dragon", (float)m_sparkle_emitRate, size_t(0));
 		m_fruit.load("Dragon_000000");
 		fruit_scale = 0.15f;
 		break;
@@ -44,13 +44,13 @@ void CollectionPoint::setType(FruitType type) {
 void CollectionPoint::setSkillType(Skillshot skillType) {
 	switch (skillType) {
 	case SS_GOLD:
-		m_stars.load(ParticleSystem::Type::EXPLOSION_GOLD, 0, m_stars_emitCount);
+		m_stars.load("explosion gold", 0, m_stars_emitCount);
 		break;
 	case SS_SILVER:
-		m_stars.load(ParticleSystem::Type::EXPLOSION_SILVER, 0, m_stars_emitCount);
+		m_stars.load("explosion silver", 0, m_stars_emitCount);
 		break;
 	case SS_BRONZE:
-		m_stars.load(ParticleSystem::Type::EXPLOSION_BRONZE, 0, m_stars_emitCount);
+		m_stars.load("explosion bronze", 0, m_stars_emitCount);
 		break;
 	}
 }
@@ -73,7 +73,7 @@ void CollectionPoint::load(float3 position, float3 velocity, FruitType type, Ski
 }
 
 bool CollectionPoint::isFinished() const {
-	return m_reachedDestination && (m_sparkle.activeParticleCount() == 0);
+	return m_reachedDestination && (m_sparkle.getActiveParticleCount() == 0);
 }
 
 FruitType CollectionPoint::getFruitType() const { return m_type; }
@@ -96,7 +96,7 @@ bool CollectionPoint::update(float dt, float3 target) {
 		if ((m_position - target).Length() < m_distanceThreshold) {
 			// inside threshold
 			AudioController::getInstance()->play("collected-item", AudioController::SoundType::Effect);
-			m_sparkle.emitingState(false);
+			m_sparkle.setEmitingState(false);
 			m_reachedDestination = true;
 			return true;
 		}

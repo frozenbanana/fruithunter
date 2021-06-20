@@ -40,7 +40,7 @@ public:
 
 	// ParticleSystems
 	struct ParticleSystemContent {
-		int type;				//ParticleSystem::PARTICLE_TYPE !!
+		string psName;
 		float3 position;
 		float3 size;
 		bool affectedByWind;

@@ -32,7 +32,7 @@ private:
 	const Keyboard::Keys m_key_switchState = Keyboard::Tab; // btn for selecting entity
 	const Keyboard::Keys m_key_copy = Keyboard::C;			// btn for copying fragment
 	const Keyboard::Keys m_key_setPosition =
-		Keyboard::V; // btn for overwriting position to poiner pos
+		Keyboard::V; // btn for overwriting position to pointer pos
 
 	const Keyboard::Keys KEY_FORWARD = Keyboard::W;
 	const Keyboard::Keys KEY_BACKWARD = Keyboard::S;
@@ -72,6 +72,7 @@ private:
 
 	vector<string> m_loadable_entity;
 	struct EntityView {
+		bool render = true;
 		string objName;
 		float3 rotation;
 		Layer layer;
@@ -121,8 +122,14 @@ private:
 	void update_imgui_terrainEditor();
 	void update_imgui_leaderboard();
 
-	template <typename CLASS> void update_panel(vector<shared_ptr<CLASS>>& list, LibraryTab tab);
-	void update_panel_entity_improved(QuadTree<shared_ptr<Entity>>& list, LibraryTab tab);
+	void update_panel_terrain_unselected();
+	void update_panel_entity_unselected();
+	void update_panel_sea_unselected();
+	void update_panel_ps_unselected();
+
+	template <typename CLASS> void update_panel(vector<shared_ptr<CLASS>>& list, LibraryTab tab, void (SceneEditorManager::*func)(void));
+	void update_panel_entity_improved(
+		QuadTree<shared_ptr<Entity>>& list, LibraryTab tab, void (SceneEditorManager::*func)(void));
 
 	void updateCameraMovement(float dt);
 
@@ -156,7 +163,8 @@ public:
 };
 
 template <typename CLASS>
-inline void SceneEditorManager::update_panel(vector<shared_ptr<CLASS>>& list, LibraryTab tab) {
+inline void SceneEditorManager::update_panel(
+	vector<shared_ptr<CLASS>>& list, LibraryTab tab, void (SceneEditorManager::*func)(void)) {
 	Input* ip = Input::getInstance();
 	int& selectedIdx = m_library_selections[tab];
 	if (ImGui::BeginChild(
@@ -252,6 +260,9 @@ inline void SceneEditorManager::update_panel(vector<shared_ptr<CLASS>>& list, Li
 	{
 		if (selectedIdx != -1) {
 			static_cast<Fragment*>(list[selectedIdx].get())->imgui_properties();
+		}
+		else {
+			std::invoke(func, *this);
 		}
 	}
 	ImGui::EndGroup();

@@ -207,7 +207,7 @@ void SceneManager::update() {
 	for (size_t i = 0; i < scene->m_arrowParticles.size(); i++) {
 		scene->m_arrowParticles[i]->update(dt);
 		// remove if done (arrow should turn off particle system emiter)
-		if (scene->m_arrowParticles[i]->activeParticleCount() == 0) {
+		if (scene->m_arrowParticles[i]->getActiveParticleCount() == 0) {
 			scene->m_arrowParticles.erase(scene->m_arrowParticles.begin()+i);
 			i--;
 		}

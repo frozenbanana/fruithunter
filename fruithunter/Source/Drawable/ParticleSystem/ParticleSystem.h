@@ -5,39 +5,16 @@
 #include "Terrain.h"
 #include "Fragment.h"
 #include "TextureRepository.h"
+#include "fstreamLib.h"
+
+#define PATH_PSD "assets/ParticleSystems/"
+#define PSD_END "psd" // psd - particle.system.description
 
 class ParticleSystem : public Fragment, public Transformation {
 public:
-	enum Type {
-		NONE,
-		FOREST_BUBBLE,
-		GROUND_DUST,
-		VULCANO_FIRE,
-		VULCANO_SMOKE,
-		LAVA_BUBBLE,
-		ARROW_GLITTER,
-		CONFETTI,
-		STARS_GOLD,
-		STARS_SILVER,
-		STARS_BRONZE,
-		EXPLOSION_APPLE,
-		EXPLOSION_BANANA,
-		EXPLOSION_MELON,
-		EXPLOSION_DRAGON,
-		SPARKLE_APPLE,
-		SPARKLE_BANANA,
-		SPARKLE_MELON,
-		SPARKLE_DRAGON,
-		EXPLOSION_GOLD,
-		EXPLOSION_SILVER,
-		EXPLOSION_BRONZE,
-		JUMP_DUST,
-		MELON_TRAIL,
-		LEVELSELECT_SELECTION,
-		TEST_SPRITE,
-		TYPE_LENGTH
-	};
 	struct ParticleDescription {
+		string identifier;
+
 		float4 colorVariety[3];
 		float2 size_interval;	   // size.x (min), size.y (max)
 		float2 timeAlive_interval; // size.x (min), size.y (max)
@@ -50,22 +27,30 @@ public:
 		float fadeInterval_end;	  // time(end-x) to time(end) seconds to scale particle to nothing
 		string str_sprite;
 		enum Shape { Circle, Star, Sprite } shape;
-		enum DrawMode {Normal, Add, Sub} drawMode;
+		enum DrawMode { Normal, Add, Sub } drawMode;
+
 		bool imgui_properties();
-		ParticleDescription(ParticleSystem::Type type = ParticleSystem::Type::NONE);
+		void write(ofstream& file) const;
+		void read(ifstream& file);
+		bool load(string psdName);
+		bool save() const;
+		bool save(string psdName) const;
+		ParticleDescription();
 	};
 
 private:
-	Type m_type = NONE;
+	static vector<shared_ptr<ParticleDescription>> m_descriptionList;
 
-	bool m_isActive = true;
-	bool m_isEmitting = true;
-	float m_emitTimer = 0;
 	// description
-	ParticleDescription m_particle_description;
+	shared_ptr<ParticleDescription> m_particle_description;
+
 	bool m_affectedByWind = false;
 	float m_emitRate = 0;
 	size_t m_capacity = 0;
+	bool m_isActive = true;
+	bool m_isEmitting = true;
+	float m_emitTimer = 0;
+
 	// particle properties
 	struct ParticleProperty { // not going to the GPU
 		float3 velocity;	  // current velocity
@@ -77,7 +62,7 @@ private:
 	struct Particle {
 		float3 position;
 		float4 color = float4(1.);
-		float size = 1; // size after fade scaling is applied
+		float size = 1; // full size
 		float isActive = false;
 	};
 	vector<Particle> m_particles;
@@ -105,30 +90,39 @@ private:
 
 	void setParticle(size_t index);
 
-public:
-	void emitingState(bool state);
-	void activeState(bool state);
-	void affectedByWindState(bool state);
-	bool isActive() const;
-	size_t activeParticleCount() const;
-	bool isEmiting() const;
-	bool isAffectedByWind() const;
+	void syncSystemFromDescription();
 
-	void setType(Type type, bool resize = true);
-	void setCustomDescription(ParticleSystem::ParticleDescription desc, bool resize = true);
+	static string asPath(string psFilename);
+
+public:
+	static void ReadDescriptionList();
+	static vector<shared_ptr<ParticleDescription>>* GetDescriptionList();
+	static bool GetDesc(string psdName, shared_ptr<ParticleDescription>& pointer);
+
+	void setEmitingState(bool state);
+	bool isEmiting() const;
+	void setActiveState(bool state);
+	bool isActive() const;
+	void setAffectedByWindState(bool state);
+	bool isAffectedByWind() const;
+	size_t getActiveParticleCount() const;
+
+	bool setDesc(string psdName);
+	bool setDesc(size_t index);
+	void setCustomDescription(ParticleSystem::ParticleDescription& desc);
+	shared_ptr<ParticleSystem::ParticleDescription> getDesc();
+
 	void setEmitRate(float emitRate, bool resize = true);
-	void setCapacity(size_t capacity = 0);
 	float getEmitRate() const;
+	void setCapacity(size_t capacity = 0);
 	size_t getCapacity() const;
-	Type getType() const;
-	ParticleSystem::ParticleDescription getParticleDescription() const;
 
 	void update(float dt);
 	void emit(size_t count);
 
 	void draw(bool alpha = true);
 
-	void load(ParticleSystem::Type type, float emitRate, size_t capacity = 0);
+	void load(string psFilename, float emitRate, size_t capacity = 0);
 
 	void imgui_properties();
 

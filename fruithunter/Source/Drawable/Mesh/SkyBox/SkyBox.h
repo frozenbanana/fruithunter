@@ -42,9 +42,9 @@ private:
 	void createShaders();
 
 	void updateLightInfo();
-	void updateLightInfo(AreaTag tag);
 
 public:
+	void updateLightInfo(AreaTag tag);
 	//manual binding
 	void bindLightBuffer();
 	//Light information

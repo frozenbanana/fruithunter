@@ -7,7 +7,7 @@ private:
 	SceneEditorManager m_editor;
 	SceneManager m_testingEnvironment;
 	Keyboard::Keys m_mouseMode_switch = Keyboard::H;
-	bool m_mouseMode = true;
+	bool m_mouseMode = false;
 	bool m_testing = false;
 
 public:

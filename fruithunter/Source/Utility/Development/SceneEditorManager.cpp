@@ -98,16 +98,20 @@ void SceneEditorManager::update_imgui_library() {
 	ImGui::BeginGroup();
 	switch (m_libraryTabOpen) {
 	case SceneEditorManager::tab_terrain:
-		update_panel(scene->m_terrains, m_libraryTabOpen);
+		update_panel(scene->m_terrains, m_libraryTabOpen,
+			&SceneEditorManager::update_panel_terrain_unselected);
 		break;
 	case SceneEditorManager::tab_entity:
-		update_panel_entity_improved(scene->m_entities, m_libraryTabOpen);
+		update_panel_entity_improved(scene->m_entities, m_libraryTabOpen,
+			&SceneEditorManager::update_panel_entity_unselected);
 		break;
 	case SceneEditorManager::tab_sea:
-		update_panel(scene->m_seaEffects, m_libraryTabOpen);
+		update_panel(scene->m_seaEffects, m_libraryTabOpen,
+			&SceneEditorManager::update_panel_sea_unselected);
 		break;
 	case SceneEditorManager::tab_particleSystem:
-		update_panel(scene->m_particleSystems, m_libraryTabOpen);
+		update_panel(scene->m_particleSystems, m_libraryTabOpen,
+			&SceneEditorManager::update_panel_ps_unselected);
 		break;
 	}
 	ImGui::EndGroup();
@@ -178,7 +182,7 @@ void SceneEditorManager::update_imgui_terrainEditor() {
 }
 
 void SceneEditorManager::update_panel_entity_improved(
-	QuadTree<shared_ptr<Entity>>& list, LibraryTab tab) {
+	QuadTree<shared_ptr<Entity>>& list, LibraryTab tab, void (SceneEditorManager::*func)(void)) {
 	int& selectedIdx = m_library_selections[tab];
 	Input* ip = Input::getInstance();
 	if (ImGui::BeginChild(
@@ -273,84 +277,7 @@ void SceneEditorManager::update_panel_entity_improved(
 		static_cast<Fragment*>(list[selectedIdx].get())->imgui_properties();
 	}
 	else {
-		// _Properties_
-		// - rotation
-		if (ImGui::Checkbox("Random Rotation", &m_entityGhost_randomRotation) &&
-			m_entityGhost_randomRotation)
-			entityGhost_randomizeProperties();
-		if (!m_entityGhost_randomRotation)
-			ImGui::SliderFloat("Rotation Y", &m_entityGhost_rotationY, 0, 2 * XM_PI, "%.2f rad");
-		// - scale
-		if (ImGui::Checkbox("Random Scale", &m_entityGhost_randomScale) &&
-			m_entityGhost_randomScale)
-			entityGhost_randomizeProperties();
-		if (m_entityGhost_randomScale) {
-			if (ImGui::DragFloatRange2("Scale Range", &m_entityGhost_scaleRange.x,
-					&m_entityGhost_scaleRange.y, 0.01f, 0, 10, "Min: %.2f", "Max: %.2f"))
-				entityGhost_randomizeProperties();
-		}
-		else
-			ImGui::SliderFloat("Scale", &m_entityGhost_scale, 0, 10, "%.2f");
-		// collision
-		bool collidable = m_entityGhost_placer.getIsCollidable();
-		if (ImGui::Checkbox("Collidable", &collidable))
-			m_entityGhost_placer.setCollidable(collidable);
-		// - quick commands
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1, 3));
-		ImGui::Text(" --- Quick Commands ---");
-		ImVec4 btnCol(0, 1, 0, 1);
-		ImGui::Text("Rotate: ");
-		ImGui::SameLine();
-		ImGui::TextColored(btnCol, "Scroll Up/Down");
-		ImGui::Text("Scaling: ");
-		ImGui::SameLine();
-		ImGui::TextColored(btnCol, "Left Shift + Scroll Up/Down");
-		ImGui::PopStyleVar();
-		if (ip->keyDown(Keyboard::LeftShift))
-			m_entityGhost_scale = Clamp(
-				m_entityGhost_scale + (ip->scrolledDown() - ip->scrolledUp()) * 0.1f, 0.f, 10.f);
-		else
-			m_entityGhost_rotationY =
-				mod(m_entityGhost_rotationY + (ip->scrolledDown() - ip->scrolledUp()) * 0.1f,
-					2 * XM_PI);
-		// _Mesh List_
-		static const ImVec2 imgSize = ImVec2(75, 75);
-		if (ImGui::BeginChild("Mesh List", ImVec2(imgSize.x * 3 + 75, 0), true,
-				ImGuiWindowFlags_AlwaysAutoResize)) {
-			for (size_t i = 0; i < m_entityViews.size(); i++) {
-				bool selected = (i == m_selectedEntity);
-				ImGui::BeginGroup();
-				ImVec2 wrappedTextSize =
-					ImGui::CalcTextSize(m_entityViews[i].objName.c_str(), NULL, false, imgSize.x);
-				ImGui::BeginChild(
-					1000 + i, wrappedTextSize, false, ImGuiWindowFlags_AlwaysAutoResize);
-				ImGui::TextWrapped(m_entityViews[i].objName.c_str());
-				ImGui::EndChild();
-				if (selected) {
-					ImGui::PushStyleColor(21, ImVec4(1, 1, 0, 1));
-					ImGui::PushStyleColor(22, ImVec4(0.75f, 0.75f, 0, 1));
-				}
-				if (ImGui::ImageButton(m_entityViews[i].layer.getSRV().Get(), imgSize)) {
-					// select mesh
-					if (selected) {
-						m_selectedEntity = -1;
-					}
-					else {
-						m_selectedEntity = i;
-						m_entityGhost_placer.load(m_entityViews[i].objName);
-					}
-				}
-				if (ImGui::IsItemHovered()) {
-					m_entityViews[i].rotation.y += 1.f * scene->getDeltaTime();
-				}
-				if (selected)
-					ImGui::PopStyleColor(2);
-				ImGui::EndGroup();
-				if ((i + 1) % 3 != 0)
-					ImGui::SameLine();
-			}
-		}
-		ImGui::EndChild();
+		std::invoke(func, *this);
 	}
 	ImGui::EndGroup();
 }
@@ -578,6 +505,14 @@ void SceneEditorManager::update_imgui() {
 				scene->save();
 				readSceneDirectory();
 			}
+			if (ImGui::MenuItem("Load and Save Scenes")) {
+				ErrorLogger::log(" ----- Begin Reevaluating Scenes -----");
+				for (size_t i = 0; i < m_loadable_scenes.size(); i++) {
+					load(m_loadable_scenes[i]);
+					scene->save();
+				}
+				ErrorLogger::log("Done Reevaluating Scenes");
+			}
 			ImGui::EndMenu();
 		}
 		menuBarSize = ImGui::GetWindowSize();
@@ -695,6 +630,136 @@ void SceneEditorManager::readSceneDirectory() {
 	vector<string> dirs;
 	read_directory("assets/Scenes", dirs);
 	m_loadable_scenes = vector<string>(dirs.begin() + 2, dirs.end());
+}
+
+void SceneEditorManager::update_panel_entity_unselected() {
+	Input* ip = Input::getInstance();
+	// _Properties_
+	// - rotation
+	if (ImGui::Checkbox("Random Rotation", &m_entityGhost_randomRotation) &&
+		m_entityGhost_randomRotation)
+		entityGhost_randomizeProperties();
+	if (!m_entityGhost_randomRotation)
+		ImGui::SliderFloat("Rotation Y", &m_entityGhost_rotationY, 0, 2 * XM_PI, "%.2f rad");
+	// - scale
+	if (ImGui::Checkbox("Random Scale", &m_entityGhost_randomScale) && m_entityGhost_randomScale)
+		entityGhost_randomizeProperties();
+	if (m_entityGhost_randomScale) {
+		if (ImGui::DragFloatRange2("Scale Range", &m_entityGhost_scaleRange.x,
+				&m_entityGhost_scaleRange.y, 0.01f, 0, 10, "Min: %.2f", "Max: %.2f"))
+			entityGhost_randomizeProperties();
+	}
+	else
+		ImGui::SliderFloat("Scale", &m_entityGhost_scale, 0, 10, "%.2f");
+	// collision
+	bool collidable = m_entityGhost_placer.getIsCollidable();
+	if (ImGui::Checkbox("Collidable", &collidable))
+		m_entityGhost_placer.setCollidable(collidable);
+	// - quick commands
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1, 3));
+	ImGui::Text(" --- Quick Commands ---");
+	ImVec4 btnCol(0, 1, 0, 1);
+	ImGui::Text("Rotate: ");
+	ImGui::SameLine();
+	ImGui::TextColored(btnCol, "Scroll Up/Down");
+	ImGui::Text("Scaling: ");
+	ImGui::SameLine();
+	ImGui::TextColored(btnCol, "Left Shift + Scroll Up/Down");
+	ImGui::PopStyleVar();
+	if (ip->keyDown(Keyboard::LeftShift))
+		m_entityGhost_scale =
+			Clamp(m_entityGhost_scale + (ip->scrolledDown() - ip->scrolledUp()) * 0.1f, 0.f, 10.f);
+	else
+		m_entityGhost_rotationY = mod(
+			m_entityGhost_rotationY + (ip->scrolledDown() - ip->scrolledUp()) * 0.1f, 2 * XM_PI);
+	// _Mesh List_
+	static const ImVec2 imgSize = ImVec2(75, 75);
+	if (ImGui::BeginChild(
+			"Mesh List", ImVec2(imgSize.x * 3 + 75, 0), true, ImGuiWindowFlags_AlwaysAutoResize)) {
+		for (size_t i = 0; i < m_entityViews.size(); i++) {
+			bool selected = (i == m_selectedEntity);
+			ImGui::BeginGroup();
+			ImVec2 wrappedTextSize =
+				ImGui::CalcTextSize(m_entityViews[i].objName.c_str(), NULL, false, imgSize.x);
+			ImGui::BeginChild(1000 + i, wrappedTextSize, false, ImGuiWindowFlags_AlwaysAutoResize);
+			ImGui::TextWrapped(m_entityViews[i].objName.c_str());
+			ImGui::EndChild();
+			if (selected) {
+				ImGui::PushStyleColor(21, ImVec4(1, 1, 0, 1));
+				ImGui::PushStyleColor(22, ImVec4(0.75f, 0.75f, 0, 1));
+			}
+			if (ImGui::ImageButton(m_entityViews[i].layer.getSRV().Get(), imgSize)) {
+				// select mesh
+				if (selected) {
+					m_selectedEntity = -1;
+				}
+				else {
+					m_selectedEntity = i;
+					m_entityGhost_placer.load(m_entityViews[i].objName);
+				}
+			}
+			if (ImGui::IsItemHovered()) {
+				m_entityViews[i].rotation.y += 1.f * scene->getDeltaTime();
+				m_entityViews[i].render = true;
+			}
+			if (selected)
+				ImGui::PopStyleColor(2);
+			ImGui::EndGroup();
+			if ((i + 1) % 3 != 0)
+				ImGui::SameLine();
+		}
+	}
+	ImGui::EndChild();
+}
+
+void SceneEditorManager::update_panel_terrain_unselected() {}
+
+void SceneEditorManager::update_panel_sea_unselected() {}
+
+void SceneEditorManager::update_panel_ps_unselected() {
+	vector<shared_ptr<ParticleSystem::ParticleDescription>>* list =
+		ParticleSystem::GetDescriptionList();
+	static string psdName = "";
+	if (ImGui::Button("Create New")) {
+		if (psdName != "") {
+			// check if already exists
+			bool exists = false;
+			for (size_t i = 0; i < list->size(); i++) {
+				if (list->at(i)->identifier == psdName) {
+					// already exists
+					exists = true;
+					break;
+				}
+			}
+			// create new description if none exists
+			if (!exists) {
+				ParticleSystem::ParticleDescription desc;
+				desc.save(psdName);
+				ParticleSystem::ReadDescriptionList();
+			}
+			else
+				ErrorLogger::logWarning(
+					"A ParticleDescription with the name \"" + psdName + "\" already exists!");
+		}
+	}
+	ImGui::SameLine();
+	ImGui::InputText("PSD Name", &psdName);
+	ImGui::Separator();
+	static shared_ptr<ParticleSystem::ParticleDescription> desc = list->at(0);
+	string preview = desc.get() == nullptr ? "Empty List" : desc->identifier;
+	if (ImGui::BeginCombo("Description Templates", preview.c_str())) {
+		for (size_t i = 0; i < list->size(); i++) {
+			if (ImGui::Selectable(list->at(i)->identifier.c_str())) {
+				desc = list->at(i);
+			}
+		}
+		ImGui::EndCombo();
+	}
+	ImGui::Separator();
+	desc->imgui_properties();
+	if (ImGui::Button("Save")) {
+		desc->save();
+	}
 }
 
 SceneEditorManager::SceneEditorManager() {
@@ -999,49 +1064,58 @@ void SceneEditorManager::render_entityViews() {
 	camera.setTarget(float3(0, 0, 0));
 	camera.bind();
 	vector<FrustumPlane> fplanes = camera.getFrustumPlanes();
+	vector<float3> frustumPoints = camera.getFrustumPoints(0.4f);
 	Renderer::getInstance()->setDrawState(Renderer::DrawingState::state_normal);
 	for (size_t i = 0; i < m_entityViews.size(); i++) {
-		Renderer::getDeviceContext()->OMSetRenderTargets(1,
-			m_entityViews[i].layer.getRTV().GetAddressOf(),
-			Renderer::getInstance()->getDepthStencilView().Get());
+		if (m_entityViews[i].render) {
+			m_entityViews[i].render = false;
 
-		D3D11_VIEWPORT vp;
-		vp.Width = 500;
-		vp.Height = 500;
-		vp.MinDepth = 0.0f;
-		vp.MaxDepth = 1.0f;
-		vp.TopLeftX = 0;
-		vp.TopLeftY = 0;
-		Renderer::getDeviceContext()->RSSetViewports(1, &vp);
+			Renderer::getDeviceContext()->OMSetRenderTargets(1,
+				m_entityViews[i].layer.getRTV().GetAddressOf(),
+				Renderer::getInstance()->getDepthStencilView().Get());
 
-		float clearColor[] = { 0.25f, .5f, 1, 1 };
-		Renderer::getDeviceContext()->ClearRenderTargetView(
-			m_entityViews[i].layer.getRTV().Get(), clearColor);
-		Renderer::getDeviceContext()->ClearDepthStencilView(
-			Renderer::getInstance()->getDepthStencilView().Get(), D3D11_CLEAR_DEPTH, 1, 0);
+			D3D11_VIEWPORT vp;
+			vp.Width = 500;
+			vp.Height = 500;
+			vp.MinDepth = 0.0f;
+			vp.MaxDepth = 1.0f;
+			vp.TopLeftX = 0;
+			vp.TopLeftY = 0;
+			Renderer::getDeviceContext()->RSSetViewports(1, &vp);
 
-		m_entityViewer.load(m_entityViews[i].objName);
-		m_entityViewer.setPosition(float3(0, 0, 0));
-		m_entityViewer.setRotation(float3(0, 0, 0));
-		m_entityViewer.setScale(1);
-		float3 bb_pos = m_entityViewer.getLocalBoundingBoxPosition();
-		float3 bb_size = m_entityViewer.getLocalBoundingBoxSize();
-		float3 points[8];
-		float minT = -1;
-		for (size_t i = 0; i < 8; i++) {
-			points[i] = bb_size * edges[i];
-			for (size_t f = 0; f < fplanes.size(); f++) {
-				float t = fplanes[f].castRay(float3(0, 0, 0), points[i]);
-				if (t > 0 && (minT == -1 || t < minT)) {
-					minT = t;
+			float clearColor[] = { 0.25f, .5f, 1, 1 };
+			Renderer::getDeviceContext()->ClearRenderTargetView(
+				m_entityViews[i].layer.getRTV().Get(), clearColor);
+			Renderer::getDeviceContext()->ClearDepthStencilView(
+				Renderer::getInstance()->getDepthStencilView().Get(), D3D11_CLEAR_DEPTH, 1, 0);
+
+			ShadowMapper* shadowMap = Renderer::getInstance()->getShadowMapper();
+			shadowMap->mapShadowToFrustum(frustumPoints); // optimize shadowed area
+			Renderer::getInstance()->getShadowMapper()->setup_shadowRendering();
+
+			m_entityViewer.load(m_entityViews[i].objName);
+			m_entityViewer.setPosition(float3(0, 0, 0));
+			m_entityViewer.setRotation(float3(0, 0, 0));
+			m_entityViewer.setScale(1);
+			float3 bb_pos = m_entityViewer.getLocalBoundingBoxPosition();
+			float3 bb_size = m_entityViewer.getLocalBoundingBoxSize();
+			float3 points[8];
+			float minT = -1;
+			for (size_t i = 0; i < 8; i++) {
+				points[i] = bb_size * edges[i];
+				for (size_t f = 0; f < fplanes.size(); f++) {
+					float t = fplanes[f].castRay(float3(0, 0, 0), points[i]);
+					if (t > 0 && (minT == -1 || t < minT)) {
+						minT = t;
+					}
 				}
 			}
+			m_entityViewer.setScale(minT);
+			m_entityViewer.setRotation(m_entityViews[i].rotation);
+			m_entityViewer.setPosition(-m_entityViewer.getLocalBoundingBoxPosition() * minT);
+			scene->m_skyBox.bindLightBuffer();
+			m_entityViewer.draw();
 		}
-		m_entityViewer.setScale(minT);
-		m_entityViewer.setRotation(m_entityViews[i].rotation);
-		m_entityViewer.setPosition(-m_entityViewer.getLocalBoundingBoxPosition() * minT);
-		scene->m_skyBox.bindLightBuffer();
-		m_entityViewer.draw();
 	}
 }
 

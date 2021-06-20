@@ -357,6 +357,7 @@
     <ClInclude Include="Source\Utility\Error\ErrorLogger.h" />
     <ClInclude Include="Source\Utility\filesystemHelper.h" />
     <ClInclude Include="Source\Utility\Fragment.h" />
+    <ClInclude Include="Source\Utility\fstreamLib.h" />
     <ClInclude Include="Source\Utility\Input\Button.h" />
     <ClInclude Include="Source\Utility\Input\Input.h" />
     <ClInclude Include="Source\Utility\Input\Slider.h" />

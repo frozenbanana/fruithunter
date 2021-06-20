@@ -4,13 +4,16 @@
 #include "time.h"
 #include "VariableSyncer.h"
 #include "SceneManager.h"
+#include "filesystemHelper.h"
 
 ShaderSet ParticleSystem::m_shaderSetCircle;
 ShaderSet ParticleSystem::m_shaderSetStar;
 ShaderSet ParticleSystem::m_shaderSetSprite;
 
-void ParticleSystem::load(ParticleSystem::Type type, float emitRate, size_t capacity) {
-	setType(type, false);
+vector<shared_ptr<ParticleSystem::ParticleDescription>> ParticleSystem::m_descriptionList;
+
+void ParticleSystem::load(string psFilename, float emitRate, size_t capacity) {
+	setDesc(psFilename);
 	setEmitRate(emitRate, false);
 	setCapacity(capacity);
 }
@@ -18,6 +21,7 @@ void ParticleSystem::load(ParticleSystem::Type type, float emitRate, size_t capa
 ParticleSystem::ParticleSystem()
 	: Fragment(Fragment::Type::particleSystem), Transformation(float3(0.), float3(0.)) {
 	createShaders();
+	m_particle_description = make_shared<ParticleSystem::ParticleDescription>();
 	m_tex_particle = TextureRepository::get("missing_texture.jpg");
 }
 
@@ -26,40 +30,83 @@ void ParticleSystem::setParticle(size_t index) {
 	part->isActive = true;
 	// Position in world
 	float3 position = getPosition();
+	Matrix matRotation =
+		Matrix::CreateFromYawPitchRoll(getRotation().y, getRotation().x, getRotation().z);
 	float3 scale = getScale();
 	// Positon in box
-	part->position = position + float3(RandomFloat(-scale.x / 2, scale.x / 2),
-									RandomFloat(-scale.y / 2, scale.y / 2),
-									RandomFloat(-scale.z / 2, scale.z / 2));
+	float3 localSpawn = float3(RandomFloat(-scale.x / 2, scale.x / 2),
+		RandomFloat(-scale.y / 2, scale.y / 2), RandomFloat(-scale.z / 2, scale.z / 2));
+	part->position = position + float3::Transform(localSpawn, matRotation);
 	// Color
-	part->color = m_particle_description.colorVariety[rand() % 3];
+	part->color = m_particle_description->colorVariety[rand() % 3];
 	// Size
 	part->size =
-		RandomFloat(m_particle_description.size_interval.x, m_particle_description.size_interval.y);
+		RandomFloat(m_particle_description->size_interval.x, m_particle_description->size_interval.y);
 
 	ParticleProperty* pp = &m_particleProperties[index];
 	// Time alive
 	pp->lifeTime = RandomFloat(
-		m_particle_description.timeAlive_interval.x, m_particle_description.timeAlive_interval.y);
+		m_particle_description->timeAlive_interval.x, m_particle_description->timeAlive_interval.y);
 	pp->timeLeft = pp->lifeTime;
 	pp->size = part->size;
 
 	// velocity
 	float randVeloX =
-		RandomFloat(m_particle_description.velocity_min.x, m_particle_description.velocity_max.x);
+		RandomFloat(m_particle_description->velocity_min.x, m_particle_description->velocity_max.x);
 	float randVeloY =
-		RandomFloat(m_particle_description.velocity_min.y, m_particle_description.velocity_max.y);
+		RandomFloat(m_particle_description->velocity_min.y, m_particle_description->velocity_max.y);
 	float randVeloZ =
-		RandomFloat(m_particle_description.velocity_min.z, m_particle_description.velocity_max.z);
-	float3 direction = Normalize(float3(randVeloX, randVeloY, randVeloZ));
+		RandomFloat(m_particle_description->velocity_min.z, m_particle_description->velocity_max.z);
+	float3 direction =
+		float3::Transform(Normalize(float3(randVeloX, randVeloY, randVeloZ)), matRotation);
 	float strength = RandomFloat(
-		m_particle_description.velocity_interval.x, m_particle_description.velocity_interval.y);
+		m_particle_description->velocity_interval.x, m_particle_description->velocity_interval.y);
 	pp->velocity = direction * strength;
 }
 
-void ParticleSystem::emitingState(bool state) { m_isEmitting = state; }
+void ParticleSystem::syncSystemFromDescription() {
+	// get texture
+	m_tex_particle = TextureRepository::get(m_particle_description->str_sprite);
+	// resize
+	resizeBuffer();
+}
 
-void ParticleSystem::activeState(bool state) { m_isActive = state; }
+void ParticleSystem::ReadDescriptionList() {
+	// find files
+	vector<string> m_descriptionsStr;
+	read_directory(PATH_PSD, m_descriptionsStr);
+	files_filterByEnding(m_descriptionsStr, PSD_END);
+	size_t endLength = string(PSD_END).length() + 1;
+	for (size_t i = 0; i < m_descriptionsStr.size(); i++)
+		m_descriptionsStr[i] =
+			m_descriptionsStr[i].substr(0, m_descriptionsStr[i].length() - endLength);
+
+	// read files
+	m_descriptionList.clear();
+	m_descriptionList.resize(m_descriptionsStr.size());
+	for (size_t i = 0; i < m_descriptionsStr.size(); i++) {
+		m_descriptionList[i] = make_shared<ParticleDescription>();
+		m_descriptionList[i]->load(m_descriptionsStr[i]);
+	}
+}
+
+vector<shared_ptr<ParticleSystem::ParticleDescription>>* ParticleSystem::GetDescriptionList() {
+	return &m_descriptionList;
+}
+
+bool ParticleSystem::GetDesc(string psdName, shared_ptr<ParticleDescription>& pointer) {
+	for (size_t i = 0; i < m_descriptionList.size(); i++) {
+		if (m_descriptionList[i]->identifier == psdName) {
+			pointer = m_descriptionList[i];
+			return true;
+		}
+	}
+	return false;
+}
+
+void ParticleSystem::setEmitingState(bool state) { m_isEmitting = state; }
+
+void ParticleSystem::setActiveState(bool state) { m_isActive = state; }
 
 void ParticleSystem::emit(size_t count) {
 	for (size_t i = 0; i < m_particles.size() && count > 0; i++) {
@@ -92,8 +139,8 @@ void ParticleSystem::updateParticles(float dt) {
 			float lifeTime = m_particleProperties[i].lifeTime;
 			float timeLeft = m_particleProperties[i].timeLeft;
 			float size = m_particleProperties[i].size;
-			float fadeStart = m_particle_description.fadeInterval_start;
-			float fadeEnd = m_particle_description.fadeInterval_end;
+			float fadeStart = m_particle_description->fadeInterval_start;
+			float fadeEnd = m_particle_description->fadeInterval_end;
 			if (timeLeft < fadeStart)
 				m_particles[i].size = (timeLeft / fadeStart) * size;
 			else if ((lifeTime - timeLeft) < fadeEnd)
@@ -113,7 +160,7 @@ void ParticleSystem::updateParticles(float dt) {
 				float area = 3.1415f * (float)pow(r, 2);
 				float mass = 3.1415f * (4.f / 3.f) * (float)pow(r, 3);
 				// get wind
-				float3 acceleration = m_particle_description.acceleration;
+				float3 acceleration = m_particle_description->acceleration;
 				if (environment != nullptr && m_affectedByWind) {
 					float3 wind = environment->getWindStatic();
 					float3 v_relative =
@@ -126,7 +173,7 @@ void ParticleSystem::updateParticles(float dt) {
 				// update velocity and position
 				m_particleProperties[i].velocity += acceleration * dt;
 				m_particles[i].position += m_particleProperties[i].velocity * dt;
-				m_particleProperties[i].velocity *= pow(m_particle_description.slowdown, dt);
+				m_particleProperties[i].velocity *= pow(m_particle_description->slowdown, dt);
 			}
 		}
 	}
@@ -176,7 +223,7 @@ void ParticleSystem::resizeBuffer() {
 	// calc size
 	size_t size = m_capacity;
 	if (m_capacity == 0)
-		size = (size_t)round(m_emitRate * m_particle_description.timeAlive_interval.y);
+		size = (size_t)round(m_emitRate * m_particle_description->timeAlive_interval.y);
 	if (size != m_particles.size()) {
 		// resize buffers
 		m_particles.resize(size);
@@ -219,7 +266,7 @@ void ParticleSystem::draw(bool alpha) {
 		auto deviceContext = Renderer::getDeviceContext();
 
 		// bind
-		switch (m_particle_description.shape) {
+		switch (m_particle_description->shape) {
 		case ParticleDescription::Shape::Circle:
 			m_shaderSetCircle.bindShadersAndLayout();
 			break;
@@ -239,7 +286,7 @@ void ParticleSystem::draw(bool alpha) {
 
 		// draw
 		if (alpha) {
-			switch (m_particle_description.drawMode) {
+			switch (m_particle_description->drawMode) {
 			case ParticleDescription::DrawMode::Normal:
 				Renderer::getInstance()->setBlendState_NonPremultiplied();
 				break;
@@ -267,26 +314,33 @@ void ParticleSystem::draw(bool alpha) {
 	}
 }
 
-void ParticleSystem::setType(Type type, bool resize) {
-	m_type = type;
-	m_particle_description = ParticleDescription(type);
-	m_tex_particle = TextureRepository::get(m_particle_description.str_sprite);
-	if (resize)
-		resizeBuffer();
+bool ParticleSystem::setDesc(string psdName) {
+	for (size_t i = 0; i < m_descriptionList.size(); i++) {
+		if (m_descriptionList[i]->identifier == psdName) {
+			m_particle_description = m_descriptionList[i];
+			syncSystemFromDescription();
+			return true;
+		}
+	}
+	return false;
 }
 
-void ParticleSystem::setCustomDescription(ParticleSystem::ParticleDescription desc, bool resize) {
-	m_particle_description = desc;
-	m_tex_particle = TextureRepository::get(m_particle_description.str_sprite);
-	if (resize)
-		resizeBuffer();
+bool ParticleSystem::setDesc(size_t index) { 
+	if (index < m_descriptionList.size()) {
+		m_particle_description = m_descriptionList[index];
+		syncSystemFromDescription();
+		return true;
+	}
+	return false;
 }
 
-void ParticleSystem::affectedByWindState(bool state) { m_affectedByWind = state; }
+string ParticleSystem::asPath(string psFilename) { return PATH_PSD + psFilename + "." + PSD_END; }
+
+void ParticleSystem::setAffectedByWindState(bool state) { m_affectedByWind = state; }
 
 bool ParticleSystem::isActive() const { return m_isActive; }
 
-size_t ParticleSystem::activeParticleCount() const {
+size_t ParticleSystem::getActiveParticleCount() const {
 	size_t sum = 0;
 	for (size_t i = 0; i < m_particles.size(); i++) {
 		sum += (m_particles[i].isActive == 1);
@@ -313,472 +367,45 @@ float ParticleSystem::getEmitRate() const { return m_emitRate; }
 
 size_t ParticleSystem::getCapacity() const { return m_capacity; }
 
-ParticleSystem::Type ParticleSystem::getType() const { return m_type; }
-
-ParticleSystem::ParticleDescription ParticleSystem::getParticleDescription() const {
+shared_ptr<ParticleSystem::ParticleDescription> ParticleSystem::getDesc() {
 	return m_particle_description;
 }
 
-ParticleSystem::ParticleDescription::ParticleDescription(ParticleSystem::Type type) {
-	switch (type) {
-	case ParticleSystem::FOREST_BUBBLE:
-		colorVariety[0] = float4(0.0f, 0.65f, 0.05f, 1.0f);
-		colorVariety[1] = float4(0.0f, 0.65f, 0.4f, 1.0f);
-		colorVariety[2] = float4(0.0f, 0.65f, 0.55f, 1.0f);
-		size_interval = float2(0.04f, 0.06f);
-		timeAlive_interval = float2(4.f, 6.f);
-		velocity_max = float3(1.f);
-		velocity_min = float3(-1.f);
-		velocity_interval = float2(0.43f, 0.43f);
-		acceleration = float3(0.f);
-		slowdown = 1;
-		str_sprite = "";
-		shape = Shape::Circle;
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::GROUND_DUST:
-		colorVariety[0] = float4(0.77f, 0.35f, 0.51f, 1.0f);
-		colorVariety[1] = float4(0.71f, 0.55f, 0.31f, 1.0f);
-		colorVariety[2] = float4(0.81f, 0.58f, 0.39f, 1.0f);
-		size_interval = float2(0.04f, 0.06f);
-		timeAlive_interval = float2(2.5f, 3.5f);
-		velocity_max = float3(1.f);
-		velocity_min = float3(-1.f);
-		velocity_interval = float2(0.43f, 0.43f);
-		acceleration = float3(0.f);
-		slowdown = 1;
-		str_sprite = "";
-		shape = Shape::Circle;
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::VULCANO_FIRE:
-		colorVariety[0] = float4(179 / 255.f, 0 / 255.f, 0 / 255.f, 1.0f);
-		colorVariety[1] = float4(229 / 255.f, 74 / 255.f, 10 / 255.f, 1.0f);
-		colorVariety[2] = float4(200 / 255.f, 160 / 255.f, 4 / 255.f, 1.0f);
-		size_interval = float2(0.7f, 1.5f);
-		timeAlive_interval = float2(1.5f, 3);
-		velocity_max = float3(1.f);
-		velocity_min = float3(-1, 0, -1);
-		velocity_interval = float2(1, 2);
-		acceleration = float3(0, 10, 0);
-		slowdown = 1;
-		str_sprite = "";
-		shape = Shape::Circle;
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::VULCANO_SMOKE:
-		colorVariety[0] = float4(0.50f, 0.40f, 0.40f, 1.0f);
-		colorVariety[1] = float4(0.30f, 0.30f, 0.30f, 1.0f);
-		colorVariety[2] = float4(0.60f, 0.60f, 0.60f, 1.0f);
-		size_interval = float2(0.9f, 1.4f);
-		timeAlive_interval = float2(2, 10);
-		velocity_max = float3(1.f) * 0.25f;
-		velocity_min = float3(-1, 0, -1) * 0.25f;
-		velocity_interval = float2(0.75f, 1.5f);
-		acceleration = float3(0, 3, 0);
-		slowdown = 1;
-		str_sprite = "";
-		shape = Shape::Circle;
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::LAVA_BUBBLE:
-		colorVariety[0] = float4(0.70f, 0.20f, 0.20f, 1.0f);
-		colorVariety[1] = float4(0.41f, 0.25f, 0.23f, 1.0f);
-		colorVariety[2] = float4(0.51f, 0.34f, 0.17f, 1.0f);
-		size_interval = float2(0.04f, 0.06f);
-		timeAlive_interval = float2(0.4f, 1.6f);
-		velocity_max = float3(1.f);
-		velocity_min = float3(-1.f);
-		velocity_interval = float2(0.2f, 0.5f);
-		acceleration = float3(0.f);
-		slowdown = 1;
-		str_sprite = "";
-		shape = Shape::Circle;
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::ARROW_GLITTER:
-		colorVariety[0] = float4(1.f, 1.f, 1.f, 1.0f);
-		colorVariety[1] = float4(1.f, 1.f, 1.f, 1.0f);
-		colorVariety[2] = float4(1.f, 1.f, 1.f, 1.0f);
-		size_interval = float2(0.075f, 0.075f);
-		timeAlive_interval = float2(0.35f, 0.35f);
-		velocity_max = float3(0.f);
-		velocity_min = float3(0.f);
-		velocity_interval = float2(0.f);
-		acceleration = float3(0.f);
-		slowdown = 1;
-		str_sprite = "";
-		shape = Shape::Circle;
-		fadeInterval_start = 0.35f;
-		fadeInterval_end = 0;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::CONFETTI:
-		colorVariety[0] = float4(214 / 255.f, 53 / 255.f, 53 / 255.f, 1.0f);
-		colorVariety[1] = float4(62 / 255.f, 201 / 255.f, 62 / 255.f, 1.0f);
-		colorVariety[2] = float4(61 / 255.f, 61 / 255.f, 211 / 255.f, 1.0f);
-		size_interval = float2(0.035f, 0.09f);
-		timeAlive_interval = float2(1.5f, 3.0f);
-		velocity_max = float3(0.2f, 1, 0.2f);
-		velocity_min = float3(-0.2f, 0.5f, -0.2f);
-		velocity_interval = float2(5, 7);
-		acceleration = float3(0, -10, 0);
-		slowdown = 1;
-		str_sprite = "";
-		shape = Shape::Circle;
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::STARS_GOLD:
-		colorVariety[0] = float4(1.00f, 0.95f, 0.00f, 1.0f);
-		colorVariety[1] = float4(0.97f, 0.97f, 0.01f, 1.0f);
-		colorVariety[2] = float4(0.99f, 0.98f, 0.02f, 1.0f);
-		size_interval = float2(0.1f, .2f);
-		timeAlive_interval = float2(0.6f, .65f);
-		velocity_max = float3(1.f);
-		velocity_min = float3(-1, 0.5f, -1);
-		velocity_interval = float2(2, 2.5f);
-		acceleration = float3(0.);
-		slowdown = 0.05f;
-		str_sprite = "";
-		shape = Shape::Star;
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::STARS_SILVER:
-		colorVariety[0] = float4(0.75f, 0.75f, 0.75f, 1.0f);
-		colorVariety[1] = float4(0.75f, 0.75f, 0.75f, 1.0f);
-		colorVariety[2] = float4(0.75f, 0.75f, 0.75f, 1.0f);
-		size_interval = float2(0.1f, .2f);
-		timeAlive_interval = float2(0.6f, .65f);
-		velocity_max = float3(1.f);
-		velocity_min = float3(-1, 0.5f, -1);
-		velocity_interval = float2(2, 2.5f);
-		acceleration = float3(0.f);
-		slowdown = 0.05f;
-		str_sprite = "";
-		shape = Shape::Star;
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::STARS_BRONZE:
-		colorVariety[0] = float4(0.69f, 0.34f, 0.05f, 1.0f);
-		colorVariety[1] = float4(0.71f, 0.36f, 0.07f, 1.0f);
-		colorVariety[2] = float4(0.70f, 0.32f, 0.09f, 1.0f);
-		size_interval = float2(0.1f, .2f);
-		timeAlive_interval = float2(0.6f, .65f);
-		velocity_max = float3(1.f);
-		velocity_min = float3(-1, 0.5f, -1);
-		velocity_interval = float2(2, 2.5f);
-		acceleration = float3(0.f);
-		slowdown = 0.05f;
-		str_sprite = "";
-		shape = Shape::Star;
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::EXPLOSION_APPLE:
-		colorVariety[0] = float4(228 / 255.f, 83 / 255.f, 83 / 255.f, 1.f);
-		colorVariety[1] = float4(186 / 255.f, 33 / 255.f, 33 / 255.f, 1.f);
-		colorVariety[2] = float4(255 / 255.f, 150 / 255.f, 150 / 255.f, 1.f);
-		size_interval = float2(0.075f, 0.1f);
-		timeAlive_interval = float2(0.4f, 0.7f);
-		velocity_max = float3(1.f);
-		velocity_min = float3(-1.f);
-		velocity_interval = float2(3, 20);
-		acceleration = float3(0.f);
-		slowdown = 0.0001f;
-		str_sprite = "";
-		shape = Shape::Circle;
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::EXPLOSION_BANANA:
-		colorVariety[0] = float4(249 / 255.f, 255 / 255.f, 158 / 255.f, 1.f);
-		colorVariety[1] = float4(232 / 255.f, 255 / 255.f, 58 / 255.f, 1.f);
-		colorVariety[2] = float4(225 / 255.f, 255 / 255.f, 0 / 255.f, 1.f);
-		size_interval = float2(0.075f, 0.1f);
-		timeAlive_interval = float2(0.4f, 0.7f);
-		velocity_max = float3(1.f);
-		velocity_min = float3(-1.f);
-		velocity_interval = float2(3, 20);
-		acceleration = float3(0.f);
-		slowdown = 0.0001f;
-		str_sprite = "";
-		shape = Shape::Circle;
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::EXPLOSION_MELON:
-		colorVariety[0] = float4(58 / 255.f, 176 / 255.f, 60 / 255.f, 1.f);
-		colorVariety[1] = float4(72 / 255.f, 141 / 255.f, 65 / 255.f, 1.f);
-		colorVariety[2] = float4(72 / 255.f, 226 / 255.f, 39 / 255.f, 1.f);
-		size_interval = float2(0.075f, 0.1f);
-		timeAlive_interval = float2(0.4f, 0.7f);
-		velocity_max = float3(1.f);
-		velocity_min = float3(-1.f);
-		velocity_interval = float2(3, 20);
-		acceleration = float3(0.f);
-		slowdown = 0.0001f;
-		shape = Shape::Circle;
-		str_sprite = "";
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::EXPLOSION_DRAGON:
-		colorVariety[0] = float4(78 / 255.f, 158 / 255.f, 80 / 255.f, 1.f);
-		colorVariety[1] = float4(235 / 255.f, 83 / 255.f, 83 / 255.f, 1.f);
-		colorVariety[2] = float4(215 / 255.f, 51 / 255.f, 51 / 255.f, 1.f);
-		size_interval = float2(0.075f, 0.1f);
-		timeAlive_interval = float2(0.4f, 0.7f);
-		velocity_max = float3(1.f);
-		velocity_min = float3(-1.f);
-		velocity_interval = float2(3, 20);
-		acceleration = float3(0.f);
-		slowdown = 0.0001f;
-		shape = Shape::Circle;
-		str_sprite = "";
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::SPARKLE_APPLE:
-		colorVariety[0] = float4(228 / 255.f, 83 / 255.f, 83 / 255.f, 1.f);
-		colorVariety[1] = float4(186 / 255.f, 33 / 255.f, 33 / 255.f, 1.f);
-		colorVariety[2] = float4(255 / 255.f, 150 / 255.f, 150 / 255.f, 1.f);
-		size_interval = float2(0.15f, 0.3f);
-		timeAlive_interval = float2(0.1f, 1.0f);
-		velocity_max = float3(-1.f);
-		velocity_min = float3(1.f);
-		velocity_interval = float2(0.1f, 0.2f);
-		acceleration = float3(0.f);
-		slowdown = 1;
-		shape = Shape::Star;
-		str_sprite = "";
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::SPARKLE_BANANA:
-		colorVariety[0] = float4(249 / 255.f, 255 / 255.f, 158 / 255.f, 1.f);
-		colorVariety[1] = float4(232 / 255.f, 255 / 255.f, 58 / 255.f, 1.f);
-		colorVariety[2] = float4(225 / 255.f, 255 / 255.f, 0 / 255.f, 1.f);
-		size_interval = float2(0.15f, 0.3f);
-		timeAlive_interval = float2(0.1f, 1.0f);
-		velocity_max = float3(-1.f);
-		velocity_min = float3(1.f);
-		velocity_interval = float2(0.1f, 0.2f);
-		acceleration = float3(0.f);
-		slowdown = 1;
-		shape = Shape::Star;
-		str_sprite = "";
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::SPARKLE_MELON:
-		colorVariety[0] = float4(58 / 255.f, 176 / 255.f, 60 / 255.f, 1.f);
-		colorVariety[1] = float4(72 / 255.f, 141 / 255.f, 65 / 255.f, 1.f);
-		colorVariety[2] = float4(72 / 255.f, 226 / 255.f, 39 / 255.f, 1.f);
-		size_interval = float2(0.15f, 0.3f);
-		timeAlive_interval = float2(0.1f, 1.0f);
-		velocity_max = float3(-1.f);
-		velocity_min = float3(1.f);
-		velocity_interval = float2(0.1f, 0.2f);
-		acceleration = float3(0.f);
-		slowdown = 1;
-		shape = Shape::Star;
-		str_sprite = "";
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::SPARKLE_DRAGON:
-		colorVariety[0] = float4(78.f / 255.f, 158.f / 255.f, 80.f / 255.f, 1.f);
-		colorVariety[1] = float4(235.f / 255.f, 83.f / 255.f, 83.f / 255.f, 1.f);
-		colorVariety[2] = float4(215.f / 255.f, 51.f / 255.f, 51.f / 255.f, 1.f);
-		size_interval = float2(0.15f, 0.3f);
-		timeAlive_interval = float2(0.1f, 1.0f);
-		velocity_max = float3(-1.f);
-		velocity_min = float3(1.f);
-		velocity_interval = float2(0.1f, 0.2f);
-		acceleration = float3(0.f);
-		slowdown = 1.f;
-		shape = Shape::Star;
-		str_sprite = "";
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::EXPLOSION_GOLD:
-		colorVariety[0] = float4(255.f / 255.f, 240.f / 255.f, 0.f / 255.f, 1.f);
-		colorVariety[1] = float4(255.f / 255.f, 244.f / 255.f, 68.f / 255.f, 1.f);
-		colorVariety[2] = float4(255.f / 255.f, 255.f / 255.f, 118.f / 255.f, 1.f);
-		size_interval = float2(0.4f, 0.6f);
-		timeAlive_interval = float2(0.4f, 2.5f);
-		velocity_max = float3(-0.5f, 0.5f, -0.5f);
-		velocity_min = float3(0.5f, 1.f, 0.5f);
-		velocity_interval = float2(10.f, 25.f);
-		acceleration = float3(0.f, -3.f, 0.f);
-		slowdown = 0.05f;
-		shape = Shape::Star;
-		str_sprite = "";
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::EXPLOSION_SILVER:
-		colorVariety[0] = float4(194 / 255.f, 194 / 255.f, 194 / 255.f, 1.f);
-		colorVariety[1] = float4(223 / 255.f, 223 / 255.f, 223 / 255.f, 1.f);
-		colorVariety[2] = float4(154 / 255.f, 154 / 255.f, 154 / 255.f, 1.f);
-		size_interval = float2(0.4f, 0.6f);
-		timeAlive_interval = float2(0.4f, 2.5f);
-		velocity_max = float3(-0.5f, 0.5f, -0.5f);
-		velocity_min = float3(0.5f, 1, 0.5f);
-		velocity_interval = float2(10, 25);
-		acceleration = float3(0, -3, 0);
-		slowdown = 0.05f;
-		shape = Shape::Star;
-		str_sprite = "";
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::EXPLOSION_BRONZE:
-		colorVariety[0] = float4(206 / 255.f, 115 / 255.f, 0 / 255.f, 1.f);
-		colorVariety[1] = float4(190 / 255.f, 84 / 255.f, 0 / 255.f, 1.f);
-		colorVariety[2] = float4(231 / 255.f, 122 / 255.f, 25 / 255.f, 1.f);
-		size_interval = float2(0.4f, 0.6f);
-		timeAlive_interval = float2(0.4f, 2.5f);
-		velocity_max = float3(-0.5f, 0.5f, -0.5f);
-		velocity_min = float3(0.5f, 1, 0.5f);
-		velocity_interval = float2(10, 25);
-		acceleration = float3(0, -3, 0);
-		slowdown = 0.05f;
-		shape = Shape::Star;
-		str_sprite = "";
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::JUMP_DUST:
-		colorVariety[0] = float4(203 / 255.f, 203 / 255.f, 203 / 255.f, 1.f);
-		colorVariety[1] = float4(160 / 255.f, 160 / 255.f, 160 / 255.f, 1.f);
-		colorVariety[2] = float4(123 / 255.f, 123 / 255.f, 123 / 255.f, 1.f);
-		size_interval = float2(0.1f, 0.3f);
-		timeAlive_interval = float2(0.3f, 0.5f);
-		velocity_max = float3(-1, -0.05f, -1);
-		velocity_min = float3(1, 0.05f, 1);
-		velocity_interval = float2(5, 5.5f);
-		acceleration = float3(0, 0, 0);
-		slowdown = 0.001f;
-		str_sprite = "";
-		shape = Shape::Circle;
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::MELON_TRAIL:
-		colorVariety[0] = float4(118 / 255.f, 129 / 255.f, 104 / 255.f, 1.0f);
-		colorVariety[1] = float4(69 / 255.f, 115 / 255.f, 69 / 255.f, 1.0f);
-		colorVariety[2] = float4(93 / 255.f, 76 / 255.f, 36 / 255.f, 1.0f);
-		size_interval = float2(0.035f, 0.09f);
-		timeAlive_interval = float2(0.1f, 0.4f);
-		velocity_max = float3(0.2f, 1, 0.2f);
-		velocity_min = float3(-0.2f, 0.5f, -0.2f);
-		velocity_interval = float2(4, 5);
-		acceleration = float3(0, -20, 0);
-		slowdown = 1;
-		str_sprite = "";
-		shape = Shape::Circle;
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::LEVELSELECT_SELECTION:
-		colorVariety[0] = float4(214.f / 255.f, 53.f / 255.f, 53.f / 255.f, 1.0f);
-		colorVariety[1] = float4(62.f / 255.f, 201.f / 255.f, 62.f / 255.f, 1.0f);
-		colorVariety[2] = float4(61.f / 255.f, 61.f / 255.f, 211.f / 255.f, 1.0f);
-		size_interval = float2(0.035f, 0.09f);
-		timeAlive_interval = float2(0.500f, 1.f);
-		velocity_max = float3(1.0f, 1.0f, 1.0f);
-		velocity_min = float3(-1.0f, -1.0f, -1.0f);
-		velocity_interval = float2(0.2f, 0.3f);
-		acceleration = float3(0.0f, 0.0f, 0.0f);
-		slowdown = 1.f;
-		str_sprite = "";
-		shape = Shape::Star;
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
-	case ParticleSystem::TEST_SPRITE:
-		colorVariety[0] = float4(1.0f, 1.0f, 1.0f, 1.0f);
-		colorVariety[1] = float4(1.0f, 1.0f, 1.0f, 1.0f);
-		colorVariety[2] = float4(1.0f, 1.0f, 1.0f, 1.0f);
-		size_interval = float2(0.7f, 1.5f);
-		timeAlive_interval = float2(1.5f, 3.0f);
-		velocity_max = float3(1.f);
-		velocity_min = float3(-1.0f, 0.0f, -1.0f);
-		velocity_interval = float2(1.0f, 2.0f);
-		acceleration = float3(0.0f, 10.0f, 0.0f);
-		slowdown = 1.f;
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		str_sprite = "bananaFace.png";
-		shape = Shape::Sprite;
-		drawMode = DrawMode::Normal;
-		break;
-	default:
-		colorVariety[0] = float4(1.f);
-		colorVariety[1] = float4(1.f);
-		colorVariety[2] = float4(1.f);
-		size_interval = float2(1, 1);
-		timeAlive_interval = float2(1, 1);
-		velocity_max = float3(0.f);
-		velocity_min = float3(0.f);
-		velocity_interval = float2(0, 0);
-		acceleration = float3(0.f);
-		slowdown = 1;
-		str_sprite = "";
-		shape = Shape::Circle;
-		fadeInterval_start = 0.1f;
-		fadeInterval_end = 0.1f;
-		drawMode = DrawMode::Normal;
-		break;
+void ParticleSystem::setCustomDescription(ParticleSystem::ParticleDescription& desc) {
+	*m_particle_description.get() = desc;
+	syncSystemFromDescription();
+}
+
+bool ParticleSystem::ParticleDescription::save(string psdName) const { 
+	if (psdName != "") {
+		string path = asPath(psdName);
+		ofstream file;
+		file.open(path, ios::binary);
+		if (file.is_open()) {
+			// write
+			write(file);
+			file.close();
+			ErrorLogger::log(
+				"(ParticleDescription::save) Saved particlesystem description: " +
+							 psdName + "." + PSD_END);
+			return true;
+		}
+		else {
+			ErrorLogger::logWarning(
+				"(ParticleDescription::save) Failed opening to file: " + path);
+			return false;
+		}
 	}
 }
 
+ParticleSystem::ParticleDescription::ParticleDescription() {}
+
 void ParticleSystem::imgui_properties() { 
 	Transformation::imgui_properties(); 
-	// Type
-	static const string ps_typeAsString[Type::TYPE_LENGTH] = { "None", "Forest Bubble",
-		"Ground Dust", "Volcano Fire", "Volcano Smoke", "Lava Bubble", "Arrow Glitter", "Confetti",
-		"Stars Gold", "Stars Silver", "Stars Bronze", "Explosion Apple", "Explosion Banana",
-		"Explosion Melon", "Explosion Dragon", "Sparkle Apple", "Sparkle Banana", "Sparkle Melon",
-		"Sparkle Dragon", "Explosion Gold", "Explosion Silver", "Explosion Bronze", "Jump Dust",
-		"Melon Trail", "LevelSelect Selection", "Test Sprite" };
-	if (ImGui::BeginCombo("Type", ps_typeAsString[getType()].c_str())) {
-		for (size_t i = 1; i < Type::TYPE_LENGTH; i++) {
-			if (ImGui::MenuItem(ps_typeAsString[i].c_str()))
-				setType((Type)i);
+	if (ImGui::BeginCombo("Particle Description", m_particle_description->identifier.c_str())) {
+		for (size_t i = 0; i < m_descriptionList.size(); i++) {
+			if (ImGui::Selectable(m_descriptionList[i]->identifier.c_str()))
+				setDesc(i);
 		}
 		ImGui::EndCombo();
 	}
@@ -792,7 +419,7 @@ void ParticleSystem::imgui_properties() {
 	}
 	// Wind
 	if (ImGui::Checkbox("Wind", &m_affectedByWind)) {
-		affectedByWindState(m_affectedByWind);
+		setAffectedByWindState(m_affectedByWind);
 	}
 	// Manual Emit
 	ImGui::Separator();
@@ -802,15 +429,6 @@ void ParticleSystem::imgui_properties() {
 	}
 	ImGui::SameLine();
 	ImGui::InputInt("Count", &emitCount);
-	// advanced settings
-	ImGui::Separator();
-	if (ImGui::TreeNode("Advanced")) {
-		if (m_particle_description.imgui_properties()) {
-			m_tex_particle = TextureRepository::get(m_particle_description.str_sprite);
-			resizeBuffer();
-		}
-		ImGui::TreePop();
-	}
 }
 
 bool ParticleSystem::ParticleDescription::imgui_properties() {
@@ -859,3 +477,59 @@ bool ParticleSystem::ParticleDescription::imgui_properties() {
 
 	return update;
 }
+
+void ParticleSystem::ParticleDescription::write(ofstream& file) const {
+	if (file.is_open()) {
+		for (size_t i = 0; i < 3; i++)
+			fileWrite(file, colorVariety[i]);
+		fileWrite(file, size_interval);
+		fileWrite(file, timeAlive_interval);
+		fileWrite(file, velocity_min);
+		fileWrite(file, velocity_max);
+		fileWrite(file, velocity_interval);
+		fileWrite(file, acceleration);
+		fileWrite(file, slowdown);
+		fileWrite(file, fadeInterval_start);
+		fileWrite(file, fadeInterval_end);
+		fileWrite(file, str_sprite);
+		fileWrite(file, shape);
+		fileWrite(file, drawMode);
+	}
+}
+
+void ParticleSystem::ParticleDescription::read(ifstream& file) {
+	if (file.is_open()) {
+		for (size_t i = 0; i < 3; i++)
+			fileRead(file, colorVariety[i]);
+		fileRead(file, size_interval);
+		fileRead(file, timeAlive_interval);
+		fileRead(file, velocity_min);
+		fileRead(file, velocity_max);
+		fileRead(file, velocity_interval);
+		fileRead(file, acceleration);
+		fileRead(file, slowdown);
+		fileRead(file, fadeInterval_start);
+		fileRead(file, fadeInterval_end);
+		fileRead(file, str_sprite);
+		fileRead(file, shape);
+		fileRead(file, drawMode);
+	}
+}
+
+bool ParticleSystem::ParticleDescription::load(string psdName) {
+	string path = asPath(psdName);
+	ifstream file;
+	file.open(path, ios::binary);
+	if (file.is_open()) {
+		identifier = psdName;
+		read(file);
+		file.close();
+		return true;
+	}
+	else {
+		ErrorLogger::logWarning("(ParticleDescription::load) Failed opening file: " + path);
+		return false;
+	}
+}
+
+bool ParticleSystem::ParticleDescription::save() const { return save(identifier); }

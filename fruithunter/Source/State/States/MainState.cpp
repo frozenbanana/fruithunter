@@ -65,7 +65,7 @@ void MainState::init() {
 	m_img_keylock.load("keylock.png");
 	m_img_keylock.setAlignment();// center
 
-	m_ps_selected.load(ParticleSystem::Type::LEVELSELECT_SELECTION, 30);
+	m_ps_selected.load("levelselect selection", 30);
 	m_ps_selected.setScale(float3(0.6f, 0.3f, 0.6f));
 
 	m_letters.resize(11);

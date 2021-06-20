@@ -735,6 +735,9 @@
     <ClInclude Include="Source\Utility\SteamAPICommunicator.h">
       <Filter>Source\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Utility\fstreamLib.h">
+      <Filter>Source\Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />

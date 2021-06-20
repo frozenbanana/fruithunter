@@ -31,7 +31,7 @@ void Fruit::setStartPosition(float3 pos) {
 	m_destinationAnimationPosition = pos;
 	m_nextDestinationAnimationPosition = pos;
 
-	m_particleSystem.load(ParticleSystem::Type::STARS_BRONZE, 0, 25);
+	m_particleSystem.load("stars bronze", 0, 25);
 }
 
 void Fruit::setNextDestination(float3 nextDest) { m_nextDestinationAnimationPosition = nextDest; }
@@ -40,18 +40,18 @@ Skillshot Fruit::hit(float3 playerPos) {
 	Skillshot hitType = Skillshot::SS_BRONZE;
 	if (m_currentState != CAUGHT) {
 		float dist = (playerPos - getPosition()).Length();
-		ParticleSystem::Type type = ParticleSystem::Type::CONFETTI;
+		string psName = "confetti";
 		int nrOf = 5;
 		if (dist > LONGSHOT) {
 			if (!m_onGround || m_velocity.Length() > FASTMOVING_VELOCITY) {
 				// gold
-				type = ParticleSystem::Type::STARS_GOLD;
+				psName = "stars gold";
 				nrOf = 22;
 				hitType = SS_GOLD;
 			}
 			else {
 				// gold
-				type = ParticleSystem::Type::STARS_GOLD;
+				psName = "stars gold";
 				nrOf = 12;
 				hitType = SS_GOLD;
 			}
@@ -61,24 +61,24 @@ Skillshot Fruit::hit(float3 playerPos) {
 				// case 2: Medium shot
 				// in air or fast moving -> gold
 				// Gold
-				type = ParticleSystem::Type::STARS_GOLD;
+				psName = "stars gold";
 				nrOf = 8;
 				hitType = SS_GOLD;
 			}
 			else {
 				// silver
-				type = ParticleSystem::Type::STARS_SILVER;
+				psName = "stars silver";
 				nrOf = 13;
 				hitType = SS_SILVER;
 			}
 		}
 		else {
 			// bronze
-			type = ParticleSystem::Type::STARS_BRONZE;
+			psName = "stars bronze";
 			nrOf = 6;
 			hitType = SS_BRONZE;
 		}
-		m_particleSystem.setType(type);
+		m_particleSystem.setDesc(psName);
 		m_particleSystem.emit(nrOf);
 		m_currentMaterial = hitType;
 	}

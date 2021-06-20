@@ -264,10 +264,10 @@ void Scene::load(string folder) {
 		for (size_t i = 0; i < content.m_particleSystemContents.size(); i++) {
 			SceneAbstactContent::ParticleSystemContent* c = &content.m_particleSystemContents[i];
 			m_particleSystems[i] = make_shared<ParticleSystem>();
-			m_particleSystems[i]->load((ParticleSystem::Type)c->type, c->emitRate, c->capacity);
+			m_particleSystems[i]->load(c->psName, c->emitRate, c->capacity);
 			m_particleSystems[i]->setPosition(c->position);
 			m_particleSystems[i]->setScale(c->size);
-			m_particleSystems[i]->affectedByWindState(c->affectedByWind);
+			m_particleSystems[i]->setAffectedByWindState(c->affectedByWind);
 		}
 		// utility
 		m_utility = content.m_utility;
@@ -303,7 +303,7 @@ void Scene::save() {
 		for (size_t i = 0; i < m_particleSystems.size(); i++) {
 			SceneAbstactContent::ParticleSystemContent* c = &content.m_particleSystemContents[i];
 			ParticleSystem* ps = m_particleSystems[i].get();
-			c->type = (int)ps->getType();
+			c->psName = ps->getDesc()->identifier;
 			c->position = ps->getPosition();
 			c->size = ps->getScale();
 			c->affectedByWind = ps->isAffectedByWind();
@@ -462,8 +462,15 @@ bool SceneAbstactContent::load_raw(string folder) {
 		// particlesystems
 		size = fileRead<size_t>(file);
 		m_particleSystemContents.resize(size);
-		for (size_t i = 0; i < size; i++)
-			fileRead<ParticleSystemContent>(file, m_particleSystemContents[i]);
+		for (size_t i = 0; i < size; i++) {
+			ParticleSystemContent& psc = m_particleSystemContents[i];
+			fileRead(file, psc.psName);
+			fileRead(file, psc.position);
+			fileRead(file, psc.size);
+			fileRead(file, psc.affectedByWind);
+			fileRead(file, psc.emitRate);
+			fileRead(file, psc.capacity);
+		}
 		// entities
 		size = fileRead<size_t>(file);
 		m_entities.resize(size);
@@ -503,8 +510,15 @@ bool SceneAbstactContent::save_raw(string folder) {
 			file.write((char*)&m_seaAreas[i], sizeof(SeaContent));
 		// particlesystems
 		fileWrite<size_t>(file, m_particleSystemContents.size());
-		for (size_t i = 0; i < m_particleSystemContents.size(); i++)
-			fileWrite<ParticleSystemContent>(file, m_particleSystemContents[i]);
+		for (size_t i = 0; i < m_particleSystemContents.size(); i++) {
+			ParticleSystemContent& psc = m_particleSystemContents[i];
+			fileWrite(file, psc.psName);
+			fileWrite(file, psc.position);
+			fileWrite(file, psc.size);
+			fileWrite(file, psc.affectedByWind);
+			fileWrite(file, psc.emitRate);
+			fileWrite(file, psc.capacity);
+		}
 		// entities
 		fileWrite<size_t>(file, m_entities.size());
 		for (size_t i = 0; i < m_entities.size(); i++) {

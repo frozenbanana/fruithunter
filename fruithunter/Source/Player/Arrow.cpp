@@ -152,14 +152,14 @@ void Arrow::changeState(bool state) {
 	if (state == true) {
 		// create trail effect when activated
 		m_trailEffect = make_shared<ParticleSystem>();
-		m_trailEffect->load(ParticleSystem::Type::ARROW_GLITTER, 5000);
-		m_trailEffect->emitingState(true);
+		m_trailEffect->load("arrow glitter", 5000);
+		m_trailEffect->setEmitingState(true);
 		SceneManager::getScene()->m_arrowParticles.push_back(m_trailEffect);
 	}
 	else {
 		// turn off trail effect (will be deleted when empty)
 		if (m_trailEffect.get() != nullptr) {
-			m_trailEffect->emitingState(false);
+			m_trailEffect->setEmitingState(false);
 			m_trailEffect.reset();
 		}
 	}

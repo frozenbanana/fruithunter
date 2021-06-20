@@ -8,7 +8,6 @@ EditorState::~EditorState() {}
 
 void EditorState::init() {
 	m_editor.clear();
-	Input::getInstance()->setMouseModeAbsolute();
 }
 
 void EditorState::update() {

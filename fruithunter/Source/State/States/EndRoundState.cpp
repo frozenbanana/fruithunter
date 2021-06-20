@@ -16,7 +16,7 @@ void EndRoundState::init() {
 	float height = 720;
 	float2 center(width / 2, height / 2);
 
-	m_particleSystem.load(ParticleSystem::STARS_GOLD, 10);
+	m_particleSystem.load("stars gold", 10);
 	m_timer.reset();
 	m_camera.setView(float3(0.f, 0.f, -1.0f), float3(0.f, 0.f, .0f), float3(0.f, 1.f, .0f));
 
@@ -219,15 +219,15 @@ void EndRoundState::setParticleColorByPrize(size_t prize) {
 	switch (prize) {
 	case 0:
 		// gold
-		m_particleSystem.setType(ParticleSystem::STARS_GOLD);
+		m_particleSystem.setDesc("stars gold");
 		break;
 	case 1:
 		// silver
-		m_particleSystem.setType(ParticleSystem::STARS_SILVER);
+		m_particleSystem.setDesc("stars silver");
 		break;
 	default:
 		// bronze
-		m_particleSystem.setType(ParticleSystem::STARS_BRONZE);
+		m_particleSystem.setDesc("stars bronze");
 		break;
 	}
 }

@@ -19,8 +19,8 @@ Melon::Melon(float3 pos) : Fruit(pos) {
 	m_ball.setScale(0.1f);
 
 	m_rollTrail.setScale(float3(1.f, 0.1f, 1.f));
-	m_rollTrail.setType(ParticleSystem::Type::MELON_TRAIL, false);
-	m_rollTrail.setEmitRate(200, true);
+	m_rollTrail.setDesc("melon trail");
+	m_rollTrail.setEmitRate(200);
 }
 
 void Melon::behaviorPassive() { changeState(ACTIVE); }
@@ -204,7 +204,7 @@ void Melon::update() {
 		update_imgui_changeParams();
 
 	m_rollTrail.update(dt);
-	m_rollTrail.emitingState(m_onGround); // emit if on ground
+	m_rollTrail.setEmitingState(m_onGround); // emit if on ground
 
 	m_isVisible = true;
 	m_particleSystem.setPosition(getPosition());
