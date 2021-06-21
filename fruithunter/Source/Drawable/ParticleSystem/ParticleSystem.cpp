@@ -373,6 +373,10 @@ void ParticleSystem::draw(bool alpha) {
 			case ParticleDescription::DrawMode::Multiply:
 				Renderer::getInstance()->setBlendState_Multiply();
 				Renderer::getInstance()->setDepthState_Read();
+				break;
+			case ParticleDescription::DrawMode::Premultiplied:
+				Renderer::getInstance()->setBlendState_Premultiplied();
+				break;
 			}
 
 			deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
@@ -565,7 +569,7 @@ bool ParticleSystem::ParticleDescription::imgui_properties() {
 		ImGui::EndCombo();
 	}
 	static const char* modes[] = { "Opaque", "AlphaBlend", "NonPremultiplied", "Additive",
-		"Subtractive", "Multiply" };
+		"Subtractive", "Multiply", "Premultiplied" };
 	ImGui::Combo("Draw Mode", (int*)&drawMode, modes, IM_ARRAYSIZE(modes));
 	ImGui::Checkbox("Sort (Heavy Operation)", &sort);
 

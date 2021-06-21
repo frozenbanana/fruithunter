@@ -246,6 +246,11 @@ void Renderer::setBlendState_NonPremultiplied() {
 	m_deviceContext->OMSetBlendState(m_commonStates->NonPremultiplied(), blendFactor, 0xffffffff);
 }
 
+void Renderer::setBlendState_Premultiplied() {
+	float blendFactor[4] = { 0 };
+	m_deviceContext->OMSetBlendState(m_blendState_premultiplied.Get(), blendFactor, 0xffffffff);
+}
+
 void Renderer::setRasterizer_CullCounterClockwise() { m_deviceContext->RSSetState(m_commonStates->CullCounterClockwise()); }
 
 void Renderer::setRasterizer_CullNone() {
@@ -859,5 +864,24 @@ void Renderer::createBlendStates() {
 		if (FAILED(res))
 			ErrorLogger::logError(
 				"(Renderer::createBlendStates) Failed creating multiply blend state!", res);
+	}
+	// blend state premultiplied
+	{
+		D3D11_BLEND_DESC desc;
+		desc.AlphaToCoverageEnable = false;
+		desc.IndependentBlendEnable = false;
+		desc.RenderTarget[0].BlendEnable = true;
+		desc.RenderTarget[0].SrcBlend = D3D11_BLEND::D3D11_BLEND_ONE;
+		desc.RenderTarget[0].DestBlend = D3D11_BLEND::D3D11_BLEND_INV_SRC_COLOR;
+		desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND::D3D11_BLEND_ZERO;
+		desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND::D3D11_BLEND_ZERO;
+		desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+		HRESULT res = m_device->CreateBlendState(&desc, m_blendState_premultiplied.GetAddressOf());
+		if (FAILED(res))
+			ErrorLogger::logError(
+				"(Renderer::createBlendStates) Failed creating premultiplied blend state!", res);
 	}
 }
