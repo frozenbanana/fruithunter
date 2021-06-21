@@ -12,6 +12,19 @@ ShaderSet ParticleSystem::m_shaderSetSprite;
 
 vector<shared_ptr<ParticleSystem::ParticleDescription>> ParticleSystem::m_descriptionList;
 
+int compareParticles(const void* a, const void* b) {
+	ParticleSystem::Particle *p1 = (ParticleSystem::Particle*)a, *p2 = (ParticleSystem::Particle*)b;
+	float3 target = SceneManager::getScene()->m_player->getPosition();
+	float p1L = (p1->position - target).LengthSquared();
+	float p2L = (p2->position - target).LengthSquared();
+	if (p1L > p2L)
+		return -1;
+	if (p1L == p2L)
+		return 0;
+	if (p1L < p2L)
+		return 1;
+}
+
 void ParticleSystem::load(string psFilename, float emitRate, size_t capacity) {
 	setDesc(psFilename);
 	setEmitRate(emitRate, false);
@@ -40,15 +53,20 @@ void ParticleSystem::setParticle(size_t index) {
 	// Color
 	part->color = m_particle_description->colorVariety[rand() % 3];
 	// Size
-	part->size =
-		RandomFloat(m_particle_description->size_interval.x, m_particle_description->size_interval.y);
+	part->size = RandomFloat(
+		m_particle_description->size_interval.x, m_particle_description->size_interval.y);
+	// rotation
+	part->rotation = m_particle_description->randomRotation ? RandomFloat(0, 2 * XM_PI)
+															: m_particle_description->startRotation;
 
 	ParticleProperty* pp = &m_particleProperties[index];
-	// Time alive
 	pp->lifeTime = RandomFloat(
 		m_particle_description->timeAlive_interval.x, m_particle_description->timeAlive_interval.y);
 	pp->timeLeft = pp->lifeTime;
 	pp->size = part->size;
+	pp->rotationVelocity = RandomFloat(m_particle_description->rotationVelocity_range.x,
+		m_particle_description->rotationVelocity_range.y);
+	pp->startColor = part->color;
 
 	// velocity
 	float randVeloX =
@@ -65,10 +83,13 @@ void ParticleSystem::setParticle(size_t index) {
 }
 
 void ParticleSystem::syncSystemFromDescription() {
-	// get texture
-	m_tex_particle = TextureRepository::get(m_particle_description->str_sprite);
+	// texture
+	if (m_particle_description->shape == ParticleDescription::Shape::Sprite &&
+		m_tex_particle->filename != m_particle_description->str_sprite)
+		m_tex_particle = TextureRepository::get(
+			m_particle_description->str_sprite, TextureRepository::type_particleSprite);
 	// resize
-	resizeBuffer();
+	resizeBuffer(); // will only resize of necessary
 }
 
 void ParticleSystem::ReadDescriptionList() {
@@ -133,20 +154,52 @@ void ParticleSystem::updateEmits(float dt) {
 void ParticleSystem::updateParticles(float dt) {
 	Environment* environment =
 		SceneManager::getScene()->m_terrains.getTerrainFromPosition(getPosition());
+	ParticleDescription* desc = m_particle_description.get();
 	for (size_t i = 0; i < m_particles.size(); i++) {
 		if (m_particles[i].isActive != 0) {
 			m_particleProperties[i].timeLeft -= dt;
 			float lifeTime = m_particleProperties[i].lifeTime;
 			float timeLeft = m_particleProperties[i].timeLeft;
+			float lifetimeFactor = 1 - (timeLeft / lifeTime); // 0 = begin, 1 = end
 			float size = m_particleProperties[i].size;
-			float fadeStart = m_particle_description->fadeInterval_start;
-			float fadeEnd = m_particle_description->fadeInterval_end;
-			if (timeLeft < fadeStart)
-				m_particles[i].size = (timeLeft / fadeStart) * size;
-			else if ((lifeTime - timeLeft) < fadeEnd)
-				m_particles[i].size = ((lifeTime - timeLeft) / fadeEnd) * size;
-			else
-				m_particles[i].size = size;
+
+			// size
+			if (desc->mapSizeToLifetime) {
+				m_particles[i].size =
+					size * (lifetimeFactor < desc->mapSize_middleFactor
+								   ? lifetimeFactor / desc->mapSize_middleFactor
+								   : (1 - lifetimeFactor) / (1 - desc->mapSize_middleFactor));
+			}
+			else {
+				float fadeStart = 0.1f, fadeEnd = 0.1f;
+				if (timeLeft < fadeStart)
+					m_particles[i].size = (timeLeft / fadeStart) * size;
+				else if ((lifeTime - timeLeft) < fadeEnd)
+					m_particles[i].size = ((lifeTime - timeLeft) / fadeEnd) * size;
+				else
+					m_particles[i].size = size;
+			}
+			// alpha
+			if (desc->mapAlphaToLifetime) {
+				m_particles[i].color.w =
+					m_particleProperties[i].startColor.w *
+					(lifetimeFactor < desc->mapAlpha_middleFactor
+							? lifetimeFactor / desc->mapAlpha_middleFactor
+							: (1 - lifetimeFactor) / (1 - desc->mapAlpha_middleFactor));
+			}
+			else {
+				float fadeStart = 0.1f, fadeEnd = 0.1f;
+				if (timeLeft < fadeStart)
+					m_particles[i].color.w =
+						(timeLeft / fadeStart) * m_particleProperties[i].startColor.w;
+				else if ((lifeTime - timeLeft) < fadeEnd)
+					m_particles[i].color.w =
+						((lifeTime - timeLeft) / fadeEnd) * m_particleProperties[i].startColor.w;
+				else
+					m_particles[i].color.w = m_particleProperties[i].startColor.w;
+			}
+			// rotation
+			m_particles[i].rotation += m_particleProperties[i].rotationVelocity * dt;
 
 			if (m_particleProperties[i].timeLeft <= 0.f) {
 				// Inactivate particles when lifetime is over
@@ -166,14 +219,14 @@ void ParticleSystem::updateParticles(float dt) {
 					float3 v_relative =
 						(m_particleProperties[i].velocity - wind); // velocity relative wind
 					float v_length = v_relative.Length();
-					float Fd =
-						0.5f * density * (float)pow(v_length, 2) * area * dragCoefficient; // drag from wind
+					float Fd = 0.5f * density * (float)pow(v_length, 2) * area *
+							   dragCoefficient; // drag from wind
 					acceleration += (-Fd / mass) * Normalize(v_relative);
 				}
 				// update velocity and position
 				m_particleProperties[i].velocity += acceleration * dt;
 				m_particles[i].position += m_particleProperties[i].velocity * dt;
-				m_particleProperties[i].velocity *= pow(m_particle_description->slowdown, dt);
+				m_particleProperties[i].velocity *= pow(1 - m_particle_description->slowdown, dt);
 			}
 		}
 	}
@@ -185,7 +238,13 @@ void ParticleSystem::update(float dt) {
 			updateEmits(dt);
 		}
 		updateParticles(dt);
+		if (m_particle_description->sort) {
+			m_sortedParticles = m_particles;
+			qsort(m_sortedParticles.data(), m_sortedParticles.size(), sizeof(Particle),
+				compareParticles);
+		}
 	}
+	syncSystemFromDescription();
 }
 
 void ParticleSystem::createShaders() {
@@ -200,20 +259,22 @@ void ParticleSystem::createShaders() {
 				D3D11_INPUT_PER_VERTEX_DATA, // specify data PER vertex
 				0							 // used for INSTANCING (ignore)
 			},
-			{ "Color", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "Size", 0, DXGI_FORMAT_R32_FLOAT, 0, 28, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "IsActive", 0, DXGI_FORMAT_R32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "Rotation", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA,
+				0 },
+			{ "Color", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "Size", 0, DXGI_FORMAT_R32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "IsActive", 0, DXGI_FORMAT_R32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
 
 		m_shaderSetCircle.createShaders(L"VertexShader_particleSystem.hlsl",
 			L"GeometryShader_particleSystem.hlsl", L"PixelShader_particleSystem_circle.hlsl",
-			inputLayout, 4);
+			inputLayout, 5);
 		m_shaderSetStar.createShaders(L"VertexShader_particleSystem.hlsl",
 			L"GeometryShader_particleSystem.hlsl", L"PixelShader_particleSystem_star.hlsl",
-			inputLayout, 4);
+			inputLayout, 5);
 		m_shaderSetSprite.createShaders(L"VertexShader_particleSystem.hlsl",
 			L"GeometryShader_particleSystem.hlsl", L"PixelShader_particleSystem_sprite.hlsl",
-			inputLayout, 4);
+			inputLayout, 5);
 	}
 }
 
@@ -252,7 +313,12 @@ void ParticleSystem::resizeBuffer() {
 void ParticleSystem::bindVertexBuffer() {
 	auto deviceContext = Renderer::getDeviceContext();
 	if (m_vertexBuffer.Get() != nullptr) {
-		deviceContext->UpdateSubresource(m_vertexBuffer.Get(), 0, 0, m_particles.data(), 0, 0);
+		ParticleSystem::Particle* data =
+			m_particle_description->sort && m_sortedParticles.size() == m_particles.size()
+				? m_sortedParticles.data()
+				: m_particles.data();
+
+		deviceContext->UpdateSubresource(m_vertexBuffer.Get(), 0, 0, data, 0, 0);
 
 		UINT strides = sizeof(Particle);
 		UINT offset = 0;
@@ -287,20 +353,25 @@ void ParticleSystem::draw(bool alpha) {
 		// draw
 		if (alpha) {
 			switch (m_particle_description->drawMode) {
-			case ParticleDescription::DrawMode::Normal:
+			case ParticleDescription::DrawMode::Opaque:
+				Renderer::getInstance()->setBlendState_Opaque();
+				break;
+			case ParticleDescription::DrawMode::NonPremultiplied:
 				Renderer::getInstance()->setBlendState_NonPremultiplied();
 				break;
-			case ParticleDescription::DrawMode::Add:
+			case ParticleDescription::DrawMode::AlphaBlend:
+				Renderer::getInstance()->setBlendState_AlphaBlend();
+				break;
+			case ParticleDescription::DrawMode::Additive:
 				Renderer::getInstance()->setBlendState_Additive();
 				Renderer::getInstance()->setDepthState_Read();
 				break;
-			case ParticleDescription::DrawMode::Sub:
-				Renderer::getInstance()->setBlendState_NonPremultiplied();
-				break;
-			default:
+			case ParticleDescription::DrawMode::Subtractive:
+				Renderer::getInstance()->setBlendState_Subtractive();
+				Renderer::getInstance()->setDepthState_Read();
 				break;
 			}
-	
+
 			deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
 
 			Renderer::getInstance()->setBlendState_Opaque();
@@ -318,17 +389,15 @@ bool ParticleSystem::setDesc(string psdName) {
 	for (size_t i = 0; i < m_descriptionList.size(); i++) {
 		if (m_descriptionList[i]->identifier == psdName) {
 			m_particle_description = m_descriptionList[i];
-			syncSystemFromDescription();
 			return true;
 		}
 	}
 	return false;
 }
 
-bool ParticleSystem::setDesc(size_t index) { 
+bool ParticleSystem::setDesc(size_t index) {
 	if (index < m_descriptionList.size()) {
 		m_particle_description = m_descriptionList[index];
-		syncSystemFromDescription();
 		return true;
 	}
 	return false;
@@ -373,10 +442,9 @@ shared_ptr<ParticleSystem::ParticleDescription> ParticleSystem::getDesc() {
 
 void ParticleSystem::setCustomDescription(ParticleSystem::ParticleDescription& desc) {
 	*m_particle_description.get() = desc;
-	syncSystemFromDescription();
 }
 
-bool ParticleSystem::ParticleDescription::save(string psdName) const { 
+bool ParticleSystem::ParticleDescription::save(string psdName) const {
 	if (psdName != "") {
 		string path = asPath(psdName);
 		ofstream file;
@@ -385,14 +453,12 @@ bool ParticleSystem::ParticleDescription::save(string psdName) const {
 			// write
 			write(file);
 			file.close();
-			ErrorLogger::log(
-				"(ParticleDescription::save) Saved particlesystem description: " +
+			ErrorLogger::log("(ParticleDescription::save) Saved particlesystem description: " +
 							 psdName + "." + PSD_END);
 			return true;
 		}
 		else {
-			ErrorLogger::logWarning(
-				"(ParticleDescription::save) Failed opening to file: " + path);
+			ErrorLogger::logWarning("(ParticleDescription::save) Failed opening to file: " + path);
 			return false;
 		}
 	}
@@ -400,8 +466,8 @@ bool ParticleSystem::ParticleDescription::save(string psdName) const {
 
 ParticleSystem::ParticleDescription::ParticleDescription() {}
 
-void ParticleSystem::imgui_properties() { 
-	Transformation::imgui_properties(); 
+void ParticleSystem::imgui_properties() {
+	Transformation::imgui_properties();
 	if (ImGui::BeginCombo("Particle Description", m_particle_description->identifier.c_str())) {
 		for (size_t i = 0; i < m_descriptionList.size(); i++) {
 			if (ImGui::Selectable(m_descriptionList[i]->identifier.c_str()))
@@ -434,31 +500,54 @@ void ParticleSystem::imgui_properties() {
 bool ParticleSystem::ParticleDescription::imgui_properties() {
 	bool update = false;
 	for (size_t i = 0; i < 3; i++)
-		ImGui::ColorEdit4(("Color["+to_string(i)+"]").c_str(), (float*)&colorVariety[i]);
-	ImGui::DragFloatRange2("Size Range", &size_interval.x, &size_interval.y, 0.01f, 0,1, "Min: %.2f", "Max: %.2f");
+		ImGui::ColorEdit4(("Color[" + to_string(i) + "]").c_str(), (float*)&colorVariety[i]);
+	ImGui::DragFloatRange2(
+		"Size Range", &size_interval.x, &size_interval.y, 0.01f, 0, 1, "Min: %.2f", "Max: %.2f");
+	ImGui::Checkbox(randomRotation ? "Random Rotation" : "##54", &randomRotation);
+	if (!randomRotation) {
+		ImGui::SameLine();
+		ImGui::SliderFloat("Rotation", &startRotation, 0, 2 * XM_PI, "Rad: %.2f");
+	}
+	ImGui::DragFloatRange2("Rotation Velocity Range", &rotationVelocity_range.x,
+		&rotationVelocity_range.y, 0.01f, -10, 10, "Min: %.2f", "Max: %.2f");
 	if (ImGui::DragFloatRange2("Time Alive Range", &timeAlive_interval.x, &timeAlive_interval.y,
 			0.1f, 0, 15, "Min: %.1f", "Max: %.1f"))
 		update = true;
 	ImGui::InputFloat3("Velocity Min", (float*)&velocity_min);
 	ImGui::InputFloat3("Velocity Max", (float*)&velocity_max);
-	ImGui::DragFloatRange2("Velocity Intensity Range", &velocity_interval.x, &velocity_interval.y, 0.01f, 0, 50, "Min: %.2f","Max: %.2f");
+	ImGui::DragFloatRange2("Velocity Intensity Range", &velocity_interval.x, &velocity_interval.y,
+		0.01f, 0, 50, "Min: %.2f", "Max: %.2f");
 	ImGui::InputFloat3("Gravity", (float*)&acceleration);
-	ImGui::SliderFloat("Slowdown", &slowdown, 0, 1);
-	ImGui::SliderFloat("Fade Begin", &fadeInterval_start, 0, 1);
-	ImGui::SliderFloat("Fade End", &fadeInterval_end, 0, 1);
+	ImGui::SliderFloat("Slowdown", &slowdown, 0, 1, "%.5f");
+	ImGui::Checkbox("Map Size to Lifetime", &mapSizeToLifetime);
+	if (mapSizeToLifetime)
+		ImGui::SliderFloat("Size Transition Edge", &mapSize_middleFactor, 0, 1);
+	ImGui::Checkbox("Map Alpha to Lifetime", &mapAlphaToLifetime);
+	if (mapAlphaToLifetime)
+		ImGui::SliderFloat("Alpha Transition Edge", &mapAlpha_middleFactor, 0, 1);
+	// ImGui::SliderFloat("Fade Begin", &fadeInterval_start, 0, 1);
+	// ImGui::SliderFloat("Fade End", &fadeInterval_end, 0, 1);
 	static const char* shapes[] = { "Circle", "Star", "Sprite" };
 	ImGui::Combo("Shape", (int*)&shape, shapes, IM_ARRAYSIZE(shapes));
-	static const shared_ptr<TextureSet> sprites[] = { 
-		TextureRepository::get("bananaFace.png"),
-		TextureRepository::get("cuteFace.png"),
-		TextureRepository::get("dragonFace.png")
-	};
+	TextureRepository::Type sprType = TextureRepository::Type::type_particleSprite;
+	static bool fetchedSprites = false;
+	static vector<shared_ptr<TextureSet>> sprites;
 	static int spriteSelected = 0;
+	if (!fetchedSprites) {
+		fetchedSprites = true;
+		vector<string> temp_strs;
+		read_directory("assets/ParticleSystems/Sprites/", temp_strs);
+		temp_strs.erase(temp_strs.begin());
+		temp_strs.erase(temp_strs.begin());
+		sprites.resize(temp_strs.size());
+		for (size_t i = 0; i < temp_strs.size(); i++)
+			sprites[i] = TextureRepository::get(temp_strs[i], sprType);
+	}
 	if (ImGui::BeginCombo("Sprite", str_sprite.c_str())) {
 		float cWidth = ImGui::CalcItemWidth();
 		int itemCountOnWidth = 3;
 		ImVec2 instSize = ImVec2(1, 1) * (cWidth / itemCountOnWidth);
-		for (size_t i = 0; i < IM_ARRAYSIZE(sprites); i++) {
+		for (size_t i = 0; i < sprites.size(); i++) {
 			ImGui::BeginGroup();
 			ImGui::Text(sprites[i]->filename.c_str());
 			if (ImGui::ImageButton(sprites[i]->view.Get(), instSize)) {
@@ -472,8 +561,10 @@ bool ParticleSystem::ParticleDescription::imgui_properties() {
 		}
 		ImGui::EndCombo();
 	}
-	static const char* modes[] = { "Normal", "Add", "Sub" };
+	static const char* modes[] = { "Opaque", "AlphaBlend", "NonPremultiplied", "Additive",
+		"Subtractive" };
 	ImGui::Combo("Draw Mode", (int*)&drawMode, modes, IM_ARRAYSIZE(modes));
+	ImGui::Checkbox("Sort (Heavy Operation)", &sort);
 
 	return update;
 }
@@ -483,17 +574,23 @@ void ParticleSystem::ParticleDescription::write(ofstream& file) const {
 		for (size_t i = 0; i < 3; i++)
 			fileWrite(file, colorVariety[i]);
 		fileWrite(file, size_interval);
+		fileWrite(file, randomRotation);
+		fileWrite(file, startRotation);
+		fileWrite(file, rotationVelocity_range);
 		fileWrite(file, timeAlive_interval);
 		fileWrite(file, velocity_min);
 		fileWrite(file, velocity_max);
 		fileWrite(file, velocity_interval);
 		fileWrite(file, acceleration);
 		fileWrite(file, slowdown);
-		fileWrite(file, fadeInterval_start);
-		fileWrite(file, fadeInterval_end);
+		fileWrite(file, mapSizeToLifetime);
+		fileWrite(file, mapSize_middleFactor);
+		fileWrite(file, mapAlphaToLifetime);
+		fileWrite(file, mapAlpha_middleFactor);
 		fileWrite(file, str_sprite);
 		fileWrite(file, shape);
 		fileWrite(file, drawMode);
+		fileWrite(file, sort);
 	}
 }
 
@@ -502,17 +599,23 @@ void ParticleSystem::ParticleDescription::read(ifstream& file) {
 		for (size_t i = 0; i < 3; i++)
 			fileRead(file, colorVariety[i]);
 		fileRead(file, size_interval);
+		fileRead(file, randomRotation);
+		fileRead(file, startRotation);
+		fileRead(file, rotationVelocity_range);
 		fileRead(file, timeAlive_interval);
 		fileRead(file, velocity_min);
 		fileRead(file, velocity_max);
 		fileRead(file, velocity_interval);
 		fileRead(file, acceleration);
 		fileRead(file, slowdown);
-		fileRead(file, fadeInterval_start);
-		fileRead(file, fadeInterval_end);
+		fileRead(file, mapSizeToLifetime);
+		fileRead(file, mapSize_middleFactor);
+		fileRead(file, mapAlphaToLifetime);
+		fileRead(file, mapAlpha_middleFactor);
 		fileRead(file, str_sprite);
 		fileRead(file, shape);
 		fileRead(file, drawMode);
+		fileRead(file, sort);
 	}
 }
 

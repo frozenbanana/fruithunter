@@ -19,6 +19,7 @@ public:
 	enum Type {
 		type_texture,
 		type_heightmap,
+		type_particleSprite,
 		NR_OF_TYPES
 	};
 
@@ -26,8 +27,8 @@ private:
 	static TextureRepository m_this;
 	vector<shared_ptr<TextureSet>> m_repositories[NR_OF_TYPES];
 	shared_ptr<TextureSet> m_missingTexture = make_shared<TextureSet>();
-	const string typeAsStr[NR_OF_TYPES] = {"Texture", "Heightmap"};
-	const string paths[NR_OF_TYPES] = { "assets/Meshes/Textures/", "assets/TerrainHeightmap/" };
+	const string typeAsStr[NR_OF_TYPES] = {"Texture", "Heightmap", "ParticleSprite"};
+	const string paths[NR_OF_TYPES] = { "assets/Meshes/Textures/", "assets/TerrainHeightmap/" , "assets/ParticleSystems/Sprites/"};
 
 	shared_ptr<TextureSet> get_missingFile();
 	HRESULT load(string path, string filename, shared_ptr<TextureSet>& set);

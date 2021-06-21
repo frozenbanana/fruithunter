@@ -226,6 +226,10 @@ void SceneEditorManager::update_panel_entity_improved(
 		// buttons
 		if ((ImGui::Button("Remove") || ip->keyPressed(Keyboard::Delete)) && selectedIdx != -1) {
 			list.remove(selectedIdx);
+			if (list.size() == 0)
+				selectedIdx = -1;
+			else
+				selectedIdx = Clamp(selectedIdx, 0, (int)list.size() - 1);
 		}
 		if (ImGui::IsItemHovered()) {
 			ImGui::BeginTooltip();
@@ -253,6 +257,19 @@ void SceneEditorManager::update_panel_entity_improved(
 		if (ImGui::IsItemHovered()) {
 			ImGui::BeginTooltip();
 			ImGui::Text("QuickButton (F)");
+			ImGui::EndTooltip();
+		}
+		ImGui::SameLine();
+		if ((ImGui::Button("Move to Pointer") || ip->keyPressed(Keyboard::V)) &&
+			selectedIdx != -1) {
+			Transformation* t = dynamic_cast<Transformation*>(list[selectedIdx].get());
+			if (t != nullptr) {
+				t->setPosition(m_pointer);
+			}
+		}
+		if (ImGui::IsItemHovered()) {
+			ImGui::BeginTooltip();
+			ImGui::Text("QuickButton (V)");
 			ImGui::EndTooltip();
 		}
 		// help text
@@ -760,6 +777,16 @@ void SceneEditorManager::update_panel_ps_unselected() {
 	if (ImGui::Button("Save")) {
 		desc->save();
 	}
+	if (0) {
+		// use when updating description struct and need to save all descriptions
+		ImGui::SameLine();
+		if (ImGui::Button("Save All")) {
+			vector<shared_ptr<ParticleSystem::ParticleDescription>>* list =
+				ParticleSystem::GetDescriptionList();
+			for (size_t i = 0; i < list->size(); i++)
+				list->at(i)->save();
+		}
+	}
 }
 
 SceneEditorManager::SceneEditorManager() {
@@ -856,7 +883,7 @@ void SceneEditorManager::update() {
 
 	update_imgui();
 
-	if (m_editorTabActive == EditorTab::Library) {
+	if (m_editorTabActive == EditorTab::Library || m_editorTabActive == EditorTab::GameRules) {
 		// pick position
 		if (ip->mousePressed(Input::RIGHT)) {
 			float3 position = scene->m_camera.getPosition();
@@ -898,6 +925,9 @@ void SceneEditorManager::update() {
 				}
 			}
 		}
+	}
+
+	if (m_editorTabActive == EditorTab::Library) {
 		// pick fragment
 		if (ip->mousePressed(Input::MIDDLE)) {
 			float3 position = scene->m_camera.getPosition();
@@ -1200,6 +1230,12 @@ void SceneEditorManager::draw_editorWorldObjects() {
 		m_pointer_obj.draw_onlyMesh(float3(1, 0.5, 0.5));
 		// Transformation Entity Helpers
 		draw_transformationVisuals();
+	}
+	if (m_editorTabActive == EditorTab::GameRules) {
+		// Pointer Entity Helper
+		m_pointer_obj.setPosition(m_pointer);
+		m_pointer_obj.setRotation(vector2Rotation(-m_pointer_normal));
+		m_pointer_obj.draw_onlyMesh(float3(1, 0.5, 0.5));
 	}
 }
 

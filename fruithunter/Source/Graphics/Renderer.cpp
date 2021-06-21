@@ -231,6 +231,11 @@ void Renderer::setBlendState_Additive() {
 	m_deviceContext->OMSetBlendState(m_commonStates->Additive(), blendFactor, 0xffffffff);
 }
 
+void Renderer::setBlendState_Subtractive() {
+	float blendFactor[4] = { 0 };
+	m_deviceContext->OMSetBlendState(m_blendState_subtractive.Get(), blendFactor, 0xffffffff);
+}
+
 void Renderer::setBlendState_NonPremultiplied() {
 	float blendFactor[4] = { 0 };
 	m_deviceContext->OMSetBlendState(m_commonStates->NonPremultiplied(), blendFactor, 0xffffffff);
@@ -454,6 +459,7 @@ Renderer::Renderer(int width, int height) {
 		r->createRenderTarget();
 		r->createConstantBuffers();
 		r->createQuadVertexBuffer();
+		r->createBlendStates();
 		m_shadowMapper.initiate();
 		r->m_isLoaded = true;
 	}
@@ -808,5 +814,26 @@ void Renderer::createQuadVertexBuffer() {
 			&bufferDesc, &data, m_vertexQuadBuffer.GetAddressOf());
 		if (FAILED(res))
 			ErrorLogger::logError("Failed creating quad vertex buffer in Renderer class!\n", res);
+	}
+}
+
+void Renderer::createBlendStates() {
+	// blend state subtractive
+	{ 
+		D3D11_BLEND_DESC desc;
+		desc.AlphaToCoverageEnable = false;
+		desc.IndependentBlendEnable = false;
+		desc.RenderTarget[0].BlendEnable = true;
+		desc.RenderTarget[0].SrcBlend = D3D11_BLEND::D3D11_BLEND_SRC_ALPHA;
+		desc.RenderTarget[0].DestBlend = D3D11_BLEND::D3D11_BLEND_ONE;
+		desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_REV_SUBTRACT;
+		desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND::D3D11_BLEND_ZERO;
+		desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND::D3D11_BLEND_ZERO;
+		desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+		HRESULT res = m_device->CreateBlendState(&desc, m_blendState_subtractive.GetAddressOf());
+		if (FAILED(res))
+			ErrorLogger::logError("(Renderer::createBlendStates) Failed creating subtractive blend state!", res);
 	}
 }

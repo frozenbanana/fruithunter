@@ -47,18 +47,19 @@ public:
 
 	void createCommonStates();
 	// BlendState
-	void setBlendState_Opaque();
-	void setBlendState_AlphaBlend();
+	void setBlendState_Opaque(); // ignore alpha
+	void setBlendState_AlphaBlend(); // use alpha channel
 	void setBlendState_Additive();
+	void setBlendState_Subtractive();
 	void setBlendState_NonPremultiplied();
 	// Rasterizer
-	void setRasterizer_CullCounterClockwise();
-	void setRasterizer_CullNone();
+	void setRasterizer_CullCounterClockwise(); // backface culling
+	void setRasterizer_CullNone(); // None culling
 	void setRasterizer_Wireframe();
 	// DepthState
-	void setDepthState_None();
-	void setDepthState_Default();
-	void setDepthState_Read();
+	void setDepthState_None(); // none
+	void setDepthState_Default(); // read & write
+	void setDepthState_Read(); // read
 
 	void captureFrame();
 	void drawCapturedFrame();
@@ -82,6 +83,7 @@ private:
 	void createDepthBuffer(DXGI_SWAP_CHAIN_DESC& scd);
 	void createConstantBuffers();
 	void createQuadVertexBuffer();
+	void createBlendStates();
 
 	bool SetWindowStyle_Borderless();
 	bool SetWindowStyle_Windowed();
@@ -143,4 +145,5 @@ private:
 	int m_screenHeight;
 
 	std::unique_ptr<CommonStates> m_commonStates;
+	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendState_subtractive;
 };

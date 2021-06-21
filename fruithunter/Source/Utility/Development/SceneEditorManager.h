@@ -208,10 +208,15 @@ inline void SceneEditorManager::update_panel(
 		// buttons
 		if (ImGui::Button("Create")) {
 			list.push_back(make_shared<CLASS>());
+			selectedIdx = list.size() - 1; // select created element
 		}
 		ImGui::SameLine();
 		if ((ImGui::Button("Remove") || ip->keyPressed(Keyboard::Delete)) && selectedIdx != -1) {
 			list.erase(list.begin() + selectedIdx);
+			if (list.size() == 0)
+				selectedIdx = -1;
+			else
+				selectedIdx = Clamp(selectedIdx, 0, (int)list.size() - 1);
 		}
 		if (ImGui::IsItemHovered()) {
 			ImGui::BeginTooltip();
@@ -237,6 +242,18 @@ inline void SceneEditorManager::update_panel(
 		if (ImGui::IsItemHovered()) {
 			ImGui::BeginTooltip();
 			ImGui::Text("QuickButton (F)");
+			ImGui::EndTooltip();
+		}
+		ImGui::SameLine();
+		if ((ImGui::Button("Move to Pointer") || ip->keyPressed(Keyboard::V)) && selectedIdx != -1) {
+			Transformation* t = dynamic_cast<Transformation*>(list[selectedIdx].get());
+			if (t != nullptr) {
+				t->setPosition(m_pointer);
+			}
+		}
+		if (ImGui::IsItemHovered()) {
+			ImGui::BeginTooltip();
+			ImGui::Text("QuickButton (V)");
 			ImGui::EndTooltip();
 		}
 		// help text

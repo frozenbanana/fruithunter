@@ -1,5 +1,4 @@
 #pragma once
-#include "particle.h"
 #include "ShaderSet.h"
 #include "Timer.h"
 #include "Terrain.h"
@@ -7,7 +6,7 @@
 #include "TextureRepository.h"
 #include "fstreamLib.h"
 
-#define PATH_PSD "assets/ParticleSystems/"
+#define PATH_PSD "assets/ParticleSystems/Descriptions/"
 #define PSD_END "psd" // psd - particle.system.description
 
 class ParticleSystem : public Fragment, public Transformation {
@@ -15,19 +14,31 @@ public:
 	struct ParticleDescription {
 		string identifier;
 
-		float4 colorVariety[3];
-		float2 size_interval;	   // size.x (min), size.y (max)
-		float2 timeAlive_interval; // size.x (min), size.y (max)
+		float4 colorVariety[3] = { float4(1.f), float4(1.f), float4(1.f) };
+		float2 size_interval = float2(0.25, 0.5); // size.x (min), size.y (max)
+		bool randomRotation = true;
+		float startRotation = 0; // start rotation if random rotation is set to false
+		float2 rotationVelocity_range;	// Rot Vel [v.x, v.y]
+		float2 timeAlive_interval = float2(1.f, 2.f); // size.x (min), size.y (max)
 		float3 velocity_min,
 			velocity_max;		  // velocity inside box, between points min and max. (Normalized)
 		float2 velocity_interval; // strength of velocity
 		float3 acceleration;	  // can be used to produce gravity for particles for example
-		float slowdown;
-		float fadeInterval_start; // time(start) to time(x) seconds to scale particle to real size
-		float fadeInterval_end;	  // time(end-x) to time(end) seconds to scale particle to nothing
-		string str_sprite;
-		enum Shape { Circle, Star, Sprite } shape;
-		enum DrawMode { Normal, Add, Sub } drawMode;
+		float slowdown = 0;
+		bool mapSizeToLifetime = false;
+		float mapSize_middleFactor = 0; // percentage in lifetime when size is largest 
+		bool mapAlphaToLifetime = false;
+		float mapAlpha_middleFactor = 0; // percentage in lifetime when alpha is full opaque 
+		enum Shape { Circle, Star, Sprite } shape = Shape::Circle;
+		enum DrawMode {
+			Opaque,
+			AlphaBlend,
+			NonPremultiplied,
+			Additive,
+			Subtractive
+		} drawMode = DrawMode::Opaque;
+		string str_sprite = "";
+		bool sort = false;
 
 		bool imgui_properties();
 		void write(ofstream& file) const;
@@ -36,6 +47,14 @@ public:
 		bool save() const;
 		bool save(string psdName) const;
 		ParticleDescription();
+	};
+
+	struct Particle {
+		float3 position;
+		float rotation = 0;
+		float4 color = float4(1.);
+		float size = 1; // size after fade
+		float isActive = false;
 	};
 
 private:
@@ -57,15 +76,13 @@ private:
 		float lifeTime = 1;
 		float timeLeft = 1;
 		float size = 1; // start size
+		float rotationVelocity = 0;
+		float4 startColor = float4(1.f);
 	};
 	vector<ParticleProperty> m_particleProperties;
-	struct Particle {
-		float3 position;
-		float4 color = float4(1.);
-		float size = 1; // full size
-		float isActive = false;
-	};
+
 	vector<Particle> m_particles;
+	vector<Particle> m_sortedParticles;
 
 	// shaders
 	static ShaderSet m_shaderSetCircle;
