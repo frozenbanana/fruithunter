@@ -35,7 +35,8 @@ public:
 			AlphaBlend,
 			NonPremultiplied,
 			Additive,
-			Subtractive
+			Subtractive,
+			Multiply
 		} drawMode = DrawMode::Opaque;
 		string str_sprite = "";
 		bool sort = false;

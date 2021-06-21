@@ -51,6 +51,7 @@ public:
 	void setBlendState_AlphaBlend(); // use alpha channel
 	void setBlendState_Additive();
 	void setBlendState_Subtractive();
+	void setBlendState_Multiply();
 	void setBlendState_NonPremultiplied();
 	// Rasterizer
 	void setRasterizer_CullCounterClockwise(); // backface culling
@@ -146,4 +147,5 @@ private:
 
 	std::unique_ptr<CommonStates> m_commonStates;
 	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendState_subtractive;
+	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendState_multiply;
 };
