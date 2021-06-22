@@ -762,16 +762,16 @@ void SceneEditorManager::update_panel_ps_unselected() {
 	ImGui::SameLine();
 	ImGui::InputText("PSD Name", &psdName);
 	ImGui::Separator();
+	static int selectedIdx = 0;
 	static shared_ptr<ParticleSystem::ParticleDescription> desc = list->at(0);
 	string preview = desc.get() == nullptr ? "Empty List" : desc->identifier;
-	if (ImGui::BeginCombo("Description Templates", preview.c_str())) {
-		for (size_t i = 0; i < list->size(); i++) {
-			if (ImGui::Selectable(list->at(i)->identifier.c_str())) {
-				desc = list->at(i);
-			}
+	struct Funcs {
+		static bool ItemGetter(void* data, int n, const char** out_str) {
+			*out_str = ((shared_ptr<ParticleSystem::ParticleDescription>*)data)[n]->identifier.c_str();
+			return true;
 		}
-		ImGui::EndCombo();
-	}
+	};
+	ImGui::Combo("Description Templates", &selectedIdx, &Funcs::ItemGetter, list->data(), list->size(), 25);
 	ImGui::Separator();
 	desc->imgui_properties();
 	if (ImGui::Button("Save")) {
