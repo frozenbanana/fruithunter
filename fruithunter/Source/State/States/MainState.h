@@ -10,10 +10,13 @@
 #include "Menu_PoppingButton.h"
 #include "Menu_PoppingArrowButton.h"
 #include "GlobalNamespaces.h"
+#include "CSteamLeaderboards.h"
 
 class MainState : public StateItem {
 private:
+	CSteamLeaderboard m_leaderboard;
 	Text2D m_textRenderer;
+	Text2D m_textRenderer_lato;
 	Timer m_timer;
 
 	// Scene variables
@@ -40,11 +43,21 @@ private:
 	shared_ptr<Apple> m_apple;
 
 	string m_levelSelect_header = "Select Hunt";
-	int m_levelHighlighted = 0;
+	int m_levelHighlighted = 0, m_levelSelected = 0;
 	ParticleSystem m_ps_selected;
 	Sprite2D m_levelItem_background;
 	Sprite2D m_medalSprites[TimeTargets::NR_OF_TIME_TARGETS];
 	Sprite2D m_img_keylock;
+
+	Sprite2D m_spr_levelItem_container;
+	Sprite2D m_spr_levelItem_marker;
+	Sprite2D m_spr_levelItem_medals[TimeTargets::NR_OF_TIME_TARGETS];
+	Sprite2D m_spr_levelInfo_container;
+	Sprite2D m_spr_leaderboard_container;
+	Sprite2D m_spr_icon_crown;
+	Sprite2D m_spr_icon_man;
+	Sprite2D m_spr_iconButton;
+
 	struct LevelOption {
 		// 3d object
 		Entity obj_bowl, obj_content;
@@ -89,6 +102,7 @@ private:
 	Menu_PoppingButton m_btn_menu_credits;
 	Menu_PoppingButton m_btn_levelSelect_back;
 	Menu_PoppingButton m_btn_levelSelect_controls;
+	Menu_PoppingButton m_btn_levelSelect_hunt;
 	Menu_PoppingButton m_btn_credits_back;
 
 	SoundID m_menuMusic = 0;
@@ -100,6 +114,10 @@ private:
 	void changeToLevel(size_t levelIndex);
 
 	void changeMainState(MainStateType state);
+
+	void draw_ui_menu(float alpha);
+	void draw_ui_levelselect(float alpha);
+	void draw_ui_credits(float alpha);
 
 public:
 	MainState();

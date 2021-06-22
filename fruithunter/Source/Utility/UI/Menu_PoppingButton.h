@@ -6,8 +6,8 @@ private:
 	float m_timer = 0.f;
 
 	float m_scale_desired = 0.f;
-	float m_scale_desired_hovering = 0.9f;
-	float m_scale_desired_standard = 0.75f;
+	float m_scale_desired_hovering = 0.7f;//0.9
+	float m_scale_desired_standard = 0.55f;//0.75
 
 	float m_scale_velocity = 0.f;
 	const float m_scale_spring_speed = 100.f;

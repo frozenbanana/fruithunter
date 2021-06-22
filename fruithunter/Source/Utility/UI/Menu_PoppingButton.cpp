@@ -36,10 +36,11 @@ void Menu_PoppingButton::set(float2 position, string text, float _delay) {
 	m_timer = 0;
 	m_scale_velocity = 0;
 	setScale(0);
-	setTextScale(1);
+	setTextScale(1.5f); // 1.f
 	setPosition(position);
 
-	static const vector<string> btns = { "btn_v1.png", "btn_v2.png", "btn_v3.png" };
+	//static const vector<string> btns = { "btn_v1.png", "btn_v2.png", "btn_v3.png" };
+	static const vector<string> btns = { "btn_v4.png" };
 	load(btns[rand() % btns.size()]);
 	setText(text);
 	setFont("myfile.spritefont");
