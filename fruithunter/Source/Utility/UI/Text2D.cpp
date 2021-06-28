@@ -7,7 +7,7 @@ void Text2D::_draw(const Transformation2D& source) {
 
 	float2 screenModifier = float2((SCREEN_WIDTH / 1280.f), (SCREEN_HEIGHT / 720.f));
 	std::wstring wText = std::wstring(m_text.begin(), m_text.end());
-	float2 alignment(m_horizontal, m_vertical);
+	float2 alignment(m_horizontalAligment, m_verticalAlignment);
 	float2 origin = getLocalSize() * (alignment + float2(1, 1)) * 0.5;
 	float2 position = source.getPosition() * screenModifier;
 	float2 scale = source.getScale() * screenModifier;
@@ -29,11 +29,6 @@ void Text2D::setDepthStateToNull() {
 		igen kalla på denna i alla textrenderarens drawfunctioner.
 	*/
 	Renderer::getInstance()->getDeviceContext()->OMSetDepthStencilState(nullptr, 0);
-}
-
-float2 Text2D::getSize() const {
-	wstring wText = std::wstring(m_text.begin(), m_text.end());
-	return float2(m_spriteFont->MeasureString(wText.c_str()))*getScale();
 }
 
 float2 Text2D::getLocalSize() const {
@@ -65,9 +60,9 @@ string Text2D::getText() const { return m_text; }
 
 void Text2D::setAlpha(float alpha) { m_color.w = alpha; }
 
-void Text2D::setAlignment(HorizontalAlignment ha, VerticalAlignment va) {
-	m_horizontal = ha;
-	m_vertical = va;
+void Text2D::_imgui_properties() {
+	ImGui::InputText("Text", &m_text);
+	ImGui::ColorEdit4("Color", (float*)&m_color);
 }
 
 Color Text2D::getColor() const { return m_color; }

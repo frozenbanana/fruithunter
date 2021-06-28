@@ -13,7 +13,7 @@ struct Input {
 
 Texture2D objTexture : TEXTURE : register(t1);
 SamplerState objSamplerState : SAMPLER : register(s0);
-cbuffer screenSizeConstantBuffer : register(b6){ int4 screenSize; };
+cbuffer screenSizeConstantBuffer : register(b8){ int4 screenSize; };
 
 float RGBToLuma(float3 colour) {
 	colour.rgb = sqrt(colour.rgb);

@@ -46,7 +46,9 @@ void ToggleSelectable::_draw(const Transformation2D& source) {
 	m_text.draw(Transformation2D::transform(m_sprite, source));
 }
 
-float2 ToggleSelectable::getSize() const { return m_sprite.getSize(); }
+void ToggleSelectable::_imgui_properties() {}
+
+float2 ToggleSelectable::getLocalSize() const { return m_sprite.getLocalSize(); }
 
 void ToggleSelectable::setAlignment(HorizontalAlignment ha, VerticalAlignment va) {
 	m_sprite.setAlignment(ha, va);

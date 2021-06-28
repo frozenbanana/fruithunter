@@ -253,22 +253,22 @@ void Environment::imgui_properties() {
 	// heightmap
 	ImGui::Separator();
 	static const TextureRepository::Type type = TextureRepository::Type::type_heightmap;
-	static vector<shared_ptr<TextureSet>> heightmapTextures = {
+	static vector<shared_ptr<Texture>> heightmapTextures = {
 		TextureRepository::get("flatmap.jpg", type), TextureRepository::get("DesertMap.png", type),
 		TextureRepository::get("forestMap.png", type), TextureRepository::get("PlainMap.png", type),
 		TextureRepository::get("tutorial.png", type), TextureRepository::get("VolcanoMap.png", type)
 	};
-	static string heightmap = heightmapTextures[0]->filename;
+	static string heightmap = heightmapTextures[0]->getFilename();
 	ImGui::SetNextItemWidth(150);
 	if (ImGui::BeginCombo("Heightmap", heightmap.c_str())) {
 		float cWidth = ImGui::CalcItemWidth();
 		int itemCountOnWidth = 3;
 		for (size_t i = 0; i < heightmapTextures.size(); i++) {
 			ImGui::BeginGroup();
-			ImGui::Text(heightmapTextures[i]->filename.c_str());
-			if (ImGui::ImageButton(heightmapTextures[i]->view.Get(),
+			ImGui::Text(heightmapTextures[i]->getFilename().c_str());
+			if (ImGui::ImageButton(heightmapTextures[i]->getSRV().Get(),
 					ImVec2(cWidth / itemCountOnWidth, cWidth / itemCountOnWidth)))
-				heightmap = heightmapTextures[i]->filename;
+				heightmap = heightmapTextures[i]->getFilename();
 			ImGui::EndGroup();
 			if ((i + 1) % itemCountOnWidth != 0)
 				ImGui::SameLine();

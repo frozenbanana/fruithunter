@@ -1,12 +1,9 @@
 #pragma once
 #include "Text2D.h"
-#include <CommonStates.h>
 #include "Sprite2D.h";
 
-class Slider {
+class Slider : public Drawable2D {
 private:
-	float2 m_position;
-	float m_scale = 0.08f;
 	string m_label = "";
 
 	const float2 m_sliderOffset = float2(150.f, 0.f);
@@ -19,21 +16,25 @@ private:
 
 	Text2D m_textRenderer;
 
-	float m_grabPos;
-	float m_value;
-	float m_preValue; // temp variable when pressing grabber
+	float m_grabPos = 0;
+	float m_value = 0;
+	float m_preValue = 0; // temp variable when pressing grabber
 
 	bool m_sliding = false;
 
 	float2 getSliderPos() const;
 
+	void _draw(const Transformation2D& source);
+
 public:
+	float2 getLocalSize() const;
+	float getValue();
+	void setValue(float value);
+
+	bool update();
+
+	void initialize(string label, float2 pos);
+
 	Slider();
 	~Slider();
-	void initialize(string label, float2 pos);
-	float getValue();
-	void setPosition(float2 position);
-	void setValue(float value);
-	bool update();
-	void draw();
 };

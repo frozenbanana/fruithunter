@@ -85,7 +85,7 @@ void ParticleSystem::setParticle(size_t index) {
 void ParticleSystem::syncSystemFromDescription() {
 	// texture
 	if (m_particle_description->shape == ParticleDescription::Shape::Sprite &&
-		m_tex_particle->filename != m_particle_description->str_sprite)
+		m_tex_particle->getFilename() != m_particle_description->str_sprite)
 		m_tex_particle = TextureRepository::get(
 			m_particle_description->str_sprite, TextureRepository::type_particleSprite);
 	// resize
@@ -348,7 +348,7 @@ void ParticleSystem::draw(bool alpha) {
 		}
 		bindVertexBuffer();
 		Renderer::getDeviceContext()->PSSetShaderResources(
-			0, 1, m_tex_particle->view.GetAddressOf());
+			0, 1, m_tex_particle->getSRV().GetAddressOf());
 
 		// draw
 		if (alpha) {
@@ -538,14 +538,12 @@ bool ParticleSystem::ParticleDescription::imgui_properties() {
 	ImGui::Combo("Shape", (int*)&shape, shapes, IM_ARRAYSIZE(shapes));
 	TextureRepository::Type sprType = TextureRepository::Type::type_particleSprite;
 	static bool fetchedSprites = false;
-	static vector<shared_ptr<TextureSet>> sprites;
+	static vector<shared_ptr<Texture>> sprites;
 	static int spriteSelected = 0;
 	if (!fetchedSprites) {
 		fetchedSprites = true;
 		vector<string> temp_strs;
 		read_directory("assets/ParticleSystems/Sprites/", temp_strs);
-		temp_strs.erase(temp_strs.begin());
-		temp_strs.erase(temp_strs.begin());
 		sprites.resize(temp_strs.size());
 		for (size_t i = 0; i < temp_strs.size(); i++)
 			sprites[i] = TextureRepository::get(temp_strs[i], sprType);
@@ -556,10 +554,10 @@ bool ParticleSystem::ParticleDescription::imgui_properties() {
 		ImVec2 instSize = ImVec2(1, 1) * (cWidth / itemCountOnWidth);
 		for (size_t i = 0; i < sprites.size(); i++) {
 			ImGui::BeginGroup();
-			ImGui::Text(sprites[i]->filename.c_str());
-			if (ImGui::ImageButton(sprites[i]->view.Get(), instSize)) {
+			ImGui::Text(sprites[i]->getFilename().c_str());
+			if (ImGui::ImageButton(sprites[i]->getSRV().Get(), instSize)) {
 				spriteSelected = i;
-				str_sprite = sprites[i]->filename;
+				str_sprite = sprites[i]->getFilename();
 				update = true;
 			}
 			ImGui::EndGroup();

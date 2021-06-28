@@ -64,6 +64,7 @@ void EditorState::draw() {
 		m_testingEnvironment.draw_shadow();
 		m_testingEnvironment.setup_color();
 		m_testingEnvironment.draw_color();
+		m_testingEnvironment.draw_finalize();
 		m_testingEnvironment.draw_hud();
 	}
 	else {

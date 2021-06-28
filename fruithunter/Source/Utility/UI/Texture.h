@@ -1,8 +1,14 @@
 #pragma once
-#include "GlobalNamespaces.h"
+#include <iostream>
+#include <string>
+#include <d3d11.h>
+#include <d3dcompiler.h>
+#include <SimpleMath.h>
 #include <WICTextureLoader.h>
+#include <WRL/client.h>
 
-#define PATH_SPRITE "assets/sprites/"
+using namespace std;
+using namespace DirectX;
 
 class Texture {
 protected:
@@ -11,6 +17,7 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_SRV;
 	XMINT2 m_size = XMINT2(0, 0);
 	string m_path = "";
+	string m_filename = "";
 
 	bool create(XMINT2 size,
 		D3D11_BIND_FLAG bindFlags = D3D11_BIND_FLAG::D3D11_BIND_SHADER_RESOURCE,
@@ -20,6 +27,7 @@ public:
 	bool isLoaded() const;
 	XMINT2 getSize() const;
 	string getPath() const;
+	string getFilename() const;
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D>& getTex2D();
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& getSRV();

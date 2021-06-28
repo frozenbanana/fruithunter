@@ -94,7 +94,7 @@ private:
 	// vertex Buffers
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 
-	shared_ptr<TextureSet> m_tex_particle;
+	shared_ptr<Texture> m_tex_particle;
 
 	// -- Functions --
 

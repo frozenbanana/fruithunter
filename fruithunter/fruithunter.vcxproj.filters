@@ -306,9 +306,6 @@
     <ClCompile Include="Source\Utility\UI\Menu_Toggle.cpp">
       <Filter>Source\Utility\UI</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Utility\UI\Drawable2D.cpp">
-      <Filter>Source\Utility\UI</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Utility\UI\Sprite2D.cpp">
       <Filter>Source\Utility\UI</Filter>
     </ClCompile>
@@ -335,6 +332,18 @@
     </ClCompile>
     <ClCompile Include="Source\Utility\SteamAPICommunicator.cpp">
       <Filter>Source\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\UI\UIContainer.cpp">
+      <Filter>Source\Utility\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\DRAWABLE2D.CPP">
+      <Filter>Source\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\UI\UI_ToggleIcon.cpp">
+      <Filter>Source\Utility\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\UI\Menu_LeaderboardToggle.cpp">
+      <Filter>Source\Utility\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -569,9 +578,6 @@
     <ClInclude Include="Source\Utility\UI\Menu_Toggle.h">
       <Filter>Source\Utility\UI</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Utility\UI\Drawable2D.h">
-      <Filter>Source\Utility\UI</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Utility\UI\Sprite2D.h">
       <Filter>Source\Utility\UI</Filter>
     </ClInclude>
@@ -737,6 +743,15 @@
     </ClInclude>
     <ClInclude Include="Source\Utility\fstreamLib.h">
       <Filter>Source\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\UI\UIContainer.h">
+      <Filter>Source\Utility\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\UI\UI_ToggleIcon.h">
+      <Filter>Source\Utility\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utility\UI\Menu_LeaderboardToggle.h">
+      <Filter>Source\Utility\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

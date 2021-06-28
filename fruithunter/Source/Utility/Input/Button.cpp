@@ -3,58 +3,48 @@
 #include "ErrorLogger.h"
 #include "Renderer.h"
 
-Button::Button() {}
+Button::Button() {
+	m_text.setFont("lato.spritefont");
+	m_text.setScale(0.4f);
+	m_text.setAlignment();
+}
 
 Button::~Button() {}
 
 void Button::setLabel(string label) { m_label = label; }
 
-void Button::setPosition(float2 position) { m_position = position; }
-
 void Button::initialize(string label, float2 position) {
 	m_label = label;
-	m_position = position;
+	setPosition(position);
 	m_colour = COL_INACTIVE;
 	m_text.setText(m_label);
-	m_size = m_text.getSize();
-	m_text.setScale(m_size.y * 0.01f);
-	m_text.setAlignment();
 }
 
 void Button::initialize(string label, float2 position, bool on) {
 	m_label = label;
-	m_position = position;
+	setPosition(position);
 	m_on = on;
 	m_isToggle = true;
 	m_colour = COL_INACTIVE;
 	m_text.setText(m_label + ": On");
-	m_size = m_text.getSize();
-	m_text.setScale(m_size.y * 0.01f);
-	m_text.setAlignment();
 }
 
 void Button::initialize(string label, float2 position, Setting value) {
 	m_label = label;
-	m_position = position;
+	setPosition(position);
 	m_isLowMedHighUltra = true;
 	m_lowMedHighUltra = value;
 	m_colour = COL_INACTIVE;
 	m_text.setText(m_label + ": Ultra");
-	m_size = m_text.getSize();
-	m_text.setScale(m_size.y * 0.01f);
-	m_text.setAlignment();
 }
 
 void Button::initialize(string label, float2 position, Resolution value) {
 	m_label = label;
-	m_position = position;
+	setPosition(position);
 	m_isResolution = true;
 	m_resolution = value;
 	m_colour = COL_INACTIVE;
 	m_text.setText(m_label + ": 3840x2160");
-	m_size = m_text.getSize();
-	m_text.setScale(m_size.y * 0.01f);
-	m_text.setAlignment();
 }
 
 void Button::setLowMedHighUltra(Setting value) { m_lowMedHighUltra = value; }
@@ -63,10 +53,10 @@ void Button::setResolution(Resolution value) { m_resolution = value; }
 
 void Button::setOnOff(bool value) { m_on = value; }
 
-BoundingBox2D Button::getBoundingBox() const { 
-	float2 position = m_position;
-	float2 size = m_size;
-	BoundingBox2D bb(position-size/2, position + size/2);
+BoundingBox2D Button::getBoundingBox() const {
+	BoundingBox2D bb;
+	bb.set(Matrix::CreateTranslation(getPosition().x, getPosition().y, 0), m_text.getSize(),
+		float2(0, 0));
 	return bb;
 }
 
@@ -78,10 +68,7 @@ int Button::getResolution() { return m_resolution; }
 
 bool Button::update() {
 	Input* ip = Input::getInstance();
-	float2 screenModifier = float2((SCREEN_WIDTH / 1280.f), (SCREEN_HEIGHT / 720.f));
 	bool clicked = false;
-
-	float2 size = screenModifier * m_size;
 
 	if (getBoundingBox().isInside(ip->mouseXY())) {
 		if (ip->mousePressed(Input::MouseButton::LEFT)) {
@@ -112,7 +99,7 @@ bool Button::update() {
 
 void Button::draw() {
 	m_text.setColor(m_colour);
-	m_text.setPosition(m_position);
+	m_text.setPosition(getPosition());
 	if (m_isToggle && m_on)
 		m_text.setText(m_label + ": On");
 	else if (m_isToggle && !m_on)

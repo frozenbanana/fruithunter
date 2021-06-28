@@ -5,12 +5,10 @@
 #define COL_INACTIVE Color(1.0f, 1.0f, 1.0f, 1.0f)
 #define COL_ACTIVE Color(1.f, 0.0f, 0.0f, 1.0f)
 
-class Button {
+class Button : public Transformation2D {
 private:
 	Text2D m_text;
 	string m_label;
-	float2 m_position;
-	float2 m_size;
 	Color m_colour;
 	bool m_on = true;
 	bool m_isToggle = false;
@@ -26,7 +24,6 @@ public:
 	Button();
 	~Button();
 	void setLabel(string label);
-	void setPosition(float2 position);
 	void initialize(string label, float2 position);
 	void initialize(string label, float2 position, bool on);
 	void initialize(string label, float2 position, Setting value);

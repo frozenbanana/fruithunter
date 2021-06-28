@@ -25,7 +25,7 @@ private:
 	//textures
 	//const string m_prePath = "assets/Meshes/Textures/"; 
 	//Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_textures[AreaTag::NR_OF_AREAS];
-	shared_ptr<TextureSet> m_textures[AreaTag::NR_OF_AREAS];
+	shared_ptr<Texture> m_textures[AreaTag::NR_OF_AREAS];
 
 	//light
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_lightBuffer;

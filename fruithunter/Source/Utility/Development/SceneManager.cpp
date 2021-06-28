@@ -96,10 +96,15 @@ void SceneManager::draw_color() {
 	// arrow partile effects
 	for (size_t i = 0; i < scene->m_arrowParticles.size(); i++)
 		scene->m_arrowParticles[i]->draw();
+}
 
+void SceneManager::draw_finalize() {
+	RPYCamera* camera = &scene->m_camera;
+
+	// God Rays
 	Renderer::getInstance()->draw_godRays(camera->getViewProjMatrix());
 
-	//FXAA
+	// FXAA
 	Renderer::getInstance()->draw_FXAA();
 
 	// Capture frame

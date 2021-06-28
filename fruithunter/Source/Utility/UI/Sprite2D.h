@@ -3,7 +3,7 @@
 #include <SpriteBatch.h>
 #include <CommonStates.h>
 #include <SpriteFont.h>
-#include "Drawable2D.h"
+#include "Translation2DStructures.h"
 
 #include "Texture.h"
 
@@ -14,8 +14,6 @@ private:
 	static unique_ptr<SpriteBatch> m_spriteBatch;
 	static unique_ptr<CommonStates> m_states;
 
-	HorizontalAlignment m_horizontalAligment = AlignLeft;
-	VerticalAlignment m_verticalAlignment = AlignTop;
 	Color m_color = Color(1, 1, 1, 1);
 
 protected:
@@ -24,20 +22,15 @@ protected:
 	void giveTexture(shared_ptr<Texture> tex);
 
 	void _draw(const Transformation2D& source);
+	void _imgui_properties();
 
 public:
+	float2 getLocalSize() const;
 	bool isLoaded() const;
-	XMINT2 getTextureSize() const;
-	float2 getSize() const;
-	BoundingBox2D getBoundingBox() const;
-
 	Color getColor() const;
-	HorizontalAlignment getHorizontalAlignment() const;
-	VerticalAlignment getVerticalAlignment() const;
 	float getAlpha() const;
 
 	void setSize(float2 size);
-	void setAlignment(HorizontalAlignment horizontal = AlignMiddle, VerticalAlignment vertical = AlignCenter);
 	void setColor(Color color);
 	void setAlpha(float alpha);
 

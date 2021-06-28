@@ -1,19 +1,6 @@
 #pragma once
 #include "GlobalNamespaces.h"
 
-class BoundingBox2D {
-private:
-	float2 m_point_start, m_point_end;
-
-public:
-	float2 getSize() const;
-
-	void set(float2 pStart, float2 pEnd);
-
-	bool isInside(float2 point) const;
-
-	BoundingBox2D(float2 pStart = float2(), float2 pEnd = float2());
-};
 class Transformation2D {
 protected:
 	float2 m_position;
@@ -38,8 +25,59 @@ public:
 	static Transformation2D transform(const Transformation2D& target, const Transformation2D& matrix);
 	static float2 transform(const float2& target, const Transformation2D& matrix);
 
+	void imgui_properties();
+
 	Transformation2D(float2 position = float2(0.), float2 scale = float2(1.), float rotation = 0);
 };
+
+class BoundingBox2D {
+private:
+	Matrix m_matrix;
+	float2 m_size, m_alignment;
+
+public:
+	void set(const Matrix& matrix, float2 size, float2 alignment);
+
+	float2 getCenter() const;
+	vector<float2> getPoints() const;
+
+	bool isInside(float2 point) const;
+};
+
+enum HorizontalAlignment { AlignLeft = -1, AlignMiddle = 0, AlignRight = 1 };
+enum VerticalAlignment { AlignTop = -1, AlignCenter = 0, AlignBottom = 1 };
+
+class Drawable2D : public Transformation2D {
+private:
+protected:
+	bool m_drawing = true;
+	HorizontalAlignment m_horizontalAligment = HorizontalAlignment::AlignMiddle;
+	VerticalAlignment m_verticalAlignment = VerticalAlignment::AlignCenter;
+
+	virtual void _draw(const Transformation2D& source) = 0;
+	virtual void _imgui_properties();
+
+public:
+	void draw();
+	void draw(const Transformation2D& matrix);
+
+	bool isDrawing() const;
+	virtual float2 getLocalSize() const = 0;
+	float2 getSize() const;
+	BoundingBox2D getBoundingBox() const;
+	BoundingBox2D getBoundingBox(Matrix parentMatrices) const;
+
+	void setDrawState(bool state);
+	void setSize(float2 size);
+	void setAlignment(
+		HorizontalAlignment horizontal = AlignMiddle, VerticalAlignment vertical = AlignCenter);
+	HorizontalAlignment getHorizontalAlignment() const;
+	VerticalAlignment getVerticalAlignment() const;
+	float2 getAlignment() const;
+
+	void imgui_properties();
+};
+
 class Projectile : public Transformation2D {
 private:
 	float2 m_velocity;

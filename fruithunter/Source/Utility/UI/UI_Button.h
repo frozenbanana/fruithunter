@@ -1,9 +1,8 @@
 #pragma once
-#include "Drawable2D.h"
+#include "GlobalNamespaces.h"
 #include "Sprite2D.h"
 #include "Text2D.h"
 #include "Input.h"
-#include "GlobalNamespaces.h"
 
 class UI_Button : public Drawable2D {
 private:
@@ -22,12 +21,11 @@ private:
 	Input::MouseButton m_key_activator = Input::MouseButton::LEFT;
 
 	// -- Private Functions --
-	bool mouseOn(float2 mp) const;
-
 	void _draw(const Transformation2D& transformation);
+	void _imgui_properties();
 
 public:
-	bool isHovering(float2 mp) const;
+	float2 getLocalSize() const;
 
 	void setText(string text);
 	void setFont(string font);

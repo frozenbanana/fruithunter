@@ -221,6 +221,7 @@
     <ClCompile Include="Source\Utility\Development\SceneEditorManager.cpp" />
     <ClCompile Include="Source\Utility\Development\SceneManager.cpp" />
     <ClCompile Include="Source\Utility\Development\TerrainBatch.cpp" />
+    <ClCompile Include="Source\Utility\DRAWABLE2D.CPP" />
     <ClCompile Include="Source\Utility\Error\ErrorLogger.cpp" />
     <ClCompile Include="Source\Utility\Fragment.cpp" />
     <ClCompile Include="Source\Utility\Input\Button.cpp" />
@@ -235,7 +236,7 @@
     <ClCompile Include="Source\Utility\SteamAPICommunicator.cpp" />
     <ClCompile Include="Source\Utility\Timer\Timer.cpp" />
     <ClCompile Include="Source\Utility\Translation2DStructures.cpp" />
-    <ClCompile Include="Source\Utility\UI\Drawable2D.cpp" />
+    <ClCompile Include="Source\Utility\UI\Menu_LeaderboardToggle.cpp" />
     <ClCompile Include="Source\Utility\UI\Menu_PoppingArrowButton.cpp" />
     <ClCompile Include="Source\Utility\UI\Menu_PoppingButton.cpp" />
     <ClCompile Include="Source\Utility\UI\Menu_Toggle.cpp" />
@@ -244,7 +245,9 @@
     <ClCompile Include="Source\Utility\UI\Sprite2DAnimation.cpp" />
     <ClCompile Include="Source\Utility\UI\Text2D.cpp" />
     <ClCompile Include="Source\Utility\UI\Texture.cpp" />
+    <ClCompile Include="Source\Utility\UI\UIContainer.cpp" />
     <ClCompile Include="Source\Utility\UI\UI_Button.cpp" />
+    <ClCompile Include="Source\Utility\UI\UI_ToggleIcon.cpp" />
     <ClCompile Include="Source\Utility\VariableSyncer\VariableSyncer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -371,7 +374,7 @@
     <ClInclude Include="Source\Utility\SteamAPICommunicator.h" />
     <ClInclude Include="Source\Utility\Timer\Timer.h" />
     <ClInclude Include="Source\Utility\Translation2DStructures.h" />
-    <ClInclude Include="Source\Utility\UI\Drawable2D.h" />
+    <ClInclude Include="Source\Utility\UI\Menu_LeaderboardToggle.h" />
     <ClInclude Include="Source\Utility\UI\Menu_PoppingArrowButton.h" />
     <ClInclude Include="Source\Utility\UI\Menu_PoppingButton.h" />
     <ClInclude Include="Source\Utility\UI\Menu_Toggle.h" />
@@ -380,7 +383,9 @@
     <ClInclude Include="Source\Utility\UI\Sprite2DAnimation.h" />
     <ClInclude Include="Source\Utility\UI\Text2D.h" />
     <ClInclude Include="Source\Utility\UI\Texture.h" />
+    <ClInclude Include="Source\Utility\UI\UIContainer.h" />
     <ClInclude Include="Source\Utility\UI\UI_Button.h" />
+    <ClInclude Include="Source\Utility\UI\UI_ToggleIcon.h" />
     <ClInclude Include="Source\Utility\VariableSyncer\VariableSyncer.h" />
   </ItemGroup>
   <ItemGroup>

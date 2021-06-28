@@ -1,10 +1,11 @@
 #include "Sprite2DAlphaAnimation.h"
 #include "Renderer.h"
+#include "TextureRepository.h"
 
 ShaderSet Sprite2DAlphaAnimation::m_shader_alphaAnimation;
 
 void Sprite2DAlphaAnimation::_draw(const Transformation2D& source) {
-	if (m_sourceTexture.isLoaded()) {
+	if (m_sourceTexture->isLoaded()) {
 		// imgui_animationSetting();
 		// generate
 		m_cbuffer_animation.update(m_animationSetting);
@@ -15,11 +16,11 @@ void Sprite2DAlphaAnimation::_draw(const Transformation2D& source) {
 		Renderer::getInstance()->bindQuadVertexBuffer();
 
 		Renderer::getDeviceContext()->PSSetShaderResources(
-			0, 1, m_sourceTexture.getSRV().GetAddressOf());
+			0, 1, m_sourceTexture->getSRV().GetAddressOf());
 		Renderer::getDeviceContext()->PSSetShaderResources(
-			1, 1, m_sourceBackTexture.getSRV().GetAddressOf());
+			1, 1, m_sourceBackTexture->getSRV().GetAddressOf());
 		Renderer::getDeviceContext()->PSSetShaderResources(
-			2, 1, m_animationTexture.getSRV().GetAddressOf());
+			2, 1, m_animationTexture->getSRV().GetAddressOf());
 
 		D3D11_VIEWPORT vp;
 		vp.Width = m_destinationTexture->getSize().x;
@@ -72,29 +73,37 @@ void Sprite2DAlphaAnimation::setFadeLength(float length) { m_animationSetting.fa
 
 bool Sprite2DAlphaAnimation::load(string pathSource, string pathAnimation) {
 	m_animationSetting.useBackground = false;
-	if (!m_sourceTexture.load(pathSource))
+	m_sourceTexture = TextureRepository::get(pathSource, TextureRepository::Type::type_sprites);
+	if (m_sourceTexture.get() == nullptr)
 		return false;
-	if (!m_animationTexture.load(pathAnimation))
+	m_animationTexture =
+		TextureRepository::get(pathAnimation, TextureRepository::Type::type_sprites);
+	if (m_animationTexture == nullptr)
 		return false;
 	D3D11_TEXTURE2D_DESC desc;
-	m_sourceTexture.getTex2D().Get()->GetDesc(&desc);
-	if (m_destinationTexture->create(m_sourceTexture.getSize(), desc.Format))
+	m_sourceTexture->getTex2D().Get()->GetDesc(&desc);
+	if (m_destinationTexture->create(m_sourceTexture->getSize(), desc.Format))
 		return false;
 	return true;
 }
 
 bool Sprite2DAlphaAnimation::load(string pathSource, string pathSourceBack, string pathAnimation) {
-	if (!m_sourceTexture.load(pathSource))
+	m_sourceTexture = TextureRepository::get(pathSource, TextureRepository::Type::type_sprites);
+	if (m_sourceTexture.get() == nullptr)
 		return false;
-	if (!m_sourceBackTexture.load(pathSourceBack))
+	m_sourceBackTexture =
+		TextureRepository::get(pathSourceBack, TextureRepository::Type::type_sprites);
+	if (m_sourceBackTexture.get() == nullptr)
 		return false;
 	else
 		m_animationSetting.useBackground = true;
-	if (!m_animationTexture.load(pathAnimation))
+	m_animationTexture =
+		TextureRepository::get(pathAnimation, TextureRepository::Type::type_sprites);
+	if (m_animationTexture == nullptr)
 		return false;
 	D3D11_TEXTURE2D_DESC desc;
-	m_sourceTexture.getTex2D().Get()->GetDesc(&desc);
-	if (m_destinationTexture->create(m_sourceTexture.getSize(), desc.Format))
+	m_sourceTexture->getTex2D().Get()->GetDesc(&desc);
+	if (m_destinationTexture->create(m_sourceTexture->getSize(), desc.Format))
 		return false;
 	return true;
 }

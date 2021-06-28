@@ -5,6 +5,7 @@
 #include "TextureRepository.h"
 #include "filesystemHelper.h"
 #include "CSteamLeaderboards.h"
+#include "UIContainer.h"
 
 /* Handles editing and drawing of scene data */
 class SceneEditorManager : public SceneManager {
@@ -68,7 +69,7 @@ private:
 	Entity m_pointer_obj;
 
 	// Resources
-	vector<shared_ptr<TextureSet>> m_heightmap_textures;
+	vector<shared_ptr<Texture>> m_heightmap_textures;
 
 	vector<string> m_loadable_entity;
 	struct EntityView {

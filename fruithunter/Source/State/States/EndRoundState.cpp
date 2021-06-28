@@ -143,7 +143,7 @@ void EndRoundState::play() {
 
 	m_btn_play.set(float2(width/2 - 125, height - 100), "Try Again", 0.2f);
 	m_btn_back.set(float2(width / 2 + 125, height - 100), "Level Select", 0.4f);
-	m_btn_back.setTextScale(0.7f);
+	m_btn_back.setTextScale(1.05f);
 }
 
 void EndRoundState::restart() {}

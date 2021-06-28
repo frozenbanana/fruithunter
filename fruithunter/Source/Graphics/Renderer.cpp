@@ -353,7 +353,7 @@ void Renderer::draw_FXAA() {
 		m_shader_FXAA.bindShadersAndLayout();
 
 		// Bind constant buffer
-		bindConstantBuffer_ScreenSize(6);
+		bindConstantBuffer_ScreenSize(8);
 
 		// Bind vertex buffer
 		bindQuadVertexBuffer();

@@ -1,19 +1,19 @@
 #include "Texture.h"
 #include "Renderer.h"
 #include "ErrorLogger.h"
+#include "filesystemHelper.h"
 
 bool Texture::create(XMINT2 size, DXGI_FORMAT format) { return create(size, D3D11_BIND_SHADER_RESOURCE, format); }
 
 bool Texture::load(string path) {
-	m_path = PATH_SPRITE + path;
-	wstring str(m_path.begin(), m_path.end());
+	wstring str(path.begin(), path.end());
 
 	m_SRV.Reset();
 	Microsoft::WRL::ComPtr<ID3D11Resource> resource;
 	HRESULT res = CreateWICTextureFromFile(Renderer::getDevice(), str.c_str(),
 		resource.GetAddressOf(), m_SRV.ReleaseAndGetAddressOf());
 	if (FAILED(res)) {
-		ErrorLogger::logError("(Texture) Failed to create SRV buffer! Path: " + m_path, res);
+		ErrorLogger::logError("(Texture) Failed to create SRV buffer! Path: " + path, res);
 		return false;
 	}
 
@@ -21,6 +21,9 @@ bool Texture::load(string path) {
 	CD3D11_TEXTURE2D_DESC texDesc;
 	m_tex2D->GetDesc(&texDesc);
 
+	m_path = path;
+	vector<string> sections = splitPath(path);
+	m_filename = sections.back();
 	m_size = XMINT2(texDesc.Width, texDesc.Height);
 	m_loaded = true;
 	return true;
@@ -72,6 +75,8 @@ XMINT2 Texture::getSize() const { return m_size; }
 
 string Texture::getPath() const { return m_path; }
 
+string Texture::getFilename() const { return m_filename; }
+
 Microsoft::WRL::ComPtr<ID3D11Texture2D>& Texture::getTex2D() { return m_tex2D; }
 
 Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& Texture::getSRV() { return m_SRV; }
@@ -101,8 +106,7 @@ bool RenderTexture::create(XMINT2 size, DXGI_FORMAT format) {
 }
 
 bool RenderTexture::load(string path) {
-	m_path = PATH_SPRITE + path;
-	wstring str(m_path.begin(), m_path.end());
+	wstring str(path.begin(), path.end());
 	// create SRV and Tex2D
 	m_SRV.Reset();
 	Microsoft::WRL::ComPtr<ID3D11Resource> resource;
@@ -110,7 +114,7 @@ bool RenderTexture::load(string path) {
 		D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET, 0, 0,
 		WIC_LOADER_DEFAULT, resource.GetAddressOf(), m_SRV.ReleaseAndGetAddressOf());
 	if (FAILED(res)) {
-		ErrorLogger::logError("(RenderTexture) Failed to create SRV buffer! Path: " + m_path, res);
+		ErrorLogger::logError("(RenderTexture) Failed to create SRV buffer! Path: " + path, res);
 		return false;
 	}
 	// get properties
@@ -127,9 +131,13 @@ bool RenderTexture::load(string path) {
 	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	res = Renderer::getDevice()->CreateRenderTargetView(resource.Get(), &rtvDesc, m_RTV.GetAddressOf());
 	if (FAILED(res)) {
-		ErrorLogger::logError("(RenderTexture) Failed to create RTV buffer! Path: " + m_path, res);
+		ErrorLogger::logError("(RenderTexture) Failed to create RTV buffer! Path: " + path, res);
 		return false;
 	}
+
+	m_path = path;
+	vector<string> sections = splitPath(path);
+	m_filename = sections.back();
 
 	m_loaded = true;
 	return true;

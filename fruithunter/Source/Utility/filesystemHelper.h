@@ -17,6 +17,20 @@ static std::wstring str2wstr(const std::string& s) {
 	return r;
 }
 
+static vector<string> splitPath(string path) {
+	vector<string> sections;
+	sections.push_back("");
+	for (size_t i = 0; i < path.length(); i++) {
+		if (path[i] == '/') {
+			sections.push_back("");
+		}
+		else {
+			sections.back() += path[i];
+		}
+	}
+	return sections;
+}
+
 static void read_directory(const std::string& name, vector<string>& v) {
 	v.clear();
 	std::string pattern(name);
@@ -31,6 +45,8 @@ static void read_directory(const std::string& name, vector<string>& v) {
 		} while (FindNextFile(hFind, &data) != 0);
 		FindClose(hFind);
 	}
+	v.erase(v.begin()); // remove '.'
+	v.erase(v.begin()); // remove '..'
 }
 
 static void create_directory(string path) { CreateDirectory(str2wstr(path).c_str(), NULL); }

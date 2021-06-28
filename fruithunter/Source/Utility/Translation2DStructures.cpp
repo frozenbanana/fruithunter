@@ -15,11 +15,11 @@ float Transformation2D::getRotation() const { return m_rotation; }
 
 float2 Transformation2D::getNormal() const { return float2(cos(m_rotation), sin(m_rotation)); }
 
-float4x4 Transformation2D::getMatrix() const { 
+float4x4 Transformation2D::getMatrix() const {
 	float4x4 m = float4x4::CreateScale(m_scale.x, m_scale.y, 1) *
 				 float4x4::CreateRotationZ(m_rotation) *
 				 float4x4::CreateTranslation(m_position.x, m_position.y, 0);
-	return m; 
+	return m;
 }
 
 void Transformation2D::setPosition(float2 position) { m_position = position; }
@@ -38,7 +38,7 @@ Transformation2D Transformation2D::transform(
 	const Transformation2D& target, const Transformation2D& matrix) {
 	Transformation2D t = target;
 	t.rotate(matrix.getRotation());
-	t.setScale(t.getScale()*matrix.getScale());
+	t.setScale(t.getScale() * matrix.getScale());
 	t.setPosition(transform(t.getPosition(), matrix));
 
 	return t;
@@ -46,6 +46,12 @@ Transformation2D Transformation2D::transform(
 
 float2 Transformation2D::transform(const float2& target, const Transformation2D& matrix) {
 	return float2::Transform(target, matrix.getMatrix());
+}
+
+void Transformation2D::imgui_properties() {
+	ImGui::InputFloat2("Position", (float*)&m_position);
+	ImGui::InputFloat2("Scale", (float*)&m_scale);
+	ImGui::SliderFloat("Rotation", &m_rotation, 0, XM_PI * 2);
 }
 
 Projectile::Projectile(float2 position, float mass) : Transformation2D(position) { setMass(mass); }
@@ -77,36 +83,46 @@ void Projectile::setMass(float mass) { m_mass = mass; }
 void Projectile::applyForce(float2 force) { m_acceleration += force / m_mass; }
 
 void Projectile::update(float dt) {
-	//position, velocity, acceleration
-	m_velocity += (m_acceleration+m_gravity) * dt;
+	// position, velocity, acceleration
+	m_velocity += (m_acceleration + m_gravity) * dt;
 	m_position += m_velocity * dt;
 	m_velocity *= pow(m_friction, dt);
 	m_acceleration = float2(0.);
 
-	//rotation
+	// rotation
 	m_rotation += m_rotationVelocity * dt;
-
 }
 
-float2 BoundingBox2D::getSize() const { return m_point_end-m_point_start; }
-
-void BoundingBox2D::set(float2 pStart, float2 pEnd) { 
-	m_point_start = pStart;
-	m_point_end = pEnd;
+void BoundingBox2D::set(const Matrix& matrix, float2 size, float2 alignment) {
+	m_matrix = matrix;
+	m_size = size;
+	m_alignment = alignment;
 }
 
-#include "Input.h"
+float2 BoundingBox2D::getCenter() const {
+	float2 halfSize = m_size / 2.f;
+	float2 point_origin = halfSize * m_alignment;
+	return float2::Transform(point_origin, m_matrix);
+}
+
+vector<float2> BoundingBox2D::getPoints() const { 
+	vector<float2> points;
+	points.reserve(4);
+	float2 halfSize = m_size / 2.f;
+	float2 point_origin = halfSize * m_alignment;
+	points.push_back(float2::Transform(-point_origin + halfSize * float2(-1, -1), m_matrix));
+	points.push_back(float2::Transform(-point_origin + halfSize * float2(1, -1), m_matrix));
+	points.push_back(float2::Transform(-point_origin + halfSize * float2(-1, 1), m_matrix));
+	points.push_back(float2::Transform(-point_origin + halfSize * float2(1, 1), m_matrix));
+	return points;
+}
+
 bool BoundingBox2D::isInside(float2 point) const {
-	if (Input::getInstance()->keyPressed(Keyboard::J)) {
-		ErrorLogger::log("mp: [" + to_string(point.x) + " " + to_string(point.y) + "]");
-		ErrorLogger::log(
-			"p1: [" + to_string(m_point_start.x) + " " + to_string(m_point_start.y) + "]");
-		ErrorLogger::log("p2: [" + to_string(m_point_end.x) + " " + to_string(m_point_end.y) + "]");
-		ErrorLogger::log("");
-	}
-
-	return (point.x > m_point_start.x && point.y > m_point_start.y && point.x < m_point_end.x &&
-			point.y < m_point_end.y);
+	float2 localPoint = float2::Transform(point, m_matrix.Invert());
+	float2 halfSize = m_size / 2.f;
+	float2 point_origin = halfSize * m_alignment;
+	float2 point_start = -point_origin - halfSize;
+	float2 point_end = -point_origin + halfSize;
+	return (localPoint.x > point_start.x && localPoint.y > point_start.y &&
+			localPoint.x < point_end.x && localPoint.y < point_end.y);
 }
-
-BoundingBox2D::BoundingBox2D(float2 pStart, float2 pEnd) { set(pStart, pEnd); }

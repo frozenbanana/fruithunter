@@ -21,7 +21,7 @@ bool Menu_PoppingArrowButton::update_behavior(float dt) {
 	if (m_timer > m_delay) {
 		setRotation(cos(m_timer - m_delay * 5) * 0.1f);
 		clicked = update(dt, mp);
-		if (isHovering(mp)) {
+		if (getBoundingBox().isInside(mp)) {
 			m_scale_desired = m_scale_desired_hovering;
 		}
 		else {

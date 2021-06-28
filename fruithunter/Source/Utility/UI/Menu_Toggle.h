@@ -1,5 +1,5 @@
 #pragma once
-#include "Drawable2D.h"
+#include "Translation2DStructures.h"
 #include "Sprite2D.h"
 #include "Text2D.h"
 #include "Input.h"
@@ -33,9 +33,10 @@ private:
 	bool isClicked(float2 mp) const;
 
 	void _draw(const Transformation2D& source);
+	void _imgui_properties();
 
 public:
-	float2 getSize() const;
+	float2 getLocalSize() const;
 
 	void setAlignment(HorizontalAlignment ha, VerticalAlignment va);
 

@@ -54,7 +54,7 @@ private:
 	static ConstantBuffer<AnimationSetting> m_cbuffer_animation;
 
 	// Noise Resource
-	shared_ptr<TextureSet> m_tex_noise;
+	shared_ptr<Texture> m_tex_noise;
 	static ConstantBuffer<float4> m_cbuffer_noiseSize;
 
 	// Shader

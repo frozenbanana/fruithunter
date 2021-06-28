@@ -39,6 +39,7 @@ public:
 	void draw_shadow();
 	void setup_color();
 	void draw_color();
+	void draw_finalize();
 	void draw_hud();
 
 	void load(string folder);

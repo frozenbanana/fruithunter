@@ -33,6 +33,7 @@ void PlayState::draw() {
 	sceneManager.draw_shadow();
 	sceneManager.setup_color();
 	sceneManager.draw_color();
+	sceneManager.draw_finalize();
 	sceneManager.draw_hud();
 }
 

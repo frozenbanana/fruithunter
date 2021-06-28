@@ -19,7 +19,7 @@ ConstantBuffer<float4> Terrain::m_cbuffer_noiseSize;
 
 void Terrain::bindNoiseTexture(size_t slot) {
 	Renderer::getDeviceContext()->GSSetShaderResources(
-		slot, (UINT)1, m_tex_noise->view.GetAddressOf());
+		slot, (UINT)1, m_tex_noise->getSRV().GetAddressOf());
 }
 
 void Terrain::update_strawBuffer() { m_cbuffer_settings.update(m_grass_strawSetting); }
@@ -232,7 +232,7 @@ void Terrain::initilize(string filename, XMINT2 subsize, XMINT2 splits) {
 	m_tex_noise = TextureRepository::get("noise_grass.png");
 	// grass noise buffer
 	m_cbuffer_noiseSize.update(float4(
-		(float)m_tex_noise->description.Width, (float)m_tex_noise->description.Height, 0.f, 0.f));
+		(float)m_tex_noise->getSize().x, (float)m_tex_noise->getSize().y, 0.f, 0.f));
 
 	// load terrain
 	build(filename, subsize, splits);

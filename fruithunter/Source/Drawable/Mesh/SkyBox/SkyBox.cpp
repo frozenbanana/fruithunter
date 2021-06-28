@@ -37,8 +37,8 @@ bool SkyBox::bindTextures() {
 
 	// bind texture maps
 	if (m_textures[m_oldLight].get() != nullptr && m_textures[m_newLight].get() != nullptr) {
-		deviceContext->PSSetShaderResources(1, 1, m_textures[m_oldLight]->view.GetAddressOf());
-		deviceContext->PSSetShaderResources(2, 1, m_textures[m_newLight]->view.GetAddressOf());
+		deviceContext->PSSetShaderResources(1, 1, m_textures[m_oldLight]->getSRV().GetAddressOf());
+		deviceContext->PSSetShaderResources(2, 1, m_textures[m_newLight]->getSRV().GetAddressOf());
 		return true;
 	}
 	else {
@@ -58,8 +58,8 @@ bool SkyBox::bindTexture(AreaTag tag) {
 
 	// bind texture maps
 	if (m_textures[tag].get() != nullptr) {
-		deviceContext->PSSetShaderResources(1, 1, m_textures[tag]->view.GetAddressOf());
-		deviceContext->PSSetShaderResources(2, 1, m_textures[tag]->view.GetAddressOf());
+		deviceContext->PSSetShaderResources(1, 1, m_textures[tag]->getSRV().GetAddressOf());
+		deviceContext->PSSetShaderResources(2, 1, m_textures[tag]->getSRV().GetAddressOf());
 		return true;
 	}
 	else {

@@ -644,9 +644,7 @@ void SceneEditorManager::select_fragment(FragmentID id) {
 }
 
 void SceneEditorManager::readSceneDirectory() {
-	vector<string> dirs;
-	read_directory("assets/Scenes", dirs);
-	m_loadable_scenes = vector<string>(dirs.begin() + 2, dirs.end());
+	read_directory("assets/Scenes", m_loadable_scenes);
 }
 
 void SceneEditorManager::update_panel_entity_unselected() {
@@ -771,7 +769,10 @@ void SceneEditorManager::update_panel_ps_unselected() {
 			return true;
 		}
 	};
-	ImGui::Combo("Description Templates", &selectedIdx, &Funcs::ItemGetter, list->data(), list->size(), 25);
+	if (ImGui::Combo("Description Templates", &selectedIdx, &Funcs::ItemGetter, list->data(),
+		list->size(), 25)) {
+		desc = list->at(selectedIdx);
+	}
 	ImGui::Separator();
 	desc->imgui_properties();
 	if (ImGui::Button("Save")) {
@@ -1211,9 +1212,6 @@ void SceneEditorManager::draw_color() {
 	for (size_t i = 0; i < scene->m_particleSystems.size(); i++) {
 		scene->m_particleSystems[i]->draw();
 	}
-
-	// Capture frame
-	Renderer::getInstance()->captureFrame();
 }
 
 void SceneEditorManager::draw_hud() { m_crosshair.draw(); }
@@ -1247,6 +1245,7 @@ void SceneEditorManager::draw() {
 	draw_shadow();
 	setup_color();
 	draw_color();
+	draw_finalize();
 	draw_editorWorldObjects();
 	draw_hud();
 }

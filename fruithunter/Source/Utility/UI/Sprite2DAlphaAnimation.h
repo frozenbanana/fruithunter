@@ -5,7 +5,7 @@
 class Sprite2DAlphaAnimation : public Sprite2D {
 private:
 	static ShaderSet m_shader_alphaAnimation;
-	Texture m_sourceTexture, m_sourceBackTexture, m_animationTexture;
+	shared_ptr<Texture> m_sourceTexture, m_sourceBackTexture, m_animationTexture;
 	shared_ptr<RenderTexture> m_destinationTexture = make_shared<RenderTexture>();
 
 	struct AnimationSetting {
