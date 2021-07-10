@@ -136,9 +136,11 @@ void Arrow::update(float dt) {
 		lookAt(getPosition() + m_velocity);
 	}
 	//update trail
-	if (m_trailEffect.get() != nullptr) {
-		m_trailEffect->setPosition(getPosition_back());
-	}
+	//if (m_trailEffect.get() != nullptr) {
+	//	m_trailEffect->setPosition(getPosition_back());
+	//}
+	if (m_trail.get())
+		m_trail->setPosition(getPosition_back());
 }
 
 void Arrow::initilize(float3 frontPosition, float3 velocity) { 
@@ -151,16 +153,26 @@ void Arrow::changeState(bool state) {
 	m_active = state;
 	if (state == true) {
 		// create trail effect when activated
-		m_trailEffect = make_shared<ParticleSystem>();
-		m_trailEffect->load("arrow glitter", 5000);
-		m_trailEffect->setEmitingState(true);
-		SceneManager::getScene()->m_arrowParticles.push_back(m_trailEffect);
+		m_trail = make_shared<EffectSystem>();
+		m_trail->loadFromPreset("arrow_glitter");
+		m_trail->emit(1); // force 1 emit to stop it from being deleted instantly
+		SceneManager::getScene()->m_arrowParticles.push_back(m_trail);
+
+		//m_trailEffect = make_shared<ParticleSystem>();
+		//m_trailEffect->load("arrow glitter", 5000);
+		//m_trailEffect->setEmitingState(true);
+		//SceneManager::getScene()->m_arrowParticles.push_back(m_trailEffect);
 	}
 	else {
 		// turn off trail effect (will be deleted when empty)
-		if (m_trailEffect.get() != nullptr) {
-			m_trailEffect->setEmitingState(false);
-			m_trailEffect.reset();
+		//if (m_trailEffect.get() != nullptr) {
+		//	m_trailEffect->setEmitingState(false);
+		//	m_trailEffect.reset();
+		//}
+
+		if (m_trail.get()) {
+			m_trail->setEmittingState(false);
+			m_trail.reset();
 		}
 	}
 }

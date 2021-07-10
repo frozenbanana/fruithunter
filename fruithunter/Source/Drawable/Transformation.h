@@ -53,8 +53,8 @@ public:
 	/* Bind world&invWorld matrix to Pixel Shader. */
 	void PSBindMatrix(size_t indexRegister);
 
-	void stream_write(fstream& file);
-	void stream_read(fstream& file);
+	void stream_write(ofstream& file);
+	void stream_read(ifstream& file);
 
 	void imgui_properties();
 

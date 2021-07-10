@@ -5,6 +5,7 @@
 #include "SeaEffect.h"
 #include "TerrainBatch.h"
 #include "ParticleSystem.h"
+#include "EffectSystem.h"
 #include "SkyBox.h"
 #include "Player.h"
 #include "CollectionPoint.h"
@@ -14,6 +15,7 @@
 #include "Banana.h"
 #include "DragonFruit.h"
 #include "Melon.h"
+#include "Pomegranate.h"
 
 /*
  * Handles the file information structure
@@ -48,6 +50,9 @@ public:
 		size_t capacity;
 	};
 	vector<ParticleSystemContent> m_particleSystemContents;
+
+	// Effects
+	vector<shared_ptr<EffectSystem>> m_effects;
 
 	//entities
 	struct GroupInstance {
@@ -122,10 +127,13 @@ public:
 
 	// Arrows
 	vector<shared_ptr<Arrow>> m_arrows;
-	vector<shared_ptr<ParticleSystem>> m_arrowParticles;
+	vector<shared_ptr<EffectSystem>> m_arrowParticles;
 
 	// ParticleSystems
 	vector<shared_ptr<ParticleSystem>> m_particleSystems;
+
+	// effects
+	vector<shared_ptr<EffectSystem>> m_effects;
 
 	// Fruits
 	std::vector<shared_ptr<Fruit>> m_fruits;

@@ -184,7 +184,7 @@ float3 Environment::getRandomSpawnPoint() {
 }
 
 void Environment::loadFromBinFile(string path) {
-	fstream file;
+	ifstream file;
 	file.open(path, ios::in | ios::binary);
 	if (file.is_open()) {
 		// area
@@ -207,7 +207,7 @@ void Environment::loadFromBinFile(string path) {
 }
 
 void Environment::storeToBinFile(string path) {
-	fstream file;
+	ofstream file;
 	file.open(path, ios::out | ios::binary);
 	if (file.is_open()) {
 		// area

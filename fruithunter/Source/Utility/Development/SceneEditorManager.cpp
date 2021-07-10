@@ -71,10 +71,10 @@ void SceneEditorManager::update_imgui_leaderboard() {
 
 void SceneEditorManager::update_imgui_library() {
 	static const string libraryTabsStr[LibraryTab::tab_count] = { "Terrain", "Entity", "Sea",
-		"Particle System" };
+		"Particle System", "Effect"};
 	const ImVec4 colorBlueActive = ImVec4(51 / 255.f, 105 / 255.f, 173 / 255.f, 1);
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8, 0));
-	for (size_t i = 0; i < etab_count; i++) {
+	for (size_t i = 0; i < tab_count; i++) {
 		bool pop = false;
 		if (m_libraryTabOpen == (LibraryTab)i) {
 			ImGui::PushStyleColor(ImGuiCol_Button, colorBlueActive);
@@ -87,7 +87,7 @@ void SceneEditorManager::update_imgui_library() {
 		}
 		if (pop)
 			ImGui::PopStyleColor(3);
-		if (i + 1 < etab_count)
+		if (i + 1 < tab_count)
 			ImGui::SameLine();
 	}
 	ImGui::PopStyleVar(1);
@@ -112,6 +112,10 @@ void SceneEditorManager::update_imgui_library() {
 	case SceneEditorManager::tab_particleSystem:
 		update_panel(scene->m_particleSystems, m_libraryTabOpen,
 			&SceneEditorManager::update_panel_ps_unselected);
+		break;
+	case SceneEditorManager::tab_effect:
+		update_panel(scene->m_effects, m_libraryTabOpen,
+			&SceneEditorManager::update_panel_effect_unselected);
 		break;
 	}
 	ImGui::EndGroup();
@@ -622,6 +626,9 @@ void SceneEditorManager::select_index(LibraryTab tab, int index) {
 		case SceneEditorManager::tab_particleSystem:
 			m_transformable = static_cast<Transformation*>(scene->m_particleSystems[index].get());
 			break;
+		case SceneEditorManager::tab_effect:
+			m_transformable = static_cast<Transformation*>(scene->m_effects[index].get());
+			break;
 		}
 	}
 }
@@ -644,7 +651,7 @@ void SceneEditorManager::select_fragment(FragmentID id) {
 }
 
 void SceneEditorManager::readSceneDirectory() {
-	read_directory("assets/Scenes", m_loadable_scenes);
+	SimpleFilesystem::readDirectory("assets/Scenes", m_loadable_scenes);
 }
 
 void SceneEditorManager::update_panel_entity_unselected() {
@@ -790,6 +797,8 @@ void SceneEditorManager::update_panel_ps_unselected() {
 	}
 }
 
+void SceneEditorManager::update_panel_effect_unselected() {}
+
 SceneEditorManager::SceneEditorManager() {
 	setPlayerState(false);
 	TextureRepository* tr = TextureRepository::getInstance();
@@ -878,6 +887,11 @@ void SceneEditorManager::update() {
 	// particle system
 	for (size_t i = 0; i < scene->m_particleSystems.size(); i++) {
 		scene->m_particleSystems[i]->update(dt);
+	}
+
+	// effects
+	for (size_t i = 0; i < scene->m_effects.size(); i++) {
+		scene->m_effects[i]->update(dt);
 	}
 
 	////////////EDITOR///////////
@@ -1211,6 +1225,10 @@ void SceneEditorManager::draw_color() {
 	// Particle Systems
 	for (size_t i = 0; i < scene->m_particleSystems.size(); i++) {
 		scene->m_particleSystems[i]->draw();
+	}
+	// effects
+	for (size_t i = 0; i < scene->m_effects.size(); i++) {
+		scene->m_effects[i]->draw();
 	}
 }
 

@@ -53,7 +53,7 @@ protected:
 	float m_endRotation;
 	void setAnimationDestination();
 	void enforceOverTerrain();
-	Fruit(float3 pos = float3(0.f, 0.f, 0.f));
+	Fruit(FruitType type, float3 pos = float3(0.f, 0.f, 0.f));
 	void behaviorReleased() override;
 	void behaviorInactive() override;
 
@@ -95,6 +95,4 @@ public:
 	Skillshot hit(float3 playerPos);
 
 	FruitType getFruitType();
-
-	static shared_ptr<Fruit> createFruitFromType(FruitType type);
 };

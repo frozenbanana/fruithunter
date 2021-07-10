@@ -27,7 +27,8 @@ void Entity::setCollisionForMesh(string meshName) {
 }
 
 bool Entity::atOrUnder(float terrainHeight) const {
-	return getPosition().y <= (terrainHeight + getHalfSizes().y+0.01f);
+	float feet = getBoundingBoxPos().y - getHalfSizes().y;
+	return feet < terrainHeight;
 }
 
 string Entity::getModelName() const {
@@ -274,9 +275,9 @@ float3 Entity::getHalfSizes() const {
 
 float3 Entity::getBoundingBoxPos() const {
 	if (m_mesh.get() != nullptr)
-		return m_mesh->getBoundingBoxPos() + getPosition();
+		return m_mesh->getBoundingBoxPos()*getScale() + getPosition();
 	else
-		return m_meshAnim.getBoundingBoxPos() + getPosition();
+		return m_meshAnim.getBoundingBoxPos()*getScale() + getPosition();
 }
 
 int Entity::getCollisionType() const { return m_collisionData.getCollisionType(); }

@@ -1,27 +1,23 @@
 #pragma once
 #include "Entity.h"
 #include "ParticleSystem.h"
-class CollectionPoint {
+#include "EffectSystem.h"
+class CollectionPoint : public Transformation {
 private:
 	FruitType m_type;
 	Skillshot m_skillType;
-	const size_t m_explosion_emitCount = 300;
-	const size_t m_sparkle_emitRate = 100;
-	const size_t m_stars_emitCount = 15;
-	ParticleSystem m_explosion, m_sparkle, m_stars;
+
 	Entity m_fruit;
 	const float m_fruit_rotationSpeed = 1;
 
-	static float m_distanceThreshold;
-	static float m_acceleration_toPlayer;
-	static float m_startStrength;
-	static float m_slowdown;
-	const float3 m_sparkle_spawnSize = float3(0.3f);
-	const float3 m_explosion_spawnSize = float3(1.0f);
-	float3 m_startPosition;
-	float3 m_position;
+	const float m_distanceThreshold = 1.5f;
+	const float m_acceleration_toPlayer = 30.f;
+	const float m_startStrength = 10.f;
+	const float m_slowdown = 0.1f;
 	float3 m_velocity;
 	bool m_reachedDestination = false;
+
+	EffectSystem m_effect_explosion, m_effect_sparkle, m_effect_stars;
 
 	void setType(FruitType type);
 	void setSkillType(Skillshot skillType);

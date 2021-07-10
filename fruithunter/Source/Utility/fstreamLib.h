@@ -1,6 +1,7 @@
 #pragma once
 #include <fstream>
 #include <string>
+#include <vector>
 
 template <typename VAR> static void fileWrite(ofstream& file, const VAR& variable) {
 	file.write((char*)&variable, sizeof(VAR));
@@ -25,4 +26,16 @@ static void fileRead(ifstream& file, string& str) {
 	str.clear();
 	str.insert(0, text, length);
 	delete[] text;
+}
+
+template <typename VAR> static void fileWrite(ofstream& file, const vector<VAR>& vector) {
+	fileWrite<size_t>(file, vector.size());
+	for (size_t i = 0; i < vector.size(); i++)
+		fileWrite<VAR>(file, vector[i]);
+}
+template <typename VAR> static void fileRead(ifstream& file, vector<VAR>& vector) {
+	size_t size = fileRead<size_t>(file);
+	vector.resize(size);
+	for (size_t i = 0; i < size; i++)
+		fileRead<VAR>(file, vector[i]);
 }

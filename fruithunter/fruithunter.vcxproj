@@ -174,6 +174,7 @@
     <ClCompile Include="Source\Drawable\EntityCollision.cpp" />
     <ClCompile Include="Source\Drawable\HUD.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Dragonfruit.cpp" />
+    <ClCompile Include="Source\Drawable\Mesh\Fruit\Pomegranate.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Terrain\HeightmapMesh.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Apple.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Banana.cpp" />
@@ -184,6 +185,7 @@
     <ClCompile Include="Source\Drawable\Mesh\MeshHandler.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\SkyBox\SkyBox.cpp" />
     <ClCompile Include="Source\Drawable\Mesh\Terrain\Terrain.cpp" />
+    <ClCompile Include="Source\Drawable\ParticleSystem\EffectSystem.cpp" />
     <ClCompile Include="Source\Drawable\ParticleSystem\Particle.cpp" />
     <ClCompile Include="Source\Drawable\ParticleSystem\ParticleSystem.cpp" />
     <ClCompile Include="Source\Drawable\SeaEffect.cpp" />
@@ -260,6 +262,7 @@
     <ClInclude Include="Source\Drawable\EntityCollision.h" />
     <ClInclude Include="Source\Drawable\HUD.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Dragonfruit.h" />
+    <ClInclude Include="Source\Drawable\Mesh\Fruit\Pomegranate.h" />
     <ClInclude Include="Source\Drawable\Mesh\Terrain\HeightmapMesh.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h" />
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Banana.h" />
@@ -270,6 +273,7 @@
     <ClInclude Include="Source\Drawable\Mesh\MeshHandler.h" />
     <ClInclude Include="Source\Drawable\Mesh\SkyBox\SkyBox.h" />
     <ClInclude Include="Source\Drawable\Mesh\Terrain\Terrain.h" />
+    <ClInclude Include="Source\Drawable\ParticleSystem\EffectSystem.h" />
     <ClInclude Include="Source\Drawable\ParticleSystem\Particle.h" />
     <ClInclude Include="Source\Drawable\ParticleSystem\ParticleSystem.h" />
     <ClInclude Include="Source\Drawable\SeaEffect.h" />

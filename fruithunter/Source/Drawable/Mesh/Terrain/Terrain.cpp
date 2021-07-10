@@ -149,7 +149,7 @@ void Terrain::fillSubMeshes() {
 	}
 }
 
-void Terrain::loadFromFile_binary(fstream& file) {
+void Terrain::loadFromFile_binary(ifstream& file) {
 	// transformation
 	((Transformation*)this)->stream_read(file);
 	// tile size
@@ -162,7 +162,7 @@ void Terrain::loadFromFile_binary(fstream& file) {
 	fillSubMeshes();
 }
 
-void Terrain::storeToFile_binary(fstream& file) {
+void Terrain::storeToFile_binary(ofstream& file) {
 	// transformation
 	((Transformation*)this)->stream_write(file);
 	// tile size

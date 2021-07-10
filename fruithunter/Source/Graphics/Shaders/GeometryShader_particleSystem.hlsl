@@ -4,7 +4,7 @@ struct VS_OUT {
 	float Rotation : Rotation;
 	float4 Color : Color;
 	float Size : Size;
-	float IsActive : IsActive;
+	int IsActive : IsActive;
 };
 
 struct GSOutput {
@@ -36,7 +36,7 @@ float4x4 look_at_matrix(float3 forward, float3 up) {
 }
 
 [maxvertexcount(4)] void main(point VS_OUT input[1], inout TriangleStream<GSOutput> output) {
-	if (abs(1.f - input[0].IsActive) < 0.1f) {
+	if (input[0].IsActive != 0) {
 		float size = input[0].Size;
 		float rot = input[0].Rotation;
 		float3 posV = input[0].PosV.xyz;

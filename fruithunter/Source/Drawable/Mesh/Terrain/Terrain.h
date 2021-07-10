@@ -185,8 +185,8 @@ public:
 		string filename, XMINT2 subsize, XMINT2 splits = XMINT2(1, 1));
 	void build(string heightmapName, XMINT2 subSize, XMINT2 splits);
 	void changeSize(XMINT2 tileSize, XMINT2 gridSize);
-	void loadFromFile_binary(fstream& file);
-	void storeToFile_binary(fstream& file);
+	void loadFromFile_binary(ifstream& file);
+	void storeToFile_binary(ofstream& file);
 
 	void editMesh(const Brush& brush, Brush::Type type);
 	void editMesh_push();

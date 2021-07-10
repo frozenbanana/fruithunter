@@ -34,7 +34,20 @@ public:
 	D3D11_TEXTURE2D_DESC getDescription() const;
 };
 
-template<typename STRUCT> class ConstantBuffer : public Microsoft::WRL::ComPtr<ID3D11Buffer> {
+template <typename STRUCT>
+class VertexBuffer : public Microsoft::WRL::ComPtr<ID3D11Buffer>, public vector<STRUCT> {
+private:
+	size_t m_bufferSize = 0;
+	void resizeBuffer();
+
+public:
+	size_t getBufferSize() const;
+	void syncBuffer();
+
+	VertexBuffer();
+};
+
+template <typename STRUCT> class ConstantBuffer : public Microsoft::WRL::ComPtr<ID3D11Buffer> {
 private:
 	bool m_initilized = false;
 	bool createBuffer();
@@ -48,7 +61,6 @@ public:
 	void bindGS(UINT slot);
 	void bindPS(UINT slot);
 	void bindCS(UINT slot);
-
 };
 
 template <typename STRUCT> inline bool ConstantBuffer<STRUCT>::createBuffer() {
@@ -70,8 +82,7 @@ template <typename STRUCT> inline bool ConstantBuffer<STRUCT>::createBuffer() {
 }
 
 template <typename STRUCT>
-inline ConstantBuffer<STRUCT>::ConstantBuffer() : Microsoft::WRL::ComPtr<ID3D11Buffer>() {
-}
+inline ConstantBuffer<STRUCT>::ConstantBuffer() : Microsoft::WRL::ComPtr<ID3D11Buffer>() {}
 
 template <typename STRUCT> inline void ConstantBuffer<STRUCT>::update(const STRUCT& data) {
 	if (!m_initilized)
@@ -79,22 +90,19 @@ template <typename STRUCT> inline void ConstantBuffer<STRUCT>::update(const STRU
 	Renderer::getDeviceContext()->UpdateSubresource(Get(), 0, 0, &data, 0, 0);
 }
 
-template <typename STRUCT>
-inline void ConstantBuffer<STRUCT>::bindVS(UINT slot) {
+template <typename STRUCT> inline void ConstantBuffer<STRUCT>::bindVS(UINT slot) {
 	if (!m_initilized)
 		createBuffer();
 	Renderer::getDeviceContext()->VSSetConstantBuffers(slot, 1, GetAddressOf());
 }
 
-template <typename STRUCT>
-inline void ConstantBuffer<STRUCT>::bindGS(UINT slot) {
+template <typename STRUCT> inline void ConstantBuffer<STRUCT>::bindGS(UINT slot) {
 	if (!m_initilized)
 		createBuffer();
 	Renderer::getDeviceContext()->GSSetConstantBuffers(slot, 1, GetAddressOf());
 }
 
-template <typename STRUCT>
-inline void ConstantBuffer<STRUCT>::bindPS(UINT slot) {
+template <typename STRUCT> inline void ConstantBuffer<STRUCT>::bindPS(UINT slot) {
 	if (!m_initilized)
 		createBuffer();
 	Renderer::getDeviceContext()->PSSetConstantBuffers(slot, 1, GetAddressOf());
@@ -105,3 +113,36 @@ template <typename STRUCT> inline void ConstantBuffer<STRUCT>::bindCS(UINT slot)
 		createBuffer();
 	Renderer::getDeviceContext()->CSSetConstantBuffers(slot, 1, GetAddressOf());
 }
+
+template <typename STRUCT> inline void VertexBuffer<STRUCT>::resizeBuffer() {
+	size_t size = vector<STRUCT>::size();
+	m_bufferSize = size;
+
+	if (size > 0) {
+		D3D11_BUFFER_DESC buffDesc;
+		memset(&buffDesc, 0, sizeof(buffDesc));
+		buffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		buffDesc.Usage = D3D11_USAGE_DEFAULT;
+		buffDesc.ByteWidth = (UINT)(sizeof(STRUCT) * size);
+		HRESULT check = Renderer::getDevice()->CreateBuffer(
+			&buffDesc, NULL, Microsoft::WRL::ComPtr<ID3D11Buffer>::GetAddressOf());
+		if (FAILED(check))
+			ErrorLogger::logError(
+				"(VertexBuffer::resizeBuffer) Failed creating vertex buffer!\n", check);
+	}
+}
+
+template <typename STRUCT> inline size_t VertexBuffer<STRUCT>::getBufferSize() const {
+	return m_bufferSize;
+}
+
+template <typename STRUCT> inline void VertexBuffer<STRUCT>::syncBuffer() {
+	if (vector<STRUCT>::size() != m_bufferSize)
+		resizeBuffer();
+	if (m_bufferSize != 0) {
+		Renderer::getDeviceContext()->UpdateSubresource(
+			Microsoft::WRL::ComPtr<ID3D11Buffer>::Get(), 0, 0, vector<STRUCT>::data(), 0, 0);
+	}
+}
+
+template <typename STRUCT> inline VertexBuffer<STRUCT>::VertexBuffer() {}

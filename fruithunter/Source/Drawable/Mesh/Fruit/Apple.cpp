@@ -4,7 +4,7 @@
 #include "PathFindingThread.h"
 #include "AudioController.h"
 
-Apple::Apple(float3 pos) : Fruit(pos) {
+Apple::Apple(float3 pos) : Fruit(FruitType::APPLE, pos) {
 	loadAnimated("Apple", 3);
 
 	m_nrOfFramePhases = 6;

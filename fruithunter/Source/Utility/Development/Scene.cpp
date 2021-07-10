@@ -19,6 +19,8 @@ void Scene::clear() {
 	m_arrowParticles.clear();
 	// particleSystems
 	m_particleSystems.clear();
+	// effects
+	m_effects.clear();
 	// spawn fruit
 	m_fruits.clear();
 	// collection points
@@ -92,6 +94,11 @@ size_t Scene::find_parentIndex(Fragment* fragment) {
 			}
 		}
 		break;
+	case Fragment::Type::effect:
+		for (size_t i = 0; i < m_effects.size(); i++) {
+			if (m_effects[i]->getID() == fragment->getID())
+				return i;
+		}
 	}
 	return -1;
 }
@@ -130,6 +137,13 @@ bool Scene::remove_fragment(Fragment* fragment) {
 			}
 		}
 		break;
+	case Fragment::Type::effect:
+		for (size_t i = 0; i < m_effects.size(); i++) {
+			if (m_effects[i]->getID() == fragment->getID()) {
+				m_effects.erase(m_effects.begin() + i);
+				return true;
+			}
+		}
 	}
 	return false;
 }
@@ -225,8 +239,8 @@ void Scene::load(string folder) {
 
 		// terrains
 		vector<string> files;
-		read_directory("assets/Scenes/" + m_sceneName, files);
-		files_filterByEnding(files, "env");
+		SimpleFilesystem::readDirectory("assets/Scenes/" + m_sceneName, files);
+		SimpleFilesystem::filterByEnding(files, "env");
 		for (size_t i = 0; i < files.size(); i++) {
 			shared_ptr<Environment> env = make_shared<Environment>();
 			env->loadFromBinFile("assets/Scenes/" + m_sceneName + "/" + files[i]);
@@ -269,6 +283,8 @@ void Scene::load(string folder) {
 			m_particleSystems[i]->setScale(c->size);
 			m_particleSystems[i]->setAffectedByWindState(c->affectedByWind);
 		}
+		// Effects
+		m_effects = content.m_effects;
 		// utility
 		m_utility = content.m_utility;
 
@@ -311,6 +327,9 @@ void Scene::save() {
 			c->capacity = ps->getCapacity();
 		}
 
+		// Effects
+		content.m_effects = m_effects;
+
 		// entities
 		vector<SceneAbstactContent::GroupInstance>* group = &content.m_entities;
 		for (size_t i = 0; i < m_entities.size(); i++) {
@@ -339,8 +358,8 @@ void Scene::save() {
 
 		// remove all old terrain files
 		vector<string> terrainFiles;
-		read_directory("assets/Scenes/" + m_sceneName, terrainFiles);
-		files_filterByEnding(terrainFiles, "env");
+		SimpleFilesystem::readDirectory("assets/Scenes/" + m_sceneName, terrainFiles);
+		SimpleFilesystem::filterByEnding(terrainFiles, "env");
 		for (size_t i = 0; i < terrainFiles.size(); i++) {
 			string path = "assets/Scenes/" + m_sceneName + "/" + terrainFiles[i];
 			if (remove(path.c_str()) != 0) {
@@ -391,6 +410,9 @@ void Scene::reset() {
 					break;
 				case FruitType::DRAGON:
 					m_fruits.push_back(make_shared<DragonFruit>(spawn));
+					break;
+				case FruitType::POMEGRANATE:
+					m_fruits.push_back(make_shared<Pomegranate>(spawn));
 					break;
 				}
 				m_fruits.back()->bindToEnvironment(m_terrains[i].get());
@@ -471,6 +493,13 @@ bool SceneAbstactContent::load_raw(string folder) {
 			fileRead(file, psc.emitRate);
 			fileRead(file, psc.capacity);
 		}
+		// Effects
+		size = fileRead<size_t>(file);
+		m_effects.resize(size);
+		for (size_t i = 0; i < size; i++) {
+			m_effects[i] = make_shared<EffectSystem>();
+			m_effects[i]->read(file);
+		}
 		// entities
 		size = fileRead<size_t>(file);
 		m_entities.resize(size);
@@ -498,7 +527,7 @@ bool SceneAbstactContent::load_raw(string folder) {
 
 bool SceneAbstactContent::save_raw(string folder) {
 	string path = path_scenes + folder;
-	create_directory(path);
+	SimpleFilesystem::createDirectory(path);
 	ofstream file;
 	file.open(path + "/scene.data", ios::out | ios::binary);
 	if (file.is_open()) {
@@ -518,6 +547,11 @@ bool SceneAbstactContent::save_raw(string folder) {
 			fileWrite(file, psc.affectedByWind);
 			fileWrite(file, psc.emitRate);
 			fileWrite(file, psc.capacity);
+		}
+		// Effects
+		fileWrite<size_t>(file, m_effects.size());
+		for (size_t i = 0; i < m_effects.size(); i++) {
+			m_effects[i]->write(file);
 		}
 		// entities
 		fileWrite<size_t>(file, m_entities.size());

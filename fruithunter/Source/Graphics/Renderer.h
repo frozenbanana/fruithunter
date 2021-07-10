@@ -53,7 +53,6 @@ public:
 	void setBlendState_Subtractive();
 	void setBlendState_Multiply();
 	void setBlendState_NonPremultiplied();
-	void setBlendState_Premultiplied();
 	// Rasterizer
 	void setRasterizer_CullCounterClockwise(); // backface culling
 	void setRasterizer_CullNone(); // None culling
@@ -149,5 +148,4 @@ private:
 	std::unique_ptr<CommonStates> m_commonStates;
 	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendState_subtractive;
 	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendState_multiply;
-	Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendState_premultiplied;
 };

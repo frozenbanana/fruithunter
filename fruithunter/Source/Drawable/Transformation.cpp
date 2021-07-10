@@ -144,13 +144,13 @@ void Transformation::PSBindMatrix(size_t indexRegister) {
 		indexRegister, 1, m_modelMatrixBuffer.GetAddressOf());
 }
 
-void Transformation::stream_write(fstream& file) {
+void Transformation::stream_write(ofstream& file) {
 	file.write((char*)&m_position, sizeof(float3));
 	file.write((char*)&m_rotation, sizeof(float3));
 	file.write((char*)&m_scale, sizeof(float3));
 }
 
-void Transformation::stream_read(fstream& file) {
+void Transformation::stream_read(ifstream& file) {
 	file.read((char*)&m_position, sizeof(float3));
 	file.read((char*)&m_rotation, sizeof(float3));
 	file.read((char*)&m_scale, sizeof(float3));

@@ -56,7 +56,7 @@ public:
 		float rotation = 0;
 		float4 color = float4(1.);
 		float size = 1; // size after fade
-		float isActive = false;
+		int isActive = false;
 	};
 
 private:
@@ -71,6 +71,8 @@ private:
 	bool m_isActive = true;
 	bool m_isEmitting = true;
 	float m_emitTimer = 0;
+
+	int m_editor_emitCount = 1; // used in imgui_properties()
 
 	// particle properties
 	struct ParticleProperty { // not going to the GPU
@@ -144,6 +146,8 @@ public:
 	void load(string psFilename, float emitRate, size_t capacity = 0);
 
 	void imgui_properties();
+
+	void clearParticles();
 
 	ParticleSystem();
 };

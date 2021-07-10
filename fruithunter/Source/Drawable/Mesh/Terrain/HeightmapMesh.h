@@ -68,8 +68,8 @@ public:
 	bool editMesh_pop();
 	void editMesh_clear();
 
-	void loadFromFile_binary(fstream& file);
-	void storeToFile_binary(fstream& file);
+	void loadFromFile_binary(ifstream& file);
+	void storeToFile_binary(ofstream& file);
 
 	void changeSize(XMINT2 gridSize);
 	void init(string filename, XMINT2 gridSize);

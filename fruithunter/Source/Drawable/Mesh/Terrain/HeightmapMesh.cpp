@@ -517,7 +517,7 @@ bool HeightmapMesh::editMesh_pop() {
 
 void HeightmapMesh::editMesh_clear() { m_editMesh_stack.clear(); }
 
-void HeightmapMesh::loadFromFile_binary(fstream& file) {
+void HeightmapMesh::loadFromFile_binary(ifstream& file) {
 	// gridPoint size
 	file.read((char*)&m_gridPointSize, sizeof(XMINT2)); // add when application is stable!
 	// create mem and align position and uvs (normals and y axis not set)
@@ -534,7 +534,7 @@ void HeightmapMesh::loadFromFile_binary(fstream& file) {
 	setGridPointNormals();
 }
 
-void HeightmapMesh::storeToFile_binary(fstream& file) {
+void HeightmapMesh::storeToFile_binary(ofstream& file) {
 	// gridPoint size
 	file.write((char*)&m_gridPointSize, sizeof(XMINT2)); // add when application is stable!
 	// heightmap points

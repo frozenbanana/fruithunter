@@ -89,14 +89,14 @@ void ParticleSystem::syncSystemFromDescription() {
 		m_tex_particle = TextureRepository::get(
 			m_particle_description->str_sprite, TextureRepository::type_particleSprite);
 	// resize
-	resizeBuffer(); // will only resize of necessary
+	resizeBuffer(); // will only resize if necessary
 }
 
 void ParticleSystem::ReadDescriptionList() {
 	// find files
 	vector<string> m_descriptionsStr;
-	read_directory(PATH_PSD, m_descriptionsStr);
-	files_filterByEnding(m_descriptionsStr, PSD_END);
+	SimpleFilesystem::readDirectory(PATH_PSD, m_descriptionsStr);
+	SimpleFilesystem::filterByEnding(m_descriptionsStr, PSD_END);
 	size_t endLength = string(PSD_END).length() + 1;
 	for (size_t i = 0; i < m_descriptionsStr.size(); i++)
 		m_descriptionsStr[i] =
@@ -131,7 +131,7 @@ void ParticleSystem::setActiveState(bool state) { m_isActive = state; }
 
 void ParticleSystem::emit(size_t count) {
 	for (size_t i = 0; i < m_particles.size() && count > 0; i++) {
-		if (m_particles[i].isActive == 0) {
+		if (m_particles[i].isActive == false) {
 			setParticle(i);
 			count--;
 		}
@@ -156,7 +156,7 @@ void ParticleSystem::updateParticles(float dt) {
 		SceneManager::getScene()->m_terrains.getTerrainFromPosition(getPosition());
 	ParticleDescription* desc = m_particle_description.get();
 	for (size_t i = 0; i < m_particles.size(); i++) {
-		if (m_particles[i].isActive != 0) {
+		if (m_particles[i].isActive == true) {
 			m_particleProperties[i].timeLeft -= dt;
 			float lifeTime = m_particleProperties[i].lifeTime;
 			float timeLeft = m_particleProperties[i].timeLeft;
@@ -259,11 +259,11 @@ void ParticleSystem::createShaders() {
 				D3D11_INPUT_PER_VERTEX_DATA, // specify data PER vertex
 				0							 // used for INSTANCING (ignore)
 			},
-			{ "Rotation", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA,
+			{ "Rotation", 0, DXGI_FORMAT_R32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA,
 				0 },
 			{ "Color", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "Size", 0, DXGI_FORMAT_R32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "IsActive", 0, DXGI_FORMAT_R32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "IsActive", 0, DXGI_FORMAT_R32_SINT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
 
 		m_shaderSetCircle.createShaders(L"VertexShader_particleSystem.hlsl",
@@ -374,9 +374,6 @@ void ParticleSystem::draw(bool alpha) {
 				Renderer::getInstance()->setBlendState_Multiply();
 				Renderer::getInstance()->setDepthState_Read();
 				break;
-			case ParticleDescription::DrawMode::Premultiplied:
-				Renderer::getInstance()->setBlendState_Premultiplied();
-				break;
 			}
 
 			deviceContext->Draw((UINT)m_particles.size(), (UINT)0);
@@ -395,8 +392,7 @@ void ParticleSystem::draw(bool alpha) {
 bool ParticleSystem::setDesc(string psdName) {
 	for (size_t i = 0; i < m_descriptionList.size(); i++) {
 		if (m_descriptionList[i]->identifier == psdName) {
-			m_particle_description = m_descriptionList[i];
-			return true;
+			return setDesc(i);
 		}
 	}
 	return false;
@@ -405,6 +401,7 @@ bool ParticleSystem::setDesc(string psdName) {
 bool ParticleSystem::setDesc(size_t index) {
 	if (index < m_descriptionList.size()) {
 		m_particle_description = m_descriptionList[index];
+		resizeBuffer();
 		return true;
 	}
 	return false;
@@ -419,7 +416,7 @@ bool ParticleSystem::isActive() const { return m_isActive; }
 size_t ParticleSystem::getActiveParticleCount() const {
 	size_t sum = 0;
 	for (size_t i = 0; i < m_particles.size(); i++) {
-		sum += (m_particles[i].isActive == 1);
+		sum += (m_particles[i].isActive == true);
 	}
 	return sum;
 }
@@ -496,12 +493,18 @@ void ParticleSystem::imgui_properties() {
 	}
 	// Manual Emit
 	ImGui::Separator();
-	static int emitCount = 0;
 	if (ImGui::Button("Emit")) {
-		emit(emitCount);
+		emit(m_editor_emitCount);
 	}
 	ImGui::SameLine();
-	ImGui::InputInt("Count", &emitCount);
+	ImGui::InputInt("Count", &m_editor_emitCount);
+}
+
+void ParticleSystem::clearParticles() {
+	// disable all particles
+	for (size_t i = 0; i < m_particles.size(); i++) {
+		m_particles[i].isActive = false;
+	}
 }
 
 bool ParticleSystem::ParticleDescription::imgui_properties() {
@@ -543,7 +546,7 @@ bool ParticleSystem::ParticleDescription::imgui_properties() {
 	if (!fetchedSprites) {
 		fetchedSprites = true;
 		vector<string> temp_strs;
-		read_directory("assets/ParticleSystems/Sprites/", temp_strs);
+		SimpleFilesystem::readDirectory("assets/ParticleSystems/Sprites/", temp_strs);
 		sprites.resize(temp_strs.size());
 		for (size_t i = 0; i < temp_strs.size(); i++)
 			sprites[i] = TextureRepository::get(temp_strs[i], sprType);

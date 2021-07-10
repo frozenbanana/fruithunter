@@ -92,6 +92,9 @@ void SceneManager::draw_color() {
 	for (size_t i = 0; i < scene->m_particleSystems.size(); i++) {
 		scene->m_particleSystems[i]->draw();
 	}
+	for (size_t i = 0; i < scene->m_effects.size(); i++) {
+		scene->m_effects[i]->draw();
+	}
 
 	// arrow partile effects
 	for (size_t i = 0; i < scene->m_arrowParticles.size(); i++)
@@ -185,6 +188,9 @@ void SceneManager::update() {
 	// particle system
 	for (size_t i = 0; i < scene->m_particleSystems.size(); i++) {
 		scene->m_particleSystems[i]->update(dt);
+	}
+	for (size_t i = 0; i < scene->m_effects.size(); i++) {
+		scene->m_effects[i]->update(dt);
 	}
 
 	// collection points

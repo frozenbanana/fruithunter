@@ -3,7 +3,7 @@ struct VS_IN {
 	float Rotation : Rotation;
 	float4 Color : Color;
 	float Size : Size;
-	float IsActive : IsActive;
+	int IsActive : IsActive;
 };
 
 struct VS_OUT {
@@ -11,7 +11,7 @@ struct VS_OUT {
 	float Rotation : Rotation;
 	float4 Color : Color;
 	float Size : Size;
-	float IsActive : IsActive;
+	int IsActive : IsActive;
 };
 
 

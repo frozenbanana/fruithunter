@@ -45,10 +45,12 @@ HUD::HUD() {
 	m_fruits[FruitType::BANANA].load("fruit_banana.png");
 	m_fruits[FruitType::MELON].load("fruit_melon.png");
 	m_fruits[FruitType::DRAGON].load("fruit_dragon.png");
+	m_fruits[FruitType::POMEGRANATE].load("fruit_apple.png");
 	m_ticks[FruitType::APPLE].load("appleTick.png");
 	m_ticks[FruitType::BANANA].load("bananaTick.png");
 	m_ticks[FruitType::MELON].load("melonTick.png");
 	m_ticks[FruitType::DRAGON].load("dragonTick.png");
+	m_ticks[FruitType::POMEGRANATE].load("appleTick.png");
 	for (size_t i = 0; i < FruitType::NR_OF_FRUITS; i++) {
 		m_fruits[i].setScale(m_tickSetting.base_scale);
 		m_fruits[i].setAlignment(); // center

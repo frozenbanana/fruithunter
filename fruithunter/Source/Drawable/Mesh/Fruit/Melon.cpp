@@ -2,12 +2,10 @@
 #include "PathFindingThread.h"
 #include "SceneManager.h"
 
-Melon::Melon(float3 pos) : Fruit(pos) {
+Melon::Melon(float3 pos) : Fruit(FruitType::MELON, pos) {
 	loadAnimated("Melon", 1);
 	m_nrOfFramePhases = 6;
-
 	m_meshAnim.setFrameTargets(0, 0);
-	m_fruitType = MELON;
 
 	setScale(m_startScale);
 	changeState(AI::State::ACTIVE);

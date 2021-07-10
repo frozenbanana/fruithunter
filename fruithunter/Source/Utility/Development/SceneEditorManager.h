@@ -96,6 +96,7 @@ private:
 		tab_entity,
 		tab_sea,
 		tab_particleSystem,
+		tab_effect,
 		tab_count
 	} m_libraryTabOpen = LibraryTab::tab_terrain;
 	int m_library_selections[tab_count] = { -1 };
@@ -127,8 +128,11 @@ private:
 	void update_panel_entity_unselected();
 	void update_panel_sea_unselected();
 	void update_panel_ps_unselected();
+	void update_panel_effect_unselected();
 
-	template <typename CLASS> void update_panel(vector<shared_ptr<CLASS>>& list, LibraryTab tab, void (SceneEditorManager::*func)(void));
+	template <typename CLASS>
+	void update_panel(
+		vector<shared_ptr<CLASS>>& list, LibraryTab tab, void (SceneEditorManager::*func)(void));
 	void update_panel_entity_improved(
 		QuadTree<shared_ptr<Entity>>& list, LibraryTab tab, void (SceneEditorManager::*func)(void));
 
@@ -246,7 +250,8 @@ inline void SceneEditorManager::update_panel(
 			ImGui::EndTooltip();
 		}
 		ImGui::SameLine();
-		if ((ImGui::Button("Move to Pointer") || ip->keyPressed(Keyboard::V)) && selectedIdx != -1) {
+		if ((ImGui::Button("Move to Pointer") || ip->keyPressed(Keyboard::V)) &&
+			selectedIdx != -1) {
 			Transformation* t = dynamic_cast<Transformation*>(list[selectedIdx].get());
 			if (t != nullptr) {
 				t->setPosition(m_pointer);

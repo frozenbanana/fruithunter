@@ -345,6 +345,12 @@
     <ClCompile Include="Source\Utility\UI\Menu_LeaderboardToggle.cpp">
       <Filter>Source\Utility\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Drawable\ParticleSystem\EffectSystem.cpp">
+      <Filter>Source\Drawable\ParticleSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Drawable\Mesh\Fruit\Pomegranate.cpp">
+      <Filter>Source\Drawable\Mesh\Fruits</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Apple.h">
@@ -752,6 +758,12 @@
     </ClInclude>
     <ClInclude Include="Source\Utility\UI\Menu_LeaderboardToggle.h">
       <Filter>Source\Utility\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\ParticleSystem\EffectSystem.h">
+      <Filter>Source\Drawable\ParticleSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Drawable\Mesh\Fruit\Pomegranate.h">
+      <Filter>Source\Drawable\Mesh\Fruits</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

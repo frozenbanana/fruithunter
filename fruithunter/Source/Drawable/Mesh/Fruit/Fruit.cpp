@@ -19,9 +19,7 @@ void Fruit::draw_fruit() {
 
 void Fruit::draw_fruit_shadow() { draw_animate_onlyMesh(float3(0, 0, 0)); }
 
-void Fruit::jump(float3 direction, float power) { 
-	m_velocity += power * direction; 
-}
+void Fruit::jump(float3 direction, float power) { m_velocity += power * direction; }
 
 void Fruit::setStartPosition(float3 pos) {
 	setPosition(pos);
@@ -87,29 +85,11 @@ Skillshot Fruit::hit(float3 playerPos) {
 
 FruitType Fruit::getFruitType() { return m_fruitType; }
 
-shared_ptr<Fruit> Fruit::createFruitFromType(FruitType type) { 
-	shared_ptr<Fruit> fruit;
-	switch (type) {
-	case APPLE:
-		fruit = make_shared<Apple>();
-		break;
-	case BANANA:
-		fruit = make_shared<Banana>();
-		break;
-	case MELON:
-		fruit = make_shared<Melon>();
-		break;
-	case DRAGON:
-		fruit = make_shared<DragonFruit>();
-		break;
-	}
-	return fruit;
-}
-
 void Fruit::enforceOverTerrain() {
-	if (atOrUnder(SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition()))) {
-		float newY = SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition()) +
-					 abs(getHalfSizes().y + 0.01f);
+	float height = SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition());
+	if (atOrUnder(height)) {
+		float feet = getBoundingBoxPos().y - getHalfSizes().y;
+		float newY = height + (getPosition().y - feet) + 0.01f;
 		setPosition(float3(getPosition().x, newY, getPosition().z));
 	}
 }
@@ -147,14 +127,15 @@ void Fruit::update() {
 		m_isVisible = true;
 		m_particleSystem.setPosition(getPosition());
 		checkOnGroundStatus(); // checks if on ground
-		updateAnimated(dt); // animation stuff
-		updateVelocity(dt); // update velocity (slowdown and apply accelration)
+		updateAnimated(dt);	   // animation stuff
+		updateVelocity(dt);	   // update velocity (slowdown and apply accelration)
 		doBehavior();
-		setDirection();		 // walk towards AI walk node
+		setDirection(); // walk towards AI walk node
 		updateRespawn();
-		move(dt);			// update position from velocity
-		enforceOverTerrain();// force fruit above ground
-		handleAvailablePath(getPosition()); // Keeps track of next AI node to go to (discards nodes if to close)
+		move(dt);			  // update position from velocity
+		enforceOverTerrain(); // force fruit above ground
+		handleAvailablePath(
+			getPosition()); // Keeps track of next AI node to go to (discards nodes if to close)
 	}
 	else
 		m_isVisible = false;
@@ -169,7 +150,8 @@ float3 Fruit::getHomePosition() const { return m_worldHome; }
 
 
 
-Fruit::Fruit(float3 pos) : Entity() {
+Fruit::Fruit(FruitType type, float3 pos) : Entity() {
+	m_fruitType = type;
 	setStartPosition(pos);
 	setPosition(pos);
 	setWorldHome(pos);
@@ -184,8 +166,7 @@ void Fruit::behaviorInactive() { return; }
 void Fruit::setDirection() {
 	auto pft = PathFindingThread::getInstance();
 	// pft->m_mutex.lock();
-	if (!m_availablePath.empty() &&
-		m_onGround) {
+	if (!m_availablePath.empty() && m_onGround) {
 		m_direction = m_availablePath.back() - getPosition();
 		m_direction.Normalize();
 	}

@@ -78,7 +78,7 @@ public:
 	void imgui_properties();
 };
 
-class Projectile : public Transformation2D {
+class Projectile2D : public Transformation2D {
 private:
 	float2 m_velocity;
 	float m_rotationVelocity = 0;
@@ -107,5 +107,5 @@ public:
 
 	void update(float dt);
 
-	Projectile(float2 position = float2(0.), float mass = 1);
+	Projectile2D(float2 position = float2(0.), float mass = 1);
 };

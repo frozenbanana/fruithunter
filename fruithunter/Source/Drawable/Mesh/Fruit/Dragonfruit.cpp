@@ -4,14 +4,11 @@
 
 bool DragonFruit::isFalling() { return m_velocity.y < 0.f && !m_onGround; }
 
-DragonFruit::DragonFruit(float3 pos) : Fruit(pos) {
+DragonFruit::DragonFruit(float3 pos) : Fruit(FruitType::DRAGON, pos) {
 	loadAnimated("Dragon", 3);
-
 	m_nrOfFramePhases = 2;
 
 	changeState(AI::State::PASSIVE);
-
-	m_fruitType = DRAGON;
 
 	// TEMP TAKEN FROM APPLE
 	m_activeRadius = 30.f;

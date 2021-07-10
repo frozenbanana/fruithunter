@@ -22,7 +22,7 @@ bool Texture::load(string path) {
 	m_tex2D->GetDesc(&texDesc);
 
 	m_path = path;
-	vector<string> sections = splitPath(path);
+	vector<string> sections = SimpleFilesystem::splitPath(path);
 	m_filename = sections.back();
 	m_size = XMINT2(texDesc.Width, texDesc.Height);
 	m_loaded = true;
@@ -136,7 +136,7 @@ bool RenderTexture::load(string path) {
 	}
 
 	m_path = path;
-	vector<string> sections = splitPath(path);
+	vector<string> sections = SimpleFilesystem::splitPath(path);
 	m_filename = sections.back();
 
 	m_loaded = true;

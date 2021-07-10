@@ -54,35 +54,35 @@ void Transformation2D::imgui_properties() {
 	ImGui::SliderFloat("Rotation", &m_rotation, 0, XM_PI * 2);
 }
 
-Projectile::Projectile(float2 position, float mass) : Transformation2D(position) { setMass(mass); }
+Projectile2D::Projectile2D(float2 position, float mass) : Transformation2D(position) { setMass(mass); }
 
-float2 Projectile::getVelocity() const { return m_velocity; }
+float2 Projectile2D::getVelocity() const { return m_velocity; }
 
-float Projectile::getRotationVelocity() const { return m_rotationVelocity; }
+float Projectile2D::getRotationVelocity() const { return m_rotationVelocity; }
 
-float2 Projectile::getAcceleration() const { return m_acceleration; }
+float2 Projectile2D::getAcceleration() const { return m_acceleration; }
 
-float2 Projectile::getGravity() const { return m_gravity; }
+float2 Projectile2D::getGravity() const { return m_gravity; }
 
-float Projectile::getFriction() const { return m_friction; }
+float Projectile2D::getFriction() const { return m_friction; }
 
-float Projectile::getMass() const { return m_mass; }
+float Projectile2D::getMass() const { return m_mass; }
 
-void Projectile::setFriction(float friction) { m_friction = friction; }
+void Projectile2D::setFriction(float friction) { m_friction = friction; }
 
-void Projectile::setAcceleration(float2 acceleration) { m_acceleration = acceleration; }
+void Projectile2D::setAcceleration(float2 acceleration) { m_acceleration = acceleration; }
 
-void Projectile::setGravity(float2 gravity) { m_gravity = gravity; }
+void Projectile2D::setGravity(float2 gravity) { m_gravity = gravity; }
 
-void Projectile::setVelocity(float2 velocity) { m_velocity = velocity; }
+void Projectile2D::setVelocity(float2 velocity) { m_velocity = velocity; }
 
-void Projectile::setRotationVelocity(float rotVelocity) { m_rotationVelocity = rotVelocity; }
+void Projectile2D::setRotationVelocity(float rotVelocity) { m_rotationVelocity = rotVelocity; }
 
-void Projectile::setMass(float mass) { m_mass = mass; }
+void Projectile2D::setMass(float mass) { m_mass = mass; }
 
-void Projectile::applyForce(float2 force) { m_acceleration += force / m_mass; }
+void Projectile2D::applyForce(float2 force) { m_acceleration += force / m_mass; }
 
-void Projectile::update(float dt) {
+void Projectile2D::update(float dt) {
 	// position, velocity, acceleration
 	m_velocity += (m_acceleration + m_gravity) * dt;
 	m_position += m_velocity * dt;

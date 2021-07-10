@@ -80,7 +80,7 @@ void Sprite2D::_imgui_properties() {
 	if (!texInit) {
 		texInit = true;
 		vector<string> textureStr;
-		read_directory(PATH_SPRITE, textureStr);
+		SimpleFilesystem::readDirectory(PATH_SPRITE, textureStr);
 		textures.resize(textureStr.size());
 		for (size_t i = 0; i < textureStr.size(); i++)
 			textures[i] =

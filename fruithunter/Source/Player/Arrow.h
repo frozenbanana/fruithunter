@@ -1,12 +1,14 @@
 #pragma once
 #include "Entity.h"
 #include "ParticleSystem.h"
+#include "EffectSystem.h"
 #include "TerrainBatch.h"
 class Arrow : public Entity {
 private:
 	static const string m_model; // initilized in cpp file! 
 
 	shared_ptr<ParticleSystem> m_trailEffect;
+	shared_ptr<EffectSystem> m_trail;
 
 	float3 m_velocity = float3(0.);
 	float3 m_oldVelocity = float3(0.);

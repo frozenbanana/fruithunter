@@ -9,11 +9,11 @@
 
 
 
-Banana::Banana(float3 pos) : Fruit(pos) {
-	m_fruitType = BANANA;
+Banana::Banana(float3 pos) : Fruit(FruitType::BANANA, pos) {
 	loadAnimated("Banana", 3);
-
 	m_nrOfFramePhases = 5;
+	setFrameTargets(0, 1);
+
 	m_maxBounciness = 3;
 	m_bounciness = 0;
 	m_state = Jump;
@@ -30,7 +30,6 @@ Banana::Banana(float3 pos) : Fruit(pos) {
 	m_groundFriction = 60;
 	m_airFriction = 60;
 
-	setFrameTargets(0, 1);
 }
 
 void Banana::behaviorPassive() {
@@ -38,7 +37,7 @@ void Banana::behaviorPassive() {
 	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
 
 	// collision
-	float3 ray_point = getPosition() - float3(0, 1, 0) * getHalfSizes().y;
+	float3 ray_point = getBoundingBoxPos() - float3(0, 1, 0) * getHalfSizes();
 	float3 ray_distance = m_velocity * dt;
 	float3 intersection_position, intersection_normal;
 	if (rayCastWorld(ray_point, ray_distance, intersection_position, intersection_normal)) {
