@@ -35,9 +35,12 @@ private:
 	float m_timer = 0.0f;				 // time until new target 
 	float2 m_timer_range = float2(3,5); // timer length range
 
+	void _onDeath(Skillshot skillshot) override;
+
 public:
 	DragonFruit(float3 pos = float3(12.f, 0.f, 6.f));
 	void updateAnimated(float dt);
 	void pathfinding(float3 start, std::vector<float4>* animals);
 	float3 getRandomTarget();
+
 };
