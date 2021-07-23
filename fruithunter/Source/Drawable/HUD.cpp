@@ -117,7 +117,7 @@ void HUD::draw() {
 
 	// Draw time and target time
 	time_t* timeTargets = SceneManager::getScene()->m_utility.timeTargets;
-	time_t timeMs = SceneManager::getScene()->m_timer.getTimePassedAsMilliseconds();
+	time_t timeMs = SceneManager::getScene()->getTimePassedAsMilliseconds();
 	string timeString = Milliseconds2DisplayableString(timeMs);
 	// stopwatch
 	m_stopwatch.setAnimationFactor((float)timeMs / timeTargets[TimeTargets::BRONZE]);

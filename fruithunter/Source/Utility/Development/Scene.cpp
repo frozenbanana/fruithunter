@@ -33,7 +33,8 @@ void Scene::clear() {
 		m_gatheredFruits[i] = 0;
 
 	// timer
-	m_timer.reset();
+	m_deltaTime = 0;
+	m_totalTime = 0;
 	// active terrain
 	m_activeTerrain_tag = AreaTag::Plains;
 	m_activeTerrain_soundID = 0;
@@ -56,7 +57,7 @@ TimeTargets Scene::getTimeTargetGrade(time_t timeMs, time_t timeTargets[NR_OF_TI
 
 void Scene::saveWin() {
 	if (m_sceneName != "") {
-		size_t time = m_timer.getTimePassedAsMilliseconds();
+		size_t time = getTimePassedAsMilliseconds();
 		SaveManager::getInstance()->setLevelProgress(m_sceneName, time);
 	}
 }
@@ -430,7 +431,8 @@ void Scene::reset() {
 	for (size_t i = 0; i < NR_OF_FRUITS; i++)
 		m_gatheredFruits[i] = 0;
 	// timer
-	m_timer.reset();
+	m_deltaTime = 0;
+	m_totalTime = 0;
 
 	// active terrain
 	m_activeTerrain_tag = AreaTag::Plains;
@@ -460,14 +462,23 @@ bool Scene::handleWin() {
 	return hasWon;
 }
 
-float Scene::getDeltaTime() {
-	float dt = m_timer.getDt();
+float Scene::getDeltaTime() const {
+	float dt = m_deltaTime;
 	if (m_player->inHuntermode())
 		dt *= 0.45;
 	return dt;
 }
 
-float Scene::getDeltaTime_skipSlow() { return m_timer.getDt(); }
+float Scene::getDeltaTime_skipSlow() const { return m_deltaTime; }
+
+size_t Scene::getTimePassedAsMilliseconds() const { return (size_t)floor(m_totalTime * 1000); }
+
+double Scene::getTimePassedAsSeconds() const { return m_totalTime; }
+
+void Scene::updateTime(double dt) {
+	m_deltaTime = dt;
+	m_totalTime += dt;
+}
 
 void Scene::imgui_readProperties() const {
 	ImGui::Text("Scene: %s", m_sceneName.c_str());

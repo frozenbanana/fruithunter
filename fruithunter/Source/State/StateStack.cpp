@@ -35,9 +35,14 @@ void StateStack::NotifyStack(bool pushed) const {
 
 StateStack* StateStack::getInstance() { return &m_this; }
 
-void StateStack::update() {
-	if (!isEmpty())
-		CurrentState()->update();
+void StateStack::update(double dt) {
+	if (!isEmpty()) {
+		if (m_pushedBeforeUpdate) {
+			dt = 0; // remove dt accumulation from loading
+			m_pushedBeforeUpdate = false;
+		}
+		CurrentState()->update(dt);
+	}
 }
 
 void StateStack::draw() {
@@ -82,6 +87,8 @@ void StateStack::push(StateItem::State state) {
 		m_stack.back()->play();
 		//notify
 		NotifyStack(true);
+
+		m_pushedBeforeUpdate = true;
 	}
 }
 

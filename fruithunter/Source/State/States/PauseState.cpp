@@ -14,11 +14,8 @@ void PauseState::init() {
 	m_settingsBackground.setAlignment();//center
 }
 
-void PauseState::update() {
+void PauseState::update(double dt) {
 	Input::getInstance()->setMouseModeAbsolute();
-
-	m_timer.update();
-	float dt = m_timer.getDt();
 
 	if (m_buttons[btn_restart].update_behavior(dt)) {
 		pop(true);

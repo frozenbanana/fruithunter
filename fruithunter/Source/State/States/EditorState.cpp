@@ -10,7 +10,7 @@ void EditorState::init() {
 	m_editor.clear();
 }
 
-void EditorState::update() {
+void EditorState::update(double dt) {
 	Input* ip = Input::getInstance();
 
 	if (ip->keyPressed(m_mouseMode_switch))
@@ -21,7 +21,7 @@ void EditorState::update() {
 		ip->setMouseModeAbsolute();
 
 	if (m_testing) {
-		m_testingEnvironment.update();
+		m_testingEnvironment.update(dt);
 		if (ImGui::BeginMainMenuBar()) {
 			if (ImGui::MenuItem("Reset")) {
 				m_testingEnvironment.reset();
@@ -36,7 +36,7 @@ void EditorState::update() {
 		}
 	}
 	else {
-		m_editor.update();
+		m_editor.update(dt);
 		if (ImGui::BeginMainMenuBar()) {
 			if (ImGui::MenuItem("Run(F5)") || ip->keyPressed(Keyboard::F5)) {
 				m_testingEnvironment.reset();

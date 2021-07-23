@@ -7,7 +7,7 @@
 
 void PlayState::init() {}
 
-void PlayState::update() {
+void PlayState::update(double dt) {
 	Input* ip = Input::getInstance();
 
 	if (ip->keyPressed(m_mouseMode_switch))
@@ -17,7 +17,7 @@ void PlayState::update() {
 	else
 		ip->setMouseModeAbsolute();
 
-	sceneManager.update();
+	sceneManager.update(dt);
 
 	if (Input::getInstance()->keyPressed(Keyboard::Keys::Escape)) {
 		push(State::PauseState);

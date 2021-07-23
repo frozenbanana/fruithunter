@@ -28,6 +28,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	if (!SteamAPICommunicator::getInstance()->init())
 		return 1; // failed initilizing SteamAPI
 
+	Timer timer;
 	ErrorLogger errorLogger;
 	Input* input = Input::getInstance();
 	Renderer* renderer = Renderer::getInstance();
@@ -51,7 +52,10 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	// random seed
 	srand((unsigned int)time(NULL));
 
+	timer.reset();
+
 	while (stateStack.isEmpty() == false) {
+		timer.update();
 		VariableSyncer::getInstance()->sync();
 		input->update();
 		AudioController::getInstance()->update();
@@ -62,7 +66,7 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 		ImGui::NewFrame();
 
 		// Main loop
-		stateStack.update();
+		stateStack.update(timer.getDt());
 		input->event_frameReset(); // reset accumulation of input events
 		renderer->beginFrame();
 		stateStack.draw();

@@ -21,7 +21,6 @@ private:
 	CSteamLeaderboard m_leaderboard;
 	Text2D m_textRenderer;
 	Text2D m_textRenderer_lato;
-	Timer m_timer;
 
 	// Scene variables
 	enum MainStateType {
@@ -116,6 +115,8 @@ private:
 
 	SoundID m_menuMusic = 0;
 
+	float m_totalTime = 0;
+
 	void setButtons_menu();
 	void setButtons_levelSelect();
 	void setButtons_credits();
@@ -138,12 +139,12 @@ public:
 	MainState();
 	~MainState();
 
-	void init();
+	void init() override;
 
-	void update();
-	void draw();
+	void update(double dt) override;
+	void draw() override;
 
-	void play();
-	void pause();
-	void restart();
+	void play() override;
+	void pause() override;
+	void restart() override;
 };

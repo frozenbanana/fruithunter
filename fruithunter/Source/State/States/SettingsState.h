@@ -12,7 +12,6 @@
 
 class SettingsState : public StateItem {
 private:
-	Timer m_timer;
 	Sprite2D m_settingsBackground;
 	Button m_vsyncButton;
 	Button m_FXAAButton;
@@ -43,12 +42,12 @@ public:
 	SettingsState();
 	~SettingsState();
 
-	void init();
-	void update();
-	void draw();
+	void init() override;
+	void update(double dt) override;
+	void draw() override;
 
-	void pause();
-	void play();
-	void restart();
+	void pause() override;
+	void play() override;
+	void restart() override;
 
 };

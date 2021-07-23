@@ -8,6 +8,8 @@ private:
 	
 	vector<shared_ptr<StateItem>> m_stack;
 
+	bool m_pushedBeforeUpdate = false;
+
 	StateItem* CurrentState() const;
 	void NotifyStack(bool pushed) const;
 
@@ -15,7 +17,7 @@ public:
 	static StateStack* getInstance();
 
 	void handleRequest();
-	void update();
+	void update(double dt);
 	void draw();
 
 	/* Add state to stack*/

@@ -17,22 +17,20 @@ void EndRoundState::init() {
 	float2 center(width / 2, height / 2);
 
 	m_particleSystem.load("stars gold", 10);
-	m_timer.reset();
 	m_camera.setView(float3(0.f, 0.f, -1.0f), float3(0.f, 0.f, .0f), float3(0.f, 1.f, .0f));
 
 	m_spr_background.load("square_white.png");
 	m_spr_background.setPosition(center);
 	m_spr_background.setColor(float4(0, 0, 0, 1));
 	m_spr_background.setAlpha(0.75);
-	m_spr_background.setSize(float2(width*0.8f, height*1));
+	m_spr_background.setSize(float2(width * 0.8f, height * 1));
 	m_spr_background.setAlignment(); // center
 
-	//const SceneCompletion* savedData = SaveManager::getProgress(sceneName);
+	// const SceneCompletion* savedData = SaveManager::getProgress(sceneName);
 	Scene* scene = SceneManager::getScene();
 	string sceneName = scene->m_sceneName;
-	time_t winTimeMs = scene->m_timer.getTimePassedAsMilliseconds();
-	TimeTargets winGrade = scene->getTimeTargetGrade(
-		scene->m_timer.getTimePassedAsMilliseconds(), scene->m_utility.timeTargets);
+	time_t winTimeMs = scene->getTimePassedAsMilliseconds();
+	TimeTargets winGrade = scene->getTimeTargetGrade(winTimeMs, scene->m_utility.timeTargets);
 	switch (winGrade) {
 	case GOLD:
 		setVictoryText("You earned GOLD");
@@ -79,11 +77,11 @@ void EndRoundState::init() {
 		AudioController::getInstance()->play("win1", AudioController::SoundType::Effect);
 }
 
-void EndRoundState::update() {
+void EndRoundState::update(double dt) {
 	Input::getInstance()->setMouseModeAbsolute();
 
-	m_timer.update();
-	float dt = (float)m_timer.getDt();
+	m_totalTime += dt;
+
 	m_bowl.rotateY(dt * 0.5f);
 	m_bowlContent.rotateY(dt * 0.5f);
 	m_particleSystem.update(dt);
@@ -101,9 +99,9 @@ void EndRoundState::update() {
 		CSteamLeaderboard::RequestState::r_inactive)
 		m_uploadState = UploadState::Disabled;
 	else if (m_leaderboard.getRequestState_FindLeaderboard() ==
-			CSteamLeaderboard::RequestState::r_failed ||
-		m_leaderboard.getRequestState_UploadScore() == 
-		CSteamLeaderboard::RequestState::r_failed)
+				 CSteamLeaderboard::RequestState::r_failed ||
+			 m_leaderboard.getRequestState_UploadScore() ==
+				 CSteamLeaderboard::RequestState::r_failed)
 		m_uploadState = UploadState::Failed;
 	else if (m_leaderboard.getRequestState_FindLeaderboard() ==
 				 CSteamLeaderboard::RequestState::r_finished &&
@@ -126,7 +124,7 @@ void EndRoundState::update() {
 	}
 }
 
-void EndRoundState::pause() { }
+void EndRoundState::pause() {}
 
 void EndRoundState::play() {
 	float width = 1280;
@@ -137,11 +135,11 @@ void EndRoundState::play() {
 	m_bowl.setPosition(float3(0.0f, 0.25f, 0.0f));
 	m_bowlContent.setPosition(m_bowl.getPosition());
 	m_camera.setEye(float3(0.f, 0.9f, 1.0f));
-	m_camera.setTarget(float3(0.f,0.3f,0.f));
+	m_camera.setTarget(float3(0.f, 0.3f, 0.f));
 
 	m_particleSystem.setPosition(m_bowl.getPosition() + float3(0.0f, 0, 0.f));
 
-	m_btn_play.set(float2(width/2 - 125, height - 100), "Try Again", 0.2f);
+	m_btn_play.set(float2(width / 2 - 125, height - 100), "Try Again", 0.2f);
 	m_btn_back.set(float2(width / 2 + 125, height - 100), "Level Select", 0.4f);
 	m_btn_back.setTextScale(1.05f);
 }
@@ -155,8 +153,8 @@ void EndRoundState::draw() {
 	shadowMap->setup_depthRendering();
 	m_bowl.draw();
 	m_bowlContent.draw();
-	
-	Renderer::getInstance()->beginFrame();	
+
+	Renderer::getInstance()->beginFrame();
 	Renderer::getInstance()->drawCapturedFrame();
 	Renderer::getInstance()->clearDepth();
 
@@ -190,7 +188,7 @@ void EndRoundState::draw() {
 		leaderboardState = "Uploaded";
 	else {
 		// waiting
-		int points = 1 + (int)(m_timer.getTimePassed() * 2) % 3;
+		int points = 1 + (int)(m_totalTime * 2) % 3;
 		leaderboardState = "";
 		for (size_t i = 0; i < points; i++)
 			leaderboardState += ".";
@@ -211,7 +209,6 @@ void EndRoundState::draw() {
 
 	m_btn_play.draw();
 	m_btn_back.draw();
-
 }
 
 void EndRoundState::setParticleColorByPrize(size_t prize) {

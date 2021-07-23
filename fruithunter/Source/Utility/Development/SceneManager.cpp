@@ -148,7 +148,9 @@ SceneManager::~SceneManager() {
 	PathFindingThread::getInstance()->pause(); 
 }
 
-void SceneManager::update() {
+void SceneManager::update(double dt) {
+	// update time
+	scene->updateTime(dt);
 
 	monitor();
 
@@ -158,8 +160,7 @@ void SceneManager::update() {
 	//Input::getInstance()->setMouseModeRelative();
 	auto pft = PathFindingThread::getInstance();
 
-	scene->m_timer.update();
-	float dt = scene->getDeltaTime();
+	dt = scene->getDeltaTime();
 	float dt_nonSlow = scene->getDeltaTime_skipSlow();
 	Player* player = scene->m_player.get();
 	RPYCamera* camera = &scene->m_camera;

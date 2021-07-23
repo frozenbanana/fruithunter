@@ -154,7 +154,7 @@ private:
 public:
 	SceneEditorManager();
 
-	void update();
+	void update(double dt);
 
 	void draw_shadow();
 	void draw_color();

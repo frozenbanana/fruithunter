@@ -11,13 +11,13 @@ private:
 public:
 	PlayState();
 
-	void init();
-	void update();
-	void draw();
+	void init() override;
+	void update(double dt) override;
+	void draw() override;
 
-	void play();
-	void pause();
-	void restart();
+	void play() override;
+	void pause() override;
+	void restart() override;
 
 	void changeScene(string sceneName);
 

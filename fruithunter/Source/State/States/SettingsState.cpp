@@ -55,11 +55,9 @@ void SettingsState::init() {
 	m_settingsBackground.setAlignment(); // center
 }
 
-void SettingsState::update() {
+void SettingsState::update(double dt) {
 	Input* ip = Input::getInstance();
 	Input::getInstance()->setMouseModeAbsolute();
-	m_timer.update();
-	float dt = m_timer.getDt();
 
 	Settings* settings = Settings::getInstance();
 

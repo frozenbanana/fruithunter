@@ -113,6 +113,8 @@ public:
 
 	RPYCamera m_camera;
 
+	double m_deltaTime = 0, m_totalTime = 0;
+
 	// Skybox
 	SkyBox m_skyBox;
 
@@ -144,9 +146,6 @@ public:
 	// Level utility info
 	SceneAbstactContent::SceneUtilityInfo m_utility;
 	int m_gatheredFruits[NR_OF_FRUITS] = { 0 }; 
-
-	//timer
-	Timer m_timer;
 
 	// active terrain
 	AreaTag m_activeTerrain_tag = AreaTag::Plains;
@@ -183,8 +182,11 @@ public:
 	static TimeTargets getTimeTargetGrade(time_t timeMs, time_t timeTargets[NR_OF_TIME_TARGETS]);
 	bool handleWin();
 
-	float getDeltaTime();
-	float getDeltaTime_skipSlow();
+	float getDeltaTime() const;
+	float getDeltaTime_skipSlow() const;
+	size_t getTimePassedAsMilliseconds() const;
+	double getTimePassedAsSeconds() const;
+	void updateTime(double dt);
 
 	void imgui_readProperties() const;
 

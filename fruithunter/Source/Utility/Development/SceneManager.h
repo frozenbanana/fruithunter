@@ -33,7 +33,7 @@ public:
 	SceneManager();
 	~SceneManager();
 
-	void update();
+	void update(double dt);
 
 	void setup_shadow();
 	void draw_shadow();

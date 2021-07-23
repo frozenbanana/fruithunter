@@ -500,7 +500,7 @@ void Terrain::draw_grass() {
 		// time cbuffer
 		Scene* scene = SceneManager::getScene();
 		update_animationBuffer(
-			scene ? (float)SceneManager::getScene()->m_timer.getTimePassed() : 0);
+			scene ? (float)SceneManager::getScene()->getTimePassedAsSeconds() : 0);
 		m_cbuffer_animation.bindGS(CBUFFER_ANIMATION_SLOT);
 		// noise size buffer
 		m_cbuffer_noiseSize.bindGS(CBUFFER_NOISESIZE_SLOT);

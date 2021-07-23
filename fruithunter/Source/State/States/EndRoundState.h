@@ -13,7 +13,6 @@
 class EndRoundState : public StateItem {
 private:
 	Camera m_camera;
-	Timer m_timer;
 	Text2D m_textRenderer;
 	string m_victoryText;
 	float4 m_victoryColor;
@@ -36,17 +35,19 @@ private:
 	Menu_PoppingButton m_btn_play;
 	Menu_PoppingButton m_btn_back;
 
+	float m_totalTime = 0;
+
 public:
 	EndRoundState();
 	~EndRoundState();
 
-	void init();
-	void update();
-	void draw();
+	void init() override;
+	void update(double dt) override;
+	void draw() override;
 
-	void pause();
-	void play();
-	void restart();
+	void pause() override;
+	void play() override;
+	void restart() override;
 
 	void setParticleColorByPrize(size_t prize);
 	void setVictoryText(string text);

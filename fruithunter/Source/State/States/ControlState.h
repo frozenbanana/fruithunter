@@ -7,7 +7,6 @@
 
 class ControlState : public StateItem {
 private:
-	Timer m_timer;
 	Text2D m_text;
 	Sprite2D m_background;
 
@@ -27,12 +26,12 @@ public:
 	ControlState();
 	~ControlState();
 
-	void init();
-	void update();
-	void draw();
+	void init() override;
+	void update(double dt) override;
+	void draw() override;
 
-	void pause();
-	void play();
-	void restart();
+	void pause() override;
+	void play() override;
+	void restart() override;
 
 };

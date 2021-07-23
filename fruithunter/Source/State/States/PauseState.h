@@ -7,7 +7,6 @@
 
 class PauseState : public StateItem {
 private:
-	Timer m_timer;
 	Sprite2D m_settingsBackground;
 
 	enum MenuButtons { btn_restart, btn_resume, btn_controls, btn_settings, btn_mainmenu, btn_exit, btn_length };
@@ -17,12 +16,12 @@ public:
 	PauseState();
 	~PauseState();
 
-	void init();
-	void update();
-	void draw();
+	void init() override;
+	void update(double dt) override;
+	void draw() override;
 
-	void pause();
-	void play();
-	void restart();
+	void pause() override;
+	void play() override;
+	void restart() override;
 
 };

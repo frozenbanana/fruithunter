@@ -72,11 +72,8 @@ void ControlState::init() {
 	m_jumpKey.setAlignment(); // Center
 }
 
-void ControlState::update() {
+void ControlState::update(double dt) {
 	Input::getInstance()->setMouseModeAbsolute();
-
-	m_timer.update();
-	float dt = m_timer.getDt();
 
 	if (m_btn_back.update_behavior(dt)) {
 		pop(false);

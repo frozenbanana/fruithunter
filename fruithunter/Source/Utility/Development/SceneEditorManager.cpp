@@ -859,11 +859,10 @@ SceneEditorManager::SceneEditorManager() {
 	readSceneDirectory();
 }
 
-void SceneEditorManager::update() {
+void SceneEditorManager::update(double dt) {
 	Input* ip = Input::getInstance();
 
-	scene->m_timer.update();
-	float dt = scene->m_timer.getDt();
+	scene->updateTime(dt);
 
 	// update camera
 	updateCameraMovement(dt);

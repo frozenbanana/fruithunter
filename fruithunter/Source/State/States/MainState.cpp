@@ -136,7 +136,7 @@ void MainState::draw_ui_levelselect(float alpha) {
 		if (selectedLevel == lvl) {
 			m_spr_levelItem_marker.setAlpha(alpha);
 			m_spr_levelItem_marker.setScale(0.6f);
-			float animFactor = sin(m_timer.getTimePassed() * 2 * XM_PI / 2.f) * 0.5f + 0.5f;
+			float animFactor = sin(m_totalTime * 2 * XM_PI / 2.f) * 0.5f + 0.5f;
 			m_spr_levelItem_marker.setPosition(
 				itemPos + float2(levelItemSize.x + 0, 0) + float2(10, 0) * animFactor);
 			m_spr_levelItem_marker.setColor(stdColor);
@@ -321,7 +321,7 @@ void MainState::update_ui_menu(float dt) {
 	// Logo update
 	float offsetX = 1280.f / 16.f;
 	float offsetY = 720.f / 6.0f;
-	float t = (float)m_timer.getTimePassed();
+	float t = m_totalTime;
 	for (size_t i = 0; i < m_letters.size(); i++) {
 		float2 movement =
 			float2(sin(t + m_letters[i].speedOffset.x), cos(t + m_letters[i].speedOffset.y)) * 10.f;
@@ -505,7 +505,7 @@ void MainState::init() {
 	// m_ui_mainContainer.push_back(make_shared<Sprite2D>());
 }
 
-void MainState::update() {
+void MainState::update(double dt) {
 	Input* ip = Input::getInstance();
 	ip->setMouseModeAbsolute();
 
@@ -514,13 +514,13 @@ void MainState::update() {
 	float3 treePos(56.4f, 9.5f, 18.2f);
 	float3 bowPos = treePos + float3(10, 1.5, 5);
 
-	m_timer.update();
-	float dt = (float)m_timer.getDt();
 	m_totalDelta = fmod((m_totalDelta + dt), (2.f * XM_PI));
 	m_totalDelta_forBow += dt;
 
+	m_totalTime += dt;
+
 	// update scene
-	m_sceneManager.update();
+	m_sceneManager.update(dt);
 
 	// update precoded bow behavior
 	float3 target = treePos + float3(0, 1.0, 0) +
@@ -736,7 +736,6 @@ void MainState::play() {
 	if (SceneManager::getScene()->m_sceneName != "intro")
 		m_sceneManager.load("intro");
 	m_apple = make_shared<Apple>(float3(58.0f, 10.1f, 16.9f));
-	m_timer.reset();
 
 	// set camera position
 	m_sceneManager.getScene()->m_camera.setView(m_camTransformStates[m_mainState].position,

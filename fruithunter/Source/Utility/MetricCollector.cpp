@@ -20,7 +20,7 @@ void MetricCollector::update() {
 	while (fpsCollectorTimer > 1) {
 		fpsCollectorTimer--;
 		fpsBank.push_back(1.f / (fpsCollector / fpsCollectorCount));
-		elapsedTimeBank.push_back(scene->m_timer.getTimePassed());
+		elapsedTimeBank.push_back(scene->getTimePassedAsSeconds());
 		fpsCollector = 0;
 		fpsCollectorCount = 0;
 		if (fpsBank.size() > fpsCollectedSeconds) {
