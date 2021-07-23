@@ -24,6 +24,7 @@ public:
 		bool isLinked() const;
 
 	public:
+		bool canEmit() const;
 		void reset();
 		void update(float dt, const Transformation& transform);
 		void link(shared_ptr<ParticleCache> _system);
@@ -199,6 +200,7 @@ public:
 		EmitterDescription getDescription() const;
 		size_t getParticleCount() const;
 		size_t getActiveParticleCount() const;
+		size_t getLocalActiveParticleCount() const;
 		bool isEmitting() const;
 		void setEmittingState(bool state);
 		bool hasSubEmitters() const;
@@ -250,12 +252,13 @@ private:
 	void read_preset(ifstream& file);
 	void write_preset(ofstream& file);
 
-public:
-	size_t getActiveParticleCount() const;
-	void setEmittingState(bool state);
-
 	void emit(size_t count);
 	void burst();
+
+public:
+	bool isFinished() const;
+	size_t getActiveParticleCount() const;
+	void setEmittingState(bool state);
 
 	void update(float dt);
 

@@ -29,7 +29,6 @@ protected:
 	float m_passive_speed;
 	float m_active_speed;
 	float m_caught_speed;
-	ParticleSystem m_particleSystem;
 	// -------------------
 	int m_nrOfFramePhases; // nr of phases to a movement
 	int m_currentFramePhase;
@@ -44,6 +43,7 @@ protected:
 	vector<vector<Material>> m_materials;
 	vector<string> m_materialNames;
 	// -------------------
+	float3 m_baseColor = float3(1.f);
 
 	Environment* m_boundTerrain = nullptr;
 	float3 m_worldHome;
@@ -75,9 +75,16 @@ protected:
 	/* Checks Terrain and Entity distance from feet and returns true if distance is less than specified threshold. */
 	bool isOnGround(float3 position, float heightThreshold);
 
+	void spawnCollectionPoint(Skillshot skillshot);
+
+	virtual void _onDeath(Skillshot skillshot) = 0;
+
 public:
 	bool isVisible() const;
 	virtual void release(float3 direction);
+	void onDeath(Skillshot skillshot);
+	void onHit();
+	virtual void onHit(Skillshot skillshot);
 	void move(float dt);
 	virtual void update();
 	virtual void updateAnimated(float dt) = 0;

@@ -189,8 +189,14 @@ void SceneManager::update() {
 	for (size_t i = 0; i < scene->m_particleSystems.size(); i++) {
 		scene->m_particleSystems[i]->update(dt);
 	}
+
+	// effects
 	for (size_t i = 0; i < scene->m_effects.size(); i++) {
 		scene->m_effects[i]->update(dt);
+		if (scene->m_effects[i]->isFinished() && scene->m_effects[i]->isMarkedForDeletion()) {
+			scene->m_effects.erase(scene->m_effects.begin() + i);
+			i--;
+		}
 	}
 
 	// collection points
@@ -217,8 +223,8 @@ void SceneManager::update() {
 	// arrow particles
 	for (size_t i = 0; i < scene->m_arrowParticles.size(); i++) {
 		scene->m_arrowParticles[i]->update(dt);
-		// remove if done (arrow should turn off particle system emiter)
-		if (scene->m_arrowParticles[i]->getActiveParticleCount() == 0) {
+		// remove if done (arrow should turn off particle system emitter)
+		if (scene->m_arrowParticles[i]->isFinished() && scene->m_arrowParticles[i]->isMarkedForDeletion()) {
 			scene->m_arrowParticles.erase(scene->m_arrowParticles.begin()+i);
 			i--;
 		}
@@ -228,7 +234,6 @@ void SceneManager::update() {
 	for (int i = 0; i < scene->m_fruits.size(); i++) {
 		Fruit* fruit = scene->m_fruits[i].get();
 
-		fruit->getParticleSystem()->update(dt);
 		PathFindingThread::lock();
 		fruit->update();
 		// collision arrow - fruit
@@ -238,31 +243,26 @@ void SceneManager::update() {
 				// !! Arrow::collide_entity function doesnt work on Animated Entities.		!!
 				// !! Which is the reason i use simpler (and quicker) collision detection.	!!
 				if (arrow->checkCollision(*fruit)) {
-					Skillshot skillshot = Skillshot::SS_BRONZE;
-					if (!scene->m_player->inHuntermode()) {
-						// recover stamina
-						skillshot = fruit->hit(player->getPosition());
-						player->getStaminaBySkillshot(skillshot);
-					}
 					// play hit sound
 					SoundID id = AudioController::getInstance()->play("fruit-impact-wet", AudioController::SoundType::Effect);
 					AudioController::getInstance()->scaleVolumeByDistance(
 						id, (camera->getPosition() - fruit->getPosition()).Length());
 					arrow->collided(arrow->getPosition_front());
-					// add collection point
-					shared_ptr<CollectionPoint> cp = make_shared<CollectionPoint>();
-					cp->load(
-						fruit->getPosition(), float3(0, 1, 0), fruit->getFruitType(), skillshot);
-					scene->m_collectionPoint.push_back(cp);
-					// remove fruit
-					scene->m_fruits.erase(scene->m_fruits.begin() + i);
-					i--;
+
+					// callback onHit
+					fruit->onHit();
+
 					//remove arrow
 					scene->m_arrows.erase(scene->m_arrows.begin()+iArrow);
 					iArrow--;
 					break;
 				}
 			}
+		}
+		// manage deletion
+		if (fruit->isMarkedForDeletion()) {
+			scene->m_fruits.erase(scene->m_fruits.begin() + i);
+			i--;
 		}
 		PathFindingThread::unlock();
 	}
@@ -316,12 +316,20 @@ void SceneManager::reset() {
 
 void SceneManager::monitor() {
 	if (DEBUG) {
+		// metrics
 		m_metricCollector.update();
 		Input* ip = Input::getInstance();
 		if (ip->keyPressed(m_key_monitor))
 			m_monitoring = !m_monitoring;
 		if (m_monitoring) {
 			m_metricCollector.draw_imgui();
+		}
+		// scene data
+		if (m_monitoring) {
+			if (ImGui::Begin("Scene Data")) {
+				scene->imgui_readProperties();
+			}
+			ImGui::End();
 		}
 	}
 }

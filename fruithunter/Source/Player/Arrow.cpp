@@ -155,24 +155,14 @@ void Arrow::changeState(bool state) {
 		// create trail effect when activated
 		m_trail = make_shared<EffectSystem>();
 		m_trail->loadFromPreset("arrow_glitter");
-		m_trail->emit(1); // force 1 emit to stop it from being deleted instantly
 		SceneManager::getScene()->m_arrowParticles.push_back(m_trail);
-
-		//m_trailEffect = make_shared<ParticleSystem>();
-		//m_trailEffect->load("arrow glitter", 5000);
-		//m_trailEffect->setEmitingState(true);
-		//SceneManager::getScene()->m_arrowParticles.push_back(m_trailEffect);
 	}
 	else {
 		// turn off trail effect (will be deleted when empty)
-		//if (m_trailEffect.get() != nullptr) {
-		//	m_trailEffect->setEmitingState(false);
-		//	m_trailEffect.reset();
-		//}
-
 		if (m_trail.get()) {
 			m_trail->setEmittingState(false);
-			m_trail.reset();
+			m_trail->markForDeletion();
+			m_trail.reset(); // delete local pointer
 		}
 	}
 }

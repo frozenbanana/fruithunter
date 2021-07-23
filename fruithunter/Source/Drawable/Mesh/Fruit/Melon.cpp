@@ -101,9 +101,7 @@ void Melon::behaviorActive() {
 	}
 }
 
-void Melon::behaviorCaught() {
-	/* NOT USED */
-}
+void Melon::behaviorCaught() { /* NOT USED */ }
 
 void Melon::updateAnimated(float dt) {
 	// static mesh (no animation)
@@ -116,82 +114,81 @@ void Melon::pathfinding(float3 start) {
 	if ((start - m_destination).LengthSquared() < 0.5f)
 		return;
 	if (m_readyForPath) {
-			TerrainBatch* tm = &SceneManager::getScene()->m_terrains;
-			// enforce start and m_destination to terrain
-			float3 startCopy = float3(start.x, tm->getHeightFromPosition(start), start.z);
-			float3 m_destinationCopy =
-				float3(m_destination.x, tm->getHeightFromPosition(m_destination), m_destination.z);
+		TerrainBatch* tm = &SceneManager::getScene()->m_terrains;
+		// enforce start and m_destination to terrain
+		float3 startCopy = float3(start.x, tm->getHeightFromPosition(start), start.z);
+		float3 m_destinationCopy =
+			float3(m_destination.x, tm->getHeightFromPosition(m_destination), m_destination.z);
 
-			shared_ptr<AI::Node> currentNode = make_shared<AI::Node>(
-				shared_ptr<AI::Node>(), startCopy, startCopy, m_destinationCopy);
-			bool collidedWithSomething = false;
-			size_t counter = 0;
-			std::vector<shared_ptr<AI::Node>> open;
-			std::vector<shared_ptr<AI::Node>> closed;
-			std::list<float3> childPositionOffsets = { float3(-1.f, 0.f, -1.f),
-				float3(0.f, 0.f, -1.f), float3(1.f, 0.f, -1.f), float3(-1.f, 0.f, 0.f),
-				float3(1.f, 0.f, 0.f), float3(-1.f, 0.f, 1.f), float3(0.f, 0.f, 1.f),
-				float3(1.f, 0.f, 1.f) };
-
-
-			open.push_back(currentNode);
-			while (!open.empty() && counter++ < m_maxSteps) {
-				quickSort(open, 0, (int)open.size() - 1);
-				closed.push_back(open.back());
-				open.pop_back();
-
-				// Check to see if we're inside a certain radius of m_destinationCopy location
-				shared_ptr<AI::Node> currentNode = closed.back();
-
-				if ((currentNode->position - m_destinationCopy).LengthSquared() < ARRIVAL_RADIUS ||
-					counter == m_maxSteps - 1) {
-					m_availablePath.clear(); // Reset path
-
-					// Add path steps
-					while (currentNode->parent != nullptr) {
-						m_availablePath.push_back(currentNode->position);
-						currentNode = currentNode->parent;
-					}
+		shared_ptr<AI::Node> currentNode =
+			make_shared<AI::Node>(shared_ptr<AI::Node>(), startCopy, startCopy, m_destinationCopy);
+		bool collidedWithSomething = false;
+		size_t counter = 0;
+		std::vector<shared_ptr<AI::Node>> open;
+		std::vector<shared_ptr<AI::Node>> closed;
+		std::list<float3> childPositionOffsets = { float3(-1.f, 0.f, -1.f), float3(0.f, 0.f, -1.f),
+			float3(1.f, 0.f, -1.f), float3(-1.f, 0.f, 0.f), float3(1.f, 0.f, 0.f),
+			float3(-1.f, 0.f, 1.f), float3(0.f, 0.f, 1.f), float3(1.f, 0.f, 1.f) };
 
 
-					if (m_availablePath.size() > 2) {
-						m_availablePath.pop_back(); // remove first position because it is the same
-													// as startCopy.
-					}
-					m_readyForPath = false;
+		open.push_back(currentNode);
+		while (!open.empty() && counter++ < m_maxSteps) {
+			quickSort(open, 0, (int)open.size() - 1);
+			closed.push_back(open.back());
+			open.pop_back();
 
-					return;
+			// Check to see if we're inside a certain radius of m_destinationCopy location
+			shared_ptr<AI::Node> currentNode = closed.back();
+
+			if ((currentNode->position - m_destinationCopy).LengthSquared() < ARRIVAL_RADIUS ||
+				counter == m_maxSteps - 1) {
+				m_availablePath.clear(); // Reset path
+
+				// Add path steps
+				while (currentNode->parent != nullptr) {
+					m_availablePath.push_back(currentNode->position);
+					currentNode = currentNode->parent;
 				}
 
-				for (auto childOffset : childPositionOffsets) {
 
-					// Create child AI::Node
-					float3 childPosition = currentNode->position + STEP_SCALE * childOffset;
-					childPosition.y = tm->getHeightFromPosition(childPosition);
-
-					shared_ptr<AI::Node> child = make_shared<AI::Node>(
-						currentNode, childPosition, startCopy, m_destinationCopy);
-
-
-					// Check if node is in open or closed.
-					if (!beingUsed(child, open, closed)) {
-						continue;
-					}
-
-					if (!isValid(child->position, currentNode->position, 0.7f)) {
-						continue;
-					}
-
-					// Add child to open
-					open.push_back(child);
+				if (m_availablePath.size() > 2) {
+					m_availablePath.pop_back(); // remove first position because it is the same
+												// as startCopy.
 				}
+				m_readyForPath = false;
+
+				return;
 			}
-			while (currentNode->parent != nullptr) {
-				m_availablePath.push_back(currentNode->position);
-				currentNode = currentNode->parent;
+
+			for (auto childOffset : childPositionOffsets) {
+
+				// Create child AI::Node
+				float3 childPosition = currentNode->position + STEP_SCALE * childOffset;
+				childPosition.y = tm->getHeightFromPosition(childPosition);
+
+				shared_ptr<AI::Node> child =
+					make_shared<AI::Node>(currentNode, childPosition, startCopy, m_destinationCopy);
+
+
+				// Check if node is in open or closed.
+				if (!beingUsed(child, open, closed)) {
+					continue;
+				}
+
+				if (!isValid(child->position, currentNode->position, 0.7f)) {
+					continue;
+				}
+
+				// Add child to open
+				open.push_back(child);
 			}
-			m_readyForPath = false;
 		}
+		while (currentNode->parent != nullptr) {
+			m_availablePath.push_back(currentNode->position);
+			currentNode = currentNode->parent;
+		}
+		m_readyForPath = false;
+	}
 }
 
 void Melon::update() {
@@ -205,7 +202,6 @@ void Melon::update() {
 	m_rollTrail.setEmitingState(m_onGround); // emit if on ground
 
 	m_isVisible = true;
-	m_particleSystem.setPosition(getPosition());
 	// updateAnimated(dt); // animation stuff
 	// checkOnGroundStatus(); // checks if on ground
 
@@ -213,7 +209,7 @@ void Melon::update() {
 
 	// update velocity
 	m_velocity += (float3(0, -1, 0) * m_gravityStrength) * dt; // gravity
-	m_velocity *= pow(1.0f, dt);								   // friction
+	m_velocity *= pow(1.0f, dt);							   // friction
 	// collision
 	float3 point = getPosition() - float3(0, 1, 0) * getHalfSizes().y;
 	float3 forward = m_velocity * dt;
@@ -255,7 +251,7 @@ void Melon::update() {
 
 	// respawn if fall into water
 	if (getPosition().y < 1 && getState() == State::ACTIVE) {
-		//changeState(State::PASSIVE);
+		// changeState(State::PASSIVE);
 		respawn();
 	}
 	updateRespawn();
@@ -278,7 +274,7 @@ void Melon::update_imgui_changeParams() {
 	ImGui::End();
 }
 
-void Melon::draw_rollTrail() { 
+void Melon::draw_rollTrail() {
 	m_rollTrail.setPosition(getPosition() - float3(0, 1, 0) * getHalfSizes().y);
 	m_rollTrail.draw();
 }
@@ -300,3 +296,5 @@ void Melon::draw_fruit() {
 		draw_rollTrail();
 	}
 }
+
+void Melon::_onDeath(Skillshot skillshot) { spawnCollectionPoint(skillshot); }

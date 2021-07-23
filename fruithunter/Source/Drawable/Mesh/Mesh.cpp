@@ -212,7 +212,7 @@ void Mesh::drawCall_perMaterial() {
 	for (size_t i = 0; i < m_parts.size(); i++) {
 		for (size_t j = 0; j < m_parts[i].materialUsage.size(); j++) {
 			int materialIndex = m_parts[i].materialUsage[j].materialIndex;
-			if (materialIndex != -1) {
+			if (materialIndex != -1 && m_currentMaterial >= 0 && m_currentMaterial < m_materials.size()) {
 				m_materials[m_currentMaterial][materialIndex].bind(MATERIAL_SLOT);
 				int count = m_parts[i].materialUsage[j].count;
 				int index = m_parts[i].materialUsage[j].index;

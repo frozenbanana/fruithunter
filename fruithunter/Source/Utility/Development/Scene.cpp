@@ -469,6 +469,58 @@ float Scene::getDeltaTime() {
 
 float Scene::getDeltaTime_skipSlow() { return m_timer.getDt(); }
 
+void Scene::imgui_readProperties() const {
+	ImGui::Text("Scene: %s", m_sceneName.c_str());
+	ImGui::Text("Leaderboard: %s", m_leaderboardName.c_str());
+	if (ImGui::TreeNode("##1", "TerrainBatch (%i)", m_terrains.size())) {
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("##2", "Sea Effects (%i)", m_seaEffects.size())) {
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("##3", "Entities (%i)", m_entities.size())) {
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("##4", "Arrows (%i)", m_arrows.size())) {
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("##5", "Arrow Particles (%i)", m_arrowParticles.size())) {
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("##6", "Particle Systems (%i)", m_particleSystems.size())) {
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("##7", "Effects (%i)", m_effects.size())) {
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("##8", "Fruits (%i)", m_fruits.size())) {
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("##9", "Collection Points (%i)", m_collectionPoint.size())) {
+		ImGui::TreePop();
+	}
+	string winCondition = "Gathered Fruit\n";
+	for (size_t i = 0; i < NR_OF_FRUITS; i++) {
+		winCondition += "  " + FruitTypeToString((FruitType)i) + ": " +
+						to_string(m_gatheredFruits[i]) + "/" + to_string(m_utility.winCondition[i]);
+		if (i + 1 < NR_OF_FRUITS)
+			winCondition += "\n";
+	}
+	ImGui::Text(winCondition.c_str());
+
+	string timetarget = "TimeTargets\n";
+	for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++) {
+		timetarget += "  " + TimeTargetToString((TimeTargets)i) + ": " +
+						Milliseconds2DisplayableString(m_utility.timeTargets[i]);
+		if (i + 1 < NR_OF_FRUITS)
+			timetarget += "\n";
+	}
+	ImGui::Text(timetarget.c_str());
+	ImGui::Text("Start Spawn: (%.1f, %.1f, %.1f)", m_utility.startSpawn.x, m_utility.startSpawn.y,
+		m_utility.startSpawn.z);
+	ImGui::Text("Area Active: %s", AreaTagToString(m_activeTerrain_tag).c_str());
+}
+
 bool SceneAbstactContent::load_raw(string folder) {
 	string path = path_scenes + folder;
 	ifstream file;

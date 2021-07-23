@@ -276,3 +276,5 @@ void Apple::pathfinding(float3 start) {
 }
 
 bool Apple::isRespawning() const { return m_respawn_timer != 0; }
+
+void Apple::_onDeath(Skillshot skillshot) { spawnCollectionPoint(skillshot); }

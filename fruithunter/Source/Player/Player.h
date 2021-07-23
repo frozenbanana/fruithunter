@@ -24,6 +24,7 @@ public:
 	Bow& getBow();
 	float getStamina() const;
 	void getStaminaBySkillshot(Skillshot skillShot);
+	void applyForce(float3 force);
 
 	// SETS
 	/* Sets the player position, as well as the safe position for respawning. */

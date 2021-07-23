@@ -29,7 +29,6 @@ Banana::Banana(float3 pos) : Fruit(FruitType::BANANA, pos) {
 	// no friction (difficult jump calculation if there are)
 	m_groundFriction = 60;
 	m_airFriction = 60;
-
 }
 
 void Banana::behaviorPassive() {
@@ -57,13 +56,14 @@ void Banana::behaviorPassive() {
 			float maximumJumpHeight = -(v / a) * v;
 
 			// find point samples to jump to
-			vector<float3> samples_directions;
-			vector<float> samples_nextApproxCollision;
-			Environment* terrain = m_boundTerrain;
 			size_t samples = 16;
+			vector<float3> samples_directions;
+			samples_directions.reserve(samples);
+			vector<float> samples_nextApproxCollision;
+			samples_nextApproxCollision.reserve(samples);
+			Environment* terrain = m_boundTerrain;
 			for (size_t i = 0; i < samples; i++) {
-				float r = ((float)i / samples) * XM_PI * 2;
-				r = RandomFloat(0, XM_PI * 2);
+				float r = RandomFloat(0, XM_PI * 2);
 				float horLength = (1 - (float)pow(RandomFloat(), 2)) * jumpVelHeight;
 				float3 direction = float3(cos(r), 0, sin(r)) * horLength;
 				float3 check_point = getPosition() + direction;
@@ -92,9 +92,9 @@ void Banana::behaviorPassive() {
 					target.y = terrain->getHeightFromPosition(target.x, target.z);
 
 					// jump long distances (problem: high risk of flying away on collision)
-					//float horDistFactor = (samples_directions[i].Length() - 1) / jumpVelHeight;
-					//score += horDistFactor * 10; // gain score for further jumps
-					
+					// float horDistFactor = (samples_directions[i].Length() - 1) / jumpVelHeight;
+					// score += horDistFactor * 10; // gain score for further jumps
+
 					// avoid player
 					const float playerRadiusAvoid = 5;
 					float distanceToPlayer =
@@ -103,12 +103,12 @@ void Banana::behaviorPassive() {
 						float withinPlayerFactor = 1 - (distanceToPlayer / playerRadiusAvoid);
 						score -= withinPlayerFactor * 20;
 					}
-					
+
 					// traverse height (problem: they stack on high points)
-					//float heightMargin = 0.7f;
-					//float heightFactor =
+					// float heightMargin = 0.7f;
+					// float heightFactor =
 					//	(target.y - getPosition().y) / (maximumJumpHeight * heightMargin);
-					//score += heightFactor * 10;
+					// score += heightFactor * 10;
 
 					// keep best
 					if (i == 0 || score > bestScore) {
@@ -199,6 +199,8 @@ void Banana::release(float3 direction) {
 	m_velocity = m_direction * THROWVELOCITY;
 	m_afterRealease = true;
 }
+
+void Banana::_onDeath(Skillshot skillshot) { spawnCollectionPoint(skillshot); }
 
 
 void Banana::playSound_bounce() {

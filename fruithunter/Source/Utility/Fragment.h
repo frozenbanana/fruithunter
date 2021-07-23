@@ -11,6 +11,9 @@ private:
 	size_t m_id;
 	std::string m_description;
 	Type m_type;
+	bool m_markedForDeletion = false;
+
+protected:
 
 public:
 	Fragment(Type type, std::string description = "");
@@ -27,6 +30,8 @@ public:
 	Type getType() const;
 	std::string getTypeAsString() const;
 	std::string getFullDescription() const;
+	bool isMarkedForDeletion() const;
+	void markForDeletion();
 
 	virtual void imgui_properties();
 

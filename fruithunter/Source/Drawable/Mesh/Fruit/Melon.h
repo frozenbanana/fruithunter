@@ -29,6 +29,8 @@ private:
 	float m_forwardAngleSpeed = 5;
 	float m_gravityStrength = 25;
 
+	void _onDeath(Skillshot skillshot) override;
+
 public:
 	Melon(float3 pos = float3(0.f, 0.f, 0.f));
 	void updateAnimated(float dt);
@@ -41,4 +43,5 @@ public:
 	void draw_sensors();
 
 	void draw_fruit();
+
 };

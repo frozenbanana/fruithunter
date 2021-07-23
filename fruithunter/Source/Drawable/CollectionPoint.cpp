@@ -33,6 +33,13 @@ void CollectionPoint::setType(FruitType type) {
 		m_effect_explosion.loadFromPreset("explosion_dragon");
 		m_effect_sparkle.loadFromPreset("sparkle_dragon");
 		break;
+	case POMEGRANATE:
+		m_fruit.load("pomegranate_000000");
+		fruit_scale = 0.15f;
+
+		m_effect_explosion.loadFromPreset("explosion_apple");
+		m_effect_sparkle.loadFromPreset("sparkle_apple");
+		break;
 	}
 	m_fruit.setScale(fruit_scale);
 
@@ -65,9 +72,7 @@ void CollectionPoint::load(float3 position, float3 velocity, FruitType type, Ski
 	setSkillType(skillType);
 	// emit explosion
 	m_effect_stars.setPosition(position);
-	m_effect_stars.burst();
 	m_effect_explosion.setPosition(position);
-	m_effect_explosion.burst();
 }
 
 bool CollectionPoint::isFinished() const {

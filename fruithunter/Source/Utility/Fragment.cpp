@@ -4,6 +4,8 @@
 
 size_t Fragment::m_id_counter = 0;
 
+void Fragment::markForDeletion() { m_markedForDeletion = true; }
+
 Fragment::Fragment(Type type, std::string description) { 
 	m_id = nextID();
 	m_type = type;
@@ -42,6 +44,8 @@ std::string Fragment::getTypeAsString() const { return m_typeAsString[m_type]; }
 std::string Fragment::getFullDescription() const {
 	return getDescription() + "(" + std::to_string(getID()) + ", " + getTypeAsString() + ")";
 }
+
+bool Fragment::isMarkedForDeletion() const { return m_markedForDeletion; }
 
 void Fragment::imgui_properties() { ImGui::Text("No Properties"); }
 

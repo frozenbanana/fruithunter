@@ -160,19 +160,23 @@ float3 Player::getVelocity() const { return m_velocity; }
 float Player::getStamina() const { return m_stamina; }
 
 void Player::getStaminaBySkillshot(Skillshot skillShot) {
-	switch (skillShot) {
-	case Skillshot::SS_BRONZE:
-		m_stamina += 0.1f;
-		break;
-	case Skillshot::SS_SILVER:
-		m_stamina += 0.2f;
-		break;
-	case Skillshot::SS_GOLD:
-		m_stamina += 0.3f;
-		break;
+	if (!inHuntermode()) {
+		switch (skillShot) {
+		case Skillshot::SS_BRONZE:
+			m_stamina += 0.1f;
+			break;
+		case Skillshot::SS_SILVER:
+			m_stamina += 0.2f;
+			break;
+		case Skillshot::SS_GOLD:
+			m_stamina += 0.3f;
+			break;
+		}
+		m_stamina = min(m_stamina, 1.0f);
 	}
-	m_stamina = min(m_stamina, 1.0f);
 }
+
+void Player::applyForce(float3 force) { m_velocity += force; }
 
 void Player::setPosition(float3 position) {
 	m_position = position;

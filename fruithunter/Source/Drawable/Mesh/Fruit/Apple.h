@@ -11,6 +11,8 @@ private:
 
 	bool isValid(float3 point);
 
+	void _onDeath(Skillshot skillshot) override;
+
 public:
 	Apple(float3 pos = float3(12.f, 0.f, 6.f));
 	void updateAnimated(float dt);
@@ -18,4 +20,5 @@ public:
 	void pathfinding(float3 start) override;
 
 	bool isRespawning() const;
+
 };

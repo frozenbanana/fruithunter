@@ -44,21 +44,15 @@ void EffectSystem::write_preset(ofstream& file) {
 	}
 }
 
-void EffectSystem::burst() {
-	for (size_t i = 0; i < m_caches.size(); i++) {
-		m_caches[i].source->burst(*this);
-	}
-}
-
 void EffectSystem::update(float dt) {
 	for (size_t i = 0; i < m_caches.size(); i++) {
-		if (m_caches[i].source->getDescription().emitType != EmitterDescription::EmitType::Burst)
-			m_caches[i].emitter.update(dt, *this); // bursting every frame will kill computer!
+		// if (m_caches[i].source->getDescription().emitType != EmitterDescription::EmitType::Burst)
+		m_caches[i].emitter.update(dt, *this); // bursting every frame will kill computer!
 		m_caches[i].source->update(dt);
 	}
 }
 
-size_t EffectSystem::getActiveParticleCount() const { 
+size_t EffectSystem::getActiveParticleCount() const {
 	size_t count = 0;
 	for (size_t i = 0; i < m_caches.size(); i++) {
 		count += m_caches[i].source->getActiveParticleCount();
@@ -75,6 +69,12 @@ void EffectSystem::draw() {
 void EffectSystem::setEmittingState(bool state) {
 	for (size_t i = 0; i < m_caches.size(); i++) {
 		m_caches[i].source->setEmittingState(state);
+	}
+}
+
+void EffectSystem::burst() {
+	for (size_t i = 0; i < m_caches.size(); i++) {
+		m_caches[i].source->burst(*this);
 	}
 }
 
@@ -142,13 +142,23 @@ void EffectSystem::imgui_properties() {
 		ImGui::EndChild();
 
 		if (m_selected != nullptr) {
-			if (ImGui::BeginChild("Properties", ImVec2(0, 0), true, ImGuiWindowFlags_AlwaysAutoResize)) {
+			if (ImGui::BeginChild(
+					"Properties", ImVec2(0, 0), true, ImGuiWindowFlags_AlwaysAutoResize)) {
 				m_selected->imgui_properties();
 			}
 			ImGui::EndChild();
 		}
 	}
 	ImGui::EndChild();
+}
+
+bool EffectSystem::isFinished() const {
+	for (size_t i = 0; i < m_caches.size(); i++) {
+		if (m_caches[i].emitter.canEmit() || m_caches[i].source->getActiveParticleCount() > 0) {
+			return false;
+		}
+	}
+	return true;
 }
 
 void EffectSystem::emit(size_t count) {
@@ -422,8 +432,7 @@ void EffectSystem::EmitterDescription::write(ofstream& file) {
 	fileWrite(file, mapAlpha_middleFactor);
 	fileWrite(file, sort);
 	fileWrite(file, drawMode);
-	fileWrite(
-		file, texture.get() == nullptr ? string("bananaFace.png") : texture->getFilename());
+	fileWrite(file, texture.get() == nullptr ? string("bananaFace.png") : texture->getFilename());
 	fileWrite(file, collideWithTerrain);
 	fileWrite(file, destroyOnCollision);
 	fileWrite(file, collisionBounceIntensity);
@@ -434,9 +443,7 @@ EffectSystem::EmitterDescription::EmitterDescription() {
 		TextureRepository::get("bananaFace.png", TextureRepository::Type::type_particleSprite);
 }
 
-bool EffectSystem::Emitter::isLinked() const {
-	return system.get() != nullptr;
-}
+bool EffectSystem::Emitter::isLinked() const { return system.get() != nullptr; }
 
 void EffectSystem::Emitter::reset() {
 	emitTimer = 0;
@@ -445,8 +452,22 @@ void EffectSystem::Emitter::reset() {
 	system.reset();
 }
 
-void EffectSystem::Emitter::update(float dt, const Transformation& transform) {
+bool EffectSystem::Emitter::canEmit() const {
 	if (isLinked()) {
+		if (!system->isEmitting())
+			return false;
+		if (system->getDescription().emitType == EmitterDescription::EmitType::Burst &&
+			firstUpdate == false) {
+			return false; // burst
+		}
+		else
+			return true; // constant & distance
+	}
+	return false;
+}
+
+void EffectSystem::Emitter::update(float dt, const Transformation& transform) {
+	if (isLinked() && system->isEmitting()) {
 		EmitterDescription desc = system->getDescription();
 		if (firstUpdate)
 			previousPosition = transform.getPosition();
@@ -489,7 +510,8 @@ void EffectSystem::Emitter::update(float dt, const Transformation& transform) {
 			break;
 		}
 		case EmitterDescription::EmitType::Burst: {
-			system->emit(desc.burstCount, transform);
+			if (firstUpdate)
+				system->emit(desc.burstCount, transform);
 			break;
 		}
 		}
@@ -678,8 +700,7 @@ size_t EffectSystem::ParticleCache::getParticleCount() const { return m_particle
 size_t EffectSystem::ParticleCache::getActiveParticleCount() const {
 	size_t count = 0;
 	// local particles
-	for (size_t i = 0; i < m_particles.size(); i++)
-		count += (m_particles[i].vars.enabled == true);
+	count += getLocalActiveParticleCount();
 	// sub cache particles
 	for (size_t i = 0; i < SubEmitter_Length; i++) {
 		if (m_subCaches[i].get() != nullptr)
@@ -698,6 +719,14 @@ bool EffectSystem::ParticleCache::hasSubEmitters() const {
 			return true;
 	}
 	return false;
+}
+
+size_t EffectSystem::ParticleCache::getLocalActiveParticleCount() const { 
+	size_t count = 0;
+	// local particles
+	for (size_t i = 0; i < m_particles.size(); i++)
+		count += (m_particles[i].vars.enabled == true);
+	return count;
 }
 
 void EffectSystem::ParticleCache::setCacheType(SubEmitters type) {
@@ -834,7 +863,7 @@ void EffectSystem::ParticleCache::imgui_tree(ParticleCache** selected) {
 		if (m_subCaches[i].get() != nullptr) {
 			ImGuiTreeNodeFlags flags = baseFlags;
 			string id = ParticleCache::toString((SubEmitters)i) + " (" +
-						to_string(m_subCaches[i]->getActiveParticleCount()) + "/" +
+						to_string(m_subCaches[i]->getLocalActiveParticleCount()) + "/" +
 						to_string(m_subCaches[i]->getParticleCount()) + ")";
 			bool isSelected = (*selected == m_subCaches[i].get());
 			if (isSelected)

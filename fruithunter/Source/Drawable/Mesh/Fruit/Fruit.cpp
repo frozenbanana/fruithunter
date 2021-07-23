@@ -11,9 +11,8 @@
 void Fruit::draw_fruit() {
 	if (m_isVisible) {
 		Renderer::getInstance()->setBlendState_NonPremultiplied();
-		draw_animate();
+		draw_animate(m_baseColor);
 		Renderer::getInstance()->setBlendState_Opaque();
-		m_particleSystem.draw(true);
 	}
 }
 
@@ -28,8 +27,6 @@ void Fruit::setStartPosition(float3 pos) {
 	m_heightAnimationPosition = pos;
 	m_destinationAnimationPosition = pos;
 	m_nextDestinationAnimationPosition = pos;
-
-	m_particleSystem.load("stars bronze", 0, 25);
 }
 
 void Fruit::setNextDestination(float3 nextDest) { m_nextDestinationAnimationPosition = nextDest; }
@@ -38,19 +35,13 @@ Skillshot Fruit::hit(float3 playerPos) {
 	Skillshot hitType = Skillshot::SS_BRONZE;
 	if (m_currentState != CAUGHT) {
 		float dist = (playerPos - getPosition()).Length();
-		string psName = "confetti";
-		int nrOf = 5;
 		if (dist > LONGSHOT) {
 			if (!m_onGround || m_velocity.Length() > FASTMOVING_VELOCITY) {
 				// gold
-				psName = "stars gold";
-				nrOf = 22;
 				hitType = SS_GOLD;
 			}
 			else {
 				// gold
-				psName = "stars gold";
-				nrOf = 12;
 				hitType = SS_GOLD;
 			}
 		}
@@ -59,26 +50,17 @@ Skillshot Fruit::hit(float3 playerPos) {
 				// case 2: Medium shot
 				// in air or fast moving -> gold
 				// Gold
-				psName = "stars gold";
-				nrOf = 8;
 				hitType = SS_GOLD;
 			}
 			else {
 				// silver
-				psName = "stars silver";
-				nrOf = 13;
 				hitType = SS_SILVER;
 			}
 		}
 		else {
 			// bronze
-			psName = "stars bronze";
-			nrOf = 6;
 			hitType = SS_BRONZE;
 		}
-		m_particleSystem.setDesc(psName);
-		m_particleSystem.emit(nrOf);
-		m_currentMaterial = hitType;
 	}
 	return hitType;
 }
@@ -117,15 +99,12 @@ bool Fruit::withinDistanceTo(float3 target, float treshhold) {
 	return (getPosition() - target).Length() < treshhold;
 }
 
-ParticleSystem* Fruit::getParticleSystem() { return &m_particleSystem; }
-
 void Fruit::update() {
 	Scene* scene = SceneManager::getScene();
 	float dt = scene->getDeltaTime();
 
 	if (withinDistanceTo(scene->m_player->getPosition(), 500.f)) {
 		m_isVisible = true;
-		m_particleSystem.setPosition(getPosition());
 		checkOnGroundStatus(); // checks if on ground
 		updateAnimated(dt);	   // animation stuff
 		updateVelocity(dt);	   // update velocity (slowdown and apply accelration)
@@ -139,6 +118,18 @@ void Fruit::update() {
 	}
 	else
 		m_isVisible = false;
+}
+
+void Fruit::onHit() { 
+	Player* player = SceneManager::getScene()->m_player.get();
+	Skillshot skillshot = hit(player->getPosition()); // calculate skillshot
+	onHit(skillshot);
+}
+
+void Fruit::onHit(Skillshot skillshot) {
+	Player* player = SceneManager::getScene()->m_player.get();
+	player->getStaminaBySkillshot(skillshot); // give stamina
+	onDeath(skillshot);
 }
 
 void Fruit::move(float dt) {
@@ -309,6 +300,12 @@ bool Fruit::isOnGround(float3 position, float heightThreshold) {
 	return false;
 }
 
+void Fruit::spawnCollectionPoint(Skillshot skillshot) {
+	shared_ptr<CollectionPoint> cp = make_shared<CollectionPoint>();
+	cp->load(getPosition(), float3(0, 1, 0), getFruitType(), skillshot);
+	SceneManager::getScene()->m_collectionPoint.push_back(cp);
+}
+
 bool Fruit::isVisible() const { return m_isVisible; }
 
 void Fruit::release(float3 direction) {
@@ -319,4 +316,9 @@ void Fruit::release(float3 direction) {
 	m_velocity = m_direction * THROWVELOCITY;
 	m_speed = 0.f;
 	m_afterRealease = true;
+}
+
+void Fruit::onDeath(Skillshot skillshot) {
+	_onDeath(skillshot);
+	markForDeletion();
 }

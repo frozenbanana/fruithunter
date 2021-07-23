@@ -186,4 +186,6 @@ public:
 	float getDeltaTime();
 	float getDeltaTime_skipSlow();
 
+	void imgui_readProperties() const;
+
 };
