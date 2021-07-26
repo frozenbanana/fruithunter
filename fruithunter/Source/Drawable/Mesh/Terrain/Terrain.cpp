@@ -257,8 +257,11 @@ void Terrain::changeSize(XMINT2 tileSize, XMINT2 gridSize) {
 void Terrain::editMesh(const Brush& brush, Brush::Type type) {
 	float4x4 matWorld = getMatrix();
 	float dt = SceneManager::getScene()->getDeltaTime();
+
+	// apply brush to mesh
 	m_heightmapMesh.editMesh(brush, type, dt, matWorld);
 
+	// update affected cells
 	float2 b_position = float2(brush.position.x, brush.position.z);
 	float2 b_wP1 = b_position - float2(brush.radius, brush.radius);
 	float2 b_wP2 = b_position + float2(brush.radius, brush.radius);

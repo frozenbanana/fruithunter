@@ -4,7 +4,7 @@
 #include <WICTextureLoader.h>
 
 float HeightmapMesh::sampleHeightmap(
-	float2 uv, const D3D11_MAPPED_SUBRESOURCE& data, const D3D11_TEXTURE2D_DESC& description) { 
+	float2 uv, const D3D11_MAPPED_SUBRESOURCE& data, const D3D11_TEXTURE2D_DESC& description) {
 
 	int texWidth = description.Width;
 	int texHeight = description.Height;
@@ -17,19 +17,17 @@ float HeightmapMesh::sampleHeightmap(
 		v = (float)r / (pow(2.f, 1.f * 8.f) - 1.f);
 	}
 	else if (description.Format == DXGI_FORMAT_R8G8B8A8_UNORM) {
-		unsigned char r =
-			((unsigned char*)data.pData)[iUV.y * data.RowPitch + iUV.x * 4];
+		unsigned char r = ((unsigned char*)data.pData)[iUV.y * data.RowPitch + iUV.x * 4];
 		v = (float)r / (pow(2.f, 1.f * 8.f) - 1.f);
 	}
 	else if (description.Format == DXGI_FORMAT_R8G8B8A8_UNORM_SRGB) {
-		unsigned char r =
-			((unsigned char*)data.pData)[iUV.y * data.RowPitch + iUV.x * 4];
+		unsigned char r = ((unsigned char*)data.pData)[iUV.y * data.RowPitch + iUV.x * 4];
 		v = (float)r / 255.f;
 	}
 	else if (description.Format == DXGI_FORMAT_R16G16B16A16_UNORM) {
 		unsigned short int r =
-			((unsigned short int*)
-					data.pData)[(size_t)iUV.y * (data.RowPitch / sizeof(short int)) + (size_t)iUV.x * 4];
+			((unsigned short int*)data.pData)[(size_t)iUV.y * (data.RowPitch / sizeof(short int)) +
+											  (size_t)iUV.x * 4];
 		v = (float)r / (pow(2.f, sizeof(short int) * 8.f) - 1.f);
 	}
 	return v;
@@ -246,50 +244,53 @@ void HeightmapMesh::tileRayIntersectionTest(
 
 XMINT2 HeightmapMesh::getSize() const { return m_gridPointSize; }
 
-float HeightmapMesh::getHeightFromUV(float2 uv) { 
-	float X = uv.x;
-	float Y = uv.y;
+float HeightmapMesh::getHeightFromUV(float2 uv) {
+	if (m_gridPointSize.x >= 2 && m_gridPointSize.y >= 2) {
+		float X = uv.x;
+		float Y = uv.y;
 
-	if (X >= 0. && X < 1. && Y >= 0 && Y < 1.) {
-		float fx = X * (m_gridPointSize.x - 1);
-		float fy = Y * (m_gridPointSize.y - 1);
-		size_t ix = (int)fx, iy = (int)fy;	  // floor
-		float rx = fx - ix, ry = fy - iy; // rest
+		if (X >= 0. && X < 1. && Y >= 0 && Y < 1.) {
+			float fx = X * (m_gridPointSize.x - 1);
+			float fy = Y * (m_gridPointSize.y - 1);
+			size_t ix = (int)fx, iy = (int)fy; // floor
+			float rx = fx - ix, ry = fy - iy;  // rest
 
-		float3 p1 = m_gridPoints[ix + 0][iy + 0].position;
-		float3 p2 = m_gridPoints[ix + 1][iy + 0].position;
-		float3 p3 = m_gridPoints[ix + 0][iy + 1].position;
-		float3 p4 = m_gridPoints[ix + 1][iy + 1].position;
+			float3 p1 = m_gridPoints[ix + 0][iy + 0].position;
+			float3 p2 = m_gridPoints[ix + 1][iy + 0].position;
+			float3 p3 = m_gridPoints[ix + 0][iy + 1].position;
+			float3 p4 = m_gridPoints[ix + 1][iy + 1].position;
 
-		float height;
-		if (rx < ry) {
-			float3 pt = p3 + 2 * ((float3)((p1 + p4) / 2) - p3);
-			float3 p12 = p1 + (pt - p1) * rx;
-			float3 p34 = p3 + (p4 - p3) * rx;
-			float3 p1234 = p12 + (p34 - p12) * ry;
-			height = p1234.y;
+			float height;
+			if (rx < ry) {
+				float3 pt = p3 + 2 * ((float3)((p1 + p4) / 2) - p3);
+				float3 p12 = p1 + (pt - p1) * rx;
+				float3 p34 = p3 + (p4 - p3) * rx;
+				float3 p1234 = p12 + (p34 - p12) * ry;
+				height = p1234.y;
+			}
+			else {
+				float3 pt = p2 + 2 * ((float3)((p1 + p4) / 2) - p2);
+				float3 p12 = p1 + (p2 - p1) * rx;
+				float3 p34 = pt + (p4 - pt) * rx;
+				float3 p1234 = p12 + (p34 - p12) * ry;
+				height = p1234.y;
+			}
+
+			return height;
 		}
-		else {
-			float3 pt = p2 + 2 * ((float3)((p1 + p4) / 2) - p2);
-			float3 p12 = p1 + (p2 - p1) * rx;
-			float3 p34 = pt + (p4 - pt) * rx;
-			float3 p1234 = p12 + (p34 - p12) * ry;
-			height = p1234.y;
-		}
-
-		return height;
+		return 0; // outside terrain
 	}
-	return 0; // outside terrain
+	return 0; // cant sample from mesh
 }
 
-float3 HeightmapMesh::getNormalFromUV(float2 uv) { 
+float3 HeightmapMesh::getNormalFromUV(float2 uv) {
 	float X = uv.x;
 	float Y = uv.y;
 	if (X >= 0 && X < 1 && Y >= 0 && Y < 1) {
 		float fx = X * (m_gridPointSize.x - 1);
 		float fy = Y * (m_gridPointSize.y - 1);
-		size_t ix = (int)fx, iy = (int)fy;	  // floor
-		float rx = fx - ix, ry = fy - iy; // rest
+		size_t ix = (int)fx, iy = (int)fy; // floor
+		float rx = fx - ix, ry = fy - iy;  // rest
 
 		float3 p1 = m_gridPoints[ix + 0][iy + 0].position;
 		float3 p2 = m_gridPoints[ix + 1][iy + 0].position;
@@ -310,7 +311,7 @@ float3 HeightmapMesh::getNormalFromUV(float2 uv) {
 	return float3(0, 0, 0); // outside terrain
 }
 
-float HeightmapMesh::castRay(float3 startPoint, float3 endPoint) { 
+float HeightmapMesh::castRay(float3 startPoint, float3 endPoint) {
 	float3 n = endPoint - startPoint;
 	float2 n2 = float2(n.x, n.z);
 	float length = n.Length();
@@ -379,20 +380,20 @@ float HeightmapMesh::castRay(float3 startPoint, float3 endPoint) {
 		if (minL != -1 && minL < length) {
 			// minL is between [0,length], needs to be mapped [0,1] to be valid
 			float mappedL = minL / length;
-			return mappedL; 
+			return mappedL;
 		}
 	}
 	return -1;
 }
 
 bool HeightmapMesh::validPosition(float2 point, float4x4 worldMatrix) {
-	//check height
+	// check height
 	float3 lPoint = float3(point.x, getHeightFromUV(point), point.y);
 	float3 wPoint = float3::Transform(lPoint, worldMatrix);
 	if (wPoint.y < 1)
 		return false;
 
-	//check normal
+	// check normal
 	float4x4 worldInvTraMatrix = worldMatrix.Invert().Transpose();
 	float3 lNormal = getNormalFromUV(point);
 	float3 wNormal = Normalize(float3::Transform(lNormal, worldInvTraMatrix));
@@ -400,10 +401,9 @@ bool HeightmapMesh::validPosition(float2 point, float4x4 worldMatrix) {
 		return false;
 
 	return true; // valid position
-
 }
 
-bool HeightmapMesh::containsValidPosition(float2 point, float2 size, float4x4 worldMatrix) { 
+bool HeightmapMesh::containsValidPosition(float2 point, float2 size, float4x4 worldMatrix) {
 	float4x4 worldInvTraMatrix = worldMatrix.Invert().Transpose();
 	float2 fsize(float(m_gridPointSize.x - 1), float(m_gridPointSize.y - 1));
 	XMINT2 isize(int(fsize.x), int(fsize.y));
@@ -412,7 +412,7 @@ bool HeightmapMesh::containsValidPosition(float2 point, float2 size, float4x4 wo
 	XMINT2 ipoint1 = XMINT2((int)floor(fpoint1.x), (int)floor(fpoint1.y));
 	ipoint1 = XMINT2(
 		Clamp<int>(ipoint1.x, 0, isize.x), Clamp<int>(ipoint1.y, 0, isize.y)); // clamp to grid
-	//point2
+	// point2
 	float2 fpoint2 = (point + size) * fsize;
 	XMINT2 ipoint2 = XMINT2((int)ceil(fpoint2.x), (int)ceil(fpoint2.y));
 	ipoint2 = XMINT2(
@@ -421,7 +421,8 @@ bool HeightmapMesh::containsValidPosition(float2 point, float2 size, float4x4 wo
 	for (size_t xx = ipoint1.x; xx <= ipoint2.x; xx++) {
 		for (size_t yy = ipoint1.y; yy < ipoint2.y; yy++) {
 			float3 wPosition = float3::Transform(m_gridPoints[xx][yy].position, worldMatrix);
-			float3 wNormal = Normalize(float3::Transform(m_gridPoints[xx][yy].normal, worldInvTraMatrix));
+			float3 wNormal =
+				Normalize(float3::Transform(m_gridPoints[xx][yy].normal, worldInvTraMatrix));
 			// flat ground and above water
 			if (wPosition.y > 1 && wNormal.Dot(float3(0, 1, 0)) > 0.7f)
 				return true;
@@ -431,6 +432,9 @@ bool HeightmapMesh::containsValidPosition(float2 point, float2 size, float4x4 wo
 }
 
 bool HeightmapMesh::editMesh(const Brush& brush, Brush::Type type, float dt, float4x4 matWorld) {
+	float yScale = float4::Transform(float4(0, 1, 0, 0), matWorld).Length();
+	float brushIntensity = brush.strength * 50;
+
 	float b_wRadius = brush.radius;
 	float3 b_wPosition = brush.position;
 	float3 b_lPosition = float3::Transform(brush.position, matWorld.Invert());
@@ -438,24 +442,30 @@ bool HeightmapMesh::editMesh(const Brush& brush, Brush::Type type, float dt, flo
 	for (size_t x = 0; x < m_gridPointSize.x; x++) {
 		for (size_t y = 0; y < m_gridPointSize.y; y++) {
 			float3 wPoint = float3::Transform(m_gridPoints[x][y].position, matWorld);
-			float wDist = (float2(wPoint.x, wPoint.z) - float2(b_wPosition.x, b_wPosition.z)).Length();
+			float wDist =
+				(float2(wPoint.x, wPoint.z) - float2(b_wPosition.x, b_wPosition.z)).Length();
 			if (wDist < b_wRadius) {
 				float effect = 1 - wDist / b_wRadius;
-				float smoothedMix =
-					1.0f - float(pow(1.f - 0.5f * (1.f - cos(effect * 3.1415f)), 1.f / brush.falloff));
+				float smoothedMix = 1.0f - float(pow(1.f - 0.5f * (1.f - cos(effect * 3.1415f)),
+											   1.f / brush.falloff));
 				if (type == Brush::Raise) {
 					m_gridPoints[x][y].position.y = Clamp<float>(
-						m_gridPoints[x][y].position.y + smoothedMix * brush.strength * dt, 0, 1);
+						m_gridPoints[x][y].position.y + smoothedMix * brushIntensity * dt / yScale,
+						0, 1);
 				}
 				else if (type == Brush::Lower) {
 					m_gridPoints[x][y].position.y = Clamp<float>(
-						m_gridPoints[x][y].position.y - smoothedMix * brush.strength * dt, 0, 1);
+						m_gridPoints[x][y].position.y - smoothedMix * brushIntensity * dt / yScale,
+						0, 1);
 				}
 				else if (type == Brush::Flatten) {
+					float factor =
+						Clamp((1 - Clamp(pow(1 - smoothedMix, dt), 0.f, 1.f)) * brushIntensity / 10.f,
+							0.f, 0.1f);
+					// smoothedMix * brushIntensity * 20.f * dt
 					m_gridPoints[x][y].position.y =
 						Clamp<float>(m_gridPoints[x][y].position.y +
-										 (b_lPosition.y - m_gridPoints[x][y].position.y) *
-											 smoothedMix * brush.strength * 20.f * dt,
+										 (b_lPosition.y - m_gridPoints[x][y].position.y) * factor,
 							0, 1);
 				}
 				updated = true;
@@ -546,8 +556,6 @@ void HeightmapMesh::storeToFile_binary(ofstream& file) {
 void HeightmapMesh::changeSize(XMINT2 gridSize) {
 	if (gridSize.x == 0 || gridSize.y == 0)
 		return; // invalid size
-	
-	bool sampleFromGrid = !(m_gridPointSize.x == 0 || m_gridPointSize.y == 0);
 
 	vector<vector<Vertex>> gridPoints;
 	gridPoints.resize(gridSize.x);
@@ -556,8 +564,7 @@ void HeightmapMesh::changeSize(XMINT2 gridSize) {
 
 		for (int yy = 0; yy < gridSize.y; yy++) {
 			float2 uv = float2((float)xx / (gridSize.x - 1), (float)yy / (gridSize.y - 1));
-			gridPoints[xx][yy].position =
-				float3(uv.x, sampleFromGrid ? getHeightFromUV(uv) : 0, uv.y);
+			gridPoints[xx][yy].position = float3(uv.x, getHeightFromUV(uv), uv.y);
 			gridPoints[xx][yy].uv = uv;
 		}
 	}
@@ -571,7 +578,7 @@ void HeightmapMesh::changeSize(XMINT2 gridSize) {
 void HeightmapMesh::init(string filename, XMINT2 gridSize) {
 	// create base
 	createGridPointBase(gridSize);
-	// set 
+	// set
 	setGridHeightFromHeightmap(filename);
 }
 

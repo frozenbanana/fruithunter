@@ -71,7 +71,7 @@ void SceneEditorManager::update_imgui_leaderboard() {
 
 void SceneEditorManager::update_imgui_library() {
 	static const string libraryTabsStr[LibraryTab::tab_count] = { "Terrain", "Entity", "Sea",
-		"Particle System", "Effect"};
+		"Particle System", "Effect" , "World Message"};
 	const ImVec4 colorBlueActive = ImVec4(51 / 255.f, 105 / 255.f, 173 / 255.f, 1);
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8, 0));
 	for (size_t i = 0; i < tab_count; i++) {
@@ -117,6 +117,9 @@ void SceneEditorManager::update_imgui_library() {
 		update_panel(scene->m_effects, m_libraryTabOpen,
 			&SceneEditorManager::update_panel_effect_unselected);
 		break;
+	case SceneEditorManager::tab_worldMessage:
+		update_panel(scene->m_worldMessages, m_libraryTabOpen,
+			&SceneEditorManager::update_panel_worldMessage_unselected);
 	}
 	ImGui::EndGroup();
 	select_index(m_libraryTabOpen, m_library_selections[m_libraryTabOpen]);
@@ -629,6 +632,9 @@ void SceneEditorManager::select_index(LibraryTab tab, int index) {
 		case SceneEditorManager::tab_effect:
 			m_transformable = static_cast<Transformation*>(scene->m_effects[index].get());
 			break;
+		case SceneEditorManager::tab_worldMessage:
+			m_transformable = static_cast<Transformation*>(scene->m_worldMessages[index].get());
+			break;
 		}
 	}
 }
@@ -772,12 +778,13 @@ void SceneEditorManager::update_panel_ps_unselected() {
 	string preview = desc.get() == nullptr ? "Empty List" : desc->identifier;
 	struct Funcs {
 		static bool ItemGetter(void* data, int n, const char** out_str) {
-			*out_str = ((shared_ptr<ParticleSystem::ParticleDescription>*)data)[n]->identifier.c_str();
+			*out_str =
+				((shared_ptr<ParticleSystem::ParticleDescription>*)data)[n]->identifier.c_str();
 			return true;
 		}
 	};
 	if (ImGui::Combo("Description Templates", &selectedIdx, &Funcs::ItemGetter, list->data(),
-		list->size(), 25)) {
+			list->size(), 25)) {
 		desc = list->at(selectedIdx);
 	}
 	ImGui::Separator();
@@ -798,6 +805,8 @@ void SceneEditorManager::update_panel_ps_unselected() {
 }
 
 void SceneEditorManager::update_panel_effect_unselected() {}
+
+void SceneEditorManager::update_panel_worldMessage_unselected() {}
 
 SceneEditorManager::SceneEditorManager() {
 	setPlayerState(false);
@@ -887,6 +896,10 @@ void SceneEditorManager::update(double dt) {
 	for (size_t i = 0; i < scene->m_particleSystems.size(); i++) {
 		scene->m_particleSystems[i]->update(dt);
 	}
+
+	// world message
+	for (size_t i = 0; i < scene->m_worldMessages.size(); i++)
+		scene->m_worldMessages[i]->update(dt);
 
 	// effects
 	for (size_t i = 0; i < scene->m_effects.size(); i++) {
@@ -1229,6 +1242,10 @@ void SceneEditorManager::draw_color() {
 	for (size_t i = 0; i < scene->m_effects.size(); i++) {
 		scene->m_effects[i]->draw();
 	}
+
+	m_tex3d.setText("Hello World");
+	m_tex3d.setColor(Color(1, 0, 0, 1));
+	m_tex3d.draw();
 }
 
 void SceneEditorManager::draw_hud() { m_crosshair.draw(); }

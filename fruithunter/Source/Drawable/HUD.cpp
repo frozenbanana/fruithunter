@@ -17,7 +17,7 @@ void HUD::drawClock(float2 position, float scale, time_t timeMs, float4 color) {
 	m_text_time.setText(":");
 	m_text_time.draw();
 
-	float horOffset = 10*scale;
+	float horOffset = 10 * scale;
 	m_text_time.setAlignment(HorizontalAlignment::AlignRight, VerticalAlignment::AlignCenter);
 	m_text_time.setPosition(position + float2(-horOffset, 0));
 	m_text_time.setText((minutes < 10 ? "0" : "") + to_string(minutes));
@@ -68,11 +68,11 @@ HUD::HUD() {
 
 	m_stopwatchMarker.load("square_white.png");
 	m_stopwatchMarker.setSize(float2(4, 1) * 5.f);
-	m_stopwatchMarker.setAlignment();// center
+	m_stopwatchMarker.setAlignment(); // center
 
 	m_text_time.setFont("luckiestguy.spritefont");
 
-	m_slowmo.load("slowmo_front.png","slowmo_background.png","slowmo_animation.png");
+	m_slowmo.load("slowmo_front.png", "slowmo_background.png", "slowmo_animation.png");
 	m_slowmo.setAlignment(HorizontalAlignment::AlignRight, VerticalAlignment::AlignBottom);
 	m_slowmo.setScale(0.45f);
 	m_slowmo.setPosition(float2(1280, 720) * 0.975f);
@@ -98,15 +98,14 @@ void HUD::update(float dt) {
 			// animation
 			float desiredScale = (i < count_current) ? 1 : 0.75f;
 			m_tickAnimations[f][i].scalingVelocity +=
-				(desiredScale - m_tickAnimations[f][i].scale) * m_tickSetting.gravity *
-				dt;																		 // gravity
+				(desiredScale - m_tickAnimations[f][i].scale) *
+				Clamp(m_tickSetting.gravity * dt, 0.f, 1.f);							 // gravity
 			m_tickAnimations[f][i].scale += m_tickAnimations[f][i].scalingVelocity * dt; // movement
 			m_tickAnimations[f][i].scalingVelocity *= pow(m_tickSetting.slowdown, dt);	 // slowdown
 		}
 		// update catch count
 		m_tick_previousCatchCount[f] = count_current;
 	}
-
 }
 
 void HUD::draw() {
@@ -136,8 +135,7 @@ void HUD::draw() {
 			break;
 		}
 	}
-	time_t timeTarget = (index != NR_OF_TIME_TARGETS) ? timeTargets[index]
-												   : timeTargets[BRONZE];
+	time_t timeTarget = (index != NR_OF_TIME_TARGETS) ? timeTargets[index] : timeTargets[BRONZE];
 	drawClock(stopwatchCenter + float2(0, m_stopwatch.getSize().y * -0.125f), 0.4f, timeTarget,
 		m_targetColors[index]);
 
@@ -146,7 +144,7 @@ void HUD::draw() {
 	for (size_t i = 0; i < TimeTargets::NR_OF_TIME_TARGETS; i++) {
 		float factor = (float)SceneManager::getScene()->m_utility.timeTargets[i] /
 					   SceneManager::getScene()->m_utility.timeTargets[TimeTargets::BRONZE];
-		float radian = (-0.25f * XM_PI) * (1-factor) + (1.25f * XM_PI) * factor;
+		float radian = (-0.25f * XM_PI) * (1 - factor) + (1.25f * XM_PI) * factor;
 		m_stopwatchMarker.setPosition(stopwatchCenter + float2(cos(radian), sin(radian)) * radius);
 		m_stopwatchMarker.setRotation(radian);
 		m_stopwatchMarker.setColor(m_targetColors[i]);

@@ -10,6 +10,7 @@
 #include "Player.h"
 #include "CollectionPoint.h"
 #include "RPYCamera.h"
+#include "WorldMessage.h"
 
 #include "Apple.h"
 #include "Banana.h"
@@ -54,6 +55,9 @@ public:
 	// Effects
 	vector<shared_ptr<EffectSystem>> m_effects;
 
+	// world messages
+	vector<shared_ptr<WorldMessage>> m_messages;
+
 	//entities
 	struct GroupInstance {
 		string model;
@@ -72,17 +76,6 @@ public:
 		GroupInstance(string _model = "") { model = _model; }
 	};
 	vector<GroupInstance> m_entities;
-
-	//animals
-	struct AnimalContent {
-		float3 position;
-		float3 sleepPosition;
-		int type; //Animal::Type;
-		int fruitType; //FruitType
-		int fruitCount;
-		float rotationY;
-	};
-	vector<AnimalContent> m_animals;
 
 	// Level utility info
 	struct SceneUtilityInfo {
@@ -126,6 +119,9 @@ public:
 
 	// Static world entities
 	QuadTree<shared_ptr<Entity>> m_entities = QuadTree<shared_ptr<Entity>>(float3(0.), float3(200, 100, 200), 8);
+
+	// messages
+	vector<shared_ptr<WorldMessage>> m_worldMessages;
 
 	// Arrows
 	vector<shared_ptr<Arrow>> m_arrows;

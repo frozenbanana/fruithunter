@@ -31,6 +31,10 @@ void Sprite2D::giveTexture(shared_ptr<Texture> tex) { m_texture = tex; }
 
 void Sprite2D::_draw(const Transformation2D& source) {
 	if (isLoaded()) {
+		ID3D11DepthStencilState* DSS;
+		UINT stencilRef;
+		Renderer::getDeviceContext()->OMGetDepthStencilState(&DSS, &stencilRef);
+
 		m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
 
 		float2 screenModifier = float2((SCREEN_WIDTH / 1280.f), (SCREEN_HEIGHT / 720.f));
@@ -47,7 +51,7 @@ void Sprite2D::_draw(const Transformation2D& source) {
 
 		m_spriteBatch->End();
 		// Reset depth state
-		Renderer::getInstance()->getDeviceContext()->OMSetDepthStencilState(nullptr, 0);
+		Renderer::getDeviceContext()->OMSetDepthStencilState(DSS, stencilRef);
 	}
 }
 

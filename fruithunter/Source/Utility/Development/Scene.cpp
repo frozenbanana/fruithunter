@@ -25,7 +25,8 @@ void Scene::clear() {
 	m_fruits.clear();
 	// collection points
 	m_collectionPoint.clear();
-
+	// messages
+	m_worldMessages.clear();
 	// utility
 	m_utility = SceneAbstactContent::SceneUtilityInfo();
 	// Gathered fruit
@@ -274,6 +275,8 @@ void Scene::load(string folder) {
 					e->getMatrix(), e);
 			}
 		}
+		// world messages
+		m_worldMessages = content.m_messages;
 		// particle Systems
 		m_particleSystems.resize(content.m_particleSystemContents.size());
 		for (size_t i = 0; i < content.m_particleSystemContents.size(); i++) {
@@ -351,6 +354,9 @@ void Scene::save() {
 				group->back().instances.push_back(instance);
 			}
 		}
+
+		// world messages
+		content.m_messages = m_worldMessages;
 
 		// level utility
 		content.m_utility = m_utility;
@@ -430,6 +436,9 @@ void Scene::reset() {
 	// gathered fruit
 	for (size_t i = 0; i < NR_OF_FRUITS; i++)
 		m_gatheredFruits[i] = 0;
+	// messages
+	for (size_t i = 0; i < m_worldMessages.size(); i++)
+		m_worldMessages[i]->reset();
 	// timer
 	m_deltaTime = 0;
 	m_totalTime = 0;
@@ -510,6 +519,9 @@ void Scene::imgui_readProperties() const {
 	if (ImGui::TreeNode("##9", "Collection Points (%i)", m_collectionPoint.size())) {
 		ImGui::TreePop();
 	}
+	if (ImGui::TreeNode("##9", "World Messages (%i)", m_worldMessages.size())) {
+		ImGui::TreePop();
+	}
 	string winCondition = "Gathered Fruit\n";
 	for (size_t i = 0; i < NR_OF_FRUITS; i++) {
 		winCondition += "  " + FruitTypeToString((FruitType)i) + ": " +
@@ -573,11 +585,12 @@ bool SceneAbstactContent::load_raw(string folder) {
 			file.read(
 				(char*)m_entities[i].instances.data(), sizeof(GroupInstance::Instance) * subSize);
 		}
-		// animals
+		// world messages
 		size = fileRead<size_t>(file);
-		m_animals.resize(size);
-		for (size_t i = 0; i < size; i++) {
-			fileRead<AnimalContent>(file, m_animals[i]);
+		m_messages.resize(size);
+		for (size_t i = 0; i < m_messages.size(); i++) {
+			m_messages[i] = make_shared<WorldMessage>();
+			m_messages[i]->read(file);
 		}
 		// utility
 		fileRead<SceneUtilityInfo>(file, m_utility);
@@ -624,11 +637,10 @@ bool SceneAbstactContent::save_raw(string folder) {
 			file.write((char*)m_entities[i].instances.data(),
 				sizeof(GroupInstance::Instance) * m_entities[i].instances.size());
 		}
-		// animals
-		fileWrite<size_t>(file, m_animals.size());
-		for (size_t i = 0; i < m_animals.size(); i++) {
-			fileWrite<AnimalContent>(file, m_animals[i]);
-		}
+		// world messages
+		fileWrite<size_t>(file, m_messages.size());
+		for (size_t i = 0; i < m_messages.size(); i++)
+			m_messages[i]->write(file);
 		// utility
 		fileWrite<SceneUtilityInfo>(file, m_utility);
 

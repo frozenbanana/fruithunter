@@ -6,6 +6,7 @@
 #include "filesystemHelper.h"
 #include "CSteamLeaderboards.h"
 #include "UIContainer.h"
+#include "Text3D.h"
 
 /* Handles editing and drawing of scene data */
 class SceneEditorManager : public SceneManager {
@@ -97,6 +98,7 @@ private:
 		tab_sea,
 		tab_particleSystem,
 		tab_effect,
+		tab_worldMessage,
 		tab_count
 	} m_libraryTabOpen = LibraryTab::tab_terrain;
 	int m_library_selections[tab_count] = { -1 };
@@ -117,6 +119,8 @@ private:
 	Input::MouseButton m_terrainEditor_btn_raise = Input::MouseButton::LEFT;
 	Input::MouseButton m_terrainEditor_btn_flatten = Input::MouseButton::MIDDLE;
 
+	Text3D m_tex3d;
+
 	//-- Private Functions --
 
 	void update_imgui_library();
@@ -129,6 +133,7 @@ private:
 	void update_panel_sea_unselected();
 	void update_panel_ps_unselected();
 	void update_panel_effect_unselected();
+	void update_panel_worldMessage_unselected();
 
 	template <typename CLASS>
 	void update_panel(

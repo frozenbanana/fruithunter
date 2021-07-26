@@ -6,7 +6,7 @@ struct Brush {
 	float3 position;
 	float radius = 1;
 	float falloff = 1;
-	float strength = 1;
+	float strength = 0.5f;
 	float2 bufferFiller;
 	enum Type { Raise, Lower, Flatten };
 };

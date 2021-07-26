@@ -14,8 +14,6 @@ private:
 	string m_text;
 	Color m_color = Color(1, 1, 1, 1);
 
-	void setDepthStateToNull();
-
 protected:
 	void _draw(const Transformation2D& source);
 	void _imgui_properties();

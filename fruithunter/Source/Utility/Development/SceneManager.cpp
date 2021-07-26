@@ -92,6 +92,8 @@ void SceneManager::draw_color() {
 	for (size_t i = 0; i < scene->m_particleSystems.size(); i++) {
 		scene->m_particleSystems[i]->draw();
 	}
+
+	// effects
 	for (size_t i = 0; i < scene->m_effects.size(); i++) {
 		scene->m_effects[i]->draw();
 	}
@@ -116,6 +118,10 @@ void SceneManager::draw_finalize() {
 
 void SceneManager::draw_hud() {
 	if (!m_fotoMode) {
+		// world message model
+		for (size_t i = 0; i < scene->m_worldMessages.size(); i++)
+			scene->m_worldMessages[i]->draw_message();
+
 		m_hud.draw();
 
 		float anim = scene->m_player->getBow().getDrawFactor();
@@ -190,6 +196,10 @@ void SceneManager::update(double dt) {
 	for (size_t i = 0; i < scene->m_particleSystems.size(); i++) {
 		scene->m_particleSystems[i]->update(dt);
 	}
+
+	// world message
+	for (size_t i = 0; i < scene->m_worldMessages.size(); i++)
+		scene->m_worldMessages[i]->update(dt);
 
 	// effects
 	for (size_t i = 0; i < scene->m_effects.size(); i++) {

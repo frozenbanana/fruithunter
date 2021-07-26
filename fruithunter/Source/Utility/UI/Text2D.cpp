@@ -3,6 +3,10 @@
 #include "ErrorLogger.h"
 
 void Text2D::_draw(const Transformation2D& source) {
+	ID3D11DepthStencilState* DSS;
+	UINT stencilRef;
+	Renderer::getDeviceContext()->OMGetDepthStencilState(&DSS, &stencilRef);
+
 	m_spriteBatch->Begin(DirectX::SpriteSortMode_BackToFront);
 
 	float2 screenModifier = float2((SCREEN_WIDTH / 1280.f), (SCREEN_HEIGHT / 720.f));
@@ -19,16 +23,9 @@ void Text2D::_draw(const Transformation2D& source) {
 		m_spriteBatch.get(), wText.c_str(), position, color, rotation, origin, scale);
 
 	m_spriteBatch->End();
-	setDepthStateToNull();
-}
 
-void Text2D::setDepthStateToNull() {
-	/*
-		spritebatch använder sin egen eller förändrar på något vis dpthstencilstate, vi har
-		ingen sånn så sb "slår av" våran depthbuffer, sätt state till nullptr för att slå på vår db
-		igen kalla på denna i alla textrenderarens drawfunctioner.
-	*/
-	Renderer::getInstance()->getDeviceContext()->OMSetDepthStencilState(nullptr, 0);
+	// Reset depth state
+	Renderer::getDeviceContext()->OMSetDepthStencilState(DSS, stencilRef);
 }
 
 float2 Text2D::getLocalSize() const {
