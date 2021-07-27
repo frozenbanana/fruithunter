@@ -37,8 +37,9 @@ void Pomegranate::behavior(float dt) {
 				m_charge = 0;
 				m_jumping = true;
 
-				jumpToRandomLocation(float2(4.f, 7.f), 12);
-				lookTo(m_velocity * float3(1, 0, 1));
+				jumpToRandomLocation(float2(4.f, 7.f), 25);
+				if (m_velocity.Length() > 0)
+					lookTo(m_velocity * float3(1, 0, 1));
 				playSound_bounce();
 			}
 		}
@@ -65,6 +66,10 @@ void Pomegranate::behavior(float dt) {
 			// slide downhill
 			m_velocity -= m_velocity.Dot(intersection_normal) *
 						  intersection_normal; // remove force against normal
+		}
+		// respawn
+		if (getPosition().y <= 1) {
+			respawn();
 		}
 	}
 }
@@ -115,7 +120,7 @@ void Pomegranate::jumpToRandomLocation(float2 heightRange, size_t samples) {
 	Environment* terrain = m_boundTerrain;
 	for (size_t i = 0; i < samples; i++) {
 		float r = RandomFloat(0, XM_PI * 2);
-		float horLength = (1 - (float)pow(RandomFloat(), 2)) * jumpVelHeight;
+		float horLength = (1 - (float)pow(RandomFloat(0.1f, 1.f), 2)) * jumpVelHeight;
 		float3 direction = float3(cos(r), 0, sin(r)) * horLength;
 		float3 check_point = getPosition() + direction;
 		check_point.y = terrain->getHeightFromPosition(check_point.x, check_point.z);
@@ -163,14 +168,7 @@ void Pomegranate::jumpToRandomLocation(float2 heightRange, size_t samples) {
 	}
 	else {
 		// no valid positions
-		if (getPosition().y > 1) {
-			m_velocity = vertVel; // jump up (fruit probably stuck)
-		}
-		else {
-			// below sea level and cant jump anywhere
-			m_velocity = vertVel;
-			respawn();
-		}
+		m_velocity = vertVel; // jump up (fruit probably stuck)
 	}
 }
 
