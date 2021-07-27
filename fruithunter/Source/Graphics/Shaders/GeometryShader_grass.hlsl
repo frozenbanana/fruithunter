@@ -12,12 +12,12 @@ struct GSOutput {
 	float4 ShadowPosH : POSITION2;
 };
 
-cbuffer strawSettings : register(b5) { 
+cbuffer strawSettings : register(b5) {
 	float cb_baseWidth;
 	float2 cb_heightRange;
 	float cb_noiseInterval;
-	float4 cb_color_top; 
-	float4 cb_color_bottom; 
+	float4 cb_color_top;
+	float4 cb_color_bottom;
 }
 cbuffer strawAnimation : register(b6) {
 	float cb_time;
@@ -30,9 +30,7 @@ cbuffer cb_world : register(b0) { matrix mWorld, mInvTraWorld; };
 cbuffer cb_viewPerspective : register(b1) { matrix mView, mPerspective, mViewPerspective; };
 cbuffer cb_shadowVPT : register(b4) { matrix mShadowVPT; };
 
-cbuffer noiseTexInfo : register(b9) {
-	float4 cb_noiseTexSize;
-}
+cbuffer noiseTexInfo : register(b9) { float4 cb_noiseTexSize; }
 Texture2D texture_noise : register(t0);
 
 float2 clampUV(uint2 uv, uint2 size) {
@@ -57,9 +55,10 @@ float4 texSample(Texture2D texMap, uint2 texSize, float2 uv) {
 	return lerp(horizontal, vertical, 0.5);
 }
 
-[maxvertexcount(3)] 
-void main(point VS_OUT input[1], inout TriangleStream<GSOutput> output) {
+float mod(float x, float m) { return x - m * floor(x / m); }
+float2 modf2(float2 x, float2 m) { return float2(mod(x.x, m.x), mod(x.y, m.y)); }
 
+[maxvertexcount(3)] void main(point VS_OUT input[1], inout TriangleStream<GSOutput> output) {
 	float3 posW = mul(float4(input[0].PosV, 1.0f), mWorld);
 	float rotation = input[0].rotation;
 	float height = cb_heightRange.x + input[0].height * (cb_heightRange.y - cb_heightRange.x);
@@ -67,7 +66,7 @@ void main(point VS_OUT input[1], inout TriangleStream<GSOutput> output) {
 	float2 tex_noise_size = cb_noiseTexSize.xy;
 
 	// grass height variation (world position dependent)
-	float2 noiseUV = (float2(posW.x, posW.z) * cb_noiseInterval) % tex_noise_size;
+	float2 noiseUV = modf2(float2(posW.x, posW.z) * cb_noiseInterval, tex_noise_size);
 	float noise = texture_noise[(int2)noiseUV].r;
 	height *= noise;
 
@@ -76,7 +75,7 @@ void main(point VS_OUT input[1], inout TriangleStream<GSOutput> output) {
 	float2 noiseAnimUV =
 		(float2(posW.x, posW.z) * cb_noiseAnimInterval + float2(1, 1) * cb_time * cb_speed) /
 		tex_noise_size;
-	float windFactor = texSample(texture_noise, tex_noise_size, noiseAnimUV % 1).r;
+	float windFactor = texSample(texture_noise, tex_noise_size, modf2(noiseAnimUV, float2(1, 1))).r;
 	windFactor = windFactor * 2 - 1; // remap to [-1,1]
 	float3 offset = windDir * windFactor * cb_offsetStrength;
 
@@ -86,8 +85,8 @@ void main(point VS_OUT input[1], inout TriangleStream<GSOutput> output) {
 
 	float3 positions[3];
 	float2 uvs[3];
-	positions[0] = posW + up * 0.f + dir * width; // point base 1
-	positions[1] = posW + up * 0.f - dir * width; // point base 2
+	positions[0] = posW + up * 0.f + dir * width;			// point base 1
+	positions[1] = posW + up * 0.f - dir * width;			// point base 2
 	positions[2] = posW + up * height + dir * 0.f + offset; // point top
 
 	// set output
