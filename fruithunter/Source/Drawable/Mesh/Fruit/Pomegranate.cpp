@@ -226,6 +226,7 @@ void Pomegranate::_onDeath(Skillshot skillshot) {
 	effect->loadFromPreset("pomegranate_explosion_v2");
 	effect->setPosition(getPosition());
 	effect->setRotation(float3(-XM_PI / 2, 0, 0));
+	effect->burst();
 	effect->markForDeletion(); // will be deleted when effect has finished
 	SceneManager::getScene()->m_effects.push_back(effect);
 

@@ -204,7 +204,7 @@ void SceneManager::update(double dt) {
 	// effects
 	for (size_t i = 0; i < scene->m_effects.size(); i++) {
 		scene->m_effects[i]->update(dt);
-		if (scene->m_effects[i]->isFinished() && scene->m_effects[i]->isMarkedForDeletion()) {
+		if (scene->m_effects[i]->getActiveParticleCount() == 0 && scene->m_effects[i]->isMarkedForDeletion()) {
 			scene->m_effects.erase(scene->m_effects.begin() + i);
 			i--;
 		}
@@ -235,7 +235,8 @@ void SceneManager::update(double dt) {
 	for (size_t i = 0; i < scene->m_arrowParticles.size(); i++) {
 		scene->m_arrowParticles[i]->update(dt);
 		// remove if done (arrow should turn off particle system emitter)
-		if (scene->m_arrowParticles[i]->isFinished() && scene->m_arrowParticles[i]->isMarkedForDeletion()) {
+		if (!scene->m_arrowParticles[i]->isEmitting() && scene->m_arrowParticles[i]->getActiveParticleCount() == 0 &&
+			scene->m_arrowParticles[i]->isMarkedForDeletion()) {
 			scene->m_arrowParticles.erase(scene->m_arrowParticles.begin()+i);
 			i--;
 		}

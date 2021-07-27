@@ -20,11 +20,11 @@ public:
 		float distanceRest = 0;
 		float emitTimer = 0;
 		shared_ptr<ParticleCache> system;
+		clock_t latestBurst = 0;
 
 		bool isLinked() const;
 
 	public:
-		bool canEmit() const;
 		void reset();
 		void update(float dt, const Transformation& transform);
 		void link(shared_ptr<ParticleCache> _system);
@@ -121,17 +121,17 @@ public:
 
 		// particle description
 		enum EmitType { Constant, Distance, Burst, EmitType_Length } emitType = Constant;
-		float emitRate = 10;
-		float emitsPerDistance = 10;
-		int burstCount = 10;
+		float emitRate = 2;
+		float emitsPerDistance = 5;
+		int burstCount = 1;
 		vector<Color> colors = { Color(1, 1, 1) };
 		bool randomRotation = true;
 		float startRotation = 0;	   // start rotation if random rotation is set to false
 		float2 rotationVelocity_range; // Rot Vel [v.x, v.y]
-		float2 sizeRange = float2(0.2, 1);
+		float2 sizeRange = float2(0.2, 0.5f);
 		float2 lifetimeRange = float2(1, 2);
-		float2 velocityRadiusRange = float2(0, XM_PI / 4.f);
-		float2 velocityIntensityRange = float2(3, 4);
+		float2 velocityRadiusRange = float2(0, XM_PI);
+		float2 velocityIntensityRange = float2(0.2f, 0.5f);
 		float3 gravity = float3(0, 0, 0);
 		float friction = 0;
 		bool mapSizeToLifetime = false;
@@ -253,14 +253,14 @@ private:
 	void write_preset(ofstream& file);
 
 	void emit(size_t count);
-	void burst();
 
 public:
-	bool isFinished() const;
 	size_t getActiveParticleCount() const;
 	void setEmittingState(bool state);
+	bool isEmitting() const;
 
 	void update(float dt);
+	void burst();
 
 	void draw();
 

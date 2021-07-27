@@ -46,8 +46,8 @@ void EffectSystem::write_preset(ofstream& file) {
 
 void EffectSystem::update(float dt) {
 	for (size_t i = 0; i < m_caches.size(); i++) {
-		// if (m_caches[i].source->getDescription().emitType != EmitterDescription::EmitType::Burst)
-		m_caches[i].emitter.update(dt, *this); // bursting every frame will kill computer!
+		if (m_caches[i].source->getDescription().emitType != EmitterDescription::EmitType::Burst)
+			m_caches[i].emitter.update(dt, *this); // bursting every frame will kill computer!
 		m_caches[i].source->update(dt);
 	}
 }
@@ -152,15 +152,6 @@ void EffectSystem::imgui_properties() {
 	ImGui::EndChild();
 }
 
-bool EffectSystem::isFinished() const {
-	for (size_t i = 0; i < m_caches.size(); i++) {
-		if (m_caches[i].emitter.canEmit() || m_caches[i].source->getActiveParticleCount() > 0) {
-			return false;
-		}
-	}
-	return true;
-}
-
 void EffectSystem::emit(size_t count) {
 	for (size_t i = 0; i < m_caches.size(); i++)
 		m_caches[i].source->emit(count, *this);
@@ -201,6 +192,14 @@ bool EffectSystem::storeAsPreset(string filename) {
 		file.close();
 		fetchPresets(); // refetch presets
 		return true;
+	}
+	return false;
+}
+
+bool EffectSystem::isEmitting() const {
+	for (size_t i = 0; i < m_caches.size(); i++) {
+		if (m_caches[i].source->isEmitting())
+			return true;
 	}
 	return false;
 }
@@ -439,8 +438,7 @@ void EffectSystem::EmitterDescription::write(ofstream& file) {
 }
 
 EffectSystem::EmitterDescription::EmitterDescription() {
-	texture =
-		TextureRepository::get("bananaFace.png", TextureRepository::Type::type_particleSprite);
+	texture = TextureRepository::get("dot.png", TextureRepository::Type::type_particleSprite);
 }
 
 bool EffectSystem::Emitter::isLinked() const { return system.get() != nullptr; }
@@ -450,20 +448,6 @@ void EffectSystem::Emitter::reset() {
 	previousPosition = float3(0.f);
 	firstUpdate = true;
 	system.reset();
-}
-
-bool EffectSystem::Emitter::canEmit() const {
-	if (isLinked()) {
-		if (!system->isEmitting())
-			return false;
-		if (system->getDescription().emitType == EmitterDescription::EmitType::Burst &&
-			firstUpdate == false) {
-			return false; // burst
-		}
-		else
-			return true; // constant & distance
-	}
-	return false;
 }
 
 void EffectSystem::Emitter::update(float dt, const Transformation& transform) {
@@ -510,8 +494,7 @@ void EffectSystem::Emitter::update(float dt, const Transformation& transform) {
 			break;
 		}
 		case EmitterDescription::EmitType::Burst: {
-			if (firstUpdate)
-				system->emit(desc.burstCount, transform);
+			system->burst(transform);
 			break;
 		}
 		}
@@ -617,14 +600,17 @@ void EffectSystem::ParticleCache::updateParticles(float dt) {
 					float3 nextPosition = e.vars.position + e.velocity * dt;
 					TerrainBatch* tb = &SceneManager::getScene()->m_terrains;
 					if (tb->getHeightFromPosition(nextPosition) > nextPosition.y) {
+						bool burst = (e.velocity.Length() > 5.f);
 						// collision
 						float3 normal = tb->getNormalFromPosition(nextPosition);
 						e.velocity = float3::Reflect(e.velocity, normal) *
 									 m_description.collisionBounceIntensity;
 
-						// burst
-						Transformation t(e.vars.position, float3(1.f), vector2Rotation(normal));
-						e.subEmitters[Collision].update(dt, t);
+						// burst (only burst of high velocity)
+						if (burst) {
+							Transformation t(e.vars.position, float3(1.f), vector2Rotation(normal));
+							e.subEmitters[Collision].update(dt, t);
+						}
 
 						// kill
 						if (m_description.destroyOnCollision)
@@ -721,7 +707,7 @@ bool EffectSystem::ParticleCache::hasSubEmitters() const {
 	return false;
 }
 
-size_t EffectSystem::ParticleCache::getLocalActiveParticleCount() const { 
+size_t EffectSystem::ParticleCache::getLocalActiveParticleCount() const {
 	size_t count = 0;
 	// local particles
 	for (size_t i = 0; i < m_particles.size(); i++)
