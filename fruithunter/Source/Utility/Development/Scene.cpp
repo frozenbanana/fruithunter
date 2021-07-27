@@ -155,10 +155,9 @@ void Scene::updated_fragment(Fragment* fragment) {
 	case Fragment::Type::entity:
 		for (size_t i = 0; i < m_entities.size(); i++) {
 			if (m_entities[i]->getID() == fragment->getID()) {
-				Entity* ent = m_entities[i].get();
+				shared_ptr<Entity> ent = m_entities[i];
 				m_entities.updateElement(i, ent->getLocalBoundingBoxPosition(),
-					ent->getLocalBoundingBoxSize(), ent->getMatrix());
-				shared_ptr<Entity> ptr = m_entities[i];
+					ent->getLocalBoundingBoxSize(), ent->getMatrix(), true);
 			}
 		}
 		break;
@@ -534,7 +533,7 @@ void Scene::imgui_readProperties() const {
 	string timetarget = "TimeTargets\n";
 	for (size_t i = 0; i < NR_OF_TIME_TARGETS; i++) {
 		timetarget += "  " + TimeTargetToString((TimeTargets)i) + ": " +
-						Milliseconds2DisplayableString(m_utility.timeTargets[i]);
+					  Milliseconds2DisplayableString(m_utility.timeTargets[i]);
 		if (i + 1 < NR_OF_FRUITS)
 			timetarget += "\n";
 	}

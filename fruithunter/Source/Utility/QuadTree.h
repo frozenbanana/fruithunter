@@ -36,6 +36,9 @@ private:
 
 	public:
 		size_t getElementCount() const;
+		size_t getLayerMax() const;
+		float3 getPosition() const;
+		float3 getSize() const;
 		void log(int level = 0);
 		void clear();
 
@@ -64,14 +67,14 @@ private:
 public:
 	void log();
 
-	void add(float3 position, float3 size, const Element& element);
-	void add(
-		float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix, const Element& element);
+	bool add(float3 position, float3 size, const Element& element, bool forceArea = true);
+	bool add(float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix, const Element& element,
+		bool forceArea = true);
 	void remove(Element& element);
 	void remove(size_t index);
-	bool updateElement(size_t index, float3 position, float3 size);
-	bool updateElement(
-		size_t index, float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix);
+	bool updateElement(size_t index, float3 position, float3 size, bool forceArea = true);
+	bool updateElement(size_t index, float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix,
+		bool forceArea = true);
 	vector<Element*> cullElements(const vector<FrustumPlane>& planes);
 	vector<Element*> cullElements(const CubeBoundingBox& bb);
 	vector<Element*> getElementsByPosition(float3 pos);
@@ -81,6 +84,8 @@ public:
 	void reset();
 	void clear();
 	void reserve(size_t size);
+
+	void changeArea(float3 position, float3 size);
 
 	size_t size() const;
 
@@ -160,6 +165,18 @@ inline bbFrustumState QuadTree<Element>::Node::boxInsideFrustum(
 
 template <typename Element> inline size_t QuadTree<Element>::Node::getElementCount() const {
 	return m_elements.size();
+}
+
+template <typename Element> inline size_t QuadTree<Element>::Node::getLayerMax() const {
+	return m_layerMax;
+}
+
+template <typename Element> inline float3 QuadTree<Element>::Node::getPosition() const {
+	return m_position;
+}
+
+template <typename Element> inline float3 QuadTree<Element>::Node::getSize() const {
+	return m_size;
 }
 
 template <typename Element> inline void QuadTree<Element>::Node::log(int level) {
@@ -425,7 +442,7 @@ inline void QuadTree<Element>::calcBoundingBox(float3 lCenterPosition, float3 lH
 		}
 	}
 	// calculate parameters
-	position = float3(MM[0].x, MM[1].x, MM[2].x);							  // edge location
+	position = float3(MM[0].x, MM[1].x, MM[2].x);							// edge location
 	size = float3(MM[0].y - MM[0].x, MM[1].y - MM[1].x, MM[2].y - MM[2].x); // calc differences
 }
 
@@ -435,7 +452,7 @@ template <typename Element> inline void QuadTree<Element>::log() {
 }
 
 template <typename Element>
-inline void QuadTree<Element>::add(float3 position, float3 size, const Element& element) {
+inline bool QuadTree<Element>::add(float3 position, float3 size, const Element& element, bool forceArea) {
 	// add the array
 	shared_ptr<ElementPart> part = make_shared<ElementPart>(position, size, element);
 	part->index = m_elementParts.size();
@@ -444,20 +461,46 @@ inline void QuadTree<Element>::add(float3 position, float3 size, const Element& 
 	bool anyHit = m_node.add(m_elementParts.back().get());
 	// remove if missed tree
 	if (!anyHit) {
-		m_elementParts.pop_back();
+		if (forceArea) {
+			// expand tree area
+			float3 treePos = m_node.getPosition();
+			float3 treeSize = m_node.getSize();
+			float3 pMin = treePos, pMax = treePos + treeSize;
+			float3 bbPoints[8] = { position + size * float3(0, 0, 0),
+				position + size * float3(0, 1, 0), position + size * float3(0, 0, 1),
+				position + size * float3(0, 1, 1), position + size * float3(1, 0, 0),
+				position + size * float3(1, 1, 0), position + size * float3(1, 0, 1),
+				position + size * float3(1, 1, 1) };
+			for (size_t i = 0; i < 8; i++) {
+				pMin.x = min(pMin.x, bbPoints[i].x);
+				pMin.y = min(pMin.y, bbPoints[i].y);
+				pMin.z = min(pMin.z, bbPoints[i].z);
+				pMax.x = max(pMax.x, bbPoints[i].x);
+				pMax.y = max(pMax.y, bbPoints[i].y);
+				pMax.z = max(pMax.z, bbPoints[i].z);
+			}
+			changeArea(pMin - float3(1.f), pMax - pMin + float3(1.f));
+			// insert element again
+			return add(position, size, element, false); // dont need to force area second time
+		}
+		else {
+			m_elementParts.pop_back();
+			return false;
+		}
 	}
+	return false;
 }
 
 template <typename Element>
-inline void QuadTree<Element>::add(
-	float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix, const Element& element) {
+inline bool QuadTree<Element>::add(float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix,
+	const Element& element, bool forceArea) {
 
 	// Transform to tree properties
 	float3 position, size;
 	calcBoundingBox(lCenterPosition, lHalfSize, worldMatrix, position, size);
 
 	// Add
-	add(position, size, element);
+	return add(position, size, element, forceArea);
 }
 
 template <typename Element> inline void QuadTree<Element>::remove(Element& element) {
@@ -479,7 +522,8 @@ template <typename Element> inline void QuadTree<Element>::remove(size_t index) 
 }
 
 template <typename Element>
-inline bool QuadTree<Element>::updateElement(size_t index, float3 position, float3 size) {
+inline bool QuadTree<Element>::updateElement(
+	size_t index, float3 position, float3 size, bool forceArea) {
 	// update properties
 	m_elementParts[index]->position = position;
 	m_elementParts[index]->size = size;
@@ -489,24 +533,48 @@ inline bool QuadTree<Element>::updateElement(size_t index, float3 position, floa
 	bool anyHit = m_node.add(m_elementParts[index].get());
 	// remove if missed tree
 	if (!anyHit) {
-		m_elementParts.erase(m_elementParts.begin() + index);
-		// fix indices on elementParts
-		for (size_t j = index; j < m_elementParts.size(); j++) {
-			m_elementParts[j]->index--;
+		if (forceArea) {
+			// expand tree area
+			float3 treePos = m_node.getPosition();
+			float3 treeSize = m_node.getSize();
+			float3 pMin = treePos, pMax = treePos + treeSize;
+			float3 bbPoints[8] = { position + size * float3(0, 0, 0),
+				position + size * float3(0, 1, 0), position + size * float3(0, 0, 1),
+				position + size * float3(0, 1, 1), position + size * float3(1, 0, 0),
+				position + size * float3(1, 1, 0), position + size * float3(1, 0, 1),
+				position + size * float3(1, 1, 1) };
+			for (size_t i = 0; i < 8; i++) {
+				pMin.x = min(pMin.x, bbPoints[i].x);
+				pMin.y = min(pMin.y, bbPoints[i].y);
+				pMin.z = min(pMin.z, bbPoints[i].z);
+				pMax.x = max(pMax.x, bbPoints[i].x);
+				pMax.y = max(pMax.y, bbPoints[i].y);
+				pMax.z = max(pMax.z, bbPoints[i].z);
+			}
+			changeArea(pMin - float3(1.f), pMax - pMin + float3(1.f));
+			// insert element again
+			return m_node.add(m_elementParts[index].get());
 		}
-		return false;
+		else {
+			m_elementParts.erase(m_elementParts.begin() + index);
+			// fix indices on elementParts
+			for (size_t j = index; j < m_elementParts.size(); j++) {
+				m_elementParts[j]->index--;
+			}
+			return false;
+		}
 	}
 	return true;
 }
 
 template <typename Element>
 inline bool QuadTree<Element>::updateElement(
-	size_t index, float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix) {
+	size_t index, float3 lCenterPosition, float3 lHalfSize, float4x4 worldMatrix, bool forceArea) {
 	// transform to tree properties
 	float3 position, size;
 	calcBoundingBox(lCenterPosition, lHalfSize, worldMatrix, position, size);
 	// update
-	return updateElement(index, position, size);
+	return updateElement(index, position, size, forceArea);
 }
 
 template <typename Element>
@@ -566,6 +634,18 @@ template <typename Element> inline void QuadTree<Element>::clear() {
 
 template <typename Element> inline void QuadTree<Element>::reserve(size_t size) {
 	m_elementParts.reserve(size);
+}
+
+template <typename Element>
+inline void QuadTree<Element>::changeArea(float3 position, float3 size) {
+	m_node = Node(position, size, m_node.getLayerMax(), 0, m_elementParts.capacity());
+	for (size_t i = 0; i < m_elementParts.size(); i++) {
+		bool inserted = m_node.add(m_elementParts[i].get());
+		if (!inserted) {
+			m_elementParts.erase(m_elementParts.begin() + i);
+			i--;
+		}
+	}
 }
 
 template <typename Element> inline size_t QuadTree<Element>::size() const {
