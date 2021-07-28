@@ -13,7 +13,6 @@ struct Brush {
 
 class HeightmapMesh {
 protected:
-	const int EDITMESH_STACKSIZE = 30;
 	const string m_heightmapPath = "assets/TerrainHeightmap/";
 
 	const XMINT2 POINT_ORDER[6] = { 
@@ -30,9 +29,6 @@ protected:
 	// grid points
 	XMINT2 m_gridPointSize = XMINT2(0, 0);
 	vector<vector<Vertex>> m_gridPoints;
-
-	// editMesh
-	vector<shared_ptr<vector<vector<float>>>> m_editMesh_stack; // used to undo modifications 
 
 	// -- FUNCTIONS --
 
@@ -54,6 +50,8 @@ protected:
 
 public:
 	XMINT2 getSize() const;
+	void getAbstractData(vector<vector<float>>& data) const;
+	void applyAbstractData(const vector<vector<float>>& data);
 
 	float getHeightFromUV(float2 uv);
 	float3 getNormalFromUV(float2 uv);
@@ -64,9 +62,6 @@ public:
 	bool containsValidPosition(float2 point, float2 size, float4x4 worldMatrix);
 
 	bool editMesh(const Brush& brush, Brush::Type type, float dt, float4x4 matWorld);
-	void editMesh_push();
-	bool editMesh_pop();
-	void editMesh_clear();
 
 	void loadFromFile_binary(ifstream& file);
 	void storeToFile_binary(ofstream& file);
@@ -74,9 +69,10 @@ public:
 	void changeSize(XMINT2 gridSize);
 	void init(string filename, XMINT2 gridSize);
 
+	void smoothMesh(float distance, float3 scale);
+
 	vector<Vertex>& operator[](const size_t& index);
 	Vertex& operator[](const XMINT2& index);
-	HeightmapMesh& operator=(const HeightmapMesh& other);
 
 	HeightmapMesh();
 

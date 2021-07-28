@@ -124,14 +124,24 @@ void TerrainBatch::editMesh(const Brush& brush, Brush::Type type) {
 		at(i)->editMesh(brush, type);
 }
 
-void TerrainBatch::editMesh_pop() {
+void TerrainBatch::hq_push_begin() {
 	for (size_t i = 0; i < size(); i++)
-		at(i)->editMesh_pop();
+		at(i)->hq_push_begin();
 }
 
-void TerrainBatch::editMesh_push() {
+void TerrainBatch::hq_push_end() {
 	for (size_t i = 0; i < size(); i++)
-		at(i)->editMesh_push();
+		at(i)->hq_push_end();
+}
+
+void TerrainBatch::hq_undo() {
+	for (size_t i = 0; i < size(); i++)
+		at(i)->hq_undo();
+}
+
+void TerrainBatch::hq_redo() {
+	for (size_t i = 0; i < size(); i++)
+		at(i)->hq_redo();
 }
 
 Environment::Environment(string filename, XMINT2 subsize, XMINT2 splits, float3 wind, AreaTag tag)
@@ -259,6 +269,9 @@ void Environment::imgui_properties() {
 		TextureRepository::get("tutorial.png", type), TextureRepository::get("VolcanoMap.png", type)
 	};
 	static string heightmap = heightmapTextures[0]->getFilename();
+	static XMINT2 subSize = getSubSize();
+	static XMINT2 divisions = getSplits();
+
 	ImGui::SetNextItemWidth(150);
 	if (ImGui::BeginCombo("Heightmap", heightmap.c_str())) {
 		float cWidth = ImGui::CalcItemWidth();
@@ -275,29 +288,76 @@ void Environment::imgui_properties() {
 		}
 		ImGui::EndCombo();
 	}
-	// subsize / tile size
-	static XMINT2 subSize = getSubSize();
-	ImGui::Text("Sub Size: (%i %i)", getSubSize().x, getSubSize().y);
-	ImGui::SetNextItemWidth(100);
-	if (ImGui::InputInt2("##", (int*)&subSize)) {
-		subSize = XMINT2(max(0, subSize.x), max(0, subSize.y));
-	}
-	// divisions / grid size
-	static XMINT2 divisions = getSplits();
-	ImGui::Text("Divisions: (%i %i)", getSplits().x, getSplits().y);
-	ImGui::SetNextItemWidth(100);
-	if (ImGui::InputInt2("###", (int*)&divisions)) {
-		divisions = XMINT2(max(0, divisions.x), max(0, divisions.y));
-	}
-	ImGui::Text(
-		"Triangles: %i", getSubSize().x * getSubSize().y * getSplits().x * getSplits().y * 2);
-	// buttons
-	if (ImGui::Button("Rebuild")) {
+	if (ImGui::Button("Rebuild from heightmap")) {
+		hq_push_begin();
 		build(heightmap, subSize, divisions);
+		hq_push_end();
 	}
+
+	ImGui::Checkbox("Fixed Grid Size", &m_fixedGridSize);
 	ImGui::SameLine();
 	if (ImGui::Button("Resize")) {
-		changeSize(subSize, divisions);
+		hq_push_begin();
+		if (m_fixedGridSize) {
+			float2 size = float2(getScale().x, getScale().z);
+			float2 totalApproxCells = m_cellsPerUnit * size;
+			XMINT2 splits = XMINT2(
+				round(m_splitsPerUnit * getScale().x), round(m_splitsPerUnit * getScale().z));
+			XMINT2 cellsInSplit =
+				XMINT2(round(totalApproxCells.x / splits.x), round(totalApproxCells.y / splits.y));
+
+			changeSize(cellsInSplit, splits);
+		}
+		else
+			changeSize(subSize, divisions);
+		hq_push_end();
 	}
+	ImGui::SameLine();
+	if (ImGui::TreeNode("##746")) {
+		if (m_fixedGridSize) {
+			ImGui::Text("Cells Per Unit: %.1f", m_cellsPerUnit);
+			ImGui::Text("Splits Per Unit: %.1f", m_splitsPerUnit);
+		}
+		else {
+			// subsize / tile size
+			ImGui::Text("Sub Size: (%i %i)", getSubSize().x, getSubSize().y);
+			ImGui::SetNextItemWidth(100);
+			if (ImGui::InputInt2("##54", (int*)&subSize)) {
+				subSize = XMINT2(max(0, subSize.x), max(0, subSize.y));
+			}
+			// divisions / grid size
+			ImGui::Text("Divisions: (%i %i)", getSplits().x, getSplits().y);
+			ImGui::SetNextItemWidth(100);
+			if (ImGui::InputInt2("##56", (int*)&divisions)) {
+				divisions = XMINT2(max(0, divisions.x), max(0, divisions.y));
+			}
+		}
+		ImGui::TreePop();
+	}
+
+	static float smoothDistance = 1.f;
+	ImGui::SetNextItemWidth(100);
+	ImGui::SliderFloat("Distance", &smoothDistance, 0, 1);
+	ImGui::SameLine();
+	if (ImGui::Button("Smooth Mesh")) {
+		hq_push_begin();
+		smoothMesh(smoothDistance);
+		hq_push_end();
+	}
+
+	if (ImGui::Button("Undo")) {
+		hq_undo();
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Redo")) {
+		hq_redo();
+	}
+
 	ImGui::Separator();
+
+	XMINT2 szT = getSubSize(), szG = getSplits();
+	size_t triangleCount = getTriangleCount();
+	size_t maxTriangleCount = 2 * (szT.x * szT.y * szG.x * szG.y + szG.x * szG.y);
+	ImGui::Text("Triangles: %i/%i (%i%%)", triangleCount, maxTriangleCount,
+		(int)(100 * ((double)triangleCount / maxTriangleCount)));
 }

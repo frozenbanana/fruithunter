@@ -7,6 +7,7 @@
 #include "Fragment.h"
 #include "SimpleDirectX.h"
 #include "HeightmapMesh.h"
+#include "HistoryQueue.h"
 
 struct TerrainVertex {
 	float3 position;
@@ -18,14 +19,19 @@ struct TerrainVertex {
 		uv = v.uv;
 		normal = v.normal;
 	}
-	TerrainVertex(const Vertex& v) { setFromVertex(v);}
+	TerrainVertex(const Vertex& v) { setFromVertex(v); }
 	TerrainVertex(const Vertex& v, float intensity) {
 		setFromVertex(v);
 		colorIntensity = intensity;
 	}
 };
 
-class Terrain : public Transformation, public Fragment {
+struct HQTerrainElement {
+	XMINT2 subSize, divisions;
+	vector<vector<float>> data;
+};
+
+class Terrain : public Transformation, public Fragment, public HistoryQueue<HQTerrainElement> {
 private:
 	//-------------------------- GRASS ------------------------------
 	// Constants
@@ -124,8 +130,11 @@ private:
 		void createBuffer_terrain();
 
 	public:
+		size_t getTriangleCount() const;
+
 		void generate_terrain(XMINT2 tileSize, XMINT2 gridIndex, HeightmapMesh& hmMesh);
-		void generate_grass(float2 position, float2 size, size_t count, HeightmapMesh& hmMesh, float4x4 worldMatrix);
+		void generate_grass(float2 position, float2 size, size_t count, HeightmapMesh& hmMesh,
+			float4x4 worldMatrix);
 
 		void bind_terrain();
 		void drawCall_terrain();
@@ -150,9 +159,14 @@ private:
 	// grids
 	void fillSubMeshes();
 
-	bool boxInsideFrustum(float3 boxPos, float3 boxSize, const vector<FrustumPlane>& planes); // unused!!
+	bool boxInsideFrustum(
+		float3 boxPos, float3 boxSize, const vector<FrustumPlane>& planes); // unused!!
 
 	XMINT2 getGridPointSize() const;
+
+	// History Queue Functions
+	void hq_apply(shared_ptr<HQTerrainElement> sample) override;
+	shared_ptr<HQTerrainElement> hq_fetch() const override;
 
 public:
 	// settings
@@ -162,6 +176,7 @@ public:
 	// get settings
 	XMINT2 getSplits() const;
 	XMINT2 getSubSize() const;
+	size_t getTriangleCount() const;
 
 	// terrain scanning
 	bool validPosition(float3 pos);
@@ -182,21 +197,16 @@ public:
 	void draw_grass();
 
 	void initilize(
-		string filename, XMINT2 subsize, XMINT2 splits = XMINT2(1, 1));
+		string filename, XMINT2 subsize = XMINT2(15, 15), XMINT2 splits = XMINT2(16, 16));
 	void build(string heightmapName, XMINT2 subSize, XMINT2 splits);
 	void changeSize(XMINT2 tileSize, XMINT2 gridSize);
 	void loadFromFile_binary(ifstream& file);
 	void storeToFile_binary(ofstream& file);
 
 	void editMesh(const Brush& brush, Brush::Type type);
-	void editMesh_push();
-	void editMesh_pop();
-	void editMesh_clear();
 
-	Terrain(const Terrain& other);
-	Terrain(string filename = "", XMINT2 subsize = XMINT2(0, 0),
-		XMINT2 splits = XMINT2(1, 1));
+	void smoothMesh(float distance);
+
+	Terrain(string filename = "", XMINT2 subsize = XMINT2(15, 15), XMINT2 splits = XMINT2(16, 16));
 	~Terrain();
-
-	Terrain& operator=(const Terrain& other);
 };

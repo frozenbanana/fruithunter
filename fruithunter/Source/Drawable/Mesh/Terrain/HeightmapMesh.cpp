@@ -244,6 +244,34 @@ void HeightmapMesh::tileRayIntersectionTest(
 
 XMINT2 HeightmapMesh::getSize() const { return m_gridPointSize; }
 
+void HeightmapMesh::getAbstractData(vector<vector<float>>& data) const {
+	data.clear();
+	data.resize(m_gridPointSize.x);
+	for (size_t x = 0; x < m_gridPointSize.x; x++) {
+		data[x].resize(m_gridPointSize.y);
+		for (size_t y = 0; y < m_gridPointSize.y; y++) {
+			data[x][y] = m_gridPoints[x][y].position.y;
+		}
+	}
+}
+
+void HeightmapMesh::applyAbstractData(const vector<vector<float>>& data) {
+	XMINT2 sampleSize = XMINT2(data.size(), data[0].size());
+	if (sampleSize.x != m_gridPointSize.x || sampleSize.y != m_gridPointSize.y) {
+		// different size
+		// change size
+		createGridPointBase(sampleSize);
+	}
+	// set heights
+	for (size_t x = 0; x < m_gridPointSize.x; x++) {
+		for (size_t y = 0; y < m_gridPointSize.y; y++) {
+			m_gridPoints[x][y].position.y = data[x][y];
+		}
+	}
+	// reset normal
+	setGridPointNormals();
+}
+
 float HeightmapMesh::getHeightFromUV(float2 uv) {
 	if (m_gridPointSize.x >= 2 && m_gridPointSize.y >= 2) {
 		float X = uv.x;
@@ -459,9 +487,9 @@ bool HeightmapMesh::editMesh(const Brush& brush, Brush::Type type, float dt, flo
 						0, 1);
 				}
 				else if (type == Brush::Flatten) {
-					float factor =
-						Clamp((1 - Clamp(pow(1 - smoothedMix, dt), 0.f, 1.f)) * brushIntensity / 10.f,
-							0.f, 0.1f);
+					float factor = Clamp(
+						(1 - Clamp(pow(1 - smoothedMix, dt), 0.f, 1.f)) * brushIntensity / 10.f,
+						0.f, 0.1f);
 					// smoothedMix * brushIntensity * 20.f * dt
 					m_gridPoints[x][y].position.y =
 						Clamp<float>(m_gridPoints[x][y].position.y +
@@ -478,54 +506,6 @@ bool HeightmapMesh::editMesh(const Brush& brush, Brush::Type type, float dt, flo
 	}
 	return false;
 }
-
-void HeightmapMesh::editMesh_push() {
-	if (m_gridPointSize.x == 0 || m_gridPointSize.y == 0) {
-		// do nothing (invalid size to push to stack)
-	}
-	else {
-		shared_ptr<vector<vector<float>>> meshSample = make_shared<vector<vector<float>>>();
-		meshSample->resize(m_gridPointSize.x);
-		for (size_t x = 0; x < m_gridPointSize.x; x++) {
-			meshSample->at(x).resize(m_gridPointSize.y);
-			for (size_t y = 0; y < m_gridPointSize.y; y++) {
-				meshSample->at(x)[y] = m_gridPoints[x][y].position.y;
-			}
-		}
-		// add to stack
-		m_editMesh_stack.push_back(meshSample);
-		if (m_editMesh_stack.size() > EDITMESH_STACKSIZE)
-			m_editMesh_stack.erase(m_editMesh_stack.begin()); // remove first if to many samples
-	}
-}
-
-bool HeightmapMesh::editMesh_pop() {
-	if (m_editMesh_stack.size() > 0) {
-		// get latest sample
-		shared_ptr<vector<vector<float>>> sample = m_editMesh_stack.back();
-		m_editMesh_stack.pop_back();
-		// recreate from sample
-		if (sample->size() == m_gridPointSize.x && sample->at(0).size() == m_gridPointSize.y) {
-			// set heights
-			for (size_t x = 0; x < m_gridPointSize.x; x++) {
-				for (size_t y = 0; y < m_gridPointSize.y; y++) {
-					m_gridPoints[x][y].position.y = sample->at(x)[y];
-				}
-			}
-			// reset normal
-			setGridPointNormals();
-
-			return true;
-		}
-		else {
-			// invalid sample size (doesnt match size)
-			return false;
-		}
-	}
-	return false;
-}
-
-void HeightmapMesh::editMesh_clear() { m_editMesh_stack.clear(); }
 
 void HeightmapMesh::loadFromFile_binary(ifstream& file) {
 	// gridPoint size
@@ -582,23 +562,43 @@ void HeightmapMesh::init(string filename, XMINT2 gridSize) {
 	setGridHeightFromHeightmap(filename);
 }
 
+void HeightmapMesh::smoothMesh(float distance, float3 scale) {
+
+	vector<vector<Vertex>> data = m_gridPoints;
+
+	float stepUnitRange = distance;
+	float2 normalizeStep = (float2(1, 1) * stepUnitRange) / float2(scale.x, scale.z);
+
+	int samples = 16;
+
+	float2 uvStep = float2(1, 1) / float2(m_gridPointSize.x - 1, m_gridPointSize.y - 1);
+	for (size_t x = 0; x < m_gridPointSize.x; x++) {
+		for (size_t y = 0; y < m_gridPointSize.y; y++) {
+			float2 uvBase = float2(x, y) * uvStep;
+			float sum = 0;
+			float factorSum = 0;
+			float base = m_gridPoints[x][y].position.y;
+			for (size_t i = 0; i < samples; i++) {
+				float rRad = RandomFloat(0, XM_PI * 2);
+				float rLength = RandomFloat(0, 1);
+				float2 uvStep = float2(cos(rRad), sin(rRad)) * rLength * normalizeStep;
+				float falloff = 1 - rLength;
+				float smoothFalloff = (1 - cos(falloff * XM_PI)) * 0.5f;
+				sum += getHeightFromUV(uvBase + uvStep) * smoothFalloff;
+				factorSum += smoothFalloff;
+			}
+			sum /= factorSum; // normalize
+			data[x][y].position.y = sum;
+		}
+	}
+
+	m_gridPoints = data; // overwrite with smoothed grid
+
+	setGridPointNormals();
+}
+
 vector<Vertex>& HeightmapMesh::operator[](const size_t& index) { return m_gridPoints[index]; }
 
 Vertex& HeightmapMesh::operator[](const XMINT2& index) { return m_gridPoints[index.x][index.y]; }
-
-HeightmapMesh& HeightmapMesh::operator=(const HeightmapMesh& other) {
-	m_previousLoaded = other.m_previousLoaded;
-	m_gridPointSize = other.m_gridPointSize;
-	m_gridPoints = other.m_gridPoints;
-
-	vector<shared_ptr<vector<vector<float>>>> m_editMesh_stack;
-
-	m_editMesh_stack.clear();
-	m_editMesh_stack.resize(other.m_editMesh_stack.size());
-	for (size_t i = 0; i < other.m_editMesh_stack.size(); i++)
-		m_editMesh_stack[i] = make_shared<vector<vector<float>>>(*other.m_editMesh_stack[i].get());
-
-	return *this;
-}
 
 HeightmapMesh::HeightmapMesh() {}

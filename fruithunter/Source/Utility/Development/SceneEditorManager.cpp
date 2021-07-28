@@ -71,7 +71,7 @@ void SceneEditorManager::update_imgui_leaderboard() {
 
 void SceneEditorManager::update_imgui_library() {
 	static const string libraryTabsStr[LibraryTab::tab_count] = { "Terrain", "Entity", "Sea",
-		"Particle System", "Effect" , "World Message"};
+		"Particle System", "Effect", "World Message" };
 	const ImVec4 colorBlueActive = ImVec4(51 / 255.f, 105 / 255.f, 173 / 255.f, 1);
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8, 0));
 	for (size_t i = 0; i < tab_count; i++) {
@@ -179,6 +179,9 @@ void SceneEditorManager::update_imgui_terrainEditor() {
 	ImGui::Text("Undo edit: ");
 	ImGui::SameLine();
 	ImGui::TextColored(btnCol, "Z");
+	ImGui::Text("Redo edit: ");
+	ImGui::SameLine();
+	ImGui::TextColored(btnCol, "Shift + Z");
 	ImGui::Text("Change radius: ");
 	ImGui::SameLine();
 	ImGui::TextColored(btnCol, "ScrollWheel");
@@ -1068,10 +1071,15 @@ void SceneEditorManager::update(double dt) {
 			m_terrainBrush.position = intersection;
 		}
 		// edit mesh
-		if (ip->mousePressed(m_terrainEditor_btn_raise) ||
-			ip->mousePressed(m_terrainEditor_btn_lower) ||
-			ip->mousePressed(m_terrainEditor_btn_flatten)) {
-			scene->m_terrains.editMesh_push(); // autosave before editing
+		bool anyBtnDown =
+			(ip->mouseDown(m_terrainEditor_btn_raise) || ip->mouseDown(m_terrainEditor_btn_lower) ||
+				ip->mouseDown(m_terrainEditor_btn_flatten));
+
+		if ((ip->mousePressed(m_terrainEditor_btn_raise) ||
+				ip->mousePressed(m_terrainEditor_btn_lower) ||
+				ip->mousePressed(m_terrainEditor_btn_flatten)) &&
+			!anyBtnDown) {
+			scene->m_terrains.hq_push_begin(); // autosave before editing
 		}
 		if (ip->mouseDown(m_terrainEditor_btn_raise))
 			scene->m_terrains.editMesh(m_terrainBrush, Brush::Type::Raise);
@@ -1079,9 +1087,18 @@ void SceneEditorManager::update(double dt) {
 			scene->m_terrains.editMesh(m_terrainBrush, Brush::Type::Lower);
 		if (ip->mouseDown(m_terrainEditor_btn_flatten))
 			scene->m_terrains.editMesh(m_terrainBrush, Brush::Type::Flatten);
+		if ((ip->mouseReleased(m_terrainEditor_btn_raise) ||
+				ip->mouseReleased(m_terrainEditor_btn_lower) ||
+				ip->mouseReleased(m_terrainEditor_btn_flatten)) &&
+			!anyBtnDown) {
+			scene->m_terrains.hq_push_end(); // autosave before editing
+		}
 		// undo mesh
-		if (ip->keyPressed(m_terrainEditor_btn_undo)) {
-			scene->m_terrains.editMesh_pop();
+		if (ip->keyPressed(m_terrainEditor_btn_undo) && ip->keyDown(Keyboard::LeftShift)) {
+			scene->m_terrains.hq_redo();
+		}
+		else if (ip->keyPressed(m_terrainEditor_btn_undo)) {
+			scene->m_terrains.hq_undo();
 		}
 		// scroll values
 		float radiusChangeOnMouseWheel = 1.1;

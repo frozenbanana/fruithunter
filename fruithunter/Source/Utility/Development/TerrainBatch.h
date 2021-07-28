@@ -3,16 +3,19 @@
 
 /*
  * Manages external factors to Terrain
-*/
+ */
 class Environment : public Terrain {
 private:
 	float3 m_wind;
 	AreaTag m_tag = AreaTag::Plains;
 	int m_fruitSpawn[NR_OF_FRUITS]{ 0 };
+	bool m_fixedGridSize = true;
+	const float m_cellsPerUnit = 2.5f;
+	const float m_splitsPerUnit = 0.15f;
 
 public:
-	Environment(string filename = "", XMINT2 subsize = XMINT2(0, 0),
-		XMINT2 splits = XMINT2(1, 1), float3 wind = float3(0.f, 0.f, 0.f),
+	Environment(string filename = "", XMINT2 subsize = XMINT2(15, 15),
+		XMINT2 splits = XMINT2(16, 16), float3 wind = float3(0.f, 0.f, 0.f),
 		AreaTag tag = AreaTag::Plains);
 
 	void setWind(float3 wind);
@@ -36,10 +39,11 @@ public:
  */
 class TerrainBatch : public vector<shared_ptr<Environment>> {
 private:
-
 public:
 	void remove(size_t index);
-	void add(float3 position, float3 scale, string heightmapFilename, XMINT2 subSize, XMINT2 division = XMINT2(1, 1), float3 wind = float3(0.f, 0.f, 0.f), AreaTag tag = AreaTag::Plains);
+	void add(float3 position, float3 scale, string heightmapFilename, XMINT2 subSize,
+		XMINT2 division = XMINT2(1, 1), float3 wind = float3(0.f, 0.f, 0.f),
+		AreaTag tag = AreaTag::Plains);
 	void add(shared_ptr<Environment> environment);
 	Environment* getTerrainFromPosition(float3 position);
 	int getTerrainIndexFromPosition(float3 position) const;
@@ -57,7 +61,9 @@ public:
 	void draw_grass();
 
 	void editMesh(const Brush& brush, Brush::Type type);
-	void editMesh_pop();
-	void editMesh_push();
 
+	void hq_push_begin();
+	void hq_push_end();
+	void hq_undo();
+	void hq_redo();
 };

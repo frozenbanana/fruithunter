@@ -223,16 +223,42 @@ XMINT2 Terrain::getGridPointSize() const {
 	return XMINT2(m_gridSize.x * m_tileSize.x + 1, m_gridSize.y * m_tileSize.y + 1);
 }
 
+void Terrain::hq_apply(shared_ptr<HQTerrainElement> sample) {
+	m_gridSize = sample->subSize;
+	m_tileSize = sample->divisions;
+	m_heightmapMesh.applyAbstractData(sample->data);
+	// rebuild mesh
+	fillSubMeshes();
+}
+
+shared_ptr<HQTerrainElement> Terrain::hq_fetch() const {
+	shared_ptr<HQTerrainElement> sample = make_shared<HQTerrainElement>();
+	sample->subSize = getSubSize();
+	sample->divisions = getSplits();
+	m_heightmapMesh.getAbstractData(sample->data);
+	return sample;
+}
+
 XMINT2 Terrain::getSplits() const { return m_gridSize; }
 
 XMINT2 Terrain::getSubSize() const { return m_tileSize; }
+
+size_t Terrain::getTriangleCount() const {
+	size_t sum = 0;
+	for (size_t x = 0; x < m_subMeshes.size(); x++) {
+		for (size_t y = 0; y < m_subMeshes[x].size(); y++) {
+			sum += m_subMeshes[x][y].getTriangleCount();
+		}
+	}
+	return sum;
+}
 
 void Terrain::initilize(string filename, XMINT2 subsize, XMINT2 splits) {
 	// grass noise texture
 	m_tex_noise = TextureRepository::get("noise_grass.png");
 	// grass noise buffer
-	m_cbuffer_noiseSize.update(float4(
-		(float)m_tex_noise->getSize().x, (float)m_tex_noise->getSize().y, 0.f, 0.f));
+	m_cbuffer_noiseSize.update(
+		float4((float)m_tex_noise->getSize().x, (float)m_tex_noise->getSize().y, 0.f, 0.f));
 
 	// load terrain
 	build(filename, subsize, splits);
@@ -290,16 +316,10 @@ void Terrain::editMesh(const Brush& brush, Brush::Type type) {
 	}
 }
 
-void Terrain::editMesh_push() { m_heightmapMesh.editMesh_push(); }
-
-void Terrain::editMesh_pop() {
-	if (m_heightmapMesh.editMesh_pop()) {
-		// rebuild mesh
-		fillSubMeshes();
-	}
+void Terrain::smoothMesh(float distance) {
+	m_heightmapMesh.smoothMesh(distance, getScale());
+	fillSubMeshes();
 }
-
-void Terrain::editMesh_clear() { m_heightmapMesh.editMesh_clear(); }
 
 bool Terrain::pointInsideTerrainBoundingBox(float3 point) {
 	float3 pos = point;
@@ -535,11 +555,11 @@ void Terrain::draw_grass() {
 			->setRasterizer_CullCounterClockwise(); // reset back to backface culling
 	}
 }
-
-Terrain::Terrain(const Terrain& other) : Transformation(other), Fragment(other) { *this = other; }
+//
+//Terrain::Terrain(const Terrain& other) : Transformation(other), Fragment(other) { *this = other; }
 
 Terrain::Terrain(string filename, XMINT2 subsize, XMINT2 splits)
-	: Fragment(Fragment::Type::terrain) {
+	: Fragment(Fragment::Type::terrain), HistoryQueue<HQTerrainElement>(15) {
 	initilize(filename, subsize, splits);
 	if (!m_shader_terrain.isLoaded()) {
 		D3D11_INPUT_ELEMENT_DESC inputLayout_onlyMesh[] = {
@@ -586,22 +606,24 @@ Terrain::Terrain(string filename, XMINT2 subsize, XMINT2 splits)
 
 Terrain::~Terrain() {}
 
-Terrain& Terrain::operator=(const Terrain& other) {
-	m_tileSize = other.m_tileSize;
-	m_gridSize = other.m_gridSize;
-	m_subMeshes = other.m_subMeshes;
-	m_heightmapMesh = other.m_heightmapMesh;
-	m_quadtree = other.m_quadtree;
-	m_culledGrids = other.m_culledGrids;
-	m_useCulling = other.m_useCulling;
+//Terrain& Terrain::operator=(const Terrain& other) {
+//	m_tileSize = other.m_tileSize;
+//	m_gridSize = other.m_gridSize;
+//	m_subMeshes = other.m_subMeshes;
+//	m_heightmapMesh = other.m_heightmapMesh;
+//	m_quadtree = other.m_quadtree;
+//	m_culledGrids = other.m_culledGrids;
+//	m_useCulling = other.m_useCulling;
+//
+//	m_grass_visibility = other.m_grass_visibility;
+//	m_grass_strawSetting = other.m_grass_strawSetting;
+//	m_grass_animationSetting = other.m_grass_animationSetting;
+//	m_tex_noise = other.m_tex_noise;
+//
+//	return *this;
+//}
 
-	m_grass_visibility = other.m_grass_visibility;
-	m_grass_strawSetting = other.m_grass_strawSetting;
-	m_grass_animationSetting = other.m_grass_animationSetting;
-	m_tex_noise = other.m_tex_noise;
-
-	return *this;
-}
+size_t Terrain::SubGrid::getTriangleCount() const { return m_vertices.size() / 3; }
 
 void Terrain::SubGrid::generate_terrain(XMINT2 tileSize, XMINT2 gridIndex, HeightmapMesh& hmMesh) {
 	const XMINT2 order[6] = { // tri1
