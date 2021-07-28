@@ -15,6 +15,7 @@ Release v1.2
 Features: 
  - Visible leaderboard statistics
  - Added new fruit (Pomegranate)
+ - Added messages inside levels to inform players of functionalities and tips
 Reworks:
  - Level select screen has been reworked to fit more levels and leaderboard information
 Bugs:
