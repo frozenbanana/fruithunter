@@ -18,5 +18,7 @@ Features:
  - Added messages inside levels to inform players of functionalities and tips
 Reworks:
  - Level select screen has been reworked to fit more levels and leaderboard information
+ - Changed bow behavior (cannot rapidly click to fire arrow)
 Bugs:
  - Fixed bug of arrow not firing in direction of player
+ - Fixed delta time not updating appropriately when switching between game screens
