@@ -13,8 +13,9 @@ Bugs:
 
 Release v1.2
 Features: 
- - 
+ - Visible leaderboard statistics
+ - Added new fruit (Pomegranate)
 Reworks:
- - 
+ - Level select screen has been reworked to fit more levels and leaderboard information
 Bugs:
  - Fixed bug of arrow not firing in direction of player
