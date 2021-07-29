@@ -22,11 +22,15 @@ std::vector<MeshHandler::VertexRef> MeshHandler::triangulate(
 	std::vector<MeshHandler::VertexRef> face) {
 	std::vector<MeshHandler::VertexRef> ret;
 	if (face.size() == 3) {
+		ret.reserve(3);
+
 		ret.push_back(face[0]);
 		ret.push_back(face[1]);
 		ret.push_back(face[2]);
 	}
 	else if (face.size() == 4) {
+		ret.reserve(6);
+
 		ret.push_back(face[0]);
 		ret.push_back(face[1]);
 		ret.push_back(face[2]);
@@ -93,6 +97,7 @@ bool MeshHandler::loadOBJ(std::string fileName, std::vector<Part>& parts) {
 				}
 				else if (startWord == "f") { // face
 					std::vector<MeshHandler::VertexRef> face;
+					face.reserve(4);
 					while (objFile.peek() != '\n' && objFile.peek() != EOF) {
 						int pI = -1, uvI = -1, nI = -1;
 						char t;

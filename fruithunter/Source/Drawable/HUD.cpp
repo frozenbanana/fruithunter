@@ -71,6 +71,7 @@ HUD::HUD() {
 	m_stopwatchMarker.setAlignment(); // center
 
 	m_text_time.setFont("luckiestguy.spritefont");
+	m_text.setFont("luckiestguy.spritefont");
 
 	m_slowmo.load("slowmo_front.png", "slowmo_background.png", "slowmo_animation.png");
 	m_slowmo.setAlignment(HorizontalAlignment::AlignRight, VerticalAlignment::AlignBottom);
@@ -113,6 +114,15 @@ void HUD::draw() {
 	float stamina = SceneManager::getScene()->m_player->getStamina();
 	m_slowmo.setAnimationFactor(stamina);
 	m_slowmo.draw();
+	bool staminaFull = (stamina == 1.f);
+	if (staminaFull) {
+		m_text.setAlignment();
+		m_text.setPosition(m_slowmo.getPosition() + m_slowmo.getSize()*float2(-0.5f,-0.5f+0.15f));
+		m_text.setColor(Color(0, 0, 0, 1)); // black
+		m_text.setText("[F]");
+		m_text.setScale(0.3f);
+		m_text.draw();
+	}
 
 	// Draw time and target time
 	time_t* timeTargets = SceneManager::getScene()->m_utility.timeTargets;

@@ -72,7 +72,9 @@ void CollectionPoint::load(float3 position, float3 velocity, FruitType type, Ski
 	setSkillType(skillType);
 	// emit explosion
 	m_effect_stars.setPosition(position);
+	m_effect_stars.burst();
 	m_effect_explosion.setPosition(position);
+	m_effect_explosion.burst();
 }
 
 bool CollectionPoint::isFinished() const {

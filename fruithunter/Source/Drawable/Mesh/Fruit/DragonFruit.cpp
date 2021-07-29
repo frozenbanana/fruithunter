@@ -5,7 +5,8 @@
 bool DragonFruit::isFalling() { return m_velocity.y < 0.f && !m_onGround; }
 
 DragonFruit::DragonFruit(float3 pos) : Fruit(FruitType::DRAGON, pos) {
-	loadAnimated("Dragon", 3);
+	// loadAnimated("Dragon", 3);
+	loadAnimated("dragonfruit", 4);
 	m_nrOfFramePhases = 2;
 
 	changeState(AI::State::PASSIVE);
@@ -78,10 +79,10 @@ void DragonFruit::behaviorPassive() {
 	//	m_target = getRandomTarget();
 	//}
 	// float terrainHeight =
-	// SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition()); float3 terrainPos =
-	// float3(getPosition().x, terrainHeight, getPosition().z); if
+	// SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition()); float3 terrainPos
+	// = float3(getPosition().x, terrainHeight, getPosition().z); if
 	// (withinDistanceTo(terrainPos, 1.0f)) { 	jump(float3(0.0f, 1.0f, 0.0f), 15.f); 	m_target =
-	//getRandomTarget();
+	// getRandomTarget();
 	//}
 	// else if (withinDistanceTo(terrainPos, 1.0f)) {
 	//	m_target = getRandomTarget();
@@ -170,13 +171,23 @@ void DragonFruit::updateAnimated(float dt) {
 	m_frameTime += dt * m_animationSpeed;
 	m_frameTime = fmodf(m_frameTime, 4.f);
 
+	// if (m_frameTime < 1)
+	//	setFrameTargets(0, 1);
+	// else if (m_frameTime < 2)
+	//	setFrameTargets(1, 2);
+	// else if (m_frameTime < 3)
+	//	setFrameTargets(2, 1);
+	// else if (m_frameTime < 4)
+	//	setFrameTargets(1, 0);
+
 	if (m_frameTime < 1)
 		setFrameTargets(0, 1);
 	else if (m_frameTime < 2)
 		setFrameTargets(1, 2);
 	else if (m_frameTime < 3)
-		setFrameTargets(2, 1);
+		setFrameTargets(2, 3);
 	else if (m_frameTime < 4)
-		setFrameTargets(1, 0);
+		setFrameTargets(3, 0);
+
 	m_meshAnim.updateSpecific(m_frameTime);
 }
