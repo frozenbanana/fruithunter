@@ -1,6 +1,5 @@
 #include "SceneManager.h"
 #include "AudioController.h"
-#include "PathFindingThread.h"
 #include "Renderer.h"
 #include "Settings.h"
 
@@ -151,7 +150,6 @@ SceneManager::SceneManager() {
 }
 
 SceneManager::~SceneManager() { 
-	PathFindingThread::getInstance()->pause(); 
 }
 
 void SceneManager::update(double dt) {
@@ -162,9 +160,6 @@ void SceneManager::update(double dt) {
 
 	if (Input::getInstance()->keyPressed(m_key_fotoMode) && DEBUG)
 		m_fotoMode = !m_fotoMode;
-
-	//Input::getInstance()->setMouseModeRelative();
-	auto pft = PathFindingThread::getInstance();
 
 	dt = scene->getDeltaTime();
 	float dt_nonSlow = scene->getDeltaTime_skipSlow();
@@ -246,7 +241,6 @@ void SceneManager::update(double dt) {
 	for (int i = 0; i < scene->m_fruits.size(); i++) {
 		Fruit* fruit = scene->m_fruits[i].get();
 
-		PathFindingThread::lock();
 		fruit->update();
 		// collision arrow - fruit
 		for (size_t iArrow = 0; iArrow < scene->m_arrows.size(); iArrow++) {
@@ -276,7 +270,6 @@ void SceneManager::update(double dt) {
 			scene->m_fruits.erase(scene->m_fruits.begin() + i);
 			i--;
 		}
-		PathFindingThread::unlock();
 	}
 
 	m_hud.update(dt);
@@ -312,16 +305,11 @@ void SceneManager::load(string folder) {
 	//load scene
 	scene->load(folder);
 
-	// pathfinding thread
-	PathFindingThread::getInstance()->initialize(scene->m_fruits);
-
 	m_metricCollector.reset();
 }
 
 void SceneManager::reset() { 
 	scene->reset(); 
-	// pathfinding thread
-	PathFindingThread::getInstance()->initialize(scene->m_fruits);
 
 	m_metricCollector.reset();
 }

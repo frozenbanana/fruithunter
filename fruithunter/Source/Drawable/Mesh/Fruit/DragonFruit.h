@@ -1,14 +1,8 @@
 #pragma once
 #include "Fruit.h"
-#include "Timer.h"
-#include "AI.h"
-#include "Fruit.h"
 
 class DragonFruit : public Fruit {
 private:
-	void behaviorPassive() override;
-	void behaviorActive() override;
-	void behaviorCaught() override;
 	float3 m_target;
 	float m_offsetFromGround;
 	float m_wingStrength;
@@ -37,10 +31,14 @@ private:
 
 	void _onDeath(Skillshot skillshot) override;
 
+	void behavior() override;
+
 public:
-	DragonFruit(float3 pos = float3(12.f, 0.f, 6.f));
+	DragonFruit(float3 pos);
 	void updateAnimated(float dt);
 	void pathfinding(float3 start, std::vector<float4>* animals);
 	float3 getRandomTarget();
+
+	void update() override;
 
 };

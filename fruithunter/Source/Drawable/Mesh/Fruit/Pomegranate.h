@@ -1,5 +1,6 @@
 #pragma once
 #include "Fruit.h"
+
 class Pomegranate : public Fruit {
 private:
 	const float m_baseScale = 0.675f;
@@ -15,7 +16,7 @@ private:
 
 	void playSound_bounce();
 
-	void behavior(float dt);
+	void behavior() override;
 
 	bool validAndSecureJumpTarget(float3 source, float3 target, float maximumJumpHeight);
 	void jumpToRandomLocation(
@@ -25,9 +26,9 @@ private:
 
 public:
 
-	void update();
+	void update() override;
 
-	void updateAnimated(float dt);
+	void updateAnimated(float dt) override;
 
 	void onHit(Skillshot skillshot) override;
 

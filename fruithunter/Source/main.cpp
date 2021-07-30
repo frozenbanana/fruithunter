@@ -5,7 +5,6 @@
 #include <Windows.h>
 #include "VariableSyncer.h"
 #include "Settings.h"
-#include "PathFindingThread.h"
 #include "StateStack.h"
 #include "AudioController.h"
 #include "SimpleDirectX.h"
@@ -35,7 +34,6 @@ int CALLBACK WinMain(_In_ HINSTANCE appInstance, _In_opt_ HINSTANCE preInstance,
 	renderer->createCommonStates(); // if run on debug mode, game will crash if this line of code is run in Renderer Constructor!
 	Settings::initialize();
 	ParticleSystem::ReadDescriptionList();
-	PathFindingThread* extraThread = PathFindingThread::getInstance();
 	MSG msg = { 0 };
 
 	StateStack stateStack;

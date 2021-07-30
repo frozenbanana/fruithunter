@@ -1,44 +1,35 @@
 #include "DragonFruit.h"
-#include "PathFindingThread.h"
 #include "SceneManager.h"
 
 bool DragonFruit::isFalling() { return m_velocity.y < 0.f && !m_onGround; }
 
 DragonFruit::DragonFruit(float3 pos) : Fruit(FruitType::DRAGON, pos) {
-	// loadAnimated("Dragon", 3);
 	loadAnimated("dragonfruit", 4);
-	m_nrOfFramePhases = 2;
-
-	changeState(AI::State::PASSIVE);
-
-	// TEMP TAKEN FROM APPLE
-	m_activeRadius = 30.f;
-	m_passiveRadius = 32.f;
-
-	m_passive_speed = 12.f;
-	m_active_speed = 23.f;
-	m_caught_speed = 18.f;
-
-	m_wingStrength = 10.f;
-
 	setCollisionDataOBB();
+
+	Environment* environment = SceneManager::getScene()->m_terrains.getTerrainFromPosition(pos);
+	pos.y = environment->getPosition().y + environment->getScale().y + m_spawn_range.y;
+	setPosition(pos);
+
 	m_groundFriction = 60.f;
 	m_airFriction = 60;
 
 	m_gravity = float3(0.);
-	m_direction = float3(0.);
+
+	// float r = RandomFloat() * 2 * XM_PI;
+	// m_velocity = float3(cos(r), 0, sin(r)) * 1;
 }
 
 
 void DragonFruit::pathfinding(float3 start, std::vector<float4>* animals) {}
 
 float3 DragonFruit::getRandomTarget() {
-	Terrain* terrain = SceneManager::getScene()->m_terrains.getTerrainFromPosition(m_worldHome);
+	Terrain* terrain = m_boundTerrain;
 	float3 t_pos = terrain->getPosition();
 	float3 t_size = terrain->getScale();
 	float spawn_mid = (m_spawn_range.y + m_spawn_range.x) / 2.f;
 	float randomHeight = 0;
-	if (m_worldHome.y > t_size.y + spawn_mid) {
+	if (m_target.y > t_size.y + spawn_mid) {
 		randomHeight = RandomFloat(m_spawn_range.x, spawn_mid);
 	}
 	else {
@@ -53,48 +44,25 @@ float3 DragonFruit::getRandomTarget() {
 	// return float3(targetXZ.x, RandomFloat(height, height + 25.f), targetXZ.z);
 }
 
-void DragonFruit::_onDeath(Skillshot skillshot) { spawnCollectionPoint(skillshot); }
+void DragonFruit::update() {
+	Scene* scene = SceneManager::getScene();
+	float dt = scene->getDeltaTime();
 
-void DragonFruit::behaviorPassive() {
-	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
-	Terrain* terrain = SceneManager::getScene()->m_terrains.getTerrainFromPosition(m_worldHome);
-	float3 t_size = terrain->getScale();
+	checkOnGroundStatus(); // checks if on ground
+	updateAnimated(dt);	   // animation stuff
+	updateVelocity(dt);	   // update velocity (slowdown and apply accelration)
+	behavior();
+	updateRespawn();
+	move(dt);			  // update position from velocity
+	enforceOverTerrain(); // force fruit above ground
 
-	float3 position = getPosition();
-	position.y = t_size.y + m_spawn_range.y;
-	setPosition(position);
-	changeState(ACTIVE);
-
-	// Perch on ground or on tree?
-
-	// if (withinDistanceTo(playerPosition, m_passiveRadius)) {
-	//	changeState(ACTIVE);
-
-	//	jump(float3(0.0f, 1.f, 0.f), 5.f);
-	//	m_target = getRandomTarget();
-	//	return;
-	//}
-	// if (withinDistanceTo(m_target, 1.0f)) {
-	//	// set new target
-	//	m_target = getRandomTarget();
-	//}
-	// float terrainHeight =
-	// SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition()); float3 terrainPos
-	// = float3(getPosition().x, terrainHeight, getPosition().z); if
-	// (withinDistanceTo(terrainPos, 1.0f)) { 	jump(float3(0.0f, 1.0f, 0.0f), 15.f); 	m_target =
-	// getRandomTarget();
-	//}
-	// else if (withinDistanceTo(terrainPos, 1.0f)) {
-	//	m_target = getRandomTarget();
-	//}
-
-
-	// m_direction = float3(m_target - getPosition());
-	// lookTo(m_velocity * float3(1, 0, 1));
-	// m_speed = m_passive_speed;
+	if (getPosition().y < 1)
+		respawn();
 }
 
-void DragonFruit::behaviorActive() {
+void DragonFruit::_onDeath(Skillshot skillshot) { spawnCollectionPoint(skillshot); }
+
+void DragonFruit::behavior() {
 	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
 	float dt = SceneManager::getScene()->getDeltaTime();
 
@@ -102,7 +70,7 @@ void DragonFruit::behaviorActive() {
 	m_timer -= dt;
 	if (m_timer <= 0) {
 		m_timer = RandomFloat(m_timer_range.x, m_timer_range.y);
-		m_worldHome = getRandomTarget();
+		m_target = getRandomTarget();
 	}
 
 	// speed gain from forward tilt
@@ -122,7 +90,7 @@ void DragonFruit::behaviorActive() {
 							  (1 - Clamp<float>(heightFromGround / m_heightFromGroundLimit, 0, 1));
 
 	float3 oldVelocity = m_velocity;
-	float3 target_force = (Normalize(m_worldHome - getPosition()) - Normalize(m_velocity)) *
+	float3 target_force = (Normalize(m_target - getPosition()) - Normalize(m_velocity)) *
 						  m_steeringSpeed * m_velocitySpeed;
 	// m_velocity += (target_force)*dt + avoidFloor_force*dt*60;
 	m_velocity += (target_force)*dt + avoidFloor_force * dt * 15;
@@ -140,54 +108,20 @@ void DragonFruit::behaviorActive() {
 	float3 rotation = getRotation();
 	rotation.z = m_rotZ;
 	setRotation(rotation);
-
-	// when player is near, take flight
-	// if (!withinDistanceTo(playerPosition, m_activeRadius)) {
-	//	changeState(PASSIVE);
-	//	return;
-	//}
-	// m_target = getPosition() + (getPosition() - playerPosition);
-	// m_velocity = float3(m_target - getPosition());
-	// m_velocity.Normalize();
-	// lookTo(m_velocity * float3(1, 0, 1));
-	// m_speed = m_active_speed;
 }
-
-void DragonFruit::behaviorCaught() {
-	float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
-	// just go to player
-	m_direction = playerPosition - getPosition();
-	lookTo(m_direction * float3(1, 0, 1));
-	m_gravity = float3(0.f);
-	m_speed = m_caught_speed;
-	if (!m_ascend) {
-		jump(float3(0.f, 1.f, 0.f), 20.f);
-		m_ascend = true;
-	}
-}
-
 
 void DragonFruit::updateAnimated(float dt) {
-	m_frameTime += dt * m_animationSpeed;
-	m_frameTime = fmodf(m_frameTime, 4.f);
+	int frameCount = m_meshAnim.getNrOfMeshes();
 
-	// if (m_frameTime < 1)
-	//	setFrameTargets(0, 1);
-	// else if (m_frameTime < 2)
-	//	setFrameTargets(1, 2);
-	// else if (m_frameTime < 3)
-	//	setFrameTargets(2, 1);
-	// else if (m_frameTime < 4)
-	//	setFrameTargets(1, 0);
+	m_frameTime += dt * m_animationSpeed / frameCount;
+	m_frameTime = fmod(m_frameTime, 1.f);
 
-	if (m_frameTime < 1)
-		setFrameTargets(0, 1);
-	else if (m_frameTime < 2)
-		setFrameTargets(1, 2);
-	else if (m_frameTime < 3)
-		setFrameTargets(2, 3);
-	else if (m_frameTime < 4)
-		setFrameTargets(3, 0);
+	float x = m_frameTime;
+	float y = ((1 - cos((x * 2 + floor(x * 2)) * XM_PI)) + floor(x * 2) * 2) * 0.25f;
 
-	m_meshAnim.updateSpecific(m_frameTime);
+	float anim = y * frameCount;
+	int frameIndex = floor(anim);
+	float rest = anim - frameIndex;
+	setFrameTargets(frameIndex%frameCount, (frameIndex + 1) % frameCount);
+	m_meshAnim.updateSpecific(rest);
 }

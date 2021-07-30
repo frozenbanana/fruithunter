@@ -31,6 +31,7 @@ public:
 	void setFrameTargets(int first, int second);
 	void setFrameTimer(float timer);
 	float getFrameTimer();
+	int getNrOfMeshes() const;
 
 	void update(float dt);
 	void updateSpecific(float frameTime); // or deltaFrameTime

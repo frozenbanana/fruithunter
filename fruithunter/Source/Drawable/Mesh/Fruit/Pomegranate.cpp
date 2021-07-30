@@ -2,9 +2,10 @@
 #include "Input.h"
 #include "SceneManager.h"
 
-void Pomegranate::behavior(float dt) {
+void Pomegranate::behavior() {
 	Scene* scene = SceneManager::getScene();
 	float3 playerPosition = scene->m_player->getPosition();
+	float dt = SceneManager::getScene()->getDeltaTime();
 
 	if (m_ignited) {
 		m_igniteTimer = Clamp(m_igniteTimer + dt, 0.f, 1.f);
@@ -174,17 +175,9 @@ void Pomegranate::update() {
 	float dt = scene->getDeltaTime();
 
 	checkOnGroundStatus(); // checks if on ground
-	behavior(dt);
+	behavior();
 	updateAnimated(dt); // animation stuff
 	updateVelocity(dt);
-
-	// float3 movement = m_velocity * dt;
-	// float3 nextPosition = getPosition() + movement;
-	// float height = SceneManager::getScene()->m_terrains.getHeightFromPosition(nextPosition);
-	// if (nextPosition.y < height) {
-	//	m_velocity.y = 0;
-	//}
-
 	move(dt);
 	updateRespawn();
 	enforceOverTerrain(); // force fruit above ground
@@ -289,13 +282,10 @@ void Pomegranate::playSound_bounce() {
 
 Pomegranate::Pomegranate(float3 position) : Fruit(FruitType::POMEGRANATE, position) {
 	loadAnimated("pomegranate", 3);
-	setFrameTargets(0, 1);
-
 	setCollisionDataOBB();
 
 	setScale(m_baseScale);
 
-	m_speed = 0;
 	m_groundFriction = 60.f;
 	m_airFriction = 60.f;
 }

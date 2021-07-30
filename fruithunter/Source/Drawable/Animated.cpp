@@ -82,7 +82,7 @@ Animated::Animated() {
 	m_frameTimer = 0.0f;
 	m_nrOfMeshes = 0;
 	m_frameTargets[0] = 0;
-	m_frameTargets[1] = 1;
+	m_frameTargets[1] = 0;
 	createAnimationConstantBuffer();
 }
 
@@ -96,6 +96,8 @@ void Animated::setFrameTargets(int first, int second) {
 void Animated::setFrameTimer(float timer) { m_frameTimer = timer; }
 
 float Animated::getFrameTimer() { return m_frameTimer; }
+
+int Animated::getNrOfMeshes() const { return m_nrOfMeshes; }
 
 // Default update to update self
 void Animated::update(float dt) {

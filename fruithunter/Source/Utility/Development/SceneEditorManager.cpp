@@ -1,7 +1,6 @@
 #include "SceneEditorManager.h"
 #include "Renderer.h"
 #include "AudioController.h"
-#include "PathFindingThread.h"
 #include "Settings.h"
 #include <WICTextureLoader.h>
 #include <ScreenGrab.h>

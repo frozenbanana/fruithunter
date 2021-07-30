@@ -1,13 +1,8 @@
 #pragma once
 #include "Fruit.h"
 
-
 class Melon : public Fruit {
 private:
-	void behaviorPassive() override;
-	void behaviorActive() override;
-	void behaviorCaught() override;
-
 	ParticleSystem m_rollTrail;
 
 	// Sensors
@@ -29,19 +24,22 @@ private:
 	float m_forwardAngleSpeed = 5;
 	float m_gravityStrength = 25;
 
+	float m_aboveGroundThreshold = 0.2f;
+
 	void _onDeath(Skillshot skillshot) override;
+
+	void behavior() override;
 
 public:
 	Melon(float3 pos = float3(0.f, 0.f, 0.f));
-	void updateAnimated(float dt);
-	void pathfinding(float3 start) override;
 
-	void update();
+	void updateAnimated(float dt) override;
+	void update() override;
 	void update_imgui_changeParams();
 
 	void draw_rollTrail();
 	void draw_sensors();
 
-	void draw_fruit();
+	void draw_fruit() override;
 
 };

@@ -1,12 +1,7 @@
 #include "Fruit.h"
 #include "Input.h"
 #include "SceneManager.h"
-#include "PathFindingThread.h"
 #include "AudioController.h"
-
-#define LONGSHOT 25.f
-#define MEDIUMSHOT 15.f
-#define FASTMOVING_VELOCITY 11.f
 
 void Fruit::draw_fruit() {
 	if (m_isVisible) {
@@ -18,48 +13,33 @@ void Fruit::draw_fruit() {
 
 void Fruit::draw_fruit_shadow() { draw_animate_onlyMesh(float3(0, 0, 0)); }
 
-void Fruit::jump(float3 direction, float power) { m_velocity += power * direction; }
-
-void Fruit::setStartPosition(float3 pos) {
-	setPosition(pos);
-	setWorldHome(pos);
-	m_startAnimationPosition = pos;
-	m_heightAnimationPosition = pos;
-	m_destinationAnimationPosition = pos;
-	m_nextDestinationAnimationPosition = pos;
-}
-
-void Fruit::setNextDestination(float3 nextDest) { m_nextDestinationAnimationPosition = nextDest; }
-
 Skillshot Fruit::hit(float3 playerPos) {
+	const float LONGSHOT = 25.f;
+	const float MEDIUMSHOT = 15.f;
+	const float FASTMOVING_VELOCITY = 11.f;
+
 	Skillshot hitType = Skillshot::SS_BRONZE;
-	if (m_currentState != CAUGHT) {
-		float dist = (playerPos - getPosition()).Length();
-		if (dist > LONGSHOT) {
-			if (!m_onGround || m_velocity.Length() > FASTMOVING_VELOCITY) {
-				// gold
-				hitType = SS_GOLD;
-			}
-			else {
-				// gold
-				hitType = SS_GOLD;
-			}
-		}
-		else if (dist > MEDIUMSHOT) {
-			if (!m_onGround || m_velocity.Length() > FASTMOVING_VELOCITY) {
-				// case 2: Medium shot
-				// in air or fast moving -> gold
-				// Gold
-				hitType = SS_GOLD;
-			}
-			else {
-				// silver
-				hitType = SS_SILVER;
-			}
+	float dist = (playerPos - getPosition()).Length();
+	if (dist > LONGSHOT) {
+		if (!m_onGround || m_velocity.Length() > FASTMOVING_VELOCITY) {
+			// gold
+			hitType = SS_GOLD;
 		}
 		else {
-			// bronze
-			hitType = SS_BRONZE;
+			// gold
+			hitType = SS_GOLD;
+		}
+	}
+	else if (dist > MEDIUMSHOT) {
+		if (!m_onGround || m_velocity.Length() > FASTMOVING_VELOCITY) {
+			// case 2: Medium shot
+			// in air or fast moving -> gold
+			// Gold
+			hitType = SS_GOLD;
+		}
+		else {
+			// silver
+			hitType = SS_SILVER;
 		}
 	}
 	return hitType;
@@ -81,46 +61,9 @@ void Fruit::checkOnGroundStatus() {
 		atOrUnder(SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition()));
 }
 
-void Fruit::setAnimationDestination() {
-	m_destinationAnimationPosition = m_nextDestinationAnimationPosition;
-	m_startAnimationPosition = getPosition();
-	m_heightAnimationPosition =
-		XMVectorLerp(m_startAnimationPosition, m_destinationAnimationPosition, 0.5f);
-	m_heightAnimationPosition.y += 1.f;
-}
-void Fruit::setWorldHome(float3 pos) {
-	m_worldHome = pos;
-	m_worldHome.y = SceneManager::getScene()->m_terrains.getHeightFromPosition(pos);
-}
-
 void Fruit::bindToEnvironment(Environment* terrain) { m_boundTerrain = terrain; }
 
-bool Fruit::withinDistanceTo(float3 target, float treshhold) {
-	return (getPosition() - target).Length() < treshhold;
-}
-
-void Fruit::update() {
-	Scene* scene = SceneManager::getScene();
-	float dt = scene->getDeltaTime();
-
-	if (withinDistanceTo(scene->m_player->getPosition(), 500.f)) {
-		m_isVisible = true;
-		checkOnGroundStatus(); // checks if on ground
-		updateAnimated(dt);	   // animation stuff
-		updateVelocity(dt);	   // update velocity (slowdown and apply accelration)
-		doBehavior();
-		setDirection(); // walk towards AI walk node
-		updateRespawn();
-		move(dt);			  // update position from velocity
-		enforceOverTerrain(); // force fruit above ground
-		handleAvailablePath(
-			getPosition()); // Keeps track of next AI node to go to (discards nodes if to close)
-	}
-	else
-		m_isVisible = false;
-}
-
-void Fruit::onHit() { 
+void Fruit::onHit() {
 	Player* player = SceneManager::getScene()->m_player.get();
 	Skillshot skillshot = hit(player->getPosition()); // calculate skillshot
 	onHit(skillshot);
@@ -133,61 +76,18 @@ void Fruit::onHit(Skillshot skillshot) {
 }
 
 void Fruit::move(float dt) {
-	// m_speed.y = 0.0f;
 	setPosition(getPosition() + m_velocity * dt);
 }
 
-float3 Fruit::getHomePosition() const { return m_worldHome; }
-
-
-
 Fruit::Fruit(FruitType type, float3 pos) : Entity() {
 	m_fruitType = type;
-	setStartPosition(pos);
 	setPosition(pos);
-	setWorldHome(pos);
-	m_nrOfFramePhases = 0;
-	m_currentFramePhase = 0;
-	m_frameTime = 0.0f;
-}
-
-// Perhaps a useful function later.
-void Fruit::behaviorInactive() { return; }
-
-void Fruit::setDirection() {
-	auto pft = PathFindingThread::getInstance();
-	// pft->m_mutex.lock();
-	if (!m_availablePath.empty() && m_onGround) {
-		m_direction = m_availablePath.back() - getPosition();
-		m_direction.Normalize();
-	}
-	// pft->m_mutex.unlock();
-}
-
-void Fruit::behaviorReleased() {
-	// TODO: Placeholder for later adding sound effects
-	auto height = SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition());
-
-	if (atOrUnder(height)) {
-		changeState(PASSIVE);
-		stopMovement();
-		m_afterRealease = false;
-	}
 }
 
 void Fruit::updateVelocity(float dt) {
 	float friction = m_onGround ? m_groundFriction : m_airFriction;
-	// friction = m_groundFriction;
-	m_direction.Normalize();
-	float3 dir = m_direction * m_speed;
-	m_velocity += (m_direction * m_speed + m_gravity) * dt;
-	m_velocity *= pow(friction / 60.f, dt);
-}
-
-void Fruit::stopMovement() {
-	m_velocity = float3(0.f);
-	m_speed = 0.f;
-	m_availablePath.clear();
+	m_velocity += m_gravity * dt;
+	m_velocity *= pow((friction / 60.f), dt);
 }
 
 void Fruit::respawn() {
@@ -307,16 +207,6 @@ void Fruit::spawnCollectionPoint(Skillshot skillshot) {
 }
 
 bool Fruit::isVisible() const { return m_isVisible; }
-
-void Fruit::release(float3 direction) {
-	changeState(RELEASED);
-	stopMovement();
-	m_direction = direction;
-	// m_speed = 40.f;
-	m_velocity = m_direction * THROWVELOCITY;
-	m_speed = 0.f;
-	m_afterRealease = true;
-}
 
 void Fruit::onDeath(Skillshot skillshot) {
 	_onDeath(skillshot);

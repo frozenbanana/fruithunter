@@ -1,11 +1,9 @@
 #include "Scene.h"
-#include "PathFindingThread.h"
 #include "SaveManager.h"
 #include "fileSystemHelper.h"
 #include "AudioController.h"
 
 void Scene::clear() {
-	PathFindingThread::lock();
 	// skybox
 	m_skyBox.reset();
 	// heightmap
@@ -44,8 +42,6 @@ void Scene::clear() {
 
 	m_sceneName = "";
 	m_loaded = false;
-
-	PathFindingThread::unlock();
 }
 
 TimeTargets Scene::getTimeTargetGrade(time_t timeMs, time_t timeTargets[NR_OF_TIME_TARGETS]) {
@@ -65,7 +61,7 @@ void Scene::saveWin() {
 
 Scene::Scene(string filename) { load(filename); }
 
-Scene::~Scene() { PathFindingThread::getInstance()->pause(); }
+Scene::~Scene() { }
 
 size_t Scene::find_parentIndex(Fragment* fragment) {
 	switch (fragment->getType()) {
@@ -230,7 +226,6 @@ void Scene::load(string folder) {
 		m_loaded = true;
 		m_sceneName = folder;
 
-		PathFindingThread::lock();
 		// load content
 		SceneAbstactContent content;
 		content.load_raw(folder);
@@ -290,8 +285,6 @@ void Scene::load(string folder) {
 		m_effects = content.m_effects;
 		// utility
 		m_utility = content.m_utility;
-
-		PathFindingThread::unlock();
 
 		reset();
 	}
@@ -385,8 +378,6 @@ void Scene::save() {
 }
 
 void Scene::reset() {
-	PathFindingThread::lock();
-
 	// skybox
 	m_skyBox.reset();
 	// arrows
@@ -448,8 +439,6 @@ void Scene::reset() {
 
 	// music
 	AudioController::getInstance()->stop(m_activeTerrain_soundID);
-
-	PathFindingThread::unlock();
 
 	AudioController::getInstance()->flush();
 }

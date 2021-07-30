@@ -1,137 +1,18 @@
 #include "Apple.h"
 #include "Input.h"
 #include "SceneManager.h"
-#include "PathFindingThread.h"
 #include "AudioController.h"
 
 Apple::Apple(float3 pos) : Fruit(FruitType::APPLE, pos) {
 	loadAnimated("Apple", 3);
+	setCollisionDataOBB();
 
-	m_nrOfFramePhases = 6;
 	setScale(0.5);
-	changeState(AI::State::PASSIVE);
-
-	m_activeRadius = 12.f;
-	m_passiveRadius = 18.f;
 
 	m_groundFriction = 60.f; // 5
 	m_airFriction = 60.f;
 
-	m_passive_speed = 6.f;
-	m_active_speed = 15.f;
-	m_caught_speed = 15.f;
-	m_maxSteps = 30;
-	m_direction = float3(1.f, 0.f, 0.f);
-	setCollisionDataOBB();
 }
-
-void Apple::behaviorPassive() {
-	changeState(AI::State::ACTIVE);
-
-	// float3 playerPosition = SceneManager::getScene()->m_player->getPosition();
-	// float terrainHeight =
-	// SceneManager::getScene()->m_terrains.getHeightFromPosition(getPosition());
-
-	// if (m_onGround) {
-	//
-
-	//	if (withinDistanceTo(playerPosition, m_activeRadius)) {
-	//		// stopMovement();
-	//		changeState(ACTIVE);
-	//	}
-	//	else {
-	//		if (!withinDistanceTo(m_worldHome, ARRIVAL_RADIUS) && m_onGround) {
-	//			// Check if there is no other path on going
-	//			if (m_availablePath.empty()) {
-	//				if (++m_nrOfTriesGoHome < 10) {
-	//					makeReadyForPath(m_worldHome); // go home
-	//				}
-	//				else {
-	//					setWorldHome(getPosition() + float3(.0001f, 0, 0.001f));
-	//					m_nrOfTriesGoHome = 0;
-	//				}
-	//				m_speed = m_passive_speed;
-	//			}
-	//			else {
-	//				float3 jumpTo = (m_availablePath.back() - getPosition());
-	//				jumpTo.Normalize();
-	//				jumpTo.y = 1.f;
-	//				jump(jumpTo, 1.f);
-	//			}
-	//		}
-	//		else { // Just jump when home
-
-	//			// m_speed = 0.f;
-	//			jump(float3(0.0f, 1.0f, 0.0), 7.f);
-	//			SoundID sID = AudioController::getInstance()->play("jump2");
-	//			AudioController::getInstance()->scaleVolumeByDistance(sID,
-	//(SceneManager::getScene()->m_camera.getPosition()-getPosition()).Length(), 1, 40);
-	//			AudioController::getInstance()->setPitch(sID, RandomFloat(-1.f, 1.f) * 0.5f);
-
-	//			m_nrOfJumps++;
-	//			if (m_nrOfJumps >= MAXNROFJUMPS) {
-	//				float3 newHome = m_worldHome;
-	//				newHome += float3(RandomFloat(-10.f, 10.f), 0.f, RandomFloat(-10.f, 10.f));
-	//				newHome.y = SceneManager::getScene()->m_terrains.getHeightFromPosition(newHome);
-	//				auto pft = PathFindingThread::getInstance();
-	//				if (isValid(newHome)) {
-	//					m_worldHome = newHome;
-	//					m_nrOfJumps = 0;
-	//				}
-	//
-	//			}
-	//		}
-	//	}
-	//}
-	// lookTo(m_velocity * float3(1, 0, 1));
-
-	//// respawn if fall into water
-	// if (getPosition().y < 1) {
-	//	respawn();
-	//}
-}
-
-void Apple::behaviorActive() {
-	float dt = SceneManager::getScene()->getDeltaTime();
-
-	// collision
-	float3 ray_point = getBoundingBoxPos() - float3(0, 1, 0) * getHalfSizes();
-	float3 ray_distance = m_velocity * dt;
-	float3 intersection_position, intersection_normal;
-	if (rayCastWorld(ray_point, ray_distance, intersection_position, intersection_normal)) {
-		intersection_normal.Normalize();
-		float3 up(0, 1, 0);
-		if (intersection_normal.Dot(up) >= 0.7f) {
-			// flat
-			// jump
-			float3 target = findJumpLocation(5, 3, 16, 10);
-			jumpToLocation(target);
-			playSound_bounce();
-			// set looking direction
-			float3 flatVel = m_velocity * float3(1, 0, 1);
-			if (flatVel.Length() > 0) {
-				m_desiredLookDirection = Normalize(flatVel);
-				// lookTo(flatVel);
-			}
-			// reset animation
-			m_frameTime = 0;
-		}
-		else {
-			// steep
-			// slide downhill
-			m_velocity -= m_velocity.Dot(intersection_normal) *
-						  intersection_normal; // remove force against normal
-		}
-	}
-
-	// look towards desired direction
-	m_currentLookDirection += (m_desiredLookDirection - m_currentLookDirection) *
-							 Clamp<float>(1 - pow(rotationSpeed, dt), 0.f, 1.f);
-	m_currentLookDirection.Normalize();
-	lookTo(m_currentLookDirection);
-}
-
-void Apple::behaviorCaught() { changeState(ACTIVE); }
 
 bool Apple::isValid(float3 point) {
 	float3 normal = SceneManager::getScene()->m_terrains.getNormalFromPosition(point);
@@ -293,111 +174,6 @@ void Apple::updateAnimated(float dt) {
 	m_meshAnim.setFrameTargets(frameOrder[frame], frameOrder[frame + 1]);
 }
 
-void Apple::flee(float3 playerPos) {
-	// Update fleeing path if ther is none
-	if (m_availablePath.empty()) {
-		float3 runTo = getPosition() - playerPos;
-		runTo.Normalize();
-		runTo *= m_passiveRadius;
-		runTo += getPosition();
-		makeReadyForPath(runTo);
-	}
-	// set new velocity from path
-}
-void Apple::pathfinding(float3 start) {
-	// ErrorLogger::log("thread starting for pathfinding");
-	auto pft = PathFindingThread::getInstance();
-
-	if (m_readyForPath) {
-
-		m_availablePath.clear();
-		if (!isValid(start)) {
-			float3 newUnstuck = m_destination - start;
-			newUnstuck.Normalize();
-			newUnstuck += start;
-			if (AI::isValid(newUnstuck, newUnstuck, 0.7f)) {
-				m_availablePath.push_back(newUnstuck);
-				m_readyForPath = false;
-				return;
-			}
-		}
-		TerrainBatch* tm = &SceneManager::getScene()->m_terrains;
-		// enforce start and m_destination to terrain
-		float3 startCopy = float3(start.x, tm->getHeightFromPosition(start), start.z);
-		float3 m_destinationCopy =
-			float3(m_destination.x, tm->getHeightFromPosition(m_destination), m_destination.z);
-
-		shared_ptr<AI::Node> currentNode =
-			make_shared<AI::Node>(shared_ptr<AI::Node>(), startCopy, startCopy, m_destinationCopy);
-		bool collidedWithSomething = false;
-		size_t counter = 0;
-		std::vector<shared_ptr<AI::Node>> open;
-		std::vector<shared_ptr<AI::Node>> closed;
-		std::list<float3> childPositionOffsets = { float3(-1.f, 0.f, -1.f), float3(0.f, 0.f, -1.f),
-			float3(1.f, 0.f, -1.f), float3(-1.f, 0.f, 0.f), float3(1.f, 0.f, 0.f),
-			float3(-1.f, 0.f, 1.f), float3(0.f, 0.f, 1.f), float3(1.f, 0.f, 1.f) };
-
-
-		open.push_back(currentNode);
-		while (!open.empty() && counter++ < m_maxSteps) {
-			quickSort(open, 0, (int)open.size() - 1);
-			closed.push_back(open.back());
-			open.pop_back();
-
-			// Check to see if we're inside a certain radius of m_destinationCopy location
-			shared_ptr<AI::Node> currentNode = closed.back();
-
-			if ((currentNode->position - m_destinationCopy).LengthSquared() < ARRIVAL_RADIUS ||
-				counter == m_maxSteps - 1) {
-				m_availablePath.clear(); // Reset path
-
-				// Add path steps
-				while (currentNode->parent != nullptr) {
-					m_availablePath.push_back(currentNode->position);
-					currentNode = currentNode->parent;
-				}
-
-
-				if (m_availablePath.size() > 2) {
-					m_availablePath.pop_back(); // remove first position because it is the same
-												// as startCopy.
-				}
-				m_readyForPath = false;
-
-				return;
-			}
-
-			for (auto childOffset : childPositionOffsets) {
-
-				// Create child AI::Node
-				float3 childPosition = currentNode->position + STEP_SCALE * childOffset;
-				childPosition.y = tm->getHeightFromPosition(childPosition);
-
-				shared_ptr<AI::Node> child =
-					make_shared<AI::Node>(currentNode, childPosition, startCopy, m_destinationCopy);
-
-
-				// Check if node is in open or closed.
-				if (!beingUsed(child, open, closed)) {
-					continue;
-				}
-
-				if (!AI::isValid(child->position, currentNode->position, 0.7f)) {
-					continue;
-				}
-
-				// Add child to open
-				open.push_back(child);
-			}
-		}
-		while (currentNode->parent != nullptr) {
-			m_availablePath.push_back(currentNode->position);
-			currentNode = currentNode->parent;
-		}
-		m_readyForPath = false;
-	}
-}
-
 void Apple::restartAnimation() { m_frameTime = 0; }
 
 void Apple::update() {
@@ -405,7 +181,7 @@ void Apple::update() {
 	float dt = scene->getDeltaTime();
 
 	checkOnGroundStatus(); // checks if on ground
-	behaviorActive();
+	behavior();
 	updateAnimated(dt); // animation stuff
 	updateVelocity(dt);
 	move(dt);
@@ -420,3 +196,43 @@ void Apple::update() {
 bool Apple::isRespawning() const { return m_respawn_timer != 0; }
 
 void Apple::_onDeath(Skillshot skillshot) { spawnCollectionPoint(skillshot); }
+
+void Apple::behavior() {
+	float dt = SceneManager::getScene()->getDeltaTime();
+
+	// collision
+	float3 ray_point = getBoundingBoxPos() - float3(0, 1, 0) * getHalfSizes();
+	float3 ray_distance = m_velocity * dt;
+	float3 intersection_position, intersection_normal;
+	if (rayCastWorld(ray_point, ray_distance, intersection_position, intersection_normal)) {
+		intersection_normal.Normalize();
+		float3 up(0, 1, 0);
+		if (intersection_normal.Dot(up) >= 0.7f) {
+			// flat
+			// jump
+			float3 target = findJumpLocation(5, 3, 16, 10);
+			jumpToLocation(target);
+			playSound_bounce();
+			// set looking direction
+			float3 flatVel = m_velocity * float3(1, 0, 1);
+			if (flatVel.Length() > 0) {
+				m_desiredLookDirection = Normalize(flatVel);
+				// lookTo(flatVel);
+			}
+			// reset animation
+			m_frameTime = 0;
+		}
+		else {
+			// steep
+			// slide downhill
+			m_velocity -= m_velocity.Dot(intersection_normal) *
+						  intersection_normal; // remove force against normal
+		}
+	}
+
+	// look towards desired direction
+	m_currentLookDirection += (m_desiredLookDirection - m_currentLookDirection) *
+							  Clamp<float>(1 - pow(rotationSpeed, dt), 0.f, 1.f);
+	m_currentLookDirection.Normalize();
+	lookTo(m_currentLookDirection);
+}

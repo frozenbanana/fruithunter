@@ -147,9 +147,6 @@
     <ClCompile Include="Source\main.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\AI\AI.cpp">
-      <Filter>Source\AI</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Drawable\Mesh\Fruit\Banana.cpp">
       <Filter>Source\Drawable\Mesh\Fruits</Filter>
     </ClCompile>
@@ -191,9 +188,6 @@
     </ClCompile>
     <ClCompile Include="Source\Utility\Input\Button.cpp">
       <Filter>Source\Utility\Input</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\AI\PathFindingThread.cpp">
-      <Filter>Source\AI</Filter>
     </ClCompile>
     <ClCompile Include="Source\State\States\EndRoundState.cpp">
       <Filter>Source\State\States</Filter>
@@ -410,9 +404,6 @@
     <ClInclude Include="Source\Utility\Input\Input.h">
       <Filter>Source\Utility\Input</Filter>
     </ClInclude>
-    <ClInclude Include="Source\AI\AI.h">
-      <Filter>Source\AI</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Drawable\Mesh\Fruit\Banana.h">
       <Filter>Source\Drawable\Mesh\Fruits</Filter>
     </ClInclude>
@@ -451,9 +442,6 @@
     </ClInclude>
     <ClInclude Include="Source\Utility\QuadTree.h">
       <Filter>Source\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\AI\PathFindingThread.h">
-      <Filter>Source\AI</Filter>
     </ClInclude>
     <ClInclude Include="Source\State\States\PauseState.h">
       <Filter>Source\State\States</Filter>
@@ -836,9 +824,6 @@
     </Filter>
     <Filter Include="Source\Utility\Input">
       <UniqueIdentifier>{d7b43882-2a51-43c3-9a41-7e91061d5fb9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\AI">
-      <UniqueIdentifier>{aa548265-5486-466e-81d7-9719a546e282}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Utility\Repositories">
       <UniqueIdentifier>{0351c8e4-cfeb-4492-97c6-2514408dac40}</UniqueIdentifier>
