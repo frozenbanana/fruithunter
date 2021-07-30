@@ -164,21 +164,26 @@ void HUD::draw() {
 	// Draw inventory numbers and fruit sprites
 	float2 backSize = float2(100, 300);
 	float2 tickSize = m_emptyTick.getSize();
+	size_t spacingIndex = 0;
 	for (size_t f = 0; f < FruitType::NR_OF_FRUITS; f++) {
-		float mid = backSize.y / 2;
-		float2 baseTickPos = float2(backSize.x - backSize.x / 12,
-			mid + m_tickSetting.offset_height * f -
-				(m_tickSetting.offset_height * (FruitType::NR_OF_FRUITS - 1)) / 2);
+		if (SceneManager::getScene()->m_utility.winCondition[f] != 0) {
+			float mid = backSize.y / 2;
+			float2 baseTickPos = float2(backSize.x - backSize.x / 12,
+				mid + m_tickSetting.offset_height * spacingIndex -
+					(m_tickSetting.offset_height * (FruitType::NR_OF_FRUITS - 1)) / 2);
 
-		m_fruits[f].setPosition(float2(baseTickPos.x / 2, baseTickPos.y));
-		m_fruits[f].draw();
+			m_fruits[f].setPosition(float2(baseTickPos.x / 2, baseTickPos.y));
+			m_fruits[f].draw();
 
-		int count_current = SceneManager::getScene()->m_gatheredFruits[f];
-		for (size_t t = 0; t < m_tickAnimations[f].size(); t++) {
-			Sprite2D* spr = (t < count_current) ? &m_ticks[f] : &m_emptyTick;
-			spr->setPosition(baseTickPos + float2(t * m_tickSetting.offset_width, 0));
-			spr->setScale(m_tickSetting.base_scale * m_tickAnimations[f][t].scale);
-			spr->draw();
+			int count_current = SceneManager::getScene()->m_gatheredFruits[f];
+			for (size_t t = 0; t < m_tickAnimations[f].size(); t++) {
+				Sprite2D* spr = (t < count_current) ? &m_ticks[f] : &m_emptyTick;
+				spr->setPosition(baseTickPos + float2(t * m_tickSetting.offset_width, 0));
+				spr->setScale(m_tickSetting.base_scale * m_tickAnimations[f][t].scale);
+				spr->draw();
+			}
+			
+			spacingIndex++; // increment spacing
 		}
 	}
 }
