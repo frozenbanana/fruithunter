@@ -3,9 +3,8 @@
 
 class Banana : public Fruit {
 private:
-	void playSound_bounce();
 
-	bool validAndSecureJumpTarget(float3 source, float3 target, float maximumJumpHeight);
+	void playSound_bounce();
 
 	void _onDeath(Skillshot skillshot) override;
 
@@ -13,8 +12,9 @@ private:
 
 public:
 	Banana(float3 pos = float3(0.f, 0.f, 0.f));
+
+	void restartAnimation();
 	void updateAnimated(float dt);
 
 	void update() override;
-
 };

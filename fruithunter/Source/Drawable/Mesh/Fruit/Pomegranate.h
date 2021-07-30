@@ -16,13 +16,9 @@ private:
 
 	void playSound_bounce();
 
-	void behavior() override;
-
-	bool validAndSecureJumpTarget(float3 source, float3 target, float maximumJumpHeight);
-	void jumpToRandomLocation(
-		float2 heightRange = float2(7.5f, 12.f), size_t samples = 16, float playerRadiusAvoid = 5);
-
 	void _onDeath(Skillshot skillshot) override;
+
+	void behavior() override;
 
 public:
 

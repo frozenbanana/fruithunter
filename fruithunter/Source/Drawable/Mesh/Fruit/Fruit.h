@@ -46,6 +46,10 @@ protected:
 
 	void spawnCollectionPoint(Skillshot skillshot);
 
+	void jumpToLocation(float3 target, float2 baseHeight = float2(1.f, 1.5f));
+	float3 findJumpLocation(float range, float maxHeight, size_t samples, float playerAvoidRange);
+	bool validJumpTarget(float3 target);
+
 	virtual void _onDeath(Skillshot skillshot) = 0;
 
 	virtual void behavior() = 0;
