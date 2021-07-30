@@ -45,14 +45,14 @@ HUD::HUD() {
 	m_fruits[FruitType::BANANA].load("fruit_banana.png");
 	m_fruits[FruitType::MELON].load("fruit_melon.png");
 	m_fruits[FruitType::DRAGON].load("fruit_dragon.png");
-	m_fruits[FruitType::POMEGRANATE].load("fruit_apple.png");
+	m_fruits[FruitType::POMEGRANATE].load("fruit_pomegranate.png");
 	m_ticks[FruitType::APPLE].load("appleTick.png");
 	m_ticks[FruitType::BANANA].load("bananaTick.png");
 	m_ticks[FruitType::MELON].load("melonTick.png");
 	m_ticks[FruitType::DRAGON].load("dragonTick.png");
 	m_ticks[FruitType::POMEGRANATE].load("appleTick.png");
 	for (size_t i = 0; i < FruitType::NR_OF_FRUITS; i++) {
-		m_fruits[i].setScale(m_tickSetting.base_scale);
+		m_fruits[i].setScale(m_tickSetting.base_scale*0.75f);
 		m_fruits[i].setAlignment(); // center
 		m_ticks[i].setScale(m_tickSetting.base_scale);
 		m_ticks[i].setAlignment(); // center
@@ -162,7 +162,7 @@ void HUD::draw() {
 	}
 
 	// Draw inventory numbers and fruit sprites
-	float2 backSize = float2(100, 300);
+	float2 backSize = float2(100, 350);
 	float2 tickSize = m_emptyTick.getSize();
 	size_t spacingIndex = 0;
 	for (size_t f = 0; f < FruitType::NR_OF_FRUITS; f++) {
