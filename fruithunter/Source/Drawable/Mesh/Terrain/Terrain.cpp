@@ -556,7 +556,8 @@ void Terrain::draw_grass() {
 	}
 }
 //
-//Terrain::Terrain(const Terrain& other) : Transformation(other), Fragment(other) { *this = other; }
+// Terrain::Terrain(const Terrain& other) : Transformation(other), Fragment(other) { *this = other;
+// }
 
 Terrain::Terrain(string filename, XMINT2 subsize, XMINT2 splits)
 	: Fragment(Fragment::Type::terrain), HistoryQueue<HQTerrainElement>(15) {
@@ -606,7 +607,7 @@ Terrain::Terrain(string filename, XMINT2 subsize, XMINT2 splits)
 
 Terrain::~Terrain() {}
 
-//Terrain& Terrain::operator=(const Terrain& other) {
+// Terrain& Terrain::operator=(const Terrain& other) {
 //	m_tileSize = other.m_tileSize;
 //	m_gridSize = other.m_gridSize;
 //	m_subMeshes = other.m_subMeshes;
@@ -655,8 +656,10 @@ void Terrain::SubGrid::generate_terrain(XMINT2 tileSize, XMINT2 gridIndex, Heigh
 			}
 			for (size_t i = 0; i < 2; i++) {
 				size_t ii = i * 3;
-				if (!(v[ii + 0].position.y == 0 && v[ii + 1].position.y == 0 &&
-						v[ii + 2].position.y == 0)) {
+				bool p1_onGround = (v[ii + 0].position.y < 0.00001f);
+				bool p2_onGround = (v[ii + 1].position.y < 0.00001f);
+				bool p3_onGround = (v[ii + 2].position.y < 0.00001f);
+				if (!(p1_onGround && p2_onGround && p3_onGround)) {
 					float intensity = RandomFloat();
 					vertices->push_back(TerrainVertex(v[ii + 0], intensity));
 					vertices->push_back(TerrainVertex(v[ii + 1], intensity));

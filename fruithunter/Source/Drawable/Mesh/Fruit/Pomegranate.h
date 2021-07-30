@@ -18,8 +18,8 @@ private:
 	void behavior(float dt);
 
 	bool validAndSecureJumpTarget(float3 source, float3 target, float maximumJumpHeight);
-
-	void jumpToRandomLocation(float2 heightRange = float2(7.5f, 12.f), size_t samples = 16);
+	void jumpToRandomLocation(
+		float2 heightRange = float2(7.5f, 12.f), size_t samples = 16, float playerRadiusAvoid = 5);
 
 	void _onDeath(Skillshot skillshot) override;
 

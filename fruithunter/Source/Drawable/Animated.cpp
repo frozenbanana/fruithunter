@@ -116,8 +116,8 @@ void Animated::update(float dt) {
 // Used by classes with specific frameTime functions
 void Animated::updateSpecific(float frameTime) {
 	// Update buffer
-	m_frameTimer = frameTime;
-	float4 data = { fmod(m_frameTimer, 1.0f), 0, 0, 0 };
+	m_frameTimer = min(max(frameTime, 0), 1);
+	float4 data = { m_frameTimer, 0, 0, 0 };
 	Renderer::getDeviceContext()->UpdateSubresource(m_animationBuffer.Get(), 0, 0, &data, 0, 0);
 }
 

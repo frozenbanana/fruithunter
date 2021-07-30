@@ -38,8 +38,9 @@ void Pomegranate::behavior(float dt) {
 				m_jumping = true;
 
 				jumpToRandomLocation(float2(4.f, 7.f), 25);
-				if (m_velocity.Length() > 0)
-					lookTo(m_velocity * float3(1, 0, 1));
+				float3 flatVel = m_velocity * float3(1, 0, 1);
+				if (flatVel.Length() > 0)
+					lookTo(flatVel);
 				playSound_bounce();
 			}
 		}
@@ -67,10 +68,6 @@ void Pomegranate::behavior(float dt) {
 			m_velocity -= m_velocity.Dot(intersection_normal) *
 						  intersection_normal; // remove force against normal
 		}
-		// respawn
-		if (getPosition().y <= 1) {
-			respawn();
-		}
 	}
 }
 
@@ -88,22 +85,23 @@ bool Pomegranate::validAndSecureJumpTarget(float3 source, float3 target, float m
 	for (size_t i = 0; i < 4; i++) {
 		float r = ((float)i / 4) * XM_PI * 2;
 		float3 adjacentPointFlat = target + float3(cos(r), 0, sin(r) * secureDistance);
-		float3 adjacentPointTilt = adjacentPointFlat;
-		adjacentPointTilt.y =
-			terrain->getHeightFromPosition(adjacentPointTilt.x, adjacentPointTilt.z);
-		float3 normal =
-			Normalize(Normalize((adjacentPointFlat - target).Cross(adjacentPointTilt - target))
-						  .Cross(adjacentPointFlat - target));
-		bool adjValid = true;
-		if (abs(normal.Dot(float3(0, 1, 0))) < 0.7f)
-			return false; // too much tilt (unsecure)
+		//float3 adjacentPointTilt = adjacentPointFlat;
+		//adjacentPointTilt.y =
+		//	terrain->getHeightFromPosition(adjacentPointTilt.x, adjacentPointTilt.z);
+		//float3 normal =
+		//	Normalize(Normalize((adjacentPointFlat - target).Cross(adjacentPointTilt - target))
+		//				  .Cross(adjacentPointFlat - target));
+		//bool adjValid = true;
+		//if (abs(normal.Dot(float3(0, 1, 0))) < 0.7f)
+		//	return false; // too much tilt (unsecure)
 		if (!terrain->validPosition(adjacentPointFlat))
 			return false; // invalid adjacent point (unsecure)
 	}
 	return true;
 }
 
-void Pomegranate::jumpToRandomLocation(float2 heightRange, size_t samples) {
+void Pomegranate::jumpToRandomLocation(
+	float2 heightRange, size_t samples, float playerRadiusAvoid) {
 	float jumpVelHeight = RandomFloat(heightRange.x, heightRange.y);
 	float3 vertVel = float3(0, jumpVelHeight, 0);
 	float nextApproxCollision = -2 * jumpVelHeight / m_gravity.y;
@@ -148,7 +146,6 @@ void Pomegranate::jumpToRandomLocation(float2 heightRange, size_t samples) {
 			target.y = terrain->getHeightFromPosition(target.x, target.z);
 
 			// avoid player
-			const float playerRadiusAvoid = 5;
 			float distanceToPlayer =
 				(SceneManager::getScene()->m_player->getPosition() - target).Length();
 			if (distanceToPlayer < playerRadiusAvoid) {
@@ -191,6 +188,10 @@ void Pomegranate::update() {
 	move(dt);
 	updateRespawn();
 	enforceOverTerrain(); // force fruit above ground
+
+	// respawn
+	if (getPosition().y <= 1)
+		respawn();
 }
 
 void Pomegranate::updateAnimated(float dt) {

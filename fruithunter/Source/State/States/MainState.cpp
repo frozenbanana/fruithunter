@@ -83,8 +83,7 @@ void MainState::draw_ui_levelselect(float alpha) {
 
 	// level items
 	static const Color levelIdxTextColors[TimeTargets::NR_OF_TIME_TARGETS]{
-		Color(112 / 255.f, 94 / 255.f, 22 / 255.f),
-		Color(70 / 255.f, 70 / 255.f, 70 / 255.f),
+		Color(112 / 255.f, 94 / 255.f, 22 / 255.f), Color(70 / 255.f, 70 / 255.f, 70 / 255.f),
 		Color(76 / 255.f, 52 / 255.f, 32 / 255.f)
 	};
 	float2 levelItem_startPos = float2(50, 120);
@@ -517,6 +516,11 @@ void MainState::update(double dt) {
 	m_totalDelta = fmod((m_totalDelta + dt), (2.f * XM_PI));
 	m_totalDelta_forBow += dt;
 
+	float yFactor1 = sin((m_totalDelta - dt) * 4.f - 0.5f);
+	float yFactor2 = sin(m_totalDelta * 4.f - 0.5f);
+	if ((yFactor1 > 0 && yFactor2 < 0) || (yFactor1 < 0 && yFactor2 > 0))
+		m_apple->restartAnimation(); // restart animation
+
 	m_totalTime += dt;
 
 	// update scene
@@ -553,7 +557,8 @@ void MainState::update(double dt) {
 		float3(cos(m_totalDelta) * 2.f, 0.4f, sin(m_totalDelta) * 2.f); // walk around center
 	fruitPosition.y += abs(sin(m_totalDelta * 4.f - 0.5f)) * 0.5f;		// fruit jump
 	fruit->setPosition(fruitPosition);
-	fruit->updateAnimated(8 * dt * fruitAnimationCycle / (2.f * XM_PI));
+	// fruit->updateAnimated(8 * dt * fruitAnimationCycle / (2.f * XM_PI));
+	fruit->updateAnimated(dt);
 	fruit->setRotation(float3(0.0f, -m_totalDelta, 0.0f));
 
 	if (!m_stateSwitching) {
