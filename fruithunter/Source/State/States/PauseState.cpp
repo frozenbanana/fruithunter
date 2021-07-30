@@ -50,8 +50,6 @@ void PauseState::play() {
 	for (size_t i = 0; i < btn_length; i++) {
 		m_buttons[i].set(
 			btn_pos_start + float2(0, btn_stride_y) * i, buttonTexts[i], btn_delay_stride * (i+1));
-		m_buttons[i].setDesiredScale_hovering(0.8f);
-		m_buttons[i].setDesiredScale_standard(0.7f);
 	}
 }
 
