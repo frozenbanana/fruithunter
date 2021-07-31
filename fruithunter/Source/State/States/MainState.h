@@ -106,12 +106,6 @@ private:
 	Menu_PoppingButton m_btn_levelSelect_hunt;
 	Menu_PoppingButton m_btn_credits_back;
 
-	//shared_ptr<Drawable2D> m_ui_selection;
-	//bool m_ui_editorOpen = false;
-	//UIContainer m_ui_mainContainer;
-	//bool m_ui_edit_active = false;
-	//float2 m_ui_edit_mouseOffset;
-
 	SoundID m_menuMusic = 0;
 
 	float m_totalTime = 0;

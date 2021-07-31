@@ -479,15 +479,6 @@ void MainState::init() {
 	m_spr_leaderboard_container.setAlignment();
 
 	m_toggle_personal.setToggleState(true);
-
-	// m_ui_mainContainer.push_back(make_shared<UI_Button>());
-	// m_ui_mainContainer.push_back(make_shared<Sprite2D>());
-	// shared_ptr<UIContainer> sub = make_shared<UIContainer>();
-	// sub->push_back(make_shared<Sprite2D>());
-	// sub->push_back(make_shared<Sprite2D>());
-	// m_ui_mainContainer.push_back(sub);
-	// m_ui_mainContainer.push_back(make_shared<Sprite2D>());
-	// m_ui_mainContainer.push_back(make_shared<Sprite2D>());
 }
 
 void MainState::update(double dt) {
@@ -596,67 +587,6 @@ void MainState::update(double dt) {
 	m_ps_selected.setPosition(
 		m_levelSelections[m_levelSelected].obj_bowl.getPosition() + float3(0, 0.2f, 0));
 	m_ps_selected.update(dt);
-
-	// if (ip->keyPressed(Keyboard::L))
-	//	m_ui_editorOpen = !m_ui_editorOpen;
-
-	// if (m_ui_editorOpen) {
-	//	float2 mp = ip->mouseXY();
-	//	ImVec2 screenSize = ImVec2(
-	//		Renderer::getInstance()->getScreenWidth(), Renderer::getInstance()->getScreenHeight());
-	//	ImGui::SetNextWindowPos(ImVec2(0, 0));
-	//	ImGui::SetNextWindowSizeConstraints(ImVec2(0, screenSize.y),
-	//		ImVec2(Renderer::getInstance()->getScreenWidth(), screenSize.y));
-	//	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-	//	ImGuiWindowFlags winFlags =
-	//		ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-	//	if (ImGui::Begin("UI Editor", NULL, winFlags)) {
-	//		m_ui_mainContainer.imgui_tree(m_ui_selection);
-	//		ImGui::Separator();
-	//		if (m_ui_selection.get() != nullptr)
-	//			m_ui_selection->imgui_properties();
-	//	}
-	//	ImGui::End();
-	//	ImGui::PopStyleVar(1);
-
-	//	if (ip->mousePressed(Input::MouseButton::MIDDLE)) {
-	//		shared_ptr<Drawable2D> e = m_ui_mainContainer.select(mp);
-	//		if (e.get() != nullptr)
-	//			m_ui_selection = e;
-	//	}
-
-	//	if (m_ui_selection.get() != nullptr) {
-	//		Matrix parentMatrices;
-	//		m_ui_mainContainer.getMatrixChain(parentMatrices, m_ui_selection);
-	//		BoundingBox2D bb = m_ui_selection->getBoundingBox(parentMatrices);
-	//		// movement
-	//		bool mouseInside = bb.isInside(mp);
-	//		float2 localMp = float2::Transform(mp, parentMatrices.Invert());
-	//		if (ip->mousePressed(Input::MouseButton::LEFT) && mouseInside) {
-	//			m_ui_edit_active = true;
-	//			m_ui_edit_mouseOffset = m_ui_selection->getPosition() - localMp;
-	//		}
-	//		else if (m_ui_edit_active && ip->mouseDown(Input::MouseButton::LEFT)) {
-	//			m_ui_selection->setPosition(localMp + m_ui_edit_mouseOffset);
-	//		}
-	//		else if (ip->mouseUp(Input::MouseButton::LEFT)) {
-	//			m_ui_edit_active = false;
-	//		}
-	//		// imgui render
-	//		vector<float2> bb_points = bb.getPoints();
-	//		vector<ImVec2> bb_imPoints;
-	//		bb_imPoints.resize(bb_points.size());
-	//		for (size_t i = 0; i < bb_points.size(); i++)
-	//			bb_imPoints[i] = ImVec2(bb_points[i].x, bb_points[i].y);
-	//		ImDrawList* drawList = ImGui::GetBackgroundDrawList();
-	//		ImU32 col = IM_COL32(255, 255, 255, 255);
-	//		float th = 5;
-	//		drawList->AddLine(bb_imPoints[0], bb_imPoints[1], col, th);
-	//		drawList->AddLine(bb_imPoints[0], bb_imPoints[2], col, th);
-	//		drawList->AddLine(bb_imPoints[2], bb_imPoints[3], col, th);
-	//		drawList->AddLine(bb_imPoints[1], bb_imPoints[3], col, th);
-	//	}
-	//}
 }
 
 void MainState::draw() {
