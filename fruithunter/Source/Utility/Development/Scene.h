@@ -168,7 +168,7 @@ public:
 	static SoundID playMusicByAreaTag(AreaTag tag);
 	void update_activeTerrain(AreaTag tag, bool playMusic = true);
 
-	void load(string folder);
+	bool load(string folder);
 	void save();
 
 	/* Make scene ready to be played. Resets all dynamic content and keeps the static. */

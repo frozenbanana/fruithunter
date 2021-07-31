@@ -61,7 +61,7 @@ void Scene::saveWin() {
 
 Scene::Scene(string filename) { load(filename); }
 
-Scene::~Scene() { }
+Scene::~Scene() {}
 
 size_t Scene::find_parentIndex(Fragment* fragment) {
 	switch (fragment->getType()) {
@@ -219,16 +219,15 @@ void Scene::update_activeTerrain(AreaTag tag, bool playMusic) {
 			m_activeTerrain_soundID = playMusicByAreaTag(tag);
 }
 
-void Scene::load(string folder) {
-	if (folder != "") {
+bool Scene::load(string folder) {
+	if (folder == "")
+		return false; // ignore call
+	SceneAbstactContent content;
+	if (content.load_raw(folder)) {
 		clear(); // clear all data
 
 		m_loaded = true;
 		m_sceneName = folder;
-
-		// load content
-		SceneAbstactContent content;
-		content.load_raw(folder);
 
 		// Leaderboard
 		m_leaderboardName = content.m_leaderboardName;
@@ -287,6 +286,12 @@ void Scene::load(string folder) {
 		m_utility = content.m_utility;
 
 		reset();
+
+		return true;
+	}
+	else {
+		ErrorLogger::logError("(Scene::load) Failed loading scene: " + folder);
+		return false;
 	}
 }
 

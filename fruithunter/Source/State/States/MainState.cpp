@@ -24,10 +24,11 @@ void MainState::setButtons_levelSelect() {
 
 void MainState::setButtons_credits() { m_btn_credits_back.set(float2(150, 720 - 75), "Back", 0); }
 
-void MainState::changeToLevel(size_t levelIndex) {
+void MainState::changeToLevel(string levelName) {
 	AudioController::getInstance()->flush();
-	SceneManager::getScene()->load("scene" + to_string(levelIndex));
-	push(State::PlayState);
+	if (SceneManager::getScene()->load(levelName)) {
+		push(State::PlayState);
+	}
 }
 
 void MainState::changeMainState(MainStateType state) {
@@ -68,6 +69,7 @@ void MainState::draw_ui_levelselect(float alpha) {
 	int levelHighlighted = m_levelHighlighted;
 
 	Color stdColor = Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f);
+	Color stdSelectedColor = Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f) * 1.3f;
 	Color stdLockedColor = Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f) * 0.6f;
 	Color stdDarkTextColor = stdColor * 0.3f;
 	Color stdLightTextColor = Color(1, 1, 1);
@@ -83,13 +85,15 @@ void MainState::draw_ui_levelselect(float alpha) {
 
 	// level items
 	static const Color levelIdxTextColors[TimeTargets::NR_OF_TIME_TARGETS]{
-		Color(112 / 255.f, 94 / 255.f, 22 / 255.f), Color(70 / 255.f, 70 / 255.f, 70 / 255.f),
-		Color(76 / 255.f, 52 / 255.f, 32 / 255.f)
+		Color(112 / 255.f, 94 / 255.f, 22 / 255.f) * 0.75f,
+		Color(70 / 255.f, 70 / 255.f, 70 / 255.f) * 0.75f,
+		Color(76 / 255.f, 52 / 255.f, 32 / 255.f) * 0.75f
 	};
-	float2 levelItem_startPos = float2(50, 120);
+	float2 levelItem_startPos = float2(50, 90);
 	float2 levelItem_padding = float2(0, 10);
-	for (size_t lvl = 0; lvl < 3; lvl++) {
+	for (size_t lvl = 0; lvl < m_levelSelections.size(); lvl++) {
 		bool locked = (lvl != 0 && !m_levelSelections[lvl - 1].completed);
+		bool selected = (m_levelSelected == lvl);
 
 		LevelOption& level = m_levelSelections[lvl];
 		// container
@@ -99,7 +103,8 @@ void MainState::draw_ui_levelselect(float alpha) {
 		float2 itemPos =
 			levelItem_startPos + (float2(0, levelItemSize.y) + levelItem_padding) * lvl;
 		m_spr_levelItem_container.setPosition(itemPos);
-		m_spr_levelItem_container.setColor(locked ? stdLockedColor : stdColor);
+		m_spr_levelItem_container.setColor(
+			locked ? stdLockedColor : (selected ? stdSelectedColor : stdColor));
 		m_spr_levelItem_container.draw();
 		// medal
 		float2 levelDotOffset = float2(26.5, 0);
@@ -124,23 +129,13 @@ void MainState::draw_ui_levelselect(float alpha) {
 		m_textRenderer_lato.setAlignment(HorizontalAlignment::AlignLeft); // center
 		m_textRenderer_lato.setScale(0.25f);
 		m_textRenderer_lato.setAlpha(alpha);
-		m_textRenderer_lato.setPosition(itemPos + float2(55, 0));
+		m_textRenderer_lato.setPosition(itemPos + float2(47, 0));
 		m_textRenderer_lato.setText(locked ? "Locked" : level.name);
 		if (levelHighlighted == lvl)
 			m_textRenderer_lato.setColor(Color(1, 1, 1));
 		else
 			m_textRenderer_lato.setColor(stdDarkTextColor);
 		m_textRenderer_lato.draw();
-		// marker
-		if (selectedLevel == lvl) {
-			m_spr_levelItem_marker.setAlpha(alpha);
-			m_spr_levelItem_marker.setScale(0.6f);
-			float animFactor = sin(m_totalTime * 2 * XM_PI / 2.f) * 0.5f + 0.5f;
-			m_spr_levelItem_marker.setPosition(
-				itemPos + float2(levelItemSize.x + 0, 0) + float2(10, 0) * animFactor);
-			m_spr_levelItem_marker.setColor(stdColor);
-			m_spr_levelItem_marker.draw();
-		}
 	}
 
 	// level info
@@ -194,7 +189,7 @@ void MainState::draw_ui_levelselect(float alpha) {
 			m_textRenderer_lato.setPosition(coinPos + float2(coinSize.x / 2 + 10, 0));
 			m_textRenderer_lato.setText(
 				Seconds2DisplayableString(
-					m_levelData[selectedLevel].m_utility.timeTargets[c] / 1000) +
+					m_levelSelections[selectedLevel].levelData.m_utility.timeTargets[c] / 1000) +
 				" min");
 			m_textRenderer_lato.setColor(stdLightTextColor);
 			m_textRenderer_lato.draw();
@@ -363,15 +358,15 @@ void MainState::update_ui_levelselect(float dt) {
 		push(State::ControlState);
 	}
 	if (m_btn_levelSelect_hunt.update_behavior(dt)) {
-		changeToLevel(m_levelSelected);
+		changeToLevel(m_levelSelections[m_levelSelected].scene);
 	}
 
 	// left level items
 	m_levelHighlighted = -1;
 	static bool initDownload = false;
-	float2 levelItem_startPos = float2(50, 120);
+	float2 levelItem_startPos = float2(50, 90);
 	float2 levelItem_padding = float2(0, 10);
-	for (size_t lvl = 0; lvl < 3; lvl++) {
+	for (size_t lvl = 0; lvl < m_levelSelections.size(); lvl++) {
 		LevelOption& level = m_levelSelections[lvl];
 		bool locked = (lvl != 0 && !m_levelSelections[lvl - 1].completed);
 		if (!locked) {
@@ -385,7 +380,8 @@ void MainState::update_ui_levelselect(float dt) {
 				if (ip->mousePressed(Input::MouseButton::LEFT)) {
 					m_levelSelected = lvl;
 					initDownload = false;
-					m_leaderboard.FindLeaderboard(m_levelData[lvl].m_leaderboardName.c_str());
+					m_leaderboard.FindLeaderboard(
+						m_levelSelections[lvl].levelData.m_leaderboardName.c_str());
 				}
 			}
 		}
@@ -436,11 +432,6 @@ void MainState::init() {
 
 	m_textRenderer_lato.setFont("lato.spritefont");
 
-	m_levelItem_background.load("back_level.png");
-	m_levelItem_background.setColor(Color(42.f / 255.f, 165.f / 255.f, 209.f / 255.f));
-	m_levelItem_background.setAlignment(); // center
-	m_levelItem_background.setScale(0.7f);
-
 	string medalSpriteNames[TimeTargets::NR_OF_TIME_TARGETS] = { "coin_gold.png", "coin_silver.png",
 		"coin_bronze.png" };
 	for (size_t i = 0; i < TimeTargets::NR_OF_TIME_TARGETS; i++) {
@@ -448,9 +439,6 @@ void MainState::init() {
 		m_medalSprites[i].setScale(0.03f);
 		m_medalSprites[i].setAlignment();
 	}
-
-	m_img_keylock.load("keylock.png");
-	m_img_keylock.setAlignment(); // center
 
 	m_ps_selected.setEmitRate(10);
 	m_ps_selected.setScale(float3(0.5f, 0.3f, 0.5f));
@@ -479,8 +467,6 @@ void MainState::init() {
 	m_spr_levelItem_container.load("level_holder.png");
 	m_spr_levelItem_container.setAlignment(
 		HorizontalAlignment::AlignLeft, VerticalAlignment::AlignCenter);
-	m_spr_levelItem_marker.load("level_marker.png");
-	m_spr_levelItem_marker.setAlignment();
 	m_spr_levelItem_medals[TimeTargets::GOLD].load("dot_gold.png");
 	m_spr_levelItem_medals[TimeTargets::GOLD].setAlignment();
 	m_spr_levelItem_medals[TimeTargets::SILVER].load("dot_silver.png");
@@ -751,11 +737,6 @@ void MainState::play() {
 		m_menuMusic = AudioController::getInstance()->play(
 			"banana_sunrise", AudioController::SoundType::Music, true);
 
-	// load player progression
-	for (size_t i = 0; i < 3; i++) {
-		m_levelData[i].load_raw("scene" + to_string(i));
-	}
-
 	// setup buttons
 	setButtons_menu();
 	setButtons_levelSelect();
@@ -765,49 +746,28 @@ void MainState::play() {
 	float itemWidthOffset = 325;
 	float totalItemWidth = itemWidthOffset * (3 - 1);
 
-	float3 bowlPositions[3] = { float3(67.455f, 10.528f, 20.378f),
-		float3(66.942f, 10.528f, 19.874f), float3(66.410f, 10.528f, 19.344f) };
-	string bowlLevelContentObjName[3] = { "BowlContent1", "BowlContent2", "BowlContent3" };
-	string bowlGradeObjName[TimeTargets::NR_OF_TIME_TARGETS + 1] = { "bowl_gold", "bowl_silver",
-		"bowl_bronze", "bowl_bronze" };
-	for (size_t i = 0; i < 3; i++) {
-		string scene = "scene" + to_string(i);
-		SceneAbstactContent sceneContent;
-		sceneContent.load_raw(scene);
-
-		time_t timeMs = 0;
-		TimeTargets grade = TimeTargets::NR_OF_TIME_TARGETS;
-		if (SaveManager::getInstance()->getLevelProgress(scene, timeMs)) {
-			grade = SceneManager::getScene()->getTimeTargetGrade(
-				timeMs, sceneContent.m_utility.timeTargets);
-		}
-		bool completed = (grade != TimeTargets::NR_OF_TIME_TARGETS);
-
-		float3 position = bowlPositions[i];
-		position = float3(66.942f, 10.528f, 19.874f);
-
-		m_levelSelections[i].obj_bowl.load(bowlGradeObjName[grade]);
-		m_levelSelections[i].obj_content.load(bowlLevelContentObjName[i]);
-		m_levelSelections[i].obj_bowl.setPosition(position);
-		m_levelSelections[i].obj_content.setPosition(position);
-		float bowlScale = 0.4f;
-		m_levelSelections[i].obj_bowl.setScale(bowlScale);
-		m_levelSelections[i].obj_content.setScale(bowlScale);
-
-		m_levelSelections[i].completed = completed;
-		m_levelSelections[i].grade = grade;
-		m_levelSelections[i].timeMs = timeMs;
-
-		float2 desiredItemPos =
-			float2(1280.f / 2 + itemWidthOffset * i - totalItemWidth * 0.5f, 720 - 250);
-		m_levelSelections[i].position_hud = desiredItemPos;
-	}
-	m_levelSelections[0].name = "Beginners Salad";
-	m_levelSelections[1].name = "Overnight Salad";
-	m_levelSelections[2].name = "Hot Rainbow Salad";
+	float3 bowlPosition = float3(66.942f, 10.528f, 19.874f);
+	size_t idx = 0;
+	m_levelSelections.resize(8);
+	// Level 1
+	m_levelSelections[idx++].init("scene0", "Beginners Salad", "BowlContent1", bowlPosition);
+	// Level 2
+	m_levelSelections[idx++].init("scene1", "Overnight Salad", "BowlContent2", bowlPosition);
+	// Level 3
+	m_levelSelections[idx++].init("scene2", "Hot Rainbow Salad", "BowlContent3", bowlPosition);
+	// Level 4
+	m_levelSelections[idx++].init("scene3", "NoName", "BowlContent3", bowlPosition);
+	// Level 5
+	m_levelSelections[idx++].init("scene4", "NoName", "BowlContent3", bowlPosition);
+	// Level 6
+	m_levelSelections[idx++].init("scene5", "NoName", "BowlContent3", bowlPosition);
+	// Level 7
+	m_levelSelections[idx++].init("scene6", "NoName", "BowlContent3", bowlPosition);
+	// Level 8
+	m_levelSelections[idx++].init("scene7", "NoName", "BowlContent3", bowlPosition);
 
 	m_levelsAvailable = 1;
-	for (size_t i = 1; i < 3; i++) {
+	for (size_t i = 1; i < m_levelSelections.size(); i++) {
 		if (m_levelSelections[i - 1].completed)
 			m_levelsAvailable++;
 	}
@@ -824,9 +784,38 @@ void MainState::play() {
 	m_obj_creditsSign.lookTo(dir * float3(1, 0, 1));
 
 	// init leaderboard
-	m_leaderboard.FindLeaderboard(m_levelData[m_levelSelected].m_leaderboardName.c_str());
+	m_leaderboard.FindLeaderboard(
+		m_levelSelections[m_levelSelected].levelData.m_leaderboardName.c_str());
 }
 
 void MainState::pause() {}
 
 void MainState::restart() {}
+
+void MainState::LevelOption::init(
+	string levelIdentifier, string levelName, string bowlContentObj, float3 bowlPosition) {
+
+	scene = levelIdentifier;
+	levelData.load_raw(scene);
+
+	static string bowlGradeObjName[TimeTargets::NR_OF_TIME_TARGETS + 1] = { "bowl_gold",
+		"bowl_silver", "bowl_bronze", "bowl_bronze" };
+
+	time_t timeMs = 0;
+	grade = TimeTargets::NR_OF_TIME_TARGETS;
+	if (SaveManager::getInstance()->getLevelProgress(scene, timeMs)) {
+		grade =
+			SceneManager::getScene()->getTimeTargetGrade(timeMs, levelData.m_utility.timeTargets);
+	}
+	completed = (grade != TimeTargets::NR_OF_TIME_TARGETS);
+	this->timeMs = timeMs;
+	name = levelName;
+
+	obj_bowl.load(bowlGradeObjName[grade]);
+	obj_content.load(bowlContentObj);
+	obj_bowl.setPosition(bowlPosition);
+	obj_content.setPosition(bowlPosition);
+	float bowlScale = 0.4f;
+	obj_bowl.setScale(bowlScale);
+	obj_content.setScale(bowlScale);
+}

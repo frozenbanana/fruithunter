@@ -51,15 +51,11 @@ private:
 	float m_totalDelta = 0.f;
 	shared_ptr<Apple> m_apple;
 
-	string m_levelSelect_header = "Select Hunt";
 	int m_levelHighlighted = 0, m_levelSelected = 0;
 	ParticleSystem m_ps_selected;
-	Sprite2D m_levelItem_background;
 	Sprite2D m_medalSprites[TimeTargets::NR_OF_TIME_TARGETS];
-	Sprite2D m_img_keylock;
 
 	Sprite2D m_spr_levelItem_container;
-	Sprite2D m_spr_levelItem_marker;
 	Sprite2D m_spr_levelItem_medals[TimeTargets::NR_OF_TIME_TARGETS];
 	Sprite2D m_spr_levelInfo_container;
 	Sprite2D m_spr_leaderboard_container;
@@ -67,18 +63,22 @@ private:
 	Menu_LeaderboardToggle m_toggle_personal = Menu_LeaderboardToggle("icon_man.png");
 
 	struct LevelOption {
+		SceneAbstactContent levelData;
 		// 3d object
 		Entity obj_bowl, obj_content;
 		// hud positioning
 		float2 position_hud;
 		float catchup = 0.01f;
 		// description and info
+		string scene = "";
 		string name = "";
 		bool completed = false;
 		size_t timeMs = 0;
 		TimeTargets grade = TimeTargets::BRONZE;
+
+		void init(string levelIdentifier, string levelName, string bowlContentObj, float3 bowlPosition);
 	};
-	LevelOption m_levelSelections[3];
+	vector<LevelOption> m_levelSelections;
 	size_t m_levelsAvailable = 0;
 
 	float m_totalDelta_forBow = 0.f;
@@ -90,7 +90,6 @@ private:
 
 	SceneManager m_sceneManager;
 
-	SceneAbstactContent m_levelData[3];
 
 	// Logo
 	struct LogoLetter {
@@ -121,7 +120,7 @@ private:
 	void setButtons_levelSelect();
 	void setButtons_credits();
 
-	void changeToLevel(size_t levelIndex);
+	void changeToLevel(string levelName);
 
 	void changeMainState(MainStateType state);
 

@@ -33,6 +33,15 @@ namespace SimpleFilesystem {
 		return sections;
 	}
 
+	static bool fileExists(string path) { fstream file;
+		file.open(path);
+		if (file.is_open()) {
+			file.close();
+			return true;
+		}
+		return false;
+	}
+
 	static void readDirectory(const std::string& name, vector<string>& v) {
 		v.clear();
 		std::string pattern(name);
