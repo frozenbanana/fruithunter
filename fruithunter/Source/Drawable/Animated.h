@@ -14,7 +14,7 @@ private:
 	int m_frameTargets[2];
 	float m_frameTimer;
 
-	ShaderSet m_shaderObject_animation;
+	static ShaderSet m_shaderObject_animation;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_animationBuffer;
 

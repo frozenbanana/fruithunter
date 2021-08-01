@@ -393,7 +393,7 @@ void Scene::reset() {
 	size_t total = 0;
 	for (size_t i = 0; i < m_terrains.size(); i++)
 		for (size_t iFruit = 0; iFruit < NR_OF_FRUITS; iFruit++)
-			total = m_terrains[i]->getFruitCount((FruitType)iFruit);
+			total += m_terrains[i]->getFruitCount((FruitType)iFruit);
 	m_fruits.reserve(total);
 	for (size_t i = 0; i < m_terrains.size(); i++) {
 		for (size_t iFruit = 0; iFruit < NR_OF_FRUITS; iFruit++) {

@@ -3,6 +3,8 @@
 #include "Renderer.h"
 #include "ErrorLogger.h"
 
+ShaderSet Animated::m_shaderObject_animation;
+
 void Animated::bindMeshes() {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 	const int t = 3;
@@ -16,36 +18,38 @@ void Animated::bindMeshes() {
 }
 
 void Animated::createInputAssembler() {
-	D3D11_INPUT_ELEMENT_DESC inputLayout[] = {
-		{
-			"Position",					 // "semantic" name in shader
-			0,							 // "semantic" index (not used)
-			DXGI_FORMAT_R32G32B32_FLOAT, // size of ONE element (3 floats)
-			0,							 // input slot
-			0,							 // offset of first element
-			D3D11_INPUT_PER_VERTEX_DATA, // specify data PER vertex
-			0							 // used for INSTANCING (ignore)
-		},
-		{ "TexCoordinate", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
+	if (!m_shaderObject_animation.isLoaded()) {
+		D3D11_INPUT_ELEMENT_DESC inputLayout[] = {
+			{
+				"Position",					 // "semantic" name in shader
+				0,							 // "semantic" index (not used)
+				DXGI_FORMAT_R32G32B32_FLOAT, // size of ONE element (3 floats)
+				0,							 // input slot
+				0,							 // offset of first element
+				D3D11_INPUT_PER_VERTEX_DATA, // specify data PER vertex
+				0							 // used for INSTANCING (ignore)
+			},
+			{ "TexCoordinate", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		};
 
-	int nrOfMeshesToSend = NR_OF_MESHES_TO_SEND; // for now 2. May change later if we want to
-												 // interpolate between more meshes at the same time
+		int nrOfMeshesToSend =
+			NR_OF_MESHES_TO_SEND; // for now 2. May change later if we want to
+								  // interpolate between more meshes at the same time
 
-	unique_ptr<D3D11_INPUT_ELEMENT_DESC[]> inputLayoutTotal;
-	inputLayoutTotal = make_unique<D3D11_INPUT_ELEMENT_DESC[]>((size_t)nrOfMeshesToSend * 3);
-	for (int iVertex = 0; iVertex < nrOfMeshesToSend; ++iVertex) {
-		for (int i = 0; i < 3; ++i) {
-			inputLayoutTotal[(size_t)iVertex * 3 + i] = inputLayout[i];
-			inputLayoutTotal[(size_t)iVertex * 3 + i].SemanticIndex = iVertex;
-			inputLayoutTotal[(size_t)iVertex * 3 + i].InputSlot = iVertex;
+		unique_ptr<D3D11_INPUT_ELEMENT_DESC[]> inputLayoutTotal;
+		inputLayoutTotal = make_unique<D3D11_INPUT_ELEMENT_DESC[]>((size_t)nrOfMeshesToSend * 3);
+		for (int iVertex = 0; iVertex < nrOfMeshesToSend; ++iVertex) {
+			for (int i = 0; i < 3; ++i) {
+				inputLayoutTotal[(size_t)iVertex * 3 + i] = inputLayout[i];
+				inputLayoutTotal[(size_t)iVertex * 3 + i].SemanticIndex = iVertex;
+				inputLayoutTotal[(size_t)iVertex * 3 + i].InputSlot = iVertex;
+			}
 		}
-	}
 
-	if (!m_shaderObject_animation.isLoaded())
 		m_shaderObject_animation.createShaders(L"VertexShader_model_animated.hlsl", nullptr,
 			L"PixelShader_model.hlsl", inputLayoutTotal.get(), nrOfMeshesToSend * 3);
+	}
 }
 
 void Animated::createAnimationConstantBuffer() {
@@ -84,6 +88,7 @@ Animated::Animated() {
 	m_frameTargets[0] = 0;
 	m_frameTargets[1] = 0;
 	createAnimationConstantBuffer();
+	createInputAssembler();
 }
 
 Animated::~Animated() {}
@@ -157,7 +162,6 @@ bool Animated::load(std::string filename, int nrOfFrames, bool combineParts) {
 										   " number: " + std::to_string(i));
 		}
 	}
-	createInputAssembler();
 	return allClear;
 }
 
