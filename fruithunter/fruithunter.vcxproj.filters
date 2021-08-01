@@ -762,6 +762,9 @@
     <ClInclude Include="Source\Utility\HistoryQueue.h">
       <Filter>Source\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Utility\Octree.h">
+      <Filter>Source\Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />

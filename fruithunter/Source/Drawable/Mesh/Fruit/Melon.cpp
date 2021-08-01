@@ -54,11 +54,12 @@ void Melon::update() {
 			m_velocity =
 				(longVel - (longVel.Dot(normal) - shortVel.Dot(normal) - 0.001f) * normal) / dt;
 		}
-		else
+		else {
 			break;
+		}
 
 		iterations--;
-		if (iterations <= 0) {
+		if (iterations == 0) {
 			// stuck
 			m_velocity = -velCopy * 0.5f; // bounce
 			break;

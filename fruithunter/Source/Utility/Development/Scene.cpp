@@ -153,7 +153,7 @@ void Scene::updated_fragment(Fragment* fragment) {
 			if (m_entities[i]->getID() == fragment->getID()) {
 				shared_ptr<Entity> ent = m_entities[i];
 				m_entities.updateElement(i, ent->getLocalBoundingBoxPosition(),
-					ent->getLocalBoundingBoxSize(), ent->getMatrix(), true);
+					ent->getLocalBoundingBoxSize() / 2.f, ent->getMatrix(), true);
 			}
 		}
 		break;
@@ -264,7 +264,7 @@ bool Scene::load(string folder) {
 					make_shared<Entity>(model, instance->position, instance->scale);
 				e->setRotation(instance->rotation);
 				e->setCollidable(instance->collidable);
-				m_entities.add(e->getLocalBoundingBoxPosition(), e->getLocalBoundingBoxSize(),
+				m_entities.add(e->getLocalBoundingBoxPosition(), e->getLocalBoundingBoxSize() / 2.f,
 					e->getMatrix(), e);
 			}
 		}

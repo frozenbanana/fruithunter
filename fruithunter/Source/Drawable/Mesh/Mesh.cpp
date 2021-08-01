@@ -63,37 +63,53 @@ Mesh::BoxIntersection Mesh::obbTest(
 }
 bool Mesh::findMinMaxValues() {
 	if (m_meshVertices.size() > 0) {
-		DirectX::XMINT2 changedX(1, 1), changedY(1, 1), changedZ(1, 1); // 1 = unchanged
+		float3 boundMin, boundMax;
 		for (size_t i = 0; i < m_meshVertices.size(); i++) {
 			float3 p = m_meshVertices[i].position;
-			if (p.x > m_MinMaxXPosition.y || changedX.y)
-				m_MinMaxXPosition.y = p.x, changedX.y = 0;
-			if (p.x < m_MinMaxXPosition.x || changedX.x)
-				m_MinMaxXPosition.x = p.x, changedX.x = 0;
+			if (i == 0) {
+				boundMin = p;
+				boundMax = p;
+			}
+			else {
+				boundMin.x = min(boundMin.x, p.x);
+				boundMin.y = min(boundMin.y, p.y);
+				boundMin.z = min(boundMin.z, p.z);
 
-			if (p.y > m_MinMaxYPosition.y || changedY.y)
-				m_MinMaxYPosition.y = p.y, changedY.y = 0;
-			if (p.y < m_MinMaxYPosition.x || changedY.x)
-				m_MinMaxYPosition.x = p.y, changedY.x = 0;
-
-			if (p.z > m_MinMaxZPosition.y || changedZ.y)
-				m_MinMaxZPosition.y = p.z, changedZ.y = 0;
-			if (p.z < m_MinMaxZPosition.x || changedZ.x)
-				m_MinMaxZPosition.x = p.z, changedZ.x = 0;
+				boundMax.x = max(boundMax.x, p.x);
+				boundMax.y = max(boundMax.y, p.y);
+				boundMax.z = max(boundMax.z, p.z);
+			}
 		}
 		m_minmaxChanged = true;
+		m_boundingBox = CubeBoundingBox(boundMin, boundMax - boundMin);
 		return true;
 	}
 	else
 		return false;
 }
+
+void Mesh::fillOctree(const CubeBoundingBox& boundingBox, const vector<Vertex>& vertices) {
+	size_t triangleCount = vertices.size() / 3;
+	m_octree_triangles.initilize(boundingBox, 5, triangleCount);
+	for (size_t i = 0; i < triangleCount; i++) {
+		Triangle tri;
+		tri.vertices[0] = vertices[i * 3 + 0];
+		tri.vertices[1] = vertices[i * 3 + 1];
+		tri.vertices[2] = vertices[i * 3 + 2];
+		vector<float3> points = { tri.vertices[0].position, tri.vertices[1].position,
+			tri.vertices[2].position };
+		CubeBoundingBox bb(points);
+		m_octree_triangles.add(bb, tri, false);
+	}
+}
+
 void Mesh::updateBoundingBoxBuffer() {
 	ID3D11DeviceContext* deviceContext = Renderer::getDeviceContext();
 	if (m_boxVertices.size() > 0) {
 		if (m_minmaxChanged) {
 			m_minmaxChanged = false;
 			float3 bbPos = getBoundingBoxPos();
-			float3 bbScale = getBoundingBoxSize();
+			float3 bbScale = getBoundingBoxHalfSizes();
 			std::vector<Vertex> fullBox;
 			fullBox.reserve(36);
 			for (size_t i = 0; i < 36; i++) {
@@ -212,7 +228,8 @@ void Mesh::drawCall_perMaterial() {
 	for (size_t i = 0; i < m_parts.size(); i++) {
 		for (size_t j = 0; j < m_parts[i].materialUsage.size(); j++) {
 			int materialIndex = m_parts[i].materialUsage[j].materialIndex;
-			if (materialIndex != -1 && m_currentMaterial >= 0 && m_currentMaterial < m_materials.size()) {
+			if (materialIndex != -1 && m_currentMaterial >= 0 &&
+				m_currentMaterial < m_materials.size()) {
 				m_materials[m_currentMaterial][materialIndex].bind(MATERIAL_SLOT);
 				int count = m_parts[i].materialUsage[j].count;
 				int index = m_parts[i].materialUsage[j].index;
@@ -264,22 +281,14 @@ void Mesh::bindMesh() const {
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 }
-float3 Mesh::getBoundingBoxPos() const {
-	return float3((m_MinMaxXPosition.x + m_MinMaxXPosition.y) / 2,
-		(m_MinMaxYPosition.x + m_MinMaxYPosition.y) / 2,
-		(m_MinMaxZPosition.x + m_MinMaxZPosition.y) / 2);
-}
-float3 Mesh::getBoundingBoxSize() const {
-	return float3((m_MinMaxXPosition.y - m_MinMaxXPosition.x),
-			   (m_MinMaxYPosition.y - m_MinMaxYPosition.x),
-			   (m_MinMaxZPosition.y - m_MinMaxZPosition.x)) /
-		   2.f;
-}
+float3 Mesh::getBoundingBoxPos() const { return m_boundingBox.getCenter(); }
+float3 Mesh::getBoundingBoxSize() const { return m_boundingBox.m_size; }
 
 bool Mesh::load(std::string filename, bool combineParts) {
 	if (m_handler.load(filename, m_meshVertices, m_parts, m_materials[0], combineParts)) {
 		m_loadedMeshName = filename;
 		findMinMaxValues();
+		fillOctree(m_boundingBox, m_meshVertices);
 		createBuffers();
 		return true;
 	}
@@ -298,14 +307,28 @@ void Mesh::loadOtherMaterials(std::vector<string> fileNames) {
 }
 
 float Mesh::castRayOnMesh(float3 rayPos, float3 rayDir) {
+	if (rayDir.LengthSquared() == 0)
+		return -1;
 	// get bounding box in local space
 	float3 bPos = getBoundingBoxPos();
-	float3 bScale = getBoundingBoxSize();
+	float3 bScale = getBoundingBoxHalfSizes();
 	// check if close
 	float bbt;
 	if (obbTest(rayDir, rayPos, bPos, bScale, bbt)) {
 		// find the exact point
+		vector<Triangle*> triangles;
+		m_octree_triangles.cullElements(rayPos, rayDir, triangles);
 		float closest = -1;
+		for (size_t i = 0; i < triangles.size(); i++) {
+			float3 tri[3] = { triangles[i]->vertices[0].position,
+				triangles[i]->vertices[1].position, triangles[i]->vertices[2].position };
+			float t = triangleTest(rayDir, rayPos, tri[0], tri[1], tri[2]);
+			if (t >= 0 && (closest < 0 || t < closest))
+				closest = t;
+		}
+		return closest;
+
+		/*float closest = -1;
 		int length = (int)m_meshVertices.size() / 3;
 		for (int i = 0; i < length; i++) {
 			int index = i * 3;
@@ -316,20 +339,36 @@ float Mesh::castRayOnMesh(float3 rayPos, float3 rayDir) {
 			if (t >= 0 && (closest < 0 || t < closest))
 				closest = t;
 		}
-		return closest;
+		return closest;*/
 	}
 	return -1;
 }
 
 bool Mesh::castRayOnMeshEx(float3 rayPos, float3 rayDir, float3& intersection, float3& normal) {
+	if (rayDir.LengthSquared() == 0)
+		return false;
 	// get bounding box in local space
 	float3 bPos = getBoundingBoxPos();
-	float3 bScale = getBoundingBoxSize();
+	float3 bScale = getBoundingBoxHalfSizes();
 	// check if close
 	float bbt;
 	if (obbTest(rayDir, rayPos, bPos, bScale, bbt)) {
 		// find the exact point
+		vector<Triangle*> triangles;
+		m_octree_triangles.cullElements(rayPos, rayDir, triangles);
 		float3 closest_normal;
+		float closest = -1;
+		for (size_t i = 0; i < triangles.size(); i++) {
+			float3 tri[3] = { triangles[i]->vertices[0].position,
+				triangles[i]->vertices[1].position, triangles[i]->vertices[2].position };
+			float t = triangleTest(rayDir, rayPos, tri[0], tri[1], tri[2]);
+			if (t >= 0 && (closest < 0 || t < closest)) {
+				closest = t;
+				closest_normal = ((tri[1] - tri[0]).Cross(tri[2] - tri[0]));
+			}
+		}
+
+		/*float3 closest_normal;
 		float closest = -1;
 		int length = (int)m_meshVertices.size() / 3;
 		for (int i = 0; i < length; i++) {
@@ -342,7 +381,7 @@ bool Mesh::castRayOnMeshEx(float3 rayPos, float3 rayDir, float3& intersection, f
 				closest = t;
 				closest_normal = ((v1 - v0).Cross(v2 - v0));
 			}
-		}
+		}*/
 		if (closest >= 0) {
 			intersection = rayPos + rayDir * closest;
 			normal = closest_normal;
@@ -356,33 +395,50 @@ bool Mesh::castRayOnMeshEx(float3 rayPos, float3 rayDir, float3& intersection, f
 
 bool Mesh::castRayOnMeshEx_limitDistance(
 	float3 rayPos, float3 rayDir, float3& intersection, float3& normal) {
+	if (rayDir.LengthSquared() == 0)
+		return false;
 	float length = rayDir.Length();
-	rayDir.Normalize();
+	float3 rayDirNormalized = Normalize(rayDir);
 	// get bounding box in local space
 	float3 bPos = getBoundingBoxPos();
-	float3 bScale = getBoundingBoxSize();
+	float3 bScale = getBoundingBoxHalfSizes();
 	// check if close
 	float bbt = 0;
-	Mesh::BoxIntersection bInter = obbTest(rayDir, rayPos, bPos, bScale, bbt);
-	if (bInter == Mesh::BoxIntersection::InsideHit || (bInter == Mesh::BoxIntersection::OutsideHit &&
-		bbt > 0 && bbt < length)) {
+	Mesh::BoxIntersection bInter = obbTest(rayDirNormalized, rayPos, bPos, bScale, bbt);
+	if (bInter == Mesh::BoxIntersection::InsideHit ||
+		(bInter == Mesh::BoxIntersection::OutsideHit && bbt > 0 && bbt < length)) {
 		// find the exact point
 		float3 closest_normal;
 		float closest = -1;
-		int length = (int)m_meshVertices.size() / 3;
-		for (int i = 0; i < length; i++) {
-			int index = i * 3;
-			float3 v0 = m_meshVertices[(int)index + (int)0].position;
-			float3 v1 = m_meshVertices[(int)index + (int)1].position;
-			float3 v2 = m_meshVertices[(int)index + (int)2].position;
-			float t = triangleTest(rayDir, rayPos, v0, v1, v2);
+		vector<Triangle*> triangles;
+		m_octree_triangles.cullElements_limitDistance(rayPos, rayDir, triangles);
+		for (size_t i = 0; i < triangles.size(); i++) {
+			float3 tri[3] = { triangles[i]->vertices[0].position,
+				triangles[i]->vertices[1].position, triangles[i]->vertices[2].position };
+			float t = triangleTest(rayDirNormalized, rayPos, tri[0], tri[1], tri[2]);
 			if ((t >= 0 && t < length) && (closest < 0 || t < closest)) {
 				closest = t;
-				closest_normal = ((v1 - v0).Cross(v2 - v0));
+				closest_normal = ((tri[1] - tri[0]).Cross(tri[2] - tri[0]));
 			}
 		}
+
+		// float3 closest_normal;
+		// float closest = -1;
+		// int length = (int)m_meshVertices.size() / 3;
+		// for (int i = 0; i < length; i++) {
+		//	int index = i * 3;
+		//	float3 v0 = m_meshVertices[(int)index + (int)0].position;
+		//	float3 v1 = m_meshVertices[(int)index + (int)1].position;
+		//	float3 v2 = m_meshVertices[(int)index + (int)2].position;
+		//	float t = triangleTest(rayDirNormalized, rayPos, v0, v1, v2);
+		//	if ((t >= 0 && t < length) && (closest < 0 || t < closest)) {
+		//		closest = t;
+		//		closest_normal = ((v1 - v0).Cross(v2 - v0));
+		//	}
+		//}
+
 		if (closest >= 0) {
-			intersection = rayPos + rayDir * closest;
+			intersection = rayPos + rayDirNormalized * closest;
 			normal = closest_normal;
 			return true;
 		}
@@ -392,11 +448,7 @@ bool Mesh::castRayOnMeshEx_limitDistance(
 	return false;
 }
 
-float3 Mesh::getBoundingBoxHalfSizes() const {
-	return float3((m_MinMaxXPosition.y - m_MinMaxXPosition.x) * 0.5f,
-		(m_MinMaxYPosition.y - m_MinMaxYPosition.x) * 0.5f,
-		(m_MinMaxZPosition.y - m_MinMaxZPosition.x) * 0.5f);
-}
+float3 Mesh::getBoundingBoxHalfSizes() const { return m_boundingBox.m_size / 2.f; }
 
 
 Mesh::Mesh(std::string OBJFile) {

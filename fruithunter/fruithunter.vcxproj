@@ -367,6 +367,7 @@
     <ClInclude Include="Source\Utility\Input\Input.h" />
     <ClInclude Include="Source\Utility\Input\Slider.h" />
     <ClInclude Include="Source\Utility\MetricCollector.h" />
+    <ClInclude Include="Source\Utility\Octree.h" />
     <ClInclude Include="Source\Utility\QuadTree.h" />
     <ClInclude Include="Source\Utility\Repositories\MeshRepository.h" />
     <ClInclude Include="Source\Utility\Repositories\TextureRepository.h" />

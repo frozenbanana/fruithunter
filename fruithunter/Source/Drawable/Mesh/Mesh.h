@@ -1,6 +1,7 @@
 #pragma once
 #include "MeshHandler.h"
 #include "ShaderSet.h"
+#include "Octree.h"
 
 class Mesh {
 public:
@@ -16,10 +17,13 @@ private:
 	std::string m_loadedMeshName = "";
 	MeshHandler m_handler;
 
+	CubeBoundingBox m_boundingBox;
 	bool m_minmaxChanged = false;
-	float2 m_MinMaxXPosition = float2(-1.f, -1.f); //.x is min, .y is max
-	float2 m_MinMaxYPosition = float2(-1.f, -1.f);
-	float2 m_MinMaxZPosition = float2(-1.f, -1.f);
+
+	struct Triangle {
+		Vertex vertices[3];
+	};
+	Octree<Triangle> m_octree_triangles;
 
 	std::vector<Part> m_parts; // describes what parts exists and what material they each use
 	std::vector<Vertex> m_meshVertices; // vertices of mesh, position, uv, normal
@@ -36,6 +40,7 @@ private:
 	// FUNCTIONS
 
 	bool findMinMaxValues();
+	void fillOctree(const CubeBoundingBox& boundingBox, const vector<Vertex>& vertices);
 	// bounding box functions
 	void updateBoundingBoxBuffer();
 	void loadBoundingBox();

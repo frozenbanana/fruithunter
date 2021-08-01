@@ -39,11 +39,12 @@ static string AreaTagToString(AreaTag tag) {
 	return str[tag];
 }
 static string FruitTypeToString(FruitType type) {
-	static string str[FruitType::NR_OF_FRUITS] = { "Apple", "Banana", "Melon", "Dragon", "Pomegranate" };
+	static string str[FruitType::NR_OF_FRUITS] = { "Apple", "Banana", "Melon", "Dragon",
+		"Pomegranate" };
 	return str[type];
 }
 static string TimeTargetToString(TimeTargets target) {
-	static string str[TimeTargets::NR_OF_TIME_TARGETS] = {"Gold", "Silver", "Bronze"};
+	static string str[TimeTargets::NR_OF_TIME_TARGETS] = { "Gold", "Silver", "Bronze" };
 	return str[target];
 }
 
@@ -88,10 +89,9 @@ static string Milliseconds2DisplayableString(size_t timeMs) {
 	size_t milliseconds = total % 1000;
 	size_t seconds = (total / 1000) % 60;
 	size_t minutes = (total / 1000) / 60;
-	return 
-		(minutes < 10 ? "0" : "") + to_string(minutes) + ":" + 
-		(seconds < 10 ? "0" : "") + to_string(seconds) + "." + 
-		(milliseconds < 10 ? "00" : (milliseconds < 100 ? "0" : "")) + to_string(milliseconds);
+	return (minutes < 10 ? "0" : "") + to_string(minutes) + ":" + (seconds < 10 ? "0" : "") +
+		   to_string(seconds) + "." + (milliseconds < 10 ? "00" : (milliseconds < 100 ? "0" : "")) +
+		   to_string(milliseconds);
 }
 
 // Helper Math functions
@@ -125,7 +125,8 @@ static float3 rotatef3(float3 v, float3 rot) {
 }
 
 /* Return length of direction until collision. Return 0 if no collision */
-static float RayPlaneIntersection(float3 rayPoint, float3 rayDirection, float3 planePosition, float3 planeNormal) {
+static float RayPlaneIntersection(
+	float3 rayPoint, float3 rayDirection, float3 planePosition, float3 planeNormal) {
 	float distanceTowardsNormal = rayDirection.Dot(planeNormal);
 	if (distanceTowardsNormal == 0)
 		return 0; // no intersection
@@ -134,9 +135,9 @@ static float RayPlaneIntersection(float3 rayPoint, float3 rayDirection, float3 p
 }
 
 /*  */
-template <typename VECTOR> static VECTOR Normalize(VECTOR v) { 
+template <typename VECTOR> static VECTOR Normalize(VECTOR v) {
 	v.Normalize();
-	return v; 
+	return v;
 }
 
 /* Map value from interval [low, high] to new value corresponding to interval [newLow, newHigh] */
@@ -146,7 +147,7 @@ static float Map(float low, float high, float newLow, float newHigh, float value
 	return oldCoefficient * newRange;
 }
 
-//static float Clamp(float val, float low, float high) { return min(max(val, low), high); }
+// static float Clamp(float val, float low, float high) { return min(max(val, low), high); }
 
 template <typename TYPE> static TYPE Clamp(TYPE v, TYPE min, TYPE max) {
 	return (v > max ? max : (v < min ? min : v));
@@ -158,7 +159,7 @@ template <typename VARTYPE> static VARTYPE lerp(VARTYPE t1, VARTYPE t2, float mi
 }
 
 /* Modulus operation that also affects negative values */
-static float mod(float v, float mod) { 
+static float mod(float v, float mod) {
 	v = fmod(v, mod);
 	if (v < 0)
 		v = mod + v;
@@ -192,10 +193,82 @@ struct FrustumPlane {
 	}
 };
 struct CubeBoundingBox {
-	// Position is the corner of the box. 
+	// Position is the corner of the box.
 	// Position+Size is opposite corner of the box.
 	float3 m_position, m_size;
 	float3 getCenter() const { return m_position + m_size / 2.f; }
+	bool intersect(const CubeBoundingBox& bb) {
+		float3 bb1_p1 = m_position, bb1_p2 = m_position + m_size;
+		float3 bb2_p1 = bb.m_position, bb2_p2 = bb.m_position + bb.m_size;
+		return (bb1_p1.x < bb2_p2.x && bb1_p1.y < bb2_p2.y && bb1_p1.z < bb2_p2.z &&
+				bb1_p2.x > bb2_p1.x && bb1_p2.y > bb2_p1.y && bb1_p2.z > bb2_p1.z);
+	}
+	bool intersect(float3 ray_point, float3 ray_direction, float& t) {
+		if (ray_direction.LengthSquared() == 0)
+			return false;
+		float3 boxPos = getCenter();
+		float3 boxScale = m_size / 2;
+		// SLABS CALULATIONS(my own)
+		float4 data[3] = { float4(1, 0, 0, boxScale.x), float4(0, 1, 0, boxScale.y),
+			float4(0, 0, 1, boxScale.z) }; //{o.u_hu,o.v_hv,o.w_hw};
+		float Tmin = -9999999999.f, Tmax = 9999999999.f;
+		for (size_t i = 0; i < 3; i++) {
+			float3 tempNormal = float3(data[i].x, data[i].y, data[i].z);
+			float3 center1 = boxPos + tempNormal * data[i].w;
+			float3 center2 = boxPos - tempNormal * data[i].w;
+			float npd = tempNormal.Dot(ray_direction);
+			if (npd != 0) {
+				float t1 = (tempNormal.Dot(center1) - tempNormal.Dot(ray_point)) / npd;
+				float t2 = (tempNormal.Dot(center2) - tempNormal.Dot(ray_point)) / npd;
+				if (t1 > t2) {
+					float temp = t1;
+					t1 = t2;
+					t2 = temp;
+				}
+				if (t1 > Tmin) {
+					Tmin = t1;
+				}
+				if (t2 < Tmax)
+					Tmax = t2;
+			}
+		}
+		if (Tmin < Tmax) {
+			t = Tmin;
+			return true;
+		}
+		else
+			return false;
+	}
+	void transform(float4x4 matrix) { // define standard box around center
+		static float3 edges[8] = { float3(0, 0, 0), float3(0, 1, 0), float3(0, 0, 1),
+			float3(0, 1, 1), float3(1, 0, 0), float3(1, 1, 0), float3(1, 0, 1), float3(1, 1, 1) };
+		// tranform points to world space and calculate bounds
+		float3 boundMin, boundMax;
+		for (size_t i = 0; i < 8; i++) {
+			float3 wp = float3::Transform(m_position + edges[i] * m_size, matrix);
+			if (i == 0) {
+				boundMin = wp;
+				boundMax = wp;
+			}
+			else {
+				boundMin.x = min(boundMin.x, wp.x);
+				boundMin.y = min(boundMin.y, wp.y);
+				boundMin.z = min(boundMin.z, wp.z);
+			}
+		}
+		// calculate bounding box
+		m_position = boundMin;		  // edge location
+		m_size = boundMax - boundMin; // calc differences
+	}
+	vector<float3> getEdgePoints() const {
+		vector<float3> points;
+		points.resize(8);
+		static float3 edges[8] = { float3(0, 0, 0), float3(0, 1, 0), float3(0, 0, 1),
+			float3(0, 1, 1), float3(1, 0, 0), float3(1, 1, 0), float3(1, 0, 1), float3(1, 1, 1) };
+		for (size_t i = 0; i < 8; i++)
+			points[i] = m_position + edges[i] * m_size;
+		return points;
+	}
 	CubeBoundingBox(float3 position = float3(0, 0, 0), float3 size = float3(0, 0, 0)) {
 		m_position = position;
 		m_size = size;

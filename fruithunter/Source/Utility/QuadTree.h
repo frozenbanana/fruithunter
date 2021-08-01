@@ -1,6 +1,7 @@
 #pragma once
 #include "GlobalNamespaces.h"
 #include "ErrorLogger.h"
+#include "Octree.h"
 
 #define COUNT_SPLIT 4
 
@@ -23,7 +24,7 @@ private:
 	private:
 		size_t m_layerMax;
 		size_t m_layer;
-		bool expanded = false;
+		bool m_expanded = false;
 		shared_ptr<Node> m_children[4];
 		float3 m_position, m_size;
 
@@ -40,7 +41,7 @@ private:
 		float3 getPosition() const;
 		float3 getSize() const;
 		void log(int level = 0);
-		void clear();
+		void reset();
 
 		void split();
 		bool add(ElementPart* elementPart);
@@ -185,25 +186,25 @@ template <typename Element> inline void QuadTree<Element>::Node::log(int level) 
 		str += "-";
 	str += "Node: " + (level == 0 ? "CORE" : to_string(level)) +
 		   ", Size: " + to_string(m_elements.size()) +
-		   ", Expanded: " + (expanded ? "true" : "false");
+		   ", Expanded: " + (m_expanded ? "true" : "false");
 	// str += "\n";
 	ErrorLogger::log(str);
-	if (expanded) {
+	if (m_expanded) {
 		for (size_t i = 0; i < 4; i++)
 			m_children[i]->log(level + 1);
 	}
 }
 
-template <typename Element> inline void QuadTree<Element>::Node::clear() {
+template <typename Element> inline void QuadTree<Element>::Node::reset() {
 	for (size_t i = 0; i < 4; i++)
 		m_children[i].reset();
 	m_elements.clear();
-	expanded = false;
+	m_expanded = false;
 }
 
 template <typename Element> inline void QuadTree<Element>::Node::split() {
-	if (!expanded) {
-		expanded = true;
+	if (!m_expanded) {
+		m_expanded = true;
 
 		float3 halfSize = m_size;
 		halfSize.x /= 2.f;
@@ -230,12 +231,12 @@ template <typename Element> inline void QuadTree<Element>::Node::split() {
 template <typename Element> inline bool QuadTree<Element>::Node::add(ElementPart* elementPart) {
 	if (bbIntersection(elementPart->position, elementPart->size, m_position, m_size)) {
 		// split if to big
-		if (!expanded && m_layer < m_layerMax && m_elements.size() > COUNT_SPLIT - 1)
+		if (!m_expanded && m_layer < m_layerMax && m_elements.size() > COUNT_SPLIT - 1)
 			split();
 		// add
 		m_elements.push_back(elementPart);
 		// add for all children
-		if (expanded) {
+		if (m_expanded) {
 			for (size_t i = 0; i < 4; i++)
 				m_children[i]->add(elementPart);
 		}
@@ -250,7 +251,7 @@ inline void QuadTree<Element>::Node::remove(const ElementPart* elementPart) {
 			// remove
 			m_elements.erase(m_elements.begin() + i);
 			// remove from children
-			if (expanded) {
+			if (m_expanded) {
 				for (size_t j = 0; j < 4; j++)
 					m_children[j]->remove(elementPart);
 			}
@@ -280,7 +281,7 @@ inline void QuadTree<Element>::Node::cullElements(
 		break;
 	case bbFrustumState::State_Inbetween:
 		// partial hit
-		if (expanded) {
+		if (m_expanded) {
 			// add children elements
 			for (size_t i = 0; i < 4; i++)
 				m_children[i]->cullElements(planes, elements, count);
@@ -321,7 +322,7 @@ inline void QuadTree<Element>::Node::cullElements(
 		break;
 	case bbFrustumState::State_Inbetween:
 		// partial hit
-		if (expanded) {
+		if (m_expanded) {
 			// add children elements
 			for (size_t i = 0; i < 4; i++)
 				m_children[i]->cullElements(bb, elements, count);
@@ -343,7 +344,7 @@ template <typename Element>
 inline void QuadTree<Element>::Node::getElementsByPosition(
 	vector<Element*>& elements, float3 position) {
 	if (bbIntersection(position, float3(0.f), m_position, m_size)) {
-		if (expanded) {
+		if (m_expanded) {
 			for (size_t i = 0; i < 4; i++) {
 				m_children[i]->getElementsByPosition(elements, position);
 			}
@@ -379,7 +380,7 @@ inline void QuadTree<Element>::Node::forEach_cullElements(const vector<FrustumPl
 		break;
 	case bbFrustumState::State_Inbetween:
 		// partial hit
-		if (expanded) {
+		if (m_expanded) {
 			// add children elements
 			for (size_t i = 0; i < 4; i++)
 				m_children[i]->forEach_cullElements(planes, partsEnabled, function_onEach);
@@ -452,7 +453,8 @@ template <typename Element> inline void QuadTree<Element>::log() {
 }
 
 template <typename Element>
-inline bool QuadTree<Element>::add(float3 position, float3 size, const Element& element, bool forceArea) {
+inline bool QuadTree<Element>::add(
+	float3 position, float3 size, const Element& element, bool forceArea) {
 	// add the array
 	shared_ptr<ElementPart> part = make_shared<ElementPart>(position, size, element);
 	part->index = m_elementParts.size();
@@ -488,7 +490,7 @@ inline bool QuadTree<Element>::add(float3 position, float3 size, const Element& 
 			return false;
 		}
 	}
-	return false;
+	return true;
 }
 
 template <typename Element>
@@ -624,12 +626,12 @@ inline void QuadTree<Element>::initilize(float3 position, float3 size, size_t la
 
 template <typename Element> inline void QuadTree<Element>::reset() {
 	m_elementParts.clear();
-	m_node = Node();
+	m_node.reset();
 }
 
 template <typename Element> inline void QuadTree<Element>::clear() {
 	m_elementParts.clear();
-	m_node.clear();
+	m_node = Node();
 }
 
 template <typename Element> inline void QuadTree<Element>::reserve(size_t size) {

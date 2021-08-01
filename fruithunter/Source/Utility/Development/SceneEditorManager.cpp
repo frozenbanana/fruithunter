@@ -248,8 +248,8 @@ void SceneEditorManager::update_panel_entity_improved(
 		ImGui::SameLine();
 		if ((ImGui::Button("Duplicate") || ip->keyPressed(Keyboard::C)) && selectedIdx != -1) {
 			shared_ptr<Entity> duplicate = make_shared<Entity>(*list[selectedIdx].get());
-			list.add(duplicate->getLocalBoundingBoxPosition(), duplicate->getLocalBoundingBoxSize(),
-				duplicate);
+			list.add(duplicate->getLocalBoundingBoxPosition(),
+				duplicate->getLocalBoundingBoxSize() / 2.f, duplicate);
 		}
 		if (ImGui::IsItemHovered()) {
 			ImGui::BeginTooltip();
@@ -1046,7 +1046,7 @@ void SceneEditorManager::update(double dt) {
 				if (ip->mousePressed(Input::MouseButton::LEFT)) {
 					shared_ptr<Entity> obj = make_shared<Entity>(m_entityGhost_placer);
 					scene->m_entities.add(obj->getLocalBoundingBoxPosition(),
-						obj->getLocalBoundingBoxSize(), obj->getMatrix(), obj);
+						obj->getLocalBoundingBoxSize() / 2.f, obj->getMatrix(), obj);
 					// randomize
 					entityGhost_randomizeProperties();
 				}
@@ -1171,7 +1171,7 @@ void SceneEditorManager::render_entityViews() {
 			m_entityViewer.setRotation(float3(0, 0, 0));
 			m_entityViewer.setScale(1);
 			float3 bb_pos = m_entityViewer.getLocalBoundingBoxPosition();
-			float3 bb_size = m_entityViewer.getLocalBoundingBoxSize();
+			float3 bb_size = m_entityViewer.getLocalBoundingBoxSize() / 2.f;
 			float3 points[8];
 			float minT = -1;
 			for (size_t i = 0; i < 8; i++) {

@@ -75,9 +75,7 @@ void Fruit::onHit(Skillshot skillshot) {
 	onDeath(skillshot);
 }
 
-void Fruit::move(float dt) {
-	setPosition(getPosition() + m_velocity * dt);
-}
+void Fruit::move(float dt) { setPosition(getPosition() + m_velocity * dt); }
 
 Fruit::Fruit(FruitType type, float3 pos) : Entity() {
 	m_fruitType = type;
