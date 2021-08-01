@@ -7,7 +7,7 @@
 #define OCTREE_SPLIT 8 // Should not be changed!
 
 enum BBCollisionState { BB_Inside, BB_Inbetween, BB_Outside };
-template <typename Element> class Octree : public vector<shared_ptr<Element>> {
+template <typename Element> class Octree {
 private:
 	struct ElementBB {
 		size_t m_vecIndex = 0;
