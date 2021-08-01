@@ -92,10 +92,10 @@ void Arrow::collide_scene(float dt) {
 bool Arrow::collide_entity(float dt, Entity& entity) { 
 	float3 pos = getPosition_front(); 
 	float3 vel = m_velocity * dt;
-	float rayDist = entity.castRay(pos, vel);
-	if (rayDist != -1 && rayDist <= 1) {
-		float3 target = pos + vel * rayDist;
-		collided(target);
+	float rayDist = 0;
+	float3 intersection, normal;
+	if (entity.castRayEx_limitDistance(pos, vel, intersection, normal)) {
+		collided(intersection);
 		return true;
 	}
 	return false;
@@ -146,6 +146,7 @@ void Arrow::update(float dt) {
 void Arrow::initilize(float3 frontPosition, float3 velocity) { 
 	setPosition_front(frontPosition);
 	m_velocity = velocity;
+	lookAt(getPosition() + m_velocity);
 	changeState(true);
 }
 
